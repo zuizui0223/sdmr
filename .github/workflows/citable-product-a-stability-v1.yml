@@ -24,9 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout current governance files
+        uses: actions/checkout@v4
         with:
           ref: agent/nested-spatial-raster-benchmark
+          path: governance
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -45,20 +47,26 @@ jobs:
               run_id = '${{ github.event.workflow_run.id }}'
               head_sha = '${{ github.event.workflow_run.head_sha }}'
           else:
-              path = Path('configs/product_a_stability_v1_source.csv')
+              path = Path('governance/configs/product_a_stability_v1_source.csv')
               rows = list(csv.DictReader(path.open(encoding='utf-8')))
               if len(rows) != 1:
                   raise SystemExit('product_a_stability_v1_source.csv must contain exactly one row')
               run_id = str(rows[0].get('source_run_id', '')).strip()
               head_sha = str(rows[0].get('source_head_sha', '')).strip()
-              if not run_id:
-                  raise SystemExit('source_run_id is required')
+              if not run_id or not head_sha:
+                  raise SystemExit('source_run_id and source_head_sha are required')
           with output.open('a', encoding='utf-8') as fh:
               fh.write(f'run_id={run_id}\n')
               fh.write(f'head_sha={head_sha}\n')
           print('source_run_id', run_id, 'source_head_sha', head_sha)
           PY
-      - name: Install SDMR analysis dependencies
+      - name: Checkout exact Product-A v1 analysis code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.head_sha }}
+          path: analysis
+      - name: Install frozen SDMR analysis dependencies
+        working-directory: analysis
         run: python -m pip install -e '.[parquet]'
       - name: Download exact successful citable Product-A v1 artifact
         uses: actions/download-artifact@v4
@@ -79,7 +87,7 @@ jobs:
           result = root / 'citable_result'
           contract_path = result / 'citable_snapshot_contract.json'
           boundary_path = result / 'CITABLE_PILOT_BOUNDARY.txt'
-          criteria_path = Path('configs/product_a_promotion_criteria_v1.csv')
+          criteria_path = Path('governance/configs/product_a_promotion_criteria_v1.csv')
           for path in (contract_path, boundary_path, criteria_path):
               if not path.exists():
                   raise SystemExit(f'Missing required frozen evidence/criterion file: {path}')
@@ -105,17 +113,18 @@ jobs:
                   raise SystemExit(f'Missing frozen background feature table: {background}')
               rows.append({
                   'name': name,
-                  'occurrences': 'source_bundle/citable_result/pilot_occurrences.csv',
-                  'background': f'source_bundle/citable_result/specifications/{name}/background.csv',
+                  'occurrences': '../source_bundle/citable_result/pilot_occurrences.csv',
+                  'background': f'../source_bundle/citable_result/specifications/{name}/background.csv',
               })
-          pd.DataFrame(rows).to_csv('stability_specifications.csv', index=False)
+          pd.DataFrame(rows).to_csv('analysis/stability_specifications.csv', index=False)
           PY
       - name: Run predeclared 15-run protocol stability grid
+        working-directory: analysis
         run: |
           sdmr-protocol-stability \
             --specifications stability_specifications.csv \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
-            --output-dir stability_result \
+            --output-dir ../stability_result \
             --seeds '11,22,33,44,55' \
             --sealed-fractions '0.15,0.20,0.30' \
             --taxon-validation-fraction 0.25 \
@@ -127,18 +136,20 @@ jobs:
         run: |
           mkdir -p stability_result
           cp source_bundle/citable_result/citable_snapshot_contract.json stability_result/source_citable_snapshot_contract.json 2>/dev/null || true
-          cp configs/product_a_promotion_criteria_v1.csv stability_result/promotion_criteria_predeclared_before_stability.csv
+          cp governance/configs/product_a_promotion_criteria_v1.csv stability_result/promotion_criteria_predeclared_before_stability.csv
           cat > stability_result/stability_inputs.txt <<EOF
           source_run_id=${{ steps.source.outputs.run_id }}
           source_head_sha=${{ steps.source.outputs.head_sha }}
+          analysis_code_ref=${{ steps.source.outputs.head_sha }}
           seeds=11,22,33,44,55
           sealed_fractions=0.15,0.20,0.30
           taxon_validation_fraction=0.25
-          promotion_criteria=configs/product_a_promotion_criteria_v1.csv
+          promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
           EOF
           cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
           These stability runs reuse the exact DOI-backed occurrence/background/CHELSA feature evidence from Product-A v1.
-          No GBIF or CHELSA data are re-fetched. Promotion thresholds were committed before these stability results existed.
+          The SDMR analysis package is checked out at the exact Product-A v1 source head SHA. No GBIF or CHELSA data are re-fetched.
+          Promotion thresholds were committed before these stability results existed.
           EOF
       - uses: actions/upload-artifact@v4
         if: always()
