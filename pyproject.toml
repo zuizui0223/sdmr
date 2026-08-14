@@ -25,6 +25,7 @@ cloud = ["duckdb>=1.2"]
 [project.scripts]
 sdmr = "sdmr.cli:main"
 sdmr-gbif-pilot = "sdmr.data_cli:main"
+sdmr-gbif-snapshot = "sdmr.snapshot_cli:main"
 sdmr-chelsa = "sdmr.chelsa_cli:main"
 sdmr-pilot = "sdmr.pilot_cli:main"
 sdmr-spec-select = "sdmr.spec_cli:main"
