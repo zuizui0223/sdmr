@@ -68,6 +68,14 @@ def main(argv: list[str] | None = None) -> int:
         help="species_bbox = one box per species; tiles = only occupied geographic tiles (recommended for widespread taxa).",
     )
     parser.add_argument("--bounds-buffer-degrees", type=float, default=2.0)
+    parser.add_argument(
+        "--bounds-buffer-km",
+        type=float,
+        help=(
+            "Distance-aware buffer for --bounds-mode tiles. When supplied it overrides --bounds-buffer-degrees "
+            "and expands longitude conservatively at high latitudes."
+        ),
+    )
     parser.add_argument("--bounds-tile-degrees", type=float, default=5.0)
     parser.add_argument(
         "--one-per-grid-cell-degrees",
@@ -86,6 +94,10 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("Use --bounds or --bounds-from-occurrences, not both")
     if args.bounds_buffer_degrees < 0:
         parser.error("--bounds-buffer-degrees must be >= 0")
+    if args.bounds_buffer_km is not None and args.bounds_buffer_km <= 0:
+        parser.error("--bounds-buffer-km must be > 0")
+    if args.bounds_buffer_km is not None and args.bounds_mode != "tiles":
+        parser.error("--bounds-buffer-km requires --bounds-mode tiles")
     if not 0 < args.bounds_tile_degrees <= 180:
         parser.error("--bounds-tile-degrees must be in (0, 180]")
     if args.one_per_grid_cell_degrees is not None and args.one_per_grid_cell_degrees <= 0:
@@ -101,6 +113,7 @@ def main(argv: list[str] | None = None) -> int:
                 focal,
                 tile_degrees=args.bounds_tile_degrees,
                 buffer_degrees=args.bounds_buffer_degrees,
+                buffer_km=args.bounds_buffer_km,
             )
         else:
             bounds = bounds_from_occurrences(
