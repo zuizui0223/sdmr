@@ -20,6 +20,7 @@ import pandas as pd
 GBIF_API = "https://api.gbif.org"
 GBIF_SEARCH_PAGE_MAX = 300
 GBIF_SEARCH_HARD_MAX = 100_000
+GBIF_COL_XR_CHECKLIST_KEY = "7ddf754f-d193-4cc9-b351-99906754a03b"
 
 
 class GBIFBulkDownloadRequired(RuntimeError):
@@ -33,6 +34,7 @@ class GBIFTaxonMatch:
     canonical_name: str
     rank: str
     status: str
+    checklist_key: str
     raw: Mapping[str, Any]
 
 
@@ -64,18 +66,25 @@ def _fingerprint_json(payload: Mapping[str, Any]) -> str:
 def match_taxon(
     scientific_name: str,
     *,
+    checklist_key: str = GBIF_COL_XR_CHECKLIST_KEY,
     get_json: Callable[[str, Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ) -> GBIFTaxonMatch:
-    """Resolve a scientific name through GBIF's v2 species-match service.
+    """Resolve a scientific name with a declared GBIF checklist taxonomy.
 
-    If the response contains an accepted usage, the accepted usage is preferred
-    for the occurrence query while the complete response is retained for audit.
+    SDMR defaults to the current Catalogue of Life Extended Release (COL XR)
+    checklist and records that checklist key. If the match response contains an
+    accepted usage, the accepted usage is preferred for occurrence retrieval.
     """
 
     if not scientific_name.strip():
         raise ValueError("scientific_name must not be empty")
     fetch = get_json or _http_get_json
-    raw = dict(fetch(f"{GBIF_API}/v2/species/match", {"scientificName": scientific_name.strip()}))
+    raw = dict(
+        fetch(
+            f"{GBIF_API}/v2/species/match",
+            {"scientificName": scientific_name.strip(), "checklistKey": checklist_key},
+        )
+    )
     usage = raw.get("acceptedUsage") or raw.get("usage") or {}
     key = usage.get("key")
     if key in (None, ""):
@@ -86,6 +95,7 @@ def match_taxon(
         canonical_name=str(usage.get("canonicalName") or usage.get("name") or scientific_name.strip()),
         rank=str(usage.get("rank") or ""),
         status=str(usage.get("status") or ""),
+        checklist_key=str(checklist_key),
         raw=raw,
     )
 
@@ -125,6 +135,7 @@ def _normalize_search_records(records: list[Mapping[str, Any]]) -> pd.DataFrame:
 def fetch_occurrence_search(
     taxon_key: str | int,
     *,
+    checklist_key: str = GBIF_COL_XR_CHECKLIST_KEY,
     max_records: int | None = 3_000,
     page_size: int = GBIF_SEARCH_PAGE_MAX,
     extra_params: Mapping[str, Any] | None = None,
@@ -132,9 +143,9 @@ def fetch_occurrence_search(
 ) -> GBIFSearchResult:
     """Fetch a reproducible GBIF occurrence-search pilot for one resolved taxon.
 
-    ``max_records=None`` requests the full result *only if* GBIF reports <=100k
-    matches. Larger queries raise :class:`GBIFBulkDownloadRequired` instead of
-    silently truncating the biological dataset.
+    The same declared ``checklist_key`` is sent with occurrence search so a COL XR
+    key is never accidentally queried against the legacy GBIF-backbone default.
+    ``max_records=None`` requests the full result only when <=100k matches exist.
     """
 
     if page_size < 1 or page_size > GBIF_SEARCH_PAGE_MAX:
@@ -144,6 +155,7 @@ def fetch_occurrence_search(
 
     base_params: dict[str, Any] = {
         "taxonKey": str(taxon_key),
+        "checklistKey": str(checklist_key),
         "hasCoordinate": "true",
         "hasGeospatialIssue": "false",
         "occurrenceStatus": "PRESENT",

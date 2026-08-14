@@ -1,21 +1,24 @@
 # Public-data pipeline: GBIF occurrence evidence to environmental features
 
-This layer is intentionally separate from SDMR's statistical benchmark. Its job is to make every admission, exclusion, background choice, and raster value auditable before sealed-test modelling begins.
+This layer is intentionally separate from SDMR's statistical benchmark. Its job is to make every admission, exclusion, background choice, taxonomy choice, and raster value auditable before sealed-test modelling begins.
 
-## 1. GBIF taxon resolution
+## 1. GBIF taxon resolution and taxonomy version
 
-Resolve each focal scientific name with GBIF's species-match service and retain the complete match response together with the accepted taxon key used for occurrence retrieval. Never silently replace a name without keeping that mapping.
+SDMR defaults to GBIF's current Catalogue of Life Extended Release (COL XR) checklist and records its `checklistKey` alongside every taxon match. The same checklist key is sent to occurrence search. This pairing matters because GBIF's occurrence search API retains the legacy GBIF Backbone as its compatibility default even after GBIF.org moved to COL XR.
+
+Retain the complete name-match response together with the accepted taxon key and checklist key used for occurrence retrieval. Never silently replace a name or mix taxon keys from one checklist with occurrence queries against another.
 
 ## 2. Search API is for pilots, not the global corpus
 
 `sdmr-gbif-pilot` uses GBIF occurrence search for small development datasets. It requests:
 
 - a resolved `taxonKey`;
+- the declared COL XR `checklistKey`;
 - `hasCoordinate=true`;
 - `hasGeospatialIssue=false`;
 - `occurrenceStatus=PRESENT`.
 
-The pilot client fingerprints the normalized query and records both GBIF's total count and the number actually retrieved. It refuses to treat search pagination as a full corpus when the query exceeds GBIF's 100,000-record search ceiling. Global runs should instead ingest a versioned asynchronous GBIF occurrence download and retain its download key/citation as provenance.
+The pilot client fingerprints the normalized query and records both GBIF's total count and the number actually retrieved. It refuses to treat search pagination as a full corpus when the query exceeds GBIF's 100,000-record search ceiling. Global runs should instead ingest a versioned asynchronous GBIF occurrence download and retain its download key/citation and checklist key as provenance.
 
 Example:
 
@@ -32,7 +35,7 @@ Outputs:
 - `occurrences.csv` — admitted occurrence rows;
 - `rejected.csv` — rejected rows with explicit reasons;
 - `admission_ledger.csv` — counts at every filter;
-- `gbif_query.json` — resolved taxon, query, SHA-256 query fingerprint, total/retrieved counts, and filter settings.
+- `gbif_query.json` — resolved taxon, checklist key, query, SHA-256 query fingerprint, total/retrieved counts, and filter settings.
 
 The coordinate-uncertainty and year thresholds are **not** hard-coded scientific truths. They are explicit parameters so Product A can test whether method rankings are robust to defensible data-quality choices.
 

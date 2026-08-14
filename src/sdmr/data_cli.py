@@ -40,7 +40,11 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     match = match_taxon(args.taxon)
-    search = fetch_occurrence_search(match.taxon_key, max_records=args.max_records)
+    search = fetch_occurrence_search(
+        match.taxon_key,
+        checklist_key=match.checklist_key,
+        max_records=args.max_records,
+    )
     admission = admit_occurrences(
         search.records,
         config=OccurrenceAdmissionConfig(
@@ -62,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
         "resolved_canonical_name": match.canonical_name,
         "resolved_rank": match.rank,
         "resolved_status": match.status,
+        "checklist_key": match.checklist_key,
         "gbif_query": search.query,
         "query_sha256": search.query_sha256,
         "gbif_total_count": search.total_count,

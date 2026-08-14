@@ -19,12 +19,14 @@ def test_gbif_match_and_pilot_pagination_are_auditable():
     def match_json(url, params):
         assert url.endswith("/v2/species/match")
         assert params["scientificName"] == "Plantus example"
+        assert params["checklistKey"] == "7ddf754f-d193-4cc9-b351-99906754a03b"
         return {
             "usage": {"key": "123", "canonicalName": "Plantus example", "rank": "SPECIES", "status": "ACCEPTED"}
         }
 
     matched = match_taxon("Plantus example", get_json=match_json)
     assert matched.taxon_key == "123"
+    assert matched.checklist_key == "7ddf754f-d193-4cc9-b351-99906754a03b"
 
     calls = []
 
@@ -50,6 +52,7 @@ def test_gbif_match_and_pilot_pagination_are_auditable():
     assert result.truncated is False
     assert len(result.query_sha256) == 64
     assert [c["limit"] for c in calls] == [2, 2, 2]
+    assert all(c["checklistKey"] == "7ddf754f-d193-4cc9-b351-99906754a03b" for c in calls)
     assert set(result.records.columns) >= {"gbifID", "longitude", "latitude", "species"}
 
 

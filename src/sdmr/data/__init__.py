@@ -3,6 +3,7 @@
 from .background import bbox_membership, sample_target_group_background
 from .gbif import (
     GBIFBulkDownloadRequired,
+    GBIF_COL_XR_CHECKLIST_KEY,
     GBIFSearchResult,
     GBIFTaxonMatch,
     fetch_occurrence_search,
@@ -18,6 +19,7 @@ from .raster import RasterLayerSpec, extract_raster_values, sha256_file
 
 __all__ = [
     "GBIFBulkDownloadRequired",
+    "GBIF_COL_XR_CHECKLIST_KEY",
     "GBIFSearchResult",
     "GBIFTaxonMatch",
     "OccurrenceAdmissionConfig",
