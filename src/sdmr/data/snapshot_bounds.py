@@ -8,6 +8,8 @@ import pandas as pd
 
 from .snapshot import SnapshotBounds
 
+_KM_PER_LAT_DEGREE = 111.195
+
 
 def _coordinate_columns(frame: pd.DataFrame) -> tuple[str, str]:
     lon_col = "longitude" if "longitude" in frame else "decimallongitude"
@@ -103,23 +105,47 @@ def _expand_tile_longitude(west: float, east: float, buffer_degrees: float) -> t
     return float(raw_west), float(raw_east)
 
 
+def _distance_buffer_degrees(*, south: float, north: float, buffer_km: float) -> tuple[float, float]:
+    """Return conservative latitude/longitude degree buffers for a distance buffer.
+
+    Longitude degrees shrink toward the poles.  The conversion therefore uses
+    the largest absolute latitude reached after adding the latitude buffer. This
+    intentionally over-expands the rectangular cloud prefilter so it cannot trim
+    candidates that a downstream haversine occurrence-buffer M would admit.
+    """
+    if buffer_km <= 0:
+        raise ValueError("buffer_km must be > 0")
+    lat_buffer = float(buffer_km) / _KM_PER_LAT_DEGREE
+    max_abs_lat = min(89.999, max(abs(south - lat_buffer), abs(north + lat_buffer)))
+    cosine = math.cos(math.radians(max_abs_lat))
+    if cosine <= 1e-6:
+        lon_buffer = 180.0
+    else:
+        lon_buffer = min(180.0, float(buffer_km) / (_KM_PER_LAT_DEGREE * cosine))
+    return lat_buffer, lon_buffer
+
+
 def tiled_bounds_from_occurrences(
     frame: pd.DataFrame,
     *,
     tile_degrees: float = 5.0,
     buffer_degrees: float = 3.0,
+    buffer_km: float | None = None,
 ) -> list[SnapshotBounds]:
-    """Return buffered query boxes for only the geographic tiles containing focal records.
+    """Return buffered query boxes for only geographic tiles containing focal records.
 
     This is a cloud-extraction prefilter, not the biological accessible area M.
     It avoids materializing a whole species-wide bounding box for widespread
-    plants. Downstream SDMR still applies the declared occurrence-buffer or
-    other M rule to the extracted target-group pool.
+    plants. If ``buffer_km`` is supplied, it overrides ``buffer_degrees`` and
+    expands each occupied tile conservatively enough to contain a downstream
+    spherical-distance M of that radius, including at high latitudes.
     """
     if not 0 < tile_degrees <= 180:
         raise ValueError("tile_degrees must be in (0, 180]")
     if buffer_degrees < 0:
         raise ValueError("buffer_degrees must be >= 0")
+    if buffer_km is not None and buffer_km <= 0:
+        raise ValueError("buffer_km must be > 0")
     data, lon_col, lat_col = _finite_coordinates(frame)
 
     nx = int(math.ceil(360.0 / tile_degrees))
@@ -138,9 +164,17 @@ def tiled_bounds_from_occurrences(
         east = min(180.0, west + tile_degrees)
         south = -90.0 + y * tile_degrees
         north = min(90.0, south + tile_degrees)
-        west, east = _expand_tile_longitude(west, east, buffer_degrees)
-        south = max(-90.0, south - buffer_degrees)
-        north = min(90.0, north + buffer_degrees)
+        if buffer_km is None:
+            lat_buffer = lon_buffer = float(buffer_degrees)
+        else:
+            lat_buffer, lon_buffer = _distance_buffer_degrees(
+                south=south,
+                north=north,
+                buffer_km=float(buffer_km),
+            )
+        west, east = _expand_tile_longitude(west, east, lon_buffer)
+        south = max(-90.0, south - lat_buffer)
+        north = min(90.0, north + lat_buffer)
         key = (round(west, 10), round(east, 10), round(south, 10), round(north, 10))
         if key in seen:
             continue
