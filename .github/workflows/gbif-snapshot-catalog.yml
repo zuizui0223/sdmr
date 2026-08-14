@@ -17,240 +17,138 @@ concurrency:
 jobs:
   catalog:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Resolve GBIF monthly snapshot DOI conservatively
+      - name: Resolve latest available GBIF snapshot DOI from citation.txt
         run: |
           python - <<'PY'
           import json
           import re
           import time
-          from datetime import date, timedelta
+          from datetime import date
           from urllib.error import HTTPError, URLError
-          from urllib.parse import urlencode
           from urllib.request import Request, urlopen
 
           headers = {
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.8',
-              'Accept': 'application/json',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/1.0',
+              'Accept': 'text/plain,application/json;q=0.9,*/*;q=0.1',
           }
 
-          def get_json(url, *, attempts=6):
+          def previous_month(day):
+              if day.month == 1:
+                  return day.replace(year=day.year - 1, month=12, day=1)
+              return day.replace(month=day.month - 1, day=1)
+
+          def fetch(url, *, attempts=5):
               last = None
               for attempt in range(attempts):
-                  request = Request(url, headers=headers)
+                  req = Request(url, headers=headers)
                   try:
-                      with urlopen(request, timeout=90) as response:
-                          return json.load(response)
+                      with urlopen(req, timeout=60) as response:
+                          return response.read().decode('utf-8', errors='replace')
                   except HTTPError as exc:
                       last = exc
+                      if exc.code == 404:
+                          raise
                       if exc.code not in {429, 500, 502, 503, 504} or attempt == attempts - 1:
                           raise
                   except URLError as exc:
                       last = exc
                       if attempt == attempts - 1:
                           raise
-                  delay = min(30, 2 ** attempt)
-                  print(f'retry {attempt + 1}/{attempts - 1} after {type(last).__name__}: {last}; sleep={delay}s')
-                  time.sleep(delay)
+                  time.sleep(min(16, 2 ** attempt))
               raise last
 
-          def write_json(path, value):
-              with open(path, 'w', encoding='utf-8') as fh:
-                  json.dump(value, fh, indent=2, sort_keys=True)
+          today = date.today()
+          candidates = [today.replace(day=1), previous_month(today)]
+          attempts = []
+          resolved = None
+          for snapshot_day in candidates:
+              snapshot_date = snapshot_day.isoformat()
+              citation_url = (
+                  'https://gbif-open-data-us-east-1.s3.us-east-1.amazonaws.com/'
+                  f'occurrence/{snapshot_date}/citation.txt'
+              )
+              try:
+                  citation = fetch(citation_url)
+              except (HTTPError, URLError) as exc:
+                  attempts.append({
+                      'snapshot_date': snapshot_date,
+                      'citation_url': citation_url,
+                      'status': 'unavailable',
+                      'error_type': type(exc).__name__,
+                      'http_status': getattr(exc, 'code', None),
+                      'message': str(exc),
+                  })
+                  continue
 
-          portal_url = 'https://www.gbif.org/api/occurrence-snapshots?limit=100&offset=0'
-          portal_error = None
-          try:
-              payload = get_json(portal_url, attempts=2)
-          except (HTTPError, URLError) as exc:
-              payload = None
-              portal_error = {
-                  'error_type': type(exc).__name__,
-                  'http_status': getattr(exc, 'code', None),
-                  'message': str(exc),
+              doi_match = re.search(r'10\.15468/dl\.[A-Za-z0-9]+', citation, flags=re.IGNORECASE)
+              attempts.append({
+                  'snapshot_date': snapshot_date,
+                  'citation_url': citation_url,
+                  'status': 'citation_found',
+                  'citation_bytes': len(citation.encode('utf-8')),
+                  'doi_found': doi_match.group(0).lower() if doi_match else '',
+              })
+              safe_date = snapshot_date.replace('-', '')
+              with open(f'citation_{safe_date}.txt', 'w', encoding='utf-8') as fh:
+                  fh.write(citation)
+              if not doi_match:
+                  continue
+
+              doi = doi_match.group(0).lower()
+              # Cross-check the DOI registration through public DataCite metadata.
+              datacite_url = 'https://api.datacite.org/dois/' + doi
+              datacite = json.loads(fetch(datacite_url))
+              attrs = (datacite.get('data') or {}).get('attributes') or {}
+              registered_doi = str(attrs.get('doi') or '').lower()
+              if registered_doi != doi:
+                  raise SystemExit(
+                      f'citation DOI/DataCite mismatch for {snapshot_date}: citation={doi} datacite={registered_doi}'
+                  )
+              with open('snapshot_doi_datacite.json', 'w', encoding='utf-8') as fh:
+                  json.dump(datacite, fh, indent=2, sort_keys=True)
+
+              resolved = {
+                  'snapshot_date': snapshot_date,
+                  'snapshot_doi': doi,
+                  'citation_url': citation_url,
+                  'citation_sha256': __import__('hashlib').sha256(citation.encode('utf-8')).hexdigest(),
+                  'datacite_url': datacite_url,
+                  'datacite_title': ((attrs.get('titles') or [{}])[0]).get('title'),
+                  'datacite_publisher': attrs.get('publisher'),
+                  'datacite_created': attrs.get('created'),
+                  'datacite_landing_url': attrs.get('url'),
               }
+              break
 
-          if payload is not None:
-              write_json('gbif_snapshot_catalog_raw.json', payload)
-              rows = payload.get('results') if isinstance(payload, dict) else payload
-              rows = rows if isinstance(rows, list) else []
-              completed = [
-                  row for row in rows
-                  if str(row.get('doi') or '').strip() and str(row.get('created') or '').strip()
-                  and str(row.get('status') or '').upper() in {'', 'SUCCEEDED', 'SUCCESS'}
-              ]
-              completed.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
-              latest = completed[0] if completed else {}
-              summary = {
-                  'resolution_mode': 'gbif_portal_catalog',
-                  'catalog_url': portal_url,
-                  'catalog_rows': len(rows),
-                  'doi_rows': len(completed),
-                  'snapshot_resolved': bool(latest),
-                  'latest': {
-                      'key': latest.get('key'),
-                      'created': latest.get('created'),
-                      'doi': latest.get('doi'),
-                      'status': latest.get('status'),
-                      'format': (latest.get('request') or {}).get('format') if latest else None,
-                      'totalRecords': latest.get('totalRecords'),
-                  },
-              }
-          else:
-              today = date.today()
-              month_start = today.replace(day=1)
-              search_end = today
-              candidate_rows = []
-              raw_page_summaries = []
-              cursor_day = month_start
-              while cursor_day <= search_end:
-                  day_text = cursor_day.isoformat()
-                  base_params = {
-                      'prefix': '10.15468',
-                      'query': f'created:[{day_text} TO {day_text}]',
-                      'sort': 'created',
-                      'page[size]': '1000',
-                      'disable-facets': 'true',
-                  }
-                  first_url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': '1'})
-                  first = get_json(first_url)
-                  total = int((first.get('meta') or {}).get('total') or 0)
-                  pages = int((first.get('meta') or {}).get('totalPages') or 1)
-                  if pages > 10:
-                      raise SystemExit(
-                          f'DataCite day {day_text} has {pages} pages ({total} records); '
-                          'resolver refuses to truncate silently. Narrow the query before continuing.'
-                      )
-                  day_payloads = [first]
-                  for page in range(2, pages + 1):
-                      url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': str(page)})
-                      day_payloads.append(get_json(url))
-                  raw_page_summaries.append({'date': day_text, 'total': total, 'pages': pages})
-
-                  for batch in day_payloads:
-                      for item in batch.get('data', []):
-                          attrs = item.get('attributes') or {}
-                          doi = str(attrs.get('doi') or item.get('id') or '').strip()
-                          titles = [str(t.get('title') or '') for t in attrs.get('titles') or []]
-                          title = titles[0] if titles else ''
-                          if not doi.startswith('10.15468/dl.') or title != 'Occurrence Download':
-                              continue
-                          landing = str(attrs.get('url') or '')
-                          key_match = re.search(r'/occurrence/download/([^/?#]+)', landing)
-                          descriptions = [str(d.get('description') or '') for d in attrs.get('descriptions') or []]
-                          description = descriptions[0] if descriptions else ''
-                          count_match = re.search(r'A dataset containing\s+([0-9]+)', description)
-                          if not count_match:
-                              count_match = re.search(r"dataset's\s+([0-9]+)\s+records", description)
-                          record_count = int(count_match.group(1)) if count_match else None
-                          candidate_rows.append({
-                              'doi': doi,
-                              'created': attrs.get('created'),
-                              'publisher': attrs.get('publisher'),
-                              'landing_url': landing,
-                              'download_key': key_match.group(1) if key_match else '',
-                              'record_count_from_datacite': record_count,
-                              'creators': [c.get('name') for c in attrs.get('creators') or []],
-                          })
-
-                  # Persist after every completed day so a later external failure
-                  # cannot erase already-audited catalog coverage.
-                  write_json('datacite_page_summary.json', raw_page_summaries)
-                  write_json('datacite_gbif_download_candidates.json', candidate_rows)
-                  cursor_day += timedelta(days=1)
-
-              candidates_to_check = [
-                  row for row in candidate_rows
-                  if row.get('download_key') and (row.get('record_count_from_datacite') or 0) >= 100_000_000
-              ]
-              checked = []
-              verified = []
-              verification_errors = []
-              for i, row in enumerate(candidates_to_check):
-                  key = row['download_key']
-                  api_url = f'https://api.gbif.org/v1/occurrence/download/{key}'
-                  try:
-                      metadata = get_json(api_url, attempts=4)
-                  except (HTTPError, URLError) as exc:
-                      verification_errors.append({
-                          'doi': row['doi'], 'key': key,
-                          'error_type': type(exc).__name__,
-                          'http_status': getattr(exc, 'code', None),
-                          'message': str(exc),
-                      })
-                      continue
-                  request = metadata.get('request') or {}
-                  creator = str(request.get('creator') or metadata.get('creator') or '').strip()
-                  checked_row = {
-                      **row,
-                      'gbif_creator': creator,
-                      'gbif_status': metadata.get('status'),
-                      'gbif_format': request.get('format'),
-                      'gbif_source': metadata.get('source'),
-                      'gbif_totalRecords': metadata.get('totalRecords'),
-                      'gbif_created': metadata.get('created'),
-                      'gbif_modified': metadata.get('modified'),
-                      'predicate': request.get('predicate'),
-                  }
-                  checked.append(checked_row)
-                  if creator == 'download.gbif.org':
-                      verified.append(checked_row)
-                  if i % 10 == 0:
-                      write_json('gbif_checked_large_downloads.json', checked)
-                      write_json('gbif_verified_snapshot_candidates.json', verified)
-
-              checked.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
-              verified.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
-              latest = verified[0] if verified else {}
-              write_json('gbif_checked_large_downloads.json', checked)
-              write_json('gbif_verified_snapshot_candidates.json', verified)
-
-              creators = {}
-              formats = {}
-              sources = {}
-              for row in checked:
-                  creators[row.get('gbif_creator') or '<empty>'] = creators.get(row.get('gbif_creator') or '<empty>', 0) + 1
-                  formats[str(row.get('gbif_format') or '<empty>')] = formats.get(str(row.get('gbif_format') or '<empty>'), 0) + 1
-                  sources[str(row.get('gbif_source') or '<empty>')] = sources.get(str(row.get('gbif_source') or '<empty>'), 0) + 1
-              summary = {
-                  'resolution_mode': 'datacite_plus_gbif_metadata',
-                  'gbif_portal_catalog': portal_url,
-                  'gbif_portal_error': portal_error,
-                  'search_start': month_start.isoformat(),
-                  'search_end': search_end.isoformat(),
-                  'datacite_day_pages': raw_page_summaries,
-                  'occurrence_download_candidates': len(candidate_rows),
-                  'large_candidates_checked': len(candidates_to_check),
-                  'checked_creator_counts': creators,
-                  'checked_format_counts': formats,
-                  'checked_source_counts': sources,
-                  'verification_errors': verification_errors,
-                  'verified_snapshot_count': len(verified),
-                  'snapshot_resolved': bool(latest),
-                  'latest': latest,
-                  'action': (
-                      'A resolved candidate is accepted only when GBIF per-download metadata reports '
-                      'request.creator=download.gbif.org. Checked nonmatches are retained for audit.'
-                  ),
-              }
-
-          write_json('gbif_snapshot_catalog_summary.json', summary)
+          summary = {
+              'resolution_mode': 'snapshot_s3_citation_txt',
+              'attempts': attempts,
+              'snapshot_resolved': resolved is not None,
+              'latest': resolved or {},
+              'source_rule': (
+                  'GBIF official AWS snapshot documentation states each occurrence/YYYY-MM-DD snapshot contains '
+                  'citation.txt with citation instructions. SDMR accepts only a DOI parsed from that same snapshot '
+                  'citation file and cross-checked against DataCite.'
+              ),
+          }
+          with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
+              json.dump(summary, fh, indent=2, sort_keys=True)
           print(json.dumps(summary, indent=2, sort_keys=True))
+          if resolved is None:
+              raise SystemExit('No DOI-bearing citation.txt found for current or previous monthly snapshot')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: gbif-snapshot-catalog
           path: |
-            gbif_snapshot_catalog_raw.json
             gbif_snapshot_catalog_summary.json
-            datacite_page_summary.json
-            datacite_gbif_download_candidates.json
-            gbif_checked_large_downloads.json
-            gbif_verified_snapshot_candidates.json
+            citation_*.txt
+            snapshot_doi_datacite.json
           if-no-files-found: warn
