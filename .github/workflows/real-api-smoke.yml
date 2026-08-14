@@ -43,7 +43,9 @@ jobs:
             --random-baseline-repeats 3 \
             --seed 20260814
       - name: Record diagnostic boundary
+        if: always()
         run: |
+          mkdir -p diagnostic_result
           cat > diagnostic_result/DIAGNOSTIC_ONLY.txt <<'EOF'
           This run uses GBIF occurrence search and focal-pilot-only target-group background.
           It is a pipeline smoke test, not admissible evidence for Product-A method promotion.
