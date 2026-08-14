@@ -141,13 +141,44 @@ def build_snapshot_filter_sql(
     return " AND ".join(f"({term})" for term in terms)
 
 
-def _query_sha256(uri: str, columns: Sequence[str], where_sql: str) -> str:
-    payload = (uri + "\n" + ",".join(columns) + "\n" + where_sql + "\n").encode("utf-8")
+def _query_sha256(uri: str, columns: Sequence[str], where_sql: str, transform_sql: str = "") -> str:
+    payload = (uri + "\n" + ",".join(columns) + "\n" + where_sql + "\n" + transform_sql + "\n").encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
 
 def _quote_identifier(name: str) -> str:
     return '"' + str(name).replace('"', '""') + '"'
+
+
+def build_snapshot_select_query(
+    *,
+    uri: str,
+    selected_columns: Sequence[str],
+    where_sql: str,
+    longitude_column: str,
+    latitude_column: str,
+    order_column: str,
+    one_per_grid_cell_degrees: float | None = None,
+) -> str:
+    """Build the snapshot SELECT, optionally retaining one deterministic row per grid cell."""
+    select_sql = ",".join(_quote_identifier(name) for name in selected_columns)
+    source = f"read_parquet({_sql_literal(uri)}, union_by_name=true)"
+    if one_per_grid_cell_degrees is None:
+        return f"SELECT {select_sql} FROM {source} WHERE {where_sql}"
+    cell = float(one_per_grid_cell_degrees)
+    if cell <= 0:
+        raise ValueError("one_per_grid_cell_degrees must be > 0")
+    lon = _quote_identifier(longitude_column)
+    lat = _quote_identifier(latitude_column)
+    order = _quote_identifier(order_column)
+    return (
+        "SELECT * EXCLUDE (__sdmr_rn) FROM ("
+        f"SELECT {select_sql}, ROW_NUMBER() OVER ("
+        f"PARTITION BY FLOOR(({lon} + 180.0) / {cell}), FLOOR(({lat} + 90.0) / {cell}) "
+        f"ORDER BY {order} NULLS LAST) AS __sdmr_rn "
+        f"FROM {source} WHERE {where_sql}"
+        ") WHERE __sdmr_rn = 1"
+    )
 
 
 def materialize_gbif_snapshot_subset(
@@ -159,17 +190,20 @@ def materialize_gbif_snapshot_subset(
     kingdom: str | None = None,
     bounds: Sequence[SnapshotBounds] | None = None,
     region: str = "us-east-1",
+    one_per_grid_cell_degrees: float | None = None,
     overwrite: bool = False,
 ) -> GBIFSnapshotSubsetResult:
     """Materialize a filtered public GBIF monthly snapshot subset as Parquet.
 
-    Requires the optional ``sdmr[cloud]`` dependency. DuckDB performs remote S3
-    Parquet scanning; no AWS credentials are required for the public GBIF bucket.
-    Because the source dataset is very large, use narrow, predeclared filters and
-    run close to an AWS mirror when practical.
+    ``one_per_grid_cell_degrees`` pushes the same type of target-group cell
+    deduplication used downstream into DuckDB. It is intended for broad
+    target-group sampling-effort pools, not for silently thinning focal
+    occurrences. The grid size is therefore explicit and fingerprinted.
     """
     if not str(snapshot_doi).strip():
         raise ValueError("snapshot_doi is required for auditable/citable cloud-snapshot use")
+    if one_per_grid_cell_degrees is not None and float(one_per_grid_cell_degrees) <= 0:
+        raise ValueError("one_per_grid_cell_degrees must be > 0")
     output = Path(output_path)
     if output.exists() and not overwrite:
         raise FileExistsError(output)
@@ -203,10 +237,15 @@ def materialize_gbif_snapshot_subset(
         if missing:
             raise ValueError(f"GBIF snapshot schema missing required columns: {missing}")
         selected = [available[name] for name in PREFERRED_SNAPSHOT_COLUMNS if name in available]
-        select_sql = ",".join(_quote_identifier(name) for name in selected)
-        query = (
-            f"SELECT {select_sql} FROM read_parquet({_sql_literal(uri)}, union_by_name=true) "
-            f"WHERE {where_sql}"
+        order_column = available.get("gbifid", available["species"])
+        query = build_snapshot_select_query(
+            uri=uri,
+            selected_columns=selected,
+            where_sql=where_sql,
+            longitude_column=available["decimallongitude"],
+            latitude_column=available["decimallatitude"],
+            order_column=order_column,
+            one_per_grid_cell_degrees=one_per_grid_cell_degrees,
         )
         out_literal = _sql_literal(str(output.resolve()))
         con.execute(f"COPY ({query}) TO {out_literal} (FORMAT PARQUET, COMPRESSION ZSTD)")
@@ -214,6 +253,10 @@ def materialize_gbif_snapshot_subset(
     finally:
         con.close()
 
+    transform_sql = (
+        "" if one_per_grid_cell_degrees is None
+        else f"one_per_grid_cell_degrees={float(one_per_grid_cell_degrees)}"
+    )
     provenance = pd.DataFrame(
         [
             {
@@ -224,7 +267,9 @@ def materialize_gbif_snapshot_subset(
                 "remote_uri": uri,
                 "where_sql": where_sql,
                 "selected_columns": ",".join(selected),
-                "query_sha256": _query_sha256(uri, selected, where_sql),
+                "sampling_mode": "one_per_grid_cell" if one_per_grid_cell_degrees is not None else "all_filtered_rows",
+                "one_per_grid_cell_degrees": one_per_grid_cell_degrees,
+                "query_sha256": _query_sha256(uri, selected, where_sql, transform_sql),
                 "path": str(output),
                 "sha256": sha256_file(output),
                 "bytes": int(output.stat().st_size),
