@@ -130,7 +130,7 @@ jobs:
             --taxon-validation-fraction 0.25 \
             --vif-threshold 5 \
             --max-predictors 8 \
-            --random-baseline-repeats 10
+            --random-baseline-repeats 0
       - name: Freeze stability evidence contract
         if: always()
         run: |
@@ -144,11 +144,13 @@ jobs:
           seeds=11,22,33,44,55
           sealed_fractions=0.15,0.20,0.30
           taxon_validation_fraction=0.25
+          random_baseline_repeats=0
           promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
           EOF
           cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
           These stability runs reuse the exact DOI-backed occurrence/background/CHELSA feature evidence from Product-A v1.
           The SDMR analysis package is checked out at the exact Product-A v1 source head SHA. No GBIF or CHELSA data are re-fetched.
+          Random-null evaluations are omitted because they do not participate in protocol selection or promotion criteria.
           Promotion thresholds were committed before these stability results existed.
           EOF
       - uses: actions/upload-artifact@v4
