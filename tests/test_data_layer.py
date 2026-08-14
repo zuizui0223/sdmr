@@ -138,3 +138,35 @@ def test_raster_extraction_applies_metadata_scale_offset_and_provenance(tmp_path
     assert provenance.loc[0, "sha256"]
     assert provenance.loc[0, "scale"] == pytest.approx(0.1)
     assert provenance.loc[0, "offset"] == pytest.approx(-1.0)
+
+
+def test_bulk_download_adapter_reads_zipped_simple_csv_and_fingerprints(tmp_path):
+    import zipfile
+    from sdmr.data import load_gbif_download
+
+    path = tmp_path / "gbif.zip"
+    table = "gbifID\tdecimalLongitude\tdecimalLatitude\tspecies\ttaxonKey\n1\t10.5\t20.5\tPlant a\tABC\n"
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("occurrence.txt", table)
+    result = load_gbif_download(path, download_key="000001-test")
+    assert list(result.records["longitude"]) == [10.5]
+    assert list(result.records["latitude"]) == [20.5]
+    assert result.provenance.loc[0, "sha256"]
+    assert result.provenance.loc[0, "download_key"] == "000001-test"
+
+
+def test_species_admission_gate_requires_declared_counts():
+    from sdmr.data import species_admission_table
+
+    data = pd.DataFrame(
+        {
+            "species": ["a"] * 4 + ["b"] * 2,
+            "longitude": [0, 1, 2, 3, 0, 0.1],
+            "latitude": [0, 1, 2, 3, 0, 0.1],
+        }
+    )
+    result = species_admission_table(
+        data, min_occurrences=3, min_unique_cells=3, cell_size_degrees=0.5
+    ).set_index("species")
+    assert bool(result.loc["a", "eligible"])
+    assert not bool(result.loc["b", "eligible"])
