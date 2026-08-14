@@ -25,6 +25,7 @@ parquet = ["pyarrow>=14"]
 sdmr = "sdmr.cli:main"
 sdmr-gbif-pilot = "sdmr.data_cli:main"
 sdmr-chelsa = "sdmr.chelsa_cli:main"
+sdmr-pilot = "sdmr.pilot_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

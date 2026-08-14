@@ -1,6 +1,6 @@
 """Reproducible public-data preparation for SDMR."""
 
-from .background import bbox_membership, sample_target_group_background
+from .background import bbox_membership, occurrence_buffer_membership, sample_target_group_background
 from .chelsa import (
     CHELSA_V21_BASE,
     build_chelsa_cog_uri,
@@ -49,6 +49,7 @@ __all__ = [
     "load_gbif_download",
     "match_taxon",
     "monthly_column_names",
+    "occurrence_buffer_membership",
     "raster_specs_from_chelsa_manifest",
     "resolve_chelsa_manifest",
     "sample_target_group_background",

@@ -36,6 +36,43 @@ def bbox_membership(
     return lon_ok & (lat >= south) & (lat <= north) & np.isfinite(lon) & np.isfinite(lat)
 
 
+def occurrence_buffer_membership(
+    frame: pd.DataFrame,
+    focal_occurrences: pd.DataFrame,
+    *,
+    buffer_km: float,
+    lon_col: str = "longitude",
+    lat_col: str = "latitude",
+) -> np.ndarray:
+    """Return points within ``buffer_km`` of any focal occurrence.
+
+    This is a transparent distance-buffer M sensitivity option. It is not
+    asserted to be the biological accessible area for every plant species.
+    """
+
+    if buffer_km <= 0:
+        raise ValueError("buffer_km must be > 0")
+    from sklearn.neighbors import BallTree
+
+    lon = pd.to_numeric(frame[lon_col], errors="coerce").to_numpy(float)
+    lat = pd.to_numeric(frame[lat_col], errors="coerce").to_numpy(float)
+    flon = pd.to_numeric(focal_occurrences[lon_col], errors="coerce").to_numpy(float)
+    flat = pd.to_numeric(focal_occurrences[lat_col], errors="coerce").to_numpy(float)
+    fvalid = np.isfinite(flon) & np.isfinite(flat)
+    if not np.any(fvalid):
+        raise ValueError("focal_occurrences contain no finite coordinates")
+    valid = np.isfinite(lon) & np.isfinite(lat)
+    result = np.zeros(len(frame), dtype=bool)
+    if not np.any(valid):
+        return result
+    focal_rad = np.deg2rad(np.column_stack((flat[fvalid], flon[fvalid])))
+    candidate_rad = np.deg2rad(np.column_stack((lat[valid], lon[valid])))
+    tree = BallTree(focal_rad, metric="haversine")
+    distance_rad, _ = tree.query(candidate_rad, k=1)
+    result[valid] = distance_rad[:, 0] * 6371.0088 <= float(buffer_km)
+    return result
+
+
 def _grid_ids(frame: pd.DataFrame, cell_size_degrees: float) -> np.ndarray:
     lon = pd.to_numeric(frame["longitude"], errors="coerce").to_numpy(float)
     lat = pd.to_numeric(frame["latitude"], errors="coerce").to_numpy(float)
