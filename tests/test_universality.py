@@ -74,3 +74,18 @@ def test_repeated_taxon_splits_report_core_stability():
     stability = result.process_stability.set_index("process")
     assert stability.loc["climate_signal", "core_stability"] == 1.0
     assert result.validation_comparison["split_id"].nunique() == 2
+
+
+def test_random_process_null_uses_same_sealed_occurrences_as_full_and_core():
+    occ, bg = _corpus()
+    result = benchmark_process_core_taxon_split(
+        occ, bg, ["signal", "signal_copy", "noise"], _manifest(),
+        strategy="predictive", taxon_validation_fraction=0.34,
+        min_process_selection_fraction=0.5, process_top_k=1,
+        model_specs=[ModelSpec(C=1, degree=1)], max_predictors=2,
+        random_process_repeats=2, random_state=13,
+    )
+    full_counts = result.validation_full_metrics.set_index("species")["n_test_presence"].to_dict()
+    assert len(result.random_core_metrics) > 0
+    for row in result.random_core_metrics.itertuples(index=False):
+        assert row.n_test_presence == full_counts[row.species]
