@@ -31,17 +31,21 @@ def select_configured_taxa(
     *,
     species_col: str = "species",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Select a predeclared pilot taxon list from a GBIF bulk download.
+    """Select a predeclared pilot taxon list from a GBIF occurrence table.
 
-    ``taxon_key`` is preferred when supplied. Otherwise exact case-insensitive
-    canonical-name matching is attempted across stable GBIF name columns. Every
-    configured taxon remains in the ledger even when zero records match.
+    A supplied taxon key is attempted first. During the GBIF Backbone -> COL XR
+    transition, however, v2 name matching and occurrence outputs can expose keys
+    from different namespaces. If a supplied key matches zero rows, SDMR falls
+    back to exact canonical-name matching and records that fallback explicitly in
+    the ledger. The fallback is never silent and does not broaden beyond exact
+    case-insensitive scientific-name equality.
     """
 
     if "scientific_name" not in taxa:
         raise KeyError("taxa config must contain scientific_name")
     name_columns = [c for c in (species_col, "acceptedScientificName", "scientificName") if c in records]
-    if not name_columns and not ({"taxonKey", "acceptedTaxonKey"} & set(records.columns)):
+    key_columns = [c for c in ("acceptedTaxonKey", "taxonKey") if c in records]
+    if not name_columns and not key_columns:
         raise KeyError("records contain neither usable taxon keys nor name columns")
 
     selected_frames: list[pd.DataFrame] = []
@@ -52,16 +56,31 @@ def select_configured_taxa(
             continue
         key_raw = row.get("taxon_key")
         key = "" if key_raw is None or pd.isna(key_raw) else str(key_raw).strip()
-        mask = pd.Series(False, index=records.index)
-        mode = "exact_name"
+
+        key_mask = pd.Series(False, index=records.index)
         if key:
+            for col in key_columns:
+                key_mask |= records[col].fillna("").astype(str).str.strip().eq(key)
+        key_rows = int(key_mask.sum())
+
+        name_mask = pd.Series(False, index=records.index)
+        for col in name_columns:
+            name_mask |= _string_match(records[col], name)
+        name_rows = int(name_mask.sum())
+
+        if key and key_rows:
+            mask = key_mask
             mode = "taxon_key"
-            for col in ("acceptedTaxonKey", "taxonKey"):
-                if col in records:
-                    mask |= records[col].fillna("").astype(str).str.strip().eq(key)
+        elif key and name_rows:
+            mask = name_mask
+            mode = "taxon_key_fallback_exact_name"
+        elif key:
+            mask = key_mask
+            mode = "taxon_key_no_match"
         else:
-            for col in name_columns:
-                mask |= _string_match(records[col], name)
+            mask = name_mask
+            mode = "exact_name"
+
         subset = records.loc[mask].copy()
         if len(subset):
             subset[species_col] = name
@@ -71,6 +90,8 @@ def select_configured_taxa(
             {
                 **row,
                 "selection_mode": mode,
+                "key_match_rows": key_rows,
+                "name_match_rows": name_rows,
                 "matched_rows": int(mask.sum()),
                 "matched": bool(mask.any()),
             }
