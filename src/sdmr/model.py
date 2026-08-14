@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+import inspect
 
 import numpy as np
 import pandas as pd
@@ -67,16 +68,25 @@ def fit_relative_suitability_model(
 
     X = np.vstack((p.to_numpy(float), b.to_numpy(float)))
     y = np.concatenate((np.ones(len(p), dtype=int), np.zeros(len(b), dtype=int)))
+    logit_kwargs = {
+        "C": spec.C,
+        "solver": "liblinear",
+        "class_weight": "balanced",
+        "max_iter": 4000,
+    }
+    # scikit-learn 1.8 deprecated the ``penalty`` argument in favour of
+    # l1_ratio=0/1. Keep compatibility with the >=1.3 range declared by SDMR
+    # without emitting hundreds of warnings on newer versions.
+    penalty_default = inspect.signature(LogisticRegression).parameters["penalty"].default
+    if penalty_default == "deprecated":
+        logit_kwargs["l1_ratio"] = 1.0 if spec.penalty == "l1" else 0.0
+    else:
+        logit_kwargs["penalty"] = spec.penalty
+
     model = make_pipeline(
         PolynomialFeatures(degree=spec.degree, include_bias=False),
         StandardScaler(),
-        LogisticRegression(
-            C=spec.C,
-            penalty=spec.penalty,
-            solver="liblinear",
-            class_weight="balanced",
-            max_iter=4000,
-        ),
+        LogisticRegression(**logit_kwargs),
     )
     model.fit(X, y)
     return model
