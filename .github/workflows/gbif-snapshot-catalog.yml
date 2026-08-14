@@ -33,7 +33,7 @@ jobs:
           from urllib.request import Request, urlopen
 
           headers = {
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.4',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.5',
               'Accept': 'application/json',
           }
 
@@ -81,32 +81,33 @@ jobs:
                   },
               }
           else:
-              # GBIF's portal blocks GitHub-hosted bot traffic (observed 403), so
-              # query public DataCite metadata instead. These are candidates only:
-              # ordinary GBIF user downloads have the same title and must not be
-              # mistaken for monthly snapshots without creator/source verification.
+              # DataCite can be queried without GBIF credentials. Filter by the
+              # GBIF DOI prefix first, then inspect the actual metadata instead
+              # of trusting a broad title-text search.
               params = {
-                  'query': 'titles.title:"GBIF Occurrence Download"',
-                  'created': '2026',
+                  'prefix': '10.15468',
+                  'query': 'created:[2026-08-01 TO 2026-08-14]',
                   'sort': '-created',
-                  'page[size]': '100',
+                  'page[size]': '1000',
                   'disable-facets': 'true',
               }
               datacite_url = 'https://api.datacite.org/dois?' + urlencode(params)
               datacite = get_json(datacite_url)
               with open('datacite_gbif_download_candidates_raw.json', 'w', encoding='utf-8') as fh:
                   json.dump(datacite, fh, indent=2, sort_keys=True)
+
               candidates = []
               for item in datacite.get('data', []):
                   attrs = item.get('attributes') or {}
+                  doi = str(attrs.get('doi') or item.get('id') or '').strip()
                   titles = [str(t.get('title') or '') for t in attrs.get('titles') or []]
                   title = titles[0] if titles else ''
-                  if title != 'GBIF Occurrence Download':
+                  if not doi.startswith('10.15468/dl.') or title != 'GBIF Occurrence Download':
                       continue
                   landing = str(attrs.get('url') or '')
                   key_match = re.search(r'/occurrence/download/([^/?#]+)', landing)
                   candidates.append({
-                      'doi': attrs.get('doi') or item.get('id'),
+                      'doi': doi,
                       'created': attrs.get('created'),
                       'published': attrs.get('published'),
                       'publicationYear': attrs.get('publicationYear'),
@@ -114,20 +115,24 @@ jobs:
                       'landing_url': landing,
                       'download_key_from_url': key_match.group(1) if key_match else '',
                       'creators': [c.get('name') for c in attrs.get('creators') or []],
+                      'dates': attrs.get('dates') or [],
+                      'identifiers': attrs.get('identifiers') or [],
                   })
               with open('datacite_gbif_download_candidates.json', 'w', encoding='utf-8') as fh:
                   json.dump(candidates, fh, indent=2, sort_keys=True)
+
               summary = {
-                  'resolution_mode': 'datacite_candidates_only',
+                  'resolution_mode': 'datacite_prefix_candidates',
                   'gbif_portal_catalog': portal_url,
                   'gbif_portal_error': portal_error,
                   'datacite_url': datacite_url,
+                  'datacite_total': (datacite.get('meta') or {}).get('total'),
                   'candidate_count': len(candidates),
                   'candidate_preview': candidates[:10],
                   'snapshot_resolved': False,
                   'action': (
-                      'Do not select a DOI solely because it is recent. Verify that the candidate is the '
-                      'download.gbif.org monthly snapshot (or supply date+DOI from the official GBIF snapshot table).'
+                      'Candidates are restricted to GBIF 10.15468/dl.* DOIs with the exact title. '
+                      'Still verify request.creator/source against GBIF download metadata before identifying a monthly snapshot.'
                   ),
               }
 
