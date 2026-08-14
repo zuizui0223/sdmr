@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from sdmr.data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
 
@@ -45,3 +46,27 @@ def test_tiled_bounds_deduplicate_multiple_records_in_same_tile():
     assert box.east == 16.0
     assert box.south == 19.0
     assert box.north == 26.0
+
+
+def test_distance_buffer_expands_longitude_more_at_high_latitude():
+    equator = tiled_bounds_from_occurrences(
+        pd.DataFrame({"longitude": [12.0], "latitude": [2.0]}),
+        tile_degrees=5.0,
+        buffer_km=300.0,
+    )[0]
+    high_lat = tiled_bounds_from_occurrences(
+        pd.DataFrame({"longitude": [12.0], "latitude": [72.0]}),
+        tile_degrees=5.0,
+        buffer_km=300.0,
+    )[0]
+    equator_width = equator.east - equator.west
+    high_width = high_lat.east - high_lat.west
+    assert high_width > equator_width
+    assert equator.south == pytest.approx(-300 / 111.195)
+    assert high_lat.north > 77.0
+
+
+def test_distance_buffer_rejects_nonpositive_km():
+    frame = pd.DataFrame({"longitude": [0.0], "latitude": [0.0]})
+    with pytest.raises(ValueError, match="buffer_km must be > 0"):
+        tiled_bounds_from_occurrences(frame, buffer_km=0)
