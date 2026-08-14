@@ -1,4 +1,4 @@
-"""Resolve CHELSA v2.1 candidate rasters and optionally extract point values."""
+"""Resolve CHELSA v2.1 candidate rasters and optionally probe/extract values."""
 from __future__ import annotations
 
 import argparse
@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 from .data.chelsa import CHELSA_V21_BASE, raster_specs_from_chelsa_manifest, resolve_chelsa_manifest
-from .data.raster import extract_raster_values
+from .data.raster import extract_raster_values, probe_raster_layers
 
 
 def _read_points(path: str) -> pd.DataFrame:
@@ -18,7 +18,7 @@ def _read_points(path: str) -> pd.DataFrame:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Resolve the SDMR CHELSA v2.1 manifest to COG URIs and optionally extract point values."
+        description="Resolve the SDMR CHELSA v2.1 manifest to COG URIs and optionally probe/extract point values."
     )
     parser.add_argument("--manifest", default="configs/chelsa_v2_1_plant_candidates.csv")
     parser.add_argument("--output-dir", required=True)
@@ -26,7 +26,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--include-legacy", action="store_true", help="Include legacy_archive rows such as SWB.")
     parser.add_argument("--points", help="Optional CSV/Parquet with longitude/latitude; requires sdmr[geo].")
     parser.add_argument("--only", help="Comma-separated predictor names to resolve/extract.")
+    parser.add_argument(
+        "--probe",
+        action="store_true",
+        help="Open each resolved raster to verify remote/local URI, driver and CRS metadata without sampling values.",
+    )
+    parser.add_argument(
+        "--require-probe-success",
+        action="store_true",
+        help="Return an error when any --probe layer cannot be opened.",
+    )
     args = parser.parse_args(argv)
+
+    if args.require_probe_success and not args.probe:
+        parser.error("--require-probe-success requires --probe")
 
     manifest = pd.read_csv(args.manifest)
     if args.only:
@@ -49,15 +62,24 @@ def main(argv: list[str] | None = None) -> int:
     resolved.loc[resolved.resolution_status == "resolved"].to_csv(out / "chelsa_layer_catalog.csv", index=False)
     resolved.loc[resolved.resolution_status != "resolved"].to_csv(out / "chelsa_unresolved.csv", index=False)
 
+    specs, _ = raster_specs_from_chelsa_manifest(
+        manifest,
+        base_url=args.base_url,
+        include_availability=availability,
+        strict=False,
+    )
+    if (args.points or args.probe) and not specs:
+        parser.error("No resolved CHELSA layers selected")
+
+    if args.probe:
+        probe = probe_raster_layers(specs)
+        probe.to_csv(out / "chelsa_raster_probe.csv", index=False)
+        failures = probe.loc[probe["status"].ne("ok")]
+        if args.require_probe_success and len(failures):
+            names = ",".join(failures["predictor"].astype(str))
+            parser.error(f"CHELSA raster preflight failed for: {names}")
+
     if args.points:
-        specs, _ = raster_specs_from_chelsa_manifest(
-            manifest,
-            base_url=args.base_url,
-            include_availability=availability,
-            strict=False,
-        )
-        if not specs:
-            parser.error("No resolved CHELSA layers selected for extraction")
         points = _read_points(args.points)
         values, provenance = extract_raster_values(points, specs)
         values.to_csv(out / "points_with_chelsa.csv", index=False)
