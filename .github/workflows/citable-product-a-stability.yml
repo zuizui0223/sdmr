@@ -1,0 +1,135 @@
+name: citable-product-a-stability
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful citable-product-a-pilot workflow run ID"
+        required: true
+        type: string
+      seeds:
+        description: "Comma-separated repeated split seeds"
+        required: true
+        default: "11,22,33,44,55"
+        type: string
+      sealed_fractions:
+        description: "Comma-separated sealed within-species fractions"
+        required: true
+        default: "0.15,0.20,0.30"
+        type: string
+      taxon_validation_fraction:
+        description: "Unseen-taxon validation fraction"
+        required: true
+        default: "0.25"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: citable-product-a-stability-${{ inputs.source_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  protocol-stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install SDMR analysis dependencies
+        run: python -m pip install -e '.[parquet]'
+
+      - name: Download frozen citable pilot artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-*
+          path: source_bundle
+          merge-multiple: true
+
+      - name: Verify citable source contract and build specification index
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import pandas as pd
+
+          root = Path('source_bundle')
+          result = root / 'citable_result'
+          contract_path = result / 'citable_snapshot_contract.json'
+          boundary_path = result / 'CITABLE_PILOT_BOUNDARY.txt'
+          grid_path = result / 'pilot_grid_frozen.csv'
+          occurrences = result / 'pilot_occurrences.csv'
+          for path in (contract_path, boundary_path, grid_path, occurrences):
+              if not path.exists():
+                  raise SystemExit(f'Missing required citable source artifact: {path}')
+
+          contract = json.loads(contract_path.read_text(encoding='utf-8'))
+          if contract.get('source_type') != 'gbif_monthly_cloud_snapshot':
+              raise SystemExit('Source run is not a DOI-backed GBIF monthly snapshot contract')
+          if not str(contract.get('snapshot_doi', '')).strip():
+              raise SystemExit('Source snapshot contract has no DOI')
+          if int(contract.get('chelsa_probe_failures', 1)) != 0:
+              raise SystemExit('Source run did not pass the full CHELSA preflight')
+
+          grid = pd.read_csv(grid_path)
+          rows = []
+          for name in grid['name'].astype(str):
+              background = result / 'specifications' / name / 'background.csv'
+              if not background.exists():
+                  raise SystemExit(f'Missing frozen background table for {name}: {background}')
+              rows.append({
+                  'name': name,
+                  'occurrences': 'citable_result/pilot_occurrences.csv',
+                  'background': f'citable_result/specifications/{name}/background.csv',
+              })
+          pd.DataFrame(rows).to_csv(root / 'stability_specifications.csv', index=False)
+          PY
+
+      - name: Repeat full Product-A protocol selection on frozen evidence
+        run: |
+          sdmr-protocol-stability \
+            --specifications source_bundle/stability_specifications.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir stability_result \
+            --seeds '${{ inputs.seeds }}' \
+            --sealed-fractions '${{ inputs.sealed_fractions }}' \
+            --taxon-validation-fraction '${{ inputs.taxon_validation_fraction }}' \
+            --vif-threshold 5 \
+            --max-predictors 8 \
+            --random-baseline-repeats 10
+
+      - name: Record stability contract
+        if: always()
+        run: |
+          mkdir -p stability_result
+          cp source_bundle/citable_result/citable_snapshot_contract.json stability_result/source_citable_snapshot_contract.json 2>/dev/null || true
+          cat > stability_result/stability_inputs.txt <<EOF
+          source_run_id=${{ inputs.source_run_id }}
+          seeds=${{ inputs.seeds }}
+          sealed_fractions=${{ inputs.sealed_fractions }}
+          taxon_validation_fraction=${{ inputs.taxon_validation_fraction }}
+          EOF
+          cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
+          This workflow reuses the exact occurrence/background/CHELSA feature evidence from one DOI-backed citable Product-A pilot.
+          It changes only predeclared random seeds and sealed fractions. It does not fetch new GBIF or CHELSA data.
+          Stability output is evidence for a later promotion decision; no protocol is automatically promoted here.
+          Promotion thresholds must be declared explicitly in a separate sdmr-promote-protocol assessment.
+          EOF
+
+      - name: Upload Product-A stability bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citable-product-a-stability-source-${{ inputs.source_run_id }}
+          path: stability_result/
+          if-no-files-found: error
+          retention-days: 90
