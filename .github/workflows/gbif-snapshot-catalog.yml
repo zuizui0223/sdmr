@@ -23,65 +23,52 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Probe public GBIF occurrence-snapshot catalog
+      - name: Probe GBIF snapshot catalog and DataCite fallback
         run: |
           python - <<'PY'
           import json
+          import re
           from urllib.error import HTTPError, URLError
+          from urllib.parse import urlencode
           from urllib.request import Request, urlopen
 
-          url = 'https://www.gbif.org/api/occurrence-snapshots?limit=100&offset=0'
-          request = Request(url, headers={
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.3',
+          headers = {
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.4',
               'Accept': 'application/json',
-          })
-          try:
+          }
+
+          def get_json(url):
+              request = Request(url, headers=headers)
               with urlopen(request, timeout=60) as response:
-                  payload = json.load(response)
+                  return json.load(response)
+
+          portal_url = 'https://www.gbif.org/api/occurrence-snapshots?limit=100&offset=0'
+          portal_error = None
+          try:
+              payload = get_json(portal_url)
           except (HTTPError, URLError) as exc:
-              summary = {
-                  'catalog_url': url,
-                  'available_from_github_actions': False,
+              payload = None
+              portal_error = {
                   'error_type': type(exc).__name__,
                   'http_status': getattr(exc, 'code', None),
                   'message': str(exc),
-                  'action': (
-                      'Supply the exact snapshot date and DOI manually from the official GBIF Occurrence snapshots page. '
-                      'Do not guess or silently substitute a DOI.'
-                  ),
               }
-              with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
-                  json.dump(summary, fh, indent=2, sort_keys=True)
-              print(json.dumps(summary, indent=2, sort_keys=True))
-              raise SystemExit(0)
 
-          with open('gbif_snapshot_catalog_raw.json', 'w', encoding='utf-8') as fh:
-              json.dump(payload, fh, indent=2, sort_keys=True)
-          if isinstance(payload, dict):
-              rows = payload.get('results') or payload.get('downloads') or payload.get('content') or []
-          else:
-              rows = payload
-          if not isinstance(rows, list) or not rows:
-              summary = {
-                  'catalog_url': url,
-                  'available_from_github_actions': True,
-                  'catalog_rows': 0,
-                  'message': f'No list rows returned; payload type={type(payload).__name__}',
-                  'action': 'Verify snapshot date and DOI manually from the official GBIF table.',
-              }
-          else:
-              completed = []
-              for row in rows:
-                  doi = str(row.get('doi') or '').strip()
-                  status = str(row.get('status') or '').upper()
-                  created = str(row.get('created') or '').strip()
-                  if doi and created and (not status or status in {'SUCCEEDED', 'SUCCESS'}):
-                      completed.append(row)
+          if payload is not None:
+              with open('gbif_snapshot_catalog_raw.json', 'w', encoding='utf-8') as fh:
+                  json.dump(payload, fh, indent=2, sort_keys=True)
+              rows = payload.get('results') if isinstance(payload, dict) else payload
+              rows = rows if isinstance(rows, list) else []
+              completed = [
+                  row for row in rows
+                  if str(row.get('doi') or '').strip() and str(row.get('created') or '').strip()
+                  and str(row.get('status') or '').upper() in {'', 'SUCCEEDED', 'SUCCESS'}
+              ]
               completed.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
               latest = completed[0] if completed else {}
               summary = {
-                  'catalog_url': url,
-                  'available_from_github_actions': True,
+                  'resolution_mode': 'gbif_portal_catalog',
+                  'catalog_url': portal_url,
                   'catalog_rows': len(rows),
                   'doi_rows': len(completed),
                   'latest': {
@@ -90,10 +77,60 @@ jobs:
                       'doi': latest.get('doi'),
                       'status': latest.get('status'),
                       'format': (latest.get('request') or {}).get('format') if latest else None,
-                      'source': latest.get('source'),
                       'totalRecords': latest.get('totalRecords'),
                   },
               }
+          else:
+              # GBIF's portal blocks GitHub-hosted bot traffic (observed 403), so
+              # query public DataCite metadata instead. These are candidates only:
+              # ordinary GBIF user downloads have the same title and must not be
+              # mistaken for monthly snapshots without creator/source verification.
+              params = {
+                  'query': 'titles.title:"GBIF Occurrence Download"',
+                  'created': '2026',
+                  'sort': '-created',
+                  'page[size]': '100',
+                  'disable-facets': 'true',
+              }
+              datacite_url = 'https://api.datacite.org/dois?' + urlencode(params)
+              datacite = get_json(datacite_url)
+              with open('datacite_gbif_download_candidates_raw.json', 'w', encoding='utf-8') as fh:
+                  json.dump(datacite, fh, indent=2, sort_keys=True)
+              candidates = []
+              for item in datacite.get('data', []):
+                  attrs = item.get('attributes') or {}
+                  titles = [str(t.get('title') or '') for t in attrs.get('titles') or []]
+                  title = titles[0] if titles else ''
+                  if title != 'GBIF Occurrence Download':
+                      continue
+                  landing = str(attrs.get('url') or '')
+                  key_match = re.search(r'/occurrence/download/([^/?#]+)', landing)
+                  candidates.append({
+                      'doi': attrs.get('doi') or item.get('id'),
+                      'created': attrs.get('created'),
+                      'published': attrs.get('published'),
+                      'publicationYear': attrs.get('publicationYear'),
+                      'publisher': attrs.get('publisher'),
+                      'landing_url': landing,
+                      'download_key_from_url': key_match.group(1) if key_match else '',
+                      'creators': [c.get('name') for c in attrs.get('creators') or []],
+                  })
+              with open('datacite_gbif_download_candidates.json', 'w', encoding='utf-8') as fh:
+                  json.dump(candidates, fh, indent=2, sort_keys=True)
+              summary = {
+                  'resolution_mode': 'datacite_candidates_only',
+                  'gbif_portal_catalog': portal_url,
+                  'gbif_portal_error': portal_error,
+                  'datacite_url': datacite_url,
+                  'candidate_count': len(candidates),
+                  'candidate_preview': candidates[:10],
+                  'snapshot_resolved': False,
+                  'action': (
+                      'Do not select a DOI solely because it is recent. Verify that the candidate is the '
+                      'download.gbif.org monthly snapshot (or supply date+DOI from the official GBIF snapshot table).'
+                  ),
+              }
+
           with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
               json.dump(summary, fh, indent=2, sort_keys=True)
           print(json.dumps(summary, indent=2, sort_keys=True))
@@ -105,4 +142,6 @@ jobs:
           path: |
             gbif_snapshot_catalog_raw.json
             gbif_snapshot_catalog_summary.json
+            datacite_gbif_download_candidates_raw.json
+            datacite_gbif_download_candidates.json
           if-no-files-found: warn
