@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from .data.snapshot import SnapshotBounds, materialize_gbif_snapshot_subset
-from .data.snapshot_bounds import bounds_from_occurrences
+from .data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
 
 
 def _read_taxa(path: str) -> list[str]:
@@ -59,9 +59,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--bounds", help="Optional CSV: west,east,south,north; rows are OR-combined")
     parser.add_argument(
         "--bounds-from-occurrences",
-        help="Optional focal CSV/Parquet; derive one dateline-aware bounding box per species/group.",
+        help="Optional focal CSV/Parquet used to derive cloud-query bounds.",
+    )
+    parser.add_argument(
+        "--bounds-mode",
+        choices=("species_bbox", "tiles"),
+        default="species_bbox",
+        help="species_bbox = one box per species; tiles = only occupied geographic tiles (recommended for widespread taxa).",
     )
     parser.add_argument("--bounds-buffer-degrees", type=float, default=2.0)
+    parser.add_argument("--bounds-tile-degrees", type=float, default=5.0)
+    parser.add_argument(
+        "--one-per-grid-cell-degrees",
+        type=float,
+        help=(
+            "Optional cloud-side target-group compression: retain one deterministic record per lon/lat grid cell. "
+            "Do not use this for focal occurrence thinning unless explicitly intended."
+        ),
+    )
     parser.add_argument("--output", required=True, help="Local .parquet subset path")
     parser.add_argument("--provenance", help="Output provenance CSV; default <output>.provenance.csv")
     parser.add_argument("--overwrite", action="store_true")
@@ -71,14 +86,27 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("Use --bounds or --bounds-from-occurrences, not both")
     if args.bounds_buffer_degrees < 0:
         parser.error("--bounds-buffer-degrees must be >= 0")
+    if not 0 < args.bounds_tile_degrees <= 180:
+        parser.error("--bounds-tile-degrees must be in (0, 180]")
+    if args.one_per_grid_cell_degrees is not None and args.one_per_grid_cell_degrees <= 0:
+        parser.error("--one-per-grid-cell-degrees must be > 0")
+
     species_names = _read_taxa(args.taxa) if args.taxa else None
     if args.bounds:
         bounds = _read_bounds(args.bounds)
     elif args.bounds_from_occurrences:
-        bounds = bounds_from_occurrences(
-            _read_table(args.bounds_from_occurrences),
-            buffer_degrees=args.bounds_buffer_degrees,
-        )
+        focal = _read_table(args.bounds_from_occurrences)
+        if args.bounds_mode == "tiles":
+            bounds = tiled_bounds_from_occurrences(
+                focal,
+                tile_degrees=args.bounds_tile_degrees,
+                buffer_degrees=args.bounds_buffer_degrees,
+            )
+        else:
+            bounds = bounds_from_occurrences(
+                focal,
+                buffer_degrees=args.bounds_buffer_degrees,
+            )
     else:
         bounds = None
     if not species_names and not args.kingdom:
@@ -94,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         kingdom=args.kingdom,
         bounds=bounds,
         region=args.region,
+        one_per_grid_cell_degrees=args.one_per_grid_cell_degrees,
         overwrite=args.overwrite,
     )
     provenance_path = Path(args.provenance) if args.provenance else Path(str(args.output) + ".provenance.csv")
