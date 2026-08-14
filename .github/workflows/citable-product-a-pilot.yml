@@ -70,6 +70,14 @@ jobs:
       - name: Install SDMR cloud and geo dependencies
         run: python -m pip install -e '.[cloud,geo,parquet]'
 
+      - name: Preflight full active CHELSA raster universe
+        run: |
+          sdmr-chelsa \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir citable_preflight \
+            --probe \
+            --require-probe-success
+
       - name: Freeze workflow inputs
         run: |
           mkdir -p citable_input citable_result
@@ -176,6 +184,8 @@ jobs:
                       k, v = line.split("=", 1)
                       choice[k] = v
 
+          probe_path = Path("citable_preflight/chelsa_raster_probe.csv")
+          probe = pd.read_csv(probe_path) if probe_path.exists() else pd.DataFrame()
           contract = {
               "source_type": "gbif_monthly_cloud_snapshot",
               "snapshot_date": "${{ inputs.snapshot_date }}",
@@ -191,6 +201,8 @@ jobs:
               "m_grid": "configs/product_a_buffer_specs_v1.csv",
               "m_grid_sha256": sha("configs/product_a_buffer_specs_v1.csv"),
               "candidate_manifest_sha256": sha("configs/chelsa_v2_1_plant_candidates.csv"),
+              "chelsa_probe_rows": int(len(probe)),
+              "chelsa_probe_failures": int(probe["status"].ne("ok").sum()) if "status" in probe else None,
               "focal_snapshot_query_sha256": str(focal.get("query_sha256", "")),
               "focal_subset_sha256": str(focal.get("sha256", "")),
               "focal_rows": int(focal.get("n_rows", 0) or 0),
@@ -223,6 +235,7 @@ jobs:
         with:
           name: citable-product-a-${{ inputs.snapshot_date }}-seed-${{ inputs.seed }}
           path: |
+            citable_preflight/
             citable_input/
             citable_result/
           if-no-files-found: error
