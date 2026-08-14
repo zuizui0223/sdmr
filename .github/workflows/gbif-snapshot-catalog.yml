@@ -17,7 +17,7 @@ concurrency:
 jobs:
   catalog:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,25 +28,45 @@ jobs:
           python - <<'PY'
           import json
           import re
+          import time
           from datetime import date, timedelta
           from urllib.error import HTTPError, URLError
           from urllib.parse import urlencode
           from urllib.request import Request, urlopen
 
           headers = {
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.7',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.8',
               'Accept': 'application/json',
           }
 
-          def get_json(url):
-              request = Request(url, headers=headers)
-              with urlopen(request, timeout=60) as response:
-                  return json.load(response)
+          def get_json(url, *, attempts=6):
+              last = None
+              for attempt in range(attempts):
+                  request = Request(url, headers=headers)
+                  try:
+                      with urlopen(request, timeout=90) as response:
+                          return json.load(response)
+                  except HTTPError as exc:
+                      last = exc
+                      if exc.code not in {429, 500, 502, 503, 504} or attempt == attempts - 1:
+                          raise
+                  except URLError as exc:
+                      last = exc
+                      if attempt == attempts - 1:
+                          raise
+                  delay = min(30, 2 ** attempt)
+                  print(f'retry {attempt + 1}/{attempts - 1} after {type(last).__name__}: {last}; sleep={delay}s')
+                  time.sleep(delay)
+              raise last
+
+          def write_json(path, value):
+              with open(path, 'w', encoding='utf-8') as fh:
+                  json.dump(value, fh, indent=2, sort_keys=True)
 
           portal_url = 'https://www.gbif.org/api/occurrence-snapshots?limit=100&offset=0'
           portal_error = None
           try:
-              payload = get_json(portal_url)
+              payload = get_json(portal_url, attempts=2)
           except (HTTPError, URLError) as exc:
               payload = None
               portal_error = {
@@ -56,8 +76,7 @@ jobs:
               }
 
           if payload is not None:
-              with open('gbif_snapshot_catalog_raw.json', 'w', encoding='utf-8') as fh:
-                  json.dump(payload, fh, indent=2, sort_keys=True)
+              write_json('gbif_snapshot_catalog_raw.json', payload)
               rows = payload.get('results') if isinstance(payload, dict) else payload
               rows = rows if isinstance(rows, list) else []
               completed = [
@@ -83,12 +102,6 @@ jobs:
                   },
               }
           else:
-              # The portal blocks GitHub-hosted bots (403 observed), so enumerate
-              # DataCite GBIF occurrence-download DOIs day by day for the entire
-              # current month-to-date, then verify likely large candidates with
-              # GBIF's public per-download metadata. Record count is only a
-              # request-reduction heuristic; creator/source metadata determine
-              # snapshot identity.
               today = date.today()
               month_start = today.replace(day=1)
               search_end = today
@@ -144,12 +157,12 @@ jobs:
                               'record_count_from_datacite': record_count,
                               'creators': [c.get('name') for c in attrs.get('creators') or []],
                           })
-                  cursor_day += timedelta(days=1)
 
-              with open('datacite_page_summary.json', 'w', encoding='utf-8') as fh:
-                  json.dump(raw_page_summaries, fh, indent=2, sort_keys=True)
-              with open('datacite_gbif_download_candidates.json', 'w', encoding='utf-8') as fh:
-                  json.dump(candidate_rows, fh, indent=2, sort_keys=True)
+                  # Persist after every completed day so a later external failure
+                  # cannot erase already-audited catalog coverage.
+                  write_json('datacite_page_summary.json', raw_page_summaries)
+                  write_json('datacite_gbif_download_candidates.json', candidate_rows)
+                  cursor_day += timedelta(days=1)
 
               candidates_to_check = [
                   row for row in candidate_rows
@@ -158,11 +171,11 @@ jobs:
               checked = []
               verified = []
               verification_errors = []
-              for row in candidates_to_check:
+              for i, row in enumerate(candidates_to_check):
                   key = row['download_key']
                   api_url = f'https://api.gbif.org/v1/occurrence/download/{key}'
                   try:
-                      metadata = get_json(api_url)
+                      metadata = get_json(api_url, attempts=4)
                   except (HTTPError, URLError) as exc:
                       verification_errors.append({
                           'doi': row['doi'], 'key': key,
@@ -187,14 +200,15 @@ jobs:
                   checked.append(checked_row)
                   if creator == 'download.gbif.org':
                       verified.append(checked_row)
+                  if i % 10 == 0:
+                      write_json('gbif_checked_large_downloads.json', checked)
+                      write_json('gbif_verified_snapshot_candidates.json', verified)
 
               checked.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
               verified.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
               latest = verified[0] if verified else {}
-              with open('gbif_checked_large_downloads.json', 'w', encoding='utf-8') as fh:
-                  json.dump(checked, fh, indent=2, sort_keys=True)
-              with open('gbif_verified_snapshot_candidates.json', 'w', encoding='utf-8') as fh:
-                  json.dump(verified, fh, indent=2, sort_keys=True)
+              write_json('gbif_checked_large_downloads.json', checked)
+              write_json('gbif_verified_snapshot_candidates.json', verified)
 
               creators = {}
               formats = {}
@@ -225,8 +239,7 @@ jobs:
                   ),
               }
 
-          with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
-              json.dump(summary, fh, indent=2, sort_keys=True)
+          write_json('gbif_snapshot_catalog_summary.json', summary)
           print(json.dumps(summary, indent=2, sort_keys=True))
           PY
       - uses: actions/upload-artifact@v4
