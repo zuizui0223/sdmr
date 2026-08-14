@@ -10,12 +10,14 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from collections.abc import Mapping, Sequence
 
 import pandas as pd
 
 from .data import (
     GBIF_COL_XR_CHECKLIST_KEY,
     OccurrenceAdmissionConfig,
+    RasterLayerSpec,
     extract_raster_values,
     load_gbif_download,
     raster_specs_from_chelsa_manifest,
@@ -26,6 +28,7 @@ from .specification import occurrence_table_fingerprint
 from .universe import candidate_universes_from_manifest
 
 _REQUIRED_GRID_COLUMNS = {"name", "m_strategy"}
+_MARKER_COLUMNS = ("__sdmr_table_kind", "__sdmr_data_spec", "__sdmr_row_order")
 
 
 def read_pilot_grid(path: str) -> pd.DataFrame:
@@ -73,6 +76,63 @@ def _read_taxa(path: str) -> pd.DataFrame:
     return frame
 
 
+def extract_protocol_grid_rasters(
+    occurrences: pd.DataFrame,
+    backgrounds: Mapping[str, pd.DataFrame],
+    layers: Sequence[RasterLayerSpec],
+) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], pd.DataFrame]:
+    """Extract all occurrence/background feature tables with one open per raster layer.
+
+    The same environmental layer is needed by the shared occurrence table and
+    every M/background specification. Concatenating them before extraction keeps
+    the sampled values identical while reducing remote COG opens from
+    ``1 + n_specs`` per layer to exactly one. Original table columns/order are
+    restored after sampling; only predictor columns are added.
+    """
+    collisions = [column for column in _MARKER_COLUMNS if column in occurrences.columns]
+    for name, frame in backgrounds.items():
+        collisions.extend(column for column in _MARKER_COLUMNS if column in frame.columns)
+    if collisions:
+        raise ValueError(f"Input tables contain reserved SDMR marker columns: {sorted(set(collisions))}")
+    if not backgrounds:
+        raise ValueError("At least one background specification is required")
+
+    predictors = [str(layer.predictor) for layer in layers]
+    occurrence_columns = list(occurrences.columns)
+    background_columns = {str(name): list(frame.columns) for name, frame in backgrounds.items()}
+    pieces = []
+
+    occ_piece = occurrences.copy().reset_index(drop=True)
+    occ_piece["__sdmr_table_kind"] = "occurrence"
+    occ_piece["__sdmr_data_spec"] = ""
+    occ_piece["__sdmr_row_order"] = range(len(occ_piece))
+    pieces.append(occ_piece)
+
+    for name, frame in backgrounds.items():
+        piece = frame.copy().reset_index(drop=True)
+        piece["__sdmr_table_kind"] = "background"
+        piece["__sdmr_data_spec"] = str(name)
+        piece["__sdmr_row_order"] = range(len(piece))
+        pieces.append(piece)
+
+    combined = pd.concat(pieces, ignore_index=True, sort=False)
+    featured, provenance = extract_raster_values(combined, layers)
+
+    occ = featured.loc[featured["__sdmr_table_kind"].eq("occurrence")].sort_values("__sdmr_row_order")
+    occ = occ[occurrence_columns + [p for p in predictors if p not in occurrence_columns]].reset_index(drop=True)
+
+    out_backgrounds: dict[str, pd.DataFrame] = {}
+    for name in backgrounds:
+        subset = featured.loc[
+            featured["__sdmr_table_kind"].eq("background")
+            & featured["__sdmr_data_spec"].eq(str(name))
+        ].sort_values("__sdmr_row_order")
+        columns = background_columns[str(name)] + [p for p in predictors if p not in background_columns[str(name)]]
+        out_backgrounds[str(name)] = subset[columns].reset_index(drop=True)
+
+    return occ, out_backgrounds, provenance.assign(extraction_mode="joint_protocol_grid")
+
+
 def _write_protocol_outputs(result, out: Path, *, args) -> None:
     result.discovery_metrics.to_csv(out / "protocol_discovery_metrics.csv", index=False)
     result.discovery_summary.to_csv(out / "protocol_discovery_summary.csv", index=False)
@@ -100,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Build several matched M/background Product-A specifications from one occurrence corpus, "
-            "extract CHELSA once for the shared occurrences, and freeze the winning full protocol on discovery taxa."
+            "extract CHELSA jointly, and freeze the winning full protocol on discovery taxa."
         )
     )
     parser.add_argument("--gbif-download", required=True)
@@ -212,19 +272,23 @@ def main(argv: list[str] | None = None) -> int:
     active_manifest = manifest.loc[manifest["predictor"].astype(str).isin(predictors)].reset_index(drop=True)
     universes = candidate_universes_from_manifest(active_manifest)
 
-    shared_occurrences, occ_provenance = extract_raster_values(first.occurrences, specs)
-    shared_occurrences.to_csv(out / "pilot_occurrences.csv", index=False)
-    occ_provenance.assign(table="occurrences").to_csv(out / "raster_provenance_occurrences.csv", index=False)
+    featured_occurrences, featured_backgrounds, raster_provenance = extract_protocol_grid_rasters(
+        first.occurrences,
+        {name: prepared.background for name, prepared in prepared_by_name.items()},
+        specs,
+    )
+    featured_occurrences.to_csv(out / "pilot_occurrences.csv", index=False)
+    raster_provenance.to_csv(out / "raster_provenance_joint_protocol_grid.csv", index=False)
+    raster_provenance.assign(table="occurrences").to_csv(out / "raster_provenance_occurrences.csv", index=False)
 
     protocol_specs = {}
-    for name, prepared in prepared_by_name.items():
-        background, bg_provenance = extract_raster_values(prepared.background, specs)
+    for name, background in featured_backgrounds.items():
         spec_dir = out / "specifications" / name
         background.to_csv(spec_dir / "background.csv", index=False)
-        bg_provenance.assign(table="background", data_specification=name).to_csv(
+        raster_provenance.assign(table="background", data_specification=name).to_csv(
             spec_dir / "raster_provenance_background.csv", index=False
         )
-        protocol_specs[name] = (shared_occurrences.copy(), background)
+        protocol_specs[name] = (featured_occurrences.copy(), background)
 
     result = benchmark_product_a_protocol_grid(
         protocol_specs,
@@ -259,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
         "max_predictors": args.max_predictors,
         "random_baseline_repeats": args.random_baseline_repeats,
         "seed": args.seed,
+        "raster_extraction_mode": "joint_protocol_grid",
         "occurrence_sha256": result.occurrence_sha256,
         "occurrence_feature_sha256": result.occurrence_feature_sha256,
     }
