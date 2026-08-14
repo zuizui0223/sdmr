@@ -16,6 +16,11 @@ from .gbif import (
     fetch_occurrence_search,
     match_taxon,
 )
+from .monthly import (
+    aggregate_monthly_climatology_features,
+    monthly_column_names,
+    validate_monthly_feature_recipes,
+)
 from .quality import (
     OccurrenceAdmissionConfig,
     OccurrenceAdmissionResult,
@@ -36,16 +41,19 @@ __all__ = [
     "OccurrenceAdmissionResult",
     "RasterLayerSpec",
     "admit_occurrences",
+    "aggregate_monthly_climatology_features",
     "bbox_membership",
     "build_chelsa_cog_uri",
     "extract_raster_values",
     "fetch_occurrence_search",
     "load_gbif_download",
     "match_taxon",
+    "monthly_column_names",
     "raster_specs_from_chelsa_manifest",
     "resolve_chelsa_manifest",
     "sample_target_group_background",
     "sha256_file",
     "species_admission_table",
     "thin_to_grid",
+    "validate_monthly_feature_recipes",
 ]
