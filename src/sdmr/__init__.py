@@ -23,6 +23,12 @@ from .heterogeneity import (
 from .metrics import boyce_index, presence_rank_score
 from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
+from .universe import (
+    CandidateUniverse,
+    UniverseMethodValidationResult,
+    benchmark_method_universe_taxon_split,
+    candidate_universes_from_manifest,
+)
 from .universality import (
     ProcessCoreSplitResult,
     RepeatedProcessCoreResult,
@@ -46,6 +52,7 @@ from .tuning import (
 )
 
 __all__ = [
+    "CandidateUniverse",
     "DriverCorpusResult",
     "FrozenProtocol",
     "MethodTaxonValidationResult",
@@ -55,6 +62,7 @@ __all__ = [
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
+    "UniverseMethodValidationResult",
     "aggregate_predictor_evidence",
     "aggregate_process_evidence_by_stratum",
     "aggregate_process_evidence_across_strata",
@@ -65,12 +73,14 @@ __all__ = [
     "benchmark_holdout_sensitivity",
     "benchmark_method_corpus",
     "benchmark_method_taxon_split",
+    "benchmark_method_universe_taxon_split",
     "benchmark_process_core_taxon_split",
     "benchmark_repeated_process_core_splits",
     "benchmark_species",
     "benchmark_species_methods",
     "benchmark_taxon_split",
     "boyce_index",
+    "candidate_universes_from_manifest",
     "choose_common_predictors",
     "choose_common_processes",
     "correlation_equivalence_groups",
@@ -87,4 +97,4 @@ __all__ = [
     "vif_values",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0-dev"
