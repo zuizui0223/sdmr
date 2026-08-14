@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .data.snapshot import SnapshotBounds, materialize_gbif_snapshot_subset
+from .data.snapshot import GBIF_CLOUD_PROVIDERS, SnapshotBounds, materialize_gbif_snapshot_subset
 from .data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
 from .data.snapshot_citation import validate_snapshot_citation
 
@@ -54,7 +54,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--snapshot-date", required=True, help="Monthly snapshot date YYYY-MM-01")
     parser.add_argument("--snapshot-doi", required=True, help="DOI recorded in this snapshot's GBIF citation.txt")
-    parser.add_argument("--region", default="us-east-1")
+    parser.add_argument(
+        "--cloud-provider",
+        choices=GBIF_CLOUD_PROVIDERS,
+        default="aws",
+        help=(
+            "Cloud transport for the snapshot Parquet files. AWS and Azure are GBIF mirrors of the same dated snapshot; "
+            "the DOI is always validated against the exact snapshot citation.txt before scanning."
+        ),
+    )
+    parser.add_argument("--region", default="us-east-1", help="AWS mirror region; ignored for Azure Parquet transport")
     parser.add_argument("--taxa", help="CSV containing scientific_name")
     parser.add_argument("--kingdom", help="Taxonomic kingdom, e.g. Plantae")
     parser.add_argument("--bounds", help="Optional CSV: west,east,south,north; rows are OR-combined")
@@ -128,9 +137,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.kingdom and not bounds and not species_names:
         parser.error("Kingdom-only extraction requires spatial bounds to avoid accidentally materializing a huge global subset")
 
-    # Validate DOI against the exact snapshot's own citation.txt before any
-    # expensive Parquet scan. This blocks accidental use of a DOI belonging to
-    # another GBIF occurrence download or another monthly snapshot.
+    # The DOI contract is independent of the Parquet transport. Validate it
+    # against the exact snapshot's AWS-hosted citation.txt before any cloud scan.
     citation = validate_snapshot_citation(
         args.snapshot_date,
         args.snapshot_doi,
@@ -145,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
         kingdom=args.kingdom,
         bounds=bounds,
         region=args.region,
+        cloud_provider=args.cloud_provider,
         one_per_grid_cell_degrees=args.one_per_grid_cell_degrees,
         overwrite=args.overwrite,
     )
