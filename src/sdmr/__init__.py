@@ -7,6 +7,7 @@ from .benchmark import (
     benchmark_species,
     benchmark_taxon_split,
 )
+from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .metrics import boyce_index, presence_rank_score
 from .model import ModelSpec
 from .tuning import (
@@ -40,6 +41,8 @@ __all__ = [
     "benchmark_taxon_split",
     "boyce_index",
     "choose_common_predictors",
+    "correlation_equivalence_groups",
+    "drop_group_importance",
     "drop_one_importance",
     "freeze_candidate_methods",
     "presence_rank_score",
