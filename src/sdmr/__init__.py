@@ -17,6 +17,13 @@ from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .metrics import boyce_index, presence_rank_score
 from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
+from .universality import (
+    ProcessCoreSplitResult,
+    RepeatedProcessCoreResult,
+    benchmark_process_core_taxon_split,
+    benchmark_repeated_process_core_splits,
+    choose_common_processes,
+)
 from .tuning import (
     FrozenProtocol,
     MethodTaxonValidationResult,
@@ -37,6 +44,8 @@ __all__ = [
     "FrozenProtocol",
     "MethodTaxonValidationResult",
     "ModelSpec",
+    "ProcessCoreSplitResult",
+    "RepeatedProcessCoreResult",
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
@@ -48,11 +57,14 @@ __all__ = [
     "benchmark_holdout_sensitivity",
     "benchmark_method_corpus",
     "benchmark_method_taxon_split",
+    "benchmark_process_core_taxon_split",
+    "benchmark_repeated_process_core_splits",
     "benchmark_species",
     "benchmark_species_methods",
     "benchmark_taxon_split",
     "boyce_index",
     "choose_common_predictors",
+    "choose_common_processes",
     "correlation_equivalence_groups",
     "equivalence_group_process_map",
     "drop_group_importance",
