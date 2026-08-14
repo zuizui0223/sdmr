@@ -12,6 +12,7 @@ from .heterogeneity import (
 )
 from .metrics import boyce_index, presence_rank_score
 from .model import ModelSpec
+from .promotion import ProductAPromotionAssessment, ProductAPromotionCriteria, assess_product_a_promotion
 from .protocol import (
     ProductAProtocolValidationResult,
     benchmark_product_a_protocol_grid,
@@ -57,6 +58,8 @@ __all__ = [
     "MethodTaxonValidationResult",
     "ModelSpec",
     "ProcessCoreSplitResult",
+    "ProductAPromotionAssessment",
+    "ProductAPromotionCriteria",
     "ProductAProtocolValidationResult",
     "RepeatedProcessCoreResult",
     "RepeatedProductAProtocolResult",
@@ -70,6 +73,7 @@ __all__ = [
     "aggregate_predictor_selection",
     "aggregate_process_evidence",
     "annotate_predictor_metadata",
+    "assess_product_a_promotion",
     "benchmark_driver_corpus_from_strategy",
     "benchmark_holdout_sensitivity",
     "benchmark_matched_data_specifications",
