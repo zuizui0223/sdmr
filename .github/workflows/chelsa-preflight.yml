@@ -1,0 +1,61 @@
+name: chelsa-preflight
+
+on:
+  pull_request:
+    paths:
+      - 'configs/chelsa_v2_1_plant_candidates.csv'
+      - 'src/sdmr/data/chelsa.py'
+      - 'src/sdmr/data/raster.py'
+      - 'src/sdmr/chelsa_cli.py'
+      - '.github/workflows/chelsa-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chelsa-preflight-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  active-universe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install geo dependencies
+        run: python -m pip install -e '.[geo]'
+      - name: Probe every active CHELSA candidate
+        run: |
+          sdmr-chelsa \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir chelsa_preflight \
+            --probe \
+            --require-probe-success
+      - name: Summarize preflight
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          p = Path('chelsa_preflight/chelsa_raster_probe.csv')
+          if not p.exists():
+              print('CHELSA probe ledger was not produced')
+          else:
+              df = pd.read_csv(p)
+              print(df.groupby('status').size().to_string())
+              failed = df.loc[df['status'].ne('ok'), ['predictor', 'uri', 'error']]
+              if len(failed):
+                  print('\nFailures:')
+                  print(failed.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chelsa-active-universe-preflight
+          path: chelsa_preflight/
+          if-no-files-found: warn
