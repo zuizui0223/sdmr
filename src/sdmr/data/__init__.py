@@ -33,10 +33,11 @@ from .snapshot import (
     GBIFSnapshotSubsetResult,
     SnapshotBounds,
     build_snapshot_filter_sql,
+    build_snapshot_select_query,
     gbif_snapshot_s3_uri,
     materialize_gbif_snapshot_subset,
 )
-from .snapshot_bounds import bounds_from_occurrences
+from .snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
 from .species_gate import species_admission_table
 
 __all__ = [
@@ -58,6 +59,7 @@ __all__ = [
     "bounds_from_occurrences",
     "build_chelsa_cog_uri",
     "build_snapshot_filter_sql",
+    "build_snapshot_select_query",
     "extract_raster_values",
     "fetch_occurrence_search",
     "gbif_snapshot_s3_uri",
@@ -72,5 +74,6 @@ __all__ = [
     "sha256_file",
     "species_admission_table",
     "thin_to_grid",
+    "tiled_bounds_from_occurrences",
     "validate_monthly_feature_recipes",
 ]
