@@ -36,6 +36,7 @@ from .snapshot import (
     gbif_snapshot_s3_uri,
     materialize_gbif_snapshot_subset,
 )
+from .snapshot_bounds import bounds_from_occurrences
 from .species_gate import species_admission_table
 
 __all__ = [
@@ -54,6 +55,7 @@ __all__ = [
     "admit_occurrences",
     "aggregate_monthly_climatology_features",
     "bbox_membership",
+    "bounds_from_occurrences",
     "build_chelsa_cog_uri",
     "build_snapshot_filter_sql",
     "extract_raster_values",
