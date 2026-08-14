@@ -44,7 +44,7 @@ def _supports_standard_universes(manifest: pd.DataFrame) -> bool:
     """Return true only when the standard universe labels are semantically real.
 
     A diagnostic ``--only`` subset must not be called ``bioclim19`` merely
-    because it contains some core-climate rows.  We require all BIO1--BIO19 and
+    because it contains some core-climate rows. We require all BIO1--BIO19 and
     at least two genuinely different standard predictor sets; otherwise the
     pilot is treated as one custom candidate universe.
     """
@@ -61,6 +61,36 @@ def _supports_standard_universes(manifest: pd.DataFrame) -> bool:
         return False
     fingerprints = {universe.fingerprint for universe in universes.values()}
     return len(fingerprints) >= 2
+
+
+def _extract_joint_rasters(
+    occurrences: pd.DataFrame,
+    background: pd.DataFrame,
+    specs,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Extract each raster once for both tables, then restore original row order.
+
+    Remote CHELSA rasters are expensive to open. Concatenating the two point
+    tables before calling ``extract_raster_values`` means each layer is opened
+    and sampled once instead of once per table. A temporary row-role column is
+    removed before returning, so downstream statistical semantics are unchanged.
+    """
+    marker = "__sdmr_point_role"
+    if marker in occurrences.columns or marker in background.columns:
+        raise ValueError(f"reserved column already present: {marker}")
+    occ = occurrences.copy()
+    bg = background.copy()
+    occ[marker] = "occurrences"
+    bg[marker] = "background"
+    combined = pd.concat([occ, bg], ignore_index=True, sort=False)
+    enriched, provenance = extract_raster_values(combined, specs)
+    occ_out = enriched.loc[enriched[marker].eq("occurrences")].drop(columns=[marker]).reset_index(drop=True)
+    bg_out = enriched.loc[enriched[marker].eq("background")].drop(columns=[marker]).reset_index(drop=True)
+    provenance = provenance.copy()
+    provenance["extraction_mode"] = "joint_occurrence_background"
+    provenance["n_occurrence_points"] = len(occurrences)
+    provenance["n_background_points"] = len(background)
+    return occ_out, bg_out, provenance
 
 
 def _validation_summary(metrics: pd.DataFrame, *, universe: str, strategy: str) -> pd.DataFrame:
@@ -238,12 +268,20 @@ def main(argv: list[str] | None = None) -> int:
         predictors = [spec.predictor for spec in specs]
         resolved_manifest = manifest.loc[manifest["predictor"].astype(str).isin(predictors)].reset_index(drop=True)
         resolution.to_csv(out / "chelsa_resolution_ledger.csv", index=False)
-        occurrences, occ_raster_provenance = extract_raster_values(occurrences, specs)
-        background, bg_raster_provenance = extract_raster_values(background, specs)
+        occurrences, background, raster_provenance = _extract_joint_rasters(occurrences, background, specs)
         occurrences.to_csv(out / "pilot_occurrences.csv", index=False)
         background.to_csv(out / "pilot_background.csv", index=False)
-        occ_raster_provenance.assign(table="occurrences").to_csv(out / "raster_provenance_occurrences.csv", index=False)
-        bg_raster_provenance.assign(table="background").to_csv(out / "raster_provenance_background.csv", index=False)
+        raster_provenance.assign(table="joint_occurrence_background").to_csv(
+            out / "raster_provenance_joint.csv", index=False
+        )
+        # Compatibility ledgers retain the historical filenames while making it
+        # explicit that both point tables were sampled in one raster-open pass.
+        raster_provenance.assign(table="occurrences", shared_open=True).to_csv(
+            out / "raster_provenance_occurrences.csv", index=False
+        )
+        raster_provenance.assign(table="background", shared_open=True).to_csv(
+            out / "raster_provenance_background.csv", index=False
+        )
 
     specification = {
         "gbif_download_key": args.gbif_download_key,
@@ -264,6 +302,7 @@ def main(argv: list[str] | None = None) -> int:
         "background_cell_size_degrees": args.background_cell_size_degrees,
         "allow_pilot_target_group": args.allow_pilot_target_group,
         "extract_chelsa": args.extract_chelsa,
+        "raster_extraction_mode": "joint_occurrence_background" if args.extract_chelsa else None,
         "predictors": predictors,
         "candidate_universe_tuning": bool(resolved_manifest is not None and _supports_standard_universes(resolved_manifest)),
         "run_method": args.run_method,
