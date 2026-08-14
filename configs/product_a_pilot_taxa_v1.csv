@@ -1,0 +1,13 @@
+scientific_name,pilot_stratum,reason
+Arabidopsis thaliana,temperate_annual_herb,small annual herb with dense public occurrence coverage
+Quercus robur,temperate_deciduous_tree,woody temperate broadleaf contrast
+Pinus sylvestris,boreal_temperate_conifer,conifer and cold-climate contrast
+Phragmites australis,wetland_grass,wetland monocot contrast
+Calluna vulgaris,temperate_shrub,shrub growth-form contrast
+Dryopteris filix-mas,fern,vascular non-seed-plant contrast
+Larrea tridentata,arid_shrub,arid-zone drought contrast
+Rhizophora mangle,tropical_mangrove,tropical coastal woody contrast
+Nothofagus pumilio,southern_temperate_tree,southern-temperate geographic contrast
+Eucalyptus pauciflora,montane_tree,cold-montane Southern Hemisphere contrast
+Picea mariana,boreal_conifer,boreal climatic contrast
+Typha latifolia,wetland_emergent,wetland emergent monocot contrast
