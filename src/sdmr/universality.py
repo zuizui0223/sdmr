@@ -149,6 +149,7 @@ def benchmark_process_core_taxon_split(
 
     validation_occ = _subset_taxa(occurrences, validation_species, species_col)
     validation_bg = _subset_taxa(background, validation_species, species_col)
+    validation_seed = random_state + 100_000
     full = benchmark_driver_corpus_from_strategy(
         validation_occ,
         validation_bg,
@@ -156,7 +157,7 @@ def benchmark_process_core_taxon_split(
         meta,
         strategy=strategy,
         species_col=species_col,
-        random_state=random_state + 100_000,
+        random_state=validation_seed,
         **driver_kwargs,
     )
     core = benchmark_driver_corpus_from_strategy(
@@ -166,7 +167,7 @@ def benchmark_process_core_taxon_split(
         core_meta,
         strategy=strategy,
         species_col=species_col,
-        random_state=random_state + 100_000,
+        random_state=validation_seed,
         **driver_kwargs,
     )
     comparison = _compare_validation(full.per_species_metrics, core.per_species_metrics)
@@ -185,7 +186,7 @@ def benchmark_process_core_taxon_split(
             random_meta,
             strategy=strategy,
             species_col=species_col,
-            random_state=random_state + 200_000 + repeat * 1_000,
+            random_state=validation_seed,
             **driver_kwargs,
         )
         if len(random_result.per_species_metrics):
