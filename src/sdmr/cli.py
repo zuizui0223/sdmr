@@ -9,6 +9,7 @@ import pandas as pd
 
 from .synthesis import benchmark_driver_corpus_from_strategy
 from .tuning import benchmark_method_taxon_split
+from .universality import benchmark_repeated_process_core_splits
 
 
 def _read_table(path: str) -> pd.DataFrame:
@@ -49,11 +50,21 @@ def _read_method_choice(path: str) -> str:
     return strategy
 
 
+def _resolve_frozen_strategy(args: argparse.Namespace, parser: argparse.ArgumentParser) -> str:
+    choice_strategy = _read_method_choice(args.method_choice) if args.method_choice else None
+    if args.strategy and choice_strategy and args.strategy != choice_strategy:
+        parser.error("--strategy conflicts with winning_strategy in --method-choice")
+    strategy = choice_strategy or args.strategy
+    if strategy is None:
+        parser.error("Product B requires --method-choice from Product A or an explicit frozen --strategy")
+    return strategy
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Tune plant SDMs with sealed occurrences (Product A) or apply the "
-            "already-frozen Product-A strategy to environmental-driver synthesis (Product B)."
+            "Tune plant SDMs with sealed occurrences (Product A), apply the frozen "
+            "Product-A strategy to driver synthesis, or validate a universal process core on unseen taxa."
         )
     )
     parser.add_argument("--occurrences", required=True)
@@ -62,21 +73,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument(
         "--mode",
-        choices=("method", "drivers"),
+        choices=("method", "drivers", "universality"),
         default="method",
-        help="method = Product A (default); drivers = Product B using a frozen Product-A strategy",
+        help=(
+            "method = Product A; drivers = Product B corpus synthesis; "
+            "universality = repeated discovery/validation taxon tests of a reduced process core"
+        ),
     )
     parser.add_argument(
         "--spatial-test-fraction",
         type=float,
         default=0.20,
-        help="Configurable fraction of spatial blocks reserved as sealed within-species answer checks.",
+        help="Fraction of spatial blocks reserved as sealed within-species answer checks.",
     )
     parser.add_argument(
         "--taxon-validation-fraction",
         type=float,
         default=0.20,
-        help="Product A: fraction of species reserved for unseen-taxon method validation.",
+        help="Fraction of species reserved for unseen-taxon validation.",
     )
     parser.add_argument(
         "--strategy",
@@ -88,6 +102,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Product B only: Product-A method_choice.txt containing winning_strategy=...",
     )
     parser.add_argument("--equivalence-threshold", type=float, default=0.90)
+    parser.add_argument(
+        "--min-process-selection-fraction",
+        type=float,
+        default=0.25,
+        help="Universality mode: discovery-taxon selection fraction required for a core process.",
+    )
+    parser.add_argument(
+        "--process-top-k",
+        type=int,
+        default=6,
+        help="Universality mode: maximum number of discovery-defined core processes.",
+    )
+    parser.add_argument(
+        "--universality-repeats",
+        type=int,
+        default=5,
+        help="Universality mode: number of repeated discovery/validation taxon splits.",
+    )
     parser.add_argument("--vif-threshold", type=float, default=5.0)
     parser.add_argument("--max-predictors", type=int, default=8)
     parser.add_argument("--random-baseline-repeats", type=int, default=20)
@@ -100,6 +132,12 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--taxon-validation-fraction must be between 0 and 1")
     if not 0 < args.equivalence_threshold <= 1:
         parser.error("--equivalence-threshold must be in (0, 1]")
+    if not 0 <= args.min_process_selection_fraction <= 1:
+        parser.error("--min-process-selection-fraction must be in [0, 1]")
+    if args.process_top_k < 1:
+        parser.error("--process-top-k must be >= 1")
+    if args.universality_repeats < 1:
+        parser.error("--universality-repeats must be >= 1")
     if args.vif_threshold <= 1:
         parser.error("--vif-threshold must be > 1")
     if args.max_predictors < 1:
@@ -136,14 +174,12 @@ def main(argv: list[str] | None = None) -> int:
             + f"taxon_validation_fraction={args.taxon_validation_fraction}\n",
             encoding="utf-8",
         )
-    else:
-        choice_strategy = _read_method_choice(args.method_choice) if args.method_choice else None
-        if args.strategy and choice_strategy and args.strategy != choice_strategy:
-            parser.error("--strategy conflicts with winning_strategy in --method-choice")
-        strategy = choice_strategy or args.strategy
-        if strategy is None:
-            parser.error("Product B requires --method-choice from Product A or an explicit frozen --strategy")
-        manifest = _read_manifest(args.predictors)
+        return 0
+
+    strategy = _resolve_frozen_strategy(args, parser)
+    manifest = _read_manifest(args.predictors)
+
+    if args.mode == "drivers":
         result = benchmark_driver_corpus_from_strategy(
             occurrences,
             background,
@@ -169,7 +205,37 @@ def main(argv: list[str] | None = None) -> int:
             + f"equivalence_threshold={args.equivalence_threshold}\n",
             encoding="utf-8",
         )
+        return 0
 
+    seeds = tuple(args.seed + i * 1009 for i in range(args.universality_repeats))
+    result = benchmark_repeated_process_core_splits(
+        occurrences,
+        background,
+        predictors,
+        manifest,
+        strategy=strategy,
+        seeds=seeds,
+        taxon_validation_fraction=args.taxon_validation_fraction,
+        min_process_selection_fraction=args.min_process_selection_fraction,
+        process_top_k=args.process_top_k,
+        sealed_fraction=args.spatial_test_fraction,
+        vif_threshold=args.vif_threshold,
+        max_predictors=args.max_predictors,
+        equivalence_threshold=args.equivalence_threshold,
+    )
+    result.splits.to_csv(out / "universality_process_splits.csv", index=False)
+    result.process_stability.to_csv(out / "universality_process_stability.csv", index=False)
+    result.validation_comparison.to_csv(out / "universality_validation.csv", index=False)
+    (out / "universality_strategy.txt").write_text(
+        "strategy=" + strategy + "\n"
+        + "seeds=" + ",".join(str(seed) for seed in seeds) + "\n"
+        + f"spatial_test_fraction={args.spatial_test_fraction}\n"
+        + f"taxon_validation_fraction={args.taxon_validation_fraction}\n"
+        + f"min_process_selection_fraction={args.min_process_selection_fraction}\n"
+        + f"process_top_k={args.process_top_k}\n"
+        + f"equivalence_threshold={args.equivalence_threshold}\n",
+        encoding="utf-8",
+    )
     return 0
 
 
