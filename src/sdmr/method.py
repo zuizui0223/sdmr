@@ -28,6 +28,7 @@ class SpeciesMethodBenchmarkResult:
     sealed_metrics: pd.DataFrame
     random_baseline: pd.DataFrame
     drop_one: pd.DataFrame
+    predictive_selection: pd.DataFrame
     train_blocks: tuple[int, ...]
     test_blocks: tuple[int, ...]
 
@@ -148,6 +149,32 @@ def benchmark_species_methods(
     )
     if not protocols:
         raise ValueError(f"{species_name}: no candidate method could be frozen.")
+
+    predictive_selection = pd.DataFrame(
+        columns=["species", "step", "predictor", "inner_presence_rank", "gain"]
+    )
+    predictive = protocols.get("predictive")
+    if predictive is not None:
+        selected_again, steps_again, _ = forward_select_predictors(
+            p_model, b_model, part.presence_blocks[p_tr], part.background_blocks[b_tr],
+            candidate_predictors, inner_folds=inner_folds, min_gain=min_gain,
+            max_predictors=max_predictors, model_spec=predictive.model_spec,
+        )
+        if tuple(selected_again) != predictive.predictors:
+            raise RuntimeError("Predictive selection was not reproducible after protocol freezing.")
+        predictive_selection = pd.DataFrame(
+            [
+                {
+                    "species": str(species_name),
+                    "step": step.step,
+                    "predictor": step.predictor,
+                    "inner_presence_rank": step.score,
+                    "gain": step.gain,
+                }
+                for step in steps_again
+            ]
+        )
+
     sealed_rows, drop_frames = [], []
     for strategy, protocol in protocols.items():
         metrics = evaluate_predictor_set(
@@ -168,7 +195,6 @@ def benchmark_species_methods(
             if len(imp):
                 drop_frames.append(imp.assign(species=str(species_name), strategy=strategy, model=protocol.model_spec.label))
     random_rows = []
-    predictive = protocols.get("predictive")
     if predictive is not None and random_repeats > 0:
         rng = np.random.default_rng(random_state + 100_000)
         candidates = np.array(list(dict.fromkeys(candidate_predictors)), dtype=object)
@@ -182,8 +208,13 @@ def benchmark_species_methods(
                 "predictors": ",".join(chosen), **metrics,
             })
     return SpeciesMethodBenchmarkResult(
-        str(species_name), protocols, grid.assign(species=str(species_name)),
-        pd.DataFrame(sealed_rows), pd.DataFrame(random_rows),
-        pd.concat(drop_frames, ignore_index=True) if drop_frames else pd.DataFrame(),
-        part.train_blocks, part.test_blocks,
+        species=str(species_name),
+        protocols=protocols,
+        tuning_grid=grid.assign(species=str(species_name)),
+        sealed_metrics=pd.DataFrame(sealed_rows),
+        random_baseline=pd.DataFrame(random_rows),
+        drop_one=pd.concat(drop_frames, ignore_index=True) if drop_frames else pd.DataFrame(),
+        predictive_selection=predictive_selection,
+        train_blocks=part.train_blocks,
+        test_blocks=part.test_blocks,
     )

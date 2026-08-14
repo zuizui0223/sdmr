@@ -15,6 +15,7 @@ from .drivers import (
 )
 from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .metrics import boyce_index, presence_rank_score
+from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
 from .tuning import (
     FrozenProtocol,
@@ -32,15 +33,18 @@ from .tuning import (
 )
 
 __all__ = [
+    "DriverCorpusResult",
     "FrozenProtocol",
     "MethodTaxonValidationResult",
     "ModelSpec",
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
+    "aggregate_predictor_evidence",
     "aggregate_predictor_selection",
     "aggregate_process_evidence",
     "annotate_predictor_metadata",
+    "benchmark_driver_corpus_from_strategy",
     "benchmark_holdout_sensitivity",
     "benchmark_method_corpus",
     "benchmark_method_taxon_split",

@@ -99,7 +99,7 @@ def aggregate_process_evidence(
         sel[species_col] = sel[species_col].astype(str)
         sel_sp = (
             sel.groupby([species_col, "process"], as_index=False)
-            .agg(selected=("predictor", "size"), incremental_gain=("gain", "sum"))
+            .agg(selected=("predictor", "size"), incremental_gain=("gain", lambda x: x.sum(min_count=1)))
         )
     else:
         sel_sp = pd.DataFrame(columns=[species_col, "process", "selected", "incremental_gain"])
@@ -107,17 +107,21 @@ def aggregate_process_evidence(
     grid = pd.MultiIndex.from_product([species, processes], names=[species_col, "process"]).to_frame(index=False)
     sel_grid = grid.merge(sel_sp, on=[species_col, "process"], how="left")
     sel_grid["selected"] = sel_grid["selected"].fillna(0).astype(int)
-    sel_grid["incremental_gain"] = pd.to_numeric(sel_grid["incremental_gain"], errors="coerce").fillna(0.0)
+    sel_grid["incremental_gain"] = pd.to_numeric(sel_grid["incremental_gain"], errors="coerce")
+    sel_grid.loc[(sel_grid["selected"] == 0) & sel_grid["incremental_gain"].isna(), "incremental_gain"] = 0.0
+    sel_grid["gain_known"] = sel_grid["incremental_gain"].notna()
     sel_summary = (
         sel_grid.groupby("process", as_index=False)
         .agg(
             species_selected=("selected", lambda x: int((x > 0).sum())),
+            species_with_incremental_gain=("gain_known", "sum"),
             mean_incremental_gain=("incremental_gain", "mean"),
             median_incremental_gain=("incremental_gain", "median"),
         )
     )
     sel_summary["n_species"] = len(species)
     sel_summary["selection_fraction"] = sel_summary["species_selected"] / len(species)
+    sel_summary["incremental_gain_coverage_fraction"] = sel_summary["species_with_incremental_gain"] / len(species)
 
     drop_required = {species_col, "predictor", "loss"}
     if not drop_one_rows.empty:
