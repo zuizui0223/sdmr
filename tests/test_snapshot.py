@@ -4,7 +4,9 @@ from sdmr.data.snapshot import (
     SnapshotBounds,
     build_snapshot_filter_sql,
     build_snapshot_select_query,
+    gbif_snapshot_azure_uri,
     gbif_snapshot_s3_uri,
+    gbif_snapshot_uri,
 )
 
 
@@ -14,6 +16,18 @@ def test_snapshot_uri_is_versioned_monthly_public_s3_path():
     )
     with pytest.raises(ValueError, match="first day"):
         gbif_snapshot_s3_uri("2026-08-14")
+
+
+def test_snapshot_uri_supports_official_azure_mirror_transport():
+    expected = (
+        "az://ai4edataeuwest.blob.core.windows.net/gbif/"
+        "occurrence/2026-08-01/occurrence.parquet/*"
+    )
+    assert gbif_snapshot_azure_uri("2026-08-01") == expected
+    assert gbif_snapshot_uri("2026-08-01", cloud_provider="azure") == expected
+    assert gbif_snapshot_uri("2026-08-01", cloud_provider="aws").startswith("s3://gbif-open-data-us-east-1/")
+    with pytest.raises(ValueError, match="Unsupported GBIF cloud provider"):
+        gbif_snapshot_uri("2026-08-01", cloud_provider="whatever")
 
 
 def test_snapshot_filter_supports_focal_taxa_and_dateline_bounds():
