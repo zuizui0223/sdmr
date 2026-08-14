@@ -1,0 +1,81 @@
+name: gbif-snapshot-catalog
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/gbif-snapshot-catalog.yml'
+      - 'src/sdmr/data/snapshot_catalog.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbif-snapshot-catalog-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Query GBIF snapshot download catalog
+        run: |
+          python - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+
+          url = 'https://api.gbif.org/v1/occurrence/download/user/download.gbif.org?limit=100&offset=0'
+          request = Request(url, headers={'User-Agent': 'sdmr-gbif-snapshot-catalog/0.1'})
+          with urlopen(request, timeout=60) as response:
+              payload = json.load(response)
+          with open('gbif_snapshot_catalog_raw.json', 'w', encoding='utf-8') as fh:
+              json.dump(payload, fh, indent=2, sort_keys=True)
+
+          if isinstance(payload, dict):
+              rows = payload.get('results') or payload.get('downloads') or payload.get('content') or []
+          else:
+              rows = payload
+          if not isinstance(rows, list) or not rows:
+              raise SystemExit(f'GBIF snapshot catalog returned no list rows: {type(payload).__name__}')
+
+          completed = []
+          for row in rows:
+              doi = str(row.get('doi') or '').strip()
+              status = str(row.get('status') or '').upper()
+              created = str(row.get('created') or '').strip()
+              if doi and created and (not status or status in {'SUCCEEDED', 'SUCCESS'}):
+                  completed.append(row)
+          if not completed:
+              raise SystemExit('GBIF snapshot catalog contained no completed DOI-bearing downloads')
+          completed.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
+          latest = completed[0]
+          summary = {
+              'catalog_url': url,
+              'catalog_rows': len(rows),
+              'doi_rows': len(completed),
+              'latest': {
+                  'key': latest.get('key'),
+                  'created': latest.get('created'),
+                  'doi': latest.get('doi'),
+                  'status': latest.get('status'),
+                  'format': (latest.get('request') or {}).get('format'),
+                  'source': latest.get('source'),
+                  'totalRecords': latest.get('totalRecords'),
+              },
+          }
+          with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
+              json.dump(summary, fh, indent=2, sort_keys=True)
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gbif-snapshot-catalog
+          path: |
+            gbif_snapshot_catalog_raw.json
+            gbif_snapshot_catalog_summary.json
+          if-no-files-found: error
