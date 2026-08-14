@@ -1,0 +1,59 @@
+name: real-api-smoke
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  diagnostic-real-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install SDMR geo dependencies
+        run: python -m pip install -e '.[geo]'
+      - name: Materialize diagnostic GBIF corpus
+        run: python scripts/real_api_smoke.py --output-dir diagnostic_input --records-per-taxon 180
+      - name: Run real GBIF × CHELSA pipeline smoke
+        run: |
+          sdmr-pilot \
+            --gbif-download diagnostic_input/diagnostic_occurrences.csv \
+            --gbif-download-key DIAGNOSTIC_GBIF_SEARCH_API_NONCITABLE \
+            --taxa diagnostic_input/diagnostic_taxa.csv \
+            --allow-pilot-target-group \
+            --output-dir diagnostic_result \
+            --min-occurrences 40 \
+            --min-unique-cells 25 \
+            --gate-cell-size-degrees 0.10 \
+            --m-strategy bbox \
+            --bbox-buffer-degrees 8 \
+            --background-points 250 \
+            --background-cell-size-degrees 0.10 \
+            --extract-chelsa \
+            --only bio1,bio4,bio12,bio15 \
+            --run-method \
+            --spatial-test-fraction 0.20 \
+            --taxon-validation-fraction 0.25 \
+            --max-predictors 4 \
+            --random-baseline-repeats 3 \
+            --seed 20260814
+      - name: Record diagnostic boundary
+        run: |
+          cat > diagnostic_result/DIAGNOSTIC_ONLY.txt <<'EOF'
+          This run uses GBIF occurrence search and focal-pilot-only target-group background.
+          It is a pipeline smoke test, not admissible evidence for Product-A method promotion.
+          Scientific promotion requires versioned/citable bulk or monthly-snapshot inputs and a predeclared broader target-group corpus.
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-real-gbif-chelsa-smoke
+          path: |
+            diagnostic_input/
+            diagnostic_result/
+          if-no-files-found: warn
