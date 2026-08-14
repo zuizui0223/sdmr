@@ -6,6 +6,7 @@ on:
       - agent/nested-spatial-raster-benchmark
     paths:
       - 'configs/gbif_snapshot_v1.csv'
+      - 'configs/product_a_v1_rerun_trigger.txt'
   workflow_dispatch:
 
 permissions:
