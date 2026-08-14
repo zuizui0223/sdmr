@@ -27,7 +27,7 @@ from .quality import (
     admit_occurrences,
     thin_to_grid,
 )
-from .raster import RasterLayerSpec, extract_raster_values, sha256_file
+from .raster import RasterLayerSpec, extract_raster_values, probe_raster_layers, sha256_file
 from .snapshot import (
     GBIF_AWS_REGIONS,
     GBIFSnapshotSubsetResult,
@@ -68,6 +68,7 @@ __all__ = [
     "materialize_gbif_snapshot_subset",
     "monthly_column_names",
     "occurrence_buffer_membership",
+    "probe_raster_layers",
     "raster_specs_from_chelsa_manifest",
     "resolve_chelsa_manifest",
     "sample_target_group_background",
