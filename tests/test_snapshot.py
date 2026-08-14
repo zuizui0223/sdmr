@@ -1,6 +1,11 @@
 import pytest
 
-from sdmr.data.snapshot import SnapshotBounds, build_snapshot_filter_sql, gbif_snapshot_s3_uri
+from sdmr.data.snapshot import (
+    SnapshotBounds,
+    build_snapshot_filter_sql,
+    build_snapshot_select_query,
+    gbif_snapshot_s3_uri,
+)
 
 
 def test_snapshot_uri_is_versioned_monthly_public_s3_path():
@@ -26,3 +31,32 @@ def test_snapshot_filter_supports_focal_taxa_and_dateline_bounds():
 def test_snapshot_filter_refuses_unbounded_global_extract():
     with pytest.raises(ValueError, match="at least one taxonomic/spatial filter"):
         build_snapshot_filter_sql(require_coordinates=True)
+
+
+def test_snapshot_select_query_can_deduplicate_target_group_cells():
+    query = build_snapshot_select_query(
+        uri="s3://bucket/occurrence.parquet/*",
+        selected_columns=["gbifid", "species", "decimallongitude", "decimallatitude"],
+        where_sql="kingdom = 'Plantae'",
+        longitude_column="decimallongitude",
+        latitude_column="decimallatitude",
+        order_column="gbifid",
+        one_per_grid_cell_degrees=0.1,
+    )
+    assert "ROW_NUMBER() OVER" in query
+    assert "FLOOR((\"decimallongitude\" + 180.0) / 0.1)" in query
+    assert "FLOOR((\"decimallatitude\" + 90.0) / 0.1)" in query
+    assert "WHERE __sdmr_rn = 1" in query
+
+
+def test_snapshot_select_query_rejects_invalid_grid_size():
+    with pytest.raises(ValueError, match="must be > 0"):
+        build_snapshot_select_query(
+            uri="s3://bucket/data/*",
+            selected_columns=["gbifid", "species", "decimallongitude", "decimallatitude"],
+            where_sql="kingdom = 'Plantae'",
+            longitude_column="decimallongitude",
+            latitude_column="decimallatitude",
+            order_column="gbifid",
+            one_per_grid_cell_degrees=0,
+        )
