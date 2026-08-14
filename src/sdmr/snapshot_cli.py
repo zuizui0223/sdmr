@@ -8,6 +8,7 @@ import pandas as pd
 
 from .data.snapshot import SnapshotBounds, materialize_gbif_snapshot_subset
 from .data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
+from .data.snapshot_citation import validate_snapshot_citation
 
 
 def _read_taxa(path: str) -> list[str]:
@@ -52,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     parser.add_argument("--snapshot-date", required=True, help="Monthly snapshot date YYYY-MM-01")
-    parser.add_argument("--snapshot-doi", required=True, help="DOI shown by GBIF for this monthly snapshot")
+    parser.add_argument("--snapshot-doi", required=True, help="DOI recorded in this snapshot's GBIF citation.txt")
     parser.add_argument("--region", default="us-east-1")
     parser.add_argument("--taxa", help="CSV containing scientific_name")
     parser.add_argument("--kingdom", help="Taxonomic kingdom, e.g. Plantae")
@@ -127,10 +128,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.kingdom and not bounds and not species_names:
         parser.error("Kingdom-only extraction requires spatial bounds to avoid accidentally materializing a huge global subset")
 
+    # Validate DOI against the exact snapshot's own citation.txt before any
+    # expensive Parquet scan. This blocks accidental use of a DOI belonging to
+    # another GBIF occurrence download or another monthly snapshot.
+    citation = validate_snapshot_citation(
+        args.snapshot_date,
+        args.snapshot_doi,
+        region=args.region,
+    )
+
     result = materialize_gbif_snapshot_subset(
         args.output,
         snapshot_date=args.snapshot_date,
-        snapshot_doi=args.snapshot_doi,
+        snapshot_doi=citation.doi,
         species_names=species_names,
         kingdom=args.kingdom,
         bounds=bounds,
@@ -138,9 +148,14 @@ def main(argv: list[str] | None = None) -> int:
         one_per_grid_cell_degrees=args.one_per_grid_cell_degrees,
         overwrite=args.overwrite,
     )
+    result.provenance["snapshot_citation_url"] = citation.citation_url
+    result.provenance["snapshot_citation_sha256"] = citation.citation_sha256
+    result.provenance["snapshot_citation_doi"] = citation.doi
+
     provenance_path = Path(args.provenance) if args.provenance else Path(str(args.output) + ".provenance.csv")
     provenance_path.parent.mkdir(parents=True, exist_ok=True)
     result.provenance.to_csv(provenance_path, index=False)
+    Path(str(args.output) + ".citation.txt").write_text(citation.citation_text, encoding="utf-8")
     return 0
 
 
