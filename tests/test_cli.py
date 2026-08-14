@@ -1,7 +1,8 @@
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 import pytest
 
-from sdmr.cli import _read_method_choice
+from sdmr.cli import _candidate_fingerprint, _read_method_choice, _resolve_frozen_choice
 
 
 def test_method_choice_requires_explicit_valid_winner(tmp_path: Path):
@@ -13,6 +14,45 @@ def test_method_choice_requires_explicit_valid_winner(tmp_path: Path):
     bad.write_text("winning_strategy=whatever\n", encoding="utf-8")
     with pytest.raises(ValueError):
         _read_method_choice(str(bad))
+
+
+def test_method_choice_freezes_predictor_universe_and_fingerprint(tmp_path: Path):
+    choice = tmp_path / "method_choice.txt"
+    predictors = ["bio1", "bio12", "gdd5"]
+    choice.write_text(
+        "winning_strategy=predictive\n"
+        "winning_universe=chelsa_bioclim\n"
+        f"winning_universe_sha256={_candidate_fingerprint(predictors)}\n"
+        "winning_predictors=bio1,bio12,gdd5\n",
+        encoding="utf-8",
+    )
+    args = Namespace(method_choice=str(choice), strategy=None)
+    strategy, frozen, values = _resolve_frozen_choice(
+        args,
+        ArgumentParser(add_help=False),
+        ["bio1", "bio12", "gdd5", "vpd"],
+    )
+    assert strategy == "predictive"
+    assert frozen == predictors
+    assert values["winning_universe"] == "chelsa_bioclim"
+
+
+def test_method_choice_rejects_changed_predictor_fingerprint(tmp_path: Path):
+    choice = tmp_path / "method_choice.txt"
+    choice.write_text(
+        "winning_strategy=vif\n"
+        "winning_universe=bioclim19\n"
+        "winning_universe_sha256=not-the-real-hash\n"
+        "winning_predictors=bio1,bio12\n",
+        encoding="utf-8",
+    )
+    args = Namespace(method_choice=str(choice), strategy=None)
+    with pytest.raises(SystemExit):
+        _resolve_frozen_choice(
+            args,
+            ArgumentParser(add_help=False),
+            ["bio1", "bio12", "vpd"],
+        )
 
 
 def test_universality_mode_inherits_frozen_strategy_and_writes_outputs(tmp_path, monkeypatch):
@@ -58,4 +98,6 @@ def test_universality_mode_inherits_frozen_strategy_and_writes_outputs(tmp_path,
     assert captured["strategy"] == "predictive"
     assert captured["seeds"] == (7, 1016, 2025)
     assert (out / "universality_process_stability.csv").exists()
-    assert "strategy=predictive" in (out / "universality_strategy.txt").read_text(encoding="utf-8")
+    text = (out / "universality_strategy.txt").read_text(encoding="utf-8")
+    assert "strategy=predictive" in text
+    assert "predictors=x" in text

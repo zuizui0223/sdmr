@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
 import pandas as pd
 
 from .synthesis import benchmark_driver_corpus_from_strategy
 from .tuning import benchmark_method_taxon_split
+from .universe import (
+    CandidateUniverse,
+    benchmark_method_universe_taxon_split,
+    candidate_universes_from_manifest,
+)
 from .universality import benchmark_repeated_process_core_splits
 
 
@@ -37,34 +44,87 @@ def _read_manifest(path: str) -> pd.DataFrame:
     return pd.read_csv(p)
 
 
-def _read_method_choice(path: str) -> str:
+def _read_method_choice_values(path: str) -> dict[str, str]:
     values: dict[str, str] = {}
     for line in Path(path).read_text(encoding="utf-8").splitlines():
         if not line.strip() or "=" not in line:
             continue
         key, value = line.split("=", 1)
         values[key.strip()] = value.strip()
+    return values
+
+
+def _read_method_choice(path: str) -> str:
+    values = _read_method_choice_values(path)
     strategy = values.get("winning_strategy", "")
     if strategy not in {"all", "vif", "predictive"}:
         raise ValueError("method_choice must contain winning_strategy=all|vif|predictive")
     return strategy
 
 
-def _resolve_frozen_strategy(args: argparse.Namespace, parser: argparse.ArgumentParser) -> str:
-    choice_strategy = _read_method_choice(args.method_choice) if args.method_choice else None
+def _candidate_fingerprint(predictors: list[str]) -> str:
+    encoded = json.dumps(list(predictors), separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _resolve_frozen_choice(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser,
+    available_predictors: list[str],
+) -> tuple[str, list[str], dict[str, str]]:
+    values = _read_method_choice_values(args.method_choice) if args.method_choice else {}
+    choice_strategy = values.get("winning_strategy") or None
+    if choice_strategy is not None and choice_strategy not in {"all", "vif", "predictive"}:
+        parser.error("winning_strategy in --method-choice must be all|vif|predictive")
     if args.strategy and choice_strategy and args.strategy != choice_strategy:
         parser.error("--strategy conflicts with winning_strategy in --method-choice")
     strategy = choice_strategy or args.strategy
     if strategy is None:
         parser.error("Product B requires --method-choice from Product A or an explicit frozen --strategy")
-    return strategy
+
+    frozen = [x for x in values.get("winning_predictors", "").split(",") if x]
+    if frozen:
+        available = set(available_predictors)
+        missing = [p for p in frozen if p not in available]
+        if missing:
+            parser.error(f"frozen winning_predictors are missing from --predictors manifest: {missing}")
+        predictors = frozen
+        expected = values.get("winning_universe_sha256", "")
+        observed = _candidate_fingerprint(predictors)
+        if expected and expected != observed:
+            parser.error("winning_predictors fingerprint does not match winning_universe_sha256")
+    else:
+        predictors = list(available_predictors)
+    return strategy, predictors, values
+
+
+def _validation_summary(metrics: pd.DataFrame, *, universe: str, strategy: str) -> pd.DataFrame:
+    if not len(metrics):
+        return pd.DataFrame()
+    return pd.DataFrame(
+        [
+            {
+                "universe": universe,
+                "strategy": strategy,
+                "n_species": int(metrics["species"].nunique()),
+                "mean_presence_rank": float(metrics["presence_rank"].mean()),
+                "median_presence_rank": float(metrics["presence_rank"].median()),
+                "mean_predictors": float(metrics["n_predictors"].mean()),
+            }
+        ]
+    )
+
+
+def _supports_standard_universes(manifest: pd.DataFrame) -> bool:
+    required = {"predictor", "source", "version", "candidate_class", "process", "mechanism"}
+    return required.issubset(manifest.columns) and bool((manifest["candidate_class"].astype(str) == "core_climate").any())
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Tune plant SDMs with sealed occurrences (Product A), apply the frozen "
-            "Product-A strategy to driver synthesis, or validate a universal process core on unseen taxa."
+            "Product-A choice to driver synthesis, or validate a universal process core on unseen taxa."
         )
     )
     parser.add_argument("--occurrences", required=True)
@@ -99,7 +159,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--method-choice",
-        help="Product B only: Product-A method_choice.txt containing winning_strategy=...",
+        help="Product B only: Product-A method_choice.txt containing the frozen strategy and predictor universe.",
     )
     parser.add_argument("--equivalence-threshold", type=float, default=0.90)
     parser.add_argument(
@@ -150,33 +210,76 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     if args.mode == "method":
-        result = benchmark_method_taxon_split(
-            occurrences,
-            background,
-            predictors,
-            taxon_validation_fraction=args.taxon_validation_fraction,
-            sealed_fraction=args.spatial_test_fraction,
-            vif_threshold=args.vif_threshold,
-            max_predictors=args.max_predictors,
-            random_repeats=args.random_baseline_repeats,
-            compute_drop_one=False,
-            random_state=args.seed,
-        )
-        result.discovery_metrics.to_csv(out / "method_discovery_metrics.csv", index=False)
-        result.discovery_summary.to_csv(out / "method_discovery_summary.csv", index=False)
-        result.validation_metrics.to_csv(out / "method_validation_metrics.csv", index=False)
-        result.validation_summary.to_csv(out / "method_validation_summary.csv", index=False)
-        (out / "method_choice.txt").write_text(
-            "winning_strategy=" + result.winning_strategy + "\n"
-            + "discovery_species=" + ",".join(result.discovery_species) + "\n"
-            + "validation_species=" + ",".join(result.validation_species) + "\n"
-            + f"spatial_test_fraction={args.spatial_test_fraction}\n"
-            + f"taxon_validation_fraction={args.taxon_validation_fraction}\n",
-            encoding="utf-8",
-        )
+        predictor_path = Path(args.predictors)
+        manifest = pd.read_csv(predictor_path) if predictor_path.suffix.lower() == ".csv" else None
+        if manifest is not None and _supports_standard_universes(manifest):
+            universes = candidate_universes_from_manifest(manifest)
+            result = benchmark_method_universe_taxon_split(
+                occurrences,
+                background,
+                universes,
+                taxon_validation_fraction=args.taxon_validation_fraction,
+                sealed_fraction=args.spatial_test_fraction,
+                vif_threshold=args.vif_threshold,
+                max_predictors=args.max_predictors,
+                random_repeats=args.random_baseline_repeats,
+                compute_drop_one=False,
+                random_state=args.seed,
+            )
+            result.discovery_metrics.to_csv(out / "method_discovery_metrics.csv", index=False)
+            result.discovery_summary.to_csv(out / "method_discovery_summary.csv", index=False)
+            result.validation_metrics.to_csv(out / "method_validation_metrics.csv", index=False)
+            _validation_summary(
+                result.validation_metrics,
+                universe=result.winning_universe,
+                strategy=result.winning_strategy,
+            ).to_csv(out / "method_validation_summary.csv", index=False)
+            (out / "method_choice.txt").write_text(
+                "winning_strategy=" + result.winning_strategy + "\n"
+                + "winning_universe=" + result.winning_universe + "\n"
+                + "winning_universe_sha256=" + result.winning_universe_sha256 + "\n"
+                + "winning_predictors=" + ",".join(result.winning_predictors) + "\n"
+                + f"n_winning_predictors={len(result.winning_predictors)}\n"
+                + "discovery_species=" + ",".join(result.discovery_species) + "\n"
+                + "validation_species=" + ",".join(result.validation_species) + "\n"
+                + f"spatial_test_fraction={args.spatial_test_fraction}\n"
+                + f"taxon_validation_fraction={args.taxon_validation_fraction}\n",
+                encoding="utf-8",
+            )
+        else:
+            result = benchmark_method_taxon_split(
+                occurrences,
+                background,
+                predictors,
+                taxon_validation_fraction=args.taxon_validation_fraction,
+                sealed_fraction=args.spatial_test_fraction,
+                vif_threshold=args.vif_threshold,
+                max_predictors=args.max_predictors,
+                random_repeats=args.random_baseline_repeats,
+                compute_drop_one=False,
+                random_state=args.seed,
+            )
+            result.discovery_metrics.to_csv(out / "method_discovery_metrics.csv", index=False)
+            result.discovery_summary.to_csv(out / "method_discovery_summary.csv", index=False)
+            result.validation_metrics.to_csv(out / "method_validation_metrics.csv", index=False)
+            result.validation_summary.to_csv(out / "method_validation_summary.csv", index=False)
+            custom = CandidateUniverse("custom", tuple(predictors))
+            (out / "method_choice.txt").write_text(
+                "winning_strategy=" + result.winning_strategy + "\n"
+                + "winning_universe=custom\n"
+                + "winning_universe_sha256=" + custom.fingerprint + "\n"
+                + "winning_predictors=" + ",".join(predictors) + "\n"
+                + f"n_winning_predictors={len(predictors)}\n"
+                + "discovery_species=" + ",".join(result.discovery_species) + "\n"
+                + "validation_species=" + ",".join(result.validation_species) + "\n"
+                + f"spatial_test_fraction={args.spatial_test_fraction}\n"
+                + f"taxon_validation_fraction={args.taxon_validation_fraction}\n",
+                encoding="utf-8",
+            )
         return 0
 
-    strategy = _resolve_frozen_strategy(args, parser)
+    strategy, frozen_predictors, choice_values = _resolve_frozen_choice(args, parser, predictors)
+    predictors = frozen_predictors
     manifest = _read_manifest(args.predictors)
 
     if args.mode == "drivers":
@@ -201,6 +304,9 @@ def main(argv: list[str] | None = None) -> int:
         result.process_summary.to_csv(out / "driver_process_summary.csv", index=False)
         (out / "driver_strategy.txt").write_text(
             "strategy=" + strategy + "\n"
+            + "winning_universe=" + choice_values.get("winning_universe", "explicit") + "\n"
+            + "winning_universe_sha256=" + _candidate_fingerprint(predictors) + "\n"
+            + "predictors=" + ",".join(predictors) + "\n"
             + f"spatial_test_fraction={args.spatial_test_fraction}\n"
             + f"equivalence_threshold={args.equivalence_threshold}\n",
             encoding="utf-8",
@@ -228,6 +334,9 @@ def main(argv: list[str] | None = None) -> int:
     result.validation_comparison.to_csv(out / "universality_validation.csv", index=False)
     (out / "universality_strategy.txt").write_text(
         "strategy=" + strategy + "\n"
+        + "winning_universe=" + choice_values.get("winning_universe", "explicit") + "\n"
+        + "winning_universe_sha256=" + _candidate_fingerprint(predictors) + "\n"
+        + "predictors=" + ",".join(predictors) + "\n"
         + "seeds=" + ",".join(str(seed) for seed in seeds) + "\n"
         + f"spatial_test_fraction={args.spatial_test_fraction}\n"
         + f"taxon_validation_fraction={args.taxon_validation_fraction}\n"
