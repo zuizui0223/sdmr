@@ -23,57 +23,77 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Query public GBIF occurrence-snapshot catalog
+      - name: Probe public GBIF occurrence-snapshot catalog
         run: |
           python - <<'PY'
           import json
+          from urllib.error import HTTPError, URLError
           from urllib.request import Request, urlopen
 
-          # GBIF's public portal exposes this GET endpoint. Its server-side
-          # controller retrieves the download.gbif.org user's occurrence
-          # downloads using GBIF's own authenticated backend connection.
           url = 'https://www.gbif.org/api/occurrence-snapshots?limit=100&offset=0'
           request = Request(url, headers={
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.2',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.3',
               'Accept': 'application/json',
           })
-          with urlopen(request, timeout=60) as response:
-              payload = json.load(response)
+          try:
+              with urlopen(request, timeout=60) as response:
+                  payload = json.load(response)
+          except (HTTPError, URLError) as exc:
+              summary = {
+                  'catalog_url': url,
+                  'available_from_github_actions': False,
+                  'error_type': type(exc).__name__,
+                  'http_status': getattr(exc, 'code', None),
+                  'message': str(exc),
+                  'action': (
+                      'Supply the exact snapshot date and DOI manually from the official GBIF Occurrence snapshots page. '
+                      'Do not guess or silently substitute a DOI.'
+                  ),
+              }
+              with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
+                  json.dump(summary, fh, indent=2, sort_keys=True)
+              print(json.dumps(summary, indent=2, sort_keys=True))
+              raise SystemExit(0)
+
           with open('gbif_snapshot_catalog_raw.json', 'w', encoding='utf-8') as fh:
               json.dump(payload, fh, indent=2, sort_keys=True)
-
           if isinstance(payload, dict):
               rows = payload.get('results') or payload.get('downloads') or payload.get('content') or []
           else:
               rows = payload
           if not isinstance(rows, list) or not rows:
-              raise SystemExit(f'GBIF snapshot catalog returned no list rows: {type(payload).__name__}')
-
-          completed = []
-          for row in rows:
-              doi = str(row.get('doi') or '').strip()
-              status = str(row.get('status') or '').upper()
-              created = str(row.get('created') or '').strip()
-              if doi and created and (not status or status in {'SUCCEEDED', 'SUCCESS'}):
-                  completed.append(row)
-          if not completed:
-              raise SystemExit('GBIF snapshot catalog contained no completed DOI-bearing downloads')
-          completed.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
-          latest = completed[0]
-          summary = {
-              'catalog_url': url,
-              'catalog_rows': len(rows),
-              'doi_rows': len(completed),
-              'latest': {
-                  'key': latest.get('key'),
-                  'created': latest.get('created'),
-                  'doi': latest.get('doi'),
-                  'status': latest.get('status'),
-                  'format': (latest.get('request') or {}).get('format'),
-                  'source': latest.get('source'),
-                  'totalRecords': latest.get('totalRecords'),
-              },
-          }
+              summary = {
+                  'catalog_url': url,
+                  'available_from_github_actions': True,
+                  'catalog_rows': 0,
+                  'message': f'No list rows returned; payload type={type(payload).__name__}',
+                  'action': 'Verify snapshot date and DOI manually from the official GBIF table.',
+              }
+          else:
+              completed = []
+              for row in rows:
+                  doi = str(row.get('doi') or '').strip()
+                  status = str(row.get('status') or '').upper()
+                  created = str(row.get('created') or '').strip()
+                  if doi and created and (not status or status in {'SUCCEEDED', 'SUCCESS'}):
+                      completed.append(row)
+              completed.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
+              latest = completed[0] if completed else {}
+              summary = {
+                  'catalog_url': url,
+                  'available_from_github_actions': True,
+                  'catalog_rows': len(rows),
+                  'doi_rows': len(completed),
+                  'latest': {
+                      'key': latest.get('key'),
+                      'created': latest.get('created'),
+                      'doi': latest.get('doi'),
+                      'status': latest.get('status'),
+                      'format': (latest.get('request') or {}).get('format') if latest else None,
+                      'source': latest.get('source'),
+                      'totalRecords': latest.get('totalRecords'),
+                  },
+              }
           with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
               json.dump(summary, fh, indent=2, sort_keys=True)
           print(json.dumps(summary, indent=2, sort_keys=True))
