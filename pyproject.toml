@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdmr"
-version = "0.2.0"
+version = "0.3.0.dev0"
 description = "Sealed-holdout tuning and cross-taxon predictor discovery for presence-only plant SDMs."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,12 +20,14 @@ dependencies = [
 test = ["pytest>=8"]
 geo = ["rasterio>=1.3"]
 parquet = ["pyarrow>=14"]
+cloud = ["duckdb>=1.2"]
 
 [project.scripts]
 sdmr = "sdmr.cli:main"
 sdmr-gbif-pilot = "sdmr.data_cli:main"
 sdmr-chelsa = "sdmr.chelsa_cli:main"
 sdmr-pilot = "sdmr.pilot_cli:main"
+sdmr-spec-select = "sdmr.spec_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

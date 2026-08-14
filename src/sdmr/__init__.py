@@ -23,6 +23,12 @@ from .heterogeneity import (
 from .metrics import boyce_index, presence_rank_score
 from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
+from .specification import (
+    DataSpecificationBenchmarkResult,
+    benchmark_matched_data_specifications,
+    occurrence_table_fingerprint,
+    validate_matched_occurrence_specifications,
+)
 from .universe import (
     CandidateUniverse,
     UniverseMethodValidationResult,
@@ -53,6 +59,7 @@ from .tuning import (
 
 __all__ = [
     "CandidateUniverse",
+    "DataSpecificationBenchmarkResult",
     "DriverCorpusResult",
     "FrozenProtocol",
     "MethodTaxonValidationResult",
@@ -71,6 +78,7 @@ __all__ = [
     "annotate_predictor_metadata",
     "benchmark_driver_corpus_from_strategy",
     "benchmark_holdout_sensitivity",
+    "benchmark_matched_data_specifications",
     "benchmark_method_corpus",
     "benchmark_method_taxon_split",
     "benchmark_method_universe_taxon_split",
@@ -88,13 +96,15 @@ __all__ = [
     "drop_group_importance",
     "drop_one_importance",
     "freeze_candidate_methods",
+    "occurrence_table_fingerprint",
     "presence_rank_score",
     "summarize_method_performance",
     "vif_prune_predictors",
     "validate_candidate_manifest",
     "summarize_process_heterogeneity",
+    "validate_matched_occurrence_specifications",
     "validate_species_metadata",
     "vif_values",
 ]
 
-__version__ = "0.3.0-dev"
+__version__ = "0.3.0.dev0"
