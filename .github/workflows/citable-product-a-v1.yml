@@ -1,0 +1,230 @@
+name: citable-product-a-v1
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/gbif_snapshot_v1.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: citable-product-a-v1
+  cancel-in-progress: false
+
+jobs:
+  product-a-v1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install SDMR cloud and geo dependencies
+        run: python -m pip install -e '.[cloud,geo,parquet]'
+
+      - name: Read frozen snapshot contract
+        run: |
+          python - <<'PY'
+          import csv
+          import os
+          from pathlib import Path
+
+          path = Path('configs/gbif_snapshot_v1.csv')
+          rows = list(csv.DictReader(path.open(encoding='utf-8')))
+          if len(rows) != 1:
+              raise SystemExit('configs/gbif_snapshot_v1.csv must contain exactly one data row')
+          row = rows[0]
+          required = ['snapshot_date', 'snapshot_doi', 'citation_sha256', 'download_key']
+          missing = [key for key in required if not str(row.get(key, '')).strip()]
+          if missing:
+              raise SystemExit(f'snapshot v1 config missing: {missing}')
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              for key in required:
+                  env.write(f"{key.upper()}={str(row[key]).strip()}\n")
+              env.write('REGION=us-east-1\n')
+              env.write('SEED=20260814\n')
+              env.write('SPATIAL_TEST_FRACTION=0.20\n')
+              env.write('TAXON_VALIDATION_FRACTION=0.25\n')
+              env.write('MIN_OCCURRENCES=80\n')
+              env.write('MIN_UNIQUE_CELLS=50\n')
+          print(row)
+          PY
+
+      - name: Preflight all 43 active CHELSA rasters
+        run: |
+          sdmr-chelsa \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir citable_preflight \
+            --probe \
+            --require-probe-success
+
+      - name: Materialize focal 12-species evidence from DOI-backed snapshot
+        run: |
+          mkdir -p citable_input citable_result
+          sdmr-gbif-snapshot \
+            --snapshot-date "$SNAPSHOT_DATE" \
+            --snapshot-doi "$SNAPSHOT_DOI" \
+            --region "$REGION" \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --output citable_input/focal.parquet \
+            --provenance citable_input/focal.provenance.csv
+
+      - name: Verify focal citation fingerprint
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          p = Path('citable_input/focal.parquet.citation.txt')
+          actual = hashlib.sha256(p.read_bytes()).hexdigest()
+          expected = os.environ['CITATION_SHA256'].lower()
+          print('citation_sha256', actual)
+          if actual != expected:
+              raise SystemExit(f'citation SHA mismatch: expected {expected}, got {actual}')
+          PY
+
+      - name: Materialize same-snapshot broader Plantae target group
+        run: |
+          sdmr-gbif-snapshot \
+            --snapshot-date "$SNAPSHOT_DATE" \
+            --snapshot-doi "$SNAPSHOT_DOI" \
+            --region "$REGION" \
+            --kingdom Plantae \
+            --bounds-from-occurrences citable_input/focal.parquet \
+            --bounds-mode tiles \
+            --bounds-tile-degrees 5 \
+            --bounds-buffer-km 500 \
+            --one-per-grid-cell-degrees 0.05 \
+            --output citable_input/target_group.parquet \
+            --provenance citable_input/target_group.provenance.csv
+
+      - name: Summarize immutable input evidence
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          for label in ['focal', 'target_group']:
+              p = f'citable_input/{label}.parquet'
+              df = pd.read_parquet(p)
+              print(label, 'rows=', len(df), 'species=', df['species'].nunique() if 'species' in df else None)
+              print(pd.read_csv(f'citable_input/{label}.provenance.csv').to_string(index=False))
+          PY
+
+      - name: Run matched M × universe × strategy Product-A grid
+        run: |
+          SOURCE_KEY="snapshot:${SNAPSHOT_DATE}:${SNAPSHOT_DOI}"
+          sdmr-pilot-grid \
+            --gbif-download citable_input/focal.parquet \
+            --gbif-download-key "$SOURCE_KEY" \
+            --target-group-download citable_input/target_group.parquet \
+            --target-group-download-key "$SOURCE_KEY" \
+            --checklist-key "snapshot-interpreted:${SNAPSHOT_DATE}" \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir citable_result \
+            --min-occurrences "$MIN_OCCURRENCES" \
+            --min-unique-cells "$MIN_UNIQUE_CELLS" \
+            --gate-cell-size-degrees 0.05 \
+            --spatial-test-fraction "$SPATIAL_TEST_FRACTION" \
+            --taxon-validation-fraction "$TAXON_VALIDATION_FRACTION" \
+            --vif-threshold 5 \
+            --max-predictors 8 \
+            --random-baseline-repeats 10 \
+            --seed "$SEED"
+
+      - name: Record citable v1 contract
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          result = Path('citable_result')
+          result.mkdir(parents=True, exist_ok=True)
+          def sha(path):
+              p = Path(path)
+              if not p.exists():
+                  return ''
+              h = hashlib.sha256()
+              with p.open('rb') as fh:
+                  for chunk in iter(lambda: fh.read(1024 * 1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+          def one_row(path):
+              p = Path(path)
+              if not p.exists():
+                  return {}
+              df = pd.read_csv(p)
+              return df.iloc[0].to_dict() if len(df) else {}
+          choice = {}
+          choice_path = result / 'product_a_protocol_choice.txt'
+          if choice_path.exists():
+              for line in choice_path.read_text(encoding='utf-8').splitlines():
+                  if '=' in line:
+                      k, v = line.split('=', 1)
+                      choice[k] = v
+          focal = one_row('citable_input/focal.provenance.csv')
+          target = one_row('citable_input/target_group.provenance.csv')
+          probe_path = Path('citable_preflight/chelsa_raster_probe.csv')
+          probe = pd.read_csv(probe_path) if probe_path.exists() else pd.DataFrame()
+          contract = {
+              'protocol_version': 'product_a_v1',
+              'snapshot_date': os.environ.get('SNAPSHOT_DATE'),
+              'snapshot_doi': os.environ.get('SNAPSHOT_DOI'),
+              'download_key': os.environ.get('DOWNLOAD_KEY'),
+              'citation_sha256_expected': os.environ.get('CITATION_SHA256'),
+              'citation_sha256_focal': focal.get('snapshot_citation_sha256', ''),
+              'target_citation_sha256': target.get('snapshot_citation_sha256', ''),
+              'region': os.environ.get('REGION'),
+              'seed': int(os.environ.get('SEED', 0)),
+              'spatial_test_fraction': float(os.environ.get('SPATIAL_TEST_FRACTION', 'nan')),
+              'taxon_validation_fraction': float(os.environ.get('TAXON_VALIDATION_FRACTION', 'nan')),
+              'min_occurrences': int(os.environ.get('MIN_OCCURRENCES', 0)),
+              'min_unique_cells': int(os.environ.get('MIN_UNIQUE_CELLS', 0)),
+              'taxon_panel_sha256': sha('configs/product_a_pilot_taxa_v1.csv'),
+              'm_grid_sha256': sha('configs/product_a_buffer_specs_v1.csv'),
+              'candidate_manifest_sha256': sha('configs/chelsa_v2_1_plant_candidates.csv'),
+              'focal_subset_sha256': focal.get('sha256', ''),
+              'target_subset_sha256': target.get('sha256', ''),
+              'focal_query_sha256': focal.get('query_sha256', ''),
+              'target_query_sha256': target.get('query_sha256', ''),
+              'focal_rows': int(focal.get('n_rows', 0) or 0),
+              'target_rows': int(target.get('n_rows', 0) or 0),
+              'chelsa_probe_rows': int(len(probe)),
+              'chelsa_probe_failures': int(probe['status'].ne('ok').sum()) if 'status' in probe else None,
+              'protocol_choice': choice,
+          }
+          (result / 'citable_snapshot_contract.json').write_text(
+              json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          PY
+          cp configs/gbif_snapshot_v1.csv citable_result/gbif_snapshot_v1.csv
+          cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
+          cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
+          DOI-backed Product-A v1. Snapshot DOI was parsed from and revalidated against the exact S3 snapshot citation.txt.
+          This single run is citable pilot evidence, not automatic protocol promotion.
+          Promotion requires frozen-evidence repeated seed/holdout stability and an explicit predeclared promotion assessment.
+          EOF
+
+      - name: Upload citable Product-A v1 bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citable-product-a-v1-${{ env.SNAPSHOT_DATE }}
+          path: |
+            citable_preflight/
+            citable_input/
+            citable_result/
+          if-no-files-found: error
+          retention-days: 90
