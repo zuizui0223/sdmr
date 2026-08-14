@@ -1,0 +1,229 @@
+name: citable-product-a-pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      snapshot_date:
+        description: "GBIF monthly snapshot date (YYYY-MM-01)"
+        required: true
+        type: string
+      snapshot_doi:
+        description: "GBIF DOI for exactly that monthly snapshot"
+        required: true
+        type: string
+      region:
+        description: "Nearest GBIF AWS Open Data mirror"
+        required: true
+        default: "us-east-1"
+        type: choice
+        options:
+          - us-east-1
+          - eu-central-1
+          - ap-southeast-2
+          - af-south-1
+          - sa-east-1
+      seed:
+        description: "Predeclared Product-A split seed"
+        required: true
+        default: "20260814"
+        type: string
+      spatial_test_fraction:
+        description: "Sealed within-species spatial-block fraction"
+        required: true
+        default: "0.20"
+        type: string
+      taxon_validation_fraction:
+        description: "Unseen-taxon validation fraction"
+        required: true
+        default: "0.25"
+        type: string
+      min_occurrences:
+        description: "Minimum admitted occurrences per pilot species"
+        required: true
+        default: "80"
+        type: string
+      min_unique_cells:
+        description: "Minimum independent 0.05-degree cells per pilot species"
+        required: true
+        default: "50"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: citable-product-a-${{ inputs.snapshot_date }}-${{ inputs.region }}-${{ inputs.seed }}
+  cancel-in-progress: false
+
+jobs:
+  product-a-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install SDMR cloud and geo dependencies
+        run: python -m pip install -e '.[cloud,geo,parquet]'
+
+      - name: Freeze workflow inputs
+        run: |
+          mkdir -p citable_input citable_result
+          cat > citable_input/workflow_inputs.txt <<EOF
+          snapshot_date=${{ inputs.snapshot_date }}
+          snapshot_doi=${{ inputs.snapshot_doi }}
+          region=${{ inputs.region }}
+          seed=${{ inputs.seed }}
+          spatial_test_fraction=${{ inputs.spatial_test_fraction }}
+          taxon_validation_fraction=${{ inputs.taxon_validation_fraction }}
+          min_occurrences=${{ inputs.min_occurrences }}
+          min_unique_cells=${{ inputs.min_unique_cells }}
+          taxon_panel=configs/product_a_pilot_taxa_v1.csv
+          m_grid=configs/product_a_buffer_specs_v1.csv
+          target_group_prefilter=occupied_5deg_tiles_plus_500km
+          target_group_cloud_cell_degrees=0.05
+          EOF
+
+      - name: Materialize focal taxa from citable GBIF snapshot
+        run: |
+          sdmr-gbif-snapshot \
+            --snapshot-date '${{ inputs.snapshot_date }}' \
+            --snapshot-doi '${{ inputs.snapshot_doi }}' \
+            --region '${{ inputs.region }}' \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --output citable_input/focal.parquet \
+            --provenance citable_input/focal.provenance.csv
+
+      - name: Materialize broader Plantae target-group sampling frame
+        run: |
+          sdmr-gbif-snapshot \
+            --snapshot-date '${{ inputs.snapshot_date }}' \
+            --snapshot-doi '${{ inputs.snapshot_doi }}' \
+            --region '${{ inputs.region }}' \
+            --kingdom Plantae \
+            --bounds-from-occurrences citable_input/focal.parquet \
+            --bounds-mode tiles \
+            --bounds-tile-degrees 5 \
+            --bounds-buffer-km 500 \
+            --one-per-grid-cell-degrees 0.05 \
+            --output citable_input/target_group.parquet \
+            --provenance citable_input/target_group.provenance.csv
+
+      - name: Run matched Product-A protocol grid
+        run: |
+          SOURCE_KEY="snapshot:${{ inputs.snapshot_date }}:${{ inputs.snapshot_doi }}"
+          sdmr-pilot-grid \
+            --gbif-download citable_input/focal.parquet \
+            --gbif-download-key "$SOURCE_KEY" \
+            --target-group-download citable_input/target_group.parquet \
+            --target-group-download-key "$SOURCE_KEY" \
+            --checklist-key 'snapshot-interpreted:${{ inputs.snapshot_date }}' \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir citable_result \
+            --min-occurrences '${{ inputs.min_occurrences }}' \
+            --min-unique-cells '${{ inputs.min_unique_cells }}' \
+            --gate-cell-size-degrees 0.05 \
+            --spatial-test-fraction '${{ inputs.spatial_test_fraction }}' \
+            --taxon-validation-fraction '${{ inputs.taxon_validation_fraction }}' \
+            --vif-threshold 5 \
+            --max-predictors 8 \
+            --random-baseline-repeats 10 \
+            --seed '${{ inputs.seed }}'
+
+      - name: Record snapshot and analysis contract
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path("citable_input")
+          result = Path("citable_result")
+          result.mkdir(parents=True, exist_ok=True)
+
+          def one_row(path):
+              p = Path(path)
+              if not p.exists():
+                  return {}
+              frame = pd.read_csv(p)
+              return frame.iloc[0].to_dict() if len(frame) else {}
+
+          def sha(path):
+              p = Path(path)
+              if not p.exists():
+                  return ""
+              h = hashlib.sha256()
+              with p.open("rb") as fh:
+                  for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+                      h.update(chunk)
+              return h.hexdigest()
+
+          focal = one_row(root / "focal.provenance.csv")
+          target = one_row(root / "target_group.provenance.csv")
+          choice = {}
+          choice_path = result / "product_a_protocol_choice.txt"
+          if choice_path.exists():
+              for line in choice_path.read_text(encoding="utf-8").splitlines():
+                  if "=" in line:
+                      k, v = line.split("=", 1)
+                      choice[k] = v
+
+          contract = {
+              "source_type": "gbif_monthly_cloud_snapshot",
+              "snapshot_date": "${{ inputs.snapshot_date }}",
+              "snapshot_doi": "${{ inputs.snapshot_doi }}",
+              "region": "${{ inputs.region }}",
+              "seed": int("${{ inputs.seed }}"),
+              "spatial_test_fraction": float("${{ inputs.spatial_test_fraction }}"),
+              "taxon_validation_fraction": float("${{ inputs.taxon_validation_fraction }}"),
+              "min_occurrences": int("${{ inputs.min_occurrences }}"),
+              "min_unique_cells": int("${{ inputs.min_unique_cells }}"),
+              "taxon_panel": "configs/product_a_pilot_taxa_v1.csv",
+              "taxon_panel_sha256": sha("configs/product_a_pilot_taxa_v1.csv"),
+              "m_grid": "configs/product_a_buffer_specs_v1.csv",
+              "m_grid_sha256": sha("configs/product_a_buffer_specs_v1.csv"),
+              "candidate_manifest_sha256": sha("configs/chelsa_v2_1_plant_candidates.csv"),
+              "focal_snapshot_query_sha256": str(focal.get("query_sha256", "")),
+              "focal_subset_sha256": str(focal.get("sha256", "")),
+              "focal_rows": int(focal.get("n_rows", 0) or 0),
+              "target_snapshot_query_sha256": str(target.get("query_sha256", "")),
+              "target_subset_sha256": str(target.get("sha256", "")),
+              "target_rows": int(target.get("n_rows", 0) or 0),
+              "target_sampling_mode": str(target.get("sampling_mode", "")),
+              "target_grid_cell_degrees": target.get("one_per_grid_cell_degrees", ""),
+              "target_prefilter": "occupied_5deg_tiles_plus_500km",
+              "protocol_choice": choice,
+          }
+          (result / "citable_snapshot_contract.json").write_text(
+              json.dumps(contract, indent=2, sort_keys=True), encoding="utf-8"
+          )
+          PY
+
+          cp citable_input/focal.provenance.csv citable_result/focal_snapshot_provenance.csv 2>/dev/null || true
+          cp citable_input/target_group.provenance.csv citable_result/target_group_snapshot_provenance.csv 2>/dev/null || true
+          cp citable_input/workflow_inputs.txt citable_result/workflow_inputs.txt 2>/dev/null || true
+          cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
+          This run is backed by a declared GBIF monthly snapshot DOI and a predeclared Product-A pilot panel/M grid.
+          It is eligible evidence for Product-A pilot evaluation, unlike the search-API diagnostic smoke test.
+          A single run is not sufficient for protocol promotion: promotion still requires repeated seeds/holdout fractions,
+          stability across reasonable admission/background specifications, and transfer to taxa excluded from protocol selection.
+          EOF
+
+      - name: Upload citable Product-A pilot bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citable-product-a-${{ inputs.snapshot_date }}-seed-${{ inputs.seed }}
+          path: |
+            citable_input/
+            citable_result/
+          if-no-files-found: error
+          retention-days: 90
