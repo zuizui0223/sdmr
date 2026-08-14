@@ -1,0 +1,30 @@
+predictor,source,process,notes
+bio1,CHELSA-v2.1-BIOCLIM,temperature,annual mean temperature
+bio2,CHELSA-v2.1-BIOCLIM,temperature,mean diurnal range
+bio3,CHELSA-v2.1-BIOCLIM,temperature,isothermality
+bio4,CHELSA-v2.1-BIOCLIM,temperature,temperature seasonality
+bio5,CHELSA-v2.1-BIOCLIM,temperature,max temperature warmest month
+bio6,CHELSA-v2.1-BIOCLIM,temperature,min temperature coldest month
+bio7,CHELSA-v2.1-BIOCLIM,temperature,annual temperature range
+bio8,CHELSA-v2.1-BIOCLIM,temperature,mean temperature wettest quarter
+bio9,CHELSA-v2.1-BIOCLIM,temperature,mean temperature driest quarter
+bio10,CHELSA-v2.1-BIOCLIM,temperature,mean temperature warmest quarter
+bio11,CHELSA-v2.1-BIOCLIM,temperature,mean temperature coldest quarter
+bio12,CHELSA-v2.1-BIOCLIM,water,annual precipitation
+bio13,CHELSA-v2.1-BIOCLIM,water,precipitation wettest month
+bio14,CHELSA-v2.1-BIOCLIM,water,precipitation driest month
+bio15,CHELSA-v2.1-BIOCLIM,water,precipitation seasonality
+bio16,CHELSA-v2.1-BIOCLIM,water,precipitation wettest quarter
+bio17,CHELSA-v2.1-BIOCLIM,water,precipitation driest quarter
+bio18,CHELSA-v2.1-BIOCLIM,water,precipitation warmest quarter
+bio19,CHELSA-v2.1-BIOCLIM,water,precipitation coldest quarter
+vpd,CHELSA-v2.1-BIOCLIM+,atmospheric_drought,vapor pressure deficit
+gdd5,CHELSA-v2.1-BIOCLIM+,energy,growing degree days above 5 C
+gsl,CHELSA-v2.1-BIOCLIM+,phenology,growing season length
+gsp,CHELSA-v2.1-BIOCLIM+,water,growing season precipitation
+gst,CHELSA-v2.1-BIOCLIM+,temperature,growing season temperature
+pet,CHELSA-v2.1-BIOCLIM+,water,potential evapotranspiration
+cmi,CHELSA-v2.1-BIOCLIM+,water,climate moisture index
+rsds,CHELSA-v2.1-BIOCLIM+,radiation,surface downwelling shortwave radiation
+sfcWind,CHELSA-v2.1-BIOCLIM+,wind,near-surface wind speed
+scd,CHELSA-v2.1-BIOCLIM+,cold,snow cover days
