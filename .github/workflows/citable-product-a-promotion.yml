@@ -60,7 +60,7 @@ jobs:
           root = Path('source_stability')
           runs = root / 'protocol_stability_runs.csv'
           choice = root / 'protocol_choice_stability.csv'
-          paired = root / 'protocol_stability_paired_validation_deltas.csv'
+          paired = root / 'protocol_validation_paired_deltas.csv'
           for path in (runs, choice, paired):
               if not path.exists():
                   raise SystemExit(f'missing required stability output: {path}')
