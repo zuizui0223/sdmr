@@ -20,7 +20,9 @@ class ProcessCoreSplitResult:
     validation_full_metrics: pd.DataFrame
     validation_core_metrics: pd.DataFrame
     validation_comparison: pd.DataFrame
+    validation_process_drop: pd.DataFrame
     random_core_metrics: pd.DataFrame
+    core_vs_random: pd.DataFrame
 
 
 @dataclass
@@ -28,6 +30,9 @@ class RepeatedProcessCoreResult:
     splits: pd.DataFrame
     process_stability: pd.DataFrame
     validation_comparison: pd.DataFrame
+    validation_process_drop: pd.DataFrame
+    random_core_metrics: pd.DataFrame
+    core_vs_random: pd.DataFrame
 
 
 def choose_common_processes(
@@ -95,6 +100,82 @@ def _compare_validation(full: pd.DataFrame, core: pd.DataFrame) -> pd.DataFrame:
     out["core_retained_fraction_above_random"] = (
         (out["core_presence_rank"] - 0.5) / (out["full_presence_rank"] - 0.5).replace(0, np.nan)
     )
+    return out
+
+
+def _validation_process_drop(
+    validation_occ: pd.DataFrame,
+    validation_bg: pd.DataFrame,
+    core_result,
+    core_meta: pd.DataFrame,
+    core_processes: Sequence[str],
+    *,
+    strategy: str,
+    species_col: str,
+    validation_seed: int,
+    driver_kwargs: dict,
+) -> pd.DataFrame:
+    """Measure unseen-taxon necessity of each frozen core process on matched blocks."""
+
+    core_metrics = core_result.per_species_metrics[["species", "presence_rank", "boyce", "n_predictors"]].copy()
+    frames: list[pd.DataFrame] = []
+    for process in core_processes:
+        reduced_meta = core_meta.loc[core_meta["process"].astype(str) != str(process)].reset_index(drop=True)
+        if not len(reduced_meta):
+            frame = core_metrics.rename(
+                columns={
+                    "presence_rank": "core_presence_rank",
+                    "boyce": "core_boyce",
+                    "n_predictors": "core_n_predictors",
+                }
+            )
+            frame["without_process_presence_rank"] = 0.5
+            frame["without_process_boyce"] = np.nan
+            frame["without_process_n_predictors"] = 0
+            frame["comparison_baseline"] = "uninformative_rank_0.5"
+        else:
+            reduced_predictors = reduced_meta["predictor"].astype(str).tolist()
+            reduced = benchmark_driver_corpus_from_strategy(
+                validation_occ,
+                validation_bg,
+                reduced_predictors,
+                reduced_meta,
+                strategy=strategy,
+                species_col=species_col,
+                random_state=validation_seed,
+                **driver_kwargs,
+            )
+            left = core_metrics.rename(
+                columns={
+                    "presence_rank": "core_presence_rank",
+                    "boyce": "core_boyce",
+                    "n_predictors": "core_n_predictors",
+                }
+            )
+            right = reduced.per_species_metrics[["species", "presence_rank", "boyce", "n_predictors"]].rename(
+                columns={
+                    "presence_rank": "without_process_presence_rank",
+                    "boyce": "without_process_boyce",
+                    "n_predictors": "without_process_n_predictors",
+                }
+            )
+            frame = left.merge(right, on="species", how="inner", validate="one_to_one")
+            frame["comparison_baseline"] = "retuned_core_without_process"
+        frame["process"] = str(process)
+        frame["process_drop_loss"] = frame["core_presence_rank"] - frame["without_process_presence_rank"]
+        frames.append(frame)
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def _compare_core_to_random(core_metrics: pd.DataFrame, random_metrics: pd.DataFrame) -> pd.DataFrame:
+    if not len(core_metrics) or not len(random_metrics):
+        return pd.DataFrame()
+    core = core_metrics[["species", "presence_rank"]].rename(columns={"presence_rank": "core_presence_rank"})
+    random = random_metrics[["species", "repeat", "processes", "n_processes", "presence_rank"]].rename(
+        columns={"presence_rank": "random_core_presence_rank"}
+    )
+    out = random.merge(core, on="species", how="inner", validate="many_to_one")
+    out["core_minus_random_presence_rank"] = out["core_presence_rank"] - out["random_core_presence_rank"]
     return out
 
 
@@ -171,6 +252,17 @@ def benchmark_process_core_taxon_split(
         **driver_kwargs,
     )
     comparison = _compare_validation(full.per_species_metrics, core.per_species_metrics)
+    process_drop = _validation_process_drop(
+        validation_occ,
+        validation_bg,
+        core,
+        core_meta,
+        core_processes,
+        strategy=strategy,
+        species_col=species_col,
+        validation_seed=validation_seed,
+        driver_kwargs=driver_kwargs,
+    )
 
     random_frames = []
     all_processes = meta["process"].drop_duplicates().astype(str).to_numpy(object)
@@ -197,6 +289,8 @@ def benchmark_process_core_taxon_split(
                     n_processes=n_core,
                 )
             )
+    random_metrics = pd.concat(random_frames, ignore_index=True) if random_frames else pd.DataFrame()
+    core_vs_random = _compare_core_to_random(core.per_species_metrics, random_metrics)
 
     return ProcessCoreSplitResult(
         discovery_species=discovery_species,
@@ -206,7 +300,9 @@ def benchmark_process_core_taxon_split(
         validation_full_metrics=full.per_species_metrics,
         validation_core_metrics=core.per_species_metrics,
         validation_comparison=comparison,
-        random_core_metrics=pd.concat(random_frames, ignore_index=True) if random_frames else pd.DataFrame(),
+        validation_process_drop=process_drop,
+        random_core_metrics=random_metrics,
+        core_vs_random=core_vs_random,
     )
 
 
@@ -220,11 +316,14 @@ def benchmark_repeated_process_core_splits(
     seeds: Iterable[int] = (11, 22, 33, 44, 55),
     **kwargs,
 ) -> RepeatedProcessCoreResult:
-    """Repeat taxon-level discovery/validation and report process-core stability."""
+    """Repeat taxon-level discovery/validation and report process-core stability and necessity."""
 
     seed_list = [int(seed) for seed in seeds]
     split_rows = []
     comparison_frames = []
+    process_drop_frames = []
+    random_frames = []
+    core_random_frames = []
     for split_id, seed in enumerate(seed_list):
         result = benchmark_process_core_taxon_split(
             occurrences,
@@ -246,24 +345,45 @@ def benchmark_repeated_process_core_splits(
                     "n_validation_species": len(result.validation_species),
                 }
             )
-        comparison_frames.append(
-            result.validation_comparison.assign(split_id=split_id, seed=int(seed))
-        )
+        comparison_frames.append(result.validation_comparison.assign(split_id=split_id, seed=int(seed)))
+        if len(result.validation_process_drop):
+            process_drop_frames.append(result.validation_process_drop.assign(split_id=split_id, seed=int(seed)))
+        if len(result.random_core_metrics):
+            random_frames.append(result.random_core_metrics.assign(split_id=split_id, seed=int(seed)))
+        if len(result.core_vs_random):
+            core_random_frames.append(result.core_vs_random.assign(split_id=split_id, seed=int(seed)))
 
     splits = pd.DataFrame(split_rows)
     total_splits = len(seed_list)
+    process_drop = pd.concat(process_drop_frames, ignore_index=True) if process_drop_frames else pd.DataFrame()
     if len(splits):
-        stability = (
-            splits.groupby("process", as_index=False)
-            .agg(splits_selected=("split_id", "nunique"))
-        )
+        stability = splits.groupby("process", as_index=False).agg(splits_selected=("split_id", "nunique"))
         stability["n_splits"] = total_splits
         stability["core_stability"] = stability["splits_selected"] / total_splits
-        stability = stability.sort_values("core_stability", ascending=False, kind="mergesort").reset_index(drop=True)
+        if len(process_drop):
+            necessity = (
+                process_drop.groupby("process", as_index=False)
+                .agg(
+                    validation_drop_pairs=("process_drop_loss", "size"),
+                    validation_drop_splits=("split_id", "nunique"),
+                    mean_validation_process_drop=("process_drop_loss", "mean"),
+                    median_validation_process_drop=("process_drop_loss", "median"),
+                    positive_validation_drop_fraction=("process_drop_loss", lambda x: float((x > 0).mean())),
+                )
+            )
+            stability = stability.merge(necessity, on="process", how="left", validate="one_to_one")
+        stability = stability.sort_values(
+            ["core_stability", "mean_validation_process_drop"] if "mean_validation_process_drop" in stability else ["core_stability"],
+            ascending=False,
+            kind="mergesort",
+        ).reset_index(drop=True)
     else:
         stability = pd.DataFrame(columns=["process", "splits_selected", "n_splits", "core_stability"])
     return RepeatedProcessCoreResult(
         splits=splits,
         process_stability=stability,
         validation_comparison=pd.concat(comparison_frames, ignore_index=True) if comparison_frames else pd.DataFrame(),
+        validation_process_drop=process_drop,
+        random_core_metrics=pd.concat(random_frames, ignore_index=True) if random_frames else pd.DataFrame(),
+        core_vs_random=pd.concat(core_random_frames, ignore_index=True) if core_random_frames else pd.DataFrame(),
     )
