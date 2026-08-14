@@ -1,4 +1,4 @@
-"""Formal Product-B entry point requiring inheritance of the full Product-A protocol."""
+"""Formal Product-B entry point requiring a promoted full Product-A protocol."""
 from __future__ import annotations
 
 import argparse
@@ -7,6 +7,14 @@ from pathlib import Path
 from .cli import _read_method_choice_values, main as benchmark_main
 
 _RESERVED = {"--mode", "--method-choice", "--strategy", "--output-dir"}
+_PROMOTION_FIELDS = (
+    "promotion_min_protocol_selection_fraction",
+    "promotion_min_runs_selected",
+    "promotion_min_mean_delta_presence_rank",
+    "promotion_min_positive_pair_fraction",
+    "promotion_min_pairs_per_comparator",
+    "promotion_required_comparators",
+)
 
 
 def _validate_protocol_choice(path: str, data_specification_name: str) -> dict[str, str]:
@@ -17,11 +25,12 @@ def _validate_protocol_choice(path: str, data_specification_name: str) -> dict[s
         "winning_strategy",
         "winning_universe_sha256",
         "winning_predictors",
+        *_PROMOTION_FIELDS,
     )
     missing = [key for key in required if not values.get(key, "").strip()]
     if missing:
         raise ValueError(
-            "Product B requires a full Product-A protocol choice, not only a strategy/universe choice. "
+            "Formal Product B requires promoted_product_a_protocol.txt from the explicit promotion gate. "
             f"Missing fields: {missing}"
         )
     expected = values["winning_data_specification"].strip()
@@ -36,11 +45,12 @@ def _validate_protocol_choice(path: str, data_specification_name: str) -> dict[s
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Run Product B only after declaring the exact Product-A data specification and passing the frozen "
-            "full protocol choice. Remaining SDMR driver/universality arguments follow a standalone --."
+            "Run Product B only after the repeated Product-A promotion gate has passed. "
+            "The exact promoted data specification, universe and strategy are inherited. "
+            "Remaining SDMR driver/universality arguments follow a standalone --."
         )
     )
-    parser.add_argument("--protocol-choice", required=True, help="product_a_protocol_choice.txt from Product A")
+    parser.add_argument("--protocol-choice", required=True, help="promoted_product_a_protocol.txt")
     parser.add_argument("--data-specification-name", required=True)
     parser.add_argument("--stage", choices=("drivers", "universality"), default="drivers")
     parser.add_argument("--output-dir", required=True)
@@ -77,7 +87,13 @@ def main(argv: list[str] | None = None) -> int:
         + "universe_sha256=" + values["winning_universe_sha256"] + "\n"
         + "predictors=" + values["winning_predictors"] + "\n"
         + "product_a_occurrence_sha256=" + values.get("occurrence_sha256", "") + "\n"
-        + "product_a_occurrence_feature_sha256=" + values.get("occurrence_feature_sha256", "") + "\n",
+        + "product_a_occurrence_feature_sha256=" + values.get("occurrence_feature_sha256", "") + "\n"
+        + "promotion_min_protocol_selection_fraction=" + values["promotion_min_protocol_selection_fraction"] + "\n"
+        + "promotion_min_runs_selected=" + values["promotion_min_runs_selected"] + "\n"
+        + "promotion_min_mean_delta_presence_rank=" + values["promotion_min_mean_delta_presence_rank"] + "\n"
+        + "promotion_min_positive_pair_fraction=" + values["promotion_min_positive_pair_fraction"] + "\n"
+        + "promotion_min_pairs_per_comparator=" + values["promotion_min_pairs_per_comparator"] + "\n"
+        + "promotion_required_comparators=" + values["promotion_required_comparators"] + "\n",
         encoding="utf-8",
     )
     return 0
