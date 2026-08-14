@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupKFold
 
-from .model import evaluate_predictor_set
+from .model import ModelSpec, evaluate_predictor_set
 
 
 @dataclass(frozen=True)
@@ -20,7 +20,7 @@ class SelectionStep:
     gain: float
 
 
-def _cross_validated_score(
+def cross_validated_score(
     presence: pd.DataFrame,
     background: pd.DataFrame,
     presence_groups: np.ndarray,
@@ -28,7 +28,10 @@ def _cross_validated_score(
     predictors: Sequence[str],
     *,
     n_splits: int,
+    model_spec: ModelSpec | None = None,
 ) -> float:
+    """Score a frozen predictor/model setting using model-pool spatial CV only."""
+
     groups = np.unique(presence_groups)
     folds = min(int(n_splits), len(groups))
     if folds < 2:
@@ -51,14 +54,20 @@ def _cross_validated_score(
                 presence.iloc[test_idx],
                 background.loc[bg_test],
                 predictors,
+                model_spec=model_spec,
             )
         except ValueError:
             continue
         if np.isfinite(metrics["presence_rank"]):
             scores.append(float(metrics["presence_rank"]))
+
     if not scores:
         return float("nan")
     return float(np.mean(scores))
+
+
+# Compatibility alias for the first implementation.
+_cross_validated_score = cross_validated_score
 
 
 def forward_select_predictors(
@@ -71,13 +80,13 @@ def forward_select_predictors(
     inner_folds: int = 4,
     min_gain: float = 0.005,
     max_predictors: int | None = 8,
+    model_spec: ModelSpec | None = None,
 ) -> tuple[list[str], list[SelectionStep], pd.DataFrame]:
-    """Greedily select predictors using only inner spatial CV.
+    """Greedily select predictors using only model-pool spatial CV.
 
-    No outer-holdout score is inspected while selecting variables. Each step
-    adds the candidate that most improves mean held-out presence rank across
-    inner spatial folds. Correlated variables are allowed to compete rather
-    than being deleted up front by a VIF threshold.
+    Correlated predictors are allowed to compete rather than being removed before
+    prediction is evaluated. The sealed occurrence pool is not an argument to
+    this function and therefore cannot affect selection.
     """
 
     candidates = list(dict.fromkeys(candidate_predictors))
@@ -100,13 +109,14 @@ def forward_select_predictors(
             if predictor in selected:
                 continue
             test_set = selected + [predictor]
-            score = _cross_validated_score(
+            score = cross_validated_score(
                 presence,
                 background,
                 presence_groups,
                 background_groups,
                 test_set,
                 n_splits=inner_folds,
+                model_spec=model_spec,
             )
             gain = score - current_score if np.isfinite(score) else float("nan")
             candidate_rows.append(
