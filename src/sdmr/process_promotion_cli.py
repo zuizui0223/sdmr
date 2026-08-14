@@ -6,7 +6,51 @@ from pathlib import Path
 
 import pandas as pd
 
+from .cli import _read_method_choice_values
 from .process_promotion import UniversalProcessPromotionCriteria, assess_universal_process_promotion
+
+_REQUIRED_PROTOCOL_FIELDS = (
+    "universality_run_sha256",
+    "data_specification",
+    "universe",
+    "strategy",
+    "universe_sha256",
+    "predictors",
+    "product_a_promotion_min_protocol_selection_fraction",
+    "product_a_promotion_min_runs_selected",
+    "product_a_promotion_min_mean_delta_presence_rank",
+    "product_a_promotion_min_positive_pair_fraction",
+    "product_a_promotion_min_pairs_per_comparator",
+    "product_a_promotion_required_comparators",
+)
+
+
+def _validate_universality_binding(
+    protocol_path: str,
+    frames: dict[str, pd.DataFrame],
+) -> dict[str, str]:
+    values = _read_method_choice_values(protocol_path)
+    missing = [field for field in _REQUIRED_PROTOCOL_FIELDS if not values.get(field, "").strip()]
+    if missing:
+        raise ValueError(f"universality protocol missing fields: {missing}")
+    run_sha = values["universality_run_sha256"]
+    expected_columns = {
+        "universality_run_sha256": run_sha,
+        "product_a_data_specification": values["data_specification"],
+        "product_a_universe": values["universe"],
+        "product_a_strategy": values["strategy"],
+        "product_a_universe_sha256": values["universe_sha256"],
+    }
+    for name, frame in frames.items():
+        for column, expected in expected_columns.items():
+            if column not in frame.columns:
+                raise ValueError(f"{name} missing provenance column {column}")
+            observed = set(frame[column].dropna().astype(str))
+            if observed != {str(expected)}:
+                raise ValueError(
+                    f"{name} provenance mismatch for {column}: expected {expected!r}, observed {sorted(observed)!r}"
+                )
+    return values
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -16,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             "core-vs-full transfer, and core-vs-random criteria all pass. All thresholds are required."
         )
     )
+    parser.add_argument("--universality-protocol", required=True, help="universal_process_protocol.txt")
     parser.add_argument("--process-stability", required=True)
     parser.add_argument("--validation-comparison", required=True)
     parser.add_argument("--core-vs-random", required=True)
@@ -35,7 +80,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--min-core-vs-random-splits", type=int, required=True)
     args = parser.parse_args(argv)
 
+    process_stability = pd.read_csv(args.process_stability)
+    validation_comparison = pd.read_csv(args.validation_comparison)
+    core_vs_random = pd.read_csv(args.core_vs_random)
     try:
+        protocol = _validate_universality_binding(
+            args.universality_protocol,
+            {
+                "process_stability": process_stability,
+                "validation_comparison": validation_comparison,
+                "core_vs_random": core_vs_random,
+            },
+        )
         criteria = UniversalProcessPromotionCriteria(
             min_core_stability=args.min_core_stability,
             min_splits_selected=args.min_splits_selected,
@@ -52,9 +108,9 @@ def main(argv: list[str] | None = None) -> int:
             min_core_vs_random_splits=args.min_core_vs_random_splits,
         )
         assessment = assess_universal_process_promotion(
-            pd.read_csv(args.process_stability),
-            pd.read_csv(args.validation_comparison),
-            pd.read_csv(args.core_vs_random),
+            process_stability,
+            validation_comparison,
+            core_vs_random,
             criteria,
         )
     except (ValueError, KeyError) as exc:
@@ -69,6 +125,7 @@ def main(argv: list[str] | None = None) -> int:
     pd.DataFrame([
         {
             "promoted_core": assessment.promoted_core,
+            "universality_run_sha256": protocol["universality_run_sha256"],
             "n_validated_process_candidates": len(assessment.validated_process_candidates),
             "n_failures": len(assessment.failures),
             "failures": " | ".join(assessment.failures),
@@ -90,11 +147,23 @@ def main(argv: list[str] | None = None) -> int:
         f"min_core_vs_random_pairs={criteria.min_core_vs_random_pairs}",
         f"min_core_vs_random_splits={criteria.min_core_vs_random_splits}",
     ]
+    upstream_lines = [
+        "universality_run_sha256=" + protocol["universality_run_sha256"],
+        "product_a_data_specification=" + protocol["data_specification"],
+        "product_a_universe=" + protocol["universe"],
+        "product_a_strategy=" + protocol["strategy"],
+        "product_a_universe_sha256=" + protocol["universe_sha256"],
+        "product_a_predictors=" + protocol["predictors"],
+    ]
+    for field in _REQUIRED_PROTOCOL_FIELDS:
+        if field.startswith("product_a_promotion_"):
+            upstream_lines.append(field + "=" + protocol[field])
+
     if len(assessment.validated_process_candidates):
         (out / "independently_validated_process_candidates.txt").write_text(
             "processes=" + ",".join(assessment.validated_process_candidates["process"].astype(str)) + "\n"
             + "note=These are independently validated process hypotheses; they are not a re-optimized core.\n"
-            + "\n".join(criteria_lines) + "\n",
+            + "\n".join(upstream_lines + criteria_lines) + "\n",
             encoding="utf-8",
         )
 
@@ -103,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
         (out / "promoted_universal_process_core.txt").write_text(
             "processes=" + ",".join(candidates) + "\n"
             + "promotion_rule=all discovery-nominated processes passed unseen-taxon necessity; core passed transfer and random-null gates\n"
-            + "\n".join(criteria_lines) + "\n",
+            + "\n".join(upstream_lines + criteria_lines) + "\n",
             encoding="utf-8",
         )
         return 0
@@ -111,6 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     (out / "universal_core_not_promoted.txt").write_text(
         "The frozen discovery-defined universal process core did not satisfy all predeclared promotion gates.\n"
         + "No validation-driven pruning/redefinition of the core was performed.\n"
+        + "universality_run_sha256=" + protocol["universality_run_sha256"] + "\n"
         + "\n".join("- " + failure for failure in assessment.failures) + "\n",
         encoding="utf-8",
     )
