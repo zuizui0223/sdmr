@@ -17,7 +17,7 @@ concurrency:
 jobs:
   catalog:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,7 +26,6 @@ jobs:
       - name: Resolve GBIF monthly snapshot DOI conservatively
         run: |
           python - <<'PY'
-          import calendar
           import json
           import re
           from datetime import date, timedelta
@@ -35,7 +34,7 @@ jobs:
           from urllib.request import Request, urlopen
 
           headers = {
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.6',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.7',
               'Accept': 'application/json',
           }
 
@@ -84,16 +83,17 @@ jobs:
                   },
               }
           else:
-              # The public portal blocks GitHub-hosted bots (403 observed). DataCite
-              # exposes GBIF DOI metadata publicly. Search only the first seven days
-              # of the current month, when the monthly snapshot is expected to be
-              # registered, then verify special-user ownership with GBIF download
-              # metadata. Never promote a candidate based on recency alone.
+              # The portal blocks GitHub-hosted bots (403 observed), so enumerate
+              # DataCite GBIF occurrence-download DOIs day by day for the entire
+              # current month-to-date, then verify likely large candidates with
+              # GBIF's public per-download metadata. Record count is only a
+              # request-reduction heuristic; creator/source metadata determine
+              # snapshot identity.
               today = date.today()
               month_start = today.replace(day=1)
-              search_end = min(today, month_start + timedelta(days=6))
+              search_end = today
               candidate_rows = []
-              raw_pages = []
+              raw_page_summaries = []
               cursor_day = month_start
               while cursor_day <= search_end:
                   day_text = cursor_day.isoformat()
@@ -106,13 +106,18 @@ jobs:
                   }
                   first_url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': '1'})
                   first = get_json(first_url)
+                  total = int((first.get('meta') or {}).get('total') or 0)
                   pages = int((first.get('meta') or {}).get('totalPages') or 1)
-                  pages = min(pages, 10)
+                  if pages > 10:
+                      raise SystemExit(
+                          f'DataCite day {day_text} has {pages} pages ({total} records); '
+                          'resolver refuses to truncate silently. Narrow the query before continuing.'
+                      )
                   day_payloads = [first]
                   for page in range(2, pages + 1):
                       url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': str(page)})
                       day_payloads.append(get_json(url))
-                  raw_pages.extend(day_payloads)
+                  raw_page_summaries.append({'date': day_text, 'total': total, 'pages': pages})
 
                   for batch in day_payloads:
                       for item in batch.get('data', []):
@@ -141,21 +146,19 @@ jobs:
                           })
                   cursor_day += timedelta(days=1)
 
-              with open('datacite_gbif_download_candidates_raw.json', 'w', encoding='utf-8') as fh:
-                  json.dump(raw_pages, fh, indent=2, sort_keys=True)
+              with open('datacite_page_summary.json', 'w', encoding='utf-8') as fh:
+                  json.dump(raw_page_summaries, fh, indent=2, sort_keys=True)
               with open('datacite_gbif_download_candidates.json', 'w', encoding='utf-8') as fh:
                   json.dump(candidate_rows, fh, indent=2, sort_keys=True)
 
-              # Only very large DOI downloads are worth verification. The final
-              # criterion is creator=download.gbif.org in GBIF's own metadata;
-              # record count is only a request-reduction heuristic.
-              huge = [
+              candidates_to_check = [
                   row for row in candidate_rows
-                  if row.get('download_key') and (row.get('record_count_from_datacite') or 0) >= 500_000_000
+                  if row.get('download_key') and (row.get('record_count_from_datacite') or 0) >= 100_000_000
               ]
+              checked = []
               verified = []
               verification_errors = []
-              for row in huge:
+              for row in candidates_to_check:
                   key = row['download_key']
                   api_url = f'https://api.gbif.org/v1/occurrence/download/{key}'
                   try:
@@ -170,38 +173,57 @@ jobs:
                       continue
                   request = metadata.get('request') or {}
                   creator = str(request.get('creator') or metadata.get('creator') or '').strip()
-                  checked = {
+                  checked_row = {
                       **row,
                       'gbif_creator': creator,
                       'gbif_status': metadata.get('status'),
                       'gbif_format': request.get('format'),
                       'gbif_source': metadata.get('source'),
                       'gbif_totalRecords': metadata.get('totalRecords'),
+                      'gbif_created': metadata.get('created'),
+                      'gbif_modified': metadata.get('modified'),
+                      'predicate': request.get('predicate'),
                   }
+                  checked.append(checked_row)
                   if creator == 'download.gbif.org':
-                      verified.append(checked)
+                      verified.append(checked_row)
 
+              checked.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
               verified.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
               latest = verified[0] if verified else {}
+              with open('gbif_checked_large_downloads.json', 'w', encoding='utf-8') as fh:
+                  json.dump(checked, fh, indent=2, sort_keys=True)
+              with open('gbif_verified_snapshot_candidates.json', 'w', encoding='utf-8') as fh:
+                  json.dump(verified, fh, indent=2, sort_keys=True)
+
+              creators = {}
+              formats = {}
+              sources = {}
+              for row in checked:
+                  creators[row.get('gbif_creator') or '<empty>'] = creators.get(row.get('gbif_creator') or '<empty>', 0) + 1
+                  formats[str(row.get('gbif_format') or '<empty>')] = formats.get(str(row.get('gbif_format') or '<empty>'), 0) + 1
+                  sources[str(row.get('gbif_source') or '<empty>')] = sources.get(str(row.get('gbif_source') or '<empty>'), 0) + 1
               summary = {
                   'resolution_mode': 'datacite_plus_gbif_metadata',
                   'gbif_portal_catalog': portal_url,
                   'gbif_portal_error': portal_error,
                   'search_start': month_start.isoformat(),
                   'search_end': search_end.isoformat(),
+                  'datacite_day_pages': raw_page_summaries,
                   'occurrence_download_candidates': len(candidate_rows),
-                  'huge_candidates_checked': len(huge),
+                  'large_candidates_checked': len(candidates_to_check),
+                  'checked_creator_counts': creators,
+                  'checked_format_counts': formats,
+                  'checked_source_counts': sources,
                   'verification_errors': verification_errors,
                   'verified_snapshot_count': len(verified),
                   'snapshot_resolved': bool(latest),
                   'latest': latest,
                   'action': (
-                      'A resolved candidate is accepted only when GBIF download metadata reports '
-                      'request.creator=download.gbif.org. If none is resolved, supply date+DOI manually from the official snapshot table.'
+                      'A resolved candidate is accepted only when GBIF per-download metadata reports '
+                      'request.creator=download.gbif.org. Checked nonmatches are retained for audit.'
                   ),
               }
-              with open('gbif_verified_snapshot_candidates.json', 'w', encoding='utf-8') as fh:
-                  json.dump(verified, fh, indent=2, sort_keys=True)
 
           with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
               json.dump(summary, fh, indent=2, sort_keys=True)
@@ -214,7 +236,8 @@ jobs:
           path: |
             gbif_snapshot_catalog_raw.json
             gbif_snapshot_catalog_summary.json
-            datacite_gbif_download_candidates_raw.json
+            datacite_page_summary.json
             datacite_gbif_download_candidates.json
+            gbif_checked_large_downloads.json
             gbif_verified_snapshot_candidates.json
           if-no-files-found: warn
