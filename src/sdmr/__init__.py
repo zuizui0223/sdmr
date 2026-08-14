@@ -7,6 +7,12 @@ from .benchmark import (
     benchmark_species,
     benchmark_taxon_split,
 )
+from .drivers import (
+    aggregate_process_evidence,
+    annotate_predictor_metadata,
+    equivalence_group_process_map,
+    validate_candidate_manifest,
+)
 from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .metrics import boyce_index, presence_rank_score
 from .model import ModelSpec
@@ -33,6 +39,8 @@ __all__ = [
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
     "aggregate_predictor_selection",
+    "aggregate_process_evidence",
+    "annotate_predictor_metadata",
     "benchmark_holdout_sensitivity",
     "benchmark_method_corpus",
     "benchmark_method_taxon_split",
@@ -42,12 +50,14 @@ __all__ = [
     "boyce_index",
     "choose_common_predictors",
     "correlation_equivalence_groups",
+    "equivalence_group_process_map",
     "drop_group_importance",
     "drop_one_importance",
     "freeze_candidate_methods",
     "presence_rank_score",
     "summarize_method_performance",
     "vif_prune_predictors",
+    "validate_candidate_manifest",
     "vif_values",
 ]
 

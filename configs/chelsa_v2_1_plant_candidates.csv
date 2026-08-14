@@ -1,30 +1,47 @@
-predictor,source,process,notes
-bio1,CHELSA-v2.1-BIOCLIM,temperature,annual mean temperature
-bio2,CHELSA-v2.1-BIOCLIM,temperature,mean diurnal range
-bio3,CHELSA-v2.1-BIOCLIM,temperature,isothermality
-bio4,CHELSA-v2.1-BIOCLIM,temperature,temperature seasonality
-bio5,CHELSA-v2.1-BIOCLIM,temperature,max temperature warmest month
-bio6,CHELSA-v2.1-BIOCLIM,temperature,min temperature coldest month
-bio7,CHELSA-v2.1-BIOCLIM,temperature,annual temperature range
-bio8,CHELSA-v2.1-BIOCLIM,temperature,mean temperature wettest quarter
-bio9,CHELSA-v2.1-BIOCLIM,temperature,mean temperature driest quarter
-bio10,CHELSA-v2.1-BIOCLIM,temperature,mean temperature warmest quarter
-bio11,CHELSA-v2.1-BIOCLIM,temperature,mean temperature coldest quarter
-bio12,CHELSA-v2.1-BIOCLIM,water,annual precipitation
-bio13,CHELSA-v2.1-BIOCLIM,water,precipitation wettest month
-bio14,CHELSA-v2.1-BIOCLIM,water,precipitation driest month
-bio15,CHELSA-v2.1-BIOCLIM,water,precipitation seasonality
-bio16,CHELSA-v2.1-BIOCLIM,water,precipitation wettest quarter
-bio17,CHELSA-v2.1-BIOCLIM,water,precipitation driest quarter
-bio18,CHELSA-v2.1-BIOCLIM,water,precipitation warmest quarter
-bio19,CHELSA-v2.1-BIOCLIM,water,precipitation coldest quarter
-vpd,CHELSA-v2.1-BIOCLIM+,atmospheric_drought,vapor pressure deficit
-gdd5,CHELSA-v2.1-BIOCLIM+,energy,growing degree days above 5 C
-gsl,CHELSA-v2.1-BIOCLIM+,phenology,growing season length
-gsp,CHELSA-v2.1-BIOCLIM+,water,growing season precipitation
-gst,CHELSA-v2.1-BIOCLIM+,temperature,growing season temperature
-pet,CHELSA-v2.1-BIOCLIM+,water,potential evapotranspiration
-cmi,CHELSA-v2.1-BIOCLIM+,water,climate moisture index
-rsds,CHELSA-v2.1-BIOCLIM+,radiation,surface downwelling shortwave radiation
-sfcWind,CHELSA-v2.1-BIOCLIM+,wind,near-surface wind speed
-scd,CHELSA-v2.1-BIOCLIM+,cold,snow cover days
+predictor,source,version,candidate_class,process,mechanism,unit,notes
+bio1,CHELSA-bioclim,2.1,core_climate,temperature,annual_mean_temperature,C,mean annual near-surface air temperature
+bio2,CHELSA-bioclim,2.1,core_climate,temperature,diurnal_temperature_range,C,mean diurnal near-surface air temperature range
+bio3,CHELSA-bioclim,2.1,core_climate,seasonality,isothermality,index,day-night variability relative to annual temperature range
+bio4,CHELSA-bioclim,2.1,core_climate,seasonality,temperature_seasonality,index,temperature seasonality
+bio5,CHELSA-bioclim,2.1,core_climate,thermal_extremes,warmest_month_max_temperature,C,warm extreme
+bio6,CHELSA-bioclim,2.1,core_climate,thermal_extremes,coldest_month_min_temperature,C,cold extreme
+bio7,CHELSA-bioclim,2.1,core_climate,seasonality,annual_temperature_range,C,annual thermal amplitude
+bio8,CHELSA-bioclim,2.1,core_climate,temperature,wettest_quarter_temperature,C,temperature during wettest quarter
+bio9,CHELSA-bioclim,2.1,core_climate,temperature,driest_quarter_temperature,C,temperature during driest quarter
+bio10,CHELSA-bioclim,2.1,core_climate,temperature,warmest_quarter_temperature,C,temperature during warmest quarter
+bio11,CHELSA-bioclim,2.1,core_climate,temperature,coldest_quarter_temperature,C,temperature during coldest quarter
+bio12,CHELSA-bioclim,2.1,core_climate,water,annual_precipitation,kg_m-2_yr-1,annual precipitation amount
+bio13,CHELSA-bioclim,2.1,core_climate,water,wettest_month_precipitation,kg_m-2_month-1,wet extreme
+bio14,CHELSA-bioclim,2.1,core_climate,drought,driest_month_precipitation,kg_m-2_month-1,dry extreme
+bio15,CHELSA-bioclim,2.1,core_climate,seasonality,precipitation_seasonality,index,monthly precipitation variability
+bio16,CHELSA-bioclim,2.1,core_climate,water,wettest_quarter_precipitation,kg_m-2_month-1,wet-season water supply
+bio17,CHELSA-bioclim,2.1,core_climate,drought,driest_quarter_precipitation,kg_m-2_month-1,dry-season water supply
+bio18,CHELSA-bioclim,2.1,core_climate,water,warmest_quarter_precipitation,kg_m-2_month-1,warm-season water supply
+bio19,CHELSA-bioclim,2.1,core_climate,water,coldest_quarter_precipitation,kg_m-2_month-1,cold-season water supply
+fcf,CHELSA-bioclim,2.1,extended_climate,cold_stress,freeze_thaw_frequency,count,freeze-thaw transitions per year
+fgd,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_start,julian_day,first day of growing season TREELIM
+gdd0,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_0,C_day,growing degree day heat sum above 0 C
+gdd5,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_5,C_day,growing degree day heat sum above 5 C
+gdd10,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_10,C_day,growing degree day heat sum above 10 C
+gdgfgd5,CHELSA-bioclim,2.1,extended_climate,phenology,first_day_above_5,julian_day,first growing-degree day above 5 C
+gdgfgd10,CHELSA-bioclim,2.1,extended_climate,phenology,first_day_above_10,julian_day,first growing-degree day above 10 C
+gsl,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_length,days,growing season length
+gsp,CHELSA-bioclim,2.1,extended_climate,water,growing_season_precipitation,kg_m-2_gsl-1,precipitation accumulated during growing season
+gst,CHELSA-bioclim,2.1,extended_climate,temperature,growing_season_temperature,C,mean temperature during growing season
+lgd,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_end,julian_day,last day of growing season TREELIM
+ngd0,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_0,days,number of days above 0 C
+ngd5,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_5,days,number of days above 5 C
+ngd10,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_10,days,number of days above 10 C
+npp,CHELSA-bioclim,2.1,extended_climate,productivity,potential_net_primary_productivity,g_C_m-2_yr-1,climate-related potential net primary productivity
+scd,CHELSA-bioclim,2.1,extended_climate,snow,snow_cover_days,days,snow cover days
+swe,CHELSA-bioclim,2.1,extended_climate,snow,snow_water_equivalent,kg_m-2_yr-1,snow water equivalent
+vpd,CHELSA-BIOCLIM+-model,2.1,extended_climate,drought,vapor_pressure_deficit,,atmospheric evaporative demand
+pet,CHELSA-BIOCLIM+-model,2.1,extended_climate,water_balance,potential_evapotranspiration,,atmospheric water demand
+cmi,CHELSA-BIOCLIM+-model,2.1,extended_climate,water_balance,climate_moisture_index,,climatic water balance
+rsds,CHELSA-BIOCLIM+-model,2.1,extended_climate,radiation,downwelling_shortwave_radiation,,surface shortwave energy corrected for atmosphere and topography
+rlus,CHELSA-BIOCLIM+-model,2.1,extended_climate,radiation,upwelling_longwave_radiation,,surface upwelling longwave radiation
+sfcWind,CHELSA-BIOCLIM+-model,2.1,extended_climate,wind,near_surface_wind_speed,,near-surface wind speed
+hurs,CHELSA-V2.1-model,2.1,extended_climate,humidity,relative_humidity,,near-surface relative humidity
+clt,CHELSA-V2.1-model,2.1,extended_climate,cloud,cloud_area_fraction,,cloud area fraction
+awc,CHELSA-BIOCLIM+-model,2.1,contextual_water,water_balance,available_soil_water_capacity,,available soil water capacity used in water-balance predictors
+swb,CHELSA-BIOCLIM+-model,2.1,contextual_water,water_balance,site_water_balance,,site water balance
