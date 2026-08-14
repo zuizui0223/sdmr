@@ -17,23 +17,25 @@ concurrency:
 jobs:
   catalog:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Probe GBIF snapshot catalog and DataCite fallback
+      - name: Resolve GBIF monthly snapshot DOI conservatively
         run: |
           python - <<'PY'
+          import calendar
           import json
           import re
+          from datetime import date, timedelta
           from urllib.error import HTTPError, URLError
           from urllib.parse import urlencode
           from urllib.request import Request, urlopen
 
           headers = {
-              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.5',
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/0.6',
               'Accept': 'application/json',
           }
 
@@ -71,6 +73,7 @@ jobs:
                   'catalog_url': portal_url,
                   'catalog_rows': len(rows),
                   'doi_rows': len(completed),
+                  'snapshot_resolved': bool(latest),
                   'latest': {
                       'key': latest.get('key'),
                       'created': latest.get('created'),
@@ -81,60 +84,124 @@ jobs:
                   },
               }
           else:
-              # DataCite can be queried without GBIF credentials. Filter by the
-              # GBIF DOI prefix first, then inspect the actual metadata instead
-              # of trusting a broad title-text search.
-              params = {
-                  'prefix': '10.15468',
-                  'query': 'created:[2026-08-01 TO 2026-08-14]',
-                  'sort': '-created',
-                  'page[size]': '1000',
-                  'disable-facets': 'true',
-              }
-              datacite_url = 'https://api.datacite.org/dois?' + urlencode(params)
-              datacite = get_json(datacite_url)
+              # The public portal blocks GitHub-hosted bots (403 observed). DataCite
+              # exposes GBIF DOI metadata publicly. Search only the first seven days
+              # of the current month, when the monthly snapshot is expected to be
+              # registered, then verify special-user ownership with GBIF download
+              # metadata. Never promote a candidate based on recency alone.
+              today = date.today()
+              month_start = today.replace(day=1)
+              search_end = min(today, month_start + timedelta(days=6))
+              candidate_rows = []
+              raw_pages = []
+              cursor_day = month_start
+              while cursor_day <= search_end:
+                  day_text = cursor_day.isoformat()
+                  base_params = {
+                      'prefix': '10.15468',
+                      'query': f'created:[{day_text} TO {day_text}]',
+                      'sort': 'created',
+                      'page[size]': '1000',
+                      'disable-facets': 'true',
+                  }
+                  first_url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': '1'})
+                  first = get_json(first_url)
+                  pages = int((first.get('meta') or {}).get('totalPages') or 1)
+                  pages = min(pages, 10)
+                  day_payloads = [first]
+                  for page in range(2, pages + 1):
+                      url = 'https://api.datacite.org/dois?' + urlencode({**base_params, 'page[number]': str(page)})
+                      day_payloads.append(get_json(url))
+                  raw_pages.extend(day_payloads)
+
+                  for batch in day_payloads:
+                      for item in batch.get('data', []):
+                          attrs = item.get('attributes') or {}
+                          doi = str(attrs.get('doi') or item.get('id') or '').strip()
+                          titles = [str(t.get('title') or '') for t in attrs.get('titles') or []]
+                          title = titles[0] if titles else ''
+                          if not doi.startswith('10.15468/dl.') or title != 'Occurrence Download':
+                              continue
+                          landing = str(attrs.get('url') or '')
+                          key_match = re.search(r'/occurrence/download/([^/?#]+)', landing)
+                          descriptions = [str(d.get('description') or '') for d in attrs.get('descriptions') or []]
+                          description = descriptions[0] if descriptions else ''
+                          count_match = re.search(r'A dataset containing\s+([0-9]+)', description)
+                          if not count_match:
+                              count_match = re.search(r"dataset's\s+([0-9]+)\s+records", description)
+                          record_count = int(count_match.group(1)) if count_match else None
+                          candidate_rows.append({
+                              'doi': doi,
+                              'created': attrs.get('created'),
+                              'publisher': attrs.get('publisher'),
+                              'landing_url': landing,
+                              'download_key': key_match.group(1) if key_match else '',
+                              'record_count_from_datacite': record_count,
+                              'creators': [c.get('name') for c in attrs.get('creators') or []],
+                          })
+                  cursor_day += timedelta(days=1)
+
               with open('datacite_gbif_download_candidates_raw.json', 'w', encoding='utf-8') as fh:
-                  json.dump(datacite, fh, indent=2, sort_keys=True)
-
-              candidates = []
-              for item in datacite.get('data', []):
-                  attrs = item.get('attributes') or {}
-                  doi = str(attrs.get('doi') or item.get('id') or '').strip()
-                  titles = [str(t.get('title') or '') for t in attrs.get('titles') or []]
-                  title = titles[0] if titles else ''
-                  if not doi.startswith('10.15468/dl.') or title != 'GBIF Occurrence Download':
-                      continue
-                  landing = str(attrs.get('url') or '')
-                  key_match = re.search(r'/occurrence/download/([^/?#]+)', landing)
-                  candidates.append({
-                      'doi': doi,
-                      'created': attrs.get('created'),
-                      'published': attrs.get('published'),
-                      'publicationYear': attrs.get('publicationYear'),
-                      'publisher': attrs.get('publisher'),
-                      'landing_url': landing,
-                      'download_key_from_url': key_match.group(1) if key_match else '',
-                      'creators': [c.get('name') for c in attrs.get('creators') or []],
-                      'dates': attrs.get('dates') or [],
-                      'identifiers': attrs.get('identifiers') or [],
-                  })
+                  json.dump(raw_pages, fh, indent=2, sort_keys=True)
               with open('datacite_gbif_download_candidates.json', 'w', encoding='utf-8') as fh:
-                  json.dump(candidates, fh, indent=2, sort_keys=True)
+                  json.dump(candidate_rows, fh, indent=2, sort_keys=True)
 
+              # Only very large DOI downloads are worth verification. The final
+              # criterion is creator=download.gbif.org in GBIF's own metadata;
+              # record count is only a request-reduction heuristic.
+              huge = [
+                  row for row in candidate_rows
+                  if row.get('download_key') and (row.get('record_count_from_datacite') or 0) >= 500_000_000
+              ]
+              verified = []
+              verification_errors = []
+              for row in huge:
+                  key = row['download_key']
+                  api_url = f'https://api.gbif.org/v1/occurrence/download/{key}'
+                  try:
+                      metadata = get_json(api_url)
+                  except (HTTPError, URLError) as exc:
+                      verification_errors.append({
+                          'doi': row['doi'], 'key': key,
+                          'error_type': type(exc).__name__,
+                          'http_status': getattr(exc, 'code', None),
+                          'message': str(exc),
+                      })
+                      continue
+                  request = metadata.get('request') or {}
+                  creator = str(request.get('creator') or metadata.get('creator') or '').strip()
+                  checked = {
+                      **row,
+                      'gbif_creator': creator,
+                      'gbif_status': metadata.get('status'),
+                      'gbif_format': request.get('format'),
+                      'gbif_source': metadata.get('source'),
+                      'gbif_totalRecords': metadata.get('totalRecords'),
+                  }
+                  if creator == 'download.gbif.org':
+                      verified.append(checked)
+
+              verified.sort(key=lambda row: str(row.get('created') or ''), reverse=True)
+              latest = verified[0] if verified else {}
               summary = {
-                  'resolution_mode': 'datacite_prefix_candidates',
+                  'resolution_mode': 'datacite_plus_gbif_metadata',
                   'gbif_portal_catalog': portal_url,
                   'gbif_portal_error': portal_error,
-                  'datacite_url': datacite_url,
-                  'datacite_total': (datacite.get('meta') or {}).get('total'),
-                  'candidate_count': len(candidates),
-                  'candidate_preview': candidates[:10],
-                  'snapshot_resolved': False,
+                  'search_start': month_start.isoformat(),
+                  'search_end': search_end.isoformat(),
+                  'occurrence_download_candidates': len(candidate_rows),
+                  'huge_candidates_checked': len(huge),
+                  'verification_errors': verification_errors,
+                  'verified_snapshot_count': len(verified),
+                  'snapshot_resolved': bool(latest),
+                  'latest': latest,
                   'action': (
-                      'Candidates are restricted to GBIF 10.15468/dl.* DOIs with the exact title. '
-                      'Still verify request.creator/source against GBIF download metadata before identifying a monthly snapshot.'
+                      'A resolved candidate is accepted only when GBIF download metadata reports '
+                      'request.creator=download.gbif.org. If none is resolved, supply date+DOI manually from the official snapshot table.'
                   ),
               }
+              with open('gbif_verified_snapshot_candidates.json', 'w', encoding='utf-8') as fh:
+                  json.dump(verified, fh, indent=2, sort_keys=True)
 
           with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
               json.dump(summary, fh, indent=2, sort_keys=True)
@@ -149,4 +216,5 @@ jobs:
             gbif_snapshot_catalog_summary.json
             datacite_gbif_download_candidates_raw.json
             datacite_gbif_download_candidates.json
+            gbif_verified_snapshot_candidates.json
           if-no-files-found: warn
