@@ -1,18 +1,8 @@
 """sdmr: sealed-holdout tuning and transferable predictor discovery for SDMs."""
 
 from .aggregate import aggregate_predictor_selection, choose_common_predictors
-from .benchmark import (
-    SpeciesBenchmarkResult,
-    TaxonSplitBenchmarkResult,
-    benchmark_species,
-    benchmark_taxon_split,
-)
-from .drivers import (
-    aggregate_process_evidence,
-    annotate_predictor_metadata,
-    equivalence_group_process_map,
-    validate_candidate_manifest,
-)
+from .benchmark import SpeciesBenchmarkResult, TaxonSplitBenchmarkResult, benchmark_species, benchmark_taxon_split
+from .drivers import aggregate_process_evidence, annotate_predictor_metadata, equivalence_group_process_map, validate_candidate_manifest
 from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .heterogeneity import (
     aggregate_process_evidence_across_strata,
@@ -28,6 +18,7 @@ from .protocol import (
     occurrence_feature_fingerprint,
     validate_matched_protocol_specifications,
 )
+from .protocol_stability import RepeatedProductAProtocolResult, benchmark_repeated_product_a_protocols
 from .specification import (
     DataSpecificationBenchmarkResult,
     benchmark_matched_data_specifications,
@@ -35,12 +26,7 @@ from .specification import (
     validate_matched_occurrence_specifications,
 )
 from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
-from .universe import (
-    CandidateUniverse,
-    UniverseMethodValidationResult,
-    benchmark_method_universe_taxon_split,
-    candidate_universes_from_manifest,
-)
+from .universe import CandidateUniverse, UniverseMethodValidationResult, benchmark_method_universe_taxon_split, candidate_universes_from_manifest
 from .universality import (
     ProcessCoreSplitResult,
     RepeatedProcessCoreResult,
@@ -73,6 +59,7 @@ __all__ = [
     "ProcessCoreSplitResult",
     "ProductAProtocolValidationResult",
     "RepeatedProcessCoreResult",
+    "RepeatedProductAProtocolResult",
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
@@ -92,6 +79,7 @@ __all__ = [
     "benchmark_process_core_taxon_split",
     "benchmark_product_a_protocol_grid",
     "benchmark_repeated_process_core_splits",
+    "benchmark_repeated_product_a_protocols",
     "benchmark_species",
     "benchmark_species_methods",
     "benchmark_taxon_split",

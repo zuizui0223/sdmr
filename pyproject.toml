@@ -32,6 +32,7 @@ sdmr-pilot = "sdmr.pilot_cli:main"
 sdmr-pilot-grid = "sdmr.pilot_grid_cli:main"
 sdmr-spec-select = "sdmr.spec_cli:main"
 sdmr-protocol-select = "sdmr.protocol_cli:main"
+sdmr-protocol-stability = "sdmr.protocol_stability_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
