@@ -1,0 +1,2 @@
+snapshot_date,snapshot_doi,citation_sha256,download_key,datacite_created,datacite_landing_url,source_rule
+2026-08-01,10.15468/dl.fs3btq,022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050,0020258-260721160103020,2026-08-01T05:35:25.000Z,https://www.gbif.org/occurrence/download/0020258-260721160103020,GBIF_AWS_snapshot_citation_txt_plus_DataCite_crosscheck
