@@ -1,6 +1,6 @@
 import pandas as pd
 
-from sdmr.data.snapshot_bounds import bounds_from_occurrences
+from sdmr.data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
 
 
 def test_bounds_from_occurrences_is_dateline_aware_and_grouped():
@@ -20,3 +20,28 @@ def test_bounds_from_occurrences_is_dateline_aware_and_grouped():
     assert normal.west < normal.east
     assert normal.south == 19.0
     assert normal.north == 23.0
+
+
+def test_tiled_bounds_avoid_species_wide_global_bbox_and_support_dateline():
+    frame = pd.DataFrame(
+        {
+            "species": ["widespread"] * 4,
+            "longitude": [-150.0, 10.0, 179.5, -179.5],
+            "latitude": [40.0, 50.0, 0.0, 0.0],
+        }
+    )
+    boxes = tiled_bounds_from_occurrences(frame, tile_degrees=5.0, buffer_degrees=3.0)
+    assert 3 <= len(boxes) <= 4
+    assert all((box.east - box.west) < 20 or box.west > box.east for box in boxes)
+    assert any(box.west > box.east for box in boxes)
+
+
+def test_tiled_bounds_deduplicate_multiple_records_in_same_tile():
+    frame = pd.DataFrame({"longitude": [10.1, 10.2, 10.3], "latitude": [20.1, 20.2, 20.3]})
+    boxes = tiled_bounds_from_occurrences(frame, tile_degrees=5.0, buffer_degrees=1.0)
+    assert len(boxes) == 1
+    box = boxes[0]
+    assert box.west == 9.0
+    assert box.east == 16.0
+    assert box.south == 19.0
+    assert box.north == 26.0
