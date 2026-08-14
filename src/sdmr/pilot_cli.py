@@ -41,12 +41,26 @@ def _filter_manifest(manifest: pd.DataFrame, only: str | None) -> pd.DataFrame:
 
 
 def _supports_standard_universes(manifest: pd.DataFrame) -> bool:
+    """Return true only when the standard universe labels are semantically real.
+
+    A diagnostic ``--only`` subset must not be called ``bioclim19`` merely
+    because it contains some core-climate rows.  We require all BIO1--BIO19 and
+    at least two genuinely different standard predictor sets; otherwise the
+    pilot is treated as one custom candidate universe.
+    """
     required = {"predictor", "source", "version", "candidate_class", "process", "mechanism"}
-    return (
-        required.issubset(manifest.columns)
-        and bool((manifest["candidate_class"].astype(str) == "core_climate").any())
-        and bool((manifest["source"].astype(str) == "CHELSA-bioclim").any())
-    )
+    if not required.issubset(manifest.columns):
+        return False
+    predictors = set(manifest["predictor"].astype(str))
+    required_bioclim = {f"bio{i}" for i in range(1, 20)}
+    if not required_bioclim.issubset(predictors):
+        return False
+    try:
+        universes = candidate_universes_from_manifest(manifest)
+    except ValueError:
+        return False
+    fingerprints = {universe.fingerprint for universe in universes.values()}
+    return len(fingerprints) >= 2
 
 
 def _validation_summary(metrics: pd.DataFrame, *, universe: str, strategy: str) -> pd.DataFrame:
