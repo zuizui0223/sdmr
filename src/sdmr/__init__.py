@@ -21,14 +21,20 @@ from .heterogeneity import (
     validate_species_metadata,
 )
 from .metrics import boyce_index, presence_rank_score
-from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
+from .protocol import (
+    ProductAProtocolValidationResult,
+    benchmark_product_a_protocol_grid,
+    occurrence_feature_fingerprint,
+    validate_matched_protocol_specifications,
+)
 from .specification import (
     DataSpecificationBenchmarkResult,
     benchmark_matched_data_specifications,
     occurrence_table_fingerprint,
     validate_matched_occurrence_specifications,
 )
+from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .universe import (
     CandidateUniverse,
     UniverseMethodValidationResult,
@@ -65,6 +71,7 @@ __all__ = [
     "MethodTaxonValidationResult",
     "ModelSpec",
     "ProcessCoreSplitResult",
+    "ProductAProtocolValidationResult",
     "RepeatedProcessCoreResult",
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
@@ -83,6 +90,7 @@ __all__ = [
     "benchmark_method_taxon_split",
     "benchmark_method_universe_taxon_split",
     "benchmark_process_core_taxon_split",
+    "benchmark_product_a_protocol_grid",
     "benchmark_repeated_process_core_splits",
     "benchmark_species",
     "benchmark_species_methods",
@@ -96,14 +104,16 @@ __all__ = [
     "drop_group_importance",
     "drop_one_importance",
     "freeze_candidate_methods",
+    "occurrence_feature_fingerprint",
     "occurrence_table_fingerprint",
     "presence_rank_score",
     "summarize_method_performance",
-    "vif_prune_predictors",
-    "validate_candidate_manifest",
     "summarize_process_heterogeneity",
+    "validate_candidate_manifest",
     "validate_matched_occurrence_specifications",
+    "validate_matched_protocol_specifications",
     "validate_species_metadata",
+    "vif_prune_predictors",
     "vif_values",
 ]
 
