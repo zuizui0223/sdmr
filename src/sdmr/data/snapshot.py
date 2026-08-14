@@ -1,9 +1,9 @@
 """Credential-free access to versioned GBIF monthly cloud occurrence snapshots.
 
-GBIF publishes monthly occurrence snapshots as public Parquet data. This module
-keeps cloud-snapshot provenance distinct from custom GBIF occurrence downloads:
-the caller must declare the snapshot date and DOI, and every materialized subset
-records the remote URI, extraction query hash, and local file hash.
+GBIF publishes the same monthly occurrence snapshot to multiple public cloud
+mirrors. SDMR treats the cloud provider as an I/O transport choice rather than a
+scientific data choice: the snapshot date/DOI and SQL filter remain the evidence
+contract, while provenance records the exact remote URI and query engine.
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import date
 import hashlib
 from pathlib import Path
-from typing import Sequence
+from typing import Literal, Sequence
 
 import pandas as pd
 
@@ -24,6 +24,9 @@ GBIF_AWS_REGIONS = (
     "af-south-1",
     "sa-east-1",
 )
+GBIF_AZURE_ACCOUNT = "ai4edataeuwest"
+GBIF_AZURE_CONTAINER = "gbif"
+GBIF_CLOUD_PROVIDERS = ("aws", "azure")
 
 PREFERRED_SNAPSHOT_COLUMNS = (
     "gbifid",
@@ -91,6 +94,29 @@ def gbif_snapshot_s3_uri(snapshot_date: str, *, region: str = "us-east-1") -> st
         raise ValueError(f"Unsupported GBIF AWS region: {region!r}")
     bucket = f"gbif-open-data-{region}"
     return f"s3://{bucket}/occurrence/{snapshot_date}/occurrence.parquet/*"
+
+
+def gbif_snapshot_azure_uri(snapshot_date: str) -> str:
+    """Return the public Microsoft Azure Blob Parquet glob for one GBIF snapshot."""
+    snapshot_date = _validate_snapshot_date(snapshot_date)
+    return (
+        f"az://{GBIF_AZURE_ACCOUNT}.blob.core.windows.net/{GBIF_AZURE_CONTAINER}/"
+        f"occurrence/{snapshot_date}/occurrence.parquet/*"
+    )
+
+
+def gbif_snapshot_uri(
+    snapshot_date: str,
+    *,
+    cloud_provider: Literal["aws", "azure"] = "aws",
+    region: str = "us-east-1",
+) -> str:
+    provider = str(cloud_provider).lower()
+    if provider == "aws":
+        return gbif_snapshot_s3_uri(snapshot_date, region=region)
+    if provider == "azure":
+        return gbif_snapshot_azure_uri(snapshot_date)
+    raise ValueError(f"Unsupported GBIF cloud provider: {cloud_provider!r}")
 
 
 def _sql_literal(value: object) -> str:
@@ -181,6 +207,30 @@ def build_snapshot_select_query(
     )
 
 
+def _configure_duckdb_cloud(con, *, cloud_provider: str, region: str) -> None:
+    provider = str(cloud_provider).lower()
+    if provider == "aws":
+        con.execute("INSTALL httpfs")
+        con.execute("LOAD httpfs")
+        con.execute(f"SET s3_region={_sql_literal(region)}")
+        return
+    if provider == "azure":
+        con.execute("INSTALL azure")
+        con.execute("LOAD azure")
+        # Public GBIF Azure Blob storage is anonymous, but DuckDB's Azure
+        # extension still requires the account name in a CONFIG-provider secret.
+        con.execute(
+            "CREATE OR REPLACE SECRET sdmr_gbif_azure ("
+            "TYPE azure, PROVIDER config, "
+            f"ACCOUNT_NAME {_sql_literal(GBIF_AZURE_ACCOUNT)}"
+            ")"
+        )
+        # Curl transport is robust on Linux GitHub runners and honors standard CA handling.
+        con.execute("SET azure_transport_option_type='curl'")
+        return
+    raise ValueError(f"Unsupported GBIF cloud provider: {cloud_provider!r}")
+
+
 def materialize_gbif_snapshot_subset(
     output_path: str | Path,
     *,
@@ -190,15 +240,15 @@ def materialize_gbif_snapshot_subset(
     kingdom: str | None = None,
     bounds: Sequence[SnapshotBounds] | None = None,
     region: str = "us-east-1",
+    cloud_provider: Literal["aws", "azure"] = "aws",
     one_per_grid_cell_degrees: float | None = None,
     overwrite: bool = False,
 ) -> GBIFSnapshotSubsetResult:
     """Materialize a filtered public GBIF monthly snapshot subset as Parquet.
 
-    ``one_per_grid_cell_degrees`` pushes the same type of target-group cell
-    deduplication used downstream into DuckDB. It is intended for broad
-    target-group sampling-effort pools, not for silently thinning focal
-    occurrences. The grid size is therefore explicit and fingerprinted.
+    ``cloud_provider`` changes transport only. The snapshot date/DOI and query
+    remain part of the immutable evidence contract. ``one_per_grid_cell_degrees``
+    is intended for broad target-group I/O compression, not focal thinning.
     """
     if not str(snapshot_doi).strip():
         raise ValueError("snapshot_doi is required for auditable/citable cloud-snapshot use")
@@ -208,7 +258,7 @@ def materialize_gbif_snapshot_subset(
     if output.exists() and not overwrite:
         raise FileExistsError(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    uri = gbif_snapshot_s3_uri(snapshot_date, region=region)
+    uri = gbif_snapshot_uri(snapshot_date, cloud_provider=cloud_provider, region=region)
     where_sql = build_snapshot_filter_sql(
         species_names=species_names,
         kingdom=kingdom,
@@ -222,10 +272,9 @@ def materialize_gbif_snapshot_subset(
         raise ImportError("GBIF cloud snapshots require duckdb; install sdmr[cloud].") from exc
 
     con = duckdb.connect()
+    duckdb_version = str(getattr(duckdb, "__version__", ""))
     try:
-        con.execute("INSTALL httpfs")
-        con.execute("LOAD httpfs")
-        con.execute(f"SET s3_region={_sql_literal(region)}")
+        _configure_duckdb_cloud(con, cloud_provider=cloud_provider, region=region)
         schema = con.execute(
             f"DESCRIBE SELECT * FROM read_parquet({_sql_literal(uri)}, union_by_name=true)"
         ).fetchdf()
@@ -263,8 +312,11 @@ def materialize_gbif_snapshot_subset(
                 "source_type": "gbif_monthly_cloud_snapshot",
                 "snapshot_date": _validate_snapshot_date(snapshot_date),
                 "snapshot_doi": str(snapshot_doi).strip(),
-                "region": region,
+                "cloud_provider": str(cloud_provider).lower(),
+                "region": region if str(cloud_provider).lower() == "aws" else "azure-eu-west",
                 "remote_uri": uri,
+                "query_engine": "duckdb",
+                "duckdb_version": duckdb_version,
                 "where_sql": where_sql,
                 "selected_columns": ",".join(selected),
                 "sampling_mode": "one_per_grid_cell" if one_per_grid_cell_degrees is not None else "all_filtered_rows",
