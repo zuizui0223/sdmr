@@ -1,0 +1,7 @@
+criterion,value,rationale
+min_protocol_selection_fraction,0.6666666667,The identical full M x universe x strategy protocol must win at least two thirds of the 15 predeclared stability runs.
+min_runs_selected,10,With 5 seeds x 3 sealed fractions the same full protocol must be selected in at least 10 of 15 runs.
+min_mean_delta_presence_rank,0.01,Require at least a one-percentage-point mean unseen-taxon presence-rank advantage over each non-self strategy comparator rather than promoting on numerical ties.
+min_positive_pair_fraction,0.6666666667,At least two thirds of unseen-taxon paired comparisons must favor the selected strategy over each non-self comparator.
+min_pairs_per_comparator,15,Require a substantial paired unseen-taxon evidence base across repeated runs while allowing some taxa/runs to be unavailable after fixed admission gates.
+required_comparators,"all,vif,predictive",Whichever strategy is selected is self-not-applicable; the other two predeclared strategies must satisfy the evidence thresholds.
