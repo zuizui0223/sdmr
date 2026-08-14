@@ -14,6 +14,12 @@ from .drivers import (
     validate_candidate_manifest,
 )
 from .equivalence import correlation_equivalence_groups, drop_group_importance
+from .heterogeneity import (
+    aggregate_process_evidence_across_strata,
+    aggregate_process_evidence_by_stratum,
+    summarize_process_heterogeneity,
+    validate_species_metadata,
+)
 from .metrics import boyce_index, presence_rank_score
 from .synthesis import DriverCorpusResult, aggregate_predictor_evidence, benchmark_driver_corpus_from_strategy
 from .model import ModelSpec
@@ -50,6 +56,8 @@ __all__ = [
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
     "aggregate_predictor_evidence",
+    "aggregate_process_evidence_by_stratum",
+    "aggregate_process_evidence_across_strata",
     "aggregate_predictor_selection",
     "aggregate_process_evidence",
     "annotate_predictor_metadata",
@@ -74,6 +82,8 @@ __all__ = [
     "summarize_method_performance",
     "vif_prune_predictors",
     "validate_candidate_manifest",
+    "summarize_process_heterogeneity",
+    "validate_species_metadata",
     "vif_values",
 ]
 
