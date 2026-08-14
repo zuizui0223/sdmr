@@ -35,13 +35,10 @@ ngd10,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_10,days,annu
 npp,CHELSA-bioclim,2.1,extended_climate,productivity,potential_net_primary_productivity,g_C_m-2_yr-1,annual_bio_cog,npp,,current,climate-related potential net primary productivity
 scd,CHELSA-bioclim,2.1,extended_climate,snow,snow_cover_days,days,annual_bio_cog,scd,,current,snow cover days
 swe,CHELSA-bioclim,2.1,extended_climate,snow,snow_water_equivalent,kg_m-2_yr-1,annual_bio_cog,swe,,current,snow water equivalent
-vpd,CHELSA-climatologies,2.1,extended_climate,drought,vapor_pressure_deficit,,annual_bio_summary_cog,vpd,mean,current,atmospheric evaporative demand
-pet,CHELSA-climatologies,2.1,extended_climate,water_balance,potential_evapotranspiration,,annual_bio_summary_cog,pet_penman,mean,current,atmospheric water demand
-cmi,CHELSA-climatologies,2.1,extended_climate,water_balance,climate_moisture_index,,annual_bio_summary_cog,cmi,mean,current,climatic water balance
-rsds,CHELSA-climatologies,2.1,extended_climate,radiation,downwelling_shortwave_radiation,,annual_bio_summary_cog,rsds,mean,current,surface shortwave energy corrected for atmosphere and topography
-rlus,CHELSA-BIOCLIM+-paper,2.1,extended_climate,radiation,upwelling_longwave_radiation,,unresolved,rlus,,paper_only,surface upwelling longwave radiation
-sfcWind,CHELSA-climatologies,2.1,extended_climate,wind,near_surface_wind_speed,,annual_bio_summary_cog,sfcWind,mean,current,near-surface wind speed
-hurs,CHELSA-climatologies,2.1,extended_climate,humidity,relative_humidity,,annual_bio_summary_cog,hurs,mean,current,near-surface relative humidity
-clt,CHELSA-climatologies,2.1,extended_climate,cloud,cloud_area_fraction,,annual_bio_summary_cog,clt,mean,current,cloud area fraction
-awc,CHELSA-BIOCLIM+-paper,2.1,contextual_water,water_balance,available_soil_water_capacity,,unresolved,awc,,paper_only,available soil water capacity used in water-balance predictors
-swb,CHELSA-BIOCLIM+-legacy-archive,2.1,contextual_water,water_balance,site_water_balance,,annual_bio_cog,swb,,legacy_archive,site water balance
+vpd,CHELSA-BIOCLIM+-archive,2.1,extended_climate,drought,vapor_pressure_deficit,Pa,annual_bio_summary_cog,vpd,mean,current,1981-2010 mean; current COG confirmed
+pet,CHELSA-BIOCLIM+-archive,2.1,extended_climate,water_balance,potential_evapotranspiration,kg_m-2_month-1,annual_bio_summary_cog,pet_penman,mean,current,Penman PET 1981-2010 mean; current COG confirmed
+cmi,CHELSA-BIOCLIM+-archive,2.1,extended_climate,water_balance,climate_moisture_index,kg_m-2_month-1,annual_bio_summary_cog,cmi,mean,current,1981-2010 mean; current COG confirmed
+rsds,CHELSA-BIOCLIM+-archive,2.1,extended_climate,radiation,downwelling_shortwave_radiation,W_m-2,annual_bio_summary_cog,rsds,mean,current,1981-2010 mean; filename order differs and is encoded in resolver
+sfcWind,CHELSA-BIOCLIM+-archive,2.1,extended_climate,wind,near_surface_wind_speed,m_s-1,annual_bio_summary_cog,sfcWind,mean,current,1981-2010 mean; current COG confirmed
+hurs,CHELSA-BIOCLIM+-archive,2.1,extended_climate,humidity,relative_humidity,percent,annual_bio_summary_cog,hurs,mean,current,1981-2010 mean; current COG confirmed
+clt,CHELSA-BIOCLIM+-archive,2.1,extended_climate,cloud,cloud_area_fraction,percent,annual_bio_summary_cog,clt,mean,current,1981-2010 mean; current COG confirmed
