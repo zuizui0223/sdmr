@@ -16,6 +16,11 @@ from .data import (
 )
 from .meta import benchmark_method_taxon_split
 from .pilot import prepare_product_a_pilot
+from .universe import (
+    CandidateUniverse,
+    benchmark_method_universe_taxon_split,
+    candidate_universes_from_manifest,
+)
 
 
 def _read_taxa(path: str) -> pd.DataFrame:
@@ -35,18 +40,58 @@ def _filter_manifest(manifest: pd.DataFrame, only: str | None) -> pd.DataFrame:
     return manifest.loc[manifest["predictor"].astype(str).isin(wanted)].reset_index(drop=True)
 
 
+def _supports_standard_universes(manifest: pd.DataFrame) -> bool:
+    required = {"predictor", "source", "version", "candidate_class", "process", "mechanism"}
+    return (
+        required.issubset(manifest.columns)
+        and bool((manifest["candidate_class"].astype(str) == "core_climate").any())
+        and bool((manifest["source"].astype(str) == "CHELSA-bioclim").any())
+    )
+
+
+def _validation_summary(metrics: pd.DataFrame, *, universe: str, strategy: str) -> pd.DataFrame:
+    if not len(metrics):
+        return pd.DataFrame()
+    return pd.DataFrame([{
+        "universe": universe,
+        "strategy": strategy,
+        "n_species": int(metrics["species"].nunique()),
+        "mean_presence_rank": float(metrics["presence_rank"].mean()),
+        "median_presence_rank": float(metrics["presence_rank"].median()),
+        "mean_predictors": float(metrics["n_predictors"].mean()),
+    }])
+
+
 def _write_method_outputs(result, out: Path, *, args, predictors: list[str]) -> None:
     result.discovery_metrics.to_csv(out / "method_discovery_metrics.csv", index=False)
     result.discovery_summary.to_csv(out / "method_discovery_summary.csv", index=False)
     result.validation_metrics.to_csv(out / "method_validation_metrics.csv", index=False)
-    result.validation_summary.to_csv(out / "method_validation_summary.csv", index=False)
+
+    if hasattr(result, "winning_universe"):
+        winning_predictors = list(result.winning_predictors)
+        winning_universe = str(result.winning_universe)
+        universe_sha = str(result.winning_universe_sha256)
+        _validation_summary(
+            result.validation_metrics,
+            universe=winning_universe,
+            strategy=result.winning_strategy,
+        ).to_csv(out / "method_validation_summary.csv", index=False)
+    else:
+        winning_predictors = list(predictors)
+        winning_universe = "custom"
+        universe_sha = CandidateUniverse("custom", tuple(winning_predictors)).fingerprint
+        result.validation_summary.to_csv(out / "method_validation_summary.csv", index=False)
+
     (out / "method_choice.txt").write_text(
         "winning_strategy=" + result.winning_strategy + "\n"
+        + "winning_universe=" + winning_universe + "\n"
+        + "winning_universe_sha256=" + universe_sha + "\n"
+        + "winning_predictors=" + ",".join(winning_predictors) + "\n"
+        + f"n_winning_predictors={len(winning_predictors)}\n"
         + "discovery_species=" + ",".join(result.discovery_species) + "\n"
         + "validation_species=" + ",".join(result.validation_species) + "\n"
         + f"spatial_test_fraction={args.spatial_test_fraction}\n"
-        + f"taxon_validation_fraction={args.taxon_validation_fraction}\n"
-        + "predictors=" + ",".join(predictors) + "\n",
+        + f"taxon_validation_fraction={args.taxon_validation_fraction}\n",
         encoding="utf-8",
     )
 
@@ -164,6 +209,7 @@ def main(argv: list[str] | None = None) -> int:
         target_download.provenance.to_csv(out / "gbif_target_group_provenance.csv", index=False)
 
     predictors: list[str] = []
+    resolved_manifest: pd.DataFrame | None = None
     occurrences = prepared.occurrences
     background = prepared.background
     if args.extract_chelsa:
@@ -176,6 +222,7 @@ def main(argv: list[str] | None = None) -> int:
         if not specs:
             parser.error("No CHELSA predictors resolved for extraction")
         predictors = [spec.predictor for spec in specs]
+        resolved_manifest = manifest.loc[manifest["predictor"].astype(str).isin(predictors)].reset_index(drop=True)
         resolution.to_csv(out / "chelsa_resolution_ledger.csv", index=False)
         occurrences, occ_raster_provenance = extract_raster_values(occurrences, specs)
         background, bg_raster_provenance = extract_raster_values(background, specs)
@@ -204,6 +251,7 @@ def main(argv: list[str] | None = None) -> int:
         "allow_pilot_target_group": args.allow_pilot_target_group,
         "extract_chelsa": args.extract_chelsa,
         "predictors": predictors,
+        "candidate_universe_tuning": bool(resolved_manifest is not None and _supports_standard_universes(resolved_manifest)),
         "run_method": args.run_method,
         "spatial_test_fraction": args.spatial_test_fraction,
         "taxon_validation_fraction": args.taxon_validation_fraction,
@@ -215,18 +263,34 @@ def main(argv: list[str] | None = None) -> int:
         species = sorted(set(occurrences["species"].astype(str)) & set(background["species"].astype(str)))
         if len(species) < 4:
             parser.error(f"At least four eligible species with background are required; found {len(species)}")
-        result = benchmark_method_taxon_split(
-            occurrences,
-            background,
-            predictors,
-            taxon_validation_fraction=args.taxon_validation_fraction,
-            sealed_fraction=args.spatial_test_fraction,
-            vif_threshold=args.vif_threshold,
-            max_predictors=args.max_predictors,
-            random_repeats=args.random_baseline_repeats,
-            compute_drop_one=False,
-            random_state=args.seed,
-        )
+
+        if resolved_manifest is not None and _supports_standard_universes(resolved_manifest):
+            universes = candidate_universes_from_manifest(resolved_manifest)
+            result = benchmark_method_universe_taxon_split(
+                occurrences,
+                background,
+                universes,
+                taxon_validation_fraction=args.taxon_validation_fraction,
+                sealed_fraction=args.spatial_test_fraction,
+                vif_threshold=args.vif_threshold,
+                max_predictors=args.max_predictors,
+                random_repeats=args.random_baseline_repeats,
+                compute_drop_one=False,
+                random_state=args.seed,
+            )
+        else:
+            result = benchmark_method_taxon_split(
+                occurrences,
+                background,
+                predictors,
+                taxon_validation_fraction=args.taxon_validation_fraction,
+                sealed_fraction=args.spatial_test_fraction,
+                vif_threshold=args.vif_threshold,
+                max_predictors=args.max_predictors,
+                random_repeats=args.random_baseline_repeats,
+                compute_drop_one=False,
+                random_state=args.seed,
+            )
         _write_method_outputs(result, out, args=args, predictors=predictors)
     return 0
 
