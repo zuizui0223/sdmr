@@ -86,7 +86,10 @@ def admit_occurrences(
         for idx in np.flatnonzero(bad.to_numpy()):
             reasons[idx].append("basis_of_record_not_allowed")
 
-    initial_reject = np.array([bool(x) for x in reasons])
+    # Explicit dtype matters with modern NumPy/Pandas when the source table has
+    # extension/object dtypes (as real GBIF API tables often do).  The mask is a
+    # pure row-state array and must remain boolean before bitwise inversion.
+    initial_reject = np.asarray([bool(x) for x in reasons], dtype=np.bool_)
     if cfg.deduplicate_coordinates:
         candidate = data.loc[~initial_reject].copy()
         candidate["__lon"] = lon.loc[~initial_reject].to_numpy()
