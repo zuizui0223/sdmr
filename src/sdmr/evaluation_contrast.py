@@ -2,17 +2,28 @@
 
 AUC/Boyce are useful local model-evaluation scores; Product A asks a different
 question: which *selection procedure* survives distribution shift across taxa
-and plausible accessible-area (M) assumptions.  This module therefore freezes
-three selectors on discovery taxa only:
+and plausible accessible-area (M) assumptions.
+
+Three discovery-frozen selectors are compared:
 
 - ``canonical_m_auc``: highest mean presence-background AUC-equivalent score in
   one predeclared canonical M;
 - ``canonical_m_boyce``: highest mean Boyce score in that same M;
-- ``sdmr_m_robust``: the universe x strategy already selected by the robust
-  cross-M Product-A procedure.
+- ``sdmr_m_robust``: the universe x strategy selected by the robust cross-M
+  Product-A procedure.
 
-All three are then evaluated on the same unseen taxa in every predeclared M.
-No new weighted super-score is invented: the output is a paired transfer test.
+A fourth, deliberately stronger conventional baseline is evaluated per unseen
+species x M case:
+
+- ``local_nested_auc``: run the full candidate universe x strategy benchmark on
+  that species' *model pool only*, choose the row with the highest inner spatial
+  CV AUC-equivalent score, and then open the already sealed outer rows.  Thus
+  SDMR is compared not only with a fixed conventional recipe but also with the
+  ordinary practice of tuning a model locally by nested spatial CV.
+
+No selector may use its outer sealed score to choose itself. No weighted
+super-score is invented: the output is a paired transfer test on identical
+unseen species x M cases.
 """
 from __future__ import annotations
 
@@ -96,7 +107,7 @@ def freeze_selector_choices(
     sdmr_universe: str,
     sdmr_strategy: str,
 ) -> pd.DataFrame:
-    """Freeze conventional and SDMR selectors using discovery evidence only."""
+    """Freeze cross-taxon selectors using discovery evidence only."""
     auc_u, auc_s, auc_score = _best_discovery_combo(
         discovery_metrics,
         canonical_specification=canonical_specification,
@@ -192,7 +203,7 @@ def _paired_against_sdmr(metrics: pd.DataFrame) -> pd.DataFrame:
     if "sdmr_m_robust" not in pivot.columns:
         return pd.DataFrame()
     rows: list[dict[str, object]] = []
-    for comparator in ("canonical_m_auc", "canonical_m_boyce"):
+    for comparator in ("canonical_m_auc", "canonical_m_boyce", "local_nested_auc"):
         if comparator not in pivot.columns:
             continue
         paired = pivot[["sdmr_m_robust", comparator]].dropna()
@@ -219,7 +230,7 @@ def evaluate_selector_transfer(
     random_state: int = 42,
     **method_kwargs,
 ) -> SelectorContrastResult:
-    """Evaluate frozen selectors on identical unseen taxa across every M spec."""
+    """Evaluate frozen and local nested selectors on identical unseen cases."""
     required = {"selector", "universe", "strategy"}
     missing = required - set(choices.columns)
     if missing:
@@ -230,6 +241,30 @@ def evaluate_selector_transfer(
         raise ValueError("validation_species must not be empty")
 
     cache: dict[tuple[str, str, str], pd.DataFrame] = {}
+
+    def benchmark_rows(
+        spec_name: str,
+        occurrences: pd.DataFrame,
+        background: pd.DataFrame,
+        universe_name: str,
+        species_name: str,
+        species_index: int,
+    ) -> pd.DataFrame:
+        key = (str(spec_name), str(universe_name), str(species_name))
+        if key not in cache:
+            universe = normalized[str(universe_name)]
+            benchmark = benchmark_species_methods(
+                occurrences,
+                background,
+                universe.predictors,
+                species_name=species_name,
+                species_col=species_col,
+                random_state=random_state + 100_000 + species_index,
+                **method_kwargs,
+            )
+            cache[key] = benchmark.sealed_metrics.copy()
+        return cache[key]
+
     rows: list[pd.DataFrame] = []
     for choice in choices.itertuples(index=False):
         selector = str(choice.selector)
@@ -237,34 +272,56 @@ def evaluate_selector_transfer(
         strategy = str(choice.strategy)
         if universe_name not in normalized:
             raise KeyError(f"unknown selected universe {universe_name!r}")
-        universe = normalized[universe_name]
         for spec_name, (occurrences, background) in specifications.items():
             for i, species_name in enumerate(species):
-                key = (str(spec_name), universe_name, species_name)
-                if key not in cache:
-                    benchmark = benchmark_species_methods(
-                        occurrences,
-                        background,
-                        universe.predictors,
-                        species_name=species_name,
-                        species_col=species_col,
-                        random_state=random_state + 100_000 + i,
-                        **method_kwargs,
-                    )
-                    cache[key] = benchmark.sealed_metrics.copy()
-                selected = cache[key].loc[
-                    cache[key]["strategy"].astype(str) == strategy
-                ].copy()
+                metrics = benchmark_rows(
+                    str(spec_name), occurrences, background, universe_name, species_name, i
+                )
+                selected = metrics.loc[metrics["strategy"].astype(str) == strategy].copy()
                 if len(selected) != 1:
                     raise ValueError(
                         f"selector {selector!r} expected one strategy row for {species_name!r} "
                         f"in {spec_name!r}, found {len(selected)}"
                     )
                 selected["selector"] = selector
+                selected["selection_metric"] = str(choice.selection_metric)
                 selected["selected_universe"] = universe_name
                 selected["selected_strategy"] = strategy
                 selected["data_specification"] = str(spec_name)
                 rows.append(selected)
+
+    # Strong conventional baseline: for each unseen species x M case, select
+    # the candidate model by *inner* spatial-CV AUC only. Outer sealed metrics
+    # are never consulted until after the row has been frozen.
+    for spec_name, (occurrences, background) in specifications.items():
+        for i, species_name in enumerate(species):
+            candidate_frames: list[pd.DataFrame] = []
+            for universe_name in normalized:
+                frame = benchmark_rows(
+                    str(spec_name), occurrences, background, universe_name, species_name, i
+                ).copy()
+                frame["selected_universe"] = str(universe_name)
+                candidate_frames.append(frame)
+            candidates = pd.concat(candidate_frames, ignore_index=True)
+            candidates["inner_presence_rank"] = pd.to_numeric(
+                candidates["inner_presence_rank"], errors="coerce"
+            )
+            candidates = candidates.loc[np.isfinite(candidates["inner_presence_rank"])].copy()
+            if not len(candidates):
+                raise ValueError(
+                    f"local_nested_auc found no finite inner-CV candidate for {species_name!r} in {spec_name!r}"
+                )
+            candidates = candidates.sort_values(
+                ["inner_presence_rank", "n_predictors", "selected_universe", "strategy"],
+                ascending=[False, True, True, True],
+                kind="mergesort",
+            ).reset_index(drop=True)
+            selected = candidates.iloc[[0]].copy()
+            selected["selector"] = "local_nested_auc"
+            selected["selection_metric"] = "model_pool_inner_spatial_cv_presence_rank"
+            selected["selected_strategy"] = selected["strategy"].astype(str)
+            selected["data_specification"] = str(spec_name)
+            rows.append(selected)
 
     metrics = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
     return SelectorContrastResult(
@@ -288,7 +345,7 @@ def benchmark_selector_contrast(
     random_state: int = 42,
     **method_kwargs,
 ) -> SelectorContrastResult:
-    """Freeze all selectors on discovery taxa, then compare transfer head-to-head."""
+    """Freeze selectors without validation feedback, then compare transfer."""
     choices = freeze_selector_choices(
         discovery_metrics,
         canonical_specification=canonical_specification,
