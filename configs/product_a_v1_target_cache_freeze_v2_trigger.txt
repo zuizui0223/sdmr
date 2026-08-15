@@ -1,0 +1,4 @@
+source_run_id=31856322427
+snapshot_date=2026-08-01
+snapshot_doi=10.15468/dl.fs3btq
+freeze_protocol=v2_latest_branch_sync
