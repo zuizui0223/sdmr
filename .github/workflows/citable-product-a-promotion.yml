@@ -40,10 +40,7 @@ jobs:
           python - <<'PY'
           import os
           event = os.environ['GITHUB_EVENT_NAME']
-          if event == 'workflow_run':
-              run_id = '${{ github.event.workflow_run.id }}'
-          else:
-              run_id = '${{ inputs.stability_run_id }}'
+          run_id = '${{ github.event.workflow_run.id }}' if event == 'workflow_run' else '${{ inputs.stability_run_id }}'
           if not str(run_id).strip():
               raise SystemExit('stability run ID is required')
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
@@ -99,6 +96,7 @@ jobs:
           required = [
               'min_protocol_selection_fraction',
               'min_runs_selected',
+              'min_m_spec_win_fraction',
               'min_mean_delta_presence_rank',
               'min_positive_pair_fraction',
               'min_pairs_per_comparator',
@@ -124,6 +122,7 @@ jobs:
               '--output-dir', str(Path('promotion_result').resolve()),
               '--min-protocol-selection-fraction', values['min_protocol_selection_fraction'],
               '--min-runs-selected', values['min_runs_selected'],
+              '--min-m-spec-win-fraction', values['min_m_spec_win_fraction'],
               '--min-mean-delta-presence-rank', values['min_mean_delta_presence_rank'],
               '--min-positive-pair-fraction', values['min_positive_pair_fraction'],
               '--min-pairs-per-comparator', values['min_pairs_per_comparator'],
@@ -148,9 +147,11 @@ jobs:
           cp source_stability/stability_inputs.txt promotion_result/ 2>/dev/null || true
           cat > promotion_result/PROMOTION_BOUNDARY.txt <<EOF
           Product-A promotion was assessed using configs/product_a_promotion_criteria_v1.csv,
-          committed before the citable stability results were available. The assessment code was checked out at
-          Product-A v1 source head ${{ steps.source.outputs.head_sha }}. Exit code 2 / promotion_not_met is a valid
-          scientific outcome and must not be converted to promotion by relaxing thresholds post hoc.
+          committed before the citable stability results were available. M/background specifications were treated as a
+          predeclared sensitivity set rather than optimized candidates. The selected universe x strategy must remain robust
+          across those M specifications in addition to repeated split stability and unseen-taxon paired advantages.
+          Assessment code was checked out at Product-A v1 source head ${{ steps.source.outputs.head_sha }}.
+          Exit code 2 / promotion_not_met is a valid scientific outcome and thresholds must not be relaxed post hoc.
           EOF
       - uses: actions/upload-artifact@v4
         if: always()
