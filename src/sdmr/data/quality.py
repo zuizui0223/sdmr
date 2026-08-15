@@ -1,10 +1,8 @@
-"""Occurrence quality control and reproducible spatial thinning."""
+"""Reproducible occurrence admission and deterministic thinning for SDMR."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
-
 import numpy as np
 import pandas as pd
 
@@ -16,11 +14,13 @@ class OccurrenceAdmissionConfig:
     max_year: int | None = None
     allowed_basis_of_record: tuple[str, ...] | None = None
     require_present_status: bool = True
+    deduplicate_coordinates: bool = True
 
 
 @dataclass
 class OccurrenceAdmissionResult:
     accepted: pd.DataFrame
+    rejected: pd.DataFrame
     ledger: pd.DataFrame
 
 
@@ -29,69 +29,92 @@ def _numeric(series: pd.Series) -> pd.Series:
 
 
 def admit_occurrences(
-    records: pd.DataFrame,
+    occurrences: pd.DataFrame,
     *,
-    config: OccurrenceAdmissionConfig,
-    lon_col: str = "longitude",
-    lat_col: str = "latitude",
+    config: OccurrenceAdmissionConfig | None = None,
+    species_col: str = "species",
 ) -> OccurrenceAdmissionResult:
-    """Apply transparent row-level occurrence admission rules.
+    """Apply declared filters and return accepted/rejected rows plus a count ledger.
 
-    Every input row is retained in the ledger with an accepted flag and a
-    semicolon-separated rejection reason.  No implicit occurrence threshold is
-    imposed here; species-level sufficiency is a separate declared gate.
+    No coordinate-uncertainty or year threshold is invented by default. Exact
+    duplicate coordinates within a species are removed by default, preserving
+    the established admission contract. The later Product-A grid thinning is a
+    separate operation and is stable to source scan order.
     """
 
-    if lon_col not in records or lat_col not in records:
-        raise KeyError(f"records must contain {lon_col!r} and {lat_col!r}")
-    data = records.copy().reset_index(drop=True)
-    lon = _numeric(data[lon_col])
-    lat = _numeric(data[lat_col])
-    reasons = np.full(len(data), "", dtype=object)
+    cfg = config or OccurrenceAdmissionConfig()
+    data = occurrences.copy().reset_index(drop=True)
+    if "longitude" not in data or "latitude" not in data:
+        raise KeyError("occurrences must contain longitude and latitude")
 
-    def reject(mask: pd.Series | np.ndarray, reason: str) -> None:
-        nonlocal reasons
-        mask = np.asarray(mask, dtype=bool)
-        reasons[mask] = np.where(reasons[mask] == "", reason, reasons[mask] + ";" + reason)
+    lon = _numeric(data["longitude"])
+    lat = _numeric(data["latitude"])
+    reasons: list[list[str]] = [[] for _ in range(len(data))]
 
-    reject(lon.isna() | lat.isna(), "missing_coordinate")
-    reject(lon.notna() & ~lon.between(-180, 180), "invalid_longitude")
-    reject(lat.notna() & ~lat.between(-90, 90), "invalid_latitude")
+    missing = lon.isna() | lat.isna()
+    invalid = (~missing) & ((lon < -180) | (lon > 180) | (lat < -90) | (lat > 90))
+    for idx in np.flatnonzero(missing.to_numpy()):
+        reasons[idx].append("missing_coordinate")
+    for idx in np.flatnonzero(invalid.to_numpy()):
+        reasons[idx].append("invalid_coordinate")
 
-    if config.max_coordinate_uncertainty_m is not None:
-        if config.max_coordinate_uncertainty_m < 0:
-            raise ValueError("max_coordinate_uncertainty_m must be >= 0")
-        column = "coordinateUncertaintyInMeters"
-        if column in data:
-            uncertainty = _numeric(data[column])
-            reject(uncertainty.notna() & (uncertainty > config.max_coordinate_uncertainty_m), "coordinate_uncertainty")
-
-    if config.min_year is not None or config.max_year is not None:
-        if "year" in data:
-            year = _numeric(data["year"])
-            if config.min_year is not None:
-                reject(year.notna() & (year < config.min_year), "before_min_year")
-            if config.max_year is not None:
-                reject(year.notna() & (year > config.max_year), "after_max_year")
-
-    if config.allowed_basis_of_record:
-        if "basisOfRecord" in data:
-            allowed = {str(x).upper() for x in config.allowed_basis_of_record}
-            values = data["basisOfRecord"].fillna("").astype(str).str.upper()
-            reject(~values.isin(allowed), "basis_of_record")
-
-    if config.require_present_status and "occurrenceStatus" in data:
+    if cfg.require_present_status and "occurrenceStatus" in data:
         status = data["occurrenceStatus"].fillna("").astype(str).str.upper()
-        reject(~status.isin({"", "PRESENT"}), "occurrence_status")
+        bad = status.ne("") & status.ne("PRESENT")
+        for idx in np.flatnonzero(bad.to_numpy()):
+            reasons[idx].append("occurrence_not_present")
 
-    accepted = reasons == ""
-    ledger = data.copy()
-    ledger["accepted"] = accepted
-    ledger["rejection_reason"] = reasons
-    return OccurrenceAdmissionResult(
-        accepted=data.loc[accepted].reset_index(drop=True),
-        ledger=ledger,
-    )
+    if cfg.max_coordinate_uncertainty_m is not None and "coordinateUncertaintyInMeters" in data:
+        if cfg.max_coordinate_uncertainty_m < 0:
+            raise ValueError("max_coordinate_uncertainty_m must be >= 0")
+        uncertainty = _numeric(data["coordinateUncertaintyInMeters"])
+        bad = uncertainty.notna() & (uncertainty > float(cfg.max_coordinate_uncertainty_m))
+        for idx in np.flatnonzero(bad.to_numpy()):
+            reasons[idx].append("coordinate_uncertainty_too_high")
+
+    if "year" in data:
+        year = _numeric(data["year"])
+        if cfg.min_year is not None:
+            bad = year.notna() & (year < int(cfg.min_year))
+            for idx in np.flatnonzero(bad.to_numpy()):
+                reasons[idx].append("year_before_min")
+        if cfg.max_year is not None:
+            bad = year.notna() & (year > int(cfg.max_year))
+            for idx in np.flatnonzero(bad.to_numpy()):
+                reasons[idx].append("year_after_max")
+
+    if cfg.allowed_basis_of_record is not None and "basisOfRecord" in data:
+        allowed = {str(x).upper() for x in cfg.allowed_basis_of_record}
+        basis = data["basisOfRecord"].fillna("").astype(str).str.upper()
+        bad = ~basis.isin(allowed)
+        for idx in np.flatnonzero(bad.to_numpy()):
+            reasons[idx].append("basis_of_record_not_allowed")
+
+    # Explicit dtype matters for real GBIF object/extension dtypes.  This mask
+    # is pure row state and must remain boolean before bitwise inversion.
+    initial_reject = np.asarray([bool(x) for x in reasons], dtype=np.bool_)
+    if cfg.deduplicate_coordinates:
+        candidate = data.loc[~initial_reject].copy()
+        candidate["__lon"] = lon.loc[~initial_reject].to_numpy()
+        candidate["__lat"] = lat.loc[~initial_reject].to_numpy()
+        subset = ["__lon", "__lat"]
+        if species_col in candidate:
+            subset.insert(0, species_col)
+        duplicated = candidate.duplicated(subset=subset, keep="first")
+        for idx in candidate.index[duplicated]:
+            reasons[int(idx)].append("duplicate_coordinate")
+
+    data["rejection_reason"] = [";".join(x) for x in reasons]
+    rejected_mask = data["rejection_reason"].ne("")
+    accepted = data.loc[~rejected_mask].drop(columns=["rejection_reason"]).reset_index(drop=True)
+    rejected = data.loc[rejected_mask].reset_index(drop=True)
+
+    counts: dict[str, int] = {"input": len(data), "accepted": len(accepted), "rejected": len(rejected)}
+    for entries in reasons:
+        for reason in entries:
+            counts[reason] = counts.get(reason, 0) + 1
+    ledger = pd.DataFrame([{"metric": key, "count": int(value)} for key, value in counts.items()])
+    return OccurrenceAdmissionResult(accepted=accepted, rejected=rejected, ledger=ledger)
 
 
 def _stable_id_key(data: pd.DataFrame) -> pd.Series:
@@ -100,10 +123,6 @@ def _stable_id_key(data: pd.DataFrame) -> pd.Series:
     for column in ("gbifID", "occurrenceID", "scientificName", "eventDate"):
         if column in data:
             return data[column].fillna("").astype(str)
-    # Coordinates are already part of the stable sort.  If no public record ID
-    # is available, using a constant keeps selection deterministic for distinct
-    # coordinates; exact coordinate duplicates are environmentally equivalent
-    # for this generic pre-raster thinning baseline.
     return pd.Series("", index=data.index, dtype="object")
 
 
@@ -115,10 +134,10 @@ def thin_to_grid(
 ) -> pd.DataFrame:
     """Deterministically retain at most one occurrence per species/grid cell.
 
-    Input scan order is explicitly ignored.  Rows are sorted by species, cell,
-    numeric coordinates, and a stable public-record identifier before the cell
-    representative is selected.  This is a generic pre-raster baseline; once
-    exact raster cell IDs are known, deduplicating on those IDs is preferable.
+    Input scan order is ignored. Rows are sorted by species, grid cell, numeric
+    coordinates, and a stable public-record identifier before a representative
+    is selected. This is separate from exact-coordinate deduplication during
+    admission and is the declared pre-sealing spatial-thinning step for Product A.
     """
 
     if cell_size_degrees <= 0:
