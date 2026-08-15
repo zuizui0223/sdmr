@@ -19,10 +19,7 @@ def test_snapshot_uri_is_versioned_monthly_public_s3_path():
 
 
 def test_snapshot_uri_supports_official_azure_mirror_transport():
-    expected = (
-        "az://ai4edataeuwest.blob.core.windows.net/gbif/"
-        "occurrence/2026-08-01/occurrence.parquet/*"
-    )
+    expected = "az://gbif/occurrence/2026-08-01/occurrence.parquet/*"
     assert gbif_snapshot_azure_uri("2026-08-01") == expected
     assert gbif_snapshot_uri("2026-08-01", cloud_provider="azure") == expected
     assert gbif_snapshot_uri("2026-08-01", cloud_provider="aws").startswith("s3://gbif-open-data-us-east-1/")
