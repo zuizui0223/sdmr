@@ -1,0 +1,153 @@
+name: freeze-product-a-v1-target-cache
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/product_a_v1_target_cache_source.csv'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: freeze-product-a-v1-target-cache
+  cancel-in-progress: true
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read source target-cache run
+        id: source
+        run: |
+          python - <<'PY'
+          import csv, os
+          from pathlib import Path
+          rows = list(csv.DictReader(Path('configs/product_a_v1_target_cache_source.csv').open(encoding='utf-8')))
+          if len(rows) != 1:
+              raise SystemExit('target-cache source config must contain exactly one row')
+          row = rows[0]
+          for key in ('source_run_id','artifact_name','snapshot_date','snapshot_doi'):
+              if not str(row.get(key,'')).strip():
+                  raise SystemExit(f'missing {key}')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f"run_id={row['source_run_id'].strip()}\n")
+              fh.write(f"artifact_name={row['artifact_name'].strip()}\n")
+          print(row)
+          PY
+      - name: Wait for source run to reach a terminal state
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from urllib.request import Request, urlopen
+          run_id = '${{ steps.source.outputs.run_id }}'
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
+          headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
+          for attempt in range(180):
+              with urlopen(Request(url, headers=headers), timeout=60) as response:
+                  payload = json.load(response)
+              status = payload.get('status')
+              conclusion = payload.get('conclusion')
+              print('source_run', run_id, 'status=', status, 'conclusion=', conclusion)
+              if status == 'completed':
+                  if conclusion != 'success':
+                      raise SystemExit(f'target-cache source run did not succeed: {conclusion}')
+                  break
+              time.sleep(20)
+          else:
+              raise SystemExit('target-cache source run did not finish within freeze timeout')
+          PY
+      - name: Download successful target-cache artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.source.outputs.artifact_name }}
+          path: target_cache_bundle
+      - name: Verify artifact and write versioned target-cache config
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json
+          from pathlib import Path
+
+          source = list(csv.DictReader(Path('configs/product_a_v1_target_cache_source.csv').open(encoding='utf-8')))[0]
+          def unique(name):
+              hits = list(Path('target_cache_bundle').rglob(name))
+              if len(hits) != 1:
+                  raise SystemExit(f'expected exactly one {name}, found {len(hits)}')
+              return hits[0]
+          manifest_path = unique('target_cache_manifest.json')
+          target_path = unique('target_group.parquet')
+          prov_path = unique('target_group.provenance.csv')
+          citation_path = unique('target_group.parquet.citation.txt')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          target_sha = hashlib.sha256(target_path.read_bytes()).hexdigest()
+          citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
+          if target_sha != str(manifest.get('target_sha256','')).lower():
+              raise SystemExit('target file SHA differs from target-cache manifest')
+          if citation_sha != str(manifest.get('citation_sha256','')).lower():
+              raise SystemExit('target citation SHA differs from target-cache manifest')
+          if str(manifest.get('snapshot_date')) != source['snapshot_date'].strip():
+              raise SystemExit('target-cache snapshot date differs from frozen source request')
+          if str(manifest.get('snapshot_doi','')).lower() != source['snapshot_doi'].strip().lower():
+              raise SystemExit('target-cache DOI differs from frozen source request')
+          import pandas as pd
+          prov = pd.read_csv(prov_path).iloc[0]
+          if str(prov.get('sha256','')).lower() != target_sha:
+              raise SystemExit('target provenance SHA mismatch')
+          if str(prov.get('query_sha256','')).lower() != str(manifest.get('target_query_sha256','')).lower():
+              raise SystemExit('target provenance query SHA mismatch')
+          if str(prov.get('cloud_provider','')).lower() != 'aws':
+              raise SystemExit('frozen Product-A target source must be the hardened AWS snapshot extraction')
+
+          columns = [
+              'source_run_id','artifact_name','target_sha256','target_query_sha256','citation_sha256',
+              'snapshot_date','snapshot_doi','target_rows','target_species','cloud_provider',
+              'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
+          ]
+          row = {
+              'source_run_id': source['source_run_id'].strip(),
+              'artifact_name': source['artifact_name'].strip(),
+              'target_sha256': target_sha,
+              'target_query_sha256': str(manifest.get('target_query_sha256','')),
+              'citation_sha256': citation_sha,
+              'snapshot_date': str(manifest.get('snapshot_date','')),
+              'snapshot_doi': str(manifest.get('snapshot_doi','')),
+              'target_rows': str(manifest.get('target_rows','')),
+              'target_species': str(manifest.get('target_species','')),
+              'cloud_provider': str(manifest.get('cloud_provider','')),
+              'http_keep_alive': str(manifest.get('http_keep_alive','')),
+              'http_retries': str(manifest.get('http_retries','')),
+              'http_retry_wait_ms': str(manifest.get('http_retry_wait_ms','')),
+              'http_retry_backoff': str(manifest.get('http_retry_backoff','')),
+              'http_timeout': str(manifest.get('http_timeout','')),
+          }
+          out = Path('configs/product_a_v1_target_cache.csv')
+          with out.open('w', encoding='utf-8', newline='') as fh:
+              writer = csv.DictWriter(fh, fieldnames=columns)
+              writer.writeheader(); writer.writerow(row)
+          print(row)
+          PY
+      - name: Commit frozen target source contract
+        run: |
+          git config user.name 'sdmr-evidence-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add configs/product_a_v1_target_cache.csv
+          if git diff --cached --quiet; then
+            echo 'Target-cache contract already frozen identically.'
+          else
+            git commit -m 'Freeze Product-A v1 target-group source evidence'
+            git push origin HEAD:agent/nested-spatial-raster-benchmark
+          fi
