@@ -1,4 +1,5 @@
-rerun=1
-reason=retry DOI-backed Product-A v1 on current green head after prior transient AWS S3 SSL failure during target-group materialization
+rerun=2
+reason=run leakage-safe Product-A v1 after focal thinning and sealing-before-M fix; use Azure mirror for same-snapshot target-group transport
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
+protocol_version=product_a_v1_leakage_safe
