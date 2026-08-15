@@ -13,7 +13,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: product-a-v1-target-cache-global-footprint
+  group: product-a-v1-target-cache-global-nonfocal-footprint
   cancel-in-progress: true
 
 jobs:
@@ -28,10 +28,10 @@ jobs:
           cache: pip
       - name: Install cloud dependencies
         run: python -m pip install -e '.[cloud,parquet]'
-      - name: Read frozen snapshot contract
+      - name: Read frozen snapshot and taxon-panel contracts
         run: |
           python - <<'PY'
-          import csv, os
+          import csv, hashlib, os
           from pathlib import Path
           rows = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
           if len(rows) != 1:
@@ -40,12 +40,21 @@ jobs:
           for key in ('snapshot_date','snapshot_doi','citation_sha256'):
               if not str(row.get(key,'')).strip():
                   raise SystemExit(f'snapshot contract missing {key}')
+          taxa = Path('configs/product_a_pilot_taxa_v1.csv')
+          taxa_rows = list(csv.DictReader(taxa.open(encoding='utf-8')))
+          names = sorted({str(x.get('scientific_name','')).strip() for x in taxa_rows if str(x.get('scientific_name','')).strip()})
+          if len(names) != 12:
+              raise SystemExit(f'expected 12 predeclared focal taxa, found {len(names)}')
+          taxa_sha = hashlib.sha256(taxa.read_bytes()).hexdigest()
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
               env.write(f"SNAPSHOT_DATE={row['snapshot_date'].strip()}\n")
               env.write(f"SNAPSHOT_DOI={row['snapshot_doi'].strip()}\n")
               env.write(f"CITATION_SHA256={row['citation_sha256'].strip().lower()}\n")
+              env.write(f"FOCAL_TAXA_SHA256={taxa_sha}\n")
+          print('excluded_focal_taxa', names)
+          print('focal_taxa_sha256', taxa_sha)
           PY
-      - name: Materialize global minimal Plantae sampling-effort footprint
+      - name: Materialize global non-focal Plantae sampling-effort footprint
         run: |
           mkdir -p target_cache
           sdmr-gbif-target-footprint \
@@ -53,6 +62,7 @@ jobs:
             --snapshot-doi "$SNAPSHOT_DOI" \
             --region us-east-1 \
             --grid-cell-degrees 0.05 \
+            --exclude-taxa configs/product_a_pilot_taxa_v1.csv \
             --output target_cache/target_group.parquet \
             --provenance target_cache/target_group.provenance.csv
       - name: Verify target-group contract and record cache manifest
@@ -78,13 +88,17 @@ jobs:
               raise SystemExit('target-group provenance citation SHA mismatch')
           if str(prov.get('cloud_provider','')).lower() != 'aws':
               raise SystemExit('target-group cache must use hardened AWS transport')
-          if str(prov.get('sampling_mode','')) != 'global_one_per_grid_cell_sampling_footprint':
-              raise SystemExit('target-group cache is not the focal-independent global footprint')
+          if str(prov.get('sampling_mode','')) != 'global_nonfocal_one_per_grid_cell_sampling_footprint':
+              raise SystemExit('target-group cache is not the non-focal global footprint')
           if abs(float(prov.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
               raise SystemExit('target-group footprint grid differs from frozen 0.05-degree contract')
+          if int(prov.get('excluded_taxa_count',0)) != 12:
+              raise SystemExit('target-group source did not exclude the full 12-taxon focal panel')
+          if str(prov.get('excluded_taxa_sha256','')).lower() != os.environ['FOCAL_TAXA_SHA256']:
+              raise SystemExit('target-group focal-taxon exclusion fingerprint mismatch')
           df = pd.read_parquet(path, columns=['species'])
           manifest = {
-              'protocol_source': 'product_a_v1_global_target_group_footprint',
+              'protocol_source': 'product_a_v1_global_nonfocal_target_group_footprint',
               'snapshot_date': os.environ['SNAPSHOT_DATE'],
               'snapshot_doi': os.environ['SNAPSHOT_DOI'],
               'citation_sha256': citation_sha,
@@ -94,7 +108,10 @@ jobs:
               'target_species': int(df['species'].nunique()),
               'sampling_mode': str(prov.get('sampling_mode','')),
               'one_per_grid_cell_degrees': float(prov.get('one_per_grid_cell_degrees')),
-              'source_independent_of_focal_occurrences': True,
+              'source_independent_of_focal_occurrence_geography': True,
+              'focal_taxa_excluded_pre_split': True,
+              'excluded_taxa_count': int(prov.get('excluded_taxa_count')),
+              'excluded_taxa_sha256': str(prov.get('excluded_taxa_sha256','')),
               'cloud_provider': str(prov.get('cloud_provider','')),
               'http_keep_alive': prov.get('http_keep_alive'),
               'http_retries': prov.get('http_retries'),
