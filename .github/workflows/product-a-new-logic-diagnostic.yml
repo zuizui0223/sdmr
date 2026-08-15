@@ -1,0 +1,77 @@
+name: product-a-new-logic-diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/product-a-new-logic-diagnostic.yml'
+      - 'src/sdmr/data/quality.py'
+      - 'src/sdmr/pilot.py'
+      - 'src/sdmr/method.py'
+      - 'src/sdmr/robust_protocol.py'
+      - 'src/sdmr/stability_aggregate.py'
+      - 'src/sdmr/promotion.py'
+      - 'tests/test_deterministic_thinning.py'
+      - 'tests/test_presealed_product_a.py'
+      - 'tests/test_robust_m_sensitivity_protocol.py'
+      - 'tests/test_leakage_safe_stability_aggregate.py'
+      - 'tests/test_promotion.py'
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-thinning:
+    runs-on: ubuntu-latest
+    steps: &steps
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_deterministic_thinning.py
+
+  sealed-before-M:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_presealed_product_a.py
+
+  M-sensitivity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_robust_m_sensitivity_protocol.py
+
+  stability-aggregation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_leakage_safe_stability_aggregate.py
+
+  promotion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_promotion.py
