@@ -7,6 +7,7 @@ on:
       - 'src/sdmr/known_truth_benchmark.py'
       - 'src/sdmr/known_truth_experiment.py'
       - 'src/sdmr/known_truth_scenarios.py'
+      - 'src/sdmr/known_truth_response.py'
       - 'src/sdmr/niche_recovery.py'
       - 'src/sdmr/niche_recovery_cv.py'
       - 'src/sdmr/niche_recovery_selection.py'
@@ -38,7 +39,6 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          import pandas as pd
           from sdmr.known_truth_experiment import (
               run_known_truth_experiment,
               run_structural_known_truth_experiment,
@@ -54,7 +54,15 @@ jobs:
                       mean_centroid_distance=('centroid_distance','mean'),
                       mean_breadth_error=('breadth_log_sd_error','mean'),
                       mean_quantile_error=('quantile_profile_error','mean'),
+                      mean_truth_surface_rank=('truth_surface_rank','mean'),
+                      mean_truth_surface_nrmse=('truth_surface_nrmse','mean'),
+                      mean_response_curve_error=('response_curve_error','mean'),
+                      mean_optimum_error=('optimum_error','mean'),
+                      mean_lower_limit_error=('lower_limit_error','mean'),
+                      mean_upper_limit_error=('upper_limit_error','mean'),
+                      mean_driver_process_f1=('driver_process_f1','mean'),
                       mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
+                      mean_truth_mean_rank=('truth_mean_metric_rank','mean'),
                   )
               )
 
@@ -93,6 +101,13 @@ jobs:
               'selectors': selectors,
               'seeds': list(seeds),
               'truth_target': 'known_generating_environmental_niche',
+              'truth_audit_dimensions': [
+                  'environmental_overlap', 'centroid', 'breadth', 'quantile_tails',
+                  'full_suitability_surface_rank', 'full_suitability_surface_nrmse',
+                  'marginal_response_curve', 'environmental_optimum',
+                  'lower_environmental_limit', 'upper_environmental_limit',
+                  'process_group_recovery',
+              ],
               'selection_never_uses_truth': True,
               'truth_winner_semantics': 'co_winner_no_selector_name_tiebreak',
               'auc_role': 'generalization_metric_and_gate_not_ecological_objective',
