@@ -1,5 +1,5 @@
-rerun=2
-reason=run leakage-safe Product-A v1 after focal thinning and sealing-before-M fix; use Azure mirror for same-snapshot target-group transport
+rerun=3
+reason=first admissible Product-A v1 using deterministic focal thinning, sealed-before-M information barrier, and M as a predeclared sensitivity axis rather than an optimized parameter
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
-protocol_version=product_a_v1_leakage_safe
+protocol_version=product_a_v1_leakage_safe_M_sensitivity
