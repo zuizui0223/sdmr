@@ -1,0 +1,5 @@
+run=1
+snapshot_date=2026-08-01
+snapshot_doi=10.15468/dl.fs3btq
+transport=aws_hardened_http
+purpose=materialize and fingerprint the broader Plantae target-group source evidence separately from Product-A model evaluation
