@@ -17,13 +17,16 @@ species x M case:
 
 - ``local_nested_auc``: run the full candidate universe x strategy benchmark on
   that species' *model pool only*, choose the row with the highest inner spatial
-  CV AUC-equivalent score, and then open the already sealed outer rows.  Thus
+  CV AUC-equivalent score, and then open the already sealed outer rows. Thus
   SDMR is compared not only with a fixed conventional recipe but also with the
   ordinary practice of tuning a model locally by nested spatial CV.
 
 No selector may use its outer sealed score to choose itself. No weighted
 super-score is invented: the output is a paired transfer test on identical
-unseen species x M cases.
+unseen species x M cases. We also report the descriptive inner-to-outer
+``generalization_gap`` (outer sealed AUC-equivalent minus inner spatial-CV
+AUC-equivalent) so optimism caused by local tuning is visible rather than folded
+into a new composite score.
 """
 from __future__ import annotations
 
@@ -156,12 +159,18 @@ def _summarize_transfer(metrics: pd.DataFrame) -> pd.DataFrame:
     if not len(metrics):
         return pd.DataFrame()
     data = metrics.copy()
+    data["presence_rank"] = pd.to_numeric(data["presence_rank"], errors="coerce")
+    data["inner_presence_rank"] = pd.to_numeric(data.get("inner_presence_rank"), errors="coerce")
+    data["generalization_gap"] = data["presence_rank"] - data["inner_presence_rank"]
     case_cols = ["data_specification", "species"]
     best = data.groupby(case_cols)["presence_rank"].transform("max")
     data["case_win"] = (data["presence_rank"] >= best - 1e-12).astype(float)
     per_spec = (
         data.groupby(["selector", "data_specification"], as_index=False)
-        .agg(spec_mean_presence_rank=("presence_rank", "mean"))
+        .agg(
+            spec_mean_presence_rank=("presence_rank", "mean"),
+            spec_mean_generalization_gap=("generalization_gap", "mean"),
+        )
     )
     robustness = (
         per_spec.groupby("selector", as_index=False)
@@ -169,6 +178,7 @@ def _summarize_transfer(metrics: pd.DataFrame) -> pd.DataFrame:
             worst_M_mean_presence_rank=("spec_mean_presence_rank", "min"),
             best_M_mean_presence_rank=("spec_mean_presence_rank", "max"),
             sd_M_mean_presence_rank=("spec_mean_presence_rank", "std"),
+            worst_M_mean_generalization_gap=("spec_mean_generalization_gap", "min"),
             n_specs=("data_specification", "nunique"),
         )
     )
@@ -177,8 +187,11 @@ def _summarize_transfer(metrics: pd.DataFrame) -> pd.DataFrame:
         .agg(
             n_species=("species", "nunique"),
             n_cases=("presence_rank", "size"),
+            mean_inner_presence_rank=("inner_presence_rank", "mean"),
             mean_presence_rank=("presence_rank", "mean"),
             median_presence_rank=("presence_rank", "median"),
+            mean_generalization_gap=("generalization_gap", "mean"),
+            median_generalization_gap=("generalization_gap", "median"),
             mean_boyce=("boyce", "mean"),
             case_win_fraction=("case_win", "mean"),
         )
@@ -324,6 +337,10 @@ def evaluate_selector_transfer(
             rows.append(selected)
 
     metrics = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+    if len(metrics):
+        metrics["inner_presence_rank"] = pd.to_numeric(metrics["inner_presence_rank"], errors="coerce")
+        metrics["presence_rank"] = pd.to_numeric(metrics["presence_rank"], errors="coerce")
+        metrics["generalization_gap"] = metrics["presence_rank"] - metrics["inner_presence_rank"]
     return SelectorContrastResult(
         choices=choices.reset_index(drop=True),
         transfer_metrics=metrics,
