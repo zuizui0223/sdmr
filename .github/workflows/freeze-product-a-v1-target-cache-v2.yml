@@ -27,14 +27,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Wait for global target-footprint run 31858102741 to finish successfully
+      - name: Wait for global target-footprint run 31858389075 to finish successfully
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import json, os, time
           from urllib.request import Request, urlopen
-          run_id = '31858102741'
+          run_id = '31858389075'
           url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
           headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
           for _ in range(540):
@@ -52,7 +52,7 @@ jobs:
       - name: Download successful global target artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: 31858102741
+          run-id: 31858389075
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: product-a-v1-target-cache-2026-08-01
           path: target_cache_bundle
@@ -106,7 +106,7 @@ jobs:
               'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
           ]
           row = {
-              'source_run_id': '31858102741',
+              'source_run_id': '31858389075',
               'artifact_name': 'product-a-v1-target-cache-2026-08-01',
               'target_sha256': target_sha,
               'target_query_sha256': str(manifest.get('target_query_sha256','')),
