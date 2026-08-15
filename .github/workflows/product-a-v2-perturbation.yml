@@ -1,0 +1,140 @@
+name: product-a-v2-perturbation
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/known_truth_perturbation.py'
+      - 'src/sdmr/known_truth_perturbation_experiment.py'
+      - 'src/sdmr/niche_recovery_perturbation.py'
+      - 'src/sdmr/niche_recovery_cv.py'
+      - 'src/sdmr/niche_recovery_selection.py'
+      - 'src/sdmr/model.py'
+      - '.github/workflows/product-a-v2-perturbation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-perturbation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run exogenous perturbation known-truth experiment
+        run: |
+          mkdir -p perturbation_result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          from sdmr.known_truth_perturbation import DEFAULT_KNOWN_TRUTH_PERTURBATIONS
+          from sdmr.known_truth_perturbation_experiment import run_known_truth_perturbation_experiment
+
+          choices, truth, summary, metrics, failures = run_known_truth_perturbation_experiment(
+              families=('observation_confounded', 'interaction', 'omitted_driver'),
+              seeds=(1, 2, 3),
+              perturbations=DEFAULT_KNOWN_TRUTH_PERTURBATIONS,
+              n_cells=2800,
+              n_occurrences=250,
+              n_target_group=900,
+              n_spatial_blocks=6,
+              inner_folds=3,
+              min_background=60,
+          )
+          choices.to_csv('perturbation_result/selector_choices.csv', index=False)
+          truth.to_csv('perturbation_result/truth_evaluation.csv', index=False)
+          summary.to_csv('perturbation_result/selector_truth_summary.csv', index=False)
+          metrics.to_csv('perturbation_result/perturbation_candidate_fold_metrics.csv', index=False)
+          failures.to_csv('perturbation_result/selection_failures.csv', index=False)
+
+          scenario_summary = (
+              truth.groupby(['scenario','selector'], as_index=False)
+              .agg(
+                  n_cases=('seed','size'),
+                  truth_co_win_fraction=('truth_selector_win','mean'),
+                  mean_truth_overlap=('niche_overlap_schoener_d_pc12','mean'),
+                  mean_centroid_distance=('centroid_distance','mean'),
+                  mean_breadth_error=('breadth_log_sd_error','mean'),
+                  mean_quantile_error=('quantile_profile_error','mean'),
+                  mean_truth_surface_rank=('truth_surface_rank','mean'),
+                  mean_truth_surface_nrmse=('truth_surface_nrmse','mean'),
+                  mean_response_curve_error=('response_curve_error','mean'),
+                  mean_optimum_error=('optimum_error','mean'),
+                  mean_lower_limit_error=('lower_limit_error','mean'),
+                  mean_upper_limit_error=('upper_limit_error','mean'),
+                  mean_driver_process_f1=('driver_process_f1','mean'),
+                  mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
+                  mean_truth_mean_rank=('truth_mean_metric_rank','mean'),
+              )
+          )
+          scenario_summary.to_csv('perturbation_result/scenario_selector_truth_summary.csv', index=False)
+
+          coverage = (
+              choices.groupby('selector', as_index=False)
+              .agg(n_selected_cases=('seed','size'))
+          )
+          expected_cases = int(choices[['scenario','seed']].drop_duplicates().shape[0])
+          coverage['expected_cases'] = expected_cases
+          coverage['selection_coverage'] = coverage['n_selected_cases'] / expected_cases
+          coverage.to_csv('perturbation_result/selector_coverage.csv', index=False)
+
+          perturbation_counts = (
+              metrics.groupby(['scenario','seed','perturbation'], as_index=False)
+              .agg(
+                  n_candidates=('candidate','nunique'),
+                  n_rows=('candidate','size'),
+              )
+          )
+          perturbation_counts.to_csv('perturbation_result/perturbation_coverage.csv', index=False)
+
+          contract = {
+              'purpose': 'development_exogenous_perturbation_robustness_known_truth',
+              'families': ['observation_confounded','interaction','omitted_driver'],
+              'seeds': [1,2,3],
+              'perturbations': [spec.name for spec in DEFAULT_KNOWN_TRUTH_PERTURBATIONS],
+              'perturbation_axes': {
+                  'sampling_bias_strength': [0.5,1.15,2.0],
+                  'model_pool_access_radius_simulation_units': [0.2,0.35,0.8],
+                  'domain_transfer': ['source_to_shifted','shifted_to_source'],
+              },
+              'background_information_barrier': 'outer_presence_blocks_fixed_before_background_model_pool_occurrences_only_define_access_radius',
+              'canonical_case': 'sampling_standard',
+              'selectors': ['canonical_auc','canonical_niche_recovery','perturbation_robust_niche_recovery'],
+              'prediction_gate': 'must_pass_absolute_auc_adequacy_in_every_perturbation',
+              'ecological_aggregation': 'rank_candidates_within_each_perturbation_per_ecological_axis_then_pareto_minimax_worst_perturbation_ranks',
+              'raw_metrics_never_pooled_across_M_or_domain': True,
+              'weighted_super_score': False,
+              'hidden_truth_used_during_selection': False,
+              'no_robust_candidate_is_valid_outcome': True,
+          }
+          Path('perturbation_result/contract.json').write_text(
+              json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
+          )
+
+          print('Selector truth summary:')
+          print(summary.to_string(index=False))
+          print('\nBy scenario:')
+          print(scenario_summary.to_string(index=False))
+          print('\nSelection coverage:')
+          print(coverage.to_string(index=False))
+          if len(failures):
+              print('\nNo robust candidate cases:')
+              print(failures.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-perturbation-development
+          path: perturbation_result/
+          if-no-files-found: error
+          retention-days: 90
