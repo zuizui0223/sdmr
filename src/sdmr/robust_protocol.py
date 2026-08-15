@@ -10,6 +10,8 @@ Validation taxa then evaluate the frozen universe/strategy in every M spec.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
+import os
 
 import numpy as np
 import pandas as pd
@@ -24,6 +26,27 @@ from .protocol import (
 from .universe import CandidateUniverse
 
 SENSITIVITY_SET_NAME = "all_predeclared_M_sensitivity_specs"
+
+
+def _resolve_n_jobs(n_jobs: int | None) -> int:
+    """Resolve a performance-only parallelism level without changing defaults."""
+    if n_jobs is None:
+        raw = os.environ.get("SDMR_BENCHMARK_JOBS", "1").strip() or "1"
+        try:
+            n_jobs = int(raw)
+        except ValueError as exc:
+            raise ValueError("SDMR_BENCHMARK_JOBS must be an integer >= 1") from exc
+    if int(n_jobs) < 1:
+        raise ValueError("n_jobs must be >= 1")
+    return int(n_jobs)
+
+
+def _ordered_map(function, tasks: Sequence[tuple], *, n_jobs: int):
+    """Map independent benchmark cells while preserving the sequential order."""
+    if n_jobs == 1:
+        return [function(task) for task in tasks]
+    with ThreadPoolExecutor(max_workers=n_jobs, thread_name_prefix="sdmr-product-a") as executor:
+        return list(executor.map(function, tasks))
 
 
 def summarize_discovery_robust_across_specs(
@@ -124,14 +147,22 @@ def benchmark_product_a_method_across_sensitivity_specs(
     species_col: str = "species",
     taxon_validation_fraction: float = 0.20,
     random_state: int = 42,
+    n_jobs: int | None = None,
     **method_kwargs,
 ) -> ProductAProtocolValidationResult:
-    """Choose universe×strategy without directly ranking alternative M backgrounds."""
+    """Choose universe×strategy without directly ranking alternative M backgrounds.
+
+    ``n_jobs`` (or ``SDMR_BENCHMARK_JOBS``) is a performance-only option.  Every
+    cell retains the exact same random state and preassigned outer split as the
+    sequential implementation, and results are restored to the same deterministic
+    task order before aggregation.
+    """
     occurrence_sha, feature_sha, normalized = validate_matched_protocol_specifications(
         specifications,
         universes,
         species_col=species_col,
     )
+    jobs = _resolve_n_jobs(n_jobs)
     if not 0 < taxon_validation_fraction < 1:
         raise ValueError("taxon_validation_fraction must be between 0 and 1")
     species = _common_species(specifications, species_col)
@@ -146,27 +177,33 @@ def benchmark_product_a_method_across_sensitivity_specs(
     validation_species = sorted(str(x) for x in shuffled[:n_validation])
     discovery_species = sorted(str(x) for x in shuffled[n_validation:])
 
-    discovery_frames: list[pd.DataFrame] = []
+    discovery_tasks: list[tuple] = []
     for spec_name, (occurrences, background) in specifications.items():
         for universe_name, universe in normalized.items():
             for i, species_name in enumerate(discovery_species):
-                result = benchmark_species_methods(
-                    occurrences,
-                    background,
-                    universe.predictors,
-                    species_name=species_name,
-                    species_col=species_col,
-                    random_state=random_state + 1_000 + i,
-                    **method_kwargs,
+                discovery_tasks.append(
+                    (str(spec_name), occurrences, background, str(universe_name), universe, i, species_name)
                 )
-                discovery_frames.append(
-                    result.sealed_metrics.assign(
-                        data_specification=str(spec_name),
-                        universe=str(universe_name),
-                        universe_sha256=universe.fingerprint,
-                        n_candidates=len(universe.predictors),
-                    )
-                )
+
+    def run_discovery(task: tuple) -> pd.DataFrame:
+        spec_name, occurrences, background, universe_name, universe, i, species_name = task
+        result = benchmark_species_methods(
+            occurrences,
+            background,
+            universe.predictors,
+            species_name=species_name,
+            species_col=species_col,
+            random_state=random_state + 1_000 + i,
+            **method_kwargs,
+        )
+        return result.sealed_metrics.assign(
+            data_specification=spec_name,
+            universe=universe_name,
+            universe_sha256=universe.fingerprint,
+            n_candidates=len(universe.predictors),
+        )
+
+    discovery_frames = _ordered_map(run_discovery, discovery_tasks, n_jobs=jobs)
     discovery_metrics = pd.concat(discovery_frames, ignore_index=True)
     discovery_summary = summarize_discovery_robust_across_specs(discovery_metrics, normalized)
     winner = discovery_summary.iloc[0]
@@ -174,26 +211,32 @@ def benchmark_product_a_method_across_sensitivity_specs(
     winning_strategy = str(winner["strategy"])
     universe = normalized[winning_universe]
 
-    validation_frames: list[pd.DataFrame] = []
+    validation_tasks: list[tuple] = []
     for spec_name, (occurrences, background) in specifications.items():
         for i, species_name in enumerate(validation_species):
-            result = benchmark_species_methods(
-                occurrences,
-                background,
-                universe.predictors,
-                species_name=species_name,
-                species_col=species_col,
-                random_state=random_state + 100_000 + i,
-                **method_kwargs,
-            )
-            frame = result.sealed_metrics.assign(
-                data_specification=str(spec_name),
-                universe=winning_universe,
-                universe_sha256=universe.fingerprint,
-                n_candidates=len(universe.predictors),
-            )
-            frame["selected_by_discovery"] = frame["strategy"].astype(str) == winning_strategy
-            validation_frames.append(frame)
+            validation_tasks.append((str(spec_name), occurrences, background, i, species_name))
+
+    def run_validation(task: tuple) -> pd.DataFrame:
+        spec_name, occurrences, background, i, species_name = task
+        result = benchmark_species_methods(
+            occurrences,
+            background,
+            universe.predictors,
+            species_name=species_name,
+            species_col=species_col,
+            random_state=random_state + 100_000 + i,
+            **method_kwargs,
+        )
+        frame = result.sealed_metrics.assign(
+            data_specification=spec_name,
+            universe=winning_universe,
+            universe_sha256=universe.fingerprint,
+            n_candidates=len(universe.predictors),
+        )
+        frame["selected_by_discovery"] = frame["strategy"].astype(str) == winning_strategy
+        return frame
+
+    validation_frames = _ordered_map(run_validation, validation_tasks, n_jobs=jobs)
     validation_metrics = pd.concat(validation_frames, ignore_index=True) if validation_frames else pd.DataFrame()
 
     if len(validation_metrics):
