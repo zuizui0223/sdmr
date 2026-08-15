@@ -1,0 +1,104 @@
+name: product-a-vif-vs-all-linear-ablation
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/product-a-vif-vs-all-linear-ablation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-vif-vs-all-linear-ablation
+  cancel-in-progress: true
+
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SDMR_BENCHMARK_JOBS: '4'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install development engine
+        run: python -m pip install -e '.[geo,parquet]'
+      - name: Download frozen source bundle
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31869318368
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: citable-product-a-v1-accelerated-2026-08-01
+          path: frozen_source
+      - name: Run minimal VIF-vs-ALL experiment
+        run: |
+          mkdir -p vif_all_linear
+          python - <<'PY'
+          import pandas as pd
+          import sdmr.method as method
+          from sdmr.model import ModelSpec
+          from sdmr.pilot_grid_cli import main as pilot_main
+
+          method._default_model_specs = lambda: [ModelSpec(C=1.0, degree=1, penalty='l2')]
+          method.forward_select_predictors = lambda *args, **kwargs: ([], [], float('nan'))
+
+          rc=pilot_main([
+            '--gbif-download','frozen_source/citable_input/focal.parquet',
+            '--gbif-download-key','vif-all-linear-fixed-source-2026-08-01',
+            '--target-group-download','frozen_source/citable_input/target_group.parquet',
+            '--target-group-download-key','vif-all-linear-fixed-source-2026-08-01',
+            '--checklist-key','snapshot-interpreted:2026-08-01',
+            '--taxa','configs/product_a_pilot_taxa_v1.csv',
+            '--grid','configs/product_a_buffer_specs_v1.csv',
+            '--manifest','configs/chelsa_v2_1_plant_candidates.csv',
+            '--output-dir','vif_all_linear','--m-grid-as-sensitivity',
+            '--min-occurrences','80','--min-unique-cells','50','--gate-cell-size-degrees','0.05',
+            '--spatial-test-fraction','0.20','--taxon-validation-fraction','0.25',
+            '--vif-threshold','5','--max-predictors','8','--random-baseline-repeats','0','--seed','20260814'])
+          if rc not in (0,None): raise SystemExit(rc)
+
+          d=pd.read_csv('vif_all_linear/protocol_discovery_metrics.csv')
+          v=pd.read_csv('vif_all_linear/protocol_validation_metrics.csv')
+          out=[]
+          for split,frame in [('discovery',d),('validation',v)]:
+              frame=frame.loc[frame['strategy'].astype(str).isin(['all','vif'])].copy()
+              pivot=frame.pivot_table(index=['data_specification','species','universe'],columns='strategy',values='presence_rank',aggfunc='first').dropna()
+              delta=pivot['all']-pivot['vif'] if {'all','vif'}.issubset(pivot.columns) else pd.Series(dtype=float)
+              out.append({
+                  'split':split,
+                  'n_paired_cases':len(delta),
+                  'mean_all_minus_vif':delta.mean() if len(delta) else float('nan'),
+                  'median_all_minus_vif':delta.median() if len(delta) else float('nan'),
+                  'all_win_fraction':(delta>0).mean() if len(delta) else float('nan'),
+                  'vif_win_fraction':(delta<0).mean() if len(delta) else float('nan'),
+                  'tie_fraction':(delta==0).mean() if len(delta) else float('nan'),
+              })
+          summary=pd.DataFrame(out)
+          summary.to_csv('vif_all_linear/vif_vs_all_linear_summary.csv',index=False)
+          print(summary.to_string(index=False))
+          PY
+      - name: Freeze boundary
+        if: always()
+        run: |
+          cat > vif_all_linear/DEVELOPMENT_ABLATION_BOUNDARY.txt <<'EOF'
+          DEVELOPMENT ONLY. Fixed linear logistic L2 C=1 and predictive selection disabled. This isolates the
+          effect of VIF<5 pruning versus retaining all variables under identical frozen source, M sensitivities,
+          taxa, spatial sealing and environmental candidate universes. It cannot trigger promotion.
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-vif-vs-all-linear-ablation
+          path: vif_all_linear/
+          if-no-files-found: error
+          retention-days: 30
