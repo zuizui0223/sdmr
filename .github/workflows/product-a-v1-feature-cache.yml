@@ -40,6 +40,7 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
+          import os
           from pathlib import Path
 
           import pandas as pd
@@ -126,15 +127,21 @@ jobs:
           if featured_occ[predictors].isna().all(axis=0).any():
               bad = featured_occ[predictors].columns[featured_occ[predictors].isna().all(axis=0)].tolist()
               raise SystemExit(f'feature cache contains all-NA occurrence predictors: {bad}')
+          sampling_engines = sorted(set(provenance.get('sampling_engine', pd.Series(dtype=str)).dropna().astype(str)))
+          if sampling_engines != ['native_block_grouped_exact_pixel']:
+              raise SystemExit(f'unexpected raster sampling engine: {sampling_engines}')
 
           def sha(path):
-              h=hashlib.sha256();
+              h=hashlib.sha256()
               with Path(path).open('rb') as fh:
                   for chunk in iter(lambda: fh.read(1024*1024), b''): h.update(chunk)
               return h.hexdigest()
           contract = {
               'status':'prepared_feature_evidence_only_no_method_selection',
               'source_bundle_run_id':'31869318368',
+              'feature_cache_engine_sha':os.environ.get('GITHUB_SHA',''),
+              'raster_sampling_engine':'native_block_grouped_exact_pixel',
+              'raster_sampling_equivalence_run_id':'31870392923',
               'focal_source_sha256':sha(focal_path),
               'target_source_sha256':sha(target_path),
               'occurrence_identity_sha256':reference_sha,
@@ -158,14 +165,14 @@ jobs:
         run: |
           cat > feature_cache/FEATURE_CACHE_BOUNDARY.txt <<'EOF'
           Frozen development feature evidence only. No Product-A universe/strategy/model winner is computed here.
-          The cache fixes occurrence identities/outer roles, three predeclared M backgrounds and 43 CHELSA feature
-          values for seed 20260814 / sealed fraction 0.20. Method-search experiments may reuse these tables without
-          re-accessing GBIF or CHELSA, but this cache does not replace the repeated full stability protocol where each
-          seed/holdout rerun must rebuild sealing, M and background from the frozen raw source.
+          Raster values use native-block grouped exact-pixel sampling, proven exactly equivalent to rasterio.sample
+          by run 31870392923. The cache fixes occurrence identities/outer roles, three predeclared M backgrounds and
+          43 CHELSA feature values for seed 20260814 / sealed fraction 0.20. Method-search experiments may reuse these
+          tables without re-accessing GBIF or CHELSA. Repeated full stability still rebuilds each seed/holdout split.
           EOF
       - uses: actions/upload-artifact@v4
         with:
-          name: product-a-v1-feature-cache-2026-08-01
+          name: product-a-v1-feature-cache-block-v2-2026-08-01
           path: feature_cache/
           if-no-files-found: error
           retention-days: 90
