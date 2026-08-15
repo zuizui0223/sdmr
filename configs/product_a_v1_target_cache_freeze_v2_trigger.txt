@@ -1,5 +1,7 @@
-source_run_id=31858389075
+source_run_id=31859001750
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
-freeze_protocol=v2_global_focal_independent_footprint
-required_sampling_mode=global_one_per_grid_cell_sampling_footprint
+freeze_protocol=v3_global_nonfocal_footprint
+required_sampling_mode=global_nonfocal_one_per_grid_cell_sampling_footprint
+focal_taxa_excluded_pre_split=true
+excluded_taxa_count=12
