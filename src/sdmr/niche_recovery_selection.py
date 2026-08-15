@@ -1,10 +1,9 @@
 """Multi-objective selectors for ecological niche-recovery tuning.
 
-Prediction/model-fit statistics are not the ecological objective, but independent
-transfer can be used as a *gate* before ecological recovery decides among
-predictively credible candidates. This keeps Product-A v2 distinct from simply
-renaming AUC while avoiding ecologically attractive models that fail basic
-out-of-sample generalization.
+Prediction/model-fit statistics are not the ecological objective. Independent
+transfer is used only as an adequacy gate before ecological recovery decides
+among candidates that generalize above chance. This prevents the gate itself
+from becoming a disguised best-AUC selector.
 """
 from __future__ import annotations
 
@@ -34,7 +33,8 @@ class NicheRecoverySelection:
 class GeneralizationGatedNicheRecoverySelection:
     candidate: str
     eligible_candidates: tuple[str, ...]
-    auc_gate_tolerance: float
+    auc_gate_floor: float
+    chance_auc: float
     gate_summary: pd.DataFrame
     recovery_selection: NicheRecoverySelection
 
@@ -176,28 +176,40 @@ def select_generalization_gated_niche_recovery_protocol(
     fold_col: str = "fold",
     auc_col: str = "presence_rank",
     or10_col: str = "or10",
-    minimum_auc_tolerance: float = 0.01,
+    chance_auc: float = 0.50,
+    minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
     max_mean_or10: float | None = None,
     complexity_col: str | None = "n_predictors",
     metric_columns: Sequence[str] = tuple(RECOVERY_DIRECTIONS),
 ) -> GeneralizationGatedNicheRecoverySelection:
-    """Gate on independent transfer, then select by ecological recovery.
+    """Require minimally credible independent transfer, then optimize ecology.
 
-    The gate is deliberately not an AUC optimizer. Candidates are retained when
-    their mean inner AUC-equivalent rank is within a tolerance of the best
-    candidate. The tolerance is the larger of a declared minimum and a multiple
-    of the best candidate's fold-level standard error, so predictively
-    near-equivalent procedures can still be distinguished by ecological recovery.
+    AUC is used only as an adequacy test, not as a relative-to-best optimizer.
+    A candidate passes when:
 
-    ``max_mean_or10`` is an optional severe-omission guardrail. It is configurable
-    because no single OR10 cutoff is asserted as a universal biological rule.
+    1. its mean inner AUC is at least ``chance_auc + minimum_auc_margin``; and
+    2. its lower evidence bound ``mean - auc_sem_multiplier * SEM`` is at least
+       ``chance_auc``.
+
+    For presence-background rank, 0.5 has a direct random-ranking meaning. The
+    default +0.01 margin is an operational development guardrail and should be
+    sensitivity-tested rather than interpreted as a biological effect size.
+
+    ``max_mean_or10`` remains an optional severe-omission guardrail. No universal
+    biological OR10 cutoff is assumed.
     """
 
-    if minimum_auc_tolerance < 0:
-        raise ValueError("minimum_auc_tolerance must be >= 0")
+    chance_auc = float(chance_auc)
+    minimum_auc_margin = float(minimum_auc_margin)
+    auc_sem_multiplier = float(auc_sem_multiplier)
+    if not 0 <= chance_auc < 1:
+        raise ValueError("chance_auc must lie in [0, 1)")
+    if minimum_auc_margin < 0 or chance_auc + minimum_auc_margin > 1:
+        raise ValueError("minimum_auc_margin must keep the AUC floor in [0, 1]")
     if auc_sem_multiplier < 0:
         raise ValueError("auc_sem_multiplier must be >= 0")
+
     required = {candidate_col, fold_col, auc_col, *metric_columns}
     if max_mean_or10 is not None:
         required.add(or10_col)
@@ -230,19 +242,20 @@ def select_generalization_gated_niche_recovery_protocol(
             }
         )
     gate = pd.DataFrame(rows)
-    finite_auc = gate.loc[np.isfinite(gate["mean_inner_auc"])].copy()
-    if finite_auc.empty:
+    if not np.isfinite(gate["mean_inner_auc"]).any():
         raise ValueError("no candidate has finite independent-transfer AUC")
-    best_idx = finite_auc["mean_inner_auc"].idxmax()
-    best_auc = float(gate.loc[best_idx, "mean_inner_auc"])
-    best_sem = float(gate.loc[best_idx, "sem_inner_auc"])
-    if not np.isfinite(best_sem):
-        best_sem = 0.0
-    auc_tolerance = max(float(minimum_auc_tolerance), float(auc_sem_multiplier) * best_sem)
-    gate["auc_gate_threshold"] = best_auc - auc_tolerance
-    gate["passes_auc_gate"] = np.isfinite(gate["mean_inner_auc"]) & (
-        gate["mean_inner_auc"] >= best_auc - auc_tolerance - 1e-12
+
+    auc_floor = chance_auc + minimum_auc_margin
+    gate["auc_gate_floor"] = auc_floor
+    gate["auc_lower_evidence_bound"] = gate["mean_inner_auc"] - auc_sem_multiplier * gate["sem_inner_auc"]
+    gate["passes_auc_mean_floor"] = np.isfinite(gate["mean_inner_auc"]) & (
+        gate["mean_inner_auc"] >= auc_floor - 1e-12
     )
+    gate["passes_auc_chance_bound"] = np.isfinite(gate["auc_lower_evidence_bound"]) & (
+        gate["auc_lower_evidence_bound"] >= chance_auc - 1e-12
+    )
+    gate["passes_auc_gate"] = gate["passes_auc_mean_floor"] & gate["passes_auc_chance_bound"]
+
     if max_mean_or10 is None:
         gate["passes_or10_gate"] = True
     else:
@@ -254,7 +267,7 @@ def select_generalization_gated_niche_recovery_protocol(
 
     eligible = tuple(sorted(str(x) for x in gate.loc[gate["eligible_generalization"], candidate_col]))
     if not eligible:
-        raise ValueError("no candidate survives the independent-generalization gate")
+        raise ValueError("no candidate survives the independent-generalization adequacy gate")
     subset = data.loc[data[candidate_col].astype(str).isin(eligible)].copy()
     recovery = select_niche_recovery_protocol(
         subset,
@@ -272,7 +285,8 @@ def select_generalization_gated_niche_recovery_protocol(
     return GeneralizationGatedNicheRecoverySelection(
         candidate=recovery.candidate,
         eligible_candidates=eligible,
-        auc_gate_tolerance=auc_tolerance,
+        auc_gate_floor=auc_floor,
+        chance_auc=chance_auc,
         gate_summary=gate,
         recovery_selection=recovery,
     )
