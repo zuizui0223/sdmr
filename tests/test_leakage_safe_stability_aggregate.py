@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.aggregate_leakage_safe_stability import aggregate
+from sdmr.stability_aggregate import aggregate_leakage_safe_stability
 
 
 def test_aggregate_leakage_safe_stability_parts(tmp_path: Path):
@@ -70,7 +70,7 @@ def test_aggregate_leakage_safe_stability_parts(tmp_path: Path):
             i += 1
 
     output = tmp_path / "out"
-    aggregate(parts, output)
+    aggregate_leakage_safe_stability(parts, output)
     runs = pd.read_csv(output / "protocol_stability_runs.csv")
     choice = pd.read_csv(output / "protocol_choice_stability.csv")
     deltas = pd.read_csv(output / "protocol_validation_delta_summary.csv")
