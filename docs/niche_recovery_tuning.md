@@ -7,16 +7,21 @@ SDMR must not be described as a new model-evaluation metric.
 AUC, Boyce/CBI, omission rates such as OR10, and information criteria such as
 AICc answer different questions about a fitted model or a set of fitted models.
 Product-A v2 instead asks whether a **model-building procedure reconstructs the
-environmental niche expressed by genuinely unused occurrences**.
+environmental niche expressed by genuinely unused occurrences and, in
+known-truth experiments, the hidden generating niche itself**.
 
 The distinction is therefore:
 
 - **model evaluation**: how well did this prediction/model score under a chosen
   statistical criterion?
 - **niche-recovery tuning**: which predictor universe, variable-selection rule,
-  regularization and response complexity recover the location, breadth, shape
-  and limits of the environmental niche, and keep doing so when space, M and
-  taxon change?
+  regularization and response complexity recover the location, breadth, shape,
+  limits and controlling environmental processes of the niche, and keep doing
+  so when space, M, sampling bias, environmental domain and taxon change?
+
+The prediction surface is therefore an intermediate object, not the final
+scientific target. The target is an ecologically interpretable niche structure
+that remains recoverable under independent information barriers.
 
 ## What conventional criteria measure
 
@@ -37,14 +42,23 @@ prediction evaluators, not direct measurements of niche geometry.
 Threshold-dependent omission: after allowing the 10% lowest-ranked training
 presences to fall below the threshold, what fraction of test occurrences are
 omitted? It is useful for diagnosing overfitting/transfer failure at a declared
-threshold.
+threshold. SDMR exposes this in the conventional metric layer as
+`omission_rate_at_training_quantile(..., quantile=0.10)`; it is not a
+niche-recovery objective.
 
 ### AICc
 
 Information-criterion model selection: balance likelihood/goodness-of-fit against
-parameter complexity, with a small-sample correction. AICc can select useful
-regularization/feature settings but does not directly establish that the
-resulting model recovered the species' ecological niche.
+parameter complexity, with a small-sample correction. AICc is not the same kind
+of quantity as AUC/CBI/OR10, and a favourable AICc still does not directly
+establish that the resulting model recovered the species' ecological niche.
+
+AICc must also not be attached naively to SDMR's penalized presence-background
+logistic core by simply counting coefficients. It is an admissible comparator
+only where the likelihood, effective parameter count/degrees of freedom, and
+sample-size convention are mathematically defensible. Until such a definition is
+implemented and validated, AICc remains an external/canonical comparator rather
+than an SDMR objective.
 
 ## Why prediction quality and niche recovery can diverge
 
@@ -55,7 +69,10 @@ used to identify important environmental drivers.
 
 Accordingly, a high AUC, CBI, low OR10, or favourable AICc is not sufficient for
 SDMR's ecological claim. Those metrics remain comparators and diagnostic
-outputs.
+outputs. A central Product-A v2 benchmark must explicitly search for cases where
+candidate procedures have similar conventional scores but different known-truth
+niche recovery, and cases where the highest-scoring predictive model is not the
+best ecological reconstruction.
 
 ## Common audit environmental space
 
@@ -123,8 +140,7 @@ because an unrealistically broad niche can trivially obtain high coverage.
 
 ## Selection rule: procedure, not a new super-score
 
-SDMR v2 does not add the four recovery statistics together with arbitrary
-weights.
+SDMR v2 does not add the recovery statistics together with arbitrary weights.
 
 `select_niche_recovery_protocol` instead:
 
@@ -149,36 +165,73 @@ needs simulations in which the generating niche is known. Simulations should
 vary:
 
 - niche centre and breadth;
-- linear, unimodal and interacting responses;
-- correlated environmental predictors;
+- linear/threshold, unimodal, asymmetric and interacting responses;
+- correlated environmental predictors and substitutable proxies;
 - sampling bias;
 - accessible-area truncation;
-- spatial autocorrelation;
-- irrelevant/noise predictors.
+- spatial autocorrelation and environmental domain shift;
+- irrelevant/noise and omitted predictors.
 
-For each simulated species, compare which selector — AUC, CBI, OR10, AICc,
-local nested CV, or niche-recovery tuning — chooses the model closest to the
-known generating response/niche distribution.
+The repository now has a first executable known-truth layer in
+`sdmr.known_truth`. `simulate_gaussian_plant_niche` generates an explicit
+temperature-water niche with an interaction, a correlated temperature proxy,
+an irrelevant variable, and a spatial sampling-effort process. Target-group
+records follow sampling effort while focal occurrences follow ecological
+suitability × sampling effort. `known_truth_niche_recovery_profile` then compares
+a candidate prediction directly with the hidden generating niche in a common
+environmental audit space.
 
-This is the only tier where SDMR can literally evaluate recovery of a known true
+The existing known-truth profile evaluates environmental overlap, niche-centre
+error, breadth error, quantile/tail error, and how much true niche mass falls
+inside the predicted envelope. The next benchmark expansion should add
+asymmetric/threshold families, omitted-driver cases, stronger domain shifts, and
+explicit process-group recovery so correlated raster aliases are not mistaken
+for different ecological mechanisms.
+
+For each simulated species, compare which selector — AUC, CBI, OR10, a
+defensible AICc implementation, local nested CV, or niche-recovery tuning —
+chooses the model closest to the known generating response/niche distribution.
+This is the tier where SDMR can literally evaluate recovery of a known true
 niche.
 
 ### Tier 2 — real sealed-occurrence transfer
 
 With real plants, make the narrower claim that the procedure recovers a
-**realized environmental niche supported by unused occurrence evidence**.
+**realized/accessible environmental niche signal supported by unused occurrence
+evidence**.
 
 Require transfer across:
 
 - sealed spatial blocks;
 - plausible M/background definitions;
 - repeated holdout seeds/fractions;
-- unseen plant taxa.
+- sampling-bias alternatives;
+- unseen plant taxa and, where possible, shifted environmental domains.
 
 The ecological output is then not just a suitability map but a stable estimate
 of where the realized niche lies in environmental space, how broad it is, where
 its limits occur, and which environmental dimensions repeatedly control those
 features.
+
+## Ecological interpretation product
+
+Product A should return an ecological interpretation layer in addition to maps
+and conventional scores. For each species or species group, the target output is:
+
+1. **environmental process core** — process/equivalence groups repeatedly needed
+   for niche recovery, rather than arbitrary correlated raster winners;
+2. **response structure** — direction and support for unimodality, asymmetry,
+   thresholds or interactions;
+3. **niche centre and breadth** — where the reconstructed niche is centred and
+   how specialized/broad it is;
+4. **environmental limits/tails** — where occupancy support thins or terminates,
+   with stability across splits and M rather than a single fitted boundary;
+5. **heterogeneity and transfer** — which constraints are stable across taxa and
+   which are clade/biome/growth-form dependent.
+
+This is the bridge from tuning to ecology: SDMR matters when the tuning procedure
+changes or stabilizes conclusions about **what constrains the niche**, not merely
+when it increases a predictive score.
 
 ## Link to Product B
 
@@ -192,7 +245,8 @@ reduces AUC, but whether removing an environmental process shifts or degrades:
 - niche breadth recovery;
 - environmental overlap;
 - boundary/tail recovery;
-- unseen-taxon transfer.
+- response-shape recovery;
+- unseen-taxon/environmental-domain transfer.
 
 This converts variable importance from a map-prediction question into an
 ecological question about which environmental processes are necessary for
@@ -202,6 +256,6 @@ reconstructing plant realized niches.
 
 Presence-only GBIF data do not directly identify the fundamental niche, causal
 physiological limits, demographic fitness, dispersal constraints, or biotic
-interactions. The empirical claim must therefore remain **realized environmental
-niche recovery** unless independent demographic/physiological evidence supports
-a stronger interpretation.
+interactions. The empirical claim must therefore remain **realized/accessible
+environmental niche recovery** unless independent demographic/physiological
+evidence supports a stronger interpretation.
