@@ -57,7 +57,8 @@ def test_known_truth_selector_benchmark_returns_prediction_and_recovery_selector
     assert result.truth_evaluation["niche_overlap_schoener_d_pc12"].between(0, 1).all()
     gated = result.selector_choices.loc[result.selector_choices["selector"].eq("gated_niche_recovery")].iloc[0]
     assert gated["gated_eligible_candidates"]
-    assert float(gated["gated_auc_tolerance"]) >= 0.01
+    assert float(gated["gated_auc_floor"]) == 0.51
+    assert float(gated["gated_chance_auc"]) == 0.50
 
 
 def test_known_truth_families_generate_distinct_valid_surfaces():
@@ -100,8 +101,7 @@ def test_observation_confounded_scenario_detects_selector_disagreement_without_f
     auc_vs_pure = pure.loc[pure["selector"].eq("inner_auc")].iloc[0]
     assert bool(auc_vs_pure["candidate_disagrees"])
 
-    # The benchmark is a falsification tool, not a test rig that assumes SDMR
-    # must win. Hidden-truth gains are recorded but may favour either selector.
+    # The benchmark is a falsification tool, not a rig that assumes SDMR wins.
     gated = summarize_selector_disagreement(result, reference_selector="gated_niche_recovery")
     assert set(gated["selector"]) == {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
     assert gated[[
@@ -109,6 +109,9 @@ def test_observation_confounded_scenario_detects_selector_disagreement_without_f
         "truth_centroid_error_reduction",
         "truth_breadth_error_reduction",
         "truth_quantile_error_reduction",
+        "truth_surface_rank_gain",
+        "truth_response_curve_error_reduction",
+        "truth_process_f1_gain",
     ]].notna().all().all()
 
 
@@ -131,4 +134,6 @@ def test_disagreement_summary_does_not_require_a_weighted_super_score():
     assert set(out["selector"]) == {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
     assert "truth_overlap_gain" in out
     assert "truth_centroid_error_reduction" in out
+    assert "truth_response_curve_error_reduction" in out
+    assert "truth_process_f1_gain" in out
     assert "reference_truth_pareto_better" in out
