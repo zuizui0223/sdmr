@@ -12,6 +12,7 @@ on:
       - 'src/sdmr/niche_recovery.py'
       - 'src/sdmr/niche_recovery_cv.py'
       - 'src/sdmr/niche_recovery_selection.py'
+      - 'src/sdmr/niche_recovery_stability.py'
       - '.github/workflows/product-a-v2-known-truth.yml'
   workflow_dispatch:
 
@@ -116,14 +117,17 @@ jobs:
               'aicc_role': 'not_used_until_valid_likelihood_effective_df_and_sample_size_are_available',
               'gated_recovery_rule': 'mean_auc>=0.51_and_mean_auc_minus_1sem>=0.50_then_ecological_pareto_minimax',
               'gated_recovery_note': 'auc_gate_is_not_relative_to_best_auc',
-              'robust_v2_rule': 'prediction_adequacy_then_mean_ecological_pareto_then_worst_fold_ecological_pareto_minimax_then_parsimony',
-              'robustness_axes': [
-                  'worst_fold_environmental_overlap',
-                  'worst_fold_centroid_error',
-                  'worst_fold_breadth_error',
-                  'worst_fold_quantile_tail_error',
+              'worst_fold_robustness_ablation': 'retained_negative_control_not_principal_v2_selector',
+              'worst_fold_robustness_rule': 'mean_ecological_pareto_then_worst_heldout_fold_pareto_minimax',
+              'stable_v2_rule': 'prediction_adequacy_then_mean_ecological_pareto_then_common_environment_refit_surface_stability_pareto_minimax_then_parsimony',
+              'surface_stability_axes': [
+                  'mean_pairwise_ecological_surface_rank',
+                  'minimum_pairwise_ecological_surface_rank',
+                  'mean_pairwise_unit_scaled_surface_nrmse',
+                  'maximum_pairwise_unit_scaled_surface_nrmse',
               ],
-              'robustness_score': 'none_weighted_pareto_and_minimax_only',
+              'surface_stability_reference': 'fixed_deterministic_model_pool_background_covariates_no_heldout_occurrence_response',
+              'robustness_score': 'none_weighted_separate_pareto_and_minimax_gates',
               'observation_process_role': 'allowed_in_record_model_but_marginalized_from_ecological_suitability',
               'ecological_recovery_score': 'observation_marginalized_partial_dependence_surface',
           }
