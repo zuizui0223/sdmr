@@ -304,7 +304,10 @@ def _candidate_domain_transfer_metrics(
     evidence = None
     correction_active = False
     if observation_correction:
-        evidence_blocks = min(4, max(2, len(p_train) // 20))
+        # The shared spatial validation API requires at least four blocks. The
+        # production perturbation sizes already satisfy this, so use a fixed four
+        # rather than deriving a smaller value from one domain's row count.
+        evidence_blocks = 4
         evidence_partition = make_presence_spatial_partition(
             p_train["longitude"].to_numpy(float),
             p_train["latitude"].to_numpy(float),
