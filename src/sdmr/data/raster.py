@@ -92,6 +92,80 @@ def probe_raster_layers(layers: Sequence[RasterLayerSpec]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def _sample_band_blockwise(src, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Sample band 1 exactly by pixel while reading each internal block once.
+
+    ``DatasetReader.sample`` issues tiny windows in point order. For remote COGs,
+    many scattered points can therefore create a large number of HTTP range
+    operations even though multiple points occupy the same compressed tile.
+    This helper computes the exact raster row/column for every coordinate,
+    groups points by the source's native internal block, reads each occupied
+    block once, and returns the identical nearest-pixel values in original point
+    order. Coordinates outside the raster extent remain NaN.
+    """
+    from rasterio.transform import rowcol
+    from rasterio.windows import Window
+
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.shape != y.shape:
+        raise ValueError("x and y must have the same shape")
+    result = np.full(x.size, np.nan, dtype=float)
+    if x.size == 0:
+        return result
+
+    rows, cols = rowcol(src.transform, x, y)
+    rows = np.asarray(rows, dtype=np.int64)
+    cols = np.asarray(cols, dtype=np.int64)
+    valid = (
+        (rows >= 0)
+        & (rows < int(src.height))
+        & (cols >= 0)
+        & (cols < int(src.width))
+    )
+    if not np.any(valid):
+        return result
+
+    valid_idx = np.flatnonzero(valid)
+    vrows = rows[valid]
+    vcols = cols[valid]
+    if src.block_shapes:
+        block_height, block_width = (int(v) for v in src.block_shapes[0])
+    else:  # defensive fallback for unusual untiled drivers
+        block_height = min(256, int(src.height))
+        block_width = min(256, int(src.width))
+    n_block_cols = (int(src.width) + block_width - 1) // block_width
+    block_rows = vrows // block_height
+    block_cols = vcols // block_width
+    block_keys = block_rows * n_block_cols + block_cols
+
+    order = np.argsort(block_keys, kind="mergesort")
+    sorted_keys = block_keys[order]
+    starts = np.r_[0, np.flatnonzero(sorted_keys[1:] != sorted_keys[:-1]) + 1]
+    ends = np.r_[starts[1:], len(order)]
+
+    for start, end in zip(starts, ends, strict=True):
+        local_positions = order[start:end]
+        first = local_positions[0]
+        block_row = int(block_rows[first])
+        block_col = int(block_cols[first])
+        row0 = block_row * block_height
+        col0 = block_col * block_width
+        height = min(block_height, int(src.height) - row0)
+        width = min(block_width, int(src.width) - col0)
+        block = src.read(
+            1,
+            window=Window(col0, row0, width, height),
+            masked=False,
+        )
+        source_rows = vrows[local_positions] - row0
+        source_cols = vcols[local_positions] - col0
+        result[valid_idx[local_positions]] = np.asarray(
+            block[source_rows, source_cols], dtype=float
+        )
+    return result
+
+
 def extract_raster_values(
     points: pd.DataFrame,
     layers: Sequence[RasterLayerSpec],
@@ -105,6 +179,8 @@ def extract_raster_values(
     Raster scale/offset metadata are applied unless explicitly overridden in the
     layer spec. Local files can be SHA-256 fingerprinted; remote COG URIs retain
     the URI and raster metadata but are not downloaded solely for checksumming.
+    Point values are read by native raster block to reduce remote COG I/O while
+    preserving exact nearest-pixel sampling semantics.
     """
 
     try:
@@ -134,10 +210,12 @@ def extract_raster_values(
                 y = lat[finite]
                 if src.crs != CRS.from_epsg(4326):
                     x_t, y_t = transform(CRS.from_epsg(4326), src.crs, x.tolist(), y.tolist())
-                    coords = list(zip(x_t, y_t, strict=True))
+                    x_sample = np.asarray(x_t, dtype=float)
+                    y_sample = np.asarray(y_t, dtype=float)
                 else:
-                    coords = list(zip(x.tolist(), y.tolist(), strict=True))
-                sampled = np.array([float(v[0]) for v in src.sample(coords)], dtype=float)
+                    x_sample = np.asarray(x, dtype=float)
+                    y_sample = np.asarray(y, dtype=float)
+                sampled = _sample_band_blockwise(src, x_sample, y_sample)
                 nodata = src.nodata
                 if nodata is not None:
                     sampled[np.isclose(sampled, float(nodata), equal_nan=True)] = np.nan
@@ -165,6 +243,7 @@ def extract_raster_values(
                         "nodata": nodata,
                         "scale": scale,
                         "offset": offset,
+                        "sampling_engine": "native_block_grouped_exact_pixel",
                     }
                 )
         out[layer.predictor] = values
