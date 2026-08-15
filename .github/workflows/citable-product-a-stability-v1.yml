@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       source_run_id:
-        description: "Successful leakage-safe citable-product-a-v1 run ID"
+        description: "Successful leakage-safe M-sensitivity citable-product-a-v1 run ID"
         required: true
         type: string
 
@@ -75,7 +75,7 @@ jobs:
           pattern: citable-product-a-v1-*
           path: source_bundle
           merge-multiple: true
-      - name: Require leakage-safe source evidence and full taxon panel
+      - name: Require leakage-safe M-sensitivity source evidence and full taxon panel
         run: |
           python - <<'PY'
           import json
@@ -94,10 +94,12 @@ jobs:
                   raise SystemExit(f'Missing required leakage-safe source evidence: {path}')
           contract = json.loads(contract_path.read_text(encoding='utf-8'))
           grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8'))
-          if contract.get('protocol_version') != 'product_a_v1_leakage_safe':
-              raise SystemExit('Source artifact predates the sealed-before-M fix and is not admissible for stability')
+          if contract.get('protocol_version') != 'product_a_v1_leakage_safe_M_sensitivity':
+              raise SystemExit('Source artifact predates the M-sensitivity Product-A contract')
           if contract.get('outer_sealed_before_M') is not True or grid_spec.get('outer_sealed_before_M') is not True:
               raise SystemExit('Source artifact did not seal focal occurrences before M/background construction')
+          if contract.get('m_grid_as_sensitivity') is not True or grid_spec.get('m_grid_as_sensitivity') is not True:
+              raise SystemExit('Source artifact optimized M instead of treating it as a sensitivity axis')
           if float(grid_spec.get('focal_thin_cell_size_degrees', 0) or 0) <= 0:
               raise SystemExit('Source artifact lacks the predeclared focal thinning grid')
           if int(contract.get('chelsa_probe_failures', 1)) != 0:
@@ -115,7 +117,7 @@ jobs:
                   'The source split did not retain the complete predeclared 12-taxon panel. '
                   f'missing={missing}, extra={extra}. Do not continue stability on a split-selected taxon subset.'
               )
-          print('Leakage-safe source gate passed for all', len(expected), 'predeclared taxa')
+          print('Leakage-safe M-sensitivity source gate passed for all', len(expected), 'predeclared taxa')
           PY
 
   stability_part:
@@ -149,7 +151,7 @@ jobs:
           pattern: citable-product-a-v1-*
           path: source_bundle
           merge-multiple: true
-      - name: Rebuild split-specific M/background and run full protocol grid
+      - name: Rebuild split-specific M/background and rank methods across M sensitivity
         run: |
           SOURCE_KEY="stability-source:${{ needs.gate.outputs.run_id }}"
           cd analysis
@@ -163,6 +165,7 @@ jobs:
             --grid configs/product_a_buffer_specs_v1.csv \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
             --output-dir "$GITHUB_WORKSPACE/part_result" \
+            --m-grid-as-sensitivity \
             --min-occurrences 80 \
             --min-unique-cells 50 \
             --gate-cell-size-degrees 0.05 \
@@ -172,9 +175,10 @@ jobs:
             --max-predictors 8 \
             --random-baseline-repeats 0 \
             --seed '${{ matrix.seed }}'
-      - name: Require complete predeclared taxon panel in this split
+      - name: Require complete panel and M-sensitivity semantics in this split
         run: |
           python - <<'PY'
+          import json
           from pathlib import Path
           import pandas as pd
           expected = set(pd.read_csv('analysis/configs/product_a_pilot_taxa_v1.csv')['scientific_name'].astype(str))
@@ -185,6 +189,9 @@ jobs:
                   'This seed/holdout split cannot support the full predeclared panel: '
                   f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
               )
+          spec = json.loads(Path('part_result/pilot_grid_specification.json').read_text(encoding='utf-8'))
+          if spec.get('m_grid_as_sensitivity') is not True:
+              raise SystemExit('Stability part optimized M rather than ranking methods within each M sensitivity spec')
           PY
       - name: Freeze part metadata
         if: always()
@@ -200,6 +207,7 @@ jobs:
               'sealed_fraction': float('${{ matrix.sealed_fraction }}'),
               'taxon_validation_fraction': 0.25,
               'M_background_rebuilt_from_model_pool': True,
+              'M_grid_treated_as_sensitivity_not_optimized': True,
               'raw_focal_reprocessed_for_split': True,
               'require_full_predeclared_taxon_panel': True,
               'random_baseline_repeats': 0,
@@ -236,14 +244,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install aggregation dependency
-        run: python -m pip install pandas
+      - name: Install aggregation package
+        run: python -m pip install -e governance
       - name: Download all independently rebuilt stability parts
         uses: actions/download-artifact@v4
         with:
           pattern: product-a-stability-part-*
           path: stability_parts
-      - name: Aggregate without reselecting models
+      - name: Aggregate without reselecting models or M
         run: |
           python governance/scripts/aggregate_leakage_safe_stability.py \
             --parts-root stability_parts \
@@ -264,20 +272,21 @@ jobs:
           source_run_id=${{ needs.gate.outputs.run_id }}
           source_head_sha=${{ needs.gate.outputs.head_sha }}
           analysis_code_ref=${{ needs.gate.outputs.head_sha }}
-          stability_design=raw_focal_reprocessed_and_M_background_regenerated_per_run
+          stability_design=raw_focal_reprocessed_M_background_regenerated_and_M_used_as_sensitivity_per_run
           seeds=11,22,33,44,55
           sealed_fractions=0.15,0.20,0.30
           taxon_validation_fraction=0.25
           require_full_predeclared_taxon_panel=true
+          M_grid_as_sensitivity=true
           random_baseline_repeats=0
           promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
           EOF
           cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
           Each of the 15 stability parts restarts from the exact same DOI-backed raw focal subset and target-group subset.
-          Focal rows are independently thinned and assigned model/sealed spatial roles for that seed/fraction before any M/background
-          construction. M and target-group background are rebuilt from that part's model-pool occurrences; sealed occurrences cannot
-          expand M or exclude background cells. Every part must retain the entire predeclared 12-taxon panel or it fails rather than
-          silently changing the evaluation corpus. Promotion criteria were committed before these stability results existed.
+          Focal rows are independently thinned and assigned model/sealed spatial roles before any M/background construction.
+          M/background are rebuilt from each part's model-pool occurrences. The 150/300/500 km M specifications are not candidates
+          for optimization: universe x strategy is compared within matched species x M cases and aggregated across M. Every part
+          must retain the full predeclared 12-taxon panel. Promotion criteria were committed before these results existed.
           EOF
       - uses: actions/upload-artifact@v4
         with:
