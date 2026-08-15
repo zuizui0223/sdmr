@@ -1,9 +1,10 @@
 """Inner spatial-CV evaluation for ecological niche-recovery tuning.
 
-The audit transform is fitted on training-background environments only. Candidate
-models then predict suitability over held-out-background environments, and the
-resulting weighted environmental distribution is compared with held-out
-occurrences in the frozen audit space.
+Conventional prediction diagnostics use the full observation-aware model score.
+Ecological recovery uses a separate score in which explicitly declared
+observation-process predictors are marginalized over training-background values.
+Thus sampling/detectability covariates can help fit records without being treated
+as axes of the ecological niche.
 """
 from __future__ import annotations
 
@@ -17,7 +18,12 @@ from sklearn.model_selection import GroupKFold
 from sklearn.preprocessing import StandardScaler
 
 from .metrics import continuous_boyce_index, presence_rank_score
-from .model import ModelSpec, fit_relative_suitability_model, score_relative_suitability
+from .model import (
+    ModelSpec,
+    fit_relative_suitability_model,
+    score_ecological_suitability,
+    score_relative_suitability,
+)
 from .model_criteria import or10
 from .niche_recovery import (
     NicheRecoveryProfile,
@@ -33,6 +39,12 @@ class RecoveryCandidate:
     name: str
     predictors: tuple[str, ...]
     model_spec: ModelSpec
+    observation_predictors: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        unknown = sorted(set(self.observation_predictors) - set(self.predictors))
+        if unknown:
+            raise ValueError(f"observation predictors are not model predictors: {unknown}")
 
 
 def heldout_niche_recovery_profile(
@@ -135,10 +147,21 @@ def cross_validated_niche_recovery(
     predictors: Sequence[str],
     audit_predictors: Sequence[str],
     *,
+    observation_predictors: Sequence[str] = (),
     n_splits: int = 4,
     model_spec: ModelSpec | None = None,
 ) -> pd.DataFrame:
-    """Return fold-level prediction and niche-recovery diagnostics from model-pool spatial CV."""
+    """Return prediction diagnostics plus role-aware ecological recovery.
+
+    ``presence_rank``, continuous Boyce and OR10 use the full model score because
+    they evaluate prediction of records. The ecological profile uses suitability
+    after marginalizing ``observation_predictors`` over model-background values.
+    """
+
+    observation_predictors = tuple(dict.fromkeys(str(x) for x in observation_predictors))
+    unknown = sorted(set(observation_predictors) - set(predictors))
+    if unknown:
+        raise ValueError(f"observation predictors are not model predictors: {unknown}")
 
     groups = np.unique(presence_groups)
     folds = min(int(n_splits), len(groups))
@@ -168,20 +191,28 @@ def cross_validated_niche_recovery(
             train_p_scores = score_relative_suitability(model, p_train, predictors)
             test_p_scores = score_relative_suitability(model, p_test, predictors)
             test_b_scores = score_relative_suitability(model, b_test, predictors)
+            ecological_b_scores = score_ecological_suitability(
+                model,
+                b_test,
+                predictors,
+                observation_predictors=observation_predictors,
+                observation_reference=b_train,
+            )
             profile = heldout_niche_recovery_profile(
                 b_train,
                 b_test,
                 p_test,
-                test_b_scores,
+                ecological_b_scores,
                 audit_predictors,
             )
-        except (ValueError, np.linalg.LinAlgError):
+        except (ValueError, KeyError, np.linalg.LinAlgError):
             continue
         row = {
             "fold": fold,
             "presence_rank": presence_rank_score(test_p_scores, test_b_scores),
             "continuous_boyce": continuous_boyce_index(test_p_scores, test_b_scores),
             "or10": or10(train_p_scores, test_p_scores),
+            "n_observation_predictors": len(observation_predictors),
             "n_model_presence": len(p_train),
             "n_heldout_presence": len(p_test),
             "n_model_background": len(b_train),
@@ -214,6 +245,7 @@ def benchmark_niche_recovery_candidates(
             background_groups,
             candidate.predictors,
             audit_predictors,
+            observation_predictors=candidate.observation_predictors,
             n_splits=n_splits,
             model_spec=candidate.model_spec,
         )
