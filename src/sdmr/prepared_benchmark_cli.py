@@ -72,12 +72,15 @@ def main(argv: list[str] | None=None) -> int:
     occurrences=pd.read_csv(occurrence_path)
     grid=read_pilot_grid(str(grid_path))
     specifications={}
+    background_shas={}
     for name in grid['name'].astype(str):
         background_path=root/'specifications'/name/'background.csv'
         if not background_path.exists(): raise SystemExit(f'missing prepared background: {background_path}')
         specifications[name]=(occurrences.copy(),pd.read_csv(background_path))
+        background_shas[name]=_sha(background_path)
 
-    manifest=pd.read_csv(args.manifest)
+    manifest_path=Path(args.manifest)
+    manifest=pd.read_csv(manifest_path)
     universes=candidate_universes_from_manifest(manifest)
     all_predictors=sorted({p for universe in universes.values() for p in universe.predictors})
     missing_occ=[p for p in all_predictors if p not in occurrences.columns]
@@ -110,20 +113,33 @@ def main(argv: list[str] | None=None) -> int:
     )
     _write_protocol_outputs(result,out,args=run_args)
     grid.to_csv(out/'pilot_grid_frozen.csv',index=False)
-    (out/'prepared_benchmark_contract.json').write_text(json.dumps({
+
+    run_spec={
+        'prepared_feature_mode':True,
         'prepared_dir':str(root),
-        'prepared_occurrence_sha256':_sha(occurrence_path),
-        'prepared_grid_sha256':_sha(grid_path),
-        'manifest_sha256':_sha(Path(args.manifest)),
+        'manifest':str(manifest_path),
         'model_profile':args.model_profile,
-        'taxon_validation_fraction':args.taxon_validation_fraction,
+        'outer_sealed_before_M':True,
+        'm_grid_as_sensitivity':True,
         'spatial_test_fraction':args.spatial_test_fraction,
+        'taxon_validation_fraction':args.taxon_validation_fraction,
         'vif_threshold':args.vif_threshold,
         'max_predictors':args.max_predictors,
         'random_baseline_repeats':args.random_baseline_repeats,
         'seed':args.seed,
         'benchmark_jobs':args.benchmark_jobs,
         'model_spec_jobs':args.model_spec_jobs,
+        'raster_extraction_mode':'prepared_frozen_feature_tables',
+        'occurrence_sha256':result.occurrence_sha256,
+        'occurrence_feature_sha256':result.occurrence_feature_sha256,
+        'prepared_occurrence_csv_sha256':_sha(occurrence_path),
+        'prepared_background_csv_sha256':background_shas,
+        'prepared_grid_sha256':_sha(grid_path),
+        'manifest_sha256':_sha(manifest_path),
+    }
+    (out/'pilot_grid_specification.json').write_text(json.dumps(run_spec,indent=2,sort_keys=True),encoding='utf-8')
+    (out/'prepared_benchmark_contract.json').write_text(json.dumps({
+        **run_spec,
         'changes_prepared_source_evidence':False,
         'purpose':'development_method_search_only',
     },indent=2,sort_keys=True),encoding='utf-8')
