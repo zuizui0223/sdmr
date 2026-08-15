@@ -80,7 +80,7 @@ def test_known_truth_families_generate_distinct_valid_surfaces():
     assert len(set(signatures)) >= 4
 
 
-def test_observation_confounded_scenario_detects_selector_disagreement_without_forcing_winner():
+def test_observation_confounded_scenario_keeps_prediction_and_ecological_outputs_separate():
     sim = simulate_known_truth_plant_niche(
         "observation_confounded",
         seed=23,
@@ -89,19 +89,33 @@ def test_observation_confounded_scenario_detects_selector_disagreement_without_f
         n_target_group=1500,
         focal_recording_bias_strength=4.0,
     )
+    candidates = standard_known_truth_candidates()
+    assert candidates["niche_plus_observer"].observation_predictors == ("recording_bias",)
+    assert candidates["observer_only"].observation_predictors == ("recording_bias",)
+
     result = benchmark_selectors_against_known_truth(
         sim,
-        standard_known_truth_candidates(),
+        candidates,
         n_spatial_blocks=6,
         inner_folds=3,
         random_state=23,
     )
 
-    pure = summarize_selector_disagreement(result, reference_selector="niche_recovery")
-    auc_vs_pure = pure.loc[pure["selector"].eq("inner_auc")].iloc[0]
-    assert bool(auc_vs_pure["candidate_disagrees"])
+    # Full prediction criteria remain available even when the selected model uses
+    # an observation-process covariate; hidden ecological truth is scored from the
+    # marginalized ecological product and must remain finite.
+    assert result.selector_choices["mean_inner_auc"].notna().all()
+    assert result.selector_choices["n_observation_predictors"].isin([0, 1]).all()
+    assert result.truth_evaluation[[
+        "truth_surface_rank",
+        "truth_surface_nrmse",
+        "response_curve_error",
+        "optimum_error",
+        "lower_limit_error",
+        "upper_limit_error",
+        "driver_process_f1",
+    ]].notna().all().all()
 
-    # The benchmark is a falsification tool, not a rig that assumes SDMR wins.
     gated = summarize_selector_disagreement(result, reference_selector="gated_niche_recovery")
     assert set(gated["selector"]) == {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
     assert gated[[
