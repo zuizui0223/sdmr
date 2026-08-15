@@ -28,6 +28,16 @@ GBIF_AZURE_ACCOUNT = "ai4edataeuwest"
 GBIF_AZURE_CONTAINER = "gbif"
 GBIF_CLOUD_PROVIDERS = ("aws", "azure")
 
+# Long GBIF scans traverse hundreds of Parquet shards.  Product-A v1 once
+# failed late in the target-group scan with an SSL "unexpected EOF" on one S3
+# shard.  DuckDB documents disabling keep-alive as useful for connection
+# failures.  The larger retry/timeout budget below changes transport resilience
+# only; the snapshot, filters, and output semantics remain identical.
+GBIF_HTTP_RETRIES = 20
+GBIF_HTTP_RETRY_WAIT_MS = 500
+GBIF_HTTP_RETRY_BACKOFF = 2.0
+GBIF_HTTP_TIMEOUT_SECONDS = 120
+
 PREFERRED_SNAPSHOT_COLUMNS = (
     "gbifid",
     "datasetkey",
@@ -88,7 +98,6 @@ def _validate_snapshot_date(value: str) -> str:
 
 
 def gbif_snapshot_s3_uri(snapshot_date: str, *, region: str = "us-east-1") -> str:
-    """Return the public AWS Open Data Parquet glob for one GBIF snapshot."""
     snapshot_date = _validate_snapshot_date(snapshot_date)
     if region not in GBIF_AWS_REGIONS:
         raise ValueError(f"Unsupported GBIF AWS region: {region!r}")
@@ -97,14 +106,7 @@ def gbif_snapshot_s3_uri(snapshot_date: str, *, region: str = "us-east-1") -> st
 
 
 def gbif_snapshot_azure_uri(snapshot_date: str) -> str:
-    """Return DuckDB's container-relative Azure Blob glob for one GBIF snapshot.
-
-    GBIF documents the Azure mirror as container ``gbif`` in storage account
-    ``ai4edataeuwest``. DuckDB's anonymous CONFIG secret supplies the account;
-    the path therefore uses the container-relative ``az://gbif/...`` form. This
-    avoids the Azure SDK treating a fully-qualified path plus anonymous secret
-    as an authenticated request.
-    """
+    """Azure diagnostic URI; anonymous Actions access is currently unavailable."""
     snapshot_date = _validate_snapshot_date(snapshot_date)
     return f"az://{GBIF_AZURE_CONTAINER}/occurrence/{snapshot_date}/occurrence.parquet/*"
 
@@ -132,10 +134,7 @@ def _bounds_sql(bounds: SnapshotBounds) -> str:
     if bounds.west <= bounds.east:
         lon = f"decimallongitude BETWEEN {float(bounds.west)} AND {float(bounds.east)}"
     else:
-        lon = (
-            f"(decimallongitude >= {float(bounds.west)} OR "
-            f"decimallongitude <= {float(bounds.east)})"
-        )
+        lon = f"(decimallongitude >= {float(bounds.west)} OR decimallongitude <= {float(bounds.east)})"
     return f"({lat} AND {lon})"
 
 
@@ -146,7 +145,6 @@ def build_snapshot_filter_sql(
     bounds: Sequence[SnapshotBounds] | None = None,
     require_coordinates: bool = True,
 ) -> str:
-    """Build a deterministic WHERE clause for focal or target-group extraction."""
     scope_terms: list[str] = []
     names = [str(x).strip() for x in (species_names or ()) if str(x).strip()]
     if names:
@@ -157,7 +155,6 @@ def build_snapshot_filter_sql(
         scope_terms.append("(" + " OR ".join(_bounds_sql(b) for b in bounds) + ")")
     if not scope_terms:
         raise ValueError("Snapshot extraction requires at least one taxonomic/spatial filter")
-
     terms = list(scope_terms)
     if require_coordinates:
         terms.extend(
@@ -190,7 +187,6 @@ def build_snapshot_select_query(
     order_column: str,
     one_per_grid_cell_degrees: float | None = None,
 ) -> str:
-    """Build the snapshot SELECT, optionally retaining one deterministic row per grid cell."""
     select_sql = ",".join(_quote_identifier(name) for name in selected_columns)
     source = f"read_parquet({_sql_literal(uri)}, union_by_name=true)"
     if one_per_grid_cell_degrees is None:
@@ -211,19 +207,27 @@ def build_snapshot_select_query(
     )
 
 
+def _apply_http_resilience_settings(con) -> None:
+    con.execute("SET http_keep_alive=false")
+    con.execute(f"SET http_retries={GBIF_HTTP_RETRIES}")
+    con.execute(f"SET http_retry_wait_ms={GBIF_HTTP_RETRY_WAIT_MS}")
+    con.execute(f"SET http_retry_backoff={GBIF_HTTP_RETRY_BACKOFF}")
+    con.execute(f"SET http_timeout={GBIF_HTTP_TIMEOUT_SECONDS}")
+    con.execute("SET enable_http_metadata_cache=true")
+    con.execute("SET enable_external_file_cache=true")
+
+
 def _configure_duckdb_cloud(con, *, cloud_provider: str, region: str) -> None:
     provider = str(cloud_provider).lower()
     if provider == "aws":
         con.execute("INSTALL httpfs")
         con.execute("LOAD httpfs")
         con.execute(f"SET s3_region={_sql_literal(region)}")
+        _apply_http_resilience_settings(con)
         return
     if provider == "azure":
         con.execute("INSTALL azure")
         con.execute("LOAD azure")
-        # DuckDB documents anonymous Azure Blob access as a CONFIG-provider
-        # secret with ACCOUNT_NAME, optionally scoped to the container. The URI
-        # itself is container-relative (az://gbif/...).
         con.execute(
             "CREATE OR REPLACE SECRET sdmr_gbif_azure ("
             "TYPE azure, PROVIDER config, "
@@ -232,6 +236,7 @@ def _configure_duckdb_cloud(con, *, cloud_provider: str, region: str) -> None:
             ")"
         )
         con.execute("SET azure_transport_option_type='curl'")
+        _apply_http_resilience_settings(con)
         return
     raise ValueError(f"Unsupported GBIF cloud provider: {cloud_provider!r}")
 
@@ -249,12 +254,6 @@ def materialize_gbif_snapshot_subset(
     one_per_grid_cell_degrees: float | None = None,
     overwrite: bool = False,
 ) -> GBIFSnapshotSubsetResult:
-    """Materialize a filtered public GBIF monthly snapshot subset as Parquet.
-
-    ``cloud_provider`` changes transport only. The snapshot date/DOI and query
-    remain part of the immutable evidence contract. ``one_per_grid_cell_degrees``
-    is intended for broad target-group I/O compression, not focal thinning.
-    """
     if not str(snapshot_doi).strip():
         raise ValueError("snapshot_doi is required for auditable/citable cloud-snapshot use")
     if one_per_grid_cell_degrees is not None and float(one_per_grid_cell_degrees) <= 0:
@@ -278,11 +277,10 @@ def materialize_gbif_snapshot_subset(
 
     con = duckdb.connect()
     duckdb_version = str(getattr(duckdb, "__version__", ""))
+    effective_http: dict[str, str] = {}
     try:
         _configure_duckdb_cloud(con, cloud_provider=cloud_provider, region=region)
-        schema = con.execute(
-            f"DESCRIBE SELECT * FROM read_parquet({_sql_literal(uri)}, union_by_name=true)"
-        ).fetchdf()
+        schema = con.execute(f"DESCRIBE SELECT * FROM read_parquet({_sql_literal(uri)}, union_by_name=true)").fetchdf()
         available = {str(x).lower(): str(x) for x in schema["column_name"].tolist()}
         required = {"species", "decimallatitude", "decimallongitude"}
         if kingdom:
@@ -304,13 +302,18 @@ def materialize_gbif_snapshot_subset(
         out_literal = _sql_literal(str(output.resolve()))
         con.execute(f"COPY ({query}) TO {out_literal} (FORMAT PARQUET, COMPRESSION ZSTD)")
         n_rows = int(con.execute(f"SELECT COUNT(*) FROM read_parquet({out_literal})").fetchone()[0])
+        effective_http = {
+            str(name): str(value)
+            for name, value in con.execute(
+                "SELECT name, value FROM duckdb_settings() WHERE name IN ("
+                "'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout',"
+                "'enable_http_metadata_cache','enable_external_file_cache')"
+            ).fetchall()
+        }
     finally:
         con.close()
 
-    transform_sql = (
-        "" if one_per_grid_cell_degrees is None
-        else f"one_per_grid_cell_degrees={float(one_per_grid_cell_degrees)}"
-    )
+    transform_sql = "" if one_per_grid_cell_degrees is None else f"one_per_grid_cell_degrees={float(one_per_grid_cell_degrees)}"
     provenance = pd.DataFrame(
         [
             {
@@ -327,6 +330,11 @@ def materialize_gbif_snapshot_subset(
                 "sampling_mode": "one_per_grid_cell" if one_per_grid_cell_degrees is not None else "all_filtered_rows",
                 "one_per_grid_cell_degrees": one_per_grid_cell_degrees,
                 "query_sha256": _query_sha256(uri, selected, where_sql, transform_sql),
+                "http_keep_alive": effective_http.get("http_keep_alive", ""),
+                "http_retries": effective_http.get("http_retries", ""),
+                "http_retry_wait_ms": effective_http.get("http_retry_wait_ms", ""),
+                "http_retry_backoff": effective_http.get("http_retry_backoff", ""),
+                "http_timeout": effective_http.get("http_timeout", ""),
                 "path": str(output),
                 "sha256": sha256_file(output),
                 "bytes": int(output.stat().st_size),
