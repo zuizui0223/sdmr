@@ -27,32 +27,32 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Wait for global target-footprint run 31858389075 to finish successfully
+      - name: Wait for non-focal global target-footprint run 31859001750
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import json, os, time
           from urllib.request import Request, urlopen
-          run_id = '31858389075'
+          run_id = '31859001750'
           url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
           headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
           for _ in range(540):
               with urlopen(Request(url, headers=headers), timeout=60) as response:
                   payload = json.load(response)
-              print('global-target-cache', payload.get('status'), payload.get('conclusion'))
+              print('nonfocal-global-target-cache', payload.get('status'), payload.get('conclusion'))
               if payload.get('status') == 'completed':
                   if payload.get('conclusion') != 'success':
-                      raise SystemExit(f"global target-cache run failed: {payload.get('conclusion')}")
+                      raise SystemExit(f"non-focal global target-cache run failed: {payload.get('conclusion')}")
                   break
               time.sleep(20)
           else:
-              raise SystemExit('global target-cache run did not finish within 180 minutes')
+              raise SystemExit('non-focal global target-cache run did not finish within 180 minutes')
           PY
-      - name: Download successful global target artifact
+      - name: Download successful non-focal global target artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: 31858389075
+          run-id: 31859001750
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: product-a-v1-target-cache-2026-08-01
           path: target_cache_bundle
@@ -61,7 +61,7 @@ jobs:
           git fetch origin agent/nested-spatial-raster-benchmark
           git checkout agent/nested-spatial-raster-benchmark
           git reset --hard origin/agent/nested-spatial-raster-benchmark
-      - name: Verify global source artifact and freeze target contract
+      - name: Verify non-focal source artifact and freeze target contract
         run: |
           python - <<'PY'
           import csv, hashlib, json
@@ -81,6 +81,7 @@ jobs:
           target_sha = hashlib.sha256(target_path.read_bytes()).hexdigest()
           citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
           prov = pd.read_csv(prov_path).iloc[0]
+          taxa_sha = hashlib.sha256(Path('configs/product_a_pilot_taxa_v1.csv').read_bytes()).hexdigest()
 
           if target_sha != str(manifest.get('target_sha256','')).lower() or target_sha != str(prov.get('sha256','')).lower():
               raise SystemExit('target file SHA mismatch')
@@ -92,21 +93,28 @@ jobs:
               raise SystemExit('target snapshot date/DOI mismatch')
           if str(prov.get('cloud_provider','')).lower() != 'aws':
               raise SystemExit('target cache was not built from hardened AWS transport')
-          if str(manifest.get('sampling_mode','')) != 'global_one_per_grid_cell_sampling_footprint':
-              raise SystemExit('refusing obsolete bounded target cache')
-          if manifest.get('source_independent_of_focal_occurrences') is not True:
-              raise SystemExit('target source still depends on focal occurrence geography')
+          if str(manifest.get('sampling_mode','')) != 'global_nonfocal_one_per_grid_cell_sampling_footprint':
+              raise SystemExit('refusing target cache that can contain focal taxa')
+          if manifest.get('source_independent_of_focal_occurrence_geography') is not True:
+              raise SystemExit('target source depends on focal occurrence geography')
+          if manifest.get('focal_taxa_excluded_pre_split') is not True:
+              raise SystemExit('target source did not exclude focal taxa before split assignment')
+          if int(manifest.get('excluded_taxa_count',0)) != 12:
+              raise SystemExit('target source did not exclude all 12 focal taxa')
+          if str(manifest.get('excluded_taxa_sha256','')).lower() != taxa_sha:
+              raise SystemExit('target source focal-taxa exclusion fingerprint differs from current predeclared panel')
           if abs(float(manifest.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
               raise SystemExit('target grid is not the frozen 0.05-degree footprint')
 
           columns = [
               'source_run_id','artifact_name','target_sha256','target_query_sha256','citation_sha256',
               'snapshot_date','snapshot_doi','target_rows','target_species','cloud_provider','sampling_mode',
-              'one_per_grid_cell_degrees','source_independent_of_focal_occurrences',
+              'one_per_grid_cell_degrees','source_independent_of_focal_occurrence_geography',
+              'focal_taxa_excluded_pre_split','excluded_taxa_count','excluded_taxa_sha256',
               'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
           ]
           row = {
-              'source_run_id': '31858389075',
+              'source_run_id': '31859001750',
               'artifact_name': 'product-a-v1-target-cache-2026-08-01',
               'target_sha256': target_sha,
               'target_query_sha256': str(manifest.get('target_query_sha256','')),
@@ -118,7 +126,10 @@ jobs:
               'cloud_provider': str(manifest.get('cloud_provider','')),
               'sampling_mode': str(manifest.get('sampling_mode','')),
               'one_per_grid_cell_degrees': str(manifest.get('one_per_grid_cell_degrees','')),
-              'source_independent_of_focal_occurrences': 'true',
+              'source_independent_of_focal_occurrence_geography': 'true',
+              'focal_taxa_excluded_pre_split': 'true',
+              'excluded_taxa_count': str(manifest.get('excluded_taxa_count','')),
+              'excluded_taxa_sha256': str(manifest.get('excluded_taxa_sha256','')),
               'http_keep_alive': str(manifest.get('http_keep_alive','')),
               'http_retries': str(manifest.get('http_retries','')),
               'http_retry_wait_ms': str(manifest.get('http_retry_wait_ms','')),
@@ -131,7 +142,7 @@ jobs:
               writer.writeheader(); writer.writerow(row)
           print(row)
           PY
-      - name: Commit global target contract on latest branch
+      - name: Commit non-focal global target contract on latest branch
         run: |
           git config user.name 'sdmr-evidence-bot'
           git config user.email 'actions@users.noreply.github.com'
@@ -139,6 +150,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Target-cache contract already identical.'
           else
-            git commit -m 'Freeze global Product-A v1 target-group source evidence'
+            git commit -m 'Freeze non-focal global Product-A v1 target source'
             git push origin HEAD:agent/nested-spatial-raster-benchmark
           fi
