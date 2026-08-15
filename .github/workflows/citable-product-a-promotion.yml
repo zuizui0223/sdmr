@@ -25,11 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout current governance files
-        uses: actions/checkout@v4
-        with:
-          ref: agent/nested-spatial-raster-benchmark
-          path: governance
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -84,14 +79,29 @@ jobs:
       - name: Install frozen SDMR assessment code
         working-directory: analysis
         run: python -m pip install -e .
-      - name: Apply predeclared Product-A promotion criteria v1
+      - name: Verify frozen promotion criteria artifact
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          artifact = Path('source_stability/promotion_criteria_predeclared_before_stability.csv')
+          source = Path('analysis/configs/product_a_promotion_criteria_v1.csv')
+          if not artifact.exists() or not source.exists():
+              raise SystemExit('missing frozen Product-A promotion criteria')
+          a = hashlib.sha256(artifact.read_bytes()).hexdigest()
+          b = hashlib.sha256(source.read_bytes()).hexdigest()
+          print('promotion_criteria_sha256', a)
+          if a != b:
+              raise SystemExit('stability artifact criteria differ from exact source-head criteria')
+          PY
+      - name: Apply frozen Product-A promotion criteria v1
         run: |
           python - <<'PY'
           import csv
           import subprocess
           from pathlib import Path
 
-          criteria_path = Path('governance/configs/product_a_promotion_criteria_v1.csv')
+          criteria_path = Path('source_stability/promotion_criteria_predeclared_before_stability.csv')
           values = {row['criterion']: row['value'] for row in csv.DictReader(criteria_path.open(encoding='utf-8'))}
           required = [
               'min_protocol_selection_fraction',
@@ -134,7 +144,6 @@ jobs:
           (Path('promotion_result') / 'promotion_cli_exit_code.txt').write_text(
               str(completed.returncode) + '\n', encoding='utf-8'
           )
-          # Exit code 2 is the scientifically valid "criteria not met" outcome.
           if completed.returncode not in (0, 2):
               raise SystemExit(completed.returncode)
           PY
@@ -142,16 +151,15 @@ jobs:
         if: always()
         run: |
           mkdir -p promotion_result
-          cp governance/configs/product_a_promotion_criteria_v1.csv promotion_result/
+          cp source_stability/promotion_criteria_predeclared_before_stability.csv promotion_result/product_a_promotion_criteria_v1.csv
           cp source_stability/source_citable_snapshot_contract.json promotion_result/ 2>/dev/null || true
           cp source_stability/stability_inputs.txt promotion_result/ 2>/dev/null || true
           cat > promotion_result/PROMOTION_BOUNDARY.txt <<EOF
-          Product-A promotion was assessed using configs/product_a_promotion_criteria_v1.csv,
-          committed before the citable stability results were available. M/background specifications were treated as a
-          predeclared sensitivity set rather than optimized candidates. The selected universe x strategy must remain robust
-          across those M specifications in addition to repeated split stability and unseen-taxon paired advantages.
-          Assessment code was checked out at Product-A v1 source head ${{ steps.source.outputs.head_sha }}.
-          Exit code 2 / promotion_not_met is a valid scientific outcome and thresholds must not be relaxed post hoc.
+          Product-A promotion was assessed with the exact criteria file frozen in the stability artifact and verified against
+          the exact Product-A source head ${{ steps.source.outputs.head_sha }}. No current-branch governance file is consulted.
+          M/background specifications are a predeclared sensitivity set, not optimized candidates. The selected universe x
+          strategy must remain robust across M, repeated splits, and matched unseen-taxon comparisons. Exit code 2 /
+          promotion_not_met is a valid scientific outcome and thresholds must not be relaxed post hoc.
           EOF
       - uses: actions/upload-artifact@v4
         if: always()
