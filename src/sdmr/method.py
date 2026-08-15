@@ -12,6 +12,12 @@ from .selection import cross_validated_score, forward_select_predictors
 from .validation import make_spatial_partition
 
 
+OUTER_ROLE_COL = "__sdmr_outer_role"
+OUTER_BLOCK_COL = "__sdmr_outer_block"
+MODEL_ROLE = "model"
+SEALED_ROLE = "sealed"
+
+
 @dataclass(frozen=True)
 class FrozenProtocol:
     strategy: str
@@ -105,6 +111,76 @@ def _subset_species(frame: pd.DataFrame, species_name: str, species_col: str) ->
     return frame.loc[frame[species_col].astype(str) == str(species_name)].reset_index(drop=True)
 
 
+def _preassigned_outer_split(
+    presence: pd.DataFrame,
+    background: pd.DataFrame,
+    *,
+    species_name: str,
+    lon_col: str,
+    lat_col: str,
+    n_spatial_blocks: int,
+    random_state: int,
+):
+    """Use a split fixed before M/background construction.
+
+    Inner spatial groups are rebuilt *only from model-pool rows*.  Sealed
+    occurrence coordinates therefore do not influence fitting groups, M,
+    background construction, predictor selection, or model tuning.
+    """
+
+    p_roles = presence[OUTER_ROLE_COL].astype(str)
+    b_roles = background[OUTER_ROLE_COL].astype(str)
+    invalid_p = set(p_roles) - {MODEL_ROLE, SEALED_ROLE}
+    invalid_b = set(b_roles) - {MODEL_ROLE, SEALED_ROLE}
+    if invalid_p or invalid_b:
+        raise ValueError(
+            f"{species_name}: invalid preassigned outer roles: presence={sorted(invalid_p)}, background={sorted(invalid_b)}"
+        )
+
+    p_model = presence.loc[p_roles == MODEL_ROLE].reset_index(drop=True)
+    p_test = presence.loc[p_roles == SEALED_ROLE].reset_index(drop=True)
+    b_model = background.loc[b_roles == MODEL_ROLE].reset_index(drop=True)
+    b_test = background.loc[b_roles == SEALED_ROLE].reset_index(drop=True)
+    if len(p_model) < 4 or len(p_test) < 1:
+        raise ValueError(f"{species_name}: preassigned occurrence split lacks model/sealed rows")
+    if len(b_model) < 2 or len(b_test) < 2:
+        raise ValueError(f"{species_name}: preassigned background split lacks model/sealed-reference rows")
+
+    # We need group labels for inner CV, not another outer test.  This partition
+    # sees model-pool occurrence/background rows only; its train/test labels are
+    # deliberately ignored.
+    inner = make_spatial_partition(
+        p_model[lon_col].to_numpy(float),
+        p_model[lat_col].to_numpy(float),
+        b_model[lon_col].to_numpy(float),
+        b_model[lat_col].to_numpy(float),
+        n_blocks=n_spatial_blocks,
+        holdout_fraction=0.20,
+        random_state=random_state + 500_000,
+    )
+
+    if OUTER_BLOCK_COL in presence:
+        train_blocks = tuple(sorted(int(x) for x in pd.unique(
+            pd.to_numeric(p_model[OUTER_BLOCK_COL], errors="raise")
+        )))
+        test_blocks = tuple(sorted(int(x) for x in pd.unique(
+            pd.to_numeric(p_test[OUTER_BLOCK_COL], errors="raise")
+        )))
+    else:
+        train_blocks = tuple()
+        test_blocks = tuple()
+    return (
+        p_model,
+        p_test,
+        b_model,
+        b_test,
+        inner.presence_blocks,
+        inner.background_blocks,
+        train_blocks,
+        test_blocks,
+    )
+
+
 def benchmark_species_methods(
     occurrences: pd.DataFrame,
     background: pd.DataFrame,
@@ -125,25 +201,59 @@ def benchmark_species_methods(
     compute_drop_one: bool = True,
     random_state: int = 42,
 ) -> SpeciesMethodBenchmarkResult:
-    """Freeze each candidate method, then open one sealed spatial test set."""
+    """Freeze each candidate method, then open one sealed spatial test set.
+
+    If ``__sdmr_outer_role`` is present on both occurrence and background
+    tables, that upstream split is authoritative.  It was fixed before M and
+    background construction and must not be silently replaced here.
+    """
     p = _subset_species(occurrences, species_name, species_col)
     b = _subset_species(background, species_name, species_col)
     if len(p) < 12:
         raise ValueError(f"{species_name}: too few occurrences ({len(p)}) for method benchmarking.")
-    part = make_spatial_partition(
-        p[lon_col].to_numpy(float), p[lat_col].to_numpy(float),
-        b[lon_col].to_numpy(float), b[lat_col].to_numpy(float),
-        n_blocks=n_spatial_blocks, holdout_fraction=sealed_fraction,
-        random_state=random_state,
-    )
-    p_tr = np.isin(part.presence_blocks, part.train_blocks)
-    p_te = np.isin(part.presence_blocks, part.test_blocks)
-    b_tr = np.isin(part.background_blocks, part.train_blocks)
-    b_te = np.isin(part.background_blocks, part.test_blocks)
-    p_model, p_test = p.loc[p_tr].reset_index(drop=True), p.loc[p_te].reset_index(drop=True)
-    b_model, b_test = b.loc[b_tr].reset_index(drop=True), b.loc[b_te].reset_index(drop=True)
+
+    preassigned = OUTER_ROLE_COL in p.columns or OUTER_ROLE_COL in b.columns
+    if preassigned:
+        if OUTER_ROLE_COL not in p.columns or OUTER_ROLE_COL not in b.columns:
+            raise ValueError(f"{species_name}: outer role must be present on both occurrence and background tables")
+        (
+            p_model,
+            p_test,
+            b_model,
+            b_test,
+            model_presence_groups,
+            model_background_groups,
+            train_blocks,
+            test_blocks,
+        ) = _preassigned_outer_split(
+            p,
+            b,
+            species_name=species_name,
+            lon_col=lon_col,
+            lat_col=lat_col,
+            n_spatial_blocks=n_spatial_blocks,
+            random_state=random_state,
+        )
+    else:
+        part = make_spatial_partition(
+            p[lon_col].to_numpy(float), p[lat_col].to_numpy(float),
+            b[lon_col].to_numpy(float), b[lat_col].to_numpy(float),
+            n_blocks=n_spatial_blocks, holdout_fraction=sealed_fraction,
+            random_state=random_state,
+        )
+        p_tr = np.isin(part.presence_blocks, part.train_blocks)
+        p_te = np.isin(part.presence_blocks, part.test_blocks)
+        b_tr = np.isin(part.background_blocks, part.train_blocks)
+        b_te = np.isin(part.background_blocks, part.test_blocks)
+        p_model, p_test = p.loc[p_tr].reset_index(drop=True), p.loc[p_te].reset_index(drop=True)
+        b_model, b_test = b.loc[b_tr].reset_index(drop=True), b.loc[b_te].reset_index(drop=True)
+        model_presence_groups = part.presence_blocks[p_tr]
+        model_background_groups = part.background_blocks[b_tr]
+        train_blocks = part.train_blocks
+        test_blocks = part.test_blocks
+
     protocols, grid = freeze_candidate_methods(
-        p_model, b_model, part.presence_blocks[p_tr], part.background_blocks[b_tr],
+        p_model, b_model, model_presence_groups, model_background_groups,
         candidate_predictors, model_specs=model_specs, inner_folds=inner_folds,
         min_gain=min_gain, max_predictors=max_predictors, vif_threshold=vif_threshold,
     )
@@ -156,7 +266,7 @@ def benchmark_species_methods(
     predictive = protocols.get("predictive")
     if predictive is not None:
         selected_again, steps_again, _ = forward_select_predictors(
-            p_model, b_model, part.presence_blocks[p_tr], part.background_blocks[b_tr],
+            p_model, b_model, model_presence_groups, model_background_groups,
             candidate_predictors, inner_folds=inner_folds, min_gain=min_gain,
             max_predictors=max_predictors, model_spec=predictive.model_spec,
         )
@@ -185,6 +295,11 @@ def benchmark_species_methods(
             "species": str(species_name), "strategy": strategy,
             "model": protocol.model_spec.label, "inner_presence_rank": protocol.inner_score,
             "n_predictors": len(protocol.predictors), "predictors": ",".join(protocol.predictors),
+            "outer_split_preassigned": bool(preassigned),
+            "n_model_occurrences": len(p_model),
+            "n_sealed_occurrences": len(p_test),
+            "n_model_background": len(b_model),
+            "n_sealed_background": len(b_test),
             **metrics,
         })
         if compute_drop_one:
@@ -215,6 +330,6 @@ def benchmark_species_methods(
         random_baseline=pd.DataFrame(random_rows),
         drop_one=pd.concat(drop_frames, ignore_index=True) if drop_frames else pd.DataFrame(),
         predictive_selection=predictive_selection,
-        train_blocks=part.train_blocks,
-        test_blocks=part.test_blocks,
+        train_blocks=train_blocks,
+        test_blocks=test_blocks,
     )
