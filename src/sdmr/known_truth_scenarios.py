@@ -1,8 +1,8 @@
 """Predeclared known-truth scenario families for Product-A v2.
 
-These simulations separate the ecological generating niche from the observation
-process. Candidate selectors never receive ``true_suitability`` during fitting or
-selection; it is opened only by the known-truth scoring layer.
+The ecological generating niche and the observation process are separate. The
+role of every explicit observation-process predictor is declared before fitting;
+hidden suitability is still opened only by the final known-truth audit.
 """
 from __future__ import annotations
 
@@ -39,9 +39,8 @@ def _base_landscape(seed: int, n_cells: int) -> tuple[np.random.Generator, pd.Da
     soil = 0.30 * longitude - 0.15 * latitude + rng.normal(0, 0.75, n_cells)
     noise = rng.normal(0, 1.0, n_cells)
 
-    # Deliberately independent of the ecological axes. It represents a focal-
-    # taxon observation/detectability process that target-group background does
-    # not fully reproduce. It is excluded from the ecological audit basis.
+    # Independent focal-taxon observation/detectability process. Its role is
+    # known by design, but its realized values never enter the ecological audit.
     recording_bias = rng.normal(0, 1.0, n_cells)
     domain = np.where(longitude < 0, "source", "shifted")
     return rng, pd.DataFrame(
@@ -111,14 +110,7 @@ def simulate_known_truth_plant_niche(
     sampling_bias_strength: float = 1.15,
     focal_recording_bias_strength: float = 3.0,
 ) -> KnownTruthSimulation:
-    """Generate one known-truth plant niche and biased presence/background data.
-
-    ``observation_confounded`` keeps the same ecological niche as ``gaussian``
-    but adds a strong, independent focal-recording process. Target-group records
-    follow the shared spatial sampling effort only. This creates a deliberate
-    stress test where a prediction criterion can reward an observation-process
-    covariate even though that covariate is not part of the ecological truth.
-    """
+    """Generate one known-truth plant niche and biased presence/background data."""
 
     family = str(family)
     if family not in KNOWN_TRUTH_FAMILIES:
@@ -162,7 +154,6 @@ def simulate_known_truth_plant_niche(
     target_group = environment.iloc[np.sort(target_idx)].copy().reset_index(drop=True)
     target_group["species"] = "nonfocal_target_group"
 
-    # recording_bias is intentionally not an ecological audit dimension.
     audit_predictors = ("temperature", "water", "temp_proxy", "seasonality", "soil", "noise")
     return KnownTruthSimulation(
         environment=environment,
@@ -173,28 +164,22 @@ def simulate_known_truth_plant_niche(
 
 
 def standard_known_truth_candidates() -> Mapping[str, RecoveryCandidate]:
-    """Return one fixed candidate library used across every scenario family.
+    """Return one fixed, role-declared candidate library across all scenarios.
 
-    The candidate set is predeclared and deliberately not tailored to a scenario's
-    hidden truth. ``niche_plus_observer``/``observer_only`` are contamination
-    controls used to test whether a selector rewards observation-process signal.
+    ``recording_bias`` is predeclared as observation-process information, not an
+    ecological predictor. Models may use it to explain records, but Product-A v2
+    marginalizes it before computing the ecological niche surface.
     """
 
     return {
         "tw_linear": RecoveryCandidate(
-            "tw_linear",
-            ("temperature", "water"),
-            ModelSpec(C=1.0, degree=1, penalty="l2"),
+            "tw_linear", ("temperature", "water"), ModelSpec(C=1.0, degree=1, penalty="l2")
         ),
         "tw_quadratic": RecoveryCandidate(
-            "tw_quadratic",
-            ("temperature", "water"),
-            ModelSpec(C=1.0, degree=2, penalty="l2"),
+            "tw_quadratic", ("temperature", "water"), ModelSpec(C=1.0, degree=2, penalty="l2")
         ),
         "proxy_water_quadratic": RecoveryCandidate(
-            "proxy_water_quadratic",
-            ("temp_proxy", "water"),
-            ModelSpec(C=1.0, degree=2, penalty="l2"),
+            "proxy_water_quadratic", ("temp_proxy", "water"), ModelSpec(C=1.0, degree=2, penalty="l2")
         ),
         "climate_soil_quadratic": RecoveryCandidate(
             "climate_soil_quadratic",
@@ -210,10 +195,12 @@ def standard_known_truth_candidates() -> Mapping[str, RecoveryCandidate]:
             "niche_plus_observer",
             ("temperature", "water", "recording_bias"),
             ModelSpec(C=1.0, degree=2, penalty="l2"),
+            observation_predictors=("recording_bias",),
         ),
         "observer_only": RecoveryCandidate(
             "observer_only",
             ("recording_bias",),
             ModelSpec(C=1.0, degree=1, penalty="l2"),
+            observation_predictors=("recording_bias",),
         ),
     }
