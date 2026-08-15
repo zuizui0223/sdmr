@@ -20,7 +20,6 @@ def _component_stability(runs: pd.DataFrame) -> pd.DataFrame:
     rows = []
     total = len(runs)
     for column, label in (
-        ("winning_data_specification", "data_specification"),
         ("winning_universe", "universe"),
         ("winning_strategy", "strategy"),
     ):
@@ -63,7 +62,7 @@ def _delta_summary(deltas: pd.DataFrame) -> pd.DataFrame:
 
 
 def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None:
-    """Combine 15 already-frozen full-protocol stability parts without reselection."""
+    """Combine 15 frozen full reruns without optimizing M or reselecting models."""
     part_dirs = sorted({p.parent for p in Path(parts_root).rglob("part_metadata.json")})
     if not part_dirs:
         raise ValueError(f"No stability parts found under {parts_root}")
@@ -78,7 +77,8 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
         metadata = json.loads((part / "part_metadata.json").read_text(encoding="utf-8"))
         choice_path = part / "product_a_protocol_choice.txt"
         spec_path = part / "pilot_grid_specification.json"
-        if not choice_path.exists() or not spec_path.exists():
+        discovery_summary_path = part / "protocol_discovery_summary.csv"
+        if not choice_path.exists() or not spec_path.exists() or not discovery_summary_path.exists():
             raise ValueError(f"Incomplete stability part: {part}")
         if metadata.get("M_background_rebuilt_from_model_pool") is not True:
             raise ValueError(f"Part did not rebuild M/background from its model pool: {part}")
@@ -86,6 +86,8 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
         spec = json.loads(spec_path.read_text(encoding="utf-8"))
         if spec.get("outer_sealed_before_M") is not True:
             raise ValueError(f"Part was not sealed before M/background construction: {part}")
+        if spec.get("m_grid_as_sensitivity") is not True:
+            raise ValueError(f"Part optimized M instead of treating it as a sensitivity axis: {part}")
         if float(spec.get("focal_thin_cell_size_degrees", 0) or 0) <= 0:
             raise ValueError(f"Part lacks a declared focal thinning grid: {part}")
 
@@ -102,6 +104,17 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
                 "Outer roles may change, but thinned occurrence evidence and CHELSA values must not."
             )
 
+        discovery_summary = pd.read_csv(discovery_summary_path)
+        if "spec_win_fraction" not in discovery_summary:
+            raise ValueError(f"Part lacks M-sensitivity robustness statistics: {part}")
+        chosen = discovery_summary.loc[
+            (discovery_summary["universe"].astype(str) == str(choice["winning_universe"]))
+            & (discovery_summary["strategy"].astype(str) == str(choice["winning_strategy"]))
+        ]
+        if len(chosen) != 1:
+            raise ValueError(f"Could not uniquely recover chosen method robustness for {part}")
+        m_spec_win_fraction = float(chosen.iloc[0]["spec_win_fraction"])
+
         discovery_species = [x for x in choice.get("discovery_species", "").split(",") if x]
         validation_species = [x for x in choice.get("validation_species", "").split(",") if x]
         predictors = [x for x in choice.get("winning_predictors", "").split(",") if x]
@@ -114,6 +127,7 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
             "winning_universe": choice["winning_universe"],
             "winning_strategy": choice["winning_strategy"],
             "winning_universe_sha256": choice["winning_universe_sha256"],
+            "m_spec_win_fraction": m_spec_win_fraction,
             "n_winning_predictors": len(predictors),
             "winning_predictors": choice.get("winning_predictors", ""),
             "occurrence_sha256": occurrence_sha,
@@ -137,6 +151,7 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
                             winning_data_specification=row["winning_data_specification"],
                             winning_universe=row["winning_universe"],
                             winning_strategy=row["winning_strategy"],
+                            m_spec_win_fraction=m_spec_win_fraction,
                         )
                     )
 
@@ -151,6 +166,8 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
                         sealed_fraction=row["sealed_fraction"],
                         winning_data_specification=row["winning_data_specification"],
                         winning_universe=row["winning_universe"],
+                        winning_strategy=row["winning_strategy"],
+                        m_spec_win_fraction=m_spec_win_fraction,
                     )
                 )
 
@@ -159,17 +176,24 @@ def aggregate_leakage_safe_stability(parts_root: Path, output_dir: Path) -> None
         raise ValueError(f"Expected 15 predeclared stability parts, found {len(runs)}")
     if runs[["seed", "sealed_fraction"]].drop_duplicates().shape[0] != 15:
         raise ValueError("Duplicate seed/sealed-fraction stability parts detected")
+    if runs["winning_data_specification"].nunique() != 1:
+        raise ValueError("M/background must remain a sensitivity set, not a selected data specification")
 
     total_runs = len(runs)
     choice_stability = (
         runs.groupby(["winning_data_specification", "winning_universe", "winning_strategy"], as_index=False)
-        .agg(runs_selected=("run_id", "nunique"), mean_n_predictors=("n_winning_predictors", "mean"))
+        .agg(
+            runs_selected=("run_id", "nunique"),
+            mean_n_predictors=("n_winning_predictors", "mean"),
+            mean_m_spec_win_fraction=("m_spec_win_fraction", "mean"),
+            min_m_spec_win_fraction=("m_spec_win_fraction", "min"),
+        )
     )
     choice_stability["n_runs"] = total_runs
     choice_stability["selection_fraction"] = choice_stability["runs_selected"] / float(total_runs)
     choice_stability = choice_stability.sort_values(
-        ["selection_fraction", "mean_n_predictors", "winning_data_specification", "winning_universe", "winning_strategy"],
-        ascending=[False, True, True, True, True],
+        ["selection_fraction", "min_m_spec_win_fraction", "mean_n_predictors", "winning_universe", "winning_strategy"],
+        ascending=[False, False, True, True, True],
         kind="mergesort",
     ).reset_index(drop=True)
 
