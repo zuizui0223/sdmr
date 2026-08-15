@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
 from dataclasses import dataclass
 import hashlib
+import os
 from pathlib import Path
 from typing import Sequence
 
@@ -47,13 +49,7 @@ def _raster_env(rasterio, uri: str):
 
 
 def probe_raster_layers(layers: Sequence[RasterLayerSpec]) -> pd.DataFrame:
-    """Open every raster far enough to validate URI/driver/CRS metadata.
-
-    This is intentionally cheaper than sampling values. It is useful as a
-    preflight before an expensive DOI-backed Product-A run: a broken CHELSA URI
-    is discovered before occurrence/snapshot materialization or model fitting.
-    Failures are returned in the ledger rather than hidden.
-    """
+    """Open every raster far enough to validate URI/driver/CRS metadata."""
     try:
         import rasterio
     except ImportError as exc:  # pragma: no cover
@@ -86,23 +82,14 @@ def probe_raster_layers(layers: Sequence[RasterLayerSpec]) -> pd.DataFrame:
                             "nodata": src.nodata,
                         }
                     )
-        except Exception as exc:  # pragma: no cover - exercised with invalid local paths in tests
+        except Exception as exc:  # pragma: no cover
             row["error"] = f"{type(exc).__name__}: {exc}"
         rows.append(row)
     return pd.DataFrame(rows)
 
 
 def _sample_band_blockwise(src, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    """Sample band 1 exactly by pixel while reading each internal block once.
-
-    ``DatasetReader.sample`` issues tiny windows in point order. For remote COGs,
-    many scattered points can therefore create a large number of HTTP range
-    operations even though multiple points occupy the same compressed tile.
-    This helper computes the exact raster row/column for every coordinate,
-    groups points by the source's native internal block, reads each occupied
-    block once, and returns the identical nearest-pixel values in original point
-    order. Coordinates outside the raster extent remain NaN.
-    """
+    """Sample band 1 exactly by pixel while reading each internal block once."""
     from rasterio.transform import rowcol
     from rasterio.windows import Window
 
@@ -131,7 +118,7 @@ def _sample_band_blockwise(src, x: np.ndarray, y: np.ndarray) -> np.ndarray:
     vcols = cols[valid]
     if src.block_shapes:
         block_height, block_width = (int(v) for v in src.block_shapes[0])
-    else:  # defensive fallback for unusual untiled drivers
+    else:
         block_height = min(256, int(src.height))
         block_width = min(256, int(src.width))
     n_block_cols = (int(src.width) + block_width - 1) // block_width
@@ -153,17 +140,84 @@ def _sample_band_blockwise(src, x: np.ndarray, y: np.ndarray) -> np.ndarray:
         col0 = block_col * block_width
         height = min(block_height, int(src.height) - row0)
         width = min(block_width, int(src.width) - col0)
-        block = src.read(
-            1,
-            window=Window(col0, row0, width, height),
-            masked=False,
-        )
+        block = src.read(1, window=Window(col0, row0, width, height), masked=False)
         source_rows = vrows[local_positions] - row0
         source_cols = vcols[local_positions] - col0
         result[valid_idx[local_positions]] = np.asarray(
             block[source_rows, source_cols], dtype=float
         )
     return result
+
+
+def _resolve_layer_jobs() -> int:
+    raw = os.environ.get("SDMR_RASTER_LAYER_JOBS", "1").strip() or "1"
+    try:
+        jobs = int(raw)
+    except ValueError as exc:
+        raise ValueError("SDMR_RASTER_LAYER_JOBS must be an integer >= 1") from exc
+    if jobs < 1:
+        raise ValueError("SDMR_RASTER_LAYER_JOBS must be >= 1")
+    return jobs
+
+
+def _extract_layer_values(
+    rasterio,
+    CRS,
+    transform,
+    layer: RasterLayerSpec,
+    lon: np.ndarray,
+    lat: np.ndarray,
+    finite: np.ndarray,
+    *,
+    checksum_local_files: bool,
+) -> tuple[str, np.ndarray, dict[str, object]]:
+    """Extract one layer using a private raster handle; safe for layer threads."""
+    if not layer.predictor:
+        raise ValueError("Raster predictor name must not be empty")
+    values = np.full(len(lon), np.nan, dtype=float)
+    with _raster_env(rasterio, layer.uri):
+        with rasterio.open(layer.uri) as src:
+            if src.crs is None:
+                raise ValueError(f"Raster {layer.uri!r} has no CRS")
+            x = lon[finite]
+            y = lat[finite]
+            if src.crs != CRS.from_epsg(4326):
+                x_t, y_t = transform(CRS.from_epsg(4326), src.crs, x.tolist(), y.tolist())
+                x_sample = np.asarray(x_t, dtype=float)
+                y_sample = np.asarray(y_t, dtype=float)
+            else:
+                x_sample = np.asarray(x, dtype=float)
+                y_sample = np.asarray(y, dtype=float)
+            sampled = _sample_band_blockwise(src, x_sample, y_sample)
+            nodata = src.nodata
+            if nodata is not None:
+                sampled[np.isclose(sampled, float(nodata), equal_nan=True)] = np.nan
+            metadata_scale = float(src.scales[0]) if src.scales else 1.0
+            metadata_offset = float(src.offsets[0]) if src.offsets else 0.0
+            scale = metadata_scale if layer.scale is None else float(layer.scale)
+            offset = metadata_offset if layer.offset is None else float(layer.offset)
+            sampled = sampled * scale + offset
+            values[finite] = sampled
+
+            local = Path(layer.uri)
+            is_local = local.exists() and local.is_file()
+            provenance = {
+                "predictor": layer.predictor,
+                "source": layer.source,
+                "version": layer.version,
+                "uri": layer.uri,
+                "sha256": sha256_file(local) if checksum_local_files and is_local else "",
+                "crs": str(src.crs),
+                "width": int(src.width),
+                "height": int(src.height),
+                "resolution_x": float(src.res[0]),
+                "resolution_y": float(src.res[1]),
+                "nodata": nodata,
+                "scale": scale,
+                "offset": offset,
+                "sampling_engine": "native_block_grouped_exact_pixel",
+            }
+    return layer.predictor, values, provenance
 
 
 def extract_raster_values(
@@ -176,13 +230,12 @@ def extract_raster_values(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract environmental values and return a raster-provenance ledger.
 
-    Raster scale/offset metadata are applied unless explicitly overridden in the
-    layer spec. Local files can be SHA-256 fingerprinted; remote COG URIs retain
-    the URI and raster metadata but are not downloaded solely for checksumming.
-    Point values are read by native raster block to reduce remote COG I/O while
-    preserving exact nearest-pixel sampling semantics.
+    Native raster blocks are grouped for exact pixel sampling. Independent
+    raster layers may additionally be read in parallel by setting
+    ``SDMR_RASTER_LAYER_JOBS``. The default is one worker; ``executor.map``
+    preserves manifest order, so sequential and parallel outputs have identical
+    column/provenance ordering.
     """
-
     try:
         import rasterio
         from rasterio.crs import CRS
@@ -196,55 +249,29 @@ def extract_raster_values(
     lon = pd.to_numeric(out[lon_col], errors="coerce").to_numpy(float)
     lat = pd.to_numeric(out[lat_col], errors="coerce").to_numpy(float)
     finite = np.isfinite(lon) & np.isfinite(lat)
+    layer_list = list(layers)
+    jobs = _resolve_layer_jobs()
+
+    def work(layer: RasterLayerSpec):
+        return _extract_layer_values(
+            rasterio,
+            CRS,
+            transform,
+            layer,
+            lon,
+            lat,
+            finite,
+            checksum_local_files=checksum_local_files,
+        )
+
+    if jobs == 1:
+        extracted = [work(layer) for layer in layer_list]
+    else:
+        with ThreadPoolExecutor(max_workers=jobs, thread_name_prefix="sdmr-raster") as executor:
+            extracted = list(executor.map(work, layer_list))
+
     provenance_rows: list[dict[str, object]] = []
-
-    for layer in layers:
-        if not layer.predictor:
-            raise ValueError("Raster predictor name must not be empty")
-        values = np.full(len(out), np.nan, dtype=float)
-        with _raster_env(rasterio, layer.uri):
-            with rasterio.open(layer.uri) as src:
-                if src.crs is None:
-                    raise ValueError(f"Raster {layer.uri!r} has no CRS")
-                x = lon[finite]
-                y = lat[finite]
-                if src.crs != CRS.from_epsg(4326):
-                    x_t, y_t = transform(CRS.from_epsg(4326), src.crs, x.tolist(), y.tolist())
-                    x_sample = np.asarray(x_t, dtype=float)
-                    y_sample = np.asarray(y_t, dtype=float)
-                else:
-                    x_sample = np.asarray(x, dtype=float)
-                    y_sample = np.asarray(y, dtype=float)
-                sampled = _sample_band_blockwise(src, x_sample, y_sample)
-                nodata = src.nodata
-                if nodata is not None:
-                    sampled[np.isclose(sampled, float(nodata), equal_nan=True)] = np.nan
-                metadata_scale = float(src.scales[0]) if src.scales else 1.0
-                metadata_offset = float(src.offsets[0]) if src.offsets else 0.0
-                scale = metadata_scale if layer.scale is None else float(layer.scale)
-                offset = metadata_offset if layer.offset is None else float(layer.offset)
-                sampled = sampled * scale + offset
-                values[finite] = sampled
-
-                local = Path(layer.uri)
-                is_local = local.exists() and local.is_file()
-                provenance_rows.append(
-                    {
-                        "predictor": layer.predictor,
-                        "source": layer.source,
-                        "version": layer.version,
-                        "uri": layer.uri,
-                        "sha256": sha256_file(local) if checksum_local_files and is_local else "",
-                        "crs": str(src.crs),
-                        "width": int(src.width),
-                        "height": int(src.height),
-                        "resolution_x": float(src.res[0]),
-                        "resolution_y": float(src.res[1]),
-                        "nodata": nodata,
-                        "scale": scale,
-                        "offset": offset,
-                        "sampling_engine": "native_block_grouped_exact_pixel",
-                    }
-                )
-        out[layer.predictor] = values
+    for predictor, values, provenance in extracted:
+        out[predictor] = values
+        provenance_rows.append(provenance)
     return out, pd.DataFrame(provenance_rows)
