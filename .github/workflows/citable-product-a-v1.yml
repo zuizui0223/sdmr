@@ -56,6 +56,10 @@ jobs:
                   raise SystemExit(f'{label} cache does not match frozen snapshot date/DOI')
               if row['citation_sha256'].strip().lower() != citation:
                   raise SystemExit(f'{label} cache citation SHA does not match frozen snapshot')
+          if target.get('source_independent_of_focal_occurrences','').strip().lower() != 'true':
+              raise SystemExit('target cache depends on focal occurrence geography; refusing obsolete source')
+          if target.get('sampling_mode','').strip() != 'global_one_per_grid_cell_sampling_footprint':
+              raise SystemExit('target cache is not the global 0.05-degree sampling-effort footprint')
 
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
               env.write(f'SNAPSHOT_DATE={date}\n')
@@ -146,6 +150,11 @@ jobs:
                   raise SystemExit(f'{label} snapshot date mismatch')
               if str(prov.get('snapshot_doi','')).lower() != os.environ['SNAPSHOT_DOI'].lower():
                   raise SystemExit(f'{label} snapshot DOI mismatch')
+              if label == 'target_group':
+                  if str(prov.get('sampling_mode','')) != 'global_one_per_grid_cell_sampling_footprint':
+                      raise SystemExit('target artifact is not the focal-independent global footprint')
+                  if abs(float(prov.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
+                      raise SystemExit('target artifact grid differs from 0.05-degree contract')
               frame = pd.read_parquet(path)
               print(label, 'rows', len(frame), 'species', frame['species'].nunique() if 'species' in frame else None)
           PY
@@ -174,7 +183,7 @@ jobs:
             --random-baseline-repeats 10 \
             --seed "$SEED"
 
-      - name: Contrast canonical-M AUC/Boyce selection against SDMR transfer selection
+      - name: Contrast conventional AUC/Boyce and local nested-AUC selection against SDMR
         run: |
           sdmr-compare-evaluation \
             --product-a-dir citable_result \
@@ -198,8 +207,12 @@ jobs:
           if spec.get('m_grid_as_sensitivity') is not True:
               raise SystemExit('M was optimized instead of treated as sensitivity')
           contrast = json.loads(Path('citable_result/selector_contrast_contract.json').read_text(encoding='utf-8'))
-          if contrast.get('selection_data') != 'discovery_taxa_only':
-              raise SystemExit('conventional-vs-SDMR selector contrast leaked validation taxa into selection')
+          if contrast.get('cross_taxon_selection_data') != 'discovery_taxa_only':
+              raise SystemExit('cross-taxon conventional/SDMR selectors used validation taxa')
+          if contrast.get('local_nested_auc_selection_data') != 'validation_species_model_pool_only':
+              raise SystemExit('local nested-AUC selector did not restrict itself to the validation species model pool')
+          if contrast.get('outer_sealed_used_for_selection') is not False:
+              raise SystemExit('selector contrast used outer sealed evidence for model selection')
           print('strict Product-A gate passed for', len(eligible), 'taxa')
           PY
 
@@ -250,6 +263,8 @@ jobs:
               'target_subset_sha256': target.get('sha256',''),
               'focal_query_sha256': focal.get('query_sha256',''),
               'target_query_sha256': target.get('query_sha256',''),
+              'target_sampling_mode': target.get('sampling_mode',''),
+              'target_source_independent_of_focal_occurrences': True,
               'focal_cache_source_run_id': '${{ steps.contracts.outputs.focal_run_id }}',
               'focal_cache_artifact': '${{ steps.contracts.outputs.focal_artifact }}',
               'target_cache_source_run_id': '${{ steps.contracts.outputs.target_run_id }}',
@@ -271,7 +286,9 @@ jobs:
               'protocol_choice': choice(result/'product_a_protocol_choice.txt'),
               'selector_contrast_present': bool(contrast),
               'selector_contrast_canonical_M': contrast.get('canonical_specification'),
-              'selector_contrast_selection_data': contrast.get('selection_data'),
+              'selector_contrast_cross_taxon_selection_data': contrast.get('cross_taxon_selection_data'),
+              'selector_contrast_local_nested_auc_selection_data': contrast.get('local_nested_auc_selection_data'),
+              'selector_contrast_outer_sealed_used_for_selection': contrast.get('outer_sealed_used_for_selection'),
               'selector_contrast_evaluation_data': contrast.get('evaluation_data'),
           }
           (result/'citable_snapshot_contract.json').write_text(json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8')
@@ -282,11 +299,12 @@ jobs:
           cp configs/product_a_promotion_criteria_v1.csv citable_result/
           cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
           cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
-          Fixed-source DOI-backed Product-A evidence. Development/tuning occurs without validation-taxon feedback. Focal occurrences
-          are deterministically thinned and spatially sealed before M/background construction; M=150/300/500 km is a sensitivity
-          set, not an optimized candidate. Conventional canonical-M AUC-equivalent and Boyce selectors are frozen from discovery
-          taxa only and compared head-to-head with the SDMR M-robust selector on the same unseen taxa across all M specifications.
-          AUC/Boyce remain local score components; the Product-A claim concerns transfer-stability of the selection procedure.
+          Fixed-source DOI-backed Product-A evidence. Focal occurrences are deterministically thinned and spatially sealed before
+          M/background construction; M=150/300/500 km is a sensitivity set, not an optimized candidate. Cross-taxon canonical-M
+          AUC-equivalent and Boyce selectors are frozen from discovery taxa only. A stronger local_nested_auc comparator is allowed
+          to tune universe x strategy independently for each unseen species x M using that species' model pool, but cannot see the
+          preassigned outer sealed rows. All selectors are then compared on the same outer sealed unseen cases. AUC/Boyce remain
+          local score components; the Product-A claim concerns transfer-stability of the selection procedure.
           EOF
 
       - name: Upload citable Product-A v1 bundle
