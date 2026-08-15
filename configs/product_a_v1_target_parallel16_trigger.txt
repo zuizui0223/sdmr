@@ -1,0 +1,9 @@
+run=1
+snapshot_date=2026-08-01
+snapshot_doi=10.15468/dl.fs3btq
+snapshot_shards=9705
+parallel_chunks=16
+sampling_mode=global_nonfocal_one_per_grid_cell_sampling_footprint
+focal_taxa_excluded_pre_split=true
+exact_reduction=per_chunk_ARG_MIN_then_global_ARG_MIN
+purpose=run exact finer-grained I/O decomposition in parallel with the 8-way source and freeze whichever verified source completes first
