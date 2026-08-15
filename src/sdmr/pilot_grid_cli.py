@@ -244,6 +244,8 @@ def main(argv: list[str] | None = None) -> int:
             background_cell_size_degrees=float(row.background_cell_size_degrees),
             random_state=args.seed,
             strict_background=True,
+            focal_thin_cell_size_degrees=args.gate_cell_size_degrees,
+            outer_sealed_fraction=args.spatial_test_fraction,
         )
         occ_sha = occurrence_table_fingerprint(prepared.occurrences)
         if reference_occurrence_sha is None:
@@ -317,6 +319,8 @@ def main(argv: list[str] | None = None) -> int:
         "min_occurrences": args.min_occurrences,
         "min_unique_cells": args.min_unique_cells,
         "gate_cell_size_degrees": args.gate_cell_size_degrees,
+        "focal_thin_cell_size_degrees": args.gate_cell_size_degrees,
+        "outer_sealed_before_M": True,
         "spatial_test_fraction": args.spatial_test_fraction,
         "taxon_validation_fraction": args.taxon_validation_fraction,
         "vif_threshold": args.vif_threshold,
