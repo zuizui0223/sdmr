@@ -30,6 +30,7 @@ from .model import (
 from .niche_recovery_cv import RecoveryCandidate, cross_validated_niche_recovery
 from .niche_recovery_selection import (
     select_generalization_gated_niche_recovery_protocol,
+    select_generalization_gated_robust_niche_recovery_protocol,
     select_niche_recovery_protocol,
 )
 from .validation import make_spatial_partition
@@ -76,6 +77,11 @@ def benchmark_selectors_against_known_truth(
     ecological selectors use observation-marginalized suitability for their niche
     recovery profile. After a selector chooses a candidate, its final ecological
     product is also marginalized before hidden-truth scoring.
+
+    ``gated_robust_niche_recovery`` is the complete v2 development ordering:
+    independent prediction adequacy -> mean ecological recovery -> worst-fold
+    ecological robustness -> parsimony tie-break. The simpler ecological
+    selectors remain in the benchmark as ablations.
     """
 
     occurrence = simulation.occurrences.reset_index(drop=True)
@@ -126,12 +132,20 @@ def benchmark_selectors_against_known_truth(
         auc_sem_multiplier=gated_auc_sem_multiplier,
         max_mean_or10=gated_max_mean_or10,
     )
+    robust_selection = select_generalization_gated_robust_niche_recovery_protocol(
+        fold_metrics,
+        chance_auc=gated_chance_auc,
+        minimum_auc_margin=gated_minimum_auc_margin,
+        auc_sem_multiplier=gated_auc_sem_multiplier,
+        max_mean_or10=gated_max_mean_or10,
+    )
     winners = {
         "inner_auc": _metric_winner(fold_metrics, "presence_rank", ascending=False),
         "inner_cbi": _metric_winner(fold_metrics, "continuous_boyce", ascending=False),
         "inner_or10": _metric_winner(fold_metrics, "or10", ascending=True),
         "niche_recovery": recovery_selection.candidate,
         "gated_niche_recovery": gated_selection.candidate,
+        "gated_robust_niche_recovery": robust_selection.candidate,
     }
 
     choices = []
@@ -140,6 +154,7 @@ def benchmark_selectors_against_known_truth(
     truth = environment[simulation.true_suitability_column].to_numpy(float)
     response_predictors = infer_response_predictors(environment)
     true_processes = infer_true_processes(environment)
+    gated_selectors = {"gated_niche_recovery", "gated_robust_niche_recovery"}
     for selector, candidate_name in winners.items():
         candidate = candidates[candidate_name]
         model = fit_relative_suitability_model(
@@ -172,6 +187,8 @@ def benchmark_selectors_against_known_truth(
         )
         process_profile = known_truth_process_profile(ecological_predictors, true_processes)
         candidate_folds = fold_metrics.loc[fold_metrics["candidate"].astype(str) == candidate_name]
+        is_gated = selector in gated_selectors
+        is_robust = selector == "gated_robust_niche_recovery"
         choices.append(
             {
                 "selector": selector,
@@ -185,13 +202,27 @@ def benchmark_selectors_against_known_truth(
                 "mean_inner_cbi": float(candidate_folds["continuous_boyce"].mean()),
                 "mean_inner_or10": float(candidate_folds["or10"].mean()),
                 "gated_auc_floor": (
-                    gated_selection.auc_gate_floor if selector == "gated_niche_recovery" else float("nan")
+                    robust_selection.auc_gate_floor if is_robust
+                    else gated_selection.auc_gate_floor if is_gated
+                    else float("nan")
                 ),
                 "gated_chance_auc": (
-                    gated_selection.chance_auc if selector == "gated_niche_recovery" else float("nan")
+                    robust_selection.chance_auc if is_robust
+                    else gated_selection.chance_auc if is_gated
+                    else float("nan")
                 ),
                 "gated_eligible_candidates": (
-                    ",".join(gated_selection.eligible_candidates) if selector == "gated_niche_recovery" else ""
+                    ",".join(robust_selection.eligible_candidates) if is_robust
+                    else ",".join(gated_selection.eligible_candidates) if is_gated
+                    else ""
+                ),
+                "recovery_pareto_candidates": (
+                    ",".join(robust_selection.robust_selection.recovery_pareto_front)
+                    if is_robust else ""
+                ),
+                "robustness_pareto_candidates": (
+                    ",".join(robust_selection.robust_selection.robustness_pareto_front)
+                    if is_robust else ""
                 ),
             }
         )
@@ -215,7 +246,7 @@ def benchmark_selectors_against_known_truth(
 def summarize_selector_disagreement(
     result: KnownTruthSelectorBenchmark,
     *,
-    reference_selector: str = "gated_niche_recovery",
+    reference_selector: str = "gated_robust_niche_recovery",
 ) -> pd.DataFrame:
     """Audit selector disagreement and hidden-truth consequences after selection."""
 
