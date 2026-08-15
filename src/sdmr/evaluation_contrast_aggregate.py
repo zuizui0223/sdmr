@@ -51,7 +51,7 @@ def aggregate_selector_contrasts(parts_root: str | Path) -> dict[str, pd.DataFra
         delta_frames.append(deltas)
 
         run_row = dict(common)
-        for comparator in ("canonical_m_auc", "canonical_m_boyce"):
+        for comparator in ("canonical_m_auc", "canonical_m_boyce", "local_nested_auc"):
             subset = deltas.loc[deltas["comparator"].astype(str) == comparator].copy()
             values = pd.to_numeric(subset.get("delta_presence_rank"), errors="coerce")
             values = values[np.isfinite(values)]
