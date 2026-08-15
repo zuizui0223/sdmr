@@ -1,0 +1,7 @@
+criterion,value
+required_comparators,canonical_m_auc;canonical_m_boyce;local_nested_auc
+min_runs,15
+min_pairs_per_comparator,135
+min_mean_delta_presence_rank,0.01
+min_positive_pair_fraction,0.6666666667
+min_positive_run_fraction,0.6666666667
