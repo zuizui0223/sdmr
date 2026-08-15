@@ -27,41 +27,41 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Wait for non-focal global target-footprint run 31859001750
+      - name: Wait for exact parallel target-footprint run 31859498088
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import json, os, time
           from urllib.request import Request, urlopen
-          run_id = '31859001750'
+          run_id = '31859498088'
           url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
           headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
           for _ in range(540):
               with urlopen(Request(url, headers=headers), timeout=60) as response:
                   payload = json.load(response)
-              print('nonfocal-global-target-cache', payload.get('status'), payload.get('conclusion'))
+              print('parallel-target-cache', payload.get('status'), payload.get('conclusion'))
               if payload.get('status') == 'completed':
                   if payload.get('conclusion') != 'success':
-                      raise SystemExit(f"non-focal global target-cache run failed: {payload.get('conclusion')}")
+                      raise SystemExit(f"parallel target-cache run failed: {payload.get('conclusion')}")
                   break
               time.sleep(20)
           else:
-              raise SystemExit('non-focal global target-cache run did not finish within 180 minutes')
+              raise SystemExit('parallel target-cache run did not finish within 180 minutes')
           PY
-      - name: Download successful non-focal global target artifact
+      - name: Download exact parallel target artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: 31859001750
+          run-id: 31859498088
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: product-a-v1-target-cache-2026-08-01
+          name: product-a-v1-target-cache-parallel-2026-08-01
           path: target_cache_bundle
       - name: Synchronize latest Product-A branch before writing contract
         run: |
           git fetch origin agent/nested-spatial-raster-benchmark
           git checkout agent/nested-spatial-raster-benchmark
           git reset --hard origin/agent/nested-spatial-raster-benchmark
-      - name: Verify non-focal source artifact and freeze target contract
+      - name: Verify exact parallel source and freeze target contract
         run: |
           python - <<'PY'
           import csv, hashlib, json
@@ -73,6 +73,7 @@ jobs:
               if len(hits) != 1:
                   raise SystemExit(f'expected exactly one {name}; found {len(hits)}')
               return hits[0]
+
           manifest_path = unique('target_cache_manifest.json')
           target_path = unique('target_group.parquet')
           prov_path = unique('target_group.provenance.csv')
@@ -105,17 +106,24 @@ jobs:
               raise SystemExit('target source focal-taxa exclusion fingerprint differs from current predeclared panel')
           if abs(float(manifest.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
               raise SystemExit('target grid is not the frozen 0.05-degree footprint')
+          if int(manifest.get('snapshot_shard_count',0)) != 9705:
+              raise SystemExit('target source does not cover the verified 9705-shard snapshot')
+          if int(manifest.get('parallel_chunk_count',0)) != 8:
+              raise SystemExit('target source does not use the frozen 8-way exact reduction')
+          if 'ARG_MIN' not in str(manifest.get('parallel_reduction','')):
+              raise SystemExit('target source lacks exact chunk-min/global-min reduction record')
 
           columns = [
               'source_run_id','artifact_name','target_sha256','target_query_sha256','citation_sha256',
               'snapshot_date','snapshot_doi','target_rows','target_species','cloud_provider','sampling_mode',
               'one_per_grid_cell_degrees','source_independent_of_focal_occurrence_geography',
               'focal_taxa_excluded_pre_split','excluded_taxa_count','excluded_taxa_sha256',
+              'snapshot_shard_count','snapshot_shard_catalog_sha256','parallel_chunk_count','parallel_reduction',
               'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
           ]
           row = {
-              'source_run_id': '31859001750',
-              'artifact_name': 'product-a-v1-target-cache-2026-08-01',
+              'source_run_id': '31859498088',
+              'artifact_name': 'product-a-v1-target-cache-parallel-2026-08-01',
               'target_sha256': target_sha,
               'target_query_sha256': str(manifest.get('target_query_sha256','')),
               'citation_sha256': citation_sha,
@@ -130,6 +138,10 @@ jobs:
               'focal_taxa_excluded_pre_split': 'true',
               'excluded_taxa_count': str(manifest.get('excluded_taxa_count','')),
               'excluded_taxa_sha256': str(manifest.get('excluded_taxa_sha256','')),
+              'snapshot_shard_count': str(manifest.get('snapshot_shard_count','')),
+              'snapshot_shard_catalog_sha256': str(manifest.get('snapshot_shard_catalog_sha256','')),
+              'parallel_chunk_count': str(manifest.get('parallel_chunk_count','')),
+              'parallel_reduction': str(manifest.get('parallel_reduction','')),
               'http_keep_alive': str(manifest.get('http_keep_alive','')),
               'http_retries': str(manifest.get('http_retries','')),
               'http_retry_wait_ms': str(manifest.get('http_retry_wait_ms','')),
@@ -142,7 +154,7 @@ jobs:
               writer.writeheader(); writer.writerow(row)
           print(row)
           PY
-      - name: Commit non-focal global target contract on latest branch
+      - name: Commit exact parallel target contract on latest branch
         run: |
           git config user.name 'sdmr-evidence-bot'
           git config user.email 'actions@users.noreply.github.com'
@@ -150,6 +162,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Target-cache contract already identical.'
           else
-            git commit -m 'Freeze non-focal global Product-A v1 target source'
+            git commit -m 'Freeze exact parallel Product-A v1 target source'
             git push origin HEAD:agent/nested-spatial-raster-benchmark
           fi
