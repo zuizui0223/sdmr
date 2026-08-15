@@ -6,11 +6,13 @@ on:
       - agent/nested-spatial-raster-benchmark
     paths:
       - 'configs/gbif_snapshot_v1.csv'
+      - 'configs/product_a_v1_focal_cache.csv'
       - 'configs/product_a_v1_rerun_trigger.txt'
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: citable-product-a-v1
@@ -31,32 +33,47 @@ jobs:
       - name: Install SDMR cloud and geo dependencies
         run: python -m pip install -e '.[cloud,geo,parquet]'
 
-      - name: Read frozen snapshot contract
+      - name: Read frozen snapshot and focal-cache contracts
+        id: contracts
         run: |
           python - <<'PY'
           import csv
           import os
           from pathlib import Path
 
-          path = Path('configs/gbif_snapshot_v1.csv')
-          rows = list(csv.DictReader(path.open(encoding='utf-8')))
-          if len(rows) != 1:
-              raise SystemExit('configs/gbif_snapshot_v1.csv must contain exactly one data row')
-          row = rows[0]
-          required = ['snapshot_date', 'snapshot_doi', 'citation_sha256', 'download_key']
-          missing = [key for key in required if not str(row.get(key, '')).strip()]
+          snapshot_rows = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
+          cache_rows = list(csv.DictReader(Path('configs/product_a_v1_focal_cache.csv').open(encoding='utf-8')))
+          if len(snapshot_rows) != 1 or len(cache_rows) != 1:
+              raise SystemExit('snapshot and focal-cache configs must each contain exactly one data row')
+          snapshot = snapshot_rows[0]
+          cache = cache_rows[0]
+          required_snapshot = ['snapshot_date', 'snapshot_doi', 'citation_sha256', 'download_key']
+          required_cache = ['source_run_id', 'artifact_name', 'focal_sha256', 'focal_query_sha256', 'citation_sha256', 'snapshot_date', 'snapshot_doi']
+          missing = [k for k in required_snapshot if not str(snapshot.get(k, '')).strip()]
+          missing += [k for k in required_cache if not str(cache.get(k, '')).strip()]
           if missing:
-              raise SystemExit(f'snapshot v1 config missing: {missing}')
+              raise SystemExit(f'frozen contracts missing: {sorted(set(missing))}')
+          if cache['snapshot_date'].strip() != snapshot['snapshot_date'].strip() or cache['snapshot_doi'].strip().lower() != snapshot['snapshot_doi'].strip().lower():
+              raise SystemExit('focal cache does not refer to the frozen Product-A snapshot')
+          if cache['citation_sha256'].strip().lower() != snapshot['citation_sha256'].strip().lower():
+              raise SystemExit('focal cache citation fingerprint differs from frozen snapshot contract')
+
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
-              for key in required:
-                  env.write(f"{key.upper()}={str(row[key]).strip()}\n")
+              for key in required_snapshot:
+                  env.write(f"{key.upper()}={str(snapshot[key]).strip()}\n")
+              env.write(f"FOCAL_CACHE_SHA256={cache['focal_sha256'].strip().lower()}\n")
+              env.write(f"FOCAL_CACHE_QUERY_SHA256={cache['focal_query_sha256'].strip().lower()}\n")
               env.write('REGION=us-east-1\n')
               env.write('SEED=20260814\n')
               env.write('SPATIAL_TEST_FRACTION=0.20\n')
               env.write('TAXON_VALIDATION_FRACTION=0.25\n')
               env.write('MIN_OCCURRENCES=80\n')
               env.write('MIN_UNIQUE_CELLS=50\n')
-          print(row)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"focal_cache_run_id={cache['source_run_id'].strip()}\n")
+              out.write(f"focal_cache_artifact={cache['artifact_name'].strip()}\n")
+          print('snapshot', snapshot)
+          print('focal_cache', cache)
           PY
 
       - name: Preflight all 43 active CHELSA rasters
@@ -67,38 +84,54 @@ jobs:
             --probe \
             --require-probe-success
 
-      - name: Materialize focal 12-species evidence from DOI-backed snapshot
+      - name: Download previously verified raw focal snapshot subset
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.contracts.outputs.focal_cache_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.contracts.outputs.focal_cache_artifact }}
+          path: focal_cache_bundle
+
+      - name: Admit only frozen focal source evidence from cache
         run: |
           mkdir -p citable_input citable_result
-          sdmr-gbif-snapshot \
-            --snapshot-date "$SNAPSHOT_DATE" \
-            --snapshot-doi "$SNAPSHOT_DOI" \
-            --cloud-provider aws \
-            --region "$REGION" \
-            --taxa configs/product_a_pilot_taxa_v1.csv \
-            --output citable_input/focal.parquet \
-            --provenance citable_input/focal.provenance.csv
-
-      - name: Verify focal citation fingerprint
-        run: |
+          cp focal_cache_bundle/citable_input/focal.parquet citable_input/focal.parquet
+          cp focal_cache_bundle/citable_input/focal.provenance.csv citable_input/focal.provenance.csv
+          cp focal_cache_bundle/citable_input/focal.parquet.citation.txt citable_input/focal.parquet.citation.txt
           python - <<'PY'
           import hashlib
           import os
           from pathlib import Path
-          p = Path('citable_input/focal.parquet.citation.txt')
-          actual = hashlib.sha256(p.read_bytes()).hexdigest()
-          expected = os.environ['CITATION_SHA256'].lower()
-          print('citation_sha256', actual)
-          if actual != expected:
-              raise SystemExit(f'citation SHA mismatch: expected {expected}, got {actual}')
+          import pandas as pd
+
+          focal = Path('citable_input/focal.parquet')
+          actual_sha = hashlib.sha256(focal.read_bytes()).hexdigest()
+          if actual_sha != os.environ['FOCAL_CACHE_SHA256']:
+              raise SystemExit(f'focal cache SHA mismatch: {actual_sha}')
+          prov = pd.read_csv('citable_input/focal.provenance.csv').iloc[0]
+          if str(prov.get('snapshot_date', '')) != os.environ['SNAPSHOT_DATE']:
+              raise SystemExit('cached focal snapshot date mismatch')
+          if str(prov.get('snapshot_doi', '')).lower() != os.environ['SNAPSHOT_DOI'].lower():
+              raise SystemExit('cached focal DOI mismatch')
+          if str(prov.get('query_sha256', '')).lower() != os.environ['FOCAL_CACHE_QUERY_SHA256']:
+              raise SystemExit('cached focal query fingerprint mismatch')
+          if str(prov.get('sha256', '')).lower() != actual_sha:
+              raise SystemExit('cached focal provenance file SHA mismatch')
+          citation = Path('citable_input/focal.parquet.citation.txt')
+          citation_sha = hashlib.sha256(citation.read_bytes()).hexdigest()
+          if citation_sha != os.environ['CITATION_SHA256'].lower():
+              raise SystemExit('cached focal citation SHA mismatch')
+          if str(prov.get('snapshot_citation_sha256', '')).lower() != citation_sha:
+              raise SystemExit('cached focal provenance citation SHA mismatch')
+          print('Verified frozen focal evidence:', len(pd.read_parquet(focal)), 'rows', actual_sha)
           PY
 
       - name: Materialize same-snapshot broader Plantae target group
         run: |
-          # AWS and Azure are mirrors of the same dated GBIF snapshot.  The
+          # AWS and Azure are mirrors of the same dated GBIF snapshot. The
           # target-group transport uses Azure because the first AWS run hit a
-          # transient long-scan SSL failure.  DOI and citation are revalidated
-          # against the exact AWS citation.txt before the Azure Parquet scan.
+          # transient long-scan SSL failure. DOI/citation/date/filter/M remain
+          # unchanged; cloud provider is I/O provenance only.
           sdmr-gbif-snapshot \
             --snapshot-date "$SNAPSHOT_DATE" \
             --snapshot-doi "$SNAPSHOT_DOI" \
@@ -146,6 +179,21 @@ jobs:
             --max-predictors 8 \
             --random-baseline-repeats 10 \
             --seed "$SEED"
+
+      - name: Require complete predeclared 12-taxon panel
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          expected = set(pd.read_csv('configs/product_a_pilot_taxa_v1.csv')['scientific_name'].astype(str))
+          gate = pd.read_csv('citable_result/species_gate.csv')
+          eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              raise SystemExit(
+                  'Product-A v1 split did not support the complete predeclared panel: '
+                  f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
+              )
+          print('Full predeclared taxon panel retained:', len(eligible))
+          PY
 
       - name: Record citable v1 contract
         if: always()
@@ -197,6 +245,9 @@ jobs:
               'target_citation_sha256': target.get('snapshot_citation_sha256', ''),
               'focal_cloud_provider': focal.get('cloud_provider', 'aws'),
               'target_cloud_provider': target.get('cloud_provider', 'azure'),
+              'focal_source_mode': 'verified_workflow_artifact_cache',
+              'focal_cache_source_run_id': '${{ steps.contracts.outputs.focal_cache_run_id }}',
+              'focal_cache_artifact': '${{ steps.contracts.outputs.focal_cache_artifact }}',
               'region': os.environ.get('REGION'),
               'seed': int(os.environ.get('SEED', 0)),
               'spatial_test_fraction': float(os.environ.get('SPATIAL_TEST_FRACTION', 'nan')),
@@ -223,12 +274,13 @@ jobs:
           )
           PY
           cp configs/gbif_snapshot_v1.csv citable_result/gbif_snapshot_v1.csv
+          cp configs/product_a_v1_focal_cache.csv citable_result/product_a_v1_focal_cache.csv
           cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
           cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
-          DOI-backed leakage-safe Product-A v1. The focal occurrence table is thinned to the declared independent-cell grid,
-          then spatial model/sealed roles are frozen before any M or background construction. Only model-pool presences can
-          define M or focal-cell exclusion. Snapshot DOI is revalidated against the exact snapshot citation.txt.
-          This single run is citable pilot evidence, not automatic protocol promotion.
+          DOI-backed leakage-safe Product-A v1. Raw focal source evidence is a SHA/query/citation-verified artifact from the same
+          frozen GBIF snapshot; no earlier model/background result is reused. Focal occurrences are admitted, thinned to the declared
+          independent-cell grid, and assigned spatial model/sealed roles before any M or background construction. Only model-pool
+          presences can define M or focal-cell exclusion. This single run is citable pilot evidence, not automatic protocol promotion.
           EOF
 
       - name: Upload citable Product-A v1 bundle
