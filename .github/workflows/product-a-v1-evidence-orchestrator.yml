@@ -82,15 +82,21 @@ jobs:
               raise SystemExit('wrong Product-A source protocol version')
           if contract.get('outer_sealed_before_M') is not True or contract.get('m_grid_as_sensitivity') is not True:
               raise SystemExit('source contract lacks strict sealed-before-M/M-sensitivity semantics')
+          if contract.get('target_source_independent_of_focal_occurrences') is not True:
+              raise SystemExit('source contract uses a focal-dependent target-group source')
           if spec.get('outer_sealed_before_M') is not True or spec.get('m_grid_as_sensitivity') is not True:
               raise SystemExit('source grid specification lacks strict semantics')
           if int(contract.get('chelsa_probe_failures', 1)) != 0:
               raise SystemExit('source CHELSA preflight did not pass')
           if contract.get('selector_contrast_present') is not True:
-              raise SystemExit('source artifact lacks the AUC/Boyce selector contrast')
+              raise SystemExit('source artifact lacks the conventional selector contrast')
           contrast = json.loads((root/'selector_contrast_contract.json').read_text(encoding='utf-8'))
-          if contrast.get('selection_data') != 'discovery_taxa_only':
-              raise SystemExit('selector contrast did not freeze conventional baselines on discovery taxa only')
+          if contrast.get('cross_taxon_selection_data') != 'discovery_taxa_only':
+              raise SystemExit('cross-taxon selector contrast used validation taxa')
+          if contrast.get('local_nested_auc_selection_data') != 'validation_species_model_pool_only':
+              raise SystemExit('local nested-AUC selector was not restricted to model-pool evidence')
+          if contrast.get('outer_sealed_used_for_selection') is not False:
+              raise SystemExit('selector contrast used outer sealed evidence for selection')
           criteria = root/'product_a_promotion_criteria_v1.csv'
           if hashlib.sha256(criteria.read_bytes()).hexdigest() != str(contract.get('promotion_criteria_sha256','')).lower():
               raise SystemExit('promotion criteria fingerprint mismatch')
@@ -174,8 +180,12 @@ jobs:
           if spec.get('outer_sealed_before_M') is not True or spec.get('m_grid_as_sensitivity') is not True:
               raise SystemExit('split violates Product-A information/M sensitivity contract')
           contrast = json.loads(Path('part_result/selector_contrast_contract.json').read_text(encoding='utf-8'))
-          if contrast.get('selection_data') != 'discovery_taxa_only':
-              raise SystemExit('split selector contrast leaked validation taxa')
+          if contrast.get('cross_taxon_selection_data') != 'discovery_taxa_only':
+              raise SystemExit('split cross-taxon selectors used validation taxa')
+          if contrast.get('local_nested_auc_selection_data') != 'validation_species_model_pool_only':
+              raise SystemExit('split local nested-AUC selector used evidence outside model pool')
+          if contrast.get('outer_sealed_used_for_selection') is not False:
+              raise SystemExit('split selector contrast used outer sealed evidence for selection')
           PY
       - name: Freeze part metadata
         if: always()
@@ -195,7 +205,7 @@ jobs:
               'raw_focal_reprocessed_for_split': True,
               'require_full_predeclared_taxon_panel': True,
               'random_baseline_repeats': 0,
-              'selector_contrast': 'canonical_M_AUC_and_Boyce_vs_SDMR_on_same_unseen_taxa_all_M',
+              'selector_contrast': 'canonical_M_AUC_Boyce_and_local_nested_AUC_vs_SDMR_on_same_outer_sealed_cases',
           }, indent=2, sort_keys=True), encoding='utf-8')
           PY
       - uses: actions/upload-artifact@v4
@@ -266,7 +276,7 @@ jobs:
           M_grid_as_sensitivity=true
           full_taxon_panel_required=true
           promotion_criteria_source=citable_source_artifact
-          selector_contrast=canonical_M_AUC_and_Boyce_vs_SDMR_on_same_unseen_taxa_all_M
+          selector_contrast=canonical_M_AUC_Boyce_and_local_nested_AUC_vs_SDMR_on_same_outer_sealed_cases
           selector_contrast_is_descriptive_not_posthoc_promotion_threshold=true
           EOF
       - uses: actions/upload-artifact@v4
@@ -333,8 +343,9 @@ jobs:
           Product A was evaluated from one fixed DOI-backed focal/target source pair, with sealed-before-M data preparation,
           deterministic 0.05-degree thinning, M treated as a sensitivity set, 15 complete reruns, full predeclared taxon-panel
           retention, and promotion criteria frozen in the citable source artifact before stability results existed.
-          Canonical-M AUC-equivalent and Boyce selector contrasts are reported as a separate empirical differentiation test;
-          they do not alter the predeclared promotion thresholds. Exit code 2 / promotion_not_met is a valid scientific result.
+          Canonical-M AUC-equivalent/Boyce selectors and a stronger local nested spatial-CV AUC selector are reported as separate
+          empirical differentiation tests against SDMR on the same outer sealed cases; they do not alter predeclared promotion
+          thresholds. Exit code 2 / promotion_not_met is a valid scientific result.
           EOF
       - uses: actions/upload-artifact@v4
         if: always()
