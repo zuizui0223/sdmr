@@ -121,7 +121,7 @@ jobs:
               '--runs', str(runs.resolve()),
               '--choice-stability', str(choice.resolve()),
               '--paired-validation-deltas', str(paired.resolve()),
-              '--output-dir', str(Path('../promotion_result').resolve()),
+              '--output-dir', str(Path('promotion_result').resolve()),
               '--min-protocol-selection-fraction', values['min_protocol_selection_fraction'],
               '--min-runs-selected', values['min_runs_selected'],
               '--min-mean-delta-presence-rank', values['min_mean_delta_presence_rank'],
