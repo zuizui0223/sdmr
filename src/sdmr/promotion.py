@@ -9,7 +9,7 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class ProductAPromotionCriteria:
-    """All thresholds are caller-declared; SDMR hides no promotion cutoff."""
+    """All scientific thresholds are caller-declared; SDMR hides no cutoff."""
 
     min_protocol_selection_fraction: float
     min_runs_selected: int
@@ -17,6 +17,9 @@ class ProductAPromotionCriteria:
     min_positive_pair_fraction: float
     min_pairs_per_comparator: int
     required_comparators: tuple[str, ...]
+    # Backward-compatible default only.  The citable Product-A program supplies
+    # this explicitly from its versioned criteria file before results exist.
+    min_m_spec_win_fraction: float = 0.0
 
     def __post_init__(self):
         if not 0 <= self.min_protocol_selection_fraction <= 1:
@@ -29,6 +32,8 @@ class ProductAPromotionCriteria:
             raise ValueError("min_pairs_per_comparator must be >= 1")
         if not self.required_comparators:
             raise ValueError("required_comparators must not be empty")
+        if not 0 <= self.min_m_spec_win_fraction <= 1:
+            raise ValueError("min_m_spec_win_fraction must be in [0, 1]")
 
 
 @dataclass
@@ -52,12 +57,12 @@ def assess_product_a_promotion(
     paired_validation_deltas: pd.DataFrame,
     criteria: ProductAPromotionCriteria,
 ) -> ProductAPromotionAssessment:
-    """Assess whether one repeated full protocol satisfies predeclared promotion rules.
+    """Assess a discovery-selected method under predeclared stability rules.
 
-    The top protocol is defined by the already-computed repeated discovery
-    selection stability. Validation deltas are then evaluated only for runs in
-    which that same complete data-specification × universe × strategy protocol
-    was selected. Validation never changes which protocol is under assessment.
+    In the citable program ``winning_data_specification`` is a constant label
+    representing the whole predeclared M sensitivity set; M itself is never
+    optimized.  ``m_spec_win_fraction`` records whether the chosen method also
+    wins inside the individual M specifications.
     """
     _required_columns(
         choice_stability,
@@ -71,20 +76,19 @@ def assess_product_a_promotion(
         ],
         "choice_stability",
     )
-    _required_columns(
-        runs,
-        [
-            "run_id",
-            "winning_data_specification",
-            "winning_universe",
-            "winning_strategy",
-            "winning_universe_sha256",
-            "winning_predictors",
-            "occurrence_sha256",
-            "occurrence_feature_sha256",
-        ],
-        "runs",
-    )
+    required_run_columns = [
+        "run_id",
+        "winning_data_specification",
+        "winning_universe",
+        "winning_strategy",
+        "winning_universe_sha256",
+        "winning_predictors",
+        "occurrence_sha256",
+        "occurrence_feature_sha256",
+    ]
+    if criteria.min_m_spec_win_fraction > 0:
+        required_run_columns.append("m_spec_win_fraction")
+    _required_columns(runs, required_run_columns, "runs")
     if not len(choice_stability):
         raise ValueError("choice_stability is empty")
 
@@ -109,6 +113,25 @@ def assess_product_a_promotion(
         failures.append(
             f"protocol runs_selected={int(top_row['runs_selected'])} < {criteria.min_runs_selected}"
         )
+
+    matching_runs = runs.loc[
+        (runs["winning_data_specification"].astype(str) == spec)
+        & (runs["winning_universe"].astype(str) == universe)
+        & (runs["winning_strategy"].astype(str) == strategy)
+    ].sort_values("run_id", kind="mergesort")
+    if not len(matching_runs):
+        raise RuntimeError("Top stability method has no matching run rows")
+
+    if criteria.min_m_spec_win_fraction > 0:
+        observed_min = float(pd.to_numeric(matching_runs["m_spec_win_fraction"], errors="coerce").min())
+        observed_mean = float(pd.to_numeric(matching_runs["m_spec_win_fraction"], errors="coerce").mean())
+        top["min_m_spec_win_fraction_observed"] = observed_min
+        top["mean_m_spec_win_fraction_observed"] = observed_mean
+        if observed_min < criteria.min_m_spec_win_fraction:
+            failures.append(
+                f"M-sensitivity min_spec_win_fraction={observed_min:.6g} "
+                f"< {criteria.min_m_spec_win_fraction:.6g}"
+            )
 
     if len(paired_validation_deltas):
         _required_columns(
@@ -187,9 +210,7 @@ def assess_product_a_promotion(
             }
         )
         if n_pairs < criteria.min_pairs_per_comparator:
-            failures.append(
-                f"comparator={comparator} n_pairs={n_pairs} < {criteria.min_pairs_per_comparator}"
-            )
+            failures.append(f"comparator={comparator} n_pairs={n_pairs} < {criteria.min_pairs_per_comparator}")
         if mean_delta < criteria.min_mean_delta_presence_rank:
             failures.append(
                 f"comparator={comparator} mean_delta={mean_delta:.6g} "
@@ -201,13 +222,6 @@ def assess_product_a_promotion(
                 f"< {criteria.min_positive_pair_fraction:.6g}"
             )
 
-    matching_runs = runs.loc[
-        (runs["winning_data_specification"].astype(str) == spec)
-        & (runs["winning_universe"].astype(str) == universe)
-        & (runs["winning_strategy"].astype(str) == strategy)
-    ].sort_values("run_id", kind="mergesort")
-    if not len(matching_runs):
-        raise RuntimeError("Top stability protocol has no matching run rows")
     reference = matching_runs.iloc[0]
     promoted_choice = {
         "winning_data_specification": spec,
@@ -218,6 +232,10 @@ def assess_product_a_promotion(
         "occurrence_sha256": str(reference["occurrence_sha256"]),
         "occurrence_feature_sha256": str(reference["occurrence_feature_sha256"]),
     }
+    if criteria.min_m_spec_win_fraction > 0:
+        promoted_choice["min_m_spec_win_fraction_observed"] = str(
+            float(pd.to_numeric(matching_runs["m_spec_win_fraction"], errors="coerce").min())
+        )
     return ProductAPromotionAssessment(
         promoted=not failures,
         top_protocol=top,
