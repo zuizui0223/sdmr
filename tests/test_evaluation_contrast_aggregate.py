@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from sdmr.evaluation_contrast_aggregate import aggregate_selector_contrasts
 
@@ -41,10 +42,10 @@ def test_aggregate_selector_contrasts_summarizes_runs_and_pairs(tmp_path):
     comp = tables["selector_contrast_comparator_summary"].set_index("comparator")
     assert comp.loc["canonical_m_auc", "n_runs"] == 2
     assert comp.loc["canonical_m_auc", "n_pairs"] == 4
-    assert comp.loc["canonical_m_auc", "mean_delta_presence_rank"] == 0.02
-    assert comp.loc["canonical_m_auc", "positive_run_fraction"] == 1.0
-    assert comp.loc["canonical_m_boyce", "positive_run_fraction"] == 0.5
+    assert comp.loc["canonical_m_auc", "mean_delta_presence_rank"] == pytest.approx(0.02)
+    assert comp.loc["canonical_m_auc", "positive_run_fraction"] == pytest.approx(1.0)
+    assert comp.loc["canonical_m_boyce", "positive_run_fraction"] == pytest.approx(0.5)
 
     choices = tables["selector_contrast_choice_summary"].set_index("selector")
-    assert choices.loc["canonical_m_auc", "same_method_as_sdmr_fraction"] == 0.5
-    assert choices.loc["canonical_m_boyce", "same_method_as_sdmr_fraction"] == 0.0
+    assert choices.loc["canonical_m_auc", "same_method_as_sdmr_fraction"] == pytest.approx(0.5)
+    assert choices.loc["canonical_m_boyce", "same_method_as_sdmr_fraction"] == pytest.approx(0.0)
