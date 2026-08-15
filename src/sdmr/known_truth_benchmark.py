@@ -13,6 +13,12 @@ import numpy as np
 import pandas as pd
 
 from .known_truth import KnownTruthSimulation, known_truth_niche_recovery_profile
+from .known_truth_response import (
+    infer_response_predictors,
+    infer_true_processes,
+    known_truth_process_profile,
+    known_truth_response_profile,
+)
 from .model import fit_relative_suitability_model, score_relative_suitability
 from .niche_recovery_cv import RecoveryCandidate, cross_validated_niche_recovery
 from .niche_recovery_selection import (
@@ -29,12 +35,7 @@ class KnownTruthSelectorBenchmark:
     truth_evaluation: pd.DataFrame
 
 
-def _metric_winner(
-    metrics: pd.DataFrame,
-    metric: str,
-    *,
-    ascending: bool,
-) -> str:
+def _metric_winner(metrics: pd.DataFrame, metric: str, *, ascending: bool) -> str:
     summary = (
         metrics.groupby("candidate", as_index=False)
         .agg(selector_score=(metric, "mean"), n_predictors=("n_predictors", "mean"))
@@ -131,6 +132,8 @@ def benchmark_selectors_against_known_truth(
     truth_rows = []
     environment = simulation.environment
     truth = environment[simulation.true_suitability_column].to_numpy(float)
+    response_predictors = infer_response_predictors(environment)
+    true_processes = infer_true_processes(environment)
     for selector, candidate_name in winners.items():
         candidate = candidates[candidate_name]
         model = fit_relative_suitability_model(
@@ -140,12 +143,19 @@ def benchmark_selectors_against_known_truth(
             model_spec=candidate.model_spec,
         )
         prediction = score_relative_suitability(model, environment, candidate.predictors)
-        profile = known_truth_niche_recovery_profile(
+        niche_profile = known_truth_niche_recovery_profile(
             environment,
             prediction,
             truth,
             simulation.audit_predictors,
         )
+        response_profile = known_truth_response_profile(
+            environment,
+            prediction,
+            truth,
+            response_predictors,
+        )
+        process_profile = known_truth_process_profile(candidate.predictors, true_processes)
         candidate_folds = fold_metrics.loc[fold_metrics["candidate"].astype(str) == candidate_name]
         choices.append(
             {
@@ -168,7 +178,9 @@ def benchmark_selectors_against_known_truth(
             {
                 "selector": selector,
                 "candidate": candidate_name,
-                **profile.as_dict(),
+                **niche_profile.as_dict(),
+                **response_profile.as_dict(),
+                **process_profile.as_dict(),
             }
         )
 
@@ -201,6 +213,13 @@ def summarize_selector_disagreement(
         "centroid_distance",
         "breadth_log_sd_error",
         "quantile_profile_error",
+        "truth_surface_rank",
+        "truth_surface_nrmse",
+        "response_curve_error",
+        "optimum_error",
+        "lower_limit_error",
+        "upper_limit_error",
+        "driver_process_f1",
     }
     if not required_choices <= set(choices.columns):
         raise KeyError(f"selector_choices missing columns: {sorted(required_choices - set(choices.columns))}")
@@ -225,16 +244,24 @@ def summarize_selector_disagreement(
             raise ValueError(f"truth_evaluation must contain exactly one row for {selector}")
         other = other_truth.iloc[0]
 
-        overlap_gain = float(ref["niche_overlap_schoener_d_pc12"] - other["niche_overlap_schoener_d_pc12"])
-        centroid_gain = float(other["centroid_distance"] - ref["centroid_distance"])
-        breadth_gain = float(other["breadth_log_sd_error"] - ref["breadth_log_sd_error"])
-        quantile_gain = float(other["quantile_profile_error"] - ref["quantile_profile_error"])
-        gains = np.array([overlap_gain, centroid_gain, breadth_gain, quantile_gain], dtype=float)
-        finite = np.isfinite(gains)
+        gains = {
+            "truth_overlap_gain": float(ref["niche_overlap_schoener_d_pc12"] - other["niche_overlap_schoener_d_pc12"]),
+            "truth_centroid_error_reduction": float(other["centroid_distance"] - ref["centroid_distance"]),
+            "truth_breadth_error_reduction": float(other["breadth_log_sd_error"] - ref["breadth_log_sd_error"]),
+            "truth_quantile_error_reduction": float(other["quantile_profile_error"] - ref["quantile_profile_error"]),
+            "truth_surface_rank_gain": float(ref["truth_surface_rank"] - other["truth_surface_rank"]),
+            "truth_surface_nrmse_reduction": float(other["truth_surface_nrmse"] - ref["truth_surface_nrmse"]),
+            "truth_response_curve_error_reduction": float(other["response_curve_error"] - ref["response_curve_error"]),
+            "truth_optimum_error_reduction": float(other["optimum_error"] - ref["optimum_error"]),
+            "truth_lower_limit_error_reduction": float(other["lower_limit_error"] - ref["lower_limit_error"]),
+            "truth_upper_limit_error_reduction": float(other["upper_limit_error"] - ref["upper_limit_error"]),
+            "truth_process_f1_gain": float(ref["driver_process_f1"] - other["driver_process_f1"]),
+        }
+        gain_values = np.asarray(list(gains.values()), dtype=float)
         pareto_better = bool(
-            finite.all()
-            and np.all(gains >= -1e-12)
-            and np.any(gains > 1e-12)
+            np.isfinite(gain_values).all()
+            and np.all(gain_values >= -1e-12)
+            and np.any(gain_values > 1e-12)
         )
         rows.append(
             {
@@ -243,10 +270,7 @@ def summarize_selector_disagreement(
                 "reference_selector": reference_selector,
                 "reference_candidate": reference_candidate,
                 "candidate_disagrees": candidate != reference_candidate,
-                "truth_overlap_gain": overlap_gain,
-                "truth_centroid_error_reduction": centroid_gain,
-                "truth_breadth_error_reduction": breadth_gain,
-                "truth_quantile_error_reduction": quantile_gain,
+                **gains,
                 "reference_truth_pareto_better": pareto_better,
             }
         )
