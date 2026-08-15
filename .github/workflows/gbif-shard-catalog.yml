@@ -1,0 +1,46 @@
+name: gbif-shard-catalog
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/gbif-shard-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud]'
+      - name: List exact 2026-08-01 snapshot parquet shards
+        run: |
+          python - <<'PY'
+          import duckdb
+          from sdmr.data.snapshot import _configure_duckdb_cloud, gbif_snapshot_s3_uri
+
+          uri = gbif_snapshot_s3_uri('2026-08-01', region='us-east-1')
+          con = duckdb.connect()
+          try:
+              _configure_duckdb_cloud(con, cloud_provider='aws', region='us-east-1')
+              rows = con.execute(f"SELECT file FROM glob('{uri}') ORDER BY file").fetchall()
+          finally:
+              con.close()
+          files = [row[0] for row in rows]
+          if not files:
+              raise SystemExit('no snapshot shards found')
+          print('shard_count', len(files))
+          print('first_shard', files[0])
+          print('last_shard', files[-1])
+          print('all_basename_contiguous', [f.rsplit('/',1)[-1] for f in files[:5]], '...', [f.rsplit('/',1)[-1] for f in files[-5:]])
+          PY
