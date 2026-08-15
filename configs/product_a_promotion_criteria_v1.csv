@@ -1,7 +1,8 @@
 criterion,value,rationale
-min_protocol_selection_fraction,0.6666666667,The identical full M x universe x strategy protocol must win at least two thirds of the 15 predeclared stability runs.
-min_runs_selected,10,With 5 seeds x 3 sealed fractions the same full protocol must be selected in at least 10 of 15 runs.
-min_mean_delta_presence_rank,0.01,Require at least a one-percentage-point mean unseen-taxon presence-rank advantage over each non-self strategy comparator rather than promoting on numerical ties.
-min_positive_pair_fraction,0.6666666667,At least two thirds of unseen-taxon paired comparisons must favor the selected strategy over each non-self comparator.
-min_pairs_per_comparator,15,Require a substantial paired unseen-taxon evidence base across repeated runs while allowing some taxa/runs to be unavailable after fixed admission gates.
+min_protocol_selection_fraction,0.6666666667,The identical environmental-universe x selection-strategy method must be selected in at least two thirds of the 15 predeclared full reruns; M remains a sensitivity axis rather than an optimized component.
+min_runs_selected,10,With 5 seeds x 3 sealed fractions the same universe x strategy method must be selected in at least 10 of 15 independently rebuilt runs.
+min_m_spec_win_fraction,0.6666666667,Within every selected-method stability run the method must individually lead in at least two of the three predeclared 150/300/500 km M sensitivity specifications; a win produced only by cross-M rank averaging is insufficient.
+min_mean_delta_presence_rank,0.01,Require at least a one-percentage-point mean unseen-taxon presence-rank advantage over each non-self strategy comparator in matched taxon x M comparisons rather than promoting on numerical ties.
+min_positive_pair_fraction,0.6666666667,At least two thirds of matched unseen-taxon x M paired comparisons must favor the selected strategy over each non-self comparator.
+min_pairs_per_comparator,15,Require a substantial matched unseen-taxon evidence base across repeated runs and M sensitivity specifications.
 required_comparators,"all,vif,predictive",Whichever strategy is selected is self-not-applicable; the other two predeclared strategies must satisfy the evidence thresholds.
