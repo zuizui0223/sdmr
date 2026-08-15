@@ -3,6 +3,9 @@
 The key rule in this project is that GBIF occurrences are positive evidence of
 occupancy, not observations of a calibrated 100% occurrence probability.
 Scores are therefore evaluated relative to a background/reference sample.
+
+These functions are model-evaluation diagnostics. They are deliberately
+separate from Product-A v2 ecological niche-recovery tuning targets.
 """
 
 from __future__ import annotations
@@ -65,6 +68,32 @@ def presence_rank_score(
     upper = np.searchsorted(b_sorted, p, side="right")
     ranks = (lower + 0.5 * (upper - lower)) / b.size
     return float(np.mean(ranks))
+
+
+def omission_rate_at_training_quantile(
+    training_presence_scores: np.ndarray | list[float],
+    test_presence_scores: np.ndarray | list[float],
+    *,
+    quantile: float = 0.10,
+) -> float:
+    """Return independent-test omission at a training-presence quantile threshold.
+
+    With the default ``quantile=0.10`` this is an OR10-style diagnostic: the
+    threshold is the 10th percentile of training-presence suitability and the
+    returned value is the fraction of independent test presences below it.
+
+    This remains a conventional model diagnostic. It is not a niche-recovery
+    objective and does not alter frozen Product-A v1 selection semantics.
+    """
+
+    if not 0.0 <= quantile <= 1.0:
+        raise ValueError("quantile must lie in [0, 1].")
+    train = _finite(training_presence_scores)
+    test = _finite(test_presence_scores)
+    if train.size == 0 or test.size == 0:
+        return float("nan")
+    threshold = float(np.quantile(train, quantile))
+    return float(np.mean(test < threshold))
 
 
 def boyce_index(
