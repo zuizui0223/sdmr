@@ -5,7 +5,9 @@ on:
     paths:
       - 'src/sdmr/known_truth_perturbation.py'
       - 'src/sdmr/known_truth_perturbation_experiment.py'
+      - 'src/sdmr/known_truth_replicated_observation_experiment.py'
       - 'src/sdmr/niche_recovery_perturbation.py'
+      - 'src/sdmr/replicated_observation_gate.py'
       - 'src/sdmr/observation_process.py'
       - 'src/sdmr/observation_corrected_recovery.py'
       - 'src/sdmr/niche_recovery_cv.py'
@@ -33,7 +35,7 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Compare biased and observation-corrected ecological targets
+      - name: Compare baseline and replicated observation correction
         run: |
           mkdir -p perturbation_result
           python - <<'PY'
@@ -43,6 +45,9 @@ jobs:
           from sdmr.known_truth_experiment import _summarize_truth, _truth_ranks
           from sdmr.known_truth_perturbation import DEFAULT_KNOWN_TRUTH_PERTURBATIONS
           from sdmr.known_truth_perturbation_experiment import run_known_truth_perturbation_experiment
+          from sdmr.known_truth_replicated_observation_experiment import (
+              run_known_truth_replicated_observation_experiment,
+          )
 
           kwargs = dict(
               families=('observation_confounded', 'interaction', 'omitted_driver'),
@@ -59,24 +64,37 @@ jobs:
               **kwargs,
               observation_correction=False,
           )
-          corr_choices, corr_truth, _, corr_metrics, corr_failures = run_known_truth_perturbation_experiment(
-              **kwargs,
-              observation_correction=True,
+          repl_choices, repl_truth, _, repl_metrics, signal_summary = (
+              run_known_truth_replicated_observation_experiment(**kwargs)
           )
 
-          # Conventional AUC never uses the ecological occurrence-target correction.
-          # Therefore both development branches must choose the same AUC candidate.
-          base_auc = base_choices.loc[base_choices['selector'].eq('canonical_auc'), ['scenario','seed','candidate']]
-          corr_auc = corr_choices.loc[corr_choices['selector'].eq('canonical_auc'), ['scenario','seed','candidate']]
-          auc_check = base_auc.merge(corr_auc, on=['scenario','seed'], suffixes=('_base','_corrected'))
-          if len(auc_check) != 9 or not auc_check['candidate_base'].eq(auc_check['candidate_corrected']).all():
-              raise RuntimeError('canonical AUC changed when only the ecological audit target was corrected')
+          # Conventional AUC is outside the ecological target correction and must
+          # choose the same candidate in both branches.
+          base_auc = base_choices.loc[
+              base_choices['selector'].eq('canonical_auc'),
+              ['scenario','seed','candidate']
+          ]
+          repl_auc = repl_choices.loc[
+              repl_choices['selector'].eq('canonical_auc'),
+              ['scenario','seed','candidate']
+          ]
+          auc_check = base_auc.merge(
+              repl_auc, on=['scenario','seed'], suffixes=('_base','_replicated')
+          )
+          if len(auc_check) != 9 or not auc_check['candidate_base'].eq(
+              auc_check['candidate_replicated']
+          ).all():
+              raise RuntimeError(
+                  'canonical AUC changed when only the ecological observation target changed'
+              )
           auc_check.to_csv('perturbation_result/canonical_auc_invariance.csv', index=False)
 
-          # Keep one AUC row and all four ecological selectors. Recompute truth
-          # ranks jointly so corrected and uncorrected methods are in one league.
-          corr_choices_no_auc = corr_choices.loc[~corr_choices['selector'].eq('canonical_auc')].copy()
-          choices = pd.concat([base_choices, corr_choices_no_auc], ignore_index=True)
+          # Put baseline and replicated-correction ecological selectors in one
+          # hidden-truth league. Keep only one AUC row.
+          repl_choices_no_auc = repl_choices.loc[
+              ~repl_choices['selector'].eq('canonical_auc')
+          ].copy()
+          choices = pd.concat([base_choices, repl_choices_no_auc], ignore_index=True)
 
           def strip_truth_ranks(frame):
               drop = [
@@ -90,25 +108,25 @@ jobs:
               ]
               return frame.drop(columns=drop, errors='ignore')
 
-          corr_truth_no_auc = corr_truth.loc[~corr_truth['selector'].eq('canonical_auc')].copy()
+          repl_truth_no_auc = repl_truth.loc[
+              ~repl_truth['selector'].eq('canonical_auc')
+          ].copy()
           truth = pd.concat(
-              [strip_truth_ranks(base_truth), strip_truth_ranks(corr_truth_no_auc)],
+              [strip_truth_ranks(base_truth), strip_truth_ranks(repl_truth_no_auc)],
               ignore_index=True,
           )
           truth = _truth_ranks(truth)
           summary = _summarize_truth(truth)
-          metrics = pd.concat([base_metrics, corr_metrics], ignore_index=True)
-          failures = pd.concat([base_failures, corr_failures], ignore_index=True)
 
-          choices.to_csv('perturbation_result/selector_choices.csv', index=False)
-          truth.to_csv('perturbation_result/truth_evaluation.csv', index=False)
-          summary.to_csv('perturbation_result/selector_truth_summary.csv', index=False)
-          metrics.to_csv('perturbation_result/perturbation_candidate_fold_metrics.csv', index=False)
-          failures.to_csv('perturbation_result/selection_failures.csv', index=False)
-          base_choices.to_csv('perturbation_result/uncorrected_selector_choices.csv', index=False)
-          corr_choices.to_csv('perturbation_result/corrected_selector_choices.csv', index=False)
-          base_metrics.to_csv('perturbation_result/uncorrected_candidate_fold_metrics.csv', index=False)
-          corr_metrics.to_csv('perturbation_result/corrected_candidate_fold_metrics.csv', index=False)
+          base_choices.to_csv('perturbation_result/baseline_selector_choices.csv', index=False)
+          repl_choices.to_csv('perturbation_result/replicated_selector_choices.csv', index=False)
+          choices.to_csv('perturbation_result/joint_selector_choices.csv', index=False)
+          truth.to_csv('perturbation_result/joint_truth_evaluation.csv', index=False)
+          summary.to_csv('perturbation_result/joint_selector_truth_summary.csv', index=False)
+          base_metrics.to_csv('perturbation_result/baseline_candidate_fold_metrics.csv', index=False)
+          repl_metrics.to_csv('perturbation_result/replicated_effective_candidate_fold_metrics.csv', index=False)
+          signal_summary.to_csv('perturbation_result/observation_signal_summary.csv', index=False)
+          base_failures.to_csv('perturbation_result/baseline_selection_failures.csv', index=False)
 
           scenario_summary = (
               truth.groupby(['scenario','selector'], as_index=False)
@@ -130,70 +148,58 @@ jobs:
                   mean_truth_mean_rank=('truth_mean_metric_rank','mean'),
               )
           )
-          scenario_summary.to_csv('perturbation_result/scenario_selector_truth_summary.csv', index=False)
+          scenario_summary.to_csv(
+              'perturbation_result/scenario_selector_truth_summary.csv', index=False
+          )
+
+          gate_cases = (
+              signal_summary.groupby(['scenario','seed'], as_index=False)
+              .agg(
+                  global_correction_active=('global_correction_active','first'),
+                  n_active_signal_perturbations=('n_active_signal_perturbations','first'),
+                  n_signal_perturbations=('n_signal_perturbations','first'),
+                  min_signal_auc=('observation_signal_mean_auc','min'),
+                  min_signal_lower_bound=('observation_signal_lower_bound','min'),
+                  mean_signal_auc=('observation_signal_mean_auc','mean'),
+              )
+          )
+          gate_cases.to_csv('perturbation_result/observation_global_gate_cases.csv', index=False)
 
           coverage = (
               choices.groupby('selector', as_index=False)
               .agg(n_selected_cases=('seed','size'))
           )
-          expected_cases = int(choices[['scenario','seed']].drop_duplicates().shape[0])
-          coverage['expected_cases'] = expected_cases
-          coverage['selection_coverage'] = coverage['n_selected_cases'] / expected_cases
+          coverage['expected_cases'] = 9
+          coverage['selection_coverage'] = coverage['n_selected_cases'] / 9
           coverage.to_csv('perturbation_result/selector_coverage.csv', index=False)
 
-          weight_diagnostics = (
-              corr_metrics.groupby(['scenario','seed','perturbation'], as_index=False)
-              .agg(
-                  mean_weight_ess=('observation_weight_ess','mean'),
-                  min_weight_ess=('observation_weight_ess','min'),
-                  mean_max_weight=('observation_weight_max','mean'),
-                  maximum_weight=('observation_weight_max','max'),
-                  mean_truncation_cap=('observation_weight_truncation_cap','mean'),
-              )
-          )
-          weight_diagnostics.to_csv('perturbation_result/observation_weight_diagnostics.csv', index=False)
-
-          perturbation_counts = (
-              metrics.groupby(['observation_correction','scenario','seed','perturbation'], as_index=False)
-              .agg(
-                  n_candidates=('candidate','nunique'),
-                  n_rows=('candidate','size'),
-              )
-          )
-          perturbation_counts.to_csv('perturbation_result/perturbation_coverage.csv', index=False)
-
           contract = {
-              'purpose': 'development_exogenous_perturbation_robustness_with_observation_target_correction_known_truth',
+              'purpose': 'development_replicated_observation_target_correction_under_exogenous_perturbations',
               'families': ['observation_confounded','interaction','omitted_driver'],
               'seeds': [1,2,3],
               'perturbations': [spec.name for spec in DEFAULT_KNOWN_TRUTH_PERTURBATIONS],
-              'perturbation_axes': {
-                  'sampling_bias_strength': [0.5,1.15,2.0],
-                  'model_pool_access_radius_simulation_units': [0.2,0.35,0.8],
-                  'domain_transfer': ['source_to_shifted','shifted_to_source'],
-              },
-              'background_information_barrier': 'outer_presence_blocks_fixed_before_background_model_pool_occurrences_only_define_access_radius',
-              'canonical_case': 'sampling_standard',
               'joint_selectors': [
                   'canonical_auc',
                   'canonical_niche_recovery',
                   'perturbation_robust_niche_recovery',
-                  'canonical_observation_corrected_niche_recovery',
-                  'observation_corrected_perturbation_robust_niche_recovery',
+                  'canonical_replicated_observation_niche_recovery',
+                  'replicated_observation_perturbation_robust_niche_recovery',
               ],
-              'prediction_gate': 'must_pass_absolute_auc_adequacy_in_every_perturbation',
-              'ecological_aggregation': 'rank_candidates_within_each_perturbation_per_ecological_axis_then_pareto_minimax_worst_perturbation_ranks',
+              'prediction_gate': 'candidate_must_pass_absolute_auc_adequacy_in_every_perturbation',
+              'observation_signal_local_gate': 'mean_nuisance_auc>=0.51_and_mean_minus_1sem>=0.50_training_only_spatial_cv',
+              'observation_signal_global_gate': 'correction_admitted_only_if_local_gate_passes_in_every_predeclared_perturbation',
+              'global_gate_changes_no_numeric_auc_threshold': True,
+              'global_gate_failure_action': 'exact_identity_occurrence_weights_and_uncorrected_ecological_selection_evidence',
               'model_ecological_surface': 'candidate_observation_predictors_marginalized_over_training_background',
               'corrected_occurrence_target': 'candidate_independent_training_only_observation_density_ratio_inverse_odds',
               'observation_weight_predictors': ['recording_bias'],
               'observation_weight_truncation': '99th_percentile_of_training_focal_inverse_odds',
-              'observation_weight_normalization': 'mean_one_on_heldout_finite_weights',
-              'uncorrected_target_retained_as_negative_control': True,
-              'canonical_auc_invariant_to_target_correction': True,
+              'background_information_barrier': 'outer_presence_blocks_fixed_before_background_model_pool_occurrences_only_define_access_radius',
+              'ecological_aggregation': 'within_perturbation_axis_ranks_then_worst_perturbation_pareto_minimax',
               'raw_metrics_never_pooled_across_M_or_domain': True,
               'weighted_super_score': False,
               'hidden_truth_used_during_selection': False,
-              'no_robust_candidate_is_valid_outcome': True,
+              'uncorrected_target_retained_as_negative_control': True,
           }
           Path('perturbation_result/contract.json').write_text(
               json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
@@ -203,13 +209,8 @@ jobs:
           print(summary.to_string(index=False))
           print('\nBy scenario:')
           print(scenario_summary.to_string(index=False))
-          print('\nSelection coverage:')
-          print(coverage.to_string(index=False))
-          print('\nObservation-weight diagnostics:')
-          print(weight_diagnostics.to_string(index=False))
-          if len(failures):
-              print('\nNo robust candidate cases:')
-              print(failures.to_string(index=False))
+          print('\nGlobal observation gate cases:')
+          print(gate_cases.to_string(index=False))
           PY
       - uses: actions/upload-artifact@v4
         with:
