@@ -5,8 +5,7 @@ on:
     branches:
       - agent/nested-spatial-raster-benchmark
     paths:
-      - 'configs/gbif_snapshot_v1.csv'
-      - 'configs/product_a_v1_focal_cache.csv'
+      - 'configs/product_a_v1_target_cache.csv'
       - 'configs/product_a_v1_rerun_trigger.txt'
   workflow_dispatch:
 
@@ -30,50 +29,55 @@ jobs:
           python-version: '3.12'
           cache: pip
 
-      - name: Install SDMR cloud and geo dependencies
-        run: python -m pip install -e '.[cloud,geo,parquet]'
+      - name: Install fixed-source Product-A dependencies
+        run: python -m pip install -e '.[geo,parquet]'
 
-      - name: Read frozen snapshot and focal-cache contracts
+      - name: Read and bind frozen focal/target contracts
         id: contracts
         run: |
           python - <<'PY'
-          import csv
-          import os
+          import csv, os
           from pathlib import Path
 
-          snapshot_rows = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
-          cache_rows = list(csv.DictReader(Path('configs/product_a_v1_focal_cache.csv').open(encoding='utf-8')))
-          if len(snapshot_rows) != 1 or len(cache_rows) != 1:
-              raise SystemExit('snapshot and focal-cache configs must each contain exactly one data row')
-          snapshot = snapshot_rows[0]
-          cache = cache_rows[0]
-          required_snapshot = ['snapshot_date', 'snapshot_doi', 'citation_sha256', 'download_key']
-          required_cache = ['source_run_id', 'artifact_name', 'focal_sha256', 'focal_query_sha256', 'citation_sha256', 'snapshot_date', 'snapshot_doi']
-          missing = [k for k in required_snapshot if not str(snapshot.get(k, '')).strip()]
-          missing += [k for k in required_cache if not str(cache.get(k, '')).strip()]
-          if missing:
-              raise SystemExit(f'frozen contracts missing: {sorted(set(missing))}')
-          if cache['snapshot_date'].strip() != snapshot['snapshot_date'].strip() or cache['snapshot_doi'].strip().lower() != snapshot['snapshot_doi'].strip().lower():
-              raise SystemExit('focal cache does not refer to the frozen Product-A snapshot')
-          if cache['citation_sha256'].strip().lower() != snapshot['citation_sha256'].strip().lower():
-              raise SystemExit('focal cache citation fingerprint differs from frozen snapshot contract')
+          def one(path):
+              rows = list(csv.DictReader(Path(path).open(encoding='utf-8')))
+              if len(rows) != 1:
+                  raise SystemExit(f'{path} must contain exactly one data row')
+              return rows[0]
+
+          snapshot = one('configs/gbif_snapshot_v1.csv')
+          focal = one('configs/product_a_v1_focal_cache.csv')
+          target = one('configs/product_a_v1_target_cache.csv')
+          date = snapshot['snapshot_date'].strip()
+          doi = snapshot['snapshot_doi'].strip().lower()
+          citation = snapshot['citation_sha256'].strip().lower()
+          for label, row in [('focal', focal), ('target', target)]:
+              if row['snapshot_date'].strip() != date or row['snapshot_doi'].strip().lower() != doi:
+                  raise SystemExit(f'{label} cache does not match frozen snapshot date/DOI')
+              if row['citation_sha256'].strip().lower() != citation:
+                  raise SystemExit(f'{label} cache citation SHA does not match frozen snapshot')
 
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
-              for key in required_snapshot:
-                  env.write(f"{key.upper()}={str(snapshot[key]).strip()}\n")
-              env.write(f"FOCAL_CACHE_SHA256={cache['focal_sha256'].strip().lower()}\n")
-              env.write(f"FOCAL_CACHE_QUERY_SHA256={cache['focal_query_sha256'].strip().lower()}\n")
-              env.write('REGION=us-east-1\n')
+              env.write(f'SNAPSHOT_DATE={date}\n')
+              env.write(f'SNAPSHOT_DOI={snapshot["snapshot_doi"].strip()}\n')
+              env.write(f'CITATION_SHA256={citation}\n')
+              env.write(f'FOCAL_SHA256={focal["focal_sha256"].strip().lower()}\n')
+              env.write(f'FOCAL_QUERY_SHA256={focal["focal_query_sha256"].strip().lower()}\n')
+              env.write(f'TARGET_SHA256={target["target_sha256"].strip().lower()}\n')
+              env.write(f'TARGET_QUERY_SHA256={target["target_query_sha256"].strip().lower()}\n')
               env.write('SEED=20260814\n')
               env.write('SPATIAL_TEST_FRACTION=0.20\n')
               env.write('TAXON_VALIDATION_FRACTION=0.25\n')
               env.write('MIN_OCCURRENCES=80\n')
               env.write('MIN_UNIQUE_CELLS=50\n')
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
-              out.write(f"focal_cache_run_id={cache['source_run_id'].strip()}\n")
-              out.write(f"focal_cache_artifact={cache['artifact_name'].strip()}\n")
-          print('snapshot', snapshot)
-          print('focal_cache', cache)
+              out.write(f'focal_run_id={focal["source_run_id"].strip()}\n')
+              out.write(f'focal_artifact={focal["artifact_name"].strip()}\n')
+              out.write(f'target_run_id={target["source_run_id"].strip()}\n')
+              out.write(f'target_artifact={target["artifact_name"].strip()}\n')
+          print('snapshot', date, doi)
+          print('focal source', focal['source_run_id'], focal['artifact_name'])
+          print('target source', target['source_run_id'], target['artifact_name'])
           PY
 
       - name: Preflight all 43 active CHELSA rasters
@@ -84,78 +88,71 @@ jobs:
             --probe \
             --require-probe-success
 
-      - name: Download previously verified raw focal snapshot subset
+      - name: Download frozen focal source artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: ${{ steps.contracts.outputs.focal_cache_run_id }}
+          run-id: ${{ steps.contracts.outputs.focal_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.contracts.outputs.focal_cache_artifact }}
-          path: focal_cache_bundle
+          name: ${{ steps.contracts.outputs.focal_artifact }}
+          path: focal_bundle
 
-      - name: Admit only frozen focal source evidence from cache
+      - name: Download frozen target-group source artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.contracts.outputs.target_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.contracts.outputs.target_artifact }}
+          path: target_bundle
+
+      - name: Verify both fixed source artifacts before analysis
         run: |
           mkdir -p citable_input citable_result
-          cp focal_cache_bundle/citable_input/focal.parquet citable_input/focal.parquet
-          cp focal_cache_bundle/citable_input/focal.provenance.csv citable_input/focal.provenance.csv
-          cp focal_cache_bundle/citable_input/focal.parquet.citation.txt citable_input/focal.parquet.citation.txt
+          cp focal_bundle/citable_input/focal.parquet citable_input/focal.parquet
+          cp focal_bundle/citable_input/focal.provenance.csv citable_input/focal.provenance.csv
+          cp focal_bundle/citable_input/focal.parquet.citation.txt citable_input/focal.parquet.citation.txt
+          cp target_bundle/target_group.parquet citable_input/target_group.parquet
+          cp target_bundle/target_group.provenance.csv citable_input/target_group.provenance.csv
+          cp target_bundle/target_group.parquet.citation.txt citable_input/target_group.parquet.citation.txt
           python - <<'PY'
-          import hashlib
-          import os
+          import hashlib, os
           from pathlib import Path
           import pandas as pd
 
-          focal = Path('citable_input/focal.parquet')
-          actual_sha = hashlib.sha256(focal.read_bytes()).hexdigest()
-          if actual_sha != os.environ['FOCAL_CACHE_SHA256']:
-              raise SystemExit(f'focal cache SHA mismatch: {actual_sha}')
-          prov = pd.read_csv('citable_input/focal.provenance.csv').iloc[0]
-          if str(prov.get('snapshot_date', '')) != os.environ['SNAPSHOT_DATE']:
-              raise SystemExit('cached focal snapshot date mismatch')
-          if str(prov.get('snapshot_doi', '')).lower() != os.environ['SNAPSHOT_DOI'].lower():
-              raise SystemExit('cached focal DOI mismatch')
-          if str(prov.get('query_sha256', '')).lower() != os.environ['FOCAL_CACHE_QUERY_SHA256']:
-              raise SystemExit('cached focal query fingerprint mismatch')
-          if str(prov.get('sha256', '')).lower() != actual_sha:
-              raise SystemExit('cached focal provenance file SHA mismatch')
-          citation = Path('citable_input/focal.parquet.citation.txt')
-          citation_sha = hashlib.sha256(citation.read_bytes()).hexdigest()
-          if citation_sha != os.environ['CITATION_SHA256'].lower():
-              raise SystemExit('cached focal citation SHA mismatch')
-          if str(prov.get('snapshot_citation_sha256', '')).lower() != citation_sha:
-              raise SystemExit('cached focal provenance citation SHA mismatch')
-          print('Verified frozen focal evidence:', len(pd.read_parquet(focal)), 'rows', actual_sha)
+          def sha(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          checks = [
+              ('focal', 'FOCAL_SHA256', 'FOCAL_QUERY_SHA256'),
+              ('target_group', 'TARGET_SHA256', 'TARGET_QUERY_SHA256'),
+          ]
+          for label, file_env, query_env in checks:
+              path = Path(f'citable_input/{label}.parquet')
+              prov_path = Path(f'citable_input/{label}.provenance.csv')
+              citation_path = Path(f'citable_input/{label}.parquet.citation.txt')
+              actual = sha(path)
+              if actual != os.environ[file_env]:
+                  raise SystemExit(f'{label} file SHA mismatch: {actual}')
+              prov = pd.read_csv(prov_path).iloc[0]
+              if str(prov.get('sha256','')).lower() != actual:
+                  raise SystemExit(f'{label} provenance file SHA mismatch')
+              if str(prov.get('query_sha256','')).lower() != os.environ[query_env]:
+                  raise SystemExit(f'{label} query SHA mismatch')
+              citation = sha(citation_path)
+              if citation != os.environ['CITATION_SHA256']:
+                  raise SystemExit(f'{label} citation SHA mismatch')
+              if str(prov.get('snapshot_citation_sha256','')).lower() != citation:
+                  raise SystemExit(f'{label} provenance citation SHA mismatch')
+              if str(prov.get('snapshot_date','')) != os.environ['SNAPSHOT_DATE']:
+                  raise SystemExit(f'{label} snapshot date mismatch')
+              if str(prov.get('snapshot_doi','')).lower() != os.environ['SNAPSHOT_DOI'].lower():
+                  raise SystemExit(f'{label} snapshot DOI mismatch')
+              frame = pd.read_parquet(path)
+              print(label, 'rows', len(frame), 'species', frame['species'].nunique() if 'species' in frame else None)
           PY
 
-      - name: Materialize same-snapshot broader Plantae target group
+      - name: Run leakage-safe M-robust Product-A benchmark
         run: |
-          sdmr-gbif-snapshot \
-            --snapshot-date "$SNAPSHOT_DATE" \
-            --snapshot-doi "$SNAPSHOT_DOI" \
-            --cloud-provider azure \
-            --region "$REGION" \
-            --kingdom Plantae \
-            --bounds-from-occurrences citable_input/focal.parquet \
-            --bounds-mode tiles \
-            --bounds-tile-degrees 5 \
-            --bounds-buffer-km 500 \
-            --one-per-grid-cell-degrees 0.05 \
-            --output citable_input/target_group.parquet \
-            --provenance citable_input/target_group.provenance.csv
-
-      - name: Summarize immutable input evidence
-        run: |
-          python - <<'PY'
-          import pandas as pd
-          for label in ['focal', 'target_group']:
-              p = f'citable_input/{label}.parquet'
-              df = pd.read_parquet(p)
-              print(label, 'rows=', len(df), 'species=', df['species'].nunique() if 'species' in df else None)
-              print(pd.read_csv(f'citable_input/{label}.provenance.csv').to_string(index=False))
-          PY
-
-      - name: Run M-robust universe × strategy Product-A benchmark
-        run: |
-          SOURCE_KEY="snapshot:${SNAPSHOT_DATE}:${SNAPSHOT_DOI}"
+          SOURCE_KEY="fixed-snapshot:${SNAPSHOT_DATE}:${SNAPSHOT_DOI}"
           sdmr-pilot-grid \
             --gbif-download citable_input/focal.parquet \
             --gbif-download-key "$SOURCE_KEY" \
@@ -177,7 +174,14 @@ jobs:
             --random-baseline-repeats 10 \
             --seed "$SEED"
 
-      - name: Require complete predeclared 12-taxon panel and M-sensitivity mode
+      - name: Contrast canonical-M AUC/Boyce selection against SDMR transfer selection
+        run: |
+          sdmr-compare-evaluation \
+            --product-a-dir citable_result \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --canonical-specification buffer_300km
+
+      - name: Require full panel and strict information barrier
         run: |
           python - <<'PY'
           import json
@@ -187,104 +191,102 @@ jobs:
           gate = pd.read_csv('citable_result/species_gate.csv')
           eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
           if eligible != expected:
-              raise SystemExit(
-                  'Product-A v1 split did not support the complete predeclared panel: '
-                  f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
-              )
+              raise SystemExit(f'Product-A split loses predeclared taxa: missing={sorted(expected-eligible)}, extra={sorted(eligible-expected)}')
           spec = json.loads(Path('citable_result/pilot_grid_specification.json').read_text(encoding='utf-8'))
+          if spec.get('outer_sealed_before_M') is not True:
+              raise SystemExit('sealed occurrence assignment did not precede M/background construction')
           if spec.get('m_grid_as_sensitivity') is not True:
-              raise SystemExit('Citable Product-A must treat M as a sensitivity axis, not optimize it')
-          print('Full predeclared taxon panel retained:', len(eligible))
+              raise SystemExit('M was optimized instead of treated as sensitivity')
+          contrast = json.loads(Path('citable_result/selector_contrast_contract.json').read_text(encoding='utf-8'))
+          if contrast.get('selection_data') != 'discovery_taxa_only':
+              raise SystemExit('conventional-vs-SDMR selector contrast leaked validation taxa into selection')
+          print('strict Product-A gate passed for', len(eligible), 'taxa')
           PY
 
-      - name: Record citable v1 contract
+      - name: Record immutable fixed-source Product-A contract
         if: always()
         run: |
           python - <<'PY'
-          import hashlib
-          import json
-          import os
+          import hashlib, json, os
           from pathlib import Path
           import pandas as pd
 
-          result = Path('citable_result')
-          result.mkdir(parents=True, exist_ok=True)
+          result = Path('citable_result'); result.mkdir(parents=True, exist_ok=True)
           def sha(path):
               p = Path(path)
-              if not p.exists():
-                  return ''
-              h = hashlib.sha256()
-              with p.open('rb') as fh:
-                  for chunk in iter(lambda: fh.read(1024 * 1024), b''):
-                      h.update(chunk)
-              return h.hexdigest()
-          def one_row(path):
+              return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else ''
+          def one(path):
               p = Path(path)
-              if not p.exists():
-                  return {}
-              df = pd.read_csv(p)
-              return df.iloc[0].to_dict() if len(df) else {}
-          choice = {}
-          choice_path = result / 'product_a_protocol_choice.txt'
-          if choice_path.exists():
-              for line in choice_path.read_text(encoding='utf-8').splitlines():
-                  if '=' in line:
-                      k, v = line.split('=', 1)
-                      choice[k] = v
-          focal = one_row('citable_input/focal.provenance.csv')
-          target = one_row('citable_input/target_group.provenance.csv')
+              if not p.exists(): return {}
+              frame = pd.read_csv(p)
+              return frame.iloc[0].to_dict() if len(frame) else {}
+          def choice(path):
+              out = {}
+              p = Path(path)
+              if p.exists():
+                  for line in p.read_text(encoding='utf-8').splitlines():
+                      if '=' in line:
+                          k,v = line.split('=',1); out[k] = v
+              return out
+
+          focal = one('citable_input/focal.provenance.csv')
+          target = one('citable_input/target_group.provenance.csv')
           probe_path = Path('citable_preflight/chelsa_raster_probe.csv')
           probe = pd.read_csv(probe_path) if probe_path.exists() else pd.DataFrame()
-          grid_spec_path = result / 'pilot_grid_specification.json'
-          grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8')) if grid_spec_path.exists() else {}
+          spec_path = result/'pilot_grid_specification.json'
+          spec = json.loads(spec_path.read_text(encoding='utf-8')) if spec_path.exists() else {}
+          contrast_path = result/'selector_contrast_contract.json'
+          contrast = json.loads(contrast_path.read_text(encoding='utf-8')) if contrast_path.exists() else {}
+          criteria_sha = sha('configs/product_a_promotion_criteria_v1.csv')
           contract = {
-              'protocol_version': 'product_a_v1_leakage_safe_M_sensitivity',
+              'protocol_version': 'product_a_v1_leakage_safe_M_sensitivity_fixed_sources',
+              'source_head_sha': os.environ.get('GITHUB_SHA'),
               'snapshot_date': os.environ.get('SNAPSHOT_DATE'),
               'snapshot_doi': os.environ.get('SNAPSHOT_DOI'),
-              'download_key': os.environ.get('DOWNLOAD_KEY'),
               'citation_sha256_expected': os.environ.get('CITATION_SHA256'),
-              'citation_sha256_focal': focal.get('snapshot_citation_sha256', ''),
-              'target_citation_sha256': target.get('snapshot_citation_sha256', ''),
-              'focal_cloud_provider': focal.get('cloud_provider', 'aws'),
-              'target_cloud_provider': target.get('cloud_provider', 'azure'),
-              'focal_source_mode': 'verified_workflow_artifact_cache',
-              'focal_cache_source_run_id': '${{ steps.contracts.outputs.focal_cache_run_id }}',
-              'focal_cache_artifact': '${{ steps.contracts.outputs.focal_cache_artifact }}',
-              'region': os.environ.get('REGION'),
-              'seed': int(os.environ.get('SEED', 0)),
-              'spatial_test_fraction': float(os.environ.get('SPATIAL_TEST_FRACTION', 'nan')),
-              'taxon_validation_fraction': float(os.environ.get('TAXON_VALIDATION_FRACTION', 'nan')),
-              'min_occurrences': int(os.environ.get('MIN_OCCURRENCES', 0)),
-              'min_unique_cells': int(os.environ.get('MIN_UNIQUE_CELLS', 0)),
+              'citation_sha256_focal': focal.get('snapshot_citation_sha256',''),
+              'target_citation_sha256': target.get('snapshot_citation_sha256',''),
+              'focal_subset_sha256': focal.get('sha256',''),
+              'target_subset_sha256': target.get('sha256',''),
+              'focal_query_sha256': focal.get('query_sha256',''),
+              'target_query_sha256': target.get('query_sha256',''),
+              'focal_cache_source_run_id': '${{ steps.contracts.outputs.focal_run_id }}',
+              'focal_cache_artifact': '${{ steps.contracts.outputs.focal_artifact }}',
+              'target_cache_source_run_id': '${{ steps.contracts.outputs.target_run_id }}',
+              'target_cache_artifact': '${{ steps.contracts.outputs.target_artifact }}',
+              'seed': int(os.environ.get('SEED','0')),
+              'spatial_test_fraction': float(os.environ.get('SPATIAL_TEST_FRACTION','nan')),
+              'taxon_validation_fraction': float(os.environ.get('TAXON_VALIDATION_FRACTION','nan')),
+              'min_occurrences': int(os.environ.get('MIN_OCCURRENCES','0')),
+              'min_unique_cells': int(os.environ.get('MIN_UNIQUE_CELLS','0')),
               'taxon_panel_sha256': sha('configs/product_a_pilot_taxa_v1.csv'),
               'm_grid_sha256': sha('configs/product_a_buffer_specs_v1.csv'),
               'candidate_manifest_sha256': sha('configs/chelsa_v2_1_plant_candidates.csv'),
-              'focal_subset_sha256': focal.get('sha256', ''),
-              'target_subset_sha256': target.get('sha256', ''),
-              'focal_query_sha256': focal.get('query_sha256', ''),
-              'target_query_sha256': target.get('query_sha256', ''),
-              'focal_rows_raw_snapshot_subset': int(focal.get('n_rows', 0) or 0),
-              'target_rows': int(target.get('n_rows', 0) or 0),
-              'focal_thin_cell_size_degrees': grid_spec.get('focal_thin_cell_size_degrees'),
-              'outer_sealed_before_M': bool(grid_spec.get('outer_sealed_before_M', False)),
-              'm_grid_as_sensitivity': bool(grid_spec.get('m_grid_as_sensitivity', False)),
+              'promotion_criteria_sha256': criteria_sha,
+              'focal_thin_cell_size_degrees': spec.get('focal_thin_cell_size_degrees'),
+              'outer_sealed_before_M': bool(spec.get('outer_sealed_before_M', False)),
+              'm_grid_as_sensitivity': bool(spec.get('m_grid_as_sensitivity', False)),
               'chelsa_probe_rows': int(len(probe)),
               'chelsa_probe_failures': int(probe['status'].ne('ok').sum()) if 'status' in probe else None,
-              'protocol_choice': choice,
+              'protocol_choice': choice(result/'product_a_protocol_choice.txt'),
+              'selector_contrast_present': bool(contrast),
+              'selector_contrast_canonical_M': contrast.get('canonical_specification'),
+              'selector_contrast_selection_data': contrast.get('selection_data'),
+              'selector_contrast_evaluation_data': contrast.get('evaluation_data'),
           }
-          (result / 'citable_snapshot_contract.json').write_text(
-              json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
-          )
+          (result/'citable_snapshot_contract.json').write_text(json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8')
           PY
-          cp configs/gbif_snapshot_v1.csv citable_result/gbif_snapshot_v1.csv
-          cp configs/product_a_v1_focal_cache.csv citable_result/product_a_v1_focal_cache.csv
+          cp configs/gbif_snapshot_v1.csv citable_result/
+          cp configs/product_a_v1_focal_cache.csv citable_result/
+          cp configs/product_a_v1_target_cache.csv citable_result/
+          cp configs/product_a_promotion_criteria_v1.csv citable_result/
           cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
           cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
-          DOI-backed leakage-safe Product-A v1. Raw focal source evidence is SHA/query/citation verified. Focal occurrences are
-          admitted, deterministically thinned, and assigned spatial model/sealed roles before M/background construction. Only
-          model-pool presences can define M or focal-cell exclusion. The 150/300/500 km M specifications are an ecological
-          sensitivity set and are not optimized by cross-M presence-rank scores. Universe x strategy is ranked within matched
-          species x M cases and aggregated across M. This single run is citable pilot evidence, not automatic promotion.
+          Fixed-source DOI-backed Product-A evidence. Development/tuning occurs without validation-taxon feedback. Focal occurrences
+          are deterministically thinned and spatially sealed before M/background construction; M=150/300/500 km is a sensitivity
+          set, not an optimized candidate. Conventional canonical-M AUC-equivalent and Boyce selectors are frozen from discovery
+          taxa only and compared head-to-head with the SDMR M-robust selector on the same unseen taxa across all M specifications.
+          AUC/Boyce remain local score components; the Product-A claim concerns transfer-stability of the selection procedure.
           EOF
 
       - name: Upload citable Product-A v1 bundle
