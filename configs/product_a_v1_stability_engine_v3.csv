@@ -1,2 +1,2 @@
 source_citable_run_id,source_analysis_sha,performance_engine_sha,performance_equivalence_run_id,benchmark_jobs,model_spec_jobs,random_baseline_repeats,seeds,sealed_fractions,taxon_validation_fraction
-31860603575,bdabeff06c1be26006837d978e8beffc0584faac,9d3c9411a717a3b352b86b6cc6f3298f75ac1d17,31869105326,1,4,0,"11;22;33;44;55","0.15;0.20;0.30",0.25
+31860603575,bdabeff06c1be26006837d978e8beffc0584faac,9d3c9411a717a3b352b86b6cc6f3298f75ac1d17,31869105326,4,1,0,"11;22;33;44;55","0.15;0.20;0.30",0.25
