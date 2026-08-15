@@ -75,18 +75,21 @@ jobs:
           pattern: citable-product-a-v1-*
           path: source_bundle
           merge-multiple: true
-      - name: Require leakage-safe source evidence
+      - name: Require leakage-safe source evidence and full taxon panel
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          import pandas as pd
 
           result = Path('source_bundle/citable_result')
           contract_path = result / 'citable_snapshot_contract.json'
           grid_spec_path = result / 'pilot_grid_specification.json'
           target_path = Path('source_bundle/citable_input/target_group.parquet')
-          focal_thinned = result / 'pilot_occurrences_pre_raster.csv'
-          for path in (contract_path, grid_spec_path, target_path, focal_thinned):
+          raw_focal = Path('source_bundle/citable_input/focal.parquet')
+          species_gate_path = result / 'species_gate.csv'
+          taxa_path = Path('governance/configs/product_a_pilot_taxa_v1.csv')
+          for path in (contract_path, grid_spec_path, target_path, raw_focal, species_gate_path, taxa_path):
               if not path.exists():
                   raise SystemExit(f'Missing required leakage-safe source evidence: {path}')
           contract = json.loads(contract_path.read_text(encoding='utf-8'))
@@ -101,7 +104,18 @@ jobs:
               raise SystemExit('Source artifact did not pass full CHELSA preflight')
           if str(contract.get('citation_sha256_expected', '')).lower() != str(contract.get('citation_sha256_focal', '')).lower():
               raise SystemExit('Source artifact citation fingerprint does not match frozen snapshot contract')
-          print('Leakage-safe source gate passed')
+
+          expected = set(pd.read_csv(taxa_path)['scientific_name'].astype(str))
+          gate = pd.read_csv(species_gate_path)
+          eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              missing = sorted(expected - eligible)
+              extra = sorted(eligible - expected)
+              raise SystemExit(
+                  'The source split did not retain the complete predeclared 12-taxon panel. '
+                  f'missing={missing}, extra={extra}. Do not continue stability on a split-selected taxon subset.'
+              )
+          print('Leakage-safe source gate passed for all', len(expected), 'predeclared taxa')
           PY
 
   stability_part:
@@ -138,10 +152,9 @@ jobs:
       - name: Rebuild split-specific M/background and run full protocol grid
         run: |
           SOURCE_KEY="stability-source:${{ needs.gate.outputs.run_id }}"
-          analysis/.venv/bin/true 2>/dev/null || true
           cd analysis
           sdmr-pilot-grid \
-            --gbif-download "$GITHUB_WORKSPACE/source_bundle/citable_result/pilot_occurrences_pre_raster.csv" \
+            --gbif-download "$GITHUB_WORKSPACE/source_bundle/citable_input/focal.parquet" \
             --gbif-download-key "$SOURCE_KEY" \
             --target-group-download "$GITHUB_WORKSPACE/source_bundle/citable_input/target_group.parquet" \
             --target-group-download-key "$SOURCE_KEY" \
@@ -159,6 +172,20 @@ jobs:
             --max-predictors 8 \
             --random-baseline-repeats 0 \
             --seed '${{ matrix.seed }}'
+      - name: Require complete predeclared taxon panel in this split
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          expected = set(pd.read_csv('analysis/configs/product_a_pilot_taxa_v1.csv')['scientific_name'].astype(str))
+          gate = pd.read_csv('part_result/species_gate.csv')
+          eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              raise SystemExit(
+                  'This seed/holdout split cannot support the full predeclared panel: '
+                  f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
+              )
+          PY
       - name: Freeze part metadata
         if: always()
         run: |
@@ -173,6 +200,8 @@ jobs:
               'sealed_fraction': float('${{ matrix.sealed_fraction }}'),
               'taxon_validation_fraction': 0.25,
               'M_background_rebuilt_from_model_pool': True,
+              'raw_focal_reprocessed_for_split': True,
+              'require_full_predeclared_taxon_panel': True,
               'random_baseline_repeats': 0,
           }
           Path('part_result/part_metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding='utf-8')
@@ -235,19 +264,20 @@ jobs:
           source_run_id=${{ needs.gate.outputs.run_id }}
           source_head_sha=${{ needs.gate.outputs.head_sha }}
           analysis_code_ref=${{ needs.gate.outputs.head_sha }}
-          stability_design=regenerate_outer_split_M_background_per_run
+          stability_design=raw_focal_reprocessed_and_M_background_regenerated_per_run
           seeds=11,22,33,44,55
           sealed_fractions=0.15,0.20,0.30
           taxon_validation_fraction=0.25
+          require_full_predeclared_taxon_panel=true
           random_baseline_repeats=0
           promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
           EOF
           cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
-          Each of the 15 stability parts independently reassigns focal model/sealed spatial roles before M/background construction.
-          M and target-group background are rebuilt from that part's model-pool occurrences; sealed occurrences cannot expand M or
-          exclude background cells. All parts use the exact same DOI-backed focal/target-group source artifact and the exact source
-          Product-A analysis head. CHELSA features are recomputed from the same frozen 43-layer manifest. Promotion criteria were
-          committed before these stability results existed.
+          Each of the 15 stability parts restarts from the exact same DOI-backed raw focal subset and target-group subset.
+          Focal rows are independently thinned and assigned model/sealed spatial roles for that seed/fraction before any M/background
+          construction. M and target-group background are rebuilt from that part's model-pool occurrences; sealed occurrences cannot
+          expand M or exclude background cells. Every part must retain the entire predeclared 12-taxon panel or it fails rather than
+          silently changing the evaluation corpus. Promotion criteria were committed before these stability results existed.
           EOF
       - uses: actions/upload-artifact@v4
         with:
