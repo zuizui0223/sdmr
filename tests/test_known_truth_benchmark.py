@@ -1,5 +1,13 @@
 from sdmr.known_truth import simulate_gaussian_plant_niche
-from sdmr.known_truth_benchmark import benchmark_selectors_against_known_truth
+from sdmr.known_truth_benchmark import (
+    benchmark_selectors_against_known_truth,
+    summarize_selector_disagreement,
+)
+from sdmr.known_truth_scenarios import (
+    KNOWN_TRUTH_FAMILIES,
+    simulate_known_truth_plant_niche,
+    standard_known_truth_candidates,
+)
 from sdmr.model import ModelSpec
 from sdmr.niche_recovery_cv import RecoveryCandidate
 
@@ -36,7 +44,72 @@ def test_known_truth_selector_benchmark_returns_prediction_and_recovery_selector
         random_state=9,
     )
 
-    assert set(result.selector_choices["selector"]) == {"inner_auc", "inner_cbi", "niche_recovery"}
-    assert set(result.truth_evaluation["selector"]) == {"inner_auc", "inner_cbi", "niche_recovery"}
+    expected = {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
+    assert set(result.selector_choices["selector"]) == expected
+    assert set(result.truth_evaluation["selector"]) == expected
     assert result.fold_metrics["candidate"].nunique() >= 2
     assert result.truth_evaluation["niche_overlap_schoener_d_pc12"].between(0, 1).all()
+
+
+def test_known_truth_families_generate_distinct_valid_surfaces():
+    signatures = []
+    for family in KNOWN_TRUTH_FAMILIES:
+        sim = simulate_known_truth_plant_niche(
+            family,
+            seed=17,
+            n_cells=1200,
+            n_occurrences=120,
+            n_target_group=450,
+        )
+        truth = sim.environment[sim.true_suitability_column]
+        assert truth.between(0, 1).all()
+        assert len(sim.occurrences) == 120
+        assert len(sim.target_group) == 450
+        assert "recording_bias" not in sim.audit_predictors
+        signatures.append(round(float(truth.mean()), 6))
+    assert len(set(signatures)) >= 4
+
+
+def test_observation_confounded_scenario_separates_prediction_from_niche_recovery():
+    sim = simulate_known_truth_plant_niche(
+        "observation_confounded",
+        seed=23,
+        n_cells=4200,
+        n_occurrences=420,
+        n_target_group=1500,
+        focal_recording_bias_strength=4.0,
+    )
+    result = benchmark_selectors_against_known_truth(
+        sim,
+        standard_known_truth_candidates(),
+        n_spatial_blocks=6,
+        inner_folds=3,
+        random_state=23,
+    )
+    disagreement = summarize_selector_disagreement(result)
+
+    auc = disagreement.loc[disagreement["selector"].eq("inner_auc")].iloc[0]
+    assert bool(auc["candidate_disagrees"])
+    assert bool(auc["niche_recovery_truth_pareto_better"])
+
+
+def test_disagreement_summary_does_not_require_a_weighted_super_score():
+    sim = simulate_known_truth_plant_niche(
+        "asymmetric",
+        seed=7,
+        n_cells=2200,
+        n_occurrences=220,
+        n_target_group=800,
+    )
+    result = benchmark_selectors_against_known_truth(
+        sim,
+        standard_known_truth_candidates(),
+        n_spatial_blocks=6,
+        inner_folds=3,
+        random_state=7,
+    )
+    out = summarize_selector_disagreement(result)
+    assert set(out["selector"]) == {"inner_auc", "inner_cbi", "inner_or10"}
+    assert "truth_overlap_gain" in out
+    assert "truth_centroid_error_reduction" in out
+    assert "niche_recovery_truth_pareto_better" in out
