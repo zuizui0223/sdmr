@@ -4,25 +4,28 @@ on:
   workflow_run:
     workflows: ["citable-product-a-v1"]
     types: [completed]
-  push:
-    branches:
-      - agent/nested-spatial-raster-benchmark
-    paths:
-      - 'configs/product_a_stability_v1_source.csv'
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful leakage-safe citable-product-a-v1 run ID"
+        required: true
+        type: string
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: citable-product-a-stability-v1-${{ github.event.workflow_run.id || github.sha }}
+  group: citable-product-a-stability-v1-${{ github.event.workflow_run.id || inputs.source_run_id }}
   cancel-in-progress: false
 
 jobs:
-  stability:
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+  gate:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    outputs:
+      run_id: ${{ steps.source.outputs.run_id }}
+      head_sha: ${{ steps.source.outputs.head_sha }}
     steps:
       - name: Checkout current governance files
         uses: actions/checkout@v4
@@ -32,43 +35,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: pip
-      - name: Resolve exact successful Product-A v1 source run
+      - name: Resolve source run and exact analysis head
         id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
-          import csv
+          import json
           import os
-          from pathlib import Path
+          from urllib.request import Request, urlopen
 
           event = os.environ['GITHUB_EVENT_NAME']
-          output = Path(os.environ['GITHUB_OUTPUT'])
           if event == 'workflow_run':
               run_id = '${{ github.event.workflow_run.id }}'
               head_sha = '${{ github.event.workflow_run.head_sha }}'
           else:
-              path = Path('governance/configs/product_a_stability_v1_source.csv')
-              rows = list(csv.DictReader(path.open(encoding='utf-8')))
-              if len(rows) != 1:
-                  raise SystemExit('product_a_stability_v1_source.csv must contain exactly one row')
-              run_id = str(rows[0].get('source_run_id', '')).strip()
-              head_sha = str(rows[0].get('source_head_sha', '')).strip()
-              if not run_id or not head_sha:
-                  raise SystemExit('source_run_id and source_head_sha are required')
-          with output.open('a', encoding='utf-8') as fh:
+              run_id = '${{ inputs.source_run_id }}'.strip()
+              if not run_id:
+                  raise SystemExit('source_run_id is required')
+              url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
+              req = Request(url, headers={
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+              })
+              with urlopen(req, timeout=60) as response:
+                  head_sha = str(json.load(response).get('head_sha') or '')
+              if not head_sha:
+                  raise SystemExit('Could not resolve source head SHA')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               fh.write(f'run_id={run_id}\n')
               fh.write(f'head_sha={head_sha}\n')
           print('source_run_id', run_id, 'source_head_sha', head_sha)
           PY
-      - name: Checkout exact Product-A v1 analysis code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.source.outputs.head_sha }}
-          path: analysis
-      - name: Install frozen SDMR analysis dependencies
-        working-directory: analysis
-        run: python -m pip install -e '.[parquet]'
-      - name: Download exact successful citable Product-A v1 artifact
+      - name: Download citable source contract
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ steps.source.outputs.run_id }}
@@ -76,71 +75,167 @@ jobs:
           pattern: citable-product-a-v1-*
           path: source_bundle
           merge-multiple: true
-      - name: Verify DOI-backed source and index frozen M specifications
+      - name: Require leakage-safe source evidence
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          import pandas as pd
 
-          root = Path('source_bundle')
-          result = root / 'citable_result'
+          result = Path('source_bundle/citable_result')
           contract_path = result / 'citable_snapshot_contract.json'
-          boundary_path = result / 'CITABLE_PILOT_BOUNDARY.txt'
-          criteria_path = Path('governance/configs/product_a_promotion_criteria_v1.csv')
-          for path in (contract_path, boundary_path, criteria_path):
+          grid_spec_path = result / 'pilot_grid_specification.json'
+          target_path = Path('source_bundle/citable_input/target_group.parquet')
+          focal_thinned = result / 'pilot_occurrences_pre_raster.csv'
+          for path in (contract_path, grid_spec_path, target_path, focal_thinned):
               if not path.exists():
-                  raise SystemExit(f'Missing required frozen evidence/criterion file: {path}')
+                  raise SystemExit(f'Missing required leakage-safe source evidence: {path}')
           contract = json.loads(contract_path.read_text(encoding='utf-8'))
-          if contract.get('protocol_version') != 'product_a_v1':
-              raise SystemExit('Source artifact is not Product-A v1')
-          if not str(contract.get('snapshot_doi', '')).strip():
-              raise SystemExit('Source artifact has no snapshot DOI')
+          grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8'))
+          if contract.get('protocol_version') != 'product_a_v1_leakage_safe':
+              raise SystemExit('Source artifact predates the sealed-before-M fix and is not admissible for stability')
+          if contract.get('outer_sealed_before_M') is not True or grid_spec.get('outer_sealed_before_M') is not True:
+              raise SystemExit('Source artifact did not seal focal occurrences before M/background construction')
+          if float(grid_spec.get('focal_thin_cell_size_degrees', 0) or 0) <= 0:
+              raise SystemExit('Source artifact lacks the predeclared focal thinning grid')
           if int(contract.get('chelsa_probe_failures', 1)) != 0:
               raise SystemExit('Source artifact did not pass full CHELSA preflight')
           if str(contract.get('citation_sha256_expected', '')).lower() != str(contract.get('citation_sha256_focal', '')).lower():
               raise SystemExit('Source artifact citation fingerprint does not match frozen snapshot contract')
-
-          grid_path = result / 'pilot_grid_frozen.csv'
-          occurrences = result / 'pilot_occurrences.csv'
-          if not grid_path.exists() or not occurrences.exists():
-              raise SystemExit('Source artifact lacks frozen grid or occurrence feature table')
-          grid = pd.read_csv(grid_path)
-          rows = []
-          for name in grid['name'].astype(str):
-              background = result / 'specifications' / name / 'background.csv'
-              if not background.exists():
-                  raise SystemExit(f'Missing frozen background feature table: {background}')
-              rows.append({
-                  'name': name,
-                  'occurrences': '../source_bundle/citable_result/pilot_occurrences.csv',
-                  'background': f'../source_bundle/citable_result/specifications/{name}/background.csv',
-              })
-          pd.DataFrame(rows).to_csv('analysis/stability_specifications.csv', index=False)
+          print('Leakage-safe source gate passed')
           PY
-      - name: Run predeclared 15-run protocol stability grid
+
+  stability_part:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        seed: [11, 22, 33, 44, 55]
+        sealed_fraction: ['0.15', '0.20', '0.30']
+    steps:
+      - name: Checkout exact Product-A analysis code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.head_sha }}
+          path: analysis
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install frozen SDMR cloud/geo dependencies
         working-directory: analysis
+        run: python -m pip install -e '.[cloud,geo,parquet]'
+      - name: Download exact DOI-backed source artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ needs.gate.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-v1-*
+          path: source_bundle
+          merge-multiple: true
+      - name: Rebuild split-specific M/background and run full protocol grid
         run: |
-          sdmr-protocol-stability \
-            --specifications stability_specifications.csv \
+          SOURCE_KEY="stability-source:${{ needs.gate.outputs.run_id }}"
+          analysis/.venv/bin/true 2>/dev/null || true
+          cd analysis
+          sdmr-pilot-grid \
+            --gbif-download "$GITHUB_WORKSPACE/source_bundle/citable_result/pilot_occurrences_pre_raster.csv" \
+            --gbif-download-key "$SOURCE_KEY" \
+            --target-group-download "$GITHUB_WORKSPACE/source_bundle/citable_input/target_group.parquet" \
+            --target-group-download-key "$SOURCE_KEY" \
+            --checklist-key 'snapshot-interpreted:2026-08-01' \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
-            --output-dir ../stability_result \
-            --seeds '11,22,33,44,55' \
-            --sealed-fractions '0.15,0.20,0.30' \
+            --output-dir "$GITHUB_WORKSPACE/part_result" \
+            --min-occurrences 80 \
+            --min-unique-cells 50 \
+            --gate-cell-size-degrees 0.05 \
+            --spatial-test-fraction '${{ matrix.sealed_fraction }}' \
             --taxon-validation-fraction 0.25 \
             --vif-threshold 5 \
             --max-predictors 8 \
-            --random-baseline-repeats 0
-      - name: Freeze stability evidence contract
+            --random-baseline-repeats 0 \
+            --seed '${{ matrix.seed }}'
+      - name: Freeze part metadata
         if: always()
         run: |
-          mkdir -p stability_result
-          cp source_bundle/citable_result/citable_snapshot_contract.json stability_result/source_citable_snapshot_contract.json 2>/dev/null || true
+          mkdir -p part_result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          metadata = {
+              'source_run_id': '${{ needs.gate.outputs.run_id }}',
+              'source_head_sha': '${{ needs.gate.outputs.head_sha }}',
+              'seed': int('${{ matrix.seed }}'),
+              'sealed_fraction': float('${{ matrix.sealed_fraction }}'),
+              'taxon_validation_fraction': 0.25,
+              'M_background_rebuilt_from_model_pool': True,
+              'random_baseline_repeats': 0,
+          }
+          Path('part_result/part_metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-stability-part-seed-${{ matrix.seed }}-fraction-${{ matrix.sealed_fraction }}
+          path: |
+            part_result/part_metadata.json
+            part_result/product_a_protocol_choice.txt
+            part_result/pilot_grid_specification.json
+            part_result/protocol_discovery_summary.csv
+            part_result/protocol_validation_metrics.csv
+            part_result/protocol_validation_summary.csv
+            part_result/protocol_validation_paired_deltas.csv
+            part_result/species_gate.csv
+            part_result/specifications/*/background_ledger.csv
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: [gate, stability_part]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout current aggregation/governance code
+        uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          path: governance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install aggregation dependency
+        run: python -m pip install pandas
+      - name: Download all independently rebuilt stability parts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-stability-part-*
+          path: stability_parts
+      - name: Aggregate without reselecting models
+        run: |
+          python governance/scripts/aggregate_leakage_safe_stability.py \
+            --parts-root stability_parts \
+            --output-dir stability_result
+      - name: Download source citable contract for provenance
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ needs.gate.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-v1-*
+          path: source_bundle
+          merge-multiple: true
+      - name: Freeze stability evidence contract
+        run: |
+          cp source_bundle/citable_result/citable_snapshot_contract.json stability_result/source_citable_snapshot_contract.json
           cp governance/configs/product_a_promotion_criteria_v1.csv stability_result/promotion_criteria_predeclared_before_stability.csv
           cat > stability_result/stability_inputs.txt <<EOF
-          source_run_id=${{ steps.source.outputs.run_id }}
-          source_head_sha=${{ steps.source.outputs.head_sha }}
-          analysis_code_ref=${{ steps.source.outputs.head_sha }}
+          source_run_id=${{ needs.gate.outputs.run_id }}
+          source_head_sha=${{ needs.gate.outputs.head_sha }}
+          analysis_code_ref=${{ needs.gate.outputs.head_sha }}
+          stability_design=regenerate_outer_split_M_background_per_run
           seeds=11,22,33,44,55
           sealed_fractions=0.15,0.20,0.30
           taxon_validation_fraction=0.25
@@ -148,15 +243,15 @@ jobs:
           promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
           EOF
           cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
-          These stability runs reuse the exact DOI-backed occurrence/background/CHELSA feature evidence from Product-A v1.
-          The SDMR analysis package is checked out at the exact Product-A v1 source head SHA. No GBIF or CHELSA data are re-fetched.
-          Random-null evaluations are omitted because they do not participate in protocol selection or promotion criteria.
-          Promotion thresholds were committed before these stability results existed.
+          Each of the 15 stability parts independently reassigns focal model/sealed spatial roles before M/background construction.
+          M and target-group background are rebuilt from that part's model-pool occurrences; sealed occurrences cannot expand M or
+          exclude background cells. All parts use the exact same DOI-backed focal/target-group source artifact and the exact source
+          Product-A analysis head. CHELSA features are recomputed from the same frozen 43-layer manifest. Promotion criteria were
+          committed before these stability results existed.
           EOF
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: citable-product-a-stability-v1-source-${{ steps.source.outputs.run_id }}
+          name: citable-product-a-stability-v1-source-${{ needs.gate.outputs.run_id }}
           path: stability_result/
           if-no-files-found: error
           retention-days: 90
