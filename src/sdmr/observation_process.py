@@ -1,18 +1,24 @@
-"""Observation-process correction for ecological niche-recovery audits.
+"""Observation-process diagnostics and correction for niche-recovery audits.
 
 Presence records can be environmentally biased even after the fitted model's
 observation covariates are marginalized from its ecological suitability surface.
-The *held-out occurrence target* therefore also needs an observation-process
-correction when explicit nuisance covariates are available.
+The held-out occurrence target can therefore require an observation-process
+correction too. But correction must not be switched on merely because a nuisance
+column exists: finite-sample noise in an irrelevant observation covariate can
+itself distort the ecological target.
 
-The correction is candidate-independent. A separate classifier is fitted using
-only the frozen observation-process covariates to distinguish training focal
-records from training target-group background. With balanced class priors its
-odds estimate a density ratio between focal-record and target-group observation
-processes. Held-out focal records receive stabilized inverse-odds weights so their
-nuisance-covariate distribution is transported toward the target-group reference.
+This module therefore separates two candidate-independent operations:
 
-No ecological predictor or candidate-model prediction enters these weights.
+1. **training-only spatial evidence gate** — using only the frozen observation
+   covariates, ask whether focal records can be distinguished from target-group
+   background in held-out training spatial blocks above random ranking;
+2. **inverse density-ratio correction** — only when that gate is active, fit the
+   nuisance model on training focal/background rows and transport held-out focal
+   records toward the target-group observation reference with stabilized inverse
+   odds.
+
+No ecological predictor, candidate-model prediction, or hidden ecological truth
+enters either operation.
 """
 from __future__ import annotations
 
@@ -21,8 +27,21 @@ from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import GroupKFold
 
+from .metrics import presence_rank_score
 from .model import ModelSpec, fit_relative_suitability_model, score_relative_suitability
+
+
+@dataclass(frozen=True)
+class ObservationSignalEvidence:
+    correction_active: bool
+    mean_auc: float
+    sem_auc: float
+    lower_evidence_bound: float
+    auc_gate_floor: float
+    chance_auc: float
+    n_folds: int
 
 
 @dataclass(frozen=True)
@@ -32,6 +51,129 @@ class ObservationWeightResult:
     effective_sample_size: float
     maximum_normalized_weight: float
     truncation_cap: float
+
+
+def observation_process_signal_evidence(
+    presence: pd.DataFrame,
+    background: pd.DataFrame,
+    presence_groups: Sequence[int] | np.ndarray,
+    background_groups: Sequence[int] | np.ndarray,
+    observation_predictors: Sequence[str],
+    *,
+    n_splits: int = 3,
+    chance_auc: float = 0.50,
+    minimum_auc_margin: float = 0.01,
+    auc_sem_multiplier: float = 1.0,
+    model_spec: ModelSpec | None = None,
+) -> ObservationSignalEvidence:
+    """Decide from training-only spatial CV whether nuisance correction is needed.
+
+    A correction is activated only when the observation-only classifier satisfies
+    both of the same interpretable adequacy conditions used elsewhere in Product A:
+
+    - mean held-out AUC >= ``chance_auc + minimum_auc_margin``; and
+    - mean AUC - ``auc_sem_multiplier`` × SEM >= ``chance_auc``.
+
+    For presence/background ranking, 0.5 is the random-ranking reference. The
+    +0.01 default margin is an operational development guardrail, not a biological
+    effect-size threshold.
+
+    If no observation predictors are declared, the gate is explicitly inactive
+    and returns the random-ranking reference rather than fitting a model.
+    """
+
+    chance_auc = float(chance_auc)
+    minimum_auc_margin = float(minimum_auc_margin)
+    auc_sem_multiplier = float(auc_sem_multiplier)
+    if not 0 <= chance_auc < 1:
+        raise ValueError("chance_auc must lie in [0, 1)")
+    if minimum_auc_margin < 0 or chance_auc + minimum_auc_margin > 1:
+        raise ValueError("minimum_auc_margin must keep the AUC floor in [0, 1]")
+    if auc_sem_multiplier < 0:
+        raise ValueError("auc_sem_multiplier must be >= 0")
+
+    predictors = tuple(dict.fromkeys(str(x) for x in observation_predictors))
+    floor = chance_auc + minimum_auc_margin
+    if not predictors:
+        return ObservationSignalEvidence(
+            correction_active=False,
+            mean_auc=chance_auc,
+            sem_auc=0.0,
+            lower_evidence_bound=chance_auc,
+            auc_gate_floor=floor,
+            chance_auc=chance_auc,
+            n_folds=0,
+        )
+
+    required = set(predictors)
+    for label, frame in (("presence", presence), ("background", background)):
+        missing = required - set(frame.columns)
+        if missing:
+            raise KeyError(f"{label} missing observation predictors: {sorted(missing)}")
+
+    p_groups = np.asarray(presence_groups)
+    b_groups = np.asarray(background_groups)
+    if len(p_groups) != len(presence) or len(b_groups) != len(background):
+        raise ValueError("observation-process group arrays must align with rows")
+    unique_groups = np.unique(p_groups)
+    folds = min(int(n_splits), len(unique_groups))
+    if folds < 2:
+        raise ValueError("at least two training spatial blocks are required for observation evidence")
+
+    spec = model_spec or ModelSpec(C=1.0, degree=1, penalty="l2")
+    splitter = GroupKFold(n_splits=folds)
+    dummy = np.zeros(len(presence), dtype=int)
+    auc_values: list[float] = []
+    for train_idx, test_idx in splitter.split(dummy, groups=p_groups):
+        train_blocks = np.unique(p_groups[train_idx])
+        test_blocks = np.unique(p_groups[test_idx])
+        b_train_mask = np.isin(b_groups, train_blocks)
+        b_test_mask = np.isin(b_groups, test_blocks)
+        if b_train_mask.sum() < 5 or b_test_mask.sum() < 5 or len(test_idx) < 2:
+            continue
+        try:
+            nuisance_model = fit_relative_suitability_model(
+                presence.iloc[train_idx].reset_index(drop=True),
+                background.loc[b_train_mask].reset_index(drop=True),
+                predictors,
+                model_spec=spec,
+            )
+            p_scores = score_relative_suitability(
+                nuisance_model,
+                presence.iloc[test_idx].reset_index(drop=True),
+                predictors,
+            )
+            b_scores = score_relative_suitability(
+                nuisance_model,
+                background.loc[b_test_mask].reset_index(drop=True),
+                predictors,
+            )
+            auc = presence_rank_score(p_scores, b_scores)
+        except (ValueError, np.linalg.LinAlgError):
+            continue
+        if np.isfinite(auc):
+            auc_values.append(float(auc))
+
+    if not auc_values:
+        raise ValueError("observation-process CV produced no finite held-out AUC")
+    values = np.asarray(auc_values, dtype=float)
+    mean_auc = float(values.mean())
+    sem_auc = (
+        float(values.std(ddof=1) / np.sqrt(len(values)))
+        if len(values) >= 2
+        else 0.0
+    )
+    lower = mean_auc - auc_sem_multiplier * sem_auc
+    active = bool(mean_auc >= floor - 1e-12 and lower >= chance_auc - 1e-12)
+    return ObservationSignalEvidence(
+        correction_active=active,
+        mean_auc=mean_auc,
+        sem_auc=sem_auc,
+        lower_evidence_bound=lower,
+        auc_gate_floor=floor,
+        chance_auc=chance_auc,
+        n_folds=int(len(values)),
+    )
 
 
 def _inverse_odds(probability: np.ndarray, *, epsilon: float) -> np.ndarray:
@@ -56,7 +198,9 @@ def inverse_observation_propensity_weights(
     also estimated from training focal records, never from the held-out target.
     Weights are finally normalized to mean one over finite evaluation records.
 
-    When no observation predictors are declared the identity weights are returned.
+    When no observation predictors are supplied, identity weights are returned;
+    callers use this path when the training-only observation-signal gate is
+    inactive.
     """
 
     predictors = tuple(dict.fromkeys(str(x) for x in observation_predictors))
