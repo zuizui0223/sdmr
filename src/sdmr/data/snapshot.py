@@ -97,12 +97,16 @@ def gbif_snapshot_s3_uri(snapshot_date: str, *, region: str = "us-east-1") -> st
 
 
 def gbif_snapshot_azure_uri(snapshot_date: str) -> str:
-    """Return the public Microsoft Azure Blob Parquet glob for one GBIF snapshot."""
+    """Return DuckDB's container-relative Azure Blob glob for one GBIF snapshot.
+
+    GBIF documents the Azure mirror as container ``gbif`` in storage account
+    ``ai4edataeuwest``. DuckDB's anonymous CONFIG secret supplies the account;
+    the path therefore uses the container-relative ``az://gbif/...`` form. This
+    avoids the Azure SDK treating a fully-qualified path plus anonymous secret
+    as an authenticated request.
+    """
     snapshot_date = _validate_snapshot_date(snapshot_date)
-    return (
-        f"az://{GBIF_AZURE_ACCOUNT}.blob.core.windows.net/{GBIF_AZURE_CONTAINER}/"
-        f"occurrence/{snapshot_date}/occurrence.parquet/*"
-    )
+    return f"az://{GBIF_AZURE_CONTAINER}/occurrence/{snapshot_date}/occurrence.parquet/*"
 
 
 def gbif_snapshot_uri(
@@ -217,15 +221,16 @@ def _configure_duckdb_cloud(con, *, cloud_provider: str, region: str) -> None:
     if provider == "azure":
         con.execute("INSTALL azure")
         con.execute("LOAD azure")
-        # Public GBIF Azure Blob storage is anonymous, but DuckDB's Azure
-        # extension still requires the account name in a CONFIG-provider secret.
+        # DuckDB documents anonymous Azure Blob access as a CONFIG-provider
+        # secret with ACCOUNT_NAME, optionally scoped to the container. The URI
+        # itself is container-relative (az://gbif/...).
         con.execute(
             "CREATE OR REPLACE SECRET sdmr_gbif_azure ("
             "TYPE azure, PROVIDER config, "
-            f"ACCOUNT_NAME {_sql_literal(GBIF_AZURE_ACCOUNT)}"
+            f"ACCOUNT_NAME {_sql_literal(GBIF_AZURE_ACCOUNT)}, "
+            f"SCOPE {_sql_literal('az://' + GBIF_AZURE_CONTAINER + '/')}"
             ")"
         )
-        # Curl transport is robust on Linux GitHub runners and honors standard CA handling.
         con.execute("SET azure_transport_option_type='curl'")
         return
     raise ValueError(f"Unsupported GBIF cloud provider: {cloud_provider!r}")
