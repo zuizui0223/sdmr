@@ -1,0 +1,154 @@
+name: product-a-v1-target-cache
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/product_a_v1_target_cache_trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v1-target-cache
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Read frozen source contracts
+        id: contracts
+        run: |
+          python - <<'PY'
+          import csv
+          import os
+          from pathlib import Path
+          snapshot = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
+          focal = list(csv.DictReader(Path('configs/product_a_v1_focal_cache.csv').open(encoding='utf-8')))
+          if len(snapshot) != 1 or len(focal) != 1:
+              raise SystemExit('expected exactly one snapshot and focal-cache row')
+          snapshot, focal = snapshot[0], focal[0]
+          if focal['snapshot_date'] != snapshot['snapshot_date'] or focal['snapshot_doi'].lower() != snapshot['snapshot_doi'].lower():
+              raise SystemExit('focal cache and snapshot contract disagree')
+          if focal['citation_sha256'].lower() != snapshot['citation_sha256'].lower():
+              raise SystemExit('focal citation SHA differs from snapshot contract')
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              env.write(f"SNAPSHOT_DATE={snapshot['snapshot_date']}\n")
+              env.write(f"SNAPSHOT_DOI={snapshot['snapshot_doi']}\n")
+              env.write(f"CITATION_SHA256={snapshot['citation_sha256'].lower()}\n")
+              env.write(f"FOCAL_SHA256={focal['focal_sha256'].lower()}\n")
+              env.write(f"FOCAL_QUERY_SHA256={focal['focal_query_sha256'].lower()}\n")
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"focal_run_id={focal['source_run_id']}\n")
+              out.write(f"focal_artifact={focal['artifact_name']}\n")
+          PY
+      - name: Download frozen focal source artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.contracts.outputs.focal_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.contracts.outputs.focal_artifact }}
+          path: focal_bundle
+      - name: Verify frozen focal source
+        run: |
+          mkdir -p target_cache
+          cp focal_bundle/citable_input/focal.parquet target_cache/focal.parquet
+          cp focal_bundle/citable_input/focal.provenance.csv target_cache/focal.provenance.csv
+          cp focal_bundle/citable_input/focal.parquet.citation.txt target_cache/focal.parquet.citation.txt
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          import pandas as pd
+          focal = Path('target_cache/focal.parquet')
+          sha = hashlib.sha256(focal.read_bytes()).hexdigest()
+          if sha != os.environ['FOCAL_SHA256']:
+              raise SystemExit(f'focal SHA mismatch: {sha}')
+          prov = pd.read_csv('target_cache/focal.provenance.csv').iloc[0]
+          if str(prov.get('query_sha256','')).lower() != os.environ['FOCAL_QUERY_SHA256']:
+              raise SystemExit('focal query SHA mismatch')
+          citation_sha = hashlib.sha256(Path('target_cache/focal.parquet.citation.txt').read_bytes()).hexdigest()
+          if citation_sha != os.environ['CITATION_SHA256']:
+              raise SystemExit('focal citation SHA mismatch')
+          print('verified_focal_rows', len(pd.read_parquet(focal)))
+          PY
+      - name: Materialize broader Plantae target-group from hardened AWS snapshot
+        run: |
+          sdmr-gbif-snapshot \
+            --snapshot-date "$SNAPSHOT_DATE" \
+            --snapshot-doi "$SNAPSHOT_DOI" \
+            --cloud-provider aws \
+            --region us-east-1 \
+            --kingdom Plantae \
+            --bounds-from-occurrences target_cache/focal.parquet \
+            --bounds-mode tiles \
+            --bounds-tile-degrees 5 \
+            --bounds-buffer-km 500 \
+            --one-per-grid-cell-degrees 0.05 \
+            --output target_cache/target_group.parquet \
+            --provenance target_cache/target_group.provenance.csv
+      - name: Verify target-group contract and record cache manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          path = Path('target_cache/target_group.parquet')
+          prov_path = Path('target_cache/target_group.provenance.csv')
+          citation_path = Path('target_cache/target_group.parquet.citation.txt')
+          if not path.exists() or not prov_path.exists() or not citation_path.exists():
+              raise SystemExit('target-group cache is incomplete')
+          sha = hashlib.sha256(path.read_bytes()).hexdigest()
+          citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
+          prov = pd.read_csv(prov_path).iloc[0].to_dict()
+          if str(prov.get('sha256','')).lower() != sha:
+              raise SystemExit('target-group provenance SHA mismatch')
+          if citation_sha != os.environ['CITATION_SHA256']:
+              raise SystemExit('target-group citation SHA mismatch')
+          if str(prov.get('snapshot_citation_sha256','')).lower() != citation_sha:
+              raise SystemExit('target-group provenance citation SHA mismatch')
+          if str(prov.get('cloud_provider','')).lower() != 'aws':
+              raise SystemExit('target-group cache must use hardened AWS transport')
+          df = pd.read_parquet(path)
+          manifest = {
+              'protocol_source': 'product_a_v1_target_cache',
+              'snapshot_date': os.environ['SNAPSHOT_DATE'],
+              'snapshot_doi': os.environ['SNAPSHOT_DOI'],
+              'citation_sha256': citation_sha,
+              'target_sha256': sha,
+              'target_query_sha256': str(prov.get('query_sha256','')),
+              'target_rows': int(len(df)),
+              'target_species': int(df['species'].nunique()) if 'species' in df else None,
+              'sampling_mode': str(prov.get('sampling_mode','')),
+              'one_per_grid_cell_degrees': prov.get('one_per_grid_cell_degrees'),
+              'cloud_provider': str(prov.get('cloud_provider','')),
+              'http_keep_alive': prov.get('http_keep_alive'),
+              'http_retries': prov.get('http_retries'),
+              'http_retry_wait_ms': prov.get('http_retry_wait_ms'),
+              'http_retry_backoff': prov.get('http_retry_backoff'),
+              'http_timeout': prov.get('http_timeout'),
+          }
+          Path('target_cache/target_cache_manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v1-target-cache-${{ env.SNAPSHOT_DATE }}
+          path: target_cache/
+          if-no-files-found: error
+          retention-days: 90
