@@ -1,7 +1,11 @@
 import numpy as np
+import pandas as pd
 
 from sdmr.known_truth_scenarios import simulate_known_truth_plant_niche
-from sdmr.observation_process import inverse_observation_propensity_weights
+from sdmr.observation_process import (
+    inverse_observation_propensity_weights,
+    observation_process_signal_evidence,
+)
 
 
 def test_no_observation_predictors_returns_identity_weights():
@@ -21,6 +25,61 @@ def test_no_observation_predictors_returns_identity_weights():
     assert np.allclose(result.weights, 1.0)
     assert result.effective_sample_size == len(result.weights)
     assert result.maximum_normalized_weight == 1.0
+
+
+def test_training_only_observation_gate_activates_for_reproducible_nuisance_signal():
+    # Every spatial block contains the same strong focal/background shift, so the
+    # nuisance signal transfers to held-out training blocks without ecology.
+    presence_rows = []
+    background_rows = []
+    p_groups = []
+    b_groups = []
+    for group in range(4):
+        for value in (1.5, 1.8, 2.1, 2.4, 2.7):
+            presence_rows.append({"recording_bias": value + 0.01 * group})
+            p_groups.append(group)
+        for value in (-2.7, -2.4, -2.1, -1.8, -1.5, -1.2, -0.9):
+            background_rows.append({"recording_bias": value + 0.01 * group})
+            b_groups.append(group)
+    evidence = observation_process_signal_evidence(
+        pd.DataFrame(presence_rows),
+        pd.DataFrame(background_rows),
+        np.asarray(p_groups),
+        np.asarray(b_groups),
+        ("recording_bias",),
+        n_splits=4,
+    )
+    assert evidence.correction_active
+    assert evidence.mean_auc > 0.99
+    assert evidence.lower_evidence_bound > 0.99
+    assert evidence.n_folds == 4
+
+
+def test_training_only_observation_gate_stays_off_for_identical_nuisance_distribution():
+    # Focal/background rows have exactly the same nuisance values inside every
+    # spatial block. Presence rank is therefore exactly random with ties.
+    presence_rows = []
+    background_rows = []
+    p_groups = []
+    b_groups = []
+    values = (-1.0, -0.5, 0.0, 0.5, 1.0)
+    for group in range(4):
+        for value in values:
+            presence_rows.append({"recording_bias": value})
+            background_rows.append({"recording_bias": value})
+            p_groups.append(group)
+            b_groups.append(group)
+    evidence = observation_process_signal_evidence(
+        pd.DataFrame(presence_rows),
+        pd.DataFrame(background_rows),
+        np.asarray(p_groups),
+        np.asarray(b_groups),
+        ("recording_bias",),
+        n_splits=4,
+    )
+    assert not evidence.correction_active
+    assert np.isclose(evidence.mean_auc, 0.5)
+    assert np.isclose(evidence.lower_evidence_bound, 0.5)
 
 
 def test_inverse_observation_weights_transport_focal_recording_bias_toward_target_group():
