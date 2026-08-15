@@ -1,0 +1,124 @@
+name: product-a-vif-vs-all-ablation
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/product-a-vif-vs-all-ablation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-vif-vs-all-ablation
+  cancel-in-progress: true
+
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SDMR_BENCHMARK_JOBS: '4'
+      SDMR_MODEL_SPEC_JOBS: '1'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install development engine
+        run: python -m pip install -e '.[geo,parquet]'
+      - name: Download frozen source bundle
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31869318368
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: citable-product-a-v1-accelerated-2026-08-01
+          path: frozen_source
+      - name: Run direct ALL-versus-VIF ablation
+        run: |
+          mkdir -p vif_all_ablation
+          python - <<'PY'
+          import numpy as np
+          import sdmr.method as method
+          from sdmr.pilot_grid_cli import main as pilot_main
+          from sdmr.evaluation_contrast_cli import main as contrast_main
+
+          # Development-only ablation: skip predictive forward selection so the
+          # original question "does VIF pruning help sealed prediction versus
+          # keeping all candidates?" can be answered directly and cheaply.
+          def no_predictive(*args, **kwargs):
+              return [], [], float('nan')
+          method.forward_select_predictors = no_predictive
+
+          rc = pilot_main([
+              '--gbif-download','frozen_source/citable_input/focal.parquet',
+              '--gbif-download-key','vif-all-ablation-fixed-source-2026-08-01',
+              '--target-group-download','frozen_source/citable_input/target_group.parquet',
+              '--target-group-download-key','vif-all-ablation-fixed-source-2026-08-01',
+              '--checklist-key','snapshot-interpreted:2026-08-01',
+              '--taxa','configs/product_a_pilot_taxa_v1.csv',
+              '--grid','configs/product_a_buffer_specs_v1.csv',
+              '--manifest','configs/chelsa_v2_1_plant_candidates.csv',
+              '--output-dir','vif_all_ablation',
+              '--m-grid-as-sensitivity',
+              '--min-occurrences','80',
+              '--min-unique-cells','50',
+              '--gate-cell-size-degrees','0.05',
+              '--spatial-test-fraction','0.20',
+              '--taxon-validation-fraction','0.25',
+              '--vif-threshold','5',
+              '--max-predictors','8',
+              '--random-baseline-repeats','0',
+              '--seed','20260814',
+          ])
+          if rc not in (0,None): raise SystemExit(rc)
+          rc = contrast_main([
+              '--product-a-dir','vif_all_ablation',
+              '--manifest','configs/chelsa_v2_1_plant_candidates.csv',
+              '--canonical-specification','buffer_300km',
+          ])
+          if rc not in (0,None): raise SystemExit(rc)
+          PY
+      - name: Summarize direct VIF-vs-all result
+        if: success()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          d=pd.read_csv('vif_all_ablation/protocol_discovery_metrics.csv')
+          v=pd.read_csv('vif_all_ablation/protocol_validation_metrics.csv')
+          rows=[]
+          for label,frame in [('discovery',d),('validation',v)]:
+              frame=frame.loc[frame['strategy'].astype(str).isin(['all','vif'])].copy()
+              for strategy,g in frame.groupby('strategy'):
+                  rows.append({'split':label,'strategy':strategy,'n_cases':len(g),'mean_presence_rank':g['presence_rank'].mean(),'median_presence_rank':g['presence_rank'].median(),'mean_inner_presence_rank':g['inner_presence_rank'].mean()})
+              pivot=frame.pivot_table(index=['data_specification','species','universe'],columns='strategy',values='presence_rank',aggfunc='first').dropna()
+              if {'all','vif'}.issubset(pivot.columns):
+                  delta=pivot['all']-pivot['vif']
+                  rows.append({'split':label,'strategy':'all_minus_vif','n_cases':len(delta),'mean_presence_rank':delta.mean(),'median_presence_rank':delta.median(),'mean_inner_presence_rank':(delta>0).mean()})
+          pd.DataFrame(rows).to_csv('vif_all_ablation/vif_vs_all_summary.csv',index=False)
+          print(pd.DataFrame(rows).to_string(index=False))
+          PY
+      - name: Freeze development boundary
+        if: always()
+        run: |
+          cat > vif_all_ablation/DEVELOPMENT_ABLATION_BOUNDARY.txt <<'EOF'
+          DEVELOPMENT ONLY. Predictive forward selection is intentionally disabled. This ablation directly tests
+          whether VIF<5 pruning improves or harms untouched outer-sealed prediction relative to retaining all
+          candidate variables under the same 12-ModelSpec tuning, taxa, M sensitivities, and frozen source evidence.
+          It cannot trigger Product-A promotion.
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-vif-vs-all-ablation
+          path: vif_all_ablation/
+          if-no-files-found: error
+          retention-days: 30
