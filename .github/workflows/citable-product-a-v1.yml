@@ -128,10 +128,6 @@ jobs:
 
       - name: Materialize same-snapshot broader Plantae target group
         run: |
-          # AWS and Azure are mirrors of the same dated GBIF snapshot. The
-          # target-group transport uses Azure because the first AWS run hit a
-          # transient long-scan SSL failure. DOI/citation/date/filter/M remain
-          # unchanged; cloud provider is I/O provenance only.
           sdmr-gbif-snapshot \
             --snapshot-date "$SNAPSHOT_DATE" \
             --snapshot-doi "$SNAPSHOT_DOI" \
@@ -157,7 +153,7 @@ jobs:
               print(pd.read_csv(f'citable_input/{label}.provenance.csv').to_string(index=False))
           PY
 
-      - name: Run matched M × universe × strategy Product-A grid
+      - name: Run M-robust universe × strategy Product-A benchmark
         run: |
           SOURCE_KEY="snapshot:${SNAPSHOT_DATE}:${SNAPSHOT_DOI}"
           sdmr-pilot-grid \
@@ -170,6 +166,7 @@ jobs:
             --grid configs/product_a_buffer_specs_v1.csv \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
             --output-dir citable_result \
+            --m-grid-as-sensitivity \
             --min-occurrences "$MIN_OCCURRENCES" \
             --min-unique-cells "$MIN_UNIQUE_CELLS" \
             --gate-cell-size-degrees 0.05 \
@@ -180,9 +177,11 @@ jobs:
             --random-baseline-repeats 10 \
             --seed "$SEED"
 
-      - name: Require complete predeclared 12-taxon panel
+      - name: Require complete predeclared 12-taxon panel and M-sensitivity mode
         run: |
           python - <<'PY'
+          import json
+          from pathlib import Path
           import pandas as pd
           expected = set(pd.read_csv('configs/product_a_pilot_taxa_v1.csv')['scientific_name'].astype(str))
           gate = pd.read_csv('citable_result/species_gate.csv')
@@ -192,6 +191,9 @@ jobs:
                   'Product-A v1 split did not support the complete predeclared panel: '
                   f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
               )
+          spec = json.loads(Path('citable_result/pilot_grid_specification.json').read_text(encoding='utf-8'))
+          if spec.get('m_grid_as_sensitivity') is not True:
+              raise SystemExit('Citable Product-A must treat M as a sensitivity axis, not optimize it')
           print('Full predeclared taxon panel retained:', len(eligible))
           PY
 
@@ -236,7 +238,7 @@ jobs:
           grid_spec_path = result / 'pilot_grid_specification.json'
           grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8')) if grid_spec_path.exists() else {}
           contract = {
-              'protocol_version': 'product_a_v1_leakage_safe',
+              'protocol_version': 'product_a_v1_leakage_safe_M_sensitivity',
               'snapshot_date': os.environ.get('SNAPSHOT_DATE'),
               'snapshot_doi': os.environ.get('SNAPSHOT_DOI'),
               'download_key': os.environ.get('DOWNLOAD_KEY'),
@@ -265,6 +267,7 @@ jobs:
               'target_rows': int(target.get('n_rows', 0) or 0),
               'focal_thin_cell_size_degrees': grid_spec.get('focal_thin_cell_size_degrees'),
               'outer_sealed_before_M': bool(grid_spec.get('outer_sealed_before_M', False)),
+              'm_grid_as_sensitivity': bool(grid_spec.get('m_grid_as_sensitivity', False)),
               'chelsa_probe_rows': int(len(probe)),
               'chelsa_probe_failures': int(probe['status'].ne('ok').sum()) if 'status' in probe else None,
               'protocol_choice': choice,
@@ -277,10 +280,11 @@ jobs:
           cp configs/product_a_v1_focal_cache.csv citable_result/product_a_v1_focal_cache.csv
           cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
           cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
-          DOI-backed leakage-safe Product-A v1. Raw focal source evidence is a SHA/query/citation-verified artifact from the same
-          frozen GBIF snapshot; no earlier model/background result is reused. Focal occurrences are admitted, thinned to the declared
-          independent-cell grid, and assigned spatial model/sealed roles before any M or background construction. Only model-pool
-          presences can define M or focal-cell exclusion. This single run is citable pilot evidence, not automatic protocol promotion.
+          DOI-backed leakage-safe Product-A v1. Raw focal source evidence is SHA/query/citation verified. Focal occurrences are
+          admitted, deterministically thinned, and assigned spatial model/sealed roles before M/background construction. Only
+          model-pool presences can define M or focal-cell exclusion. The 150/300/500 km M specifications are an ecological
+          sensitivity set and are not optimized by cross-M presence-rank scores. Universe x strategy is ranked within matched
+          species x M cases and aggregated across M. This single run is citable pilot evidence, not automatic promotion.
           EOF
 
       - name: Upload citable Product-A v1 bundle
