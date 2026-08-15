@@ -1,11 +1,12 @@
 import numpy as np
+import pandas as pd
 import pytest
 
 rasterio = pytest.importorskip("rasterio")
 from rasterio.io import MemoryFile
 from rasterio.transform import from_origin
 
-from sdmr.data.raster import _sample_band_blockwise
+from sdmr.data.raster import RasterLayerSpec, _sample_band_blockwise, extract_raster_values
 
 
 class _ReadCountingDataset:
@@ -47,7 +48,6 @@ def test_block_grouped_sampling_exactly_matches_rasterio_sample_for_in_bounds_po
         rng = np.random.default_rng(20260815)
         rows = rng.integers(0, 256, 500)
         cols = rng.integers(0, 256, 500)
-        # Repeat some coordinates explicitly; order and duplicates must survive.
         rows = np.r_[rows, rows[:25]]
         cols = np.r_[cols, cols[:25]]
         x = -10.0 + (cols + 0.5) * 0.1
@@ -66,7 +66,6 @@ def test_block_grouped_sampling_exactly_matches_rasterio_sample_for_in_bounds_po
 def test_block_grouped_sampling_reads_each_occupied_native_block_once():
     mem, src, data = _dataset()
     try:
-        # Four points in block (0,0), two in block (1,1), one in block (3,3).
         rows = np.array([1, 2, 40, 63, 65, 90, 250])
         cols = np.array([1, 20, 45, 63, 65, 100, 250])
         x = -10.0 + (cols + 0.5) * 0.1
@@ -93,3 +92,61 @@ def test_block_grouped_sampling_leaves_out_of_bounds_coordinates_nan():
     finally:
         src.close()
         mem.close()
+
+
+def _write_raster(path, data):
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        width=data.shape[1],
+        height=data.shape[0],
+        count=1,
+        dtype="float32",
+        crs="EPSG:4326",
+        transform=from_origin(-10.0, 10.0, 0.1, 0.1),
+        tiled=True,
+        blockxsize=64,
+        blockysize=64,
+    ) as dst:
+        dst.write(np.asarray(data, dtype=np.float32), 1)
+
+
+def test_parallel_layer_extraction_exactly_matches_sequential(tmp_path, monkeypatch):
+    base = np.arange(128 * 128, dtype=np.float32).reshape(128, 128)
+    a = tmp_path / "a.tif"
+    b = tmp_path / "b.tif"
+    _write_raster(a, base)
+    _write_raster(b, base * 2 + 7)
+    rng = np.random.default_rng(81)
+    rows = rng.integers(0, 128, 300)
+    cols = rng.integers(0, 128, 300)
+    points = pd.DataFrame(
+        {
+            "longitude": -10.0 + (cols + 0.5) * 0.1,
+            "latitude": 10.0 - (rows + 0.5) * 0.1,
+        }
+    )
+    layers = [
+        RasterLayerSpec("a", str(a), source="test", version="1"),
+        RasterLayerSpec("b", str(b), source="test", version="1"),
+    ]
+    monkeypatch.setenv("SDMR_RASTER_LAYER_JOBS", "1")
+    sequential, sequential_provenance = extract_raster_values(points, layers)
+    monkeypatch.setenv("SDMR_RASTER_LAYER_JOBS", "2")
+    parallel, parallel_provenance = extract_raster_values(points, layers)
+    pd.testing.assert_frame_equal(parallel, sequential)
+    pd.testing.assert_frame_equal(parallel_provenance, sequential_provenance)
+    assert list(parallel.columns[-2:]) == ["a", "b"]
+
+
+def test_parallel_layer_env_rejects_invalid_worker_count(tmp_path, monkeypatch):
+    base = np.zeros((64, 64), dtype=np.float32)
+    path = tmp_path / "a.tif"
+    _write_raster(path, base)
+    monkeypatch.setenv("SDMR_RASTER_LAYER_JOBS", "0")
+    with pytest.raises(ValueError, match="SDMR_RASTER_LAYER_JOBS"):
+        extract_raster_values(
+            pd.DataFrame({"longitude": [-9.95], "latitude": [9.95]}),
+            [RasterLayerSpec("a", str(path))],
+        )
