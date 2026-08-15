@@ -28,83 +28,37 @@ jobs:
           cache: pip
       - name: Install cloud dependencies
         run: python -m pip install -e '.[cloud,parquet]'
-      - name: Read frozen source contracts
-        id: contracts
+      - name: Read frozen snapshot contract
         run: |
           python - <<'PY'
-          import csv
-          import os
+          import csv, os
           from pathlib import Path
-          snapshot = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
-          focal = list(csv.DictReader(Path('configs/product_a_v1_focal_cache.csv').open(encoding='utf-8')))
-          if len(snapshot) != 1 or len(focal) != 1:
-              raise SystemExit('expected exactly one snapshot and focal-cache row')
-          snapshot, focal = snapshot[0], focal[0]
-          if focal['snapshot_date'] != snapshot['snapshot_date'] or focal['snapshot_doi'].lower() != snapshot['snapshot_doi'].lower():
-              raise SystemExit('focal cache and snapshot contract disagree')
-          if focal['citation_sha256'].lower() != snapshot['citation_sha256'].lower():
-              raise SystemExit('focal citation SHA differs from snapshot contract')
+          rows = list(csv.DictReader(Path('configs/gbif_snapshot_v1.csv').open(encoding='utf-8')))
+          if len(rows) != 1:
+              raise SystemExit('expected exactly one frozen snapshot row')
+          row = rows[0]
+          for key in ('snapshot_date','snapshot_doi','citation_sha256'):
+              if not str(row.get(key,'')).strip():
+                  raise SystemExit(f'snapshot contract missing {key}')
           with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
-              env.write(f"SNAPSHOT_DATE={snapshot['snapshot_date']}\n")
-              env.write(f"SNAPSHOT_DOI={snapshot['snapshot_doi']}\n")
-              env.write(f"CITATION_SHA256={snapshot['citation_sha256'].lower()}\n")
-              env.write(f"FOCAL_SHA256={focal['focal_sha256'].lower()}\n")
-              env.write(f"FOCAL_QUERY_SHA256={focal['focal_query_sha256'].lower()}\n")
-          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
-              out.write(f"focal_run_id={focal['source_run_id']}\n")
-              out.write(f"focal_artifact={focal['artifact_name']}\n")
+              env.write(f"SNAPSHOT_DATE={row['snapshot_date'].strip()}\n")
+              env.write(f"SNAPSHOT_DOI={row['snapshot_doi'].strip()}\n")
+              env.write(f"CITATION_SHA256={row['citation_sha256'].strip().lower()}\n")
           PY
-      - name: Download frozen focal source artifact
-        uses: actions/download-artifact@v4
-        with:
-          run-id: ${{ steps.contracts.outputs.focal_run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.contracts.outputs.focal_artifact }}
-          path: focal_bundle
-      - name: Verify frozen focal source
+      - name: Materialize global minimal Plantae sampling-effort footprint
         run: |
           mkdir -p target_cache
-          cp focal_bundle/citable_input/focal.parquet target_cache/focal.parquet
-          cp focal_bundle/citable_input/focal.provenance.csv target_cache/focal.provenance.csv
-          cp focal_bundle/citable_input/focal.parquet.citation.txt target_cache/focal.parquet.citation.txt
-          python - <<'PY'
-          import hashlib
-          import os
-          from pathlib import Path
-          import pandas as pd
-          focal = Path('target_cache/focal.parquet')
-          sha = hashlib.sha256(focal.read_bytes()).hexdigest()
-          if sha != os.environ['FOCAL_SHA256']:
-              raise SystemExit(f'focal SHA mismatch: {sha}')
-          prov = pd.read_csv('target_cache/focal.provenance.csv').iloc[0]
-          if str(prov.get('query_sha256','')).lower() != os.environ['FOCAL_QUERY_SHA256']:
-              raise SystemExit('focal query SHA mismatch')
-          citation_sha = hashlib.sha256(Path('target_cache/focal.parquet.citation.txt').read_bytes()).hexdigest()
-          if citation_sha != os.environ['CITATION_SHA256']:
-              raise SystemExit('focal citation SHA mismatch')
-          print('verified_focal_rows', len(pd.read_parquet(focal)))
-          PY
-      - name: Materialize broader Plantae target-group from hardened AWS snapshot
-        run: |
-          sdmr-gbif-snapshot \
+          sdmr-gbif-target-footprint \
             --snapshot-date "$SNAPSHOT_DATE" \
             --snapshot-doi "$SNAPSHOT_DOI" \
-            --cloud-provider aws \
             --region us-east-1 \
-            --kingdom Plantae \
-            --bounds-from-occurrences target_cache/focal.parquet \
-            --bounds-mode tiles \
-            --bounds-tile-degrees 5 \
-            --bounds-buffer-km 500 \
-            --one-per-grid-cell-degrees 0.05 \
+            --grid-cell-degrees 0.05 \
             --output target_cache/target_group.parquet \
             --provenance target_cache/target_group.provenance.csv
       - name: Verify target-group contract and record cache manifest
         run: |
           python - <<'PY'
-          import hashlib
-          import json
-          import os
+          import hashlib, json, os
           from pathlib import Path
           import pandas as pd
 
@@ -124,18 +78,23 @@ jobs:
               raise SystemExit('target-group provenance citation SHA mismatch')
           if str(prov.get('cloud_provider','')).lower() != 'aws':
               raise SystemExit('target-group cache must use hardened AWS transport')
-          df = pd.read_parquet(path)
+          if str(prov.get('sampling_mode','')) != 'global_one_per_grid_cell_sampling_footprint':
+              raise SystemExit('target-group cache is not the focal-independent global footprint')
+          if abs(float(prov.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
+              raise SystemExit('target-group footprint grid differs from frozen 0.05-degree contract')
+          df = pd.read_parquet(path, columns=['species'])
           manifest = {
-              'protocol_source': 'product_a_v1_target_cache',
+              'protocol_source': 'product_a_v1_global_target_group_footprint',
               'snapshot_date': os.environ['SNAPSHOT_DATE'],
               'snapshot_doi': os.environ['SNAPSHOT_DOI'],
               'citation_sha256': citation_sha,
               'target_sha256': sha,
               'target_query_sha256': str(prov.get('query_sha256','')),
               'target_rows': int(len(df)),
-              'target_species': int(df['species'].nunique()) if 'species' in df else None,
+              'target_species': int(df['species'].nunique()),
               'sampling_mode': str(prov.get('sampling_mode','')),
-              'one_per_grid_cell_degrees': prov.get('one_per_grid_cell_degrees'),
+              'one_per_grid_cell_degrees': float(prov.get('one_per_grid_cell_degrees')),
+              'source_independent_of_focal_occurrences': True,
               'cloud_provider': str(prov.get('cloud_provider','')),
               'http_keep_alive': prov.get('http_keep_alive'),
               'http_retries': prov.get('http_retries'),
