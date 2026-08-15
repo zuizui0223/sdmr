@@ -25,6 +25,11 @@ that remains recoverable under independent information barriers.
 
 ## What conventional criteria measure
 
+Conventional model criteria live separately from ecological recovery. In the
+current implementation, OR10 and the AICc formula helper are in
+`sdmr.model_criteria`; AUC-equivalent presence rank and Boyce/CBI remain
+prediction diagnostics. None of them defines Product-A v2's ecological target.
+
 ### AUC / presence-rank
 
 Discrimination/ranking: are withheld presences assigned higher values than the
@@ -39,11 +44,13 @@ prediction evaluators, not direct measurements of niche geometry.
 
 ### OR10
 
-Threshold-dependent omission: after allowing the 10% lowest-ranked training
-presences to fall below the threshold, what fraction of test occurrences are
-omitted? It is useful for diagnosing overfitting/transfer failure at a declared
-threshold. SDMR exposes this in the conventional metric layer as
-`omission_rate_at_training_quantile(..., quantile=0.10)`; it is not a
+Threshold-dependent omission: after defining a threshold that excludes the 10%
+lowest-scoring training presences, what fraction of independent test occurrences
+falls below that threshold? It is useful for diagnosing overfitting/transfer
+failure at a declared threshold. SDMR exposes this in the conventional model
+criteria layer as
+`sdmr.model_criteria.omission_rate_at_training_quantile(...,
+training_omission_fraction=0.10)` and the `or10(...)` wrapper. It is not a
 niche-recovery objective.
 
 ### AICc
@@ -53,12 +60,13 @@ parameter complexity, with a small-sample correction. AICc is not the same kind
 of quantity as AUC/CBI/OR10, and a favourable AICc still does not directly
 establish that the resulting model recovered the species' ecological niche.
 
-AICc must also not be attached naively to SDMR's penalized presence-background
-logistic core by simply counting coefficients. It is an admissible comparator
-only where the likelihood, effective parameter count/degrees of freedom, and
-sample-size convention are mathematically defensible. Until such a definition is
-implemented and validated, AICc remains an external/canonical comparator rather
-than an SDMR objective.
+`sdmr.model_criteria.corrected_aic` implements the mathematical AICc correction
+when the caller supplies a valid log likelihood, defensible parameter/effective-
+degrees-of-freedom count, and sample size. SDMR deliberately does **not** infer
+those quantities from its class-balanced penalized presence-background logistic
+core or manufacture a MaxEnt-style AICc by simply counting coefficients. AICc is
+therefore an admissible comparator only for model families/configurations where
+those inputs are justified.
 
 ## Why prediction quality and niche recovery can diverge
 
@@ -153,8 +161,12 @@ SDMR v2 does not add the recovery statistics together with arbitrary weights.
    rank;
 6. breaks ties by mean recovery rank, then lower complexity.
 
-AUC/CBI/OR10/AICc can be applied as external comparators or explicit guardrails,
-but they do not define the ecological recovery target.
+`sdmr.niche_recovery_cv.cross_validated_niche_recovery` deliberately emits the
+conventional diagnostics (`presence_rank`, continuous Boyce and OR10) beside the
+ecological recovery profile. `benchmark_niche_recovery_candidates` then chooses
+the procedure from the ecological recovery dimensions, not from those
+conventional scores. This makes the distinction executable rather than merely
+terminological.
 
 ## Two evidence tiers
 
@@ -181,18 +193,27 @@ suitability × sampling effort. `known_truth_niche_recovery_profile` then compar
 a candidate prediction directly with the hidden generating niche in a common
 environmental audit space.
 
+`sdmr.known_truth_benchmark.benchmark_selectors_against_known_truth` makes the
+critical contrast explicit. Candidate procedures are selected without access to
+truth by three routes:
+
+- maximum inner AUC-equivalent presence rank;
+- maximum inner continuous Boyce index;
+- Pareto + minimax ecological niche-recovery tuning.
+
+OR10 remains in the fold table as an omission/overfitting diagnostic. AICc is
+intentionally not manufactured for the current class-balanced penalized logistic
+family. After each selector has made its choice, all selected procedures are fit
+and evaluated against the same hidden generating niche. The scientific test is
+therefore **which selection rule recovers the biological target**, not which rule
+wins its own validation statistic.
+
 The existing known-truth profile evaluates environmental overlap, niche-centre
 error, breadth error, quantile/tail error, and how much true niche mass falls
 inside the predicted envelope. The next benchmark expansion should add
-asymmetric/threshold families, omitted-driver cases, stronger domain shifts, and
-explicit process-group recovery so correlated raster aliases are not mistaken
-for different ecological mechanisms.
-
-For each simulated species, compare which selector — AUC, CBI, OR10, a
-defensible AICc implementation, local nested CV, or niche-recovery tuning —
-chooses the model closest to the known generating response/niche distribution.
-This is the tier where SDMR can literally evaluate recovery of a known true
-niche.
+asymmetric/threshold families, omitted-driver cases, stronger domain shifts,
+response-shape recovery, and explicit process-group recovery so correlated
+raster aliases are not mistaken for different ecological mechanisms.
 
 ### Tier 2 — real sealed-occurrence transfer
 
