@@ -56,8 +56,8 @@ def test_minimax_prefers_balanced_pareto_candidate():
 def test_generalization_gate_rejects_ecologically_attractive_but_nontransferring_candidate():
     metrics = pd.DataFrame(
         [
-            _row("ecology_only", 0, 0.94, 0.10, 0.10, 0.10, 3, auc=0.61, or10=0.42),
-            _row("ecology_only", 1, 0.93, 0.11, 0.11, 0.11, 3, auc=0.62, or10=0.40),
+            _row("ecology_only", 0, 0.94, 0.10, 0.10, 0.10, 3, auc=0.49, or10=0.42),
+            _row("ecology_only", 1, 0.93, 0.11, 0.11, 0.11, 3, auc=0.50, or10=0.40),
             _row("credible_a", 0, 0.82, 0.24, 0.25, 0.24, 4, auc=0.82, or10=0.13),
             _row("credible_a", 1, 0.81, 0.25, 0.24, 0.25, 4, auc=0.81, or10=0.14),
             _row("credible_b", 0, 0.84, 0.22, 0.22, 0.22, 5, auc=0.815, or10=0.12),
@@ -69,28 +69,50 @@ def test_generalization_gate_rejects_ecologically_attractive_but_nontransferring
 
     gated = select_generalization_gated_niche_recovery_protocol(
         metrics,
-        minimum_auc_tolerance=0.02,
+        chance_auc=0.50,
+        minimum_auc_margin=0.01,
         auc_sem_multiplier=0.0,
         max_mean_or10=0.20,
     )
     assert "ecology_only" not in gated.eligible_candidates
     assert set(gated.eligible_candidates) == {"credible_a", "credible_b"}
     assert gated.candidate == "credible_b"
+    assert gated.auc_gate_floor == 0.51
 
 
-def test_auc_gate_is_tolerance_not_auc_maximization():
+def test_auc_gate_is_adequacy_not_auc_maximization():
     metrics = pd.DataFrame(
         [
             _row("best_auc", 0, 0.76, 0.30, 0.30, 0.30, 3, auc=0.830),
             _row("best_auc", 1, 0.75, 0.31, 0.31, 0.31, 3, auc=0.830),
-            _row("near_auc_better_ecology", 0, 0.86, 0.18, 0.18, 0.18, 4, auc=0.821),
-            _row("near_auc_better_ecology", 1, 0.85, 0.19, 0.19, 0.19, 4, auc=0.821),
+            _row("lower_auc_better_ecology", 0, 0.86, 0.18, 0.18, 0.18, 4, auc=0.620),
+            _row("lower_auc_better_ecology", 1, 0.85, 0.19, 0.19, 0.19, 4, auc=0.620),
         ]
     )
     gated = select_generalization_gated_niche_recovery_protocol(
         metrics,
-        minimum_auc_tolerance=0.01,
+        chance_auc=0.50,
+        minimum_auc_margin=0.01,
         auc_sem_multiplier=0.0,
     )
-    assert set(gated.eligible_candidates) == {"best_auc", "near_auc_better_ecology"}
-    assert gated.candidate == "near_auc_better_ecology"
+    assert set(gated.eligible_candidates) == {"best_auc", "lower_auc_better_ecology"}
+    assert gated.candidate == "lower_auc_better_ecology"
+
+
+def test_auc_lower_evidence_bound_can_fail_uncertain_candidate():
+    metrics = pd.DataFrame(
+        [
+            _row("stable", 0, 0.80, 0.20, 0.20, 0.20, 3, auc=0.62),
+            _row("stable", 1, 0.79, 0.21, 0.21, 0.21, 3, auc=0.62),
+            _row("uncertain", 0, 0.90, 0.10, 0.10, 0.10, 4, auc=0.90),
+            _row("uncertain", 1, 0.89, 0.11, 0.11, 0.11, 4, auc=0.14),
+        ]
+    )
+    gated = select_generalization_gated_niche_recovery_protocol(
+        metrics,
+        chance_auc=0.50,
+        minimum_auc_margin=0.01,
+        auc_sem_multiplier=1.0,
+    )
+    assert gated.eligible_candidates == ("stable",)
+    assert gated.candidate == "stable"
