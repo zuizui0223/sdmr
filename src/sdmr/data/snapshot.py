@@ -28,14 +28,14 @@ GBIF_AZURE_ACCOUNT = "ai4edataeuwest"
 GBIF_AZURE_CONTAINER = "gbif"
 GBIF_CLOUD_PROVIDERS = ("aws", "azure")
 
-# Long GBIF scans traverse hundreds of Parquet shards.  Product-A v1 once
-# failed late in the target-group scan with an SSL "unexpected EOF" on one S3
-# shard.  DuckDB documents disabling keep-alive as useful for connection
-# failures.  The larger retry/timeout budget below changes transport resilience
-# only; the snapshot, filters, and output semantics remain identical.
-GBIF_HTTP_RETRIES = 20
+# Long GBIF scans traverse hundreds of Parquet shards. Product-A v1 once failed
+# late in the target-group scan with an SSL "unexpected EOF" on one S3 shard.
+# DuckDB documents disabling keep-alive as useful for connection failures. The
+# retry budget is deliberately bounded so a persistently bad shard fails rather
+# than consuming hours. These settings change transport resilience only.
+GBIF_HTTP_RETRIES = 8
 GBIF_HTTP_RETRY_WAIT_MS = 500
-GBIF_HTTP_RETRY_BACKOFF = 2.0
+GBIF_HTTP_RETRY_BACKOFF = 1.5
 GBIF_HTTP_TIMEOUT_SECONDS = 120
 
 PREFERRED_SNAPSHOT_COLUMNS = (
