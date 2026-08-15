@@ -62,9 +62,9 @@ def benchmark_selectors_against_known_truth(
 
     - ``inner_auc``: maximum mean inner presence-background AUC-equivalent rank;
     - ``inner_cbi``: maximum mean inner continuous Boyce index;
+    - ``inner_or10``: minimum mean independent-test OR10;
     - ``niche_recovery``: Pareto + minimax ecological recovery profile.
 
-    OR10 is retained in ``fold_metrics`` as an overfitting/omission diagnostic.
     AICc is intentionally not manufactured for the current class-balanced,
     penalized logistic family; a valid likelihood-backed comparator should be
     added separately.
@@ -109,6 +109,7 @@ def benchmark_selectors_against_known_truth(
     winners = {
         "inner_auc": _metric_winner(fold_metrics, "presence_rank", ascending=False),
         "inner_cbi": _metric_winner(fold_metrics, "continuous_boyce", ascending=False),
+        "inner_or10": _metric_winner(fold_metrics, "or10", ascending=True),
         "niche_recovery": recovery_selection.candidate,
     }
 
@@ -156,3 +157,73 @@ def benchmark_selectors_against_known_truth(
         selector_choices=pd.DataFrame(choices),
         truth_evaluation=pd.DataFrame(truth_rows),
     )
+
+
+def summarize_selector_disagreement(result: KnownTruthSelectorBenchmark) -> pd.DataFrame:
+    """Compare conventional selector choices with ecological niche-recovery.
+
+    No truth metrics are used to *select* candidates. This function is a post hoc
+    known-truth audit: it records whether a conventional criterion chose a
+    different candidate and whether the niche-recovery-selected candidate is
+    Pareto-better against the hidden generating niche.
+    """
+
+    choices = result.selector_choices.copy()
+    truth = result.truth_evaluation.copy()
+    required_choices = {"selector", "candidate"}
+    required_truth = {
+        "selector",
+        "candidate",
+        "niche_overlap_schoener_d_pc12",
+        "centroid_distance",
+        "breadth_log_sd_error",
+        "quantile_profile_error",
+    }
+    if not required_choices <= set(choices.columns):
+        raise KeyError(f"selector_choices missing columns: {sorted(required_choices - set(choices.columns))}")
+    if not required_truth <= set(truth.columns):
+        raise KeyError(f"truth_evaluation missing columns: {sorted(required_truth - set(truth.columns))}")
+
+    niche_choice = choices.loc[choices["selector"].astype(str).eq("niche_recovery")]
+    niche_truth = truth.loc[truth["selector"].astype(str).eq("niche_recovery")]
+    if len(niche_choice) != 1 or len(niche_truth) != 1:
+        raise ValueError("benchmark must contain exactly one niche_recovery selector result")
+    niche_candidate = str(niche_choice.iloc[0]["candidate"])
+    nr = niche_truth.iloc[0]
+
+    rows = []
+    for _, choice in choices.iterrows():
+        selector = str(choice["selector"])
+        if selector == "niche_recovery":
+            continue
+        candidate = str(choice["candidate"])
+        other_truth = truth.loc[truth["selector"].astype(str).eq(selector)]
+        if len(other_truth) != 1:
+            raise ValueError(f"truth_evaluation must contain exactly one row for {selector}")
+        other = other_truth.iloc[0]
+
+        overlap_gain = float(nr["niche_overlap_schoener_d_pc12"] - other["niche_overlap_schoener_d_pc12"])
+        centroid_gain = float(other["centroid_distance"] - nr["centroid_distance"])
+        breadth_gain = float(other["breadth_log_sd_error"] - nr["breadth_log_sd_error"])
+        quantile_gain = float(other["quantile_profile_error"] - nr["quantile_profile_error"])
+        gains = np.array([overlap_gain, centroid_gain, breadth_gain, quantile_gain], dtype=float)
+        finite = np.isfinite(gains)
+        pareto_better = bool(
+            finite.all()
+            and np.all(gains >= -1e-12)
+            and np.any(gains > 1e-12)
+        )
+        rows.append(
+            {
+                "selector": selector,
+                "selector_candidate": candidate,
+                "niche_recovery_candidate": niche_candidate,
+                "candidate_disagrees": candidate != niche_candidate,
+                "truth_overlap_gain": overlap_gain,
+                "truth_centroid_error_reduction": centroid_gain,
+                "truth_breadth_error_reduction": breadth_gain,
+                "truth_quantile_error_reduction": quantile_gain,
+                "niche_recovery_truth_pareto_better": pareto_better,
+            }
+        )
+    return pd.DataFrame(rows)
