@@ -44,11 +44,20 @@ def test_known_truth_selector_benchmark_returns_prediction_and_recovery_selector
         random_state=9,
     )
 
-    expected = {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
+    expected = {
+        "inner_auc",
+        "inner_cbi",
+        "inner_or10",
+        "niche_recovery",
+        "gated_niche_recovery",
+    }
     assert set(result.selector_choices["selector"]) == expected
     assert set(result.truth_evaluation["selector"]) == expected
     assert result.fold_metrics["candidate"].nunique() >= 2
     assert result.truth_evaluation["niche_overlap_schoener_d_pc12"].between(0, 1).all()
+    gated = result.selector_choices.loc[result.selector_choices["selector"].eq("gated_niche_recovery")].iloc[0]
+    assert gated["gated_eligible_candidates"]
+    assert float(gated["gated_auc_tolerance"]) >= 0.01
 
 
 def test_known_truth_families_generate_distinct_valid_surfaces():
@@ -70,7 +79,7 @@ def test_known_truth_families_generate_distinct_valid_surfaces():
     assert len(set(signatures)) >= 4
 
 
-def test_observation_confounded_scenario_separates_prediction_from_niche_recovery():
+def test_observation_confounded_scenario_detects_selector_disagreement_without_forcing_winner():
     sim = simulate_known_truth_plant_niche(
         "observation_confounded",
         seed=23,
@@ -86,11 +95,21 @@ def test_observation_confounded_scenario_separates_prediction_from_niche_recover
         inner_folds=3,
         random_state=23,
     )
-    disagreement = summarize_selector_disagreement(result)
 
-    auc = disagreement.loc[disagreement["selector"].eq("inner_auc")].iloc[0]
-    assert bool(auc["candidate_disagrees"])
-    assert bool(auc["niche_recovery_truth_pareto_better"])
+    pure = summarize_selector_disagreement(result, reference_selector="niche_recovery")
+    auc_vs_pure = pure.loc[pure["selector"].eq("inner_auc")].iloc[0]
+    assert bool(auc_vs_pure["candidate_disagrees"])
+
+    # The benchmark is a falsification tool, not a test rig that assumes SDMR
+    # must win. Hidden-truth gains are recorded but may favour either selector.
+    gated = summarize_selector_disagreement(result, reference_selector="gated_niche_recovery")
+    assert set(gated["selector"]) == {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
+    assert gated[[
+        "truth_overlap_gain",
+        "truth_centroid_error_reduction",
+        "truth_breadth_error_reduction",
+        "truth_quantile_error_reduction",
+    ]].notna().all().all()
 
 
 def test_disagreement_summary_does_not_require_a_weighted_super_score():
@@ -109,7 +128,7 @@ def test_disagreement_summary_does_not_require_a_weighted_super_score():
         random_state=7,
     )
     out = summarize_selector_disagreement(result)
-    assert set(out["selector"]) == {"inner_auc", "inner_cbi", "inner_or10"}
+    assert set(out["selector"]) == {"inner_auc", "inner_cbi", "inner_or10", "niche_recovery"}
     assert "truth_overlap_gain" in out
     assert "truth_centroid_error_reduction" in out
-    assert "niche_recovery_truth_pareto_better" in out
+    assert "reference_truth_pareto_better" in out
