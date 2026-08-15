@@ -1,10 +1,13 @@
 name: citable-product-a-promotion
 
 on:
+  workflow_run:
+    workflows: ["citable-product-a-stability-v1"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       stability_run_id:
-        description: "Successful citable-product-a-stability workflow run ID"
+        description: "Successful citable-product-a-stability-v1 workflow run ID"
         required: true
         type: string
 
@@ -13,11 +16,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: citable-product-a-promotion-${{ inputs.stability_run_id }}
+  group: citable-product-a-promotion-${{ github.event.workflow_run.id || inputs.stability_run_id }}
   cancel-in-progress: false
 
 jobs:
   assess:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -30,12 +34,28 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - name: Resolve stability run ID
+        id: stability
+        run: |
+          python - <<'PY'
+          import os
+          event = os.environ['GITHUB_EVENT_NAME']
+          if event == 'workflow_run':
+              run_id = '${{ github.event.workflow_run.id }}'
+          else:
+              run_id = '${{ inputs.stability_run_id }}'
+          if not str(run_id).strip():
+              raise SystemExit('stability run ID is required')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'run_id={run_id}\n')
+          print('stability_run_id', run_id)
+          PY
       - name: Download frozen stability artifact
         uses: actions/download-artifact@v4
         with:
-          run-id: ${{ inputs.stability_run_id }}
+          run-id: ${{ steps.stability.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          pattern: citable-product-a-stability-*
+          pattern: citable-product-a-stability-v1-*
           path: source_stability
           merge-multiple: true
       - name: Resolve Product-A source analysis SHA
@@ -101,7 +121,7 @@ jobs:
               '--runs', str(runs.resolve()),
               '--choice-stability', str(choice.resolve()),
               '--paired-validation-deltas', str(paired.resolve()),
-              '--output-dir', str(Path('promotion_result').resolve()),
+              '--output-dir', str(Path('../promotion_result').resolve()),
               '--min-protocol-selection-fraction', values['min_protocol_selection_fraction'],
               '--min-runs-selected', values['min_runs_selected'],
               '--min-mean-delta-presence-rank', values['min_mean_delta_presence_rank'],
@@ -135,7 +155,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: citable-product-a-promotion-source-${{ inputs.stability_run_id }}
+          name: citable-product-a-promotion-source-${{ steps.stability.outputs.run_id }}
           path: promotion_result/
           if-no-files-found: error
           retention-days: 90
