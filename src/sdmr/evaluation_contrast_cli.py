@@ -1,4 +1,4 @@
-"""Post-process a Product-A result with conventional AUC/Boyce selector contrasts."""
+"""Post-process Product A with conventional AUC/Boyce selector contrasts."""
 from __future__ import annotations
 
 import argparse
@@ -42,7 +42,10 @@ def _canonical_specification(grid: pd.DataFrame, explicit: str | None) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Compare canonical-M AUC/Boyce model selection against the SDMR M-robust selector on unseen taxa."
+        description=(
+            "Compare discovery-frozen canonical-M AUC/Boyce selection and a strong per-species nested-AUC selector "
+            "against the SDMR M-robust selector on the same unseen taxa."
+        )
     )
     parser.add_argument("--product-a-dir", required=True)
     parser.add_argument("--manifest", required=True)
@@ -106,11 +109,16 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(
             {
                 "canonical_specification": canonical,
-                "selection_data": "discovery_taxa_only",
-                "evaluation_data": "same_unseen_taxa_across_all_predeclared_M_specs",
+                "selection_data": "discovery_taxa_only_for_cross_taxon_selectors; model_pool_only_for_local_nested_auc",
+                "evaluation_data": "same_outer_sealed_unseen_taxa_across_all_predeclared_M_specs",
                 "auc_interpretation": "presence_rank is numerically presence-background ROC AUC with half-credit ties",
                 "boyce_interpretation": "binned presence-background Boyce-style index",
                 "sdmr_interpretation": "cross-M within-case rank selector; no weighted super-score",
+                "local_nested_auc_interpretation": (
+                    "for each unseen species x M case, choose universe x strategy only by model-pool inner spatial-CV "
+                    "AUC-equivalent score, then open the same preassigned outer sealed rows"
+                ),
+                "selector_set": ["sdmr_m_robust", "canonical_m_auc", "canonical_m_boyce", "local_nested_auc"],
                 "validation_species": validation_species,
             },
             indent=2,
