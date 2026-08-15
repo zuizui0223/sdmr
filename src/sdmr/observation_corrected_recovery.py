@@ -6,16 +6,10 @@ biased by the observation process. This module transports the held-out occurrenc
 distribution toward a common target-group observation reference using a
 candidate-independent nuisance model fitted only on training data.
 
-The ecological candidate model and the observation audit model are deliberately
-separate:
-
-- conventional AUC/CBI/OR10 use the candidate's full record-prediction score;
-- the candidate's ecological suitability marginalizes its declared observation
-  predictors;
-- the held-out occurrence target is weighted by an audit-wide observation model
-  using the same frozen nuisance predictor set for every candidate.
-
-No hidden ecological truth is used by these weights.
+Correction activation is determined outside this candidate loop by a separate
+training-only observation-process evidence gate. When that gate is inactive the
+held-out occurrence weights are exactly one, so merely having a nuisance column
+cannot inject finite-sample weighting noise.
 """
 from __future__ import annotations
 
@@ -208,15 +202,17 @@ def cross_validated_observation_corrected_niche_recovery(
     *,
     candidate_observation_predictors: Sequence[str] = (),
     audit_observation_predictors: Sequence[str] = (),
+    observation_correction_active: bool = True,
     n_splits: int = 4,
     model_spec: ModelSpec | None = None,
     observation_weight_truncation_quantile: float = 0.99,
 ) -> pd.DataFrame:
-    """Return prediction and corrected niche-recovery metrics by spatial fold.
+    """Return prediction and candidate-independent corrected recovery by fold.
 
-    The audit observation weights are identical for every candidate given the same
-    train/test fold because they depend only on the frozen audit nuisance
-    predictors and training focal/background rows.
+    ``observation_correction_active`` is decided once outside the candidate loop by
+    the training-only observation-process signal gate. Every candidate therefore
+    sees exactly the same correction state and, within a fold, the same occurrence
+    weights. If the gate is inactive, identity weights are used.
     """
 
     candidate_observation_predictors = tuple(
@@ -235,7 +231,8 @@ def cross_validated_observation_corrected_niche_recovery(
         raise ValueError("At least two spatial blocks are required for corrected niche-recovery CV")
     splitter = GroupKFold(n_splits=folds)
     dummy = np.zeros(len(presence), dtype=int)
-    rows: list[dict[str, float | int]] = []
+    rows: list[dict[str, float | int | bool]] = []
+    weight_predictors = audit_observation_predictors if observation_correction_active else ()
     for fold, (train_idx, test_idx) in enumerate(splitter.split(dummy, groups=presence_groups)):
         train_blocks = np.unique(presence_groups[train_idx])
         test_blocks = np.unique(presence_groups[test_idx])
@@ -268,7 +265,7 @@ def cross_validated_observation_corrected_niche_recovery(
                 p_train,
                 b_train,
                 p_test,
-                audit_observation_predictors,
+                weight_predictors,
                 truncation_quantile=observation_weight_truncation_quantile,
             )
             profile = observation_corrected_heldout_niche_recovery_profile(
@@ -287,6 +284,7 @@ def cross_validated_observation_corrected_niche_recovery(
                 "presence_rank": presence_rank_score(test_p_scores, test_b_scores),
                 "continuous_boyce": continuous_boyce_index(test_p_scores, test_b_scores),
                 "or10": or10(train_p_scores, test_p_scores),
+                "observation_correction_active": bool(observation_correction_active),
                 "n_candidate_observation_predictors": len(candidate_observation_predictors),
                 "n_audit_observation_predictors": len(audit_observation_predictors),
                 "observation_weight_ess": observation_weights.effective_sample_size,
