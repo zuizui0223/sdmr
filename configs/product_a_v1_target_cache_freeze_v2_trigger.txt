@@ -8,3 +8,4 @@ excluded_taxa_count=12
 snapshot_shards=9705
 parallel_chunks=8
 exact_reduction=per_chunk_ARG_MIN_then_global_ARG_MIN
+freeze_attempt=2_after_parallel_success
