@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+import os
 import numpy as np
 import pandas as pd
 from .baselines import vif_prune_predictors
@@ -43,6 +45,17 @@ def _default_model_specs() -> list[ModelSpec]:
     return [ModelSpec(C=c, degree=d, penalty=p) for d in (1, 2) for p in ("l1", "l2") for c in (0.1, 1.0, 10.0)]
 
 
+def _resolve_model_spec_jobs() -> int:
+    raw = os.environ.get("SDMR_MODEL_SPEC_JOBS", "1").strip() or "1"
+    try:
+        jobs = int(raw)
+    except ValueError as exc:
+        raise ValueError("SDMR_MODEL_SPEC_JOBS must be an integer >= 1") from exc
+    if jobs < 1:
+        raise ValueError("SDMR_MODEL_SPEC_JOBS must be >= 1")
+    return jobs
+
+
 def _better(candidate: FrozenProtocol, current: FrozenProtocol | None) -> bool:
     if not candidate.predictors or not np.isfinite(candidate.inner_score):
         return False
@@ -70,14 +83,20 @@ def freeze_candidate_methods(
     max_predictors: int | None = 8,
     vif_threshold: float = 5.0,
 ) -> tuple[dict[str, FrozenProtocol], pd.DataFrame]:
-    """Tune all choices inside the model pool; sealed occurrences are absent."""
+    """Tune all choices inside the model pool; sealed occurrences are absent.
+
+    ModelSpec candidates are mathematically independent. ``SDMR_MODEL_SPEC_JOBS``
+    may evaluate them concurrently, but outputs are collected in the original
+    spec order and the historical deterministic tie-break is applied only after
+    collection. The default remains one worker.
+    """
     specs = list(model_specs or _default_model_specs())
     if not specs:
         raise ValueError("At least one ModelSpec is required.")
     vif_predictors, _ = vif_prune_predictors(model_background, candidate_predictors, threshold=vif_threshold)
-    best: dict[str, FrozenProtocol] = {}
-    rows = []
-    for spec in specs:
+    jobs = _resolve_model_spec_jobs()
+
+    def evaluate_spec(spec: ModelSpec):
         strategy_sets = {"all": list(candidate_predictors), "vif": list(vif_predictors)}
         try:
             selected, _, _ = forward_select_predictors(
@@ -88,20 +107,39 @@ def freeze_candidate_methods(
             strategy_sets["predictive"] = selected
         except ValueError:
             strategy_sets["predictive"] = []
+
+        spec_rows = []
+        spec_protocols = []
         for strategy, predictors in strategy_sets.items():
             score = float("nan") if not predictors else cross_validated_score(
                 model_presence, model_background, presence_groups, background_groups,
                 predictors, n_splits=inner_folds, model_spec=spec,
             )
             protocol = FrozenProtocol(strategy, tuple(predictors), spec, float(score))
-            rows.append({
+            spec_protocols.append(protocol)
+            spec_rows.append({
                 "strategy": strategy, "model": spec.label, "C": spec.C,
                 "degree": spec.degree, "penalty": spec.penalty,
                 "n_predictors": len(predictors), "predictors": ",".join(predictors),
                 "inner_presence_rank": score,
             })
-            if _better(protocol, best.get(strategy)):
-                best[strategy] = protocol
+        return spec_protocols, spec_rows
+
+    if jobs == 1:
+        evaluated = [evaluate_spec(spec) for spec in specs]
+    else:
+        with ThreadPoolExecutor(max_workers=jobs, thread_name_prefix="sdmr-model-spec") as executor:
+            evaluated = list(executor.map(evaluate_spec, specs))
+
+    best: dict[str, FrozenProtocol] = {}
+    rows = []
+    # executor.map preserves input order; aggregate serially to retain exact
+    # tie-break and row ordering from the original implementation.
+    for spec_protocols, spec_rows in evaluated:
+        rows.extend(spec_rows)
+        for protocol in spec_protocols:
+            if _better(protocol, best.get(protocol.strategy)):
+                best[protocol.strategy] = protocol
     return best, pd.DataFrame(rows)
 
 
@@ -146,9 +184,6 @@ def _preassigned_outer_split(
     if len(b_model) < 2 or len(b_test) < 2:
         raise ValueError(f"{species_name}: preassigned background split lacks model/sealed-reference rows")
 
-    # We need group labels for inner CV, not another outer test.  This partition
-    # sees model-pool occurrence/background rows only; its train/test labels are
-    # deliberately ignored.
     inner = make_spatial_partition(
         p_model[lon_col].to_numpy(float),
         p_model[lat_col].to_numpy(float),
