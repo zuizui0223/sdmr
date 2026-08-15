@@ -58,7 +58,8 @@ def benchmark_selectors_against_known_truth(
     n_spatial_blocks: int = 8,
     inner_folds: int = 4,
     random_state: int = 42,
-    gated_auc_minimum_tolerance: float = 0.01,
+    gated_chance_auc: float = 0.50,
+    gated_minimum_auc_margin: float = 0.01,
     gated_auc_sem_multiplier: float = 1.0,
     gated_max_mean_or10: float | None = None,
 ) -> KnownTruthSelectorBenchmark:
@@ -70,8 +71,13 @@ def benchmark_selectors_against_known_truth(
     - ``inner_cbi``: maximum mean inner continuous Boyce index;
     - ``inner_or10``: minimum mean independent-test OR10;
     - ``niche_recovery``: ecological Pareto + minimax without a prediction gate;
-    - ``gated_niche_recovery``: retain predictively credible candidates first,
-      then use the same ecological Pareto + minimax rule.
+    - ``gated_niche_recovery``: require independent prediction above an absolute
+      adequacy floor, then use the same ecological Pareto + minimax rule.
+
+    The gated selector does not compare a candidate with the best AUC. Its default
+    gate is mean AUC >= 0.51 and mean AUC - 1 SEM >= 0.50. Thus AUC screens out
+    procedures that fail basic transfer, while ecology chooses among adequate
+    procedures.
 
     AICc is intentionally not manufactured for the current class-balanced,
     penalized logistic family; a valid likelihood-backed comparator belongs in a
@@ -116,7 +122,8 @@ def benchmark_selectors_against_known_truth(
     recovery_selection = select_niche_recovery_protocol(fold_metrics)
     gated_selection = select_generalization_gated_niche_recovery_protocol(
         fold_metrics,
-        minimum_auc_tolerance=gated_auc_minimum_tolerance,
+        chance_auc=gated_chance_auc,
+        minimum_auc_margin=gated_minimum_auc_margin,
         auc_sem_multiplier=gated_auc_sem_multiplier,
         max_mean_or10=gated_max_mean_or10,
     )
@@ -166,8 +173,11 @@ def benchmark_selectors_against_known_truth(
                 "mean_inner_auc": float(candidate_folds["presence_rank"].mean()),
                 "mean_inner_cbi": float(candidate_folds["continuous_boyce"].mean()),
                 "mean_inner_or10": float(candidate_folds["or10"].mean()),
-                "gated_auc_tolerance": (
-                    gated_selection.auc_gate_tolerance if selector == "gated_niche_recovery" else float("nan")
+                "gated_auc_floor": (
+                    gated_selection.auc_gate_floor if selector == "gated_niche_recovery" else float("nan")
+                ),
+                "gated_chance_auc": (
+                    gated_selection.chance_auc if selector == "gated_niche_recovery" else float("nan")
                 ),
                 "gated_eligible_candidates": (
                     ",".join(gated_selection.eligible_candidates) if selector == "gated_niche_recovery" else ""
