@@ -1,0 +1,134 @@
+name: freeze-product-a-v1-target-cache-v2
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/product_a_v1_target_cache_freeze_v2_trigger.txt'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: freeze-product-a-v1-target-cache-v2
+  cancel-in-progress: true
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Wait for target-cache run 31856322427 to finish successfully
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from urllib.request import Request, urlopen
+          run_id = '31856322427'
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
+          headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
+          for _ in range(360):
+              with urlopen(Request(url, headers=headers), timeout=60) as response:
+                  payload = json.load(response)
+              print('target-cache', payload.get('status'), payload.get('conclusion'))
+              if payload.get('status') == 'completed':
+                  if payload.get('conclusion') != 'success':
+                      raise SystemExit(f"target-cache run failed: {payload.get('conclusion')}")
+                  break
+              time.sleep(20)
+          else:
+              raise SystemExit('target-cache run did not finish within 120 minutes')
+          PY
+      - name: Download successful frozen target artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31856322427
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v1-target-cache-2026-08-01
+          path: target_cache_bundle
+      - name: Synchronize latest Product-A branch before writing contract
+        run: |
+          git fetch origin agent/nested-spatial-raster-benchmark
+          git checkout agent/nested-spatial-raster-benchmark
+          git reset --hard origin/agent/nested-spatial-raster-benchmark
+      - name: Verify source artifact and freeze target contract
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json
+          from pathlib import Path
+          import pandas as pd
+
+          def unique(name):
+              hits = list(Path('target_cache_bundle').rglob(name))
+              if len(hits) != 1:
+                  raise SystemExit(f'expected exactly one {name}; found {len(hits)}')
+              return hits[0]
+          manifest_path = unique('target_cache_manifest.json')
+          target_path = unique('target_group.parquet')
+          prov_path = unique('target_group.provenance.csv')
+          citation_path = unique('target_group.parquet.citation.txt')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          target_sha = hashlib.sha256(target_path.read_bytes()).hexdigest()
+          citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
+          prov = pd.read_csv(prov_path).iloc[0]
+
+          if target_sha != str(manifest.get('target_sha256','')).lower() or target_sha != str(prov.get('sha256','')).lower():
+              raise SystemExit('target file SHA mismatch')
+          if str(manifest.get('target_query_sha256','')).lower() != str(prov.get('query_sha256','')).lower():
+              raise SystemExit('target query SHA mismatch')
+          if citation_sha != '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050':
+              raise SystemExit('target citation SHA differs from frozen 2026-08-01 snapshot')
+          if str(manifest.get('snapshot_date','')) != '2026-08-01' or str(manifest.get('snapshot_doi','')).lower() != '10.15468/dl.fs3btq':
+              raise SystemExit('target snapshot date/DOI mismatch')
+          if str(prov.get('cloud_provider','')).lower() != 'aws':
+              raise SystemExit('target cache was not built from hardened AWS transport')
+
+          columns = [
+              'source_run_id','artifact_name','target_sha256','target_query_sha256','citation_sha256',
+              'snapshot_date','snapshot_doi','target_rows','target_species','cloud_provider',
+              'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
+          ]
+          row = {
+              'source_run_id': '31856322427',
+              'artifact_name': 'product-a-v1-target-cache-2026-08-01',
+              'target_sha256': target_sha,
+              'target_query_sha256': str(manifest.get('target_query_sha256','')),
+              'citation_sha256': citation_sha,
+              'snapshot_date': '2026-08-01',
+              'snapshot_doi': '10.15468/dl.fs3btq',
+              'target_rows': str(manifest.get('target_rows','')),
+              'target_species': str(manifest.get('target_species','')),
+              'cloud_provider': str(manifest.get('cloud_provider','')),
+              'http_keep_alive': str(manifest.get('http_keep_alive','')),
+              'http_retries': str(manifest.get('http_retries','')),
+              'http_retry_wait_ms': str(manifest.get('http_retry_wait_ms','')),
+              'http_retry_backoff': str(manifest.get('http_retry_backoff','')),
+              'http_timeout': str(manifest.get('http_timeout','')),
+          }
+          out = Path('configs/product_a_v1_target_cache.csv')
+          with out.open('w', encoding='utf-8', newline='') as fh:
+              writer = csv.DictWriter(fh, fieldnames=columns)
+              writer.writeheader(); writer.writerow(row)
+          print(row)
+          PY
+      - name: Commit contract on latest branch
+        run: |
+          git config user.name 'sdmr-evidence-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add configs/product_a_v1_target_cache.csv
+          if git diff --cached --quiet; then
+            echo 'Target-cache contract already identical.'
+          else
+            git commit -m 'Freeze Product-A v1 target-group source evidence'
+            git push origin HEAD:agent/nested-spatial-raster-benchmark
+          fi
