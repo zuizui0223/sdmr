@@ -77,11 +77,11 @@ def default_known_truth_candidates() -> dict[str, RecoveryCandidate]:
 
 
 def _truth_ranks(frame: pd.DataFrame) -> pd.DataFrame:
-    """Rank hidden-truth recovery and mark all exact best rows as co-winners.
+    """Rank hidden ecological truth and mark all exact best rows as co-winners.
 
-    A selector name is never used as a scientific tie-break. This matters because
-    two selectors can select the same candidate and therefore have identical
-    hidden-truth recovery profiles.
+    The truth audit intentionally spans both environmental-distribution recovery
+    and direct ecological structure (surface, response curves, optima, limits and
+    process-group recovery). None of these columns are visible during selection.
     """
 
     data = frame.copy()
@@ -91,6 +91,16 @@ def _truth_ranks(frame: pd.DataFrame) -> pd.DataFrame:
         "breadth_log_sd_error": True,
         "quantile_profile_error": True,
     }
+    optional_directions = {
+        "truth_surface_rank": False,
+        "truth_surface_nrmse": True,
+        "response_curve_error": True,
+        "optimum_error": True,
+        "lower_limit_error": True,
+        "upper_limit_error": True,
+        "driver_process_f1": False,
+    }
+    directions.update({metric: direction for metric, direction in optional_directions.items() if metric in data.columns})
     required = {"scenario", "seed", "selector", *directions}
     missing = required - set(data.columns)
     if missing:
@@ -128,25 +138,35 @@ def _truth_ranks(frame: pd.DataFrame) -> pd.DataFrame:
         .rename("truth_best_selectors")
         .reset_index()
     )
-    data = data.merge(co_winners, on=groups, how="left")
-    return data
+    return data.merge(co_winners, on=groups, how="left")
 
 
 def _summarize_truth(truth: pd.DataFrame) -> pd.DataFrame:
     if truth.empty:
         return pd.DataFrame()
+    aggregation = {
+        "n_replicates": ("seed", "size"),
+        "truth_co_win_fraction": ("truth_selector_win", "mean"),
+        "mean_truth_overlap": ("niche_overlap_schoener_d_pc12", "mean"),
+        "mean_centroid_distance": ("centroid_distance", "mean"),
+        "mean_breadth_error": ("breadth_log_sd_error", "mean"),
+        "mean_quantile_error": ("quantile_profile_error", "mean"),
+        "mean_truth_worst_rank": ("truth_worst_metric_rank", "mean"),
+        "mean_truth_mean_rank": ("truth_mean_metric_rank", "mean"),
+    }
+    optional = {
+        "mean_truth_surface_rank": ("truth_surface_rank", "mean"),
+        "mean_truth_surface_nrmse": ("truth_surface_nrmse", "mean"),
+        "mean_response_curve_error": ("response_curve_error", "mean"),
+        "mean_optimum_error": ("optimum_error", "mean"),
+        "mean_lower_limit_error": ("lower_limit_error", "mean"),
+        "mean_upper_limit_error": ("upper_limit_error", "mean"),
+        "mean_driver_process_f1": ("driver_process_f1", "mean"),
+    }
+    aggregation.update({name: spec for name, spec in optional.items() if spec[0] in truth.columns})
     return (
         truth.groupby("selector", as_index=False)
-        .agg(
-            n_replicates=("seed", "size"),
-            truth_co_win_fraction=("truth_selector_win", "mean"),
-            mean_truth_overlap=("niche_overlap_schoener_d_pc12", "mean"),
-            mean_centroid_distance=("centroid_distance", "mean"),
-            mean_breadth_error=("breadth_log_sd_error", "mean"),
-            mean_quantile_error=("quantile_profile_error", "mean"),
-            mean_truth_worst_rank=("truth_worst_metric_rank", "mean"),
-            mean_truth_mean_rank=("truth_mean_metric_rank", "mean"),
-        )
+        .agg(**aggregation)
         .sort_values(
             ["truth_co_win_fraction", "mean_truth_worst_rank", "mean_truth_mean_rank", "selector"],
             ascending=[False, True, True, True],
@@ -209,12 +229,7 @@ def run_structural_known_truth_experiment(
     inner_folds: int = 3,
     observation_confounded_strength: float = 4.0,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Run structural niche families with one fixed candidate library.
-
-    Candidate definitions are identical across all families. In the
-    observation-confounded family the focal observation process is stronger, but
-    it is never included in the ecological audit basis or hidden truth.
-    """
+    """Run structural niche families with one fixed candidate library."""
 
     families = tuple(str(x) for x in families)
     unknown = sorted(set(families) - set(KNOWN_TRUTH_FAMILIES))
