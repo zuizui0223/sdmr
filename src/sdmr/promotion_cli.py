@@ -1,4 +1,4 @@
-"""CLI gate that emits a promoted Product-A protocol only when declared criteria pass."""
+"""CLI gate that emits a promoted Product-A method only when declared criteria pass."""
 from __future__ import annotations
 
 import argparse
@@ -12,8 +12,8 @@ from .promotion import ProductAPromotionCriteria, assess_product_a_promotion
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Evaluate predeclared Product-A promotion criteria from repeated protocol runs. "
-            "No threshold has a hidden default: all scientific cutoffs must be supplied explicitly."
+            "Evaluate predeclared Product-A promotion criteria from repeated runs. "
+            "No scientific threshold has a hidden CLI default."
         )
     )
     parser.add_argument("--runs", required=True)
@@ -25,7 +25,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--min-mean-delta-presence-rank", type=float, required=True)
     parser.add_argument("--min-positive-pair-fraction", type=float, required=True)
     parser.add_argument("--min-pairs-per-comparator", type=int, required=True)
-    parser.add_argument("--required-comparators", required=True, help="Comma-separated, e.g. all,vif")
+    parser.add_argument("--min-m-spec-win-fraction", type=float, required=True)
+    parser.add_argument("--required-comparators", required=True, help="Comma-separated, e.g. all,vif,predictive")
     args = parser.parse_args(argv)
 
     comparators = tuple(x.strip() for x in args.required_comparators.split(",") if x.strip())
@@ -37,6 +38,7 @@ def main(argv: list[str] | None = None) -> int:
             min_positive_pair_fraction=args.min_positive_pair_fraction,
             min_pairs_per_comparator=args.min_pairs_per_comparator,
             required_comparators=comparators,
+            min_m_spec_win_fraction=args.min_m_spec_win_fraction,
         )
         assessment = assess_product_a_promotion(
             pd.read_csv(args.runs),
@@ -62,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
                 "min_mean_delta_presence_rank": criteria.min_mean_delta_presence_rank,
                 "min_positive_pair_fraction": criteria.min_positive_pair_fraction,
                 "min_pairs_per_comparator": criteria.min_pairs_per_comparator,
+                "min_m_spec_win_fraction": criteria.min_m_spec_win_fraction,
                 "required_comparators": ",".join(criteria.required_comparators),
             }
         ]
@@ -69,22 +72,25 @@ def main(argv: list[str] | None = None) -> int:
 
     if assessment.promoted:
         choice = assessment.promoted_choice
-        (out / "promoted_product_a_protocol.txt").write_text(
-            "winning_data_specification=" + choice["winning_data_specification"] + "\n"
-            + "winning_universe=" + choice["winning_universe"] + "\n"
-            + "winning_strategy=" + choice["winning_strategy"] + "\n"
-            + "winning_universe_sha256=" + choice["winning_universe_sha256"] + "\n"
-            + "winning_predictors=" + choice["winning_predictors"] + "\n"
-            + "occurrence_sha256=" + choice["occurrence_sha256"] + "\n"
-            + "occurrence_feature_sha256=" + choice["occurrence_feature_sha256"] + "\n"
-            + "promotion_min_protocol_selection_fraction=" + str(criteria.min_protocol_selection_fraction) + "\n"
-            + "promotion_min_runs_selected=" + str(criteria.min_runs_selected) + "\n"
-            + "promotion_min_mean_delta_presence_rank=" + str(criteria.min_mean_delta_presence_rank) + "\n"
-            + "promotion_min_positive_pair_fraction=" + str(criteria.min_positive_pair_fraction) + "\n"
-            + "promotion_min_pairs_per_comparator=" + str(criteria.min_pairs_per_comparator) + "\n"
-            + "promotion_required_comparators=" + ",".join(criteria.required_comparators) + "\n",
-            encoding="utf-8",
-        )
+        lines = [
+            "winning_data_specification=" + choice["winning_data_specification"],
+            "winning_universe=" + choice["winning_universe"],
+            "winning_strategy=" + choice["winning_strategy"],
+            "winning_universe_sha256=" + choice["winning_universe_sha256"],
+            "winning_predictors=" + choice["winning_predictors"],
+            "occurrence_sha256=" + choice["occurrence_sha256"],
+            "occurrence_feature_sha256=" + choice["occurrence_feature_sha256"],
+            "promotion_min_protocol_selection_fraction=" + str(criteria.min_protocol_selection_fraction),
+            "promotion_min_runs_selected=" + str(criteria.min_runs_selected),
+            "promotion_min_mean_delta_presence_rank=" + str(criteria.min_mean_delta_presence_rank),
+            "promotion_min_positive_pair_fraction=" + str(criteria.min_positive_pair_fraction),
+            "promotion_min_pairs_per_comparator=" + str(criteria.min_pairs_per_comparator),
+            "promotion_min_m_spec_win_fraction=" + str(criteria.min_m_spec_win_fraction),
+            "promotion_required_comparators=" + ",".join(criteria.required_comparators),
+        ]
+        if "min_m_spec_win_fraction_observed" in choice:
+            lines.append("min_m_spec_win_fraction_observed=" + choice["min_m_spec_win_fraction_observed"])
+        (out / "promoted_product_a_protocol.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
         return 0
 
     (out / "promotion_not_met.txt").write_text(
