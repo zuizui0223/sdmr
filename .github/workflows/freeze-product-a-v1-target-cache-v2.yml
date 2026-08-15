@@ -66,7 +66,6 @@ jobs:
           python - <<'PY'
           import csv, hashlib, json
           from pathlib import Path
-          import pandas as pd
 
           def unique(name):
               hits = list(Path('target_cache_bundle').rglob(name))
@@ -81,7 +80,11 @@ jobs:
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           target_sha = hashlib.sha256(target_path.read_bytes()).hexdigest()
           citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
-          prov = pd.read_csv(prov_path).iloc[0]
+          with prov_path.open(encoding='utf-8', newline='') as fh:
+              prov_rows = list(csv.DictReader(fh))
+          if len(prov_rows) != 1:
+              raise SystemExit(f'expected exactly one provenance row, found {len(prov_rows)}')
+          prov = prov_rows[0]
           taxa_sha = hashlib.sha256(Path('configs/product_a_pilot_taxa_v1.csv').read_bytes()).hexdigest()
 
           if target_sha != str(manifest.get('target_sha256','')).lower() or target_sha != str(prov.get('sha256','')).lower():
