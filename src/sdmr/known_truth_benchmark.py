@@ -3,6 +3,10 @@
 Candidate procedures are selected using ordinary predictive criteria or ecological
 recovery rules, then every selected procedure is evaluated against the *known
 generating niche*. Hidden truth never participates in candidate selection.
+
+Explicit observation-process predictors remain available to the fitted record
+model, but ecological recovery and hidden ecological truth are evaluated from a
+separate observation-marginalized suitability surface.
 """
 from __future__ import annotations
 
@@ -19,7 +23,10 @@ from .known_truth_response import (
     known_truth_process_profile,
     known_truth_response_profile,
 )
-from .model import fit_relative_suitability_model, score_relative_suitability
+from .model import (
+    fit_relative_suitability_model,
+    score_ecological_suitability,
+)
 from .niche_recovery_cv import RecoveryCandidate, cross_validated_niche_recovery
 from .niche_recovery_selection import (
     select_generalization_gated_niche_recovery_protocol,
@@ -63,25 +70,12 @@ def benchmark_selectors_against_known_truth(
     gated_auc_sem_multiplier: float = 1.0,
     gated_max_mean_or10: float | None = None,
 ) -> KnownTruthSelectorBenchmark:
-    """Select candidates without truth, then score the winners against truth.
+    """Select without truth, then score ecological products against truth.
 
-    Selectors:
-
-    - ``inner_auc``: maximum mean inner presence-background AUC-equivalent rank;
-    - ``inner_cbi``: maximum mean inner continuous Boyce index;
-    - ``inner_or10``: minimum mean independent-test OR10;
-    - ``niche_recovery``: ecological Pareto + minimax without a prediction gate;
-    - ``gated_niche_recovery``: require independent prediction above an absolute
-      adequacy floor, then use the same ecological Pareto + minimax rule.
-
-    The gated selector does not compare a candidate with the best AUC. Its default
-    gate is mean AUC >= 0.51 and mean AUC - 1 SEM >= 0.50. Thus AUC screens out
-    procedures that fail basic transfer, while ecology chooses among adequate
-    procedures.
-
-    AICc is intentionally not manufactured for the current class-balanced,
-    penalized logistic family; a valid likelihood-backed comparator belongs in a
-    separate model family/criterion implementation.
+    Conventional selectors use full observation-aware record predictions. The
+    ecological selectors use observation-marginalized suitability for their niche
+    recovery profile. After a selector chooses a candidate, its final ecological
+    product is also marginalized before hidden-truth scoring.
     """
 
     occurrence = simulation.occurrences.reset_index(drop=True)
@@ -106,6 +100,7 @@ def benchmark_selectors_against_known_truth(
             part.background_blocks,
             candidate.predictors,
             simulation.audit_predictors,
+            observation_predictors=candidate.observation_predictors,
             n_splits=inner_folds,
             model_spec=candidate.model_spec,
         )
@@ -113,6 +108,10 @@ def benchmark_selectors_against_known_truth(
             continue
         metrics["candidate"] = str(name)
         metrics["n_predictors"] = len(candidate.predictors)
+        metrics["n_ecological_predictors"] = len(
+            [p for p in candidate.predictors if p not in candidate.observation_predictors]
+        )
+        metrics["n_observation_predictors_declared"] = len(candidate.observation_predictors)
         metrics["model"] = candidate.model_spec.label
         frames.append(metrics)
     if not frames:
@@ -149,20 +148,29 @@ def benchmark_selectors_against_known_truth(
             candidate.predictors,
             model_spec=candidate.model_spec,
         )
-        prediction = score_relative_suitability(model, environment, candidate.predictors)
+        ecological_prediction = score_ecological_suitability(
+            model,
+            environment,
+            candidate.predictors,
+            observation_predictors=candidate.observation_predictors,
+            observation_reference=background,
+        )
         niche_profile = known_truth_niche_recovery_profile(
             environment,
-            prediction,
+            ecological_prediction,
             truth,
             simulation.audit_predictors,
         )
         response_profile = known_truth_response_profile(
             environment,
-            prediction,
+            ecological_prediction,
             truth,
             response_predictors,
         )
-        process_profile = known_truth_process_profile(candidate.predictors, true_processes)
+        ecological_predictors = tuple(
+            p for p in candidate.predictors if p not in candidate.observation_predictors
+        )
+        process_profile = known_truth_process_profile(ecological_predictors, true_processes)
         candidate_folds = fold_metrics.loc[fold_metrics["candidate"].astype(str) == candidate_name]
         choices.append(
             {
@@ -170,6 +178,9 @@ def benchmark_selectors_against_known_truth(
                 "candidate": candidate_name,
                 "model": candidate.model_spec.label,
                 "n_predictors": len(candidate.predictors),
+                "n_ecological_predictors": len(ecological_predictors),
+                "n_observation_predictors": len(candidate.observation_predictors),
+                "observation_predictors": ",".join(candidate.observation_predictors),
                 "mean_inner_auc": float(candidate_folds["presence_rank"].mean()),
                 "mean_inner_cbi": float(candidate_folds["continuous_boyce"].mean()),
                 "mean_inner_or10": float(candidate_folds["or10"].mean()),
@@ -206,12 +217,7 @@ def summarize_selector_disagreement(
     *,
     reference_selector: str = "gated_niche_recovery",
 ) -> pd.DataFrame:
-    """Audit selector disagreement and hidden-truth consequences after selection.
-
-    No truth metric is used to choose a candidate. The returned truth gains are
-    post-selection diagnostics only, and they remain separate by ecological axis
-    instead of being collapsed into a weighted score.
-    """
+    """Audit selector disagreement and hidden-truth consequences after selection."""
 
     choices = result.selector_choices.copy()
     truth = result.truth_evaluation.copy()
