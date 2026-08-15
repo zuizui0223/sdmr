@@ -58,36 +58,56 @@ def _synthetic_specifications():
     }
 
 
-def test_parallel_robust_product_a_is_exactly_equivalent_to_sequential():
-    specifications = _synthetic_specifications()
-    universes = {"core": ["signal"], "expanded": ["signal", "noise"]}
-    kwargs = dict(
+def _assert_same_product_a(left, right):
+    assert left.winning_universe == right.winning_universe
+    assert left.winning_strategy == right.winning_strategy
+    assert left.winning_predictors == right.winning_predictors
+    assert left.discovery_species == right.discovery_species
+    assert left.validation_species == right.validation_species
+    assert left.occurrence_sha256 == right.occurrence_sha256
+    assert left.occurrence_feature_sha256 == right.occurrence_feature_sha256
+    pd.testing.assert_frame_equal(left.discovery_metrics, right.discovery_metrics)
+    pd.testing.assert_frame_equal(left.discovery_summary, right.discovery_summary)
+    pd.testing.assert_frame_equal(left.validation_metrics, right.validation_metrics)
+    pd.testing.assert_frame_equal(left.validation_summary, right.validation_summary)
+    pd.testing.assert_frame_equal(left.paired_validation_deltas, right.paired_validation_deltas)
+
+
+def _base_kwargs():
+    return dict(
         taxon_validation_fraction=0.25,
         random_state=19,
         model_specs=[ModelSpec(C=1.0, degree=1, penalty="l2")],
         inner_folds=2,
         max_predictors=2,
-        random_repeats=0,
         compute_drop_one=False,
     )
 
+
+def test_parallel_robust_product_a_is_exactly_equivalent_to_sequential():
+    specifications = _synthetic_specifications()
+    universes = {"core": ["signal"], "expanded": ["signal", "noise"]}
+    kwargs = _base_kwargs()
+
     sequential = benchmark_product_a_method_across_sensitivity_specs(
-        specifications, universes, n_jobs=1, **kwargs
+        specifications, universes, n_jobs=1, random_repeats=0, **kwargs
     )
     parallel = benchmark_product_a_method_across_sensitivity_specs(
-        specifications, universes, n_jobs=2, **kwargs
+        specifications, universes, n_jobs=2, random_repeats=0, **kwargs
     )
+    _assert_same_product_a(parallel, sequential)
 
-    assert parallel.winning_universe == sequential.winning_universe
-    assert parallel.winning_strategy == sequential.winning_strategy
-    assert parallel.winning_predictors == sequential.winning_predictors
-    assert parallel.discovery_species == sequential.discovery_species
-    assert parallel.validation_species == sequential.validation_species
-    assert parallel.occurrence_sha256 == sequential.occurrence_sha256
-    assert parallel.occurrence_feature_sha256 == sequential.occurrence_feature_sha256
 
-    pd.testing.assert_frame_equal(parallel.discovery_metrics, sequential.discovery_metrics)
-    pd.testing.assert_frame_equal(parallel.discovery_summary, sequential.discovery_summary)
-    pd.testing.assert_frame_equal(parallel.validation_metrics, sequential.validation_metrics)
-    pd.testing.assert_frame_equal(parallel.validation_summary, sequential.validation_summary)
-    pd.testing.assert_frame_equal(parallel.paired_validation_deltas, sequential.paired_validation_deltas)
+def test_random_baseline_repeats_do_not_change_robust_product_a_outputs():
+    """Robust Product A discards SpeciesMethodBenchmarkResult.random_baseline."""
+    specifications = _synthetic_specifications()
+    universes = {"core": ["signal"], "expanded": ["signal", "noise"]}
+    kwargs = _base_kwargs()
+
+    no_random = benchmark_product_a_method_across_sensitivity_specs(
+        specifications, universes, n_jobs=1, random_repeats=0, **kwargs
+    )
+    with_random = benchmark_product_a_method_across_sensitivity_specs(
+        specifications, universes, n_jobs=1, random_repeats=3, **kwargs
+    )
+    _assert_same_product_a(with_random, no_random)
