@@ -7,9 +7,13 @@ The same hidden ecological niche is observed through predeclared changes in:
   only*; and
 - fixed source -> shifted or shifted -> source domain transfer.
 
-The perturbation selector never sees generating suitability. Hidden truth can be
-opened later for post-selection evaluation, but this module's tuning evidence is
-made only from record-prediction and held-out ecological-recovery diagnostics.
+Two recovery targets are deliberately available for falsification:
+
+- the historical/unweighted held-out occurrence distribution; and
+- an observation-corrected held-out occurrence distribution transported with a
+  candidate-independent nuisance model fitted on training data only.
+
+The perturbation selector never sees generating suitability.
 """
 from __future__ import annotations
 
@@ -36,6 +40,11 @@ from .niche_recovery_perturbation import (
     PerturbationRobustNicheRecoverySelection,
     select_perturbation_robust_niche_recovery_protocol,
 )
+from .observation_corrected_recovery import (
+    cross_validated_observation_corrected_niche_recovery,
+    observation_corrected_heldout_niche_recovery_profile,
+)
+from .observation_process import inverse_observation_propensity_weights
 from .validation import assign_spatial_blocks, make_presence_spatial_partition
 
 
@@ -93,6 +102,12 @@ class KnownTruthPerturbationResult:
     selection_error: str | None
 
 
+def _audit_observation_predictors(simulation) -> tuple[str, ...]:
+    """Return the frozen nuisance audit set for bundled structural simulations."""
+
+    return ("recording_bias",) if "recording_bias" in simulation.environment.columns else ()
+
+
 def _nearest_planar_distance(
     query: pd.DataFrame,
     reference: pd.DataFrame,
@@ -124,6 +139,8 @@ def _candidate_spatial_metrics(
     random_state: int,
     outer_holdout_fraction: float,
     min_background: int,
+    observation_correction: bool,
+    observation_weight_truncation_quantile: float,
 ) -> pd.DataFrame:
     occurrence = simulation.occurrences.reset_index(drop=True)
     target = simulation.target_group.reset_index(drop=True)
@@ -155,26 +172,43 @@ def _candidate_spatial_metrics(
         background["latitude"].to_numpy(float),
         partition.centers_xyz,
     )
+    audit_observation_predictors = _audit_observation_predictors(simulation)
 
     frames = []
     for name in sorted(candidates):
         candidate = candidates[name]
-        frame = cross_validated_niche_recovery(
-            model_occurrence,
-            background,
-            model_groups,
-            background_groups,
-            candidate.predictors,
-            simulation.audit_predictors,
-            observation_predictors=candidate.observation_predictors,
-            n_splits=inner_folds,
-            model_spec=candidate.model_spec,
-        )
+        if observation_correction:
+            frame = cross_validated_observation_corrected_niche_recovery(
+                model_occurrence,
+                background,
+                model_groups,
+                background_groups,
+                candidate.predictors,
+                simulation.audit_predictors,
+                candidate_observation_predictors=candidate.observation_predictors,
+                audit_observation_predictors=audit_observation_predictors,
+                n_splits=inner_folds,
+                model_spec=candidate.model_spec,
+                observation_weight_truncation_quantile=observation_weight_truncation_quantile,
+            )
+        else:
+            frame = cross_validated_niche_recovery(
+                model_occurrence,
+                background,
+                model_groups,
+                background_groups,
+                candidate.predictors,
+                simulation.audit_predictors,
+                observation_predictors=candidate.observation_predictors,
+                n_splits=inner_folds,
+                model_spec=candidate.model_spec,
+            )
         if frame.empty:
             continue
         frame["candidate"] = str(name)
         frame["perturbation"] = str(perturbation)
         frame["perturbation_type"] = "sampling_or_background"
+        frame["observation_correction"] = bool(observation_correction)
         frame["access_radius"] = float(access_radius)
         frame["n_predictors"] = len(candidate.predictors)
         frame["n_outer_model_presence"] = len(model_occurrence)
@@ -192,6 +226,8 @@ def _candidate_domain_transfer_metrics(
     perturbation: str,
     train_domain: str,
     test_domain: str,
+    observation_correction: bool,
+    observation_weight_truncation_quantile: float,
 ) -> pd.DataFrame:
     occurrence = simulation.occurrences.reset_index(drop=True)
     background = simulation.target_group.reset_index(drop=True)
@@ -205,6 +241,16 @@ def _candidate_domain_transfer_metrics(
     if min(len(p_train), len(p_test)) < 10 or min(len(b_train), len(b_test)) < 20:
         raise ValueError(
             f"domain perturbation {perturbation!r} has insufficient source/target rows"
+        )
+    audit_observation_predictors = _audit_observation_predictors(simulation)
+    shared_observation_weights = None
+    if observation_correction:
+        shared_observation_weights = inverse_observation_propensity_weights(
+            p_train,
+            b_train,
+            p_test,
+            audit_observation_predictors,
+            truncation_quantile=observation_weight_truncation_quantile,
         )
 
     rows = []
@@ -227,34 +273,52 @@ def _candidate_domain_transfer_metrics(
                 observation_predictors=candidate.observation_predictors,
                 observation_reference=b_train,
             )
-            profile = heldout_niche_recovery_profile(
-                b_train,
-                b_test,
-                p_test,
-                ecological_b_scores,
-                simulation.audit_predictors,
-            )
+            if observation_correction:
+                profile = observation_corrected_heldout_niche_recovery_profile(
+                    b_train,
+                    b_test,
+                    p_test,
+                    ecological_b_scores,
+                    shared_observation_weights.weights,
+                    simulation.audit_predictors,
+                )
+            else:
+                profile = heldout_niche_recovery_profile(
+                    b_train,
+                    b_test,
+                    p_test,
+                    ecological_b_scores,
+                    simulation.audit_predictors,
+                )
         except (ValueError, KeyError, np.linalg.LinAlgError):
             continue
-        rows.append(
-            {
-                "candidate": str(name),
-                "perturbation": str(perturbation),
-                "perturbation_type": "domain_transfer",
-                "fold": 0,
-                "presence_rank": presence_rank_score(test_p_scores, test_b_scores),
-                "continuous_boyce": continuous_boyce_index(test_p_scores, test_b_scores),
-                "or10": or10(train_p_scores, test_p_scores),
-                "n_predictors": len(candidate.predictors),
-                "domain_train": str(train_domain),
-                "domain_test": str(test_domain),
-                "n_model_presence": len(p_train),
-                "n_heldout_presence": len(p_test),
-                "n_model_background": len(b_train),
-                "n_heldout_background": len(b_test),
-                **profile.as_dict(),
-            }
-        )
+        row = {
+            "candidate": str(name),
+            "perturbation": str(perturbation),
+            "perturbation_type": "domain_transfer",
+            "observation_correction": bool(observation_correction),
+            "fold": 0,
+            "presence_rank": presence_rank_score(test_p_scores, test_b_scores),
+            "continuous_boyce": continuous_boyce_index(test_p_scores, test_b_scores),
+            "or10": or10(train_p_scores, test_p_scores),
+            "n_predictors": len(candidate.predictors),
+            "domain_train": str(train_domain),
+            "domain_test": str(test_domain),
+            "n_model_presence": len(p_train),
+            "n_heldout_presence": len(p_test),
+            "n_model_background": len(b_train),
+            "n_heldout_background": len(b_test),
+            **profile.as_dict(),
+        }
+        if shared_observation_weights is not None:
+            row.update(
+                {
+                    "observation_weight_ess": shared_observation_weights.effective_sample_size,
+                    "observation_weight_max": shared_observation_weights.maximum_normalized_weight,
+                    "observation_weight_truncation_cap": shared_observation_weights.truncation_cap,
+                }
+            )
+        rows.append(row)
     if not rows:
         raise ValueError(f"no candidate produced domain-transfer metrics for {perturbation!r}")
     return pd.DataFrame(rows)
@@ -277,8 +341,16 @@ def evaluate_known_truth_perturbations(
     chance_auc: float = 0.50,
     minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
+    observation_correction: bool = False,
+    observation_weight_truncation_quantile: float = 0.99,
 ) -> KnownTruthPerturbationResult:
-    """Evaluate one fixed candidate library across predeclared perturbations."""
+    """Evaluate one fixed candidate library across predeclared perturbations.
+
+    ``observation_correction=False`` preserves the historical biased-heldout-target
+    benchmark as a negative control. When enabled, every candidate in a fold is
+    compared with the same candidate-independent observation-corrected held-out
+    occurrence target.
+    """
 
     frames = []
     for spec in perturbations:
@@ -302,6 +374,8 @@ def evaluate_known_truth_perturbations(
                 perturbation=spec.name,
                 train_domain=str(spec.domain_train),
                 test_domain=str(spec.domain_test),
+                observation_correction=observation_correction,
+                observation_weight_truncation_quantile=observation_weight_truncation_quantile,
             )
         else:
             frame = _candidate_spatial_metrics(
@@ -314,6 +388,8 @@ def evaluate_known_truth_perturbations(
                 random_state=int(seed),
                 outer_holdout_fraction=outer_holdout_fraction,
                 min_background=min_background,
+                observation_correction=observation_correction,
+                observation_weight_truncation_quantile=observation_weight_truncation_quantile,
             )
         frame["family"] = str(family)
         frame["seed"] = int(seed)
