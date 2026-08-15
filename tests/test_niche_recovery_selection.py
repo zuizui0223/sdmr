@@ -2,7 +2,9 @@ import pandas as pd
 
 from sdmr.niche_recovery_selection import (
     select_generalization_gated_niche_recovery_protocol,
+    select_generalization_gated_robust_niche_recovery_protocol,
     select_niche_recovery_protocol,
+    select_robust_niche_recovery_protocol,
 )
 
 
@@ -53,6 +55,32 @@ def test_minimax_prefers_balanced_pareto_candidate():
     assert set(result.pareto_front) == {"balanced", "centroid_specialist", "overlap_specialist"}
 
 
+def test_robustness_gate_rejects_mean_attractive_candidate_with_bad_worst_fold():
+    metrics = pd.DataFrame(
+        [
+            _row("stable", 0, 0.79, 0.21, 0.21, 0.21, 4),
+            _row("stable", 1, 0.81, 0.19, 0.19, 0.19, 4),
+            _row("unstable", 0, 0.99, 0.01, 0.01, 0.05, 4),
+            _row("unstable", 1, 0.65, 0.37, 0.37, 0.45, 4),
+        ]
+    )
+
+    # Mean recovery likes the unstable candidate: it wins overlap, centroid and
+    # breadth on average, while stable wins quantile recovery.
+    pure = select_niche_recovery_protocol(metrics)
+    assert pure.candidate == "unstable"
+
+    # Robustness is a separate stage. Both candidates survive the mean-recovery
+    # Pareto gate, but stable dominates the ecological worst fold on all axes.
+    robust = select_robust_niche_recovery_protocol(metrics)
+    assert set(robust.recovery_pareto_front) == {"stable", "unstable"}
+    assert robust.robustness_pareto_front == ("stable",)
+    assert robust.candidate == "stable"
+    stable = robust.summary.loc[robust.summary["candidate"].eq("stable")].iloc[0]
+    assert float(stable["worst_fold__niche_overlap_schoener_d_pc12"]) == 0.79
+    assert float(stable["worst_fold__quantile_profile_error"]) == 0.21
+
+
 def test_generalization_gate_rejects_ecologically_attractive_but_nontransferring_candidate():
     metrics = pd.DataFrame(
         [
@@ -78,6 +106,29 @@ def test_generalization_gate_rejects_ecologically_attractive_but_nontransferring
     assert set(gated.eligible_candidates) == {"credible_a", "credible_b"}
     assert gated.candidate == "credible_b"
     assert gated.auc_gate_floor == 0.51
+
+
+def test_generalization_then_robustness_preserves_stage_order():
+    metrics = pd.DataFrame(
+        [
+            _row("nontransfer", 0, 0.99, 0.01, 0.01, 0.01, 3, auc=0.49),
+            _row("nontransfer", 1, 0.99, 0.01, 0.01, 0.01, 3, auc=0.49),
+            _row("stable", 0, 0.79, 0.21, 0.21, 0.21, 4, auc=0.62),
+            _row("stable", 1, 0.81, 0.19, 0.19, 0.19, 4, auc=0.62),
+            _row("unstable", 0, 0.99, 0.01, 0.01, 0.05, 4, auc=0.72),
+            _row("unstable", 1, 0.65, 0.37, 0.37, 0.45, 4, auc=0.72),
+        ]
+    )
+    result = select_generalization_gated_robust_niche_recovery_protocol(
+        metrics,
+        chance_auc=0.50,
+        minimum_auc_margin=0.01,
+        auc_sem_multiplier=0.0,
+    )
+    assert "nontransfer" not in result.eligible_candidates
+    assert set(result.eligible_candidates) == {"stable", "unstable"}
+    assert result.robust_selection.candidate == "stable"
+    assert result.candidate == "stable"
 
 
 def test_auc_gate_is_adequacy_not_auc_maximization():
