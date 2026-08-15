@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       source_run_id:
-        description: "Successful block-v2 feature-cache run ID"
+        description: "Successful block-v3 feature-cache run ID"
         required: true
         type: string
 
@@ -76,7 +76,7 @@ jobs:
         with:
           run-id: ${{ needs.resolve.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          name: product-a-v1-feature-cache-block-v2-2026-08-01
+          name: product-a-v1-feature-cache-block-v3-2026-08-01
           path: feature_cache
       - name: Verify cache contains no preselected method
         run: |
@@ -87,7 +87,9 @@ jobs:
           if c.get('contains_method_winner') is not False:
               raise SystemExit('feature cache contains a method winner')
           if c.get('raster_sampling_engine')!='native_block_grouped_exact_pixel':
-              raise SystemExit('feature cache is not block-v2 exact sampling')
+              raise SystemExit('feature cache is not exact block sampling')
+          if int(c.get('raster_layer_jobs',0))!=4:
+              raise SystemExit('feature cache did not use the proven four-layer engine')
           if int(c.get('n_predictors',0))!=43 or int(c.get('n_taxa',0))!=12:
               raise SystemExit('feature cache has wrong predictor/taxon count')
           print(c)
