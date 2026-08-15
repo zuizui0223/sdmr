@@ -1,0 +1,81 @@
+name: product-a-v2-known-truth
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/known_truth.py'
+      - 'src/sdmr/known_truth_benchmark.py'
+      - 'src/sdmr/known_truth_experiment.py'
+      - 'src/sdmr/niche_recovery.py'
+      - 'src/sdmr/niche_recovery_cv.py'
+      - 'src/sdmr/niche_recovery_selection.py'
+      - '.github/workflows/product-a-v2-known-truth.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-known-truth-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run 25-replicate known-truth development experiment
+        run: |
+          mkdir -p known_truth_result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from sdmr.known_truth_experiment import run_known_truth_experiment
+
+          choices, truth, summary = run_known_truth_experiment(seeds=(1,2,3,4,5))
+          choices.to_csv('known_truth_result/selector_choices.csv', index=False)
+          truth.to_csv('known_truth_result/truth_evaluation.csv', index=False)
+          summary.to_csv('known_truth_result/selector_truth_summary.csv', index=False)
+
+          scenario_summary = (
+              truth.groupby(['scenario','selector'], as_index=False)
+              .agg(
+                  n_replicates=('seed','size'),
+                  truth_win_fraction=('truth_selector_win','mean'),
+                  mean_truth_overlap=('niche_overlap_schoener_d_pc12','mean'),
+                  mean_centroid_distance=('centroid_distance','mean'),
+                  mean_breadth_error=('breadth_log_sd_error','mean'),
+                  mean_quantile_error=('quantile_profile_error','mean'),
+                  mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
+              )
+          )
+          scenario_summary.to_csv('known_truth_result/scenario_selector_summary.csv', index=False)
+          contract = {
+              'purpose': 'development_known_truth_niche_recovery_not_confirmatory_real_data',
+              'selectors': ['inner_auc','inner_cbi','niche_recovery'],
+              'or10_role': 'diagnostic_not_sole_optimizer',
+              'aicc_role': 'not_used_until_valid_likelihood_model_is_available',
+              'scenario_count': int(truth['scenario'].nunique()),
+              'seeds': [1,2,3,4,5],
+              'n_replicates_per_selector': int(len(truth) / truth['selector'].nunique()),
+              'truth_target': 'known_generating_environmental_niche',
+              'selection_never_uses_truth': True,
+          }
+          Path('known_truth_result/contract.json').write_text(json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8')
+          print(summary.to_string(index=False))
+          print('\nBy scenario:')
+          print(scenario_summary.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-known-truth-25rep
+          path: known_truth_result/
+          if-no-files-found: error
+          retention-days: 90
