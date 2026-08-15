@@ -1,7 +1,8 @@
-run=2
+run=3
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
 transport=aws_hardened_http
 source_scope=global_Plantae_0.05_degree_sampling_footprint
 source_independent_of_focal_occurrences=true
+concurrency=global_footprint_independent
 purpose=materialize and fingerprint the minimal global target-group sampling-effort source separately from Product-A model evaluation
