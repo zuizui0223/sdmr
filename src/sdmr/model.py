@@ -1,9 +1,14 @@
 """Model fitting helpers for relative-suitability SDMs.
 
-The first implementation intentionally keeps the estimator family small. Product
-A is about whether a tuning *procedure* transfers to sealed occurrences, so we
-start with regularized logistic presence-vs-background models and tune both
-regularization and response flexibility behind one reproducible interface.
+Product A separates two model outputs when explicit observation-process
+covariates are present:
+
+- the full observation-aware score is used to evaluate whether records transfer;
+- the ecological score marginalizes declared observation-process covariates and
+  is used for niche interpretation/recovery.
+
+This keeps sampling/detectability structure from being silently interpreted as an
+environmental niche driver.
 """
 
 from __future__ import annotations
@@ -74,9 +79,6 @@ def fit_relative_suitability_model(
         "class_weight": "balanced",
         "max_iter": 4000,
     }
-    # scikit-learn 1.8 deprecated the ``penalty`` argument in favour of
-    # l1_ratio=0/1. Keep compatibility with the >=1.3 range declared by SDMR
-    # without emitting hundreds of warnings on newer versions.
     penalty_default = inspect.signature(LogisticRegression).parameters["penalty"].default
     if penalty_default == "deprecated":
         logit_kwargs["l1_ratio"] = 1.0 if spec.penalty == "l1" else 0.0
@@ -97,7 +99,7 @@ def score_relative_suitability(
     frame: pd.DataFrame,
     predictors: Sequence[str],
 ) -> np.ndarray:
-    """Return relative-suitability scores for complete rows; NaN otherwise."""
+    """Return full observation-aware relative-suitability scores."""
 
     cols = list(predictors)
     X = frame[cols]
@@ -105,6 +107,96 @@ def score_relative_suitability(
     scores = np.full(len(frame), np.nan, dtype=float)
     if np.any(valid):
         scores[valid] = model.predict_proba(X.loc[valid].to_numpy(float))[:, 1]
+    return scores
+
+
+def score_ecological_suitability(
+    model,
+    frame: pd.DataFrame,
+    predictors: Sequence[str],
+    *,
+    observation_predictors: Sequence[str] = (),
+    observation_reference: pd.DataFrame | None = None,
+    max_reference_rows: int = 64,
+) -> np.ndarray:
+    """Return suitability after marginalizing declared observation covariates.
+
+    Declared observation-process variables may be used during fitting because
+    they can absorb sampling/detectability structure. They are not allowed to
+    define the ecological niche surface. For each evaluation environment this
+    function therefore averages model predictions over a deterministic sample of
+    observation-covariate combinations from ``observation_reference`` (a partial-
+    dependence/marginal prediction).
+
+    Environmental predictors retain the row-specific values from ``frame``.
+    Interactions with observation variables are automatically marginalized because
+    predictions are recomputed through the full fitted pipeline for every
+    reference combination.
+
+    If no observation predictors are declared, this is exactly
+    :func:`score_relative_suitability`.
+    """
+
+    cols = list(predictors)
+    if not cols:
+        raise ValueError("predictors must not be empty")
+    observation = tuple(dict.fromkeys(str(x) for x in observation_predictors))
+    unknown = sorted(set(observation) - set(cols))
+    if unknown:
+        raise ValueError(f"observation predictors are not in model predictors: {unknown}")
+    if not observation:
+        return score_relative_suitability(model, frame, cols)
+    if observation_reference is None:
+        raise ValueError("observation_reference is required when observation predictors are declared")
+    if max_reference_rows < 1:
+        raise ValueError("max_reference_rows must be >= 1")
+
+    ecological = [c for c in cols if c not in observation]
+    missing_ecological = sorted(set(ecological) - set(frame.columns))
+    missing_observation = sorted(set(observation) - set(observation_reference.columns))
+    if missing_ecological:
+        raise KeyError(f"evaluation frame missing ecological predictors: {missing_ecological}")
+    if missing_observation:
+        raise KeyError(f"observation reference missing predictors: {missing_observation}")
+
+    if ecological:
+        ecological_values = frame[ecological].apply(pd.to_numeric, errors="coerce")
+        valid = ecological_values.notna().all(axis=1).to_numpy()
+    else:
+        ecological_values = pd.DataFrame(index=frame.index)
+        valid = np.ones(len(frame), dtype=bool)
+    scores = np.full(len(frame), np.nan, dtype=float)
+    if not np.any(valid):
+        return scores
+
+    reference = observation_reference[list(observation)].apply(pd.to_numeric, errors="coerce").dropna()
+    if reference.empty:
+        return scores
+    n_ref = min(int(max_reference_rows), len(reference))
+    if n_ref < len(reference):
+        idx = np.unique(np.rint(np.linspace(0, len(reference) - 1, n_ref)).astype(int))
+        reference = reference.iloc[idx]
+
+    valid_index = np.flatnonzero(valid)
+    ecological_arrays = {
+        col: pd.to_numeric(frame.loc[valid, col], errors="coerce").to_numpy(float)
+        for col in ecological
+    }
+    accumulated = np.zeros(len(valid_index), dtype=float)
+    n_predictions = 0
+    for _, ref_row in reference.iterrows():
+        X = np.empty((len(valid_index), len(cols)), dtype=float)
+        for j, col in enumerate(cols):
+            if col in observation:
+                X[:, j] = float(ref_row[col])
+            else:
+                X[:, j] = ecological_arrays[col]
+        prediction = model.predict_proba(X)[:, 1]
+        if np.isfinite(prediction).all():
+            accumulated += prediction
+            n_predictions += 1
+    if n_predictions:
+        scores[valid_index] = accumulated / n_predictions
     return scores
 
 
@@ -119,10 +211,8 @@ def evaluate_predictor_set(
 ) -> dict[str, float]:
     """Fit on model rows and evaluate once on independent rows.
 
-    ``presence_rank`` remains the Product-A selection/evaluation statistic.
-    ``boyce`` is the historical binned Boyce-style metric. ``continuous_boyce``
-    is reported as a secondary Hirzel/ecospat-style moving-window sensitivity;
-    adding it does not change model selection or frozen promotion criteria.
+    This legacy/v1 helper remains observation-score only. Product-A v2 ecological
+    recovery uses the explicit role-aware scoring path in ``niche_recovery_cv``.
     """
 
     model = fit_relative_suitability_model(
