@@ -1,0 +1,133 @@
+name: product-a-parallel-shadow
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/product-a-parallel-shadow.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-parallel-shadow-v1
+  cancel-in-progress: true
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      SDMR_BENCHMARK_JOBS: '3'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install fixed-source benchmark dependencies
+        run: python -m pip install -e '.[geo,parquet]'
+
+      - name: Resolve frozen source artifacts
+        id: source
+        run: |
+          python - <<'PY'
+          import csv, os
+          from pathlib import Path
+          def one(path):
+              rows = list(csv.DictReader(Path(path).open(encoding='utf-8')))
+              if len(rows) != 1:
+                  raise SystemExit(f'{path} must contain exactly one row')
+              return rows[0]
+          focal = one('configs/product_a_v1_focal_cache.csv')
+          target = one('configs/product_a_v1_target_cache.csv')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as out:
+              out.write(f"focal_run={focal['source_run_id']}\n")
+              out.write(f"focal_artifact={focal['artifact_name']}\n")
+              out.write(f"target_run={target['source_run_id']}\n")
+              out.write(f"target_artifact={target['artifact_name']}\n")
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              env.write(f"FOCAL_SHA={focal['focal_sha256'].strip().lower()}\n")
+              env.write(f"TARGET_SHA={target['target_sha256'].strip().lower()}\n")
+          PY
+
+      - name: Download frozen focal source
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.source.outputs.focal_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.source.outputs.focal_artifact }}
+          path: focal_bundle
+
+      - name: Download frozen target source
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.source.outputs.target_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.source.outputs.target_artifact }}
+          path: target_bundle
+
+      - name: Verify exact frozen files
+        run: |
+          mkdir -p shadow_input shadow_result
+          cp focal_bundle/citable_input/focal.parquet shadow_input/focal.parquet
+          cp target_bundle/target_group.parquet shadow_input/target_group.parquet
+          python - <<'PY'
+          import hashlib, os
+          from pathlib import Path
+          for path, key in [('shadow_input/focal.parquet','FOCAL_SHA'), ('shadow_input/target_group.parquet','TARGET_SHA')]:
+              actual = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              if actual != os.environ[key]:
+                  raise SystemExit(f'{path} SHA mismatch: {actual}')
+              print(path, actual)
+          PY
+
+      - name: Run exact-semantics parallel shadow benchmark
+        run: |
+          sdmr-pilot-grid \
+            --gbif-download shadow_input/focal.parquet \
+            --gbif-download-key 'shadow-fixed-source-2026-08-01' \
+            --target-group-download shadow_input/target_group.parquet \
+            --target-group-download-key 'shadow-fixed-source-2026-08-01' \
+            --checklist-key 'snapshot-interpreted:2026-08-01' \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir shadow_result \
+            --m-grid-as-sensitivity \
+            --min-occurrences 80 \
+            --min-unique-cells 50 \
+            --gate-cell-size-degrees 0.05 \
+            --spatial-test-fraction 0.20 \
+            --taxon-validation-fraction 0.25 \
+            --vif-threshold 5 \
+            --max-predictors 8 \
+            --random-baseline-repeats 0 \
+            --seed 20260814
+          sdmr-compare-evaluation \
+            --product-a-dir shadow_result \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --canonical-specification buffer_300km
+
+      - name: Mark shadow boundary
+        if: always()
+        run: |
+          cat > shadow_result/SHADOW_BOUNDARY.txt <<'EOF'
+          PERFORMANCE SHADOW ONLY. Uses the exact frozen Product-A source evidence and scientific settings,
+          with performance-only changes: SDMR_BENCHMARK_JOBS=3 and random-baseline-repeats=0. Sequential-vs-
+          parallel and random-repeat invariance are covered by exact output-equivalence tests. This artifact is
+          not confirmatory evidence unless its scientific outputs are shown equivalent to the sequential source run.
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-parallel-shadow-v1
+          path: shadow_result/
+          if-no-files-found: error
+          retention-days: 30
