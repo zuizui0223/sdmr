@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: citable-product-a-v1
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   product-a-v1:
@@ -73,6 +73,7 @@ jobs:
           sdmr-gbif-snapshot \
             --snapshot-date "$SNAPSHOT_DATE" \
             --snapshot-doi "$SNAPSHOT_DOI" \
+            --cloud-provider aws \
             --region "$REGION" \
             --taxa configs/product_a_pilot_taxa_v1.csv \
             --output citable_input/focal.parquet \
@@ -94,9 +95,14 @@ jobs:
 
       - name: Materialize same-snapshot broader Plantae target group
         run: |
+          # AWS and Azure are mirrors of the same dated GBIF snapshot.  The
+          # target-group transport uses Azure because the first AWS run hit a
+          # transient long-scan SSL failure.  DOI and citation are revalidated
+          # against the exact AWS citation.txt before the Azure Parquet scan.
           sdmr-gbif-snapshot \
             --snapshot-date "$SNAPSHOT_DATE" \
             --snapshot-doi "$SNAPSHOT_DOI" \
+            --cloud-provider azure \
             --region "$REGION" \
             --kingdom Plantae \
             --bounds-from-occurrences citable_input/focal.parquet \
@@ -179,14 +185,18 @@ jobs:
           target = one_row('citable_input/target_group.provenance.csv')
           probe_path = Path('citable_preflight/chelsa_raster_probe.csv')
           probe = pd.read_csv(probe_path) if probe_path.exists() else pd.DataFrame()
+          grid_spec_path = result / 'pilot_grid_specification.json'
+          grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8')) if grid_spec_path.exists() else {}
           contract = {
-              'protocol_version': 'product_a_v1',
+              'protocol_version': 'product_a_v1_leakage_safe',
               'snapshot_date': os.environ.get('SNAPSHOT_DATE'),
               'snapshot_doi': os.environ.get('SNAPSHOT_DOI'),
               'download_key': os.environ.get('DOWNLOAD_KEY'),
               'citation_sha256_expected': os.environ.get('CITATION_SHA256'),
               'citation_sha256_focal': focal.get('snapshot_citation_sha256', ''),
               'target_citation_sha256': target.get('snapshot_citation_sha256', ''),
+              'focal_cloud_provider': focal.get('cloud_provider', 'aws'),
+              'target_cloud_provider': target.get('cloud_provider', 'azure'),
               'region': os.environ.get('REGION'),
               'seed': int(os.environ.get('SEED', 0)),
               'spatial_test_fraction': float(os.environ.get('SPATIAL_TEST_FRACTION', 'nan')),
@@ -200,8 +210,10 @@ jobs:
               'target_subset_sha256': target.get('sha256', ''),
               'focal_query_sha256': focal.get('query_sha256', ''),
               'target_query_sha256': target.get('query_sha256', ''),
-              'focal_rows': int(focal.get('n_rows', 0) or 0),
+              'focal_rows_raw_snapshot_subset': int(focal.get('n_rows', 0) or 0),
               'target_rows': int(target.get('n_rows', 0) or 0),
+              'focal_thin_cell_size_degrees': grid_spec.get('focal_thin_cell_size_degrees'),
+              'outer_sealed_before_M': bool(grid_spec.get('outer_sealed_before_M', False)),
               'chelsa_probe_rows': int(len(probe)),
               'chelsa_probe_failures': int(probe['status'].ne('ok').sum()) if 'status' in probe else None,
               'protocol_choice': choice,
@@ -213,9 +225,10 @@ jobs:
           cp configs/gbif_snapshot_v1.csv citable_result/gbif_snapshot_v1.csv
           cp citable_input/*.citation.txt citable_result/ 2>/dev/null || true
           cat > citable_result/CITABLE_PILOT_BOUNDARY.txt <<'EOF'
-          DOI-backed Product-A v1. Snapshot DOI was parsed from and revalidated against the exact S3 snapshot citation.txt.
+          DOI-backed leakage-safe Product-A v1. The focal occurrence table is thinned to the declared independent-cell grid,
+          then spatial model/sealed roles are frozen before any M or background construction. Only model-pool presences can
+          define M or focal-cell exclusion. Snapshot DOI is revalidated against the exact snapshot citation.txt.
           This single run is citable pilot evidence, not automatic protocol promotion.
-          Promotion requires frozen-evidence repeated seed/holdout stability and an explicit predeclared promotion assessment.
           EOF
 
       - name: Upload citable Product-A v1 bundle
