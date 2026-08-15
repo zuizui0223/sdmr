@@ -109,7 +109,9 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(
             {
                 "canonical_specification": canonical,
-                "selection_data": "discovery_taxa_only_for_cross_taxon_selectors; model_pool_only_for_local_nested_auc",
+                "cross_taxon_selection_data": "discovery_taxa_only",
+                "local_nested_auc_selection_data": "validation_species_model_pool_only",
+                "outer_sealed_used_for_selection": False,
                 "evaluation_data": "same_outer_sealed_unseen_taxa_across_all_predeclared_M_specs",
                 "auc_interpretation": "presence_rank is numerically presence-background ROC AUC with half-credit ties",
                 "boyce_interpretation": "binned presence-background Boyce-style index",
