@@ -1,5 +1,5 @@
-rerun=3
-reason=first admissible Product-A v1 using deterministic focal thinning, sealed-before-M information barrier, and M as a predeclared sensitivity axis rather than an optimized parameter
+rerun=4
+reason=run confirmatory fixed-source Product-A v1 after exact 9705-shard non-focal target footprint freeze; compare SDMR against canonical AUC, canonical Boyce, and local nested spatial-CV AUC on identical outer-sealed cases
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
-protocol_version=product_a_v1_leakage_safe_M_sensitivity
+protocol_version=product_a_v1_leakage_safe_M_sensitivity_fixed_sources
