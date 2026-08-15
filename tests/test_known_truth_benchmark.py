@@ -51,23 +51,41 @@ def test_known_truth_selector_benchmark_returns_prediction_and_recovery_selector
         "niche_recovery",
         "gated_niche_recovery",
         "gated_robust_niche_recovery",
+        "gated_stable_niche_recovery",
     }
     assert set(result.selector_choices["selector"]) == expected
     assert set(result.truth_evaluation["selector"]) == expected
     assert result.fold_metrics["candidate"].nunique() >= 2
     assert result.truth_evaluation["niche_overlap_schoener_d_pc12"].between(0, 1).all()
+    assert result.fold_metrics[[
+        "ecological_surface_stability_rank_mean",
+        "ecological_surface_stability_rank_min",
+        "ecological_surface_stability_nrmse_mean",
+        "ecological_surface_stability_nrmse_max",
+    ]].notna().all().all()
+
     gated = result.selector_choices.loc[result.selector_choices["selector"].eq("gated_niche_recovery")].iloc[0]
     robust = result.selector_choices.loc[
         result.selector_choices["selector"].eq("gated_robust_niche_recovery")
     ].iloc[0]
+    stable = result.selector_choices.loc[
+        result.selector_choices["selector"].eq("gated_stable_niche_recovery")
+    ].iloc[0]
     assert gated["gated_eligible_candidates"]
     assert float(gated["gated_auc_floor"]) == 0.51
     assert float(gated["gated_chance_auc"]) == 0.50
+
     assert robust["gated_eligible_candidates"]
-    assert robust["recovery_pareto_candidates"]
-    assert robust["robustness_pareto_candidates"]
+    assert robust["worst_fold_recovery_pareto_candidates"]
+    assert robust["worst_fold_robustness_pareto_candidates"]
     assert float(robust["gated_auc_floor"]) == 0.51
     assert float(robust["gated_chance_auc"]) == 0.50
+
+    assert stable["gated_eligible_candidates"]
+    assert stable["stable_recovery_pareto_candidates"]
+    assert stable["surface_stability_pareto_candidates"]
+    assert float(stable["gated_auc_floor"]) == 0.51
+    assert float(stable["gated_chance_auc"]) == 0.50
 
 
 def test_known_truth_families_generate_distinct_valid_surfaces():
@@ -115,6 +133,12 @@ def test_observation_confounded_scenario_keeps_prediction_and_ecological_outputs
     # marginalized ecological product and must remain finite.
     assert result.selector_choices["mean_inner_auc"].notna().all()
     assert result.selector_choices["n_observation_predictors"].isin([0, 1]).all()
+    assert result.selector_choices[[
+        "ecological_surface_stability_rank_mean",
+        "ecological_surface_stability_rank_min",
+        "ecological_surface_stability_nrmse_mean",
+        "ecological_surface_stability_nrmse_max",
+    ]].notna().all().all()
     assert result.truth_evaluation[[
         "truth_surface_rank",
         "truth_surface_nrmse",
@@ -125,18 +149,19 @@ def test_observation_confounded_scenario_keeps_prediction_and_ecological_outputs
         "driver_process_f1",
     ]].notna().all().all()
 
-    robust = summarize_selector_disagreement(
+    stable = summarize_selector_disagreement(
         result,
-        reference_selector="gated_robust_niche_recovery",
+        reference_selector="gated_stable_niche_recovery",
     )
-    assert set(robust["selector"]) == {
+    assert set(stable["selector"]) == {
         "inner_auc",
         "inner_cbi",
         "inner_or10",
         "niche_recovery",
         "gated_niche_recovery",
+        "gated_robust_niche_recovery",
     }
-    assert robust[[
+    assert stable[[
         "truth_overlap_gain",
         "truth_centroid_error_reduction",
         "truth_breadth_error_reduction",
@@ -169,6 +194,7 @@ def test_disagreement_summary_does_not_require_a_weighted_super_score():
         "inner_or10",
         "niche_recovery",
         "gated_niche_recovery",
+        "gated_robust_niche_recovery",
     }
     assert "truth_overlap_gain" in out
     assert "truth_centroid_error_reduction" in out
