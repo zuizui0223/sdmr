@@ -1,0 +1,4 @@
+rerun=1
+reason=retry DOI-backed Product-A v1 on current green head after prior transient AWS S3 SSL failure during target-group materialization
+snapshot_date=2026-08-01
+snapshot_doi=10.15468/dl.fs3btq
