@@ -13,7 +13,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: product-a-v1-target-cache
+  group: product-a-v1-target-cache-global-footprint
   cancel-in-progress: true
 
 jobs:
