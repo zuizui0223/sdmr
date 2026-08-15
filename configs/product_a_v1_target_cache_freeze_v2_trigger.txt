@@ -1,4 +1,4 @@
-source_run_id=31858102741
+source_run_id=31858389075
 snapshot_date=2026-08-01
 snapshot_doi=10.15468/dl.fs3btq
 freeze_protocol=v2_global_focal_independent_footprint
