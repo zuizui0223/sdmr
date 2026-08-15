@@ -1,0 +1,83 @@
+name: chelsa-block-sampling-smoke
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/chelsa-block-sampling-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chelsa-block-sampling-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install geo dependencies
+        run: python -m pip install -e '.[geo]'
+      - name: Compare direct versus block-grouped reads on real CHELSA BIO1
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          from pathlib import Path
+
+          import numpy as np
+          import pandas as pd
+          import rasterio
+
+          from sdmr.data import raster_specs_from_chelsa_manifest
+          from sdmr.data.raster import _raster_env, _sample_band_blockwise
+
+          manifest = pd.read_csv('configs/chelsa_v2_1_plant_candidates.csv')
+          layers, _ = raster_specs_from_chelsa_manifest(manifest, include_availability=('current',), strict=True)
+          layer = next((x for x in layers if x.predictor.lower() == 'bio1'), layers[0])
+          rng = np.random.default_rng(20260815)
+          # A reproducible global point cloud; raw nodata values are retained so
+          # equality tests the actual raster pixel read rather than ecology.
+          x = rng.uniform(-179.5, 179.5, 5000)
+          y = rng.uniform(-59.5, 79.5, 5000)
+
+          with _raster_env(rasterio, layer.uri):
+              with rasterio.open(layer.uri) as src:
+                  coords = list(zip(x.tolist(), y.tolist(), strict=True))
+                  start = time.perf_counter()
+                  direct = np.array([float(v[0]) for v in src.sample(coords)], dtype=float)
+                  direct_seconds = time.perf_counter() - start
+                  start = time.perf_counter()
+                  grouped = _sample_band_blockwise(src, x, y)
+                  grouped_seconds = time.perf_counter() - start
+                  if not np.array_equal(direct, grouped, equal_nan=True):
+                      mismatch = np.flatnonzero(~np.isclose(direct, grouped, equal_nan=True))[:10]
+                      raise SystemExit(f'CHELSA direct/block values differ at rows {mismatch.tolist()}')
+                  report = {
+                      'predictor': layer.predictor,
+                      'uri': layer.uri,
+                      'n_points': len(x),
+                      'direct_seconds': direct_seconds,
+                      'block_grouped_seconds': grouped_seconds,
+                      'speedup_direct_over_block': direct_seconds / grouped_seconds if grouped_seconds > 0 else None,
+                      'exact_values_equal': True,
+                      'block_shape': list(src.block_shapes[0]) if src.block_shapes else None,
+                  }
+          Path('chelsa_block_sampling_report.json').write_text(json.dumps(report, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chelsa-block-sampling-smoke
+          path: chelsa_block_sampling_report.json
+          if-no-files-found: error
+          retention-days: 30
