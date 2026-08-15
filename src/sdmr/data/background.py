@@ -48,9 +48,9 @@ def _coarse_spherical_buffer_mask(
 ) -> np.ndarray:
     """Conservative lat/lon envelope for an exact spherical occurrence buffer.
 
-    The envelope never defines M.  It only removes candidates that cannot
+    The envelope never defines M. It only removes candidates that cannot
     possibly be within ``buffer_km`` of any focal point before the exact
-    haversine BallTree query.  The longitude interval uses the complement of the
+    haversine BallTree query. The longitude interval uses the complement of the
     largest circular gap, so dateline-crossing focal distributions are handled
     without expanding spuriously across the globe.
     """
@@ -62,7 +62,8 @@ def _coarse_spherical_buffer_mask(
 
     delta = float(buffer_km) / _EARTH_RADIUS_KM
     focal_lat_rad = np.deg2rad(focal_lat)
-    lat_rad = np.deg2rad(lat)
+    lat_rad = np.full(len(lat), np.nan, dtype=float)
+    lat_rad[valid] = np.deg2rad(lat[valid])
     south = max(-np.pi / 2, float(np.min(focal_lat_rad)) - delta)
     north = min(np.pi / 2, float(np.max(focal_lat_rad)) + delta)
     coarse = valid & (lat_rad >= south) & (lat_rad <= north)
@@ -94,7 +95,8 @@ def _coarse_spherical_buffer_mask(
     if expanded_width >= 360.0 - 1e-12:
         return coarse
     expanded_start = (start - margin_deg) % 360.0
-    candidate_360 = np.mod(lon, 360.0)
+    candidate_360 = np.zeros(len(lon), dtype=float)
+    candidate_360[valid] = np.mod(lon[valid], 360.0)
     circular_offset = np.mod(candidate_360 - expanded_start, 360.0)
     return coarse & (circular_offset <= expanded_width + 1e-12)
 
