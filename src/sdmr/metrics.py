@@ -15,6 +15,34 @@ def _finite(values: np.ndarray | list[float]) -> np.ndarray:
     return arr[np.isfinite(arr)]
 
 
+def _average_ranks(x: np.ndarray) -> np.ndarray:
+    order = np.argsort(x, kind="mergesort")
+    sorted_x = x[order]
+    ranks = np.empty(len(x), dtype=float)
+    start = 0
+    while start < len(x):
+        end = start + 1
+        while end < len(x) and sorted_x[end] == sorted_x[start]:
+            end += 1
+        rank = 0.5 * (start + end - 1) + 1.0
+        ranks[order[start:end]] = rank
+        start = end
+    return ranks
+
+
+def _spearman(x: np.ndarray, y: np.ndarray) -> float:
+    if len(x) < 2 or len(y) != len(x):
+        return float("nan")
+    xr = _average_ranks(np.asarray(x, dtype=float))
+    yr = _average_ranks(np.asarray(y, dtype=float))
+    xr -= xr.mean()
+    yr -= yr.mean()
+    denom = np.sqrt(np.sum(xr * xr) * np.sum(yr * yr))
+    if denom == 0:
+        return float("nan")
+    return float(np.sum(xr * yr) / denom)
+
+
 def presence_rank_score(
     presence_scores: np.ndarray | list[float],
     background_scores: np.ndarray | list[float],
@@ -54,7 +82,9 @@ def boyce_index(
     relative to background as predicted suitability increases.
 
     This implementation deliberately reports NaN when fewer than three bins
-    carry information rather than manufacturing a stable-looking number.
+    carry information rather than manufacturing a stable-looking number. It is
+    retained for backwards compatibility and is distinct from the continuous
+    moving-window Boyce index implemented below.
     """
 
     p = _finite(presence_scores)
@@ -78,30 +108,76 @@ def boyce_index(
         return float("nan")
 
     ratio = observed[usable] / expected[usable]
-    mids = (edges[:-1] + edges[1:]) / 2
-    mids = mids[usable]
+    mids = ((edges[:-1] + edges[1:]) / 2)[usable]
     if np.unique(ratio).size < 2:
         return float("nan")
+    return _spearman(mids, ratio)
 
-    def average_ranks(x: np.ndarray) -> np.ndarray:
-        order = np.argsort(x, kind="mergesort")
-        sorted_x = x[order]
-        ranks = np.empty(len(x), dtype=float)
-        start = 0
-        while start < len(x):
-            end = start + 1
-            while end < len(x) and sorted_x[end] == sorted_x[start]:
-                end += 1
-            rank = 0.5 * (start + end - 1) + 1.0
-            ranks[order[start:end]] = rank
-            start = end
-        return ranks
 
-    x = average_ranks(mids)
-    y = average_ranks(ratio)
-    x -= x.mean()
-    y -= y.mean()
-    denom = np.sqrt(np.sum(x * x) * np.sum(y * y))
-    if denom == 0:
+def continuous_boyce_index(
+    presence_scores: np.ndarray | list[float],
+    background_scores: np.ndarray | list[float],
+    *,
+    window_width: float | None = None,
+    resolution: int = 100,
+    remove_successive_duplicates: bool = True,
+) -> float:
+    """Compute the moving-window continuous Boyce index (CBI).
+
+    This follows the Hirzel et al. (2006) / current ``ecospat.boyce`` moving-
+    window convention for presence-only evaluation: the validation-presence
+    score distribution is compared with the available/background score
+    distribution through predicted-to-expected (P/E) ratios along the
+    suitability gradient. The index is the Spearman correlation between the
+    moving-window position and its finite P/E ratio.
+
+    By default the moving-window width is one tenth of the *background/fit*
+    suitability range and 100 focal steps are used. Successive duplicated P/E
+    ratios are removed by default to match the current ecospat convention.
+    This metric is provided as a secondary sensitivity; it does not redefine
+    SDMR's Product-A selector or retroactively change frozen promotion criteria.
+    """
+
+    obs = _finite(presence_scores)
+    fit = _finite(background_scores)
+    if obs.size == 0 or fit.size == 0 or resolution < 1:
         return float("nan")
-    return float(np.sum(x * y) / denom)
+
+    fit_range = float(fit.max() - fit.min())
+    if not fit_range > 0:
+        return float("nan")
+    width = fit_range / 10.0 if window_width is None else float(window_width)
+    if not width > 0:
+        return float("nan")
+
+    lo = min(float(fit.min()), float(obs.min()))
+    hi = max(float(fit.max()), float(obs.max()))
+    span = hi - lo - width
+    if not span > 0:
+        return float("nan")
+
+    # ecospat's nclass=0 implementation uses res+1 overlapping intervals.
+    left = np.linspace(lo, hi - width, int(resolution) + 1)
+    ratios = np.full(left.size, np.nan, dtype=float)
+    for i, lower in enumerate(left):
+        upper = lower + width
+        observed = np.count_nonzero((obs >= lower) & (obs <= upper)) / obs.size
+        expected = np.count_nonzero((fit >= lower) & (fit <= upper)) / fit.size
+        if expected > 0:
+            # ecospat rounds its P/E values before the correlation/duplicate test.
+            ratios[i] = np.round(observed / expected, 10)
+
+    keep = np.isfinite(ratios)
+    if np.count_nonzero(keep) < 2:
+        return float("nan")
+    x = left[keep]
+    y = ratios[keep]
+
+    if remove_successive_duplicates and y.size > 1:
+        distinct = np.ones(y.size, dtype=bool)
+        distinct[1:] = y[1:] != y[:-1]
+        x = x[distinct]
+        y = y[distinct]
+    if y.size < 2 or np.unique(y).size < 2:
+        return float("nan")
+    return _spearman(x, y)
