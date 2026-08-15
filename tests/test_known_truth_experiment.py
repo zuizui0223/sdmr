@@ -46,6 +46,8 @@ def test_structural_experiment_emits_direct_ecological_truth_audit():
         "inner_or10",
         "niche_recovery",
         "gated_niche_recovery",
+        "gated_robust_niche_recovery",
+        "gated_stable_niche_recovery",
     }
     assert set(choices["selector"]) == expected_selectors
     assert set(truth["selector"]) == expected_selectors
@@ -62,6 +64,12 @@ def test_structural_experiment_emits_direct_ecological_truth_audit():
         "driver_process_f1",
         "truth_best_selectors",
     } <= set(truth.columns)
+    assert {
+        "ecological_surface_stability_rank_mean",
+        "ecological_surface_stability_rank_min",
+        "ecological_surface_stability_nrmse_mean",
+        "ecological_surface_stability_nrmse_max",
+    } <= set(choices.columns)
     assert set(summary["selector"]) == expected_selectors
     assert "truth_co_win_fraction" in summary.columns
     assert "mean_response_curve_error" in summary.columns
