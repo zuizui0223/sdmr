@@ -4,7 +4,11 @@ The perturbation-robust candidate is chosen using only prediction adequacy and
 held-out environmental-niche recovery across sampling/background/domain
 perturbations. A canonical AUC selector and canonical ecological-recovery selector
 are chosen from the predeclared standard sampling/background case. Only after all
-three selectors have chosen candidates is the generating ecological niche opened.
+selectors have chosen candidates is the generating ecological niche opened.
+
+The experiment can retain the historical biased held-out occurrence target or use
+the candidate-independent observation-corrected target. Selector names explicitly
+record which ecological target was used so the ablation cannot be hidden.
 """
 from __future__ import annotations
 
@@ -143,24 +147,14 @@ def run_known_truth_perturbation_experiment(
     chance_auc: float = 0.50,
     minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
+    observation_correction: bool = False,
+    observation_weight_truncation_quantile: float = 0.99,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Compare canonical selectors with an exogenous-perturbation robust selector.
 
-    Returns
-    -------
-    choices
-        One row per family × seed × selector that successfully chose a candidate.
-    truth
-        Hidden-truth audit opened only after candidate choice.
-    summary
-        Selector-level hidden-truth summary with co-wins.
-    perturbation_metrics
-        All candidate evidence used by the perturbation selector; contains no
-        generating-truth diagnostics.
-    failures
-        Cases where no candidate survived every predeclared prediction-adequacy
-        perturbation. Such cases are retained rather than repaired by relaxing the
-        gate.
+    When ``observation_correction`` is enabled, all ecological candidate rankings
+    use the same training-fitted observation propensity correction for held-out
+    records. Conventional AUC selection is unchanged.
     """
 
     candidates = dict(candidates or standard_known_truth_candidates())
@@ -168,6 +162,16 @@ def run_known_truth_perturbation_experiment(
     truth_rows: list[dict[str, object]] = []
     metric_frames = []
     failure_rows = []
+    canonical_recovery_selector = (
+        "canonical_observation_corrected_niche_recovery"
+        if observation_correction
+        else "canonical_niche_recovery"
+    )
+    robust_selector = (
+        "observation_corrected_perturbation_robust_niche_recovery"
+        if observation_correction
+        else "perturbation_robust_niche_recovery"
+    )
 
     for family in tuple(str(x) for x in families):
         for seed in tuple(int(x) for x in seeds):
@@ -187,6 +191,8 @@ def run_known_truth_perturbation_experiment(
                 chance_auc=chance_auc,
                 minimum_auc_margin=minimum_auc_margin,
                 auc_sem_multiplier=auc_sem_multiplier,
+                observation_correction=observation_correction,
+                observation_weight_truncation_quantile=observation_weight_truncation_quantile,
             )
             metrics = perturbation_result.fold_metrics.assign(scenario=family, seed=seed)
             metric_frames.append(metrics)
@@ -203,19 +209,20 @@ def run_known_truth_perturbation_experiment(
             ).candidate
             winners: dict[str, str] = {
                 "canonical_auc": canonical_auc,
-                "canonical_niche_recovery": canonical_recovery,
+                canonical_recovery_selector: canonical_recovery,
             }
             if perturbation_result.selection is None:
                 failure_rows.append(
                     {
                         "scenario": family,
                         "seed": seed,
-                        "selector": "perturbation_robust_niche_recovery",
+                        "selector": robust_selector,
+                        "observation_correction": bool(observation_correction),
                         "reason": perturbation_result.selection_error or "unknown",
                     }
                 )
             else:
-                winners["perturbation_robust_niche_recovery"] = perturbation_result.selection.candidate
+                winners[robust_selector] = perturbation_result.selection.candidate
 
             simulation = simulate_known_truth_plant_niche(
                 family,
@@ -247,6 +254,7 @@ def run_known_truth_perturbation_experiment(
                         "seed": seed,
                         "selector": selector,
                         "candidate": candidate_name,
+                        "observation_correction": bool(observation_correction),
                         "mean_canonical_auc": float(candidate_canonical["presence_rank"].mean()),
                         "mean_canonical_cbi": float(candidate_canonical["continuous_boyce"].mean()),
                         "mean_canonical_or10": float(candidate_canonical["or10"].mean()),
@@ -260,6 +268,7 @@ def run_known_truth_perturbation_experiment(
                         "seed": seed,
                         "selector": selector,
                         "candidate": candidate_name,
+                        "observation_correction": bool(observation_correction),
                         **_hidden_truth_profile(simulation, candidate, model_occurrence, background),
                     }
                 )
