@@ -1,107 +1,188 @@
 # SDMR research program
 
-SDMR is deliberately organized as two linked but distinct scientific products.
+SDMR is organized as two linked but distinct scientific products.
 
-## Product A: tuning methodology for accurate plant niche estimation
+## Product A: tuning methodology for ecological niche recovery
 
 ### Claim target
 
-Develop a reproducible tuning protocol that predicts **sealed, unused plant occurrences** better than conventional predictor-screening workflows.
+Develop and falsify a reproducible **model-building procedure** that recovers the
+realized environmental niche of plants from occurrence-only data more faithfully
+than conventional model-selection procedures.
 
-### Experimental unit
+The target is not a new evaluation statistic. AUC, Boyce/CBI, OR10, AICc and
+related criteria remain useful ways to evaluate or select fitted models. SDMR
+asks a different question:
 
-A species with sufficient occurrence records, a defensible accessible area (M), and matched background/reference data.
+> Which predictor universe, variable-selection rule, regularization and response
+> complexity recover the **environmental niche itself** — its location, breadth,
+> shape and limits — and keep doing so when space, M/background assumptions and
+> taxa change?
+
+### Two classes of evidence
+
+#### Prediction/model criteria
+
+Report these, but do not equate them with niche recovery:
+
+- AUC / presence-background rank discrimination;
+- binned Boyce and continuous Boyce/CBI;
+- OR10 / omission-based overfitting diagnostics;
+- AICc or other information criteria when the model family supplies a valid
+  likelihood/parameter count;
+- local nested spatial-CV performance.
+
+#### Ecological niche-recovery evidence
+
+Evaluate every candidate procedure in a common environmental audit space that is
+fitted from model-pool environments only. Current recovery dimensions are:
+
+- niche centroid error;
+- niche breadth error;
+- environmental quantile-profile error;
+- Schoener D environmental niche overlap;
+- boundary/envelope coverage as a descriptive diagnostic.
+
+Do not collapse these into an arbitrary weighted super-score. Product-A v2 uses
+Pareto filtering followed by a minimax rank rule to select a balanced recovery
+procedure.
+
+See `docs/niche_recovery_tuning.md`.
 
 ### Information barrier
 
-Before any model choice, reserve a subset of occurrences as the **answer-check set**. These records are never used for raster selection, regularization, complexity tuning, stopping rules, or choice among candidate settings.
+Before any tuning decision:
 
-The fraction is not fixed. Report both the fraction and absolute number of spatially independent test occurrences. Sensitivity analysis should verify that method rankings are not an artifact of one arbitrary holdout size.
+1. admit records and deterministically thin them within species;
+2. assign whole spatial blocks to `model` vs `sealed` roles;
+3. build M and target-group background from **model-pool occurrences only**;
+4. prevent the complete predeclared focal-taxon panel from returning through the
+   broader target-group background;
+5. perform all predictor selection, regularization and response-complexity tuning
+   inside the model pool;
+6. open sealed occurrence/reference rows only after a candidate procedure is
+   frozen.
 
-When method families themselves are compared across species, use a second barrier: discovery taxa may determine which strategy is promoted, but separate validation taxa must remain unavailable until that strategy is fixed.
+The holdout fraction is not itself a scientific parameter. Repeat across several
+fractions and seeds. For method-family selection, discovery taxa may determine
+which procedure is promoted, but validation taxa remain unavailable until that
+procedure is fixed.
+
+### M is a sensitivity condition
+
+Alternative accessible-area/background assumptions change the difficulty and
+meaning of presence-background evaluation. SDMR therefore does not choose the M
+that gives the best raw score. Candidate methods compete within matched species ×
+M cases and must remain useful across the predeclared M sensitivity set.
 
 ### Candidate tuning dimensions
 
-- environmental raster subset;
+- environmental raster universe and subset;
 - regularization strength;
 - response complexity / feature flexibility;
+- number of predictors / stopping rule;
 - background strategy and sampling-bias correction;
-- number of predictors / stopping threshold;
-- optionally model family, provided comparison remains leakage-free.
+- model family, when compared behind the same information barrier.
 
-### Baselines
+### Conventional selectors to beat or falsify against
 
-At minimum compare the proposed protocol with:
+At minimum compare against:
 
-1. conventional correlation/VIF filtering;
-2. all candidate variables;
-3. same-size random variable subsets;
-4. simple biologically motivated standard sets.
+1. all variables;
+2. correlation/VIF filtering;
+3. local nested-spatial-CV AUC selection;
+4. canonical-M AUC selection;
+5. canonical-M Boyce/CBI selection;
+6. OR10-based selection where applicable;
+7. AICc-based selection where a valid likelihood/parameterization exists;
+8. same-size random predictor sets.
+
+If SDMR cannot repeatedly improve ecological recovery or transfer relative to
+these baselines, the valid conclusion is **no demonstrated niche-recovery
+advantage for this corpus**.
+
+### Two validation tiers
+
+#### Tier 1 — known-truth simulation
+
+Real GBIF data do not expose the fundamental niche directly. Simulate known
+niche-generating response surfaces and vary collinearity, noise variables,
+sampling bias, M truncation, spatial autocorrelation and response complexity.
+Ask whether AUC/CBI/OR10/AICc or SDMR niche-recovery tuning chooses the model
+closest to the known generating niche.
+
+This tier supports literal claims about recovery of a known niche.
+
+#### Tier 2 — real sealed-occurrence transfer
+
+For empirical plants, use the narrower term **realized environmental niche
+recovery**. Require transfer across sealed spatial blocks, M/background
+assumptions, repeated seeds/holdout fractions and unseen taxa.
 
 ### Current implementation
 
-The Product-A engine now implements:
+The Product-A engine implements:
 
-- whole-spatial-block sealed occurrence tests with configurable holdout fraction;
-- model-pool spatial CV for every tuning decision;
-- all-variable, VIF-pruned, and predictive-forward-selection strategies;
-- regularized logistic model tuning over `C`, L1/L2 penalty, and linear/degree-2 response surfaces;
-- same-size random-variable null benchmarks;
-- sealed-test drop-one predictor loss;
-- holdout-fraction sensitivity runs;
-- discovery-taxon selection of the winning strategy followed by unseen-taxon validation.
+- preassigned whole-spatial-block sealed occurrence tests;
+- sealed-before-M/background construction;
+- all-variable, VIF and predictive-forward-selection strategies;
+- regularized logistic tuning over C, L1/L2 and linear/degree-2 response surfaces;
+- repeated M sensitivity and unseen-taxon procedure transfer;
+- AUC-equivalent, binned Boyce and continuous Boyce diagnostics;
+- direct comparison against canonical AUC/Boyce and local nested-AUC selectors;
+- frozen-source GBIF/CHELSA evidence and repeated stability governance;
+- ecological niche-recovery diagnostics in a common model-pool-fitted audit
+  environmental space;
+- Pareto + minimax multi-objective niche-recovery selection scaffold.
 
-Synthetic and regression tests verify the information barriers and signal recovery. The next test is empirical: whether these advantages persist across real plant species, realistic sampling bias, and alternative accessible-area/background definitions.
-
-### Primary methodological result
-
-A method should be promoted only if its advantage repeats across species, spatial partitions, holdout sizes, and reasonable background definitions. The final claim must be based on validation taxa or external occurrence evidence not used to choose the promoted strategy.
+The currently running confirmatory v1 remains prediction-transfer focused and is
+not retroactively changed. Niche-recovery tuning is developed as Product-A v2 on
+the same frozen evidence so the two targets can be compared cleanly.
 
 ## Product B: universal and conditional drivers of plant niches
 
 ### Claim target
 
-Using the frozen Product-A protocol, identify environmental variables that have reproducible importance across a broad and taxonomically/ecologically diverse plant sample.
+Only after Product A is independently validated, freeze its procedure and
+identify environmental dimensions that reproducibly structure plant realized
+niches across a broad taxonomic/ecological sample.
 
-### Evidence recorded for every raster
+### Evidence for every raster or process
 
-- selection stability across species and repeated splits;
-- incremental predictive gain when added;
-- drop-one predictive loss when removed;
-- performance on sealed within-species occurrences;
-- transfer to plant taxa excluded from common-set discovery;
-- heterogeneity among clades, growth forms, biomes, range sizes, and sampling regimes.
+Do not rely on model importance or AUC loss alone. Record whether adding/removing
+a raster changes:
+
+- predictor selection stability;
+- sealed predictive performance;
+- niche centroid recovery;
+- niche breadth recovery;
+- environmental niche overlap;
+- boundary/tail recovery;
+- unseen-taxon transfer;
+- heterogeneity among clades, growth forms, biomes, ranges and sampling regimes.
 
 ### Universality rule
 
-Do not define a universal driver from selection frequency alone. A strong candidate should repeatedly contribute unique predictive information and should not depend on one dominant taxonomic or geographic stratum.
+A universal driver is not simply a variable selected often. It must contribute
+reproducible ecological information and not depend on one taxonomic/geographic
+stratum. Preferred output is hierarchical:
 
-The preferred end result is hierarchical:
+- **global core** — broadly necessary environmental processes;
+- **conditional core** — consistent within declared ecological strata;
+- **substitutable groups** — correlated variables carrying overlapping
+  information, reported as an equivalence group rather than forcing one winner.
 
-- **global core** — variables with broad cross-plant support;
-- **conditional core** — variables consistently important within a biome, clade, growth form, or other ecological stratum;
-- **substitutable variables** — correlated alternatives that carry overlapping information and should be reported as an equivalence group rather than forcing one arbitrary winner.
+## Separation of Product A and Product B
 
-### Current implementation boundary
+Product B must never be used to redesign Product A after universal-driver results
+are visible. A material change to Product A requires rerunning Product B under a
+new frozen procedure.
 
-Cross-taxon predictor discovery and unseen-taxon validation are implemented as a scaffold. Drop-one importance is also available. Before a strong universality claim, the project still needs repeated global taxon splits, correlated-variable equivalence groups, ecological-stratum heterogeneity models, and a fully provenance-tracked GBIF/CHELSA data layer.
+The intended final statements are therefore:
 
-## Empirical data layer
-
-The next major workstream is deliberately separate from the statistical core:
-
-1. reproducible GBIF plant admission and taxonomic resolution;
-2. coordinate, duplicate, occurrence-status, and basis-of-record filters;
-3. defensible accessible-area (M) construction with sensitivity analysis;
-4. target-group or otherwise sampling-aware background/reference generation;
-5. CHELSA/BIOCLIM+ extraction with version and provenance metadata;
-6. repeated method and driver benchmarks with cached fingerprints.
-
-## Separation of the two products
-
-Product B must not be used to redesign Product A after universal-driver results are visible. If Product A changes materially, the global analysis must be rerun under the new frozen protocol.
-
-This separation allows SDMR to make two defensible statements:
-
-1. **methodological** — this procedure estimates relative plant niche suitability more accurately on genuinely unused occurrences;
-2. **ecological synthesis** — under that independently validated procedure, these environmental dimensions show the strongest generality in structuring realized plant niche distributions.
+1. **methodological** — this procedure reconstructs unused-occurrence realized
+   environmental niches more faithfully and/or more transferably than declared
+   conventional tuning procedures;
+2. **ecological synthesis** — under that independently validated procedure,
+   these environmental dimensions are the most general constraints on plant
+   realized niches.
