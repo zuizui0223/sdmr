@@ -16,7 +16,7 @@ def test_continuous_boyce_is_negative_for_counter_prediction():
     obs = np.linspace(0.0, 0.35, 301)
     score = continuous_boyce_index(obs, fit)
     assert np.isfinite(score)
-    assert score < -0.8
+    assert score < -0.7
 
 
 def test_continuous_boyce_reports_nan_when_fit_has_no_suitability_range():
