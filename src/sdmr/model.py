@@ -18,7 +18,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
-from .metrics import boyce_index, presence_rank_score
+from .metrics import boyce_index, continuous_boyce_index, presence_rank_score
 
 
 @dataclass(frozen=True)
@@ -117,7 +117,13 @@ def evaluate_predictor_set(
     *,
     model_spec: ModelSpec | None = None,
 ) -> dict[str, float]:
-    """Fit on model rows and evaluate once on independent rows."""
+    """Fit on model rows and evaluate once on independent rows.
+
+    ``presence_rank`` remains the Product-A selection/evaluation statistic.
+    ``boyce`` is the historical binned Boyce-style metric. ``continuous_boyce``
+    is reported as a secondary Hirzel/ecospat-style moving-window sensitivity;
+    adding it does not change model selection or frozen promotion criteria.
+    """
 
     model = fit_relative_suitability_model(
         train_presence,
@@ -130,6 +136,7 @@ def evaluate_predictor_set(
     return {
         "presence_rank": presence_rank_score(p_scores, b_scores),
         "boyce": boyce_index(p_scores, b_scores),
+        "continuous_boyce": continuous_boyce_index(p_scores, b_scores),
         "n_test_presence": int(np.isfinite(p_scores).sum()),
         "n_test_background": int(np.isfinite(b_scores).sum()),
     }
