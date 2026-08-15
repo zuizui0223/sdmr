@@ -110,10 +110,11 @@ jobs:
               ],
               'selection_never_uses_truth': True,
               'truth_winner_semantics': 'co_winner_no_selector_name_tiebreak',
-              'auc_role': 'generalization_metric_and_gate_not_ecological_objective',
+              'auc_role': 'absolute_independent_transfer_adequacy_gate_not_ecological_objective',
               'or10_role': 'conventional_selector_and_optional_severe_omission_guardrail',
               'aicc_role': 'not_used_until_valid_likelihood_effective_df_and_sample_size_are_available',
-              'gated_recovery_rule': 'within_max_0.01_or_1x_best_auc_sem_then_ecological_pareto_minimax',
+              'gated_recovery_rule': 'mean_auc>=0.51_and_mean_auc_minus_1sem>=0.50_then_ecological_pareto_minimax',
+              'gated_recovery_note': 'auc_gate_is_not_relative_to_best_auc',
           }
           Path('known_truth_result/contract.json').write_text(
               json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
