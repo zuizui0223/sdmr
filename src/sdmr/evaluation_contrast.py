@@ -75,7 +75,9 @@ def _best_discovery_combo(
             mean_predictors=("n_predictors", "mean"),
         )
     )
-    summary = summary.loc[summary["n_finite"] > 0 & summary["selector_score"].notna()].copy()
+    summary = summary.loc[
+        (summary["n_finite"] > 0) & summary["selector_score"].notna()
+    ].copy()
     if not len(summary):
         raise ValueError(f"no finite {metric} values are available in canonical M {canonical_specification!r}")
     summary = summary.sort_values(
