@@ -88,15 +88,31 @@ def _average_ranks(values: np.ndarray) -> np.ndarray:
 
 
 def _rank_correlation(a: np.ndarray, b: np.ndarray) -> float:
+    """Rank recovery with an explicit zero-information convention.
+
+    Spearman correlation is mathematically undefined when one surface is
+    constant. In a known-truth recovery benchmark a constant prediction has no
+    ranking information, so it is scored as 0 rather than treated as missing.
+    If both surfaces are the same constant, recovery is perfect by convention.
+    """
+
     if len(a) < 2 or len(a) != len(b):
         return float("nan")
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    a_constant = bool(np.all(a == a[0]))
+    b_constant = bool(np.all(b == b[0]))
+    if a_constant or b_constant:
+        if a_constant and b_constant and np.allclose(a, b, rtol=0, atol=1e-12):
+            return 1.0
+        return 0.0
     ar = _average_ranks(a)
     br = _average_ranks(b)
     ar -= ar.mean()
     br -= br.mean()
     denom = np.sqrt(np.sum(ar * ar) * np.sum(br * br))
     if denom <= 0:
-        return float("nan")
+        return 0.0
     return float(np.sum(ar * br) / denom)
 
 
@@ -122,7 +138,6 @@ def _quantile_bin_curve(
     edges = np.unique(edges)
     if len(edges) < 4:
         return np.array([], dtype=float), np.array([], dtype=float)
-    # Ensure the global maximum is included in the final interval.
     edges[0] -= 1e-12 * max(1.0, abs(float(edges[0])))
     edges[-1] += 1e-12 * max(1.0, abs(float(edges[-1])))
     centers = []
