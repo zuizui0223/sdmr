@@ -1,0 +1,171 @@
+name: product-a-v1-feature-cache
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/product-a-v1-feature-cache.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v1-feature-cache
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install geo/parquet dependencies
+        run: python -m pip install -e '.[geo,parquet]'
+      - name: Download already-verified frozen source bundle
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31869318368
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: citable-product-a-v1-accelerated-2026-08-01
+          path: frozen_source
+      - name: Prepare sealed M/background tables and extract 43 CHELSA once
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+
+          from sdmr.data import (
+              OccurrenceAdmissionConfig,
+              load_gbif_download,
+              raster_specs_from_chelsa_manifest,
+          )
+          from sdmr.pilot import prepare_product_a_pilot
+          from sdmr.pilot_grid_cli import extract_protocol_grid_rasters, read_pilot_grid
+          from sdmr.specification import occurrence_table_fingerprint
+
+          out = Path('feature_cache')
+          out.mkdir(parents=True, exist_ok=True)
+          grid = read_pilot_grid('configs/product_a_buffer_specs_v1.csv')
+          taxa = pd.read_csv('configs/product_a_pilot_taxa_v1.csv')
+          focal_path = Path('frozen_source/citable_input/focal.parquet')
+          target_path = Path('frozen_source/citable_input/target_group.parquet')
+          focal = load_gbif_download(focal_path, download_key='feature-cache-frozen-focal', checklist_key='snapshot-interpreted:2026-08-01')
+          target = load_gbif_download(target_path, download_key='feature-cache-frozen-target', checklist_key='snapshot-interpreted:2026-08-01')
+          admission = OccurrenceAdmissionConfig()
+
+          prepared_by_name = {}
+          reference_sha = None
+          for row in grid.itertuples(index=False):
+              prepared = prepare_product_a_pilot(
+                  focal.records,
+                  taxa,
+                  admission_config=admission,
+                  min_occurrences=80,
+                  min_unique_cells=50,
+                  gate_cell_size_degrees=0.05,
+                  m_strategy=str(row.m_strategy),
+                  target_group_pool=target.records,
+                  bbox_buffer_degrees=float(row.bbox_buffer_degrees),
+                  occurrence_buffer_km=float(row.occurrence_buffer_km),
+                  background_points=int(row.background_points),
+                  background_cell_size_degrees=float(row.background_cell_size_degrees),
+                  random_state=20260814,
+                  strict_background=True,
+                  focal_thin_cell_size_degrees=0.05,
+                  outer_sealed_fraction=0.20,
+              )
+              occ_sha = occurrence_table_fingerprint(prepared.occurrences)
+              if reference_sha is None:
+                  reference_sha = occ_sha
+              elif occ_sha != reference_sha:
+                  raise SystemExit(f'occurrence evidence changed across M: {row.name}')
+              prepared_by_name[str(row.name)] = prepared
+              spec_dir = out / 'specifications' / str(row.name)
+              spec_dir.mkdir(parents=True, exist_ok=True)
+              prepared.background_ledger.to_csv(spec_dir / 'background_ledger.csv', index=False)
+              prepared.background.to_csv(spec_dir / 'background_pre_raster.csv', index=False)
+
+          first = next(iter(prepared_by_name.values()))
+          expected = set(taxa['scientific_name'].astype(str))
+          eligible = set(first.species_gate.loc[first.species_gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              raise SystemExit(f'feature cache loses taxa: missing={sorted(expected-eligible)}, extra={sorted(eligible-expected)}')
+          first.taxon_selection_ledger.to_csv(out/'taxon_selection_ledger.csv', index=False)
+          first.occurrence_admission_ledger.to_csv(out/'occurrence_admission_ledger.csv', index=False)
+          first.species_gate.to_csv(out/'species_gate.csv', index=False)
+          first.occurrences.to_csv(out/'pilot_occurrences_pre_raster.csv', index=False)
+          grid.to_csv(out/'pilot_grid_frozen.csv', index=False)
+
+          manifest = pd.read_csv('configs/chelsa_v2_1_plant_candidates.csv')
+          layers, resolution = raster_specs_from_chelsa_manifest(manifest, include_availability=('current',), strict=True)
+          if len(layers) != 43:
+              raise SystemExit(f'expected 43 active CHELSA layers, got {len(layers)}')
+          resolution.to_csv(out/'chelsa_resolution_ledger.csv', index=False)
+          featured_occ, featured_bg, provenance = extract_protocol_grid_rasters(
+              first.occurrences,
+              {name: prepared.background for name, prepared in prepared_by_name.items()},
+              layers,
+          )
+          featured_occ.to_csv(out/'pilot_occurrences.csv', index=False)
+          provenance.to_csv(out/'raster_provenance_joint_protocol_grid.csv', index=False)
+          for name, background in featured_bg.items():
+              spec_dir = out/'specifications'/name
+              background.to_csv(spec_dir/'background.csv', index=False)
+
+          predictors = [layer.predictor for layer in layers]
+          if featured_occ[predictors].isna().all(axis=0).any():
+              bad = featured_occ[predictors].columns[featured_occ[predictors].isna().all(axis=0)].tolist()
+              raise SystemExit(f'feature cache contains all-NA occurrence predictors: {bad}')
+
+          def sha(path):
+              h=hashlib.sha256();
+              with Path(path).open('rb') as fh:
+                  for chunk in iter(lambda: fh.read(1024*1024), b''): h.update(chunk)
+              return h.hexdigest()
+          contract = {
+              'status':'prepared_feature_evidence_only_no_method_selection',
+              'source_bundle_run_id':'31869318368',
+              'focal_source_sha256':sha(focal_path),
+              'target_source_sha256':sha(target_path),
+              'occurrence_identity_sha256':reference_sha,
+              'featured_occurrence_csv_sha256':sha(out/'pilot_occurrences.csv'),
+              'grid_sha256':sha(out/'pilot_grid_frozen.csv'),
+              'manifest_sha256':sha('configs/chelsa_v2_1_plant_candidates.csv'),
+              'n_predictors':len(predictors),
+              'n_taxa':len(expected),
+              'seed':20260814,
+              'spatial_test_fraction':0.20,
+              'taxon_validation_fraction_for_future_search':0.25,
+              'focal_thin_cell_size_degrees':0.05,
+              'M_grid_as_sensitivity':True,
+              'outer_sealed_before_M':True,
+              'contains_method_winner':False,
+          }
+          (out/'feature_cache_contract.json').write_text(json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(contract, indent=2))
+          PY
+      - name: Mark information boundary
+        run: |
+          cat > feature_cache/FEATURE_CACHE_BOUNDARY.txt <<'EOF'
+          Frozen development feature evidence only. No Product-A universe/strategy/model winner is computed here.
+          The cache fixes occurrence identities/outer roles, three predeclared M backgrounds and 43 CHELSA feature
+          values for seed 20260814 / sealed fraction 0.20. Method-search experiments may reuse these tables without
+          re-accessing GBIF or CHELSA, but this cache does not replace the repeated full stability protocol where each
+          seed/holdout rerun must rebuild sealing, M and background from the frozen raw source.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v1-feature-cache-2026-08-01
+          path: feature_cache/
+          if-no-files-found: error
+          retention-days: 90
