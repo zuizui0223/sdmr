@@ -1,9 +1,12 @@
 """Run a matched multi-specification Product-A pilot grid.
 
-Occurrence admission and environmental extraction are held fixed while only the
-predeclared M/background specifications vary. The resulting data-specification ×
-candidate-universe × strategy grid is selected on discovery taxa and frozen
-before unseen-taxon validation.
+Occurrence admission and environmental extraction are held fixed while the
+predeclared M/background specifications vary.  By default the historical mode
+can select a complete data-specification × universe × strategy protocol.  The
+citable Product-A path instead uses ``--m-grid-as-sensitivity``: methods are
+ranked only within the same species and M/background case, then those ranks are
+aggregated across M specifications so M itself is never optimized by an easier
+reference background.
 """
 from __future__ import annotations
 
@@ -23,7 +26,8 @@ from .data import (
     raster_specs_from_chelsa_manifest,
 )
 from .pilot import prepare_product_a_pilot
-from .protocol import benchmark_product_a_protocol_grid, occurrence_feature_fingerprint
+from .protocol import benchmark_product_a_protocol_grid
+from .robust_protocol import benchmark_product_a_method_across_sensitivity_specs
 from .specification import occurrence_table_fingerprint
 from .universe import candidate_universes_from_manifest
 
@@ -81,16 +85,9 @@ def extract_protocol_grid_rasters(
     backgrounds: Mapping[str, pd.DataFrame],
     layers: Sequence[RasterLayerSpec],
 ) -> tuple[pd.DataFrame, dict[str, pd.DataFrame], pd.DataFrame]:
-    """Extract all occurrence/background feature tables with one open per raster layer.
-
-    The same environmental layer is needed by the shared occurrence table and
-    every M/background specification. Concatenating them before extraction keeps
-    the sampled values identical while reducing remote COG opens from
-    ``1 + n_specs`` per layer to exactly one. Original table columns/order are
-    restored after sampling; only predictor columns are added.
-    """
+    """Extract all occurrence/background feature tables with one open per raster layer."""
     collisions = [column for column in _MARKER_COLUMNS if column in occurrences.columns]
-    for name, frame in backgrounds.items():
+    for _, frame in backgrounds.items():
         collisions.extend(column for column in _MARKER_COLUMNS if column in frame.columns)
     if collisions:
         raise ValueError(f"Input tables contain reserved SDMR marker columns: {sorted(set(collisions))}")
@@ -151,6 +148,7 @@ def _write_protocol_outputs(result, out: Path, *, args) -> None:
         + "validation_species=" + ",".join(result.validation_species) + "\n"
         + f"spatial_test_fraction={args.spatial_test_fraction}\n"
         + f"taxon_validation_fraction={args.taxon_validation_fraction}\n"
+        + f"m_grid_as_sensitivity={bool(args.m_grid_as_sensitivity)}\n"
         + f"seed={args.seed}\n",
         encoding="utf-8",
     )
@@ -159,8 +157,8 @@ def _write_protocol_outputs(result, out: Path, *, args) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Build several matched M/background Product-A specifications from one occurrence corpus, "
-            "extract CHELSA jointly, and freeze the winning full protocol on discovery taxa."
+            "Build matched M/background Product-A specifications from one occurrence corpus, "
+            "extract CHELSA jointly, and either rank a historical full protocol or select a method robust across M sensitivity specs."
         )
     )
     parser.add_argument("--gbif-download", required=True)
@@ -172,6 +170,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--grid", required=True, help="CSV of predeclared M/background specifications")
     parser.add_argument("--manifest", default="configs/chelsa_v2_1_plant_candidates.csv")
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument(
+        "--m-grid-as-sensitivity",
+        action="store_true",
+        help=(
+            "Do not optimize M/background. Rank universe×strategy only within each species×M case and aggregate those ranks "
+            "across all predeclared M specifications. This is required for the citable Product-A program."
+        ),
+    )
 
     parser.add_argument("--max-coordinate-uncertainty-m", type=float)
     parser.add_argument("--min-year", type=int)
@@ -292,7 +298,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         protocol_specs[name] = (featured_occurrences.copy(), background)
 
-    result = benchmark_product_a_protocol_grid(
+    benchmark = (
+        benchmark_product_a_method_across_sensitivity_specs
+        if args.m_grid_as_sensitivity
+        else benchmark_product_a_protocol_grid
+    )
+    result = benchmark(
         protocol_specs,
         universes,
         taxon_validation_fraction=args.taxon_validation_fraction,
@@ -321,6 +332,7 @@ def main(argv: list[str] | None = None) -> int:
         "gate_cell_size_degrees": args.gate_cell_size_degrees,
         "focal_thin_cell_size_degrees": args.gate_cell_size_degrees,
         "outer_sealed_before_M": True,
+        "m_grid_as_sensitivity": bool(args.m_grid_as_sensitivity),
         "spatial_test_fraction": args.spatial_test_fraction,
         "taxon_validation_fraction": args.taxon_validation_fraction,
         "vif_threshold": args.vif_threshold,
