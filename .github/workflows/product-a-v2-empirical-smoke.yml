@@ -12,6 +12,7 @@ on:
       - 'src/sdmr/empirical_product_a_v2.py'
       - 'src/sdmr/ecological_response_profile.py'
       - 'src/sdmr/predictor_process_registry.py'
+      - 'tests/test_empirical_audit_space.py'
       - 'configs/product_a_v2_empirical_smoke_taxa.csv'
       - 'configs/chelsa_v2_1_plant_candidates.csv'
       - 'pyproject.toml'
