@@ -2,7 +2,11 @@
 
 from .aggregate import aggregate_predictor_selection, choose_common_predictors
 from .benchmark import SpeciesBenchmarkResult, TaxonSplitBenchmarkResult, benchmark_species, benchmark_taxon_split
+from .cross_taxon_process_evidence import CrossTaxonProcessEvidence, aggregate_cross_taxon_process_evidence
 from .drivers import aggregate_process_evidence, annotate_predictor_metadata, equivalence_group_process_map, validate_candidate_manifest
+from .ecological_inference_certificate import EcologicalInferenceCertificate, build_ecological_inference_certificate
+from .ecological_interpretation import EcologicalInterpretationBundle, build_ecological_interpretation_bundle
+from .ecological_response_profile import EcologicalResponseProfile, ecological_response_profile
 from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .heterogeneity import (
     aggregate_process_evidence_across_strata,
@@ -12,6 +16,7 @@ from .heterogeneity import (
 )
 from .metrics import boyce_index, presence_rank_score
 from .model import ModelSpec
+from .predictor_process_registry import PredictorProcessEntry, PredictorProcessRegistry
 from .promotion import ProductAPromotionAssessment, ProductAPromotionCriteria, assess_product_a_promotion
 from .protocol import (
     ProductAProtocolValidationResult,
@@ -52,11 +57,17 @@ from .tuning import (
 
 __all__ = [
     "CandidateUniverse",
+    "CrossTaxonProcessEvidence",
     "DataSpecificationBenchmarkResult",
     "DriverCorpusResult",
+    "EcologicalInferenceCertificate",
+    "EcologicalInterpretationBundle",
+    "EcologicalResponseProfile",
     "FrozenProtocol",
     "MethodTaxonValidationResult",
     "ModelSpec",
+    "PredictorProcessEntry",
+    "PredictorProcessRegistry",
     "ProcessCoreSplitResult",
     "ProductAPromotionAssessment",
     "ProductAPromotionCriteria",
@@ -67,6 +78,7 @@ __all__ = [
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
     "UniverseMethodValidationResult",
+    "aggregate_cross_taxon_process_evidence",
     "aggregate_predictor_evidence",
     "aggregate_process_evidence_by_stratum",
     "aggregate_process_evidence_across_strata",
@@ -88,10 +100,13 @@ __all__ = [
     "benchmark_species_methods",
     "benchmark_taxon_split",
     "boyce_index",
+    "build_ecological_inference_certificate",
+    "build_ecological_interpretation_bundle",
     "candidate_universes_from_manifest",
     "choose_common_predictors",
     "choose_common_processes",
     "correlation_equivalence_groups",
+    "ecological_response_profile",
     "equivalence_group_process_map",
     "drop_group_importance",
     "drop_one_importance",
