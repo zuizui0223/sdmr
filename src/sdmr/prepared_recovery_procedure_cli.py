@@ -4,7 +4,14 @@ This CLI never downloads GBIF or environmental rasters. It consumes a prepared
 feature-cache bundle whose contract already proves outer-sealed-before-M,
 M-as-sensitivity and complete environmental extraction. Procedure tuning sees
 model-pool rows only; authoritative outer-sealed rows are opened only after
-canonical/robust procedures have been selected and refit.
+selectors have chosen procedures and those procedures have been rerun on the
+complete model pool.
+
+The predeclared candidate predictor universe and the ecological audit space are
+intentionally separate. Candidate procedures may search all configured CHELSA
+predictors, while niche-recovery geometry uses one representative per ecological
+process selected from model-pool availability only. Outer sealed rows never
+choose audit axes, procedures, fallback procedures or final predictor subsets.
 """
 from __future__ import annotations
 
@@ -17,6 +24,8 @@ import numpy as np
 import pandas as pd
 
 from .ecological_response_profile import ecological_response_profile
+from .empirical_audit_space import select_empirical_audit_space
+from .empirical_product_a_v2 import EmpiricalNichePerturbation
 from .metrics import continuous_boyce_index, presence_rank_score
 from .model import ModelSpec, score_ecological_suitability, score_relative_suitability
 from .model_criteria import or10
@@ -31,7 +40,7 @@ from .observation_corrected_recovery import observation_corrected_heldout_niche_
 from .predictor_process_registry import PredictorProcessRegistry
 from .procedure_ecological_certificate import build_procedure_ecological_certificate
 from .recovery_procedure_fit import fit_recovery_procedure
-from .empirical_product_a_v2 import EmpiricalNichePerturbation
+from .robustness_certificate import build_perturbation_robustness_certificate
 
 
 REQUIRED_CACHE_CONTRACT = {
@@ -106,11 +115,18 @@ def _read_selected_csv(
     return pd.concat(frames, ignore_index=True)
 
 
-def _procedure_profile(name: str, *, inner_folds: int, max_predictors: int) -> tuple[RecoveryProcedure, ...]:
+def _procedure_profile(
+    name: str,
+    *,
+    inner_folds: int,
+    max_predictors: int,
+) -> tuple[RecoveryProcedure, ...]:
     if name == "smoke_linear":
         spec = ModelSpec(C=1.0, degree=1, penalty="l2")
         return (
-            RecoveryProcedure("all", spec, inner_folds=inner_folds, max_predictors=max_predictors),
+            RecoveryProcedure(
+                "all", spec, inner_folds=inner_folds, max_predictors=max_predictors
+            ),
             RecoveryProcedure(
                 "vif",
                 spec,
@@ -155,7 +171,11 @@ def _mean_auc_winner(metrics: pd.DataFrame) -> str:
     summary = (
         metrics.groupby("candidate", as_index=False)["presence_rank"]
         .mean()
-        .sort_values(["presence_rank", "candidate"], ascending=[False, True], kind="mergesort")
+        .sort_values(
+            ["presence_rank", "candidate"],
+            ascending=[False, True],
+            kind="mergesort",
+        )
     )
     if summary.empty:
         raise ValueError("no canonical procedure AUC evidence")
@@ -171,8 +191,12 @@ def _sealed_score(
     assert perturbation.sealed_background is not None
     predictors = fitted.selected_predictors
     train_p = score_relative_suitability(fitted.model, perturbation.presence, predictors)
-    sealed_p = score_relative_suitability(fitted.model, perturbation.sealed_presence, predictors)
-    sealed_b = score_relative_suitability(fitted.model, perturbation.sealed_background, predictors)
+    sealed_p = score_relative_suitability(
+        fitted.model, perturbation.sealed_presence, predictors
+    )
+    sealed_b = score_relative_suitability(
+        fitted.model, perturbation.sealed_background, predictors
+    )
     ecological_b = score_ecological_suitability(
         fitted.model,
         perturbation.sealed_background,
@@ -210,7 +234,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--taxa", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--canonical-spec", default="buffer_300km")
-    parser.add_argument("--procedure-profile", choices=["smoke_linear", "core_l2"], default="smoke_linear")
+    parser.add_argument(
+        "--procedure-profile",
+        choices=["smoke_linear", "core_l2"],
+        default="smoke_linear",
+    )
     parser.add_argument("--inner-folds", type=int, default=2)
     parser.add_argument("--outer-folds", type=int, default=3)
     parser.add_argument("--max-predictors", type=int, default=4)
@@ -218,6 +246,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source-run-id", default="")
     parser.add_argument("--source-artifact-id", default="")
     parser.add_argument("--purpose", default="empirical_product_a_v2_plumbing_smoke")
+    parser.add_argument("--audit-minimum-predictor-coverage", type=float, default=0.95)
+    parser.add_argument("--audit-minimum-joint-coverage", type=float, default=0.80)
+    parser.add_argument("--audit-minimum-processes", type=int, default=4)
     args = parser.parse_args(argv)
     if args.inner_folds < 2 or args.outer_folds < 2 or args.max_predictors < 1:
         parser.error("inner/outer folds must be >=2 and max-predictors >=1")
@@ -230,10 +261,12 @@ def main(argv: list[str] | None = None) -> int:
     taxa = _load_taxa(taxa_path)
     registry = PredictorProcessRegistry.from_candidate_manifest(manifest)
     ecological_predictors = tuple(manifest["predictor"].astype(str))
-    audit_predictors = ecological_predictors
     process_groups = registry.process_aliases()
     required_cols = [
-        "species", "longitude", "latitude", "__sdmr_outer_role",
+        "species",
+        "longitude",
+        "latitude",
+        "__sdmr_outer_role",
         *ecological_predictors,
     ]
 
@@ -248,7 +281,9 @@ def main(argv: list[str] | None = None) -> int:
     grid = pd.read_csv(root / "pilot_grid_frozen.csv")
     specs = tuple(grid["name"].astype(str))
     if args.canonical_spec not in specs:
-        raise SystemExit(f"canonical spec {args.canonical_spec!r} absent from frozen M grid")
+        raise SystemExit(
+            f"canonical spec {args.canonical_spec!r} absent from frozen M grid"
+        )
     backgrounds: dict[str, pd.DataFrame] = {}
     for spec in specs:
         path = root / "specifications" / spec / "background.csv"
@@ -264,9 +299,12 @@ def main(argv: list[str] | None = None) -> int:
     procedure_by_label = {p.label: p for p in procedures}
     out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
+
     all_fold_metrics: list[pd.DataFrame] = []
     all_traces: list[pd.DataFrame] = []
     selector_rows: list[dict[str, object]] = []
+    robustness_rows: list[dict[str, object]] = []
+    audit_rows: list[pd.DataFrame] = []
     final_predictor_rows: list[dict[str, object]] = []
     sealed_rows: list[dict[str, object]] = []
     certificate_rows: list[dict[str, object]] = []
@@ -274,7 +312,38 @@ def main(argv: list[str] | None = None) -> int:
     response_curve_rows: list[pd.DataFrame] = []
 
     for taxon_index, species in enumerate(taxa):
-        species_occ = occurrences.loc[occurrences["species"].astype(str).eq(species)].reset_index(drop=True)
+        species_occ = occurrences.loc[
+            occurrences["species"].astype(str).eq(species)
+        ].reset_index(drop=True)
+        model_occ = species_occ.loc[
+            species_occ["__sdmr_outer_role"].astype(str).eq("model")
+        ].reset_index(drop=True)
+        model_pool_frames: list[pd.DataFrame] = [model_occ]
+        for spec in specs:
+            species_bg = backgrounds[spec].loc[
+                backgrounds[spec]["species"].astype(str).eq(species)
+            ].reset_index(drop=True)
+            model_pool_frames.append(
+                species_bg.loc[
+                    species_bg["__sdmr_outer_role"].astype(str).eq("model")
+                ].reset_index(drop=True)
+            )
+        audit = select_empirical_audit_space(
+            manifest,
+            model_pool_frames,
+            minimum_predictor_coverage=args.audit_minimum_predictor_coverage,
+            minimum_joint_coverage=args.audit_minimum_joint_coverage,
+            minimum_processes=args.audit_minimum_processes,
+        )
+        audit_predictors = audit.predictors
+        audit_ledger = audit.ledger.copy()
+        audit_ledger["species"] = species
+        audit_ledger["selected_audit_predictors"] = ",".join(audit_predictors)
+        audit_ledger["minimum_observed_joint_coverage"] = (
+            audit.minimum_observed_joint_coverage
+        )
+        audit_rows.append(audit_ledger)
+
         perturbations: dict[str, EmpiricalNichePerturbation] = {}
         metric_frames: list[pd.DataFrame] = []
         for spec_index, spec in enumerate(specs):
@@ -304,6 +373,7 @@ def main(argv: list[str] | None = None) -> int:
             fold["species"] = species
             fold["perturbation"] = spec
             fold["perturbation_type"] = "sampling_or_background"
+            fold["audit_predictors"] = ",".join(audit_predictors)
             metric_frames.append(fold)
             all_fold_metrics.append(fold)
             if not benchmark.selection_trace.empty:
@@ -316,51 +386,131 @@ def main(argv: list[str] | None = None) -> int:
         canonical_metrics = species_metrics.loc[
             species_metrics["perturbation"].eq(args.canonical_spec)
         ].copy()
-        canonical_benchmark = RecoveryProcedureBenchmark(
-            fold_metrics=canonical_metrics,
-            selection_trace=pd.DataFrame(),
-        )
-        canonical_ecology = select_recovery_procedure(canonical_benchmark).candidate
         canonical_auc = _mean_auc_winner(canonical_metrics)
-        robust = select_perturbation_robust_niche_recovery_protocol(
+
+        canonical_ecology: str | None = None
+        canonical_ecology_error: str | None = None
+        try:
+            canonical_ecology = select_recovery_procedure(
+                RecoveryProcedureBenchmark(
+                    fold_metrics=canonical_metrics,
+                    selection_trace=pd.DataFrame(),
+                )
+            ).candidate
+        except ValueError as exc:
+            canonical_ecology_error = str(exc)
+
+        robust_selection = None
+        robust_error: str | None = None
+        try:
+            robust_selection = select_perturbation_robust_niche_recovery_protocol(
+                species_metrics,
+                prediction_adequacy_perturbation_types=("sampling_or_background",),
+            )
+            robust = robust_selection.candidate
+        except ValueError as exc:
+            robust = None
+            robust_error = str(exc)
+        robust_cert = build_perturbation_robustness_certificate(
             species_metrics,
-            prediction_adequacy_perturbation_types=("sampling_or_background",),
-        ).candidate
+            selection=robust_selection,
+            selection_error=robust_error,
+        )
+        robustness_rows.append(
+            {
+                "species": species,
+                "status": robust_cert.status,
+                "selected_procedure": robust_cert.selected_candidate,
+                "selection_error": robust_cert.selection_error,
+                "near_complete_candidates": ",".join(
+                    robust_cert.near_complete_candidates
+                ),
+                "critical_perturbations": ",".join(
+                    robust_cert.critical_perturbations
+                ),
+                "max_passed_perturbations": robust_cert.max_passed_perturbations,
+                "n_perturbations": robust_cert.n_perturbations,
+            }
+        )
+
         winners = {
             "canonical_auc": canonical_auc,
             "canonical_ecology": canonical_ecology,
             "robust_ecology": robust,
         }
-        selector_rows.extend(
-            {
-                "species": species,
-                "selector": selector,
-                "procedure": label,
-            }
-            for selector, label in winners.items()
-        )
+        for selector, label in winners.items():
+            if selector == "canonical_ecology" and label is None:
+                status = "abstain_incomplete_recovery_profile"
+                error = canonical_ecology_error
+            elif selector == "robust_ecology" and label is None:
+                status = robust_cert.status
+                error = robust_cert.selection_error
+            else:
+                status = "selected"
+                error = None
+            selector_rows.append(
+                {
+                    "species": species,
+                    "selector": selector,
+                    "procedure": label,
+                    "status": status,
+                    "selection_error": error,
+                }
+            )
 
         canonical_final = None
         robust_final = None
         for selector, label in winners.items():
+            if label is None:
+                for spec in specs:
+                    final_predictor_rows.append(
+                        {
+                            "species": species,
+                            "selector": selector,
+                            "procedure": None,
+                            "perturbation": spec,
+                            "final_fit_status": "not_attempted_selector_abstained",
+                            "final_fit_error": (
+                                canonical_ecology_error
+                                if selector == "canonical_ecology"
+                                else robust_cert.selection_error
+                            ),
+                        }
+                    )
+                continue
             procedure = procedure_by_label[label]
             for spec in specs:
                 perturbation = perturbations[spec]
-                fitted = fit_recovery_procedure(
-                    perturbation.presence,
-                    perturbation.background,
-                    perturbation.presence_groups,
-                    perturbation.background_groups,
-                    ecological_predictors,
-                    audit_predictors,
-                    procedure,
-                )
+                try:
+                    fitted = fit_recovery_procedure(
+                        perturbation.presence,
+                        perturbation.background,
+                        perturbation.presence_groups,
+                        perturbation.background_groups,
+                        ecological_predictors,
+                        audit_predictors,
+                        procedure,
+                    )
+                except (ValueError, KeyError, np.linalg.LinAlgError) as exc:
+                    final_predictor_rows.append(
+                        {
+                            "species": species,
+                            "selector": selector,
+                            "procedure": label,
+                            "perturbation": spec,
+                            "final_fit_status": "abstain_final_fit",
+                            "final_fit_error": str(exc),
+                        }
+                    )
+                    continue
                 final_predictor_rows.append(
                     {
                         "species": species,
                         "selector": selector,
                         "procedure": label,
                         "perturbation": spec,
+                        "final_fit_status": "success",
+                        "final_fit_error": None,
                         "selected_predictors": ",".join(fitted.selected_predictors),
                         "selected_ecological_predictors": ",".join(
                             fitted.selected_ecological_predictors
@@ -374,6 +524,7 @@ def main(argv: list[str] | None = None) -> int:
                         "selector": selector,
                         "procedure": label,
                         "perturbation": spec,
+                        "audit_predictors": ",".join(audit_predictors),
                         **_sealed_score(perturbation, fitted, audit_predictors),
                     }
                 )
@@ -382,64 +533,81 @@ def main(argv: list[str] | None = None) -> int:
                 if spec == args.canonical_spec and selector == "robust_ecology":
                     robust_final = fitted
 
-        if canonical_final is not None and robust_final is not None:
-            certificate = build_procedure_ecological_certificate(
-                canonical_final.selected_predictors,
-                robust_final.selected_predictors,
-                canonical_observation_predictors=canonical_final.procedure.observation_predictors,
-                robust_observation_predictors=robust_final.procedure.observation_predictors,
-                process_groups=process_groups,
-                canonical_label=canonical_ecology,
-                robust_label=robust,
+        certificate = build_procedure_ecological_certificate(
+            canonical_final.selected_predictors if canonical_final else None,
+            robust_final.selected_predictors if robust_final else None,
+            canonical_observation_predictors=(
+                canonical_final.procedure.observation_predictors
+                if canonical_final
+                else ()
+            ),
+            robust_observation_predictors=(
+                robust_final.procedure.observation_predictors if robust_final else ()
+            ),
+            process_groups=process_groups,
+            canonical_label=canonical_ecology,
+            robust_label=robust,
+        )
+        certificate_rows.append({"species": species, **certificate.as_dict()})
+
+        canonical_perturbation = perturbations[args.canonical_spec]
+        for selector, fitted in (
+            ("canonical_ecology", canonical_final),
+            ("robust_ecology", robust_final),
+        ):
+            if fitted is None:
+                continue
+            ecological_surface = score_ecological_suitability(
+                fitted.model,
+                canonical_perturbation.background,
+                fitted.selected_predictors,
+                observation_predictors=fitted.procedure.observation_predictors,
+                observation_reference=canonical_perturbation.background,
             )
-            certificate_rows.append({"species": species, **certificate.as_dict()})
-            canonical_perturbation = perturbations[args.canonical_spec]
-            for selector, fitted in (
-                ("canonical_ecology", canonical_final),
-                ("robust_ecology", robust_final),
-            ):
-                ecological_surface = score_ecological_suitability(
-                    fitted.model,
-                    canonical_perturbation.background,
-                    fitted.selected_predictors,
-                    observation_predictors=fitted.procedure.observation_predictors,
-                    observation_reference=canonical_perturbation.background,
-                )
-                profile = ecological_response_profile(
-                    canonical_perturbation.background,
-                    ecological_surface,
-                    fitted.selected_ecological_predictors,
-                )
-                summary = profile.summary.copy()
-                summary["species"] = species
-                summary["selector"] = selector
-                summary["procedure"] = fitted.procedure.label
-                response_summary_rows.append(summary)
-                curves = profile.curves.copy()
-                curves["species"] = species
-                curves["selector"] = selector
-                curves["procedure"] = fitted.procedure.label
-                response_curve_rows.append(curves)
+            profile = ecological_response_profile(
+                canonical_perturbation.background,
+                ecological_surface,
+                fitted.selected_ecological_predictors,
+            )
+            summary = profile.summary.copy()
+            summary["species"] = species
+            summary["selector"] = selector
+            summary["procedure"] = fitted.procedure.label
+            response_summary_rows.append(summary)
+            curves = profile.curves.copy()
+            curves["species"] = species
+            curves["selector"] = selector
+            curves["procedure"] = fitted.procedure.label
+            response_curve_rows.append(curves)
 
     fold_metrics = pd.concat(all_fold_metrics, ignore_index=True)
-    traces = pd.concat(all_traces, ignore_index=True) if all_traces else pd.DataFrame()
+    traces = (
+        pd.concat(all_traces, ignore_index=True) if all_traces else pd.DataFrame()
+    )
     selectors = pd.DataFrame(selector_rows)
+    robustness = pd.DataFrame(robustness_rows)
+    audit_ledger = pd.concat(audit_rows, ignore_index=True)
     final_predictors = pd.DataFrame(final_predictor_rows)
     sealed = pd.DataFrame(sealed_rows)
     certificates = pd.DataFrame(certificate_rows)
     response_summary = (
         pd.concat(response_summary_rows, ignore_index=True)
-        if response_summary_rows else pd.DataFrame()
+        if response_summary_rows
+        else pd.DataFrame()
     )
     response_curves = (
         pd.concat(response_curve_rows, ignore_index=True)
-        if response_curve_rows else pd.DataFrame()
+        if response_curve_rows
+        else pd.DataFrame()
     )
 
     fold_metrics.to_csv(out / "procedure_fold_metrics.csv", index=False)
     traces.to_csv(out / "procedure_selection_trace.csv", index=False)
     selectors.to_csv(out / "procedure_selector_choices.csv", index=False)
+    robustness.to_csv(out / "robustness_certificates.csv", index=False)
+    audit_ledger.to_csv(out / "audit_space_ledger.csv", index=False)
     final_predictors.to_csv(out / "final_predictor_sets.csv", index=False)
+    final_predictors.to_csv(out / "final_fit_status.csv", index=False)
     sealed.to_csv(out / "outer_sealed_validation.csv", index=False)
     certificates.to_csv(out / "ecological_inference_certificates.csv", index=False)
     response_summary.to_csv(out / "ecological_response_summary.csv", index=False)
@@ -466,6 +634,18 @@ def main(argv: list[str] | None = None) -> int:
         "outer_sealed_before_M": True,
         "outer_sealed_opened_after_procedure_selection": True,
         "candidate_object": "procedure_not_fixed_predictor_set",
+        "candidate_predictor_universe_size": len(ecological_predictors),
+        "audit_space_source": (
+            "model_pool_availability_and_predeclared_manifest_process_only"
+        ),
+        "audit_minimum_predictor_coverage": args.audit_minimum_predictor_coverage,
+        "audit_minimum_joint_coverage": args.audit_minimum_joint_coverage,
+        "audit_minimum_processes": args.audit_minimum_processes,
+        "sealed_rows_used_for_audit_axis_selection": False,
+        "canonical_ecology_abstention_is_valid_result": True,
+        "robust_abstention_is_valid_result": True,
+        "final_fit_abstention_is_valid_result": True,
+        "no_post_selection_fallback_procedure": True,
         "prediction_ecology_weighted_super_score": False,
         "hidden_truth_used": False,
         "observation_process_predictors": [],
