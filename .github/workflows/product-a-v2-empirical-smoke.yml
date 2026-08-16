@@ -32,7 +32,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       STRICT_CACHE_RUN_ID: '31870747020'
       STRICT_CACHE_ARTIFACT_ID: '9244072277'
-      STRICT_CACHE_ARTIFACT_NAME: product-a-v1-feature-cache-2026-08-01
+      STRICT_CACHE_ARTIFACT_NAME: product-a-v1-feature-cache-block-v3-2026-08-01
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
