@@ -2,9 +2,14 @@
 
 This experiment compares conventional canonical AUC with ecological selectors
 whose occurrence-target correction is admitted only when nuisance-only evidence
-reproduces in every predeclared exogenous perturbation. Hidden ecological truth is
-opened only after the global observation gate and ecological candidate selectors
-have finished.
+reproduces in every predeclared exogenous perturbation. When that replicated
+observation process is active, ecological selectors additionally require a record
+model that explicitly declares the validated nuisance term so fitted ecological
+responses are not already confounded by an omitted observation process.
+
+Conventional AUC remains an unrestricted record-prediction comparator. Hidden
+ecological truth is opened only after the global observation gate, model
+admissibility gate and ecological candidate selectors have finished.
 """
 from __future__ import annotations
 
@@ -57,12 +62,13 @@ def run_known_truth_replicated_observation_experiment(
     observation_signal_chance_auc: float = 0.50,
     observation_signal_minimum_auc_margin: float = 0.01,
     observation_signal_auc_sem_multiplier: float = 1.0,
+    required_observation_predictors: Sequence[str] = ("recording_bias",),
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Run canonical and perturbation-robust selectors with replicated correction.
 
     Returns selector choices, hidden-truth evaluation, truth summary, effective
-    candidate selection evidence and one row per family×seed describing whether
-    global correction was admitted.
+    candidate selection evidence and one row per family×seed×perturbation
+    describing the observation signal and resulting model admissibility.
     """
 
     candidates = dict(candidates or standard_known_truth_candidates())
@@ -93,6 +99,7 @@ def run_known_truth_replicated_observation_experiment(
                 observation_signal_chance_auc=observation_signal_chance_auc,
                 observation_signal_minimum_auc_margin=observation_signal_minimum_auc_margin,
                 observation_signal_auc_sem_multiplier=observation_signal_auc_sem_multiplier,
+                required_observation_predictors=required_observation_predictors,
             )
             metrics = gate.result.fold_metrics.assign(scenario=family, seed=seed)
             metric_frames.append(metrics)
@@ -104,12 +111,30 @@ def run_known_truth_replicated_observation_experiment(
             signal["n_signal_perturbations"] = gate.n_signal_perturbations
             gate_rows.append(signal)
 
+            # Conventional AUC stays outside observation-model admissibility. Use
+            # the unrestricted uncorrected candidate table; its record-prediction
+            # scores are invariant to ecological target correction.
+            unrestricted = gate.uncorrected_result.fold_metrics
+            canonical_all = unrestricted.loc[
+                unrestricted["perturbation"].astype(str).eq(str(canonical_perturbation))
+            ].copy()
+            if canonical_all.empty:
+                raise ValueError(f"canonical perturbation {canonical_perturbation!r} is absent")
+            canonical_auc = _metric_winner(canonical_all, "presence_rank", ascending=False)
+
+            # Ecological selectors use only model specifications admitted by the
+            # independently validated observation process. When the global gate is
+            # inactive every candidate is annotated admissible and this is exactly
+            # the historical candidate library.
             canonical = metrics.loc[
                 metrics["perturbation"].astype(str).eq(str(canonical_perturbation))
+                & metrics["observation_model_admissible"].astype(bool)
             ].copy()
             if canonical.empty:
-                raise ValueError(f"canonical perturbation {canonical_perturbation!r} is absent")
-            canonical_auc = _metric_winner(canonical, "presence_rank", ascending=False)
+                raise ValueError(
+                    f"no observation-admissible candidate in canonical perturbation "
+                    f"{canonical_perturbation!r}"
+                )
             canonical_recovery = select_generalization_gated_niche_recovery_protocol(
                 canonical,
                 chance_auc=chance_auc,
@@ -148,10 +173,18 @@ def run_known_truth_replicated_observation_experiment(
                 outer_holdout_fraction=outer_holdout_fraction,
                 min_background=min_background,
             )
+            admissible_names = set(gate.observation_admissibility.admissible_candidates)
+            required_text = ",".join(
+                gate.observation_admissibility.required_observation_predictors
+            )
             for selector, candidate_name in winners.items():
                 candidate = candidates[candidate_name]
-                candidate_canonical = canonical.loc[
-                    canonical["candidate"].astype(str).eq(candidate_name)
+                is_admissible = candidate_name in admissible_names
+                candidate_canonical_source = (
+                    canonical_all if selector == "canonical_auc" else canonical
+                )
+                candidate_canonical = candidate_canonical_source.loc[
+                    candidate_canonical_source["candidate"].astype(str).eq(candidate_name)
                 ]
                 choice_rows.append(
                     {
@@ -162,6 +195,8 @@ def run_known_truth_replicated_observation_experiment(
                         "global_observation_correction_active": bool(
                             gate.global_correction_active
                         ),
+                        "observation_model_admissible": bool(is_admissible),
+                        "required_observation_predictors": required_text,
                         "n_active_signal_perturbations": gate.n_active_signal_perturbations,
                         "n_signal_perturbations": gate.n_signal_perturbations,
                         "mean_canonical_auc": float(
@@ -184,6 +219,7 @@ def run_known_truth_replicated_observation_experiment(
                         "global_observation_correction_active": bool(
                             gate.global_correction_active
                         ),
+                        "observation_model_admissible": bool(is_admissible),
                         **_hidden_truth_profile(
                             simulation,
                             candidate,
