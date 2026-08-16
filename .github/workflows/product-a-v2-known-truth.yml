@@ -3,12 +3,16 @@ name: product-a-v2-known-truth
 on:
   pull_request:
     paths:
+      - 'src/sdmr/model.py'
       - 'src/sdmr/known_truth.py'
       - 'src/sdmr/known_truth_benchmark.py'
       - 'src/sdmr/known_truth_experiment.py'
+      - 'src/sdmr/known_truth_scenarios.py'
+      - 'src/sdmr/known_truth_response.py'
       - 'src/sdmr/niche_recovery.py'
       - 'src/sdmr/niche_recovery_cv.py'
       - 'src/sdmr/niche_recovery_selection.py'
+      - 'src/sdmr/niche_recovery_stability.py'
       - '.github/workflows/product-a-v2-known-truth.yml'
   workflow_dispatch:
 
@@ -31,51 +35,116 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Run 25-replicate known-truth development experiment
+      - name: Run legacy and structural known-truth development experiments
         run: |
           mkdir -p known_truth_result
           python - <<'PY'
           import json
           from pathlib import Path
-          from sdmr.known_truth_experiment import run_known_truth_experiment
-
-          choices, truth, summary = run_known_truth_experiment(seeds=(1,2,3,4,5))
-          choices.to_csv('known_truth_result/selector_choices.csv', index=False)
-          truth.to_csv('known_truth_result/truth_evaluation.csv', index=False)
-          summary.to_csv('known_truth_result/selector_truth_summary.csv', index=False)
-
-          scenario_summary = (
-              truth.groupby(['scenario','selector'], as_index=False)
-              .agg(
-                  n_replicates=('seed','size'),
-                  truth_win_fraction=('truth_selector_win','mean'),
-                  mean_truth_overlap=('niche_overlap_schoener_d_pc12','mean'),
-                  mean_centroid_distance=('centroid_distance','mean'),
-                  mean_breadth_error=('breadth_log_sd_error','mean'),
-                  mean_quantile_error=('quantile_profile_error','mean'),
-                  mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
-              )
+          from sdmr.known_truth_experiment import (
+              run_known_truth_experiment,
+              run_structural_known_truth_experiment,
           )
-          scenario_summary.to_csv('known_truth_result/scenario_selector_summary.csv', index=False)
+
+          def scenario_summary(truth):
+              return (
+                  truth.groupby(['scenario','selector'], as_index=False)
+                  .agg(
+                      n_replicates=('seed','size'),
+                      truth_co_win_fraction=('truth_selector_win','mean'),
+                      mean_truth_overlap=('niche_overlap_schoener_d_pc12','mean'),
+                      mean_centroid_distance=('centroid_distance','mean'),
+                      mean_breadth_error=('breadth_log_sd_error','mean'),
+                      mean_quantile_error=('quantile_profile_error','mean'),
+                      mean_truth_surface_rank=('truth_surface_rank','mean'),
+                      mean_truth_surface_nrmse=('truth_surface_nrmse','mean'),
+                      mean_response_curve_error=('response_curve_error','mean'),
+                      mean_optimum_error=('optimum_error','mean'),
+                      mean_lower_limit_error=('lower_limit_error','mean'),
+                      mean_upper_limit_error=('upper_limit_error','mean'),
+                      mean_driver_process_f1=('driver_process_f1','mean'),
+                      mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
+                      mean_truth_mean_rank=('truth_mean_metric_rank','mean'),
+                  )
+              )
+
+          def choice_summary(choices):
+              counts = (
+                  choices.groupby(['scenario','selector','candidate'], as_index=False)
+                  .size()
+                  .rename(columns={'size':'n_selected'})
+              )
+              totals = counts.groupby(['scenario','selector'])['n_selected'].transform('sum')
+              counts['selection_fraction'] = counts['n_selected'] / totals
+              return counts
+
+          seeds = (1,2,3,4,5)
+          legacy_choices, legacy_truth, legacy_summary = run_known_truth_experiment(seeds=seeds)
+          structural_choices, structural_truth, structural_summary = run_structural_known_truth_experiment(seeds=seeds)
+
+          legacy_choices.to_csv('known_truth_result/legacy_selector_choices.csv', index=False)
+          legacy_truth.to_csv('known_truth_result/legacy_truth_evaluation.csv', index=False)
+          legacy_summary.to_csv('known_truth_result/legacy_selector_truth_summary.csv', index=False)
+          scenario_summary(legacy_truth).to_csv('known_truth_result/legacy_scenario_selector_summary.csv', index=False)
+          choice_summary(legacy_choices).to_csv('known_truth_result/legacy_candidate_selection_summary.csv', index=False)
+
+          structural_choices.to_csv('known_truth_result/structural_selector_choices.csv', index=False)
+          structural_truth.to_csv('known_truth_result/structural_truth_evaluation.csv', index=False)
+          structural_summary.to_csv('known_truth_result/structural_selector_truth_summary.csv', index=False)
+          structural_scenarios = scenario_summary(structural_truth)
+          structural_scenarios.to_csv('known_truth_result/structural_scenario_selector_summary.csv', index=False)
+          choice_summary(structural_choices).to_csv('known_truth_result/structural_candidate_selection_summary.csv', index=False)
+
+          selectors = sorted(structural_truth['selector'].astype(str).unique().tolist())
           contract = {
               'purpose': 'development_known_truth_niche_recovery_not_confirmatory_real_data',
-              'selectors': ['inner_auc','inner_cbi','niche_recovery'],
-              'or10_role': 'diagnostic_not_sole_optimizer',
-              'aicc_role': 'not_used_until_valid_likelihood_model_is_available',
-              'scenario_count': int(truth['scenario'].nunique()),
-              'seeds': [1,2,3,4,5],
-              'n_replicates_per_selector': int(len(truth) / truth['selector'].nunique()),
+              'legacy_scenarios': sorted(legacy_truth['scenario'].astype(str).unique().tolist()),
+              'structural_scenarios': sorted(structural_truth['scenario'].astype(str).unique().tolist()),
+              'selectors': selectors,
+              'seeds': list(seeds),
               'truth_target': 'known_generating_environmental_niche',
+              'truth_audit_dimensions': [
+                  'environmental_overlap', 'centroid', 'breadth', 'quantile_tails',
+                  'full_suitability_surface_rank', 'full_suitability_surface_nrmse',
+                  'marginal_response_curve', 'environmental_optimum',
+                  'lower_environmental_limit', 'upper_environmental_limit',
+                  'process_group_recovery',
+              ],
               'selection_never_uses_truth': True,
+              'truth_winner_semantics': 'co_winner_no_selector_name_tiebreak',
+              'auc_role': 'absolute_independent_transfer_adequacy_gate_not_ecological_objective',
+              'or10_role': 'conventional_selector_and_optional_severe_omission_guardrail',
+              'aicc_role': 'not_used_until_valid_likelihood_effective_df_and_sample_size_are_available',
+              'gated_recovery_rule': 'mean_auc>=0.51_and_mean_auc_minus_1sem>=0.50_then_ecological_pareto_minimax',
+              'gated_recovery_note': 'auc_gate_is_not_relative_to_best_auc',
+              'worst_fold_robustness_ablation': 'retained_negative_control_not_principal_v2_selector',
+              'worst_fold_robustness_rule': 'mean_ecological_pareto_then_worst_heldout_fold_pareto_minimax',
+              'stable_v2_rule': 'prediction_adequacy_then_mean_ecological_pareto_then_common_environment_refit_surface_stability_pareto_minimax_then_parsimony',
+              'surface_stability_axes': [
+                  'mean_pairwise_ecological_surface_rank',
+                  'minimum_pairwise_ecological_surface_rank',
+                  'mean_pairwise_unit_scaled_surface_nrmse',
+                  'maximum_pairwise_unit_scaled_surface_nrmse',
+              ],
+              'surface_stability_reference': 'fixed_deterministic_model_pool_background_covariates_no_heldout_occurrence_response',
+              'robustness_score': 'none_weighted_separate_pareto_and_minimax_gates',
+              'observation_process_role': 'allowed_in_record_model_but_marginalized_from_ecological_suitability',
+              'ecological_recovery_score': 'observation_marginalized_partial_dependence_surface',
           }
-          Path('known_truth_result/contract.json').write_text(json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8')
-          print(summary.to_string(index=False))
-          print('\nBy scenario:')
-          print(scenario_summary.to_string(index=False))
+          Path('known_truth_result/contract.json').write_text(
+              json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
+          )
+
+          print('Legacy smooth-Gaussian suite:')
+          print(legacy_summary.to_string(index=False))
+          print('\nStructural niche-family suite:')
+          print(structural_summary.to_string(index=False))
+          print('\nStructural by scenario:')
+          print(structural_scenarios.to_string(index=False))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: product-a-v2-known-truth-25rep
+          name: product-a-v2-known-truth-expanded
           path: known_truth_result/
           if-no-files-found: error
           retention-days: 90
