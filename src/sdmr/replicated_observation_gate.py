@@ -20,8 +20,15 @@ reverted to the uncorrected/identity-weight evidence. Per-perturbation nuisance
 AUC/SEM/lower-bound diagnostics are retained so a global inactive decision is
 fully auditable.
 
+When the replicated gate is active, ecological inference has one additional
+*specification* requirement: a candidate record model must explicitly declare the
+validated nuisance predictors as ``observation_predictors``. Correcting the
+held-out occurrence target cannot undo ecological-coefficient confounding that
+already entered a model which omitted the observation process. Conventional AUC
+comparison remains outside this admissibility gate.
+
 No ecological truth, candidate-model score, or relaxed threshold participates in
-the global activation decision.
+the global activation or admissibility decisions.
 """
 from __future__ import annotations
 
@@ -37,6 +44,11 @@ from .known_truth_perturbation import (
     evaluate_known_truth_perturbations,
 )
 from .niche_recovery_cv import RecoveryCandidate
+from .niche_recovery_perturbation import select_perturbation_robust_niche_recovery_protocol
+from .observation_admissibility import (
+    ObservationAdmissibility,
+    observation_model_admissibility,
+)
 
 
 SIGNAL_COLUMNS = (
@@ -57,6 +69,7 @@ class ReplicatedObservationGateResult:
     n_signal_perturbations: int
     n_active_signal_perturbations: int
     signal_summary: pd.DataFrame
+    observation_admissibility: ObservationAdmissibility
     per_perturbation_corrected_result: KnownTruthPerturbationResult
     uncorrected_result: KnownTruthPerturbationResult
 
@@ -103,6 +116,19 @@ def _identity_metrics_with_signal_diagnostics(
     return data
 
 
+def _annotate_admissibility(
+    metrics: pd.DataFrame,
+    admissibility: ObservationAdmissibility,
+) -> pd.DataFrame:
+    data = metrics.copy()
+    allowed = set(admissibility.admissible_candidates)
+    data["observation_model_admissible"] = data["candidate"].astype(str).isin(allowed)
+    data["required_observation_predictors"] = ",".join(
+        admissibility.required_observation_predictors
+    )
+    return data
+
+
 def evaluate_replicated_observation_gate_perturbations(
     family: str,
     seed: int,
@@ -124,14 +150,20 @@ def evaluate_replicated_observation_gate_perturbations(
     observation_signal_chance_auc: float = 0.50,
     observation_signal_minimum_auc_margin: float = 0.01,
     observation_signal_auc_sem_multiplier: float = 1.0,
+    required_observation_predictors: Sequence[str] = ("recording_bias",),
 ) -> ReplicatedObservationGateResult:
-    """Admit correction only when nuisance evidence reproduces everywhere.
+    """Admit correction and ecological model specifications only after replication.
 
     The existing per-perturbation correction path is deliberately kept as an
     ablation. If even one predeclared perturbation fails its training-only nuisance
-    evidence gate, the returned selection/result comes from the uncorrected path.
-    This changes no numeric AUC threshold; it changes only the required scope of
-    replication for a global observation correction.
+    evidence gate, the returned ecological selection/result comes from the
+    uncorrected path and every predeclared candidate remains admissible.
+
+    When every perturbation passes, corrected occurrence-target evidence is used
+    and ecological selection is recomputed using only record-model specifications
+    that explicitly declare all ``required_observation_predictors`` as nuisance.
+    This changes no numeric AUC threshold and does not constrain conventional AUC
+    comparison outside this function.
     """
 
     common = dict(
@@ -177,19 +209,47 @@ def evaluate_replicated_observation_gate_perturbations(
     active = signals["observation_signal_correction_active"].astype(bool)
     global_active = bool(len(signals) and active.all())
 
+    admissibility = observation_model_admissibility(
+        candidates,
+        required_observation_predictors,
+        correction_active=global_active,
+    )
+    signals = signals.copy()
+    signals["admissible_candidates"] = ",".join(admissibility.admissible_candidates)
+    signals["inadmissible_candidates"] = ",".join(admissibility.inadmissible_candidates)
+    signals["required_observation_predictors"] = ",".join(
+        admissibility.required_observation_predictors
+    )
+
     if global_active:
         effective_metrics = corrected.fold_metrics.copy()
         effective_metrics["observation_signal_global_active"] = True
+        effective_metrics = _annotate_admissibility(effective_metrics, admissibility)
+        selection_metrics = effective_metrics.loc[
+            effective_metrics["observation_model_admissible"]
+        ].copy()
+        try:
+            selection = select_perturbation_robust_niche_recovery_protocol(
+                selection_metrics,
+                chance_auc=chance_auc,
+                minimum_auc_margin=minimum_auc_margin,
+                auc_sem_multiplier=auc_sem_multiplier,
+            )
+            selection_error = None
+        except ValueError as exc:
+            selection = None
+            selection_error = str(exc)
         effective = KnownTruthPerturbationResult(
             fold_metrics=effective_metrics,
-            selection=corrected.selection,
-            selection_error=corrected.selection_error,
+            selection=selection,
+            selection_error=selection_error,
         )
     else:
         effective_metrics = _identity_metrics_with_signal_diagnostics(
             uncorrected.fold_metrics,
             signals,
         )
+        effective_metrics = _annotate_admissibility(effective_metrics, admissibility)
         effective = KnownTruthPerturbationResult(
             fold_metrics=effective_metrics,
             selection=uncorrected.selection,
@@ -202,6 +262,7 @@ def evaluate_replicated_observation_gate_perturbations(
         n_signal_perturbations=len(signals),
         n_active_signal_perturbations=int(active.sum()),
         signal_summary=signals,
+        observation_admissibility=admissibility,
         per_perturbation_corrected_result=corrected,
         uncorrected_result=uncorrected,
     )
