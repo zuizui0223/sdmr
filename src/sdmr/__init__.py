@@ -17,6 +17,14 @@ from .heterogeneity import (
 )
 from .metrics import boyce_index, presence_rank_score
 from .model import ModelSpec
+from .niche_recovery_procedure import (
+    PROCEDURE_STRATEGIES,
+    RecoveryProcedure,
+    RecoveryProcedureBenchmark,
+    benchmark_recovery_procedures,
+    cross_validated_recovery_procedure,
+    select_recovery_procedure,
+)
 from .predictor_process_registry import PredictorProcessEntry, PredictorProcessRegistry
 from .promotion import ProductAPromotionAssessment, ProductAPromotionCriteria, assess_product_a_promotion
 from .protocol import (
@@ -69,12 +77,15 @@ __all__ = [
     "FrozenProtocol",
     "MethodTaxonValidationResult",
     "ModelSpec",
+    "PROCEDURE_STRATEGIES",
     "PredictorProcessEntry",
     "PredictorProcessRegistry",
     "ProcessCoreSplitResult",
     "ProductAPromotionAssessment",
     "ProductAPromotionCriteria",
     "ProductAProtocolValidationResult",
+    "RecoveryProcedure",
+    "RecoveryProcedureBenchmark",
     "RepeatedProcessCoreResult",
     "RepeatedProductAProtocolResult",
     "SpeciesBenchmarkResult",
@@ -98,6 +109,7 @@ __all__ = [
     "benchmark_method_universe_taxon_split",
     "benchmark_process_core_taxon_split",
     "benchmark_product_a_protocol_grid",
+    "benchmark_recovery_procedures",
     "benchmark_repeated_process_core_splits",
     "benchmark_repeated_product_a_protocols",
     "benchmark_species",
@@ -110,6 +122,7 @@ __all__ = [
     "choose_common_predictors",
     "choose_common_processes",
     "correlation_equivalence_groups",
+    "cross_validated_recovery_procedure",
     "ecological_response_profile",
     "equivalence_group_process_map",
     "drop_group_importance",
@@ -118,6 +131,7 @@ __all__ = [
     "occurrence_feature_fingerprint",
     "occurrence_table_fingerprint",
     "presence_rank_score",
+    "select_recovery_procedure",
     "summarize_method_performance",
     "summarize_process_heterogeneity",
     "validate_candidate_manifest",
