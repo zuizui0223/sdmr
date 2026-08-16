@@ -117,8 +117,10 @@ def test_procedure_selector_uses_ecological_recovery_after_prediction_adequacy()
     )
     selection = select_recovery_procedure(benchmark)
     assert selection.candidate in {p.label for p in procedures}
-    assert set(selection.pareto_front) <= {p.label for p in procedures}
-    assert "weighted_score" not in selection.candidate_summary.columns
+    assert set(selection.recovery_selection.pareto_front) <= {
+        p.label for p in procedures
+    }
+    assert "weighted_score" not in selection.recovery_selection.summary.columns
 
 
 def test_predictive_forward_retains_prediction_role_as_baseline():
