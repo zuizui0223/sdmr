@@ -1,8 +1,11 @@
 """Small abstention-safe runner for the empirical Product-A v2 plumbing smoke.
 
-This is intentionally not the scientific promotion CLI.  It exists to prove that
-strict frozen feature evidence can run through nested procedure CV, principled
-robust abstention, final model-pool refitting and outer-sealed answer checking.
+This is intentionally not the scientific promotion CLI. It proves that strict
+frozen feature evidence can run through nested procedure CV, robust abstention,
+final model-pool refitting and outer-sealed answer checking. A procedure selected
+by outer CV may itself fail to instantiate when rerun on the complete model pool;
+that final-fit failure is recorded as abstention rather than replaced by another
+procedure after seeing sealed data.
 """
 from __future__ import annotations
 
@@ -10,6 +13,7 @@ import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from .empirical_product_a_v2 import EmpiricalNichePerturbation
@@ -57,6 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     metric_frames = []
     selector_rows = []
     robustness_rows = []
+    final_fit_rows = []
     sealed_rows = []
     certificate_rows = []
 
@@ -132,14 +137,40 @@ def main(argv: list[str] | None = None) -> int:
         robust_final = None
         for selector, label in winners.items():
             if label is None:
+                final_fit_rows.append({
+                    "species": species,
+                    "selector": selector,
+                    "procedure": None,
+                    "final_fit_status": "not_attempted_selector_abstained",
+                    "final_fit_error": robust_cert.selection_error,
+                })
                 continue
-            fitted = fit_recovery_procedure(
-                perturbations[args.canonical_spec].presence,
-                perturbations[args.canonical_spec].background,
-                perturbations[args.canonical_spec].presence_groups,
-                perturbations[args.canonical_spec].background_groups,
-                predictors, predictors, procedure_by_label[label],
-            )
+            try:
+                fitted = fit_recovery_procedure(
+                    perturbations[args.canonical_spec].presence,
+                    perturbations[args.canonical_spec].background,
+                    perturbations[args.canonical_spec].presence_groups,
+                    perturbations[args.canonical_spec].background_groups,
+                    predictors, predictors, procedure_by_label[label],
+                )
+            except (ValueError, KeyError, np.linalg.LinAlgError) as exc:
+                final_fit_rows.append({
+                    "species": species,
+                    "selector": selector,
+                    "procedure": label,
+                    "final_fit_status": "abstain_final_fit",
+                    "final_fit_error": str(exc),
+                })
+                continue
+            final_fit_rows.append({
+                "species": species,
+                "selector": selector,
+                "procedure": label,
+                "final_fit_status": "success",
+                "final_fit_error": None,
+                "selected_predictors": ",".join(fitted.selected_predictors),
+                "selected_ecological_predictors": ",".join(fitted.selected_ecological_predictors),
+            })
             sealed_rows.append({
                 "species": species,
                 "selector": selector,
@@ -166,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
     pd.concat(metric_frames, ignore_index=True).to_csv(out / "procedure_fold_metrics.csv", index=False)
     pd.DataFrame(selector_rows).to_csv(out / "procedure_selector_choices.csv", index=False)
     pd.DataFrame(robustness_rows).to_csv(out / "robustness_certificates.csv", index=False)
+    pd.DataFrame(final_fit_rows).to_csv(out / "final_fit_status.csv", index=False)
     pd.DataFrame(sealed_rows).to_csv(out / "outer_sealed_validation.csv", index=False)
     pd.DataFrame(certificate_rows).to_csv(out / "ecological_inference_certificates.csv", index=False)
     contract = {
@@ -180,6 +212,8 @@ def main(argv: list[str] | None = None) -> int:
         "outer_sealed_opened_after_procedure_selection": True,
         "candidate_object": "procedure_not_fixed_predictor_set",
         "robust_abstention_is_valid_result": True,
+        "final_fit_abstention_is_valid_result": True,
+        "no_post_selection_fallback_procedure": True,
         "prediction_ecology_weighted_super_score": False,
         "hidden_truth_used": False,
     }
