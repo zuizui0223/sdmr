@@ -7,6 +7,7 @@ from .drivers import aggregate_process_evidence, annotate_predictor_metadata, eq
 from .ecological_inference_certificate import EcologicalInferenceCertificate, build_ecological_inference_certificate
 from .ecological_interpretation import EcologicalInterpretationBundle, build_ecological_interpretation_bundle
 from .ecological_response_profile import EcologicalResponseProfile, ecological_response_profile
+from .empirical_product_a_v2 import EmpiricalNichePerturbation, EmpiricalProductAV2Result, benchmark_empirical_product_a_v2
 from .equivalence import correlation_equivalence_groups, drop_group_importance
 from .heterogeneity import (
     aggregate_process_evidence_across_strata,
@@ -63,6 +64,8 @@ __all__ = [
     "EcologicalInferenceCertificate",
     "EcologicalInterpretationBundle",
     "EcologicalResponseProfile",
+    "EmpiricalNichePerturbation",
+    "EmpiricalProductAV2Result",
     "FrozenProtocol",
     "MethodTaxonValidationResult",
     "ModelSpec",
@@ -87,6 +90,7 @@ __all__ = [
     "annotate_predictor_metadata",
     "assess_product_a_promotion",
     "benchmark_driver_corpus_from_strategy",
+    "benchmark_empirical_product_a_v2",
     "benchmark_holdout_sensitivity",
     "benchmark_matched_data_specifications",
     "benchmark_method_corpus",
