@@ -9,11 +9,20 @@ perturbations. Absolute overlap/centroid/breadth/tail scales can change when the
 available environment changes, so candidates are ranked within each predeclared
 perturbation and only those ranks are aggregated across perturbations.
 
+Prediction adequacy and ecological robustness are also kept distinct. By default,
+all perturbations are hard prediction gates for backwards compatibility. Callers
+may instead declare which perturbation *types* are hard prediction gates. This is
+useful when a transfer-domain perturbation is intended to test ecological
+conclusion stability rather than to require successful record-discrimination
+transfer. Such diagnostic perturbations remain in ecological ranking and are never
+silently dropped; they simply do not determine candidate admissibility via AUC.
+
 Stage order
 -----------
-1. Require independent prediction adequacy in every perturbation.
-2. Rank candidates within perturbation separately on each ecological recovery
-   dimension.
+1. Require independent prediction adequacy in every declared hard-gate
+   perturbation.
+2. Rank eligible candidates within *all* perturbations separately on each
+   ecological recovery dimension.
 3. For each candidate and ecological dimension retain its worst perturbation rank
    and its mean perturbation rank.
 4. Pareto-filter candidates on worst perturbation ranks.
@@ -67,7 +76,11 @@ def _auc_adequacy(
             if len(values) >= 2
             else 0.0 if len(values) == 1 else float("nan")
         )
-        lower = mean_auc - float(auc_sem_multiplier) * sem if np.isfinite(mean_auc) and np.isfinite(sem) else float("nan")
+        lower = (
+            mean_auc - float(auc_sem_multiplier) * sem
+            if np.isfinite(mean_auc) and np.isfinite(sem)
+            else float("nan")
+        )
         passes = bool(
             np.isfinite(mean_auc)
             and np.isfinite(lower)
@@ -108,6 +121,7 @@ def select_perturbation_robust_niche_recovery_protocol(
     *,
     candidate_col: str = "candidate",
     perturbation_col: str = "perturbation",
+    perturbation_type_col: str = "perturbation_type",
     fold_col: str = "fold",
     auc_col: str = "presence_rank",
     complexity_col: str | None = "n_predictors",
@@ -115,8 +129,16 @@ def select_perturbation_robust_niche_recovery_protocol(
     chance_auc: float = 0.50,
     minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
+    prediction_adequacy_perturbation_types: Sequence[str] | None = None,
 ) -> PerturbationRobustNicheRecoverySelection:
-    """Select a procedure robust across predeclared exogenous perturbations."""
+    """Select a procedure robust across predeclared exogenous perturbations.
+
+    ``prediction_adequacy_perturbation_types=None`` preserves the historical
+    behavior: every perturbation is a hard AUC adequacy gate. When a non-empty
+    sequence is supplied, only perturbations whose ``perturbation_type`` belongs
+    to that set determine prediction eligibility. Ecological recovery ranks are
+    still computed across every perturbation in ``metrics``.
+    """
 
     chance_auc = float(chance_auc)
     minimum_auc_margin = float(minimum_auc_margin)
@@ -133,6 +155,8 @@ def select_perturbation_robust_niche_recovery_protocol(
     if unknown:
         raise ValueError(f"unknown niche-recovery metrics: {unknown}")
     required = {candidate_col, perturbation_col, fold_col, auc_col, *metric_columns}
+    if prediction_adequacy_perturbation_types is not None:
+        required.add(perturbation_type_col)
     missing = required - set(metrics.columns)
     if missing:
         raise KeyError(f"perturbation-robust metrics missing columns: {sorted(missing)}")
@@ -146,6 +170,50 @@ def select_perturbation_robust_niche_recovery_protocol(
     if len(perturbations) < 2:
         raise ValueError("at least two exogenous perturbations are required")
 
+    if prediction_adequacy_perturbation_types is None:
+        hard_gate_by_perturbation = pd.DataFrame(
+            {
+                perturbation_col: list(perturbations),
+                "hard_prediction_gate": True,
+            }
+        )
+    else:
+        hard_types = tuple(
+            dict.fromkeys(str(x) for x in prediction_adequacy_perturbation_types)
+        )
+        if not hard_types:
+            raise ValueError(
+                "prediction_adequacy_perturbation_types must be non-empty when supplied"
+            )
+        type_map = data[[perturbation_col, perturbation_type_col]].copy()
+        type_map[perturbation_type_col] = type_map[perturbation_type_col].astype(str)
+        unique_type_counts = type_map.groupby(perturbation_col)[perturbation_type_col].nunique()
+        if (unique_type_counts > 1).any():
+            bad = unique_type_counts.loc[unique_type_counts > 1].index.tolist()
+            raise ValueError(
+                "each perturbation must map to one perturbation type; "
+                f"violations: {bad}"
+            )
+        type_map = type_map.drop_duplicates(subset=[perturbation_col])
+        type_map["hard_prediction_gate"] = type_map[perturbation_type_col].isin(
+            set(hard_types)
+        )
+        hard_gate_by_perturbation = type_map[
+            [perturbation_col, "hard_prediction_gate"]
+        ].copy()
+        if not hard_gate_by_perturbation["hard_prediction_gate"].any():
+            raise ValueError(
+                "no perturbation belongs to the requested prediction-adequacy types"
+            )
+
+    hard_perturbations = tuple(
+        sorted(
+            hard_gate_by_perturbation.loc[
+                hard_gate_by_perturbation["hard_prediction_gate"], perturbation_col
+            ].astype(str)
+        )
+    )
+
     adequacy = _auc_adequacy(
         data,
         candidate_col=candidate_col,
@@ -155,31 +223,56 @@ def select_perturbation_robust_niche_recovery_protocol(
         minimum_auc_margin=minimum_auc_margin,
         auc_sem_multiplier=auc_sem_multiplier,
     )
+    adequacy = adequacy.merge(
+        hard_gate_by_perturbation,
+        on=perturbation_col,
+        how="left",
+        validate="many_to_one",
+    )
+    hard_adequacy = adequacy.loc[adequacy["hard_prediction_gate"]].copy()
     coverage = (
-        adequacy.groupby(candidate_col, as_index=False)
+        hard_adequacy.groupby(candidate_col, as_index=False)
         .agg(
-            n_perturbations=(perturbation_col, "nunique"),
-            all_prediction_adequate=("passes_prediction_adequacy", "all"),
+            n_hard_gate_perturbations=(perturbation_col, "nunique"),
+            all_hard_gate_prediction_adequate=("passes_prediction_adequacy", "all"),
         )
     )
-    coverage["complete_perturbation_coverage"] = coverage["n_perturbations"].eq(len(perturbations))
-    coverage["eligible_all_perturbations"] = (
-        coverage["complete_perturbation_coverage"] & coverage["all_prediction_adequate"]
+    coverage["complete_hard_gate_coverage"] = coverage[
+        "n_hard_gate_perturbations"
+    ].eq(len(hard_perturbations))
+    coverage["eligible_hard_gate_perturbations"] = (
+        coverage["complete_hard_gate_coverage"]
+        & coverage["all_hard_gate_prediction_adequate"]
     )
+    # Compatibility aliases for downstream diagnostics written before scoped
+    # prediction gates existed. They now mean eligibility across the declared
+    # hard-gate perturbations rather than necessarily across every perturbation.
+    coverage["n_perturbations"] = coverage["n_hard_gate_perturbations"]
+    coverage["all_prediction_adequate"] = coverage[
+        "all_hard_gate_prediction_adequate"
+    ]
+    coverage["complete_perturbation_coverage"] = coverage[
+        "complete_hard_gate_coverage"
+    ]
+    coverage["eligible_all_perturbations"] = coverage[
+        "eligible_hard_gate_perturbations"
+    ]
     eligible = tuple(
-        sorted(coverage.loc[coverage["eligible_all_perturbations"], candidate_col].astype(str))
+        sorted(
+            coverage.loc[
+                coverage["eligible_hard_gate_perturbations"], candidate_col
+            ].astype(str)
+        )
     )
     if not eligible:
-        raise ValueError("no candidate passes prediction adequacy in every perturbation")
+        raise ValueError(
+            "no candidate passes prediction adequacy in every hard-gate perturbation"
+        )
 
     data = data.loc[data[candidate_col].isin(eligible)].copy()
-    aggregate_spec = {
-        metric: (metric, "mean")
-        for metric in metric_columns
-    }
-    grouped = (
-        data.groupby([candidate_col, perturbation_col], as_index=False)
-        .agg(**aggregate_spec)
+    aggregate_spec = {metric: (metric, "mean") for metric in metric_columns}
+    grouped = data.groupby([candidate_col, perturbation_col], as_index=False).agg(
+        **aggregate_spec
     )
     for metric in metric_columns:
         grouped[metric] = pd.to_numeric(grouped[metric], errors="coerce")
@@ -189,14 +282,25 @@ def select_perturbation_robust_niche_recovery_protocol(
         )
 
     rank_cols = [f"rank__{metric}" for metric in metric_columns]
-    complete = grouped.groupby(candidate_col)[perturbation_col].nunique().eq(len(perturbations))
-    finite_rows = grouped[rank_cols].apply(lambda col: np.isfinite(pd.to_numeric(col, errors="coerce"))).all(axis=1)
+    complete = grouped.groupby(candidate_col)[perturbation_col].nunique().eq(
+        len(perturbations)
+    )
+    finite_rows = grouped[rank_cols].apply(
+        lambda col: np.isfinite(pd.to_numeric(col, errors="coerce"))
+    ).all(axis=1)
     finite_by_candidate = finite_rows.groupby(grouped[candidate_col]).all()
     complete_candidates = tuple(
-        sorted(candidate for candidate in eligible if bool(complete.get(candidate, False)) and bool(finite_by_candidate.get(candidate, False)))
+        sorted(
+            candidate
+            for candidate in eligible
+            if bool(complete.get(candidate, False))
+            and bool(finite_by_candidate.get(candidate, False))
+        )
     )
     if not complete_candidates:
-        raise ValueError("no candidate has complete finite ecological recovery ranks across perturbations")
+        raise ValueError(
+            "no candidate has complete finite ecological recovery ranks across perturbations"
+        )
     grouped = grouped.loc[grouped[candidate_col].isin(complete_candidates)].copy()
 
     rows = []
@@ -208,10 +312,13 @@ def select_perturbation_robust_niche_recovery_protocol(
             row[f"mean_perturbation_rank__{metric}"] = float(np.mean(ranks))
         if complexity_col and complexity_col in data.columns:
             complexity = pd.to_numeric(
-                data.loc[data[candidate_col].eq(candidate), complexity_col], errors="coerce"
+                data.loc[data[candidate_col].eq(candidate), complexity_col],
+                errors="coerce",
             )
             complexity = complexity[np.isfinite(complexity)]
-            row["mean_complexity"] = float(complexity.mean()) if len(complexity) else float("nan")
+            row["mean_complexity"] = (
+                float(complexity.mean()) if len(complexity) else float("nan")
+            )
         else:
             row["mean_complexity"] = float("nan")
         rows.append(row)
@@ -223,7 +330,8 @@ def select_perturbation_robust_niche_recovery_protocol(
     frontier = []
     for idx in indices:
         dominated = any(
-            other != idx and _dominates_min(summary.loc[other], summary.loc[idx], worst_cols)
+            other != idx
+            and _dominates_min(summary.loc[other], summary.loc[idx], worst_cols)
             for other in indices
         )
         if not dominated:
@@ -250,12 +358,24 @@ def select_perturbation_robust_niche_recovery_protocol(
     )
     winner = str(finalist.iloc[0][candidate_col])
     rank_payload = finalist[
-        [candidate_col, "worst_rank_minimax", "worst_rank_mean", "mean_rank_minimax", "mean_rank_mean"]
+        [
+            candidate_col,
+            "worst_rank_minimax",
+            "worst_rank_mean",
+            "mean_rank_minimax",
+            "mean_rank_mean",
+        ]
     ]
     summary = summary.merge(rank_payload, on=candidate_col, how="left")
     summary["selected"] = summary[candidate_col].eq(winner)
     summary = summary.sort_values(
-        ["selected", "worst_rank_pareto_front", "worst_rank_minimax", "mean_rank_mean", candidate_col],
+        [
+            "selected",
+            "worst_rank_pareto_front",
+            "worst_rank_minimax",
+            "mean_rank_mean",
+            candidate_col,
+        ],
         ascending=[False, False, True, True, True],
         na_position="last",
         kind="mergesort",
@@ -267,9 +387,16 @@ def select_perturbation_robust_niche_recovery_protocol(
         eligible_candidates=complete_candidates,
         perturbations=perturbations,
         worst_rank_pareto_front=tuple(
-            sorted(str(x) for x in summary.loc[summary["worst_rank_pareto_front"], candidate_col])
+            sorted(
+                str(x)
+                for x in summary.loc[
+                    summary["worst_rank_pareto_front"], candidate_col
+                ]
+            )
         ),
         adequacy_summary=adequacy,
-        perturbation_ranks=grouped.sort_values([perturbation_col, candidate_col]).reset_index(drop=True),
+        perturbation_ranks=grouped.sort_values(
+            [perturbation_col, candidate_col]
+        ).reset_index(drop=True),
         candidate_summary=summary,
     )
