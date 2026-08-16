@@ -8,12 +8,11 @@ processes appropriately captures sensitivity.
 """
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 
 import pandas as pd
 
 from .ecological_inference_certificate import build_ecological_inference_certificate
-from .known_truth_process import process_profile_from_sets
 from .known_truth_response import DEFAULT_PROCESS_ALIASES
 from .known_truth_scenarios import KNOWN_TRUTH_FAMILIES, standard_known_truth_candidates
 from .niche_recovery_cv import RecoveryCandidate
@@ -30,6 +29,23 @@ def _true_processes_for_family(family: str) -> tuple[str, ...]:
     if family == "omitted_driver":
         return ("soil", "temperature", "water")
     return ("temperature", "water")
+
+
+def _process_profile(
+    selected_processes: tuple[str, ...],
+    true_processes: tuple[str, ...],
+) -> dict[str, float]:
+    selected = set(selected_processes)
+    truth = set(true_processes)
+    tp = len(selected & truth)
+    precision = float(tp / len(selected)) if selected else 0.0
+    recall = float(tp / len(truth)) if truth else float("nan")
+    f1 = (
+        float(2 * precision * recall / (precision + recall))
+        if precision + recall > 0
+        else 0.0
+    )
+    return {"precision": precision, "recall": recall, "f1": f1}
 
 
 def audit_ecological_inference_certificates(
@@ -80,8 +96,8 @@ def audit_ecological_inference_certificates(
 
         # Hidden truth is opened only here, after the certificate exists.
         true_processes = _true_processes_for_family(scenario)
-        core = process_profile_from_sets(certificate.stable_process_core, true_processes)
-        union = process_profile_from_sets(certificate.process_union, true_processes)
+        core = _process_profile(certificate.stable_process_core, true_processes)
+        union = _process_profile(certificate.process_union, true_processes)
         contested_true = tuple(sorted(set(certificate.contested_processes) & set(true_processes)))
         contested_false = tuple(sorted(set(certificate.contested_processes) - set(true_processes)))
         rows.append(
