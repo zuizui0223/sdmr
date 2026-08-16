@@ -1,0 +1,221 @@
+name: product-a-v2-fresh-confirmation
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/niche_recovery_perturbation.py'
+      - 'src/sdmr/replicated_observation_gate.py'
+      - 'src/sdmr/known_truth_replicated_observation_experiment.py'
+      - 'src/sdmr/observation_admissibility.py'
+      - 'src/sdmr/observation_process.py'
+      - 'src/sdmr/observation_corrected_recovery.py'
+      - 'src/sdmr/known_truth_perturbation.py'
+      - 'src/sdmr/known_truth_scenarios.py'
+      - '.github/workflows/product-a-v2-fresh-confirmation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-fresh-confirmation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  confirmation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run fresh-seed sixty-case confirmation
+        run: |
+          mkdir -p confirmation_result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          from sdmr.known_truth_experiment import _summarize_truth
+          from sdmr.known_truth_perturbation import DEFAULT_KNOWN_TRUTH_PERTURBATIONS
+          from sdmr.known_truth_replicated_observation_experiment import (
+              run_known_truth_replicated_observation_experiment,
+          )
+          from sdmr.known_truth_scenarios import KNOWN_TRUTH_FAMILIES
+
+          families = tuple(KNOWN_TRUTH_FAMILIES)
+          seeds = tuple(range(11, 21))
+          choices, truth, summary, metrics, signals = (
+              run_known_truth_replicated_observation_experiment(
+                  families=families,
+                  seeds=seeds,
+                  perturbations=DEFAULT_KNOWN_TRUTH_PERTURBATIONS,
+                  n_cells=2400,
+                  n_occurrences=230,
+                  n_target_group=820,
+                  n_spatial_blocks=6,
+                  inner_folds=3,
+                  min_background=55,
+              )
+          )
+
+          forbidden = {
+              'true_suitability', 'truth_surface_rank',
+              'truth_surface_nrmse', 'driver_process_f1',
+          }
+          leaked = sorted(forbidden.intersection(metrics.columns))
+          if leaked:
+              raise RuntimeError(f'hidden truth leaked into selection evidence: {leaked}')
+
+          choices.to_csv('confirmation_result/selector_choices.csv', index=False)
+          truth.to_csv('confirmation_result/truth_evaluation.csv', index=False)
+          summary.to_csv('confirmation_result/selector_truth_summary.csv', index=False)
+          metrics.to_csv('confirmation_result/candidate_fold_metrics.csv', index=False)
+          signals.to_csv('confirmation_result/observation_signal_summary.csv', index=False)
+
+          selectors = [
+              'canonical_auc',
+              'canonical_replicated_observation_niche_recovery',
+              'replicated_observation_perturbation_robust_niche_recovery',
+          ]
+          pivot = (
+              choices.loc[choices['selector'].isin(selectors)]
+              .pivot(index=['scenario','seed'], columns='selector', values='candidate')
+              .reset_index()
+          )
+          for selector in selectors:
+              if selector not in pivot.columns:
+                  pivot[selector] = pd.NA
+          pivot['auc_vs_robust_agree'] = (
+              pivot['canonical_auc'].notna()
+              & pivot['replicated_observation_perturbation_robust_niche_recovery'].notna()
+              & pivot['canonical_auc'].eq(
+                  pivot['replicated_observation_perturbation_robust_niche_recovery']
+              )
+          )
+          pivot.to_csv('confirmation_result/candidate_agreement_cases.csv', index=False)
+
+          disagreement_cases = pivot.loc[
+              pivot['canonical_auc'].notna()
+              & pivot['replicated_observation_perturbation_robust_niche_recovery'].notna()
+              & ~pivot['auc_vs_robust_agree'],
+              ['scenario','seed'],
+          ]
+          disagreement_truth = truth.merge(
+              disagreement_cases, on=['scenario','seed'], how='inner'
+          )
+          disagreement_truth.to_csv(
+              'confirmation_result/auc_robust_disagreement_truth.csv', index=False
+          )
+          disagreement_summary = (
+              _summarize_truth(disagreement_truth)
+              if len(disagreement_truth) else pd.DataFrame()
+          )
+          disagreement_summary.to_csv(
+              'confirmation_result/auc_robust_disagreement_summary.csv', index=False
+          )
+
+          scenario_summary = (
+              truth.groupby(['scenario','selector'], as_index=False)
+              .agg(
+                  n_cases=('seed','size'),
+                  truth_co_win_fraction=('truth_selector_win','mean'),
+                  mean_truth_overlap=('niche_overlap_schoener_d_pc12','mean'),
+                  mean_centroid_distance=('centroid_distance','mean'),
+                  mean_breadth_error=('breadth_log_sd_error','mean'),
+                  mean_quantile_error=('quantile_profile_error','mean'),
+                  mean_truth_surface_rank=('truth_surface_rank','mean'),
+                  mean_truth_surface_nrmse=('truth_surface_nrmse','mean'),
+                  mean_response_curve_error=('response_curve_error','mean'),
+                  mean_optimum_error=('optimum_error','mean'),
+                  mean_lower_limit_error=('lower_limit_error','mean'),
+                  mean_upper_limit_error=('upper_limit_error','mean'),
+                  mean_driver_process_f1=('driver_process_f1','mean'),
+                  mean_truth_worst_rank=('truth_worst_metric_rank','mean'),
+                  mean_truth_mean_rank=('truth_mean_metric_rank','mean'),
+              )
+          )
+          scenario_summary.to_csv(
+              'confirmation_result/scenario_selector_truth_summary.csv', index=False
+          )
+
+          coverage = (
+              choices.groupby('selector', as_index=False)
+              .agg(n_selected_cases=('seed','size'))
+          )
+          coverage['expected_cases'] = len(families) * len(seeds)
+          coverage['selection_coverage'] = (
+              coverage['n_selected_cases'] / coverage['expected_cases']
+          )
+          coverage.to_csv('confirmation_result/selector_coverage.csv', index=False)
+
+          gate_cases = (
+              signals.groupby(['scenario','seed'], as_index=False)
+              .agg(
+                  global_correction_active=('global_correction_active','first'),
+                  n_active_signal_perturbations=('n_active_signal_perturbations','first'),
+                  n_signal_perturbations=('n_signal_perturbations','first'),
+                  admissible_candidates=('admissible_candidates','first'),
+                  inadmissible_candidates=('inadmissible_candidates','first'),
+                  min_signal_auc=('observation_signal_mean_auc','min'),
+                  min_signal_lower_bound=('observation_signal_lower_bound','min'),
+                  mean_signal_auc=('observation_signal_mean_auc','mean'),
+              )
+          )
+          gate_cases.to_csv(
+              'confirmation_result/observation_global_gate_cases.csv', index=False
+          )
+
+          agreement = pd.DataFrame([{
+              'n_cases': len(pivot),
+              'n_robust_selected': int(
+                  pivot['replicated_observation_perturbation_robust_niche_recovery'].notna().sum()
+              ),
+              'n_auc_robust_agree': int(pivot['auc_vs_robust_agree'].sum()),
+              'n_auc_robust_disagree_with_both_selected': int(len(disagreement_cases)),
+          }])
+          agreement.to_csv('confirmation_result/agreement_summary.csv', index=False)
+
+          contract = {
+              'purpose': 'fresh_seed_confirmation_after_scoping_hard_prediction_gate',
+              'families': list(families),
+              'seeds': list(seeds),
+              'n_cases': len(families) * len(seeds),
+              'seeds_not_used_in_prior_1_to_10_promotion': True,
+              'hard_prediction_gate_types': ['sampling_or_background'],
+              'domain_transfer_role': 'ecological_robustness_diagnostic_not_hard_record_prediction_eligibility',
+              'domain_transfer_still_required_for_complete_finite_ecological_ranks': True,
+              'auc_thresholds_unchanged': True,
+              'record_prediction_comparator': 'canonical_auc',
+              'hidden_truth_used_during_selection': False,
+              'primary_confirmation_focus': 'auc_vs_robust_disagreement_hidden_truth',
+              'no_requirement_that_ecological_selector_beat_auc': True,
+          }
+          Path('confirmation_result/contract.json').write_text(
+              json.dumps(contract, indent=2, sort_keys=True), encoding='utf-8'
+          )
+
+          print('Overall hidden-truth summary:')
+          print(summary.to_string(index=False))
+          print('\nCoverage/agreement:')
+          print(agreement.to_string(index=False))
+          print('\nAUC-vs-robust disagreement summary:')
+          print(
+              disagreement_summary.to_string(index=False)
+              if len(disagreement_summary)
+              else 'No disagreements with both selectors present.'
+          )
+          print('\nBy scenario:')
+          print(scenario_summary.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-fresh-confirmation
+          path: confirmation_result/
+          if-no-files-found: error
+          retention-days: 90
