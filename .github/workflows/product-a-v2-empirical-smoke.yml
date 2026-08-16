@@ -59,21 +59,23 @@ jobs:
           test -f prepared_feature_cache/specifications/buffer_150km/background.csv
           test -f prepared_feature_cache/specifications/buffer_300km/background.csv
           test -f prepared_feature_cache/specifications/buffer_500km/background.csv
-      - name: Run abstention-safe two-taxon empirical Product-A v2 smoke
+      - name: Run public abstention-safe empirical Product-A v2 smoke
         run: |
           rm -rf empirical_v2_smoke
-          python -m sdmr.prepared_recovery_smoke_safe \
+          sdmr-prepared-v2 \
             --prepared-dir prepared_feature_cache \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
             --taxa configs/product_a_v2_empirical_smoke_taxa.csv \
             --output-dir empirical_v2_smoke \
             --canonical-spec buffer_300km \
+            --procedure-profile smoke_linear \
             --inner-folds 2 \
             --outer-folds 2 \
             --max-predictors 2 \
             --seed 20260816 \
             --source-run-id "$STRICT_CACHE_RUN_ID" \
-            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID" \
+            --purpose empirical_product_a_v2_plumbing_smoke
       - name: Verify barriers, audit space, selected procedures and explicit abstention
         run: |
           python - <<'PY'
