@@ -11,6 +11,11 @@ Those mappings are scientific metadata, not something to infer after seeing whic
 variables win.  This registry validates and externalizes the mapping.  It ships no
 real-data default equivalences because grouping BIOCLIM/CHELSA/soil variables is a
 claim that must be predeclared for the actual Product-B analysis.
+
+The existing Product-B candidate manifest remains the metadata source of truth.
+``from_candidate_manifest`` upgrades that table into this richer registry without
+requiring a second raster catalogue.  If no explicit equivalence group is present,
+each predictor is conservatively treated as its own group.
 """
 from __future__ import annotations
 
@@ -80,6 +85,53 @@ class PredictorProcessRegistry:
                 )
             )
         return cls(tuple(entries))
+
+    @classmethod
+    def from_candidate_manifest(cls, manifest: pd.DataFrame) -> "PredictorProcessRegistry":
+        """Build from the existing Product-B candidate manifest conservatively.
+
+        Required legacy columns are only ``predictor`` and ``process`` here; the
+        full manifest validator can still enforce source/version/mechanism in the
+        upstream Product-B pipeline. Optional v2 columns:
+
+        - ``equivalence_group``: predeclared interpretation group; defaults to the
+          predictor itself rather than inventing substitution;
+        - ``role``: ecological/observation; defaults to ecological;
+        - ``units``: literal axis units for interpretation;
+        - ``rationale``: explicit grouping/process rationale.
+
+        ``source`` is reused as ``source_family`` and ``mechanism`` can serve as a
+        fallback rationale, avoiding duplicate metadata tables.
+        """
+
+        required = {"predictor", "process"}
+        missing = required - set(manifest.columns)
+        if missing:
+            raise KeyError(f"candidate manifest missing columns: {sorted(missing)}")
+        rows = []
+        for row in manifest.to_dict(orient="records"):
+            predictor = str(row["predictor"])
+            equivalence = row.get("equivalence_group")
+            if pd.isna(equivalence) if equivalence is not None else True:
+                equivalence = predictor
+            role = row.get("role", "ecological")
+            if pd.isna(role):
+                role = "ecological"
+            rationale = row.get("rationale")
+            if rationale is None or pd.isna(rationale) or str(rationale).strip() == "":
+                rationale = row.get("mechanism", "")
+            rows.append(
+                PredictorProcessEntry(
+                    predictor=predictor,
+                    process=str(row["process"]),
+                    equivalence_group=str(equivalence),
+                    role=str(role),
+                    source_family=str(row.get("source", row.get("source_family", "unspecified"))),
+                    units=str(row.get("units", "unspecified")),
+                    rationale=str(rationale),
+                )
+            )
+        return cls(tuple(rows))
 
     def as_frame(self) -> pd.DataFrame:
         return pd.DataFrame([asdict(entry) for entry in self.entries]).sort_values(
