@@ -2,206 +2,225 @@
 
 ## Core distinction
 
-SDMR must not be described as a new model-evaluation metric.
+SDMR Product-A v2 is **not** a new model-evaluation metric.
 
-AUC, Boyce/CBI, omission rates such as OR10, and information criteria such as
-AICc answer different questions about a fitted model or a set of fitted models.
-Product-A v2 instead asks whether a **model-building procedure reconstructs the
-environmental niche expressed by genuinely unused occurrences**.
+AUC/presence-rank, Boyce/CBI, OR10 and AICc answer conventional model-evaluation or model-selection questions. Product-A v2 asks a different question:
 
-The distinction is therefore:
+> Which model-building **procedure** recovers an ecologically interpretable realized/accessible environmental niche from genuinely unused occurrence evidence, and which parts of that ecological conclusion survive plausible observation, M/background and domain perturbations?
 
-- **model evaluation**: how well did this prediction/model score under a chosen
-  statistical criterion?
-- **niche-recovery tuning**: which predictor universe, variable-selection rule,
-  regularization and response complexity recover the location, breadth, shape
-  and limits of the environmental niche, and keep doing so when space, M and
-  taxon change?
+The prediction surface is an intermediate object. The scientific target is niche structure: environmental process support, response shape, centre/optimum, breadth, limits/tails and the uncertainty of those conclusions.
 
-## What conventional criteria measure
+## Layer 1 — conventional model criteria
 
 ### AUC / presence-rank
 
-Discrimination/ranking: are withheld presences assigned higher values than the
-chosen background/reference sample? In presence-background form, SDMR's
-`presence_rank` is numerically ROC-AUC with half credit for ties.
+`presence_rank` is the presence-background ROC-AUC-equivalent ranking statistic, with half credit for ties. It measures discrimination/ranking, not niche geometry.
 
-### Boyce / continuous Boyce index
+### Boyce / continuous Boyce
 
-Presence-only calibration/consistency: do observed presences become relatively
-more frequent as predicted suitability increases? These remain valuable
-prediction evaluators, not direct measurements of niche geometry.
+Boyce/CBI measures whether observed presences become relatively more frequent as predicted suitability increases. It is a useful presence-only prediction diagnostic, but it does not establish that response shape, optimum, breadth or limits are biologically correct.
 
 ### OR10
 
-Threshold-dependent omission: after allowing the 10% lowest-ranked training
-presences to fall below the threshold, what fraction of test occurrences are
-omitted? It is useful for diagnosing overfitting/transfer failure at a declared
-threshold.
+`sdmr.model_criteria.or10` is threshold-dependent omission at the 10% training-presence omission threshold. It is useful for transfer/overfit diagnostics and guardrails. Known-truth experiments show that optimizing OR10 alone is not a niche-recovery objective.
 
 ### AICc
 
-Information-criterion model selection: balance likelihood/goodness-of-fit against
-parameter complexity, with a small-sample correction. AICc can select useful
-regularization/feature settings but does not directly establish that the
-resulting model recovered the species' ecological niche.
+`sdmr.model_criteria.corrected_aic` provides the mathematical AICc correction when a valid likelihood, defensible parameter/effective-df count and sample size are supplied. SDMR does **not** manufacture AICc for the current class-balanced penalized presence-background logistic core by simply counting coefficients.
 
-## Why prediction quality and niche recovery can diverge
+AICc therefore remains a conventional comparator or late parsimony criterion only where its inputs are justified.
 
-A model can rank observed geographic presences well while representing the wrong
-environmental response surface. This is especially relevant when the fitted
-model is later interpreted biologically, transferred to another region/time, or
-used to identify important environmental drivers.
+## Layer 2 — prediction adequacy is an admission condition, not the objective
 
-Accordingly, a high AUC, CBI, low OR10, or favourable AICc is not sufficient for
-SDMR's ecological claim. Those metrics remain comparators and diagnostic
-outputs.
+Product-A v2 does not require a candidate to be near the best AUC. That would quietly turn the method back into AUC optimization.
 
-## Common audit environmental space
+The current absolute adequacy rule requires independent within-domain evidence above chance:
 
-Candidate models must not be allowed to define the environmental space in which
-they are judged. A model that selects only convenient variables could otherwise
-appear to recover its own niche by construction.
+- mean AUC-equivalent presence-rank >= 0.51; and
+- mean AUC minus 1 SEM >= 0.50.
 
-SDMR therefore uses a **common audit environmental basis**:
+The hard gate is applied to predeclared **sampling/background (M) perturbations**. Domain-transfer AUC is not allowed by itself to declare an ecological niche wrong. Known-truth `interaction / seed 7` provided the decisive counterexample: the biologically better niche model had source-to-shifted record AUC < 0.5, so an all-perturbation AUC gate produced a false ecological abstention.
 
-1. start from the frozen active environmental candidate manifest;
-2. fit standardization and PCA using **model-pool background environments only**;
-3. never use sealed occurrences to fit the audit transform;
-4. project every candidate model and every sealed occurrence into the same audit
-   space;
-5. use the candidate model's relative-suitability values as weights over the
-   model-pool environmental reference distribution.
+Domain transfer therefore remains mandatory ecological-robustness evidence, but transfer-record discrimination is not the niche objective.
 
-The resulting weighted environmental distribution is the model-implied realized
-niche estimate for audit purposes.
+## Layer 3 — observation process is separated from ecological suitability
 
-## Ecological recovery profile
+Occurrence records mix ecological suitability with observation/accessibility/detectability processes. Product-A v2 separates those roles explicitly.
 
-`sdmr.niche_recovery.empirical_niche_recovery_profile` currently reports a
-multi-axis profile rather than a single weighted score.
+### Model-side marginalization
 
-### 1. Niche centroid
+A candidate may include predeclared observation predictors in the record model. `score_ecological_suitability` then marginalizes those nuisance predictors over a fixed model-pool observation reference while holding ecological predictors at the target row.
 
-`centroid_distance`
+Thus:
 
-Distance between the suitability-weighted predicted centroid and the sealed
-occurrence centroid in the frozen audit PC space. This asks whether the model
-places the niche optimum/centre in the right environmental region.
+- full scores answer: how well does the model predict **records**?;
+- marginalized ecological scores answer: what ecological suitability surface remains after the declared observation process is integrated out?
 
-### 2. Niche breadth
+### Heldout-target correction
 
-`breadth_log_sd_error`
+The withheld occurrence distribution can itself be observation-biased. A candidate-independent nuisance-only classifier is fitted on training focal records versus training target-group background. Its inverse density-ratio weights can transport heldout occurrences toward the target-group observation reference.
 
-Mismatch in environmental spread along audit axes. This asks whether the model
-is too general or too narrow even if its geographic ranking is acceptable.
+Correction is not activated just because a nuisance column exists. A global replicated gate requires the nuisance-only signal to satisfy the same weak absolute AUC evidence rule in every predeclared sampling/M/domain perturbation. If replication fails, weights revert exactly to one.
 
-### 3. Niche distribution shape and tails
+### Ecological model admissibility
 
-`quantile_profile_error`
+If a nuisance process is globally validated, ecological inference admits only record models that explicitly declare that nuisance in `observation_predictors`. A model that ignores a validated observation process may still be reported as a conventional AUC comparator, but its ecological coefficients are not treated as deconfounded niche evidence.
 
-Mismatch of 5%, 25%, 50%, 75% and 95% environmental quantiles across audit axes.
-This captures location, asymmetry and tails without requiring a fitted Gaussian
-niche.
+Fresh known-truth confirmation reproduced this specificity: replicated correction activated in 10/10 observation-confounded cases and 0/50 cases from the other five structural niche families.
 
-### 4. Environmental niche overlap
+## Layer 4 — ecological recovery profile
 
-`niche_overlap_schoener_d_pc12`
+Product-A v2 keeps ecological dimensions separate rather than building another arbitrary weighted super-score.
 
-Schoener D between the model-weighted reference distribution and sealed
-occurrence density in the first two frozen audit axes. This follows the broader
-environmental-niche-overlap tradition rather than treating map overlap as the
-only ecological object.
+The empirical recovery profile includes:
 
-### 5. Boundary coverage
+- `niche_overlap_schoener_d_pc12` — higher is better;
+- `centroid_distance` — lower is better;
+- `breadth_log_sd_error` — lower is better;
+- `quantile_profile_error` — lower is better;
+- `sealed_pc12_envelope_coverage90` — descriptive boundary coverage, not optimized alone.
 
-`sealed_pc12_envelope_coverage90`
+Known-truth post-selection audits additionally include direct hidden-target measures such as suitability-surface rank/error, response-curve error, optimum error, lower/upper limit error and environmental-process precision/recall/F1.
 
-Fraction of sealed occurrences inside the model-implied central 90% envelope in
-the first two audit axes. It is descriptive and must not be maximized alone,
-because an unrealistically broad niche can trivially obtain high coverage.
+Hidden truth is never available to fitting or selection.
 
-## Selection rule: procedure, not a new super-score
+## Candidate universe and audit space are different objects
 
-SDMR v2 does not add the four recovery statistics together with arbitrary
-weights.
+Real CHELSA data exposed an important design constraint: the full candidate predictor universe cannot automatically be used as the common complete-case audit basis.
 
-`select_niche_recovery_protocol` instead:
+The current strict empirical path therefore separates:
 
-1. evaluates each candidate procedure in inner held-out folds;
-2. averages each recovery dimension across folds;
-3. removes candidates that are Pareto-dominated across the ecological recovery
-   dimensions;
-4. ranks the remaining Pareto-front candidates separately on each dimension;
-5. uses a minimax rule to choose the candidate with the best worst-dimension
-   rank;
-6. breaks ties by mean recovery rank, then lower complexity.
+1. **candidate predictor universe** — all 43 predeclared CHELSA predictors remain available to candidate procedures;
+2. **ecological audit space** — selected independently from model-pool availability plus predeclared manifest `process` labels only.
 
-AUC/CBI/OR10/AICc can be applied as external comparators or explicit guardrails,
-but they do not define the ecological recovery target.
+For each ecological process, the audit-space selector chooses the highest-coverage model-pool representative, requires high marginal coverage, and greedily preserves a minimum joint complete-case fraction. Sealed occurrence rows are not an input to this decision.
 
-## Two evidence tiers
+This prevents two opposite failures:
 
-### Tier 1 — known-truth simulation
+- letting a candidate define the environmental space in which it is judged; and
+- letting dozens of partially missing rasters collapse the sealed audit sample to zero.
 
-Real GBIF data cannot reveal the fundamental niche exactly. Product A therefore
-needs simulations in which the generating niche is known. Simulations should
-vary:
+In the strict two-taxon real-data smoke, this changed the audit from a 43-variable complete-case intersection to approximately 12 process-representative axes while leaving the 43-variable candidate universe intact.
 
-- niche centre and breadth;
-- linear, unimodal and interacting responses;
-- correlated environmental predictors;
-- sampling bias;
-- accessible-area truncation;
-- spatial autocorrelation;
-- irrelevant/noise predictors.
+## Procedure-level tuning, not fixed predictor-set competition
 
-For each simulated species, compare which selector — AUC, CBI, OR10, AICc,
-local nested CV, or niche-recovery tuning — chooses the model closest to the
-known generating response/niche distribution.
+The scientific object is the **tuning procedure**, not one lucky fixed raster subset.
 
-This is the only tier where SDMR can literally evaluate recovery of a known true
-niche.
+`niche_recovery_procedure` implements nested spatial evaluation of procedures such as:
 
-### Tier 2 — real sealed-occurrence transfer
+- all variables;
+- iterative VIF;
+- predictive forward selection;
+- ecological/niche forward selection;
+- model complexity/regularization profiles.
 
-With real plants, make the narrower claim that the procedure recovers a
-**realized environmental niche supported by unused occurrence evidence**.
+Each outer spatial fold reruns the procedure using only that fold's training data. A selected procedure is then rerun on the complete model pool to determine the final predictor set before outer sealed evidence is opened.
 
-Require transfer across:
+This prevents a predictor subset discovered using one partition from being treated as if it were the method itself.
 
-- sealed spatial blocks;
-- plausible M/background definitions;
-- repeated holdout seeds/fractions;
-- unseen plant taxa.
+## Ecological selection rule
 
-The ecological output is then not just a suitability map but a stable estimate
-of where the realized niche lies in environmental space, how broad it is, where
-its limits occur, and which environmental dimensions repeatedly control those
-features.
+Within a candidate set that passes prediction adequacy, ecological selection is:
+
+1. aggregate each ecological recovery dimension over training-only spatial folds;
+2. remove Pareto-dominated candidates;
+3. rank the Pareto front separately on each ecological dimension;
+4. minimize the worst ecological rank;
+5. break ties by mean ecological rank and then lower complexity.
+
+No AUC/CBI/OR10/ecological weighted sum is used.
+
+## Perturbation robustness
+
+A second ecological selector asks whether the conclusion survives predeclared perturbations in:
+
+- sampling effort;
+- accessible-area/background M;
+- environmental transfer domain.
+
+The method ranks candidates within each perturbation before cross-perturbation aggregation, avoiding scale artifacts where an "easy" M dominates raw metric values.
+
+Several stronger-looking robustness gates were falsified and retained as ablations rather than tuned until successful:
+
+- worst single heldout fold;
+- generic refit-surface stability;
+- per-perturbation observation correction;
+- all-perturbation hard AUC adequacy.
+
+These failures are part of the method's evidence, not results to hide.
+
+## Abstention is a valid result
+
+Real-data procedure tuning can legitimately return no ecological winner.
+
+Product-A v2 records distinct states for:
+
+- canonical ecological selector unavailable;
+- no perturbation-robust candidate satisfying the hard within-domain adequacy contract;
+- selected procedure unable to instantiate when rerun on the full model pool.
+
+The pipeline does **not** inspect sealed evidence and then substitute a fallback procedure. Outer sealed rows are opened only for procedures that were selected and successfully refit without using them.
+
+## Known-truth evidence
+
+The structural benchmark currently spans six niche families:
+
+- Gaussian;
+- asymmetric;
+- soft threshold;
+- interaction;
+- omitted driver;
+- observation-confounded.
+
+The frozen fresh confirmation uses unused seeds 11–20 (60 cases). The robust ecological selector selected in 60/60 cases and differed from canonical AUC in 27/60.
+
+Across those 27 disagreements, robust ecology improved, on average, the main direct niche-structure targets relative to AUC: environmental overlap, centroid error, breadth error, quantile/tail error, hidden-surface rank, optimum error and environmental-process F1. AUC remained better on some surface-magnitude/response-curve summaries, so the result is **not** that one robust scalar winner is universally best.
+
+The supported methodological conclusion is narrower and stronger:
+
+> record-prediction quality and ecological niche recovery are genuinely different targets.
+
+## Interpretation product: consensus before winner worship
+
+Because canonical ecological recovery and perturbation robustness can disagree, Product-A does not force them into one super-score.
+
+`EcologicalInferenceCertificate` reports:
+
+- `model_consensus`;
+- `process_consensus_model_uncertainty`;
+- `partial_process_consensus`;
+- `process_contested`;
+- abstention states.
+
+The strong ecological claim is the **stable process core** shared by canonical and robust ecological inference. Selector-specific processes remain contested/sensitivity evidence.
+
+On fresh known-truth cases, this stable process core achieved approximately precision 0.978, recall 0.967 and F1 0.970 against the hidden process truth.
+
+The interpretation layer also returns response profiles including marginal optima, environmental 5–95% limits, breadth and binned response curves. Canonical and robust profiles are retained separately or as selector ranges rather than averaged into a pseudo-certain response.
+
+## Real-data claim boundary
+
+With GBIF occurrence-only data, the empirical target is a **realized/accessibility-conditioned environmental niche signal** supported by unused records. Product-A v2 does not claim direct recovery of the fundamental physiological niche, demographic fitness, dispersal history or biotic interactions without independent evidence.
+
+The strict prepared-data path enforces:
+
+- whole outer occurrence blocks frozen before M/background construction;
+- M built from model-pool occurrence information only;
+- target-group background separated from focal sealed positives;
+- tuning on model-pool rows only;
+- final opening of outer sealed presence/reference rows after procedure selection/refit.
+
+The public `sdmr-prepared-v2` strict frozen-data smoke passes this information barrier and records both successful sealed validation and explicit abstentions.
 
 ## Link to Product B
 
-Product B should inherit only a Product-A procedure that is defensible under
-both predictive transfer tests and ecological niche-recovery tests.
+Legacy Product-B driver summaries based on predictor selection frequency, drop-one loss and unseen-taxon predictive transfer remain useful predictive baselines.
 
-Universal-driver analysis should then ask not merely whether removing a raster
-reduces AUC, but whether removing an environmental process shifts or degrades:
+The v2 ecological-synthesis lane instead aggregates Product-A certificates across real taxa at the **ecological process** level, keeping separate counts for:
 
-- niche centroid recovery;
-- niche breadth recovery;
-- environmental overlap;
-- boundary/tail recovery;
-- unseen-taxon transfer.
+- stable-core support;
+- contested support;
+- explicit non-support;
+- unresolved/abstaining taxa.
 
-This converts variable importance from a map-prediction question into an
-ecological question about which environmental processes are necessary for
-reconstructing plant realized niches.
-
-## Claim boundary
-
-Presence-only GBIF data do not directly identify the fundamental niche, causal
-physiological limits, demographic fitness, dispersal constraints, or biotic
-interactions. The empirical claim must therefore remain **realized environmental
-niche recovery** unless independent demographic/physiological evidence supports
-a stronger interpretation.
+No universal-driver threshold is inferred from known-truth seeds or chosen after seeing the empirical result. Raw raster names, predeclared ecological processes and correlation/equivalence diagnostics remain distinct layers.
