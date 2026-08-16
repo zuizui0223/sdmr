@@ -1,22 +1,20 @@
 """Nested procedure-level tuning for Product-A v2 ecological niche recovery.
 
-The scientific object being compared is a *procedure*, not one post-hoc frozen
-raster set.  Every outer spatial recovery fold therefore reruns predictor
-selection using that fold's training rows only.  The held-out fold evaluates the
-resulting procedure by conventional record diagnostics and ecological
-niche-recovery dimensions.
+The object being compared is a procedure, not one post-hoc frozen raster set.
+Every outer spatial recovery fold reruns predictor selection using that fold's
+training rows only. Held-out folds are used only to evaluate record diagnostics
+and ecological niche recovery.
 
-Supported strategy families:
-
+Strategies
+----------
 - ``all``: retain the full predeclared ecological predictor universe;
 - ``vif``: VIF prune on the current outer-training background only;
 - ``predictive_forward``: forward selection by inner spatial-CV record ranking;
 - ``niche_forward``: forward selection by inner spatial-CV ecological recovery
-  using the existing adequacy -> Pareto -> minimax selector.
+  using prediction adequacy -> Pareto -> minimax.
 
-Observation-process predictors, when required, are fixed nuisance terms and are
-never candidates for ecological forward selection.  No weighted super-score is
-introduced.
+Observation predictors are fixed nuisance terms and are never candidates for
+ecological forward selection. No weighted prediction/ecology super-score is used.
 """
 from __future__ import annotations
 
@@ -103,6 +101,8 @@ def _predictive_forward_select(
     observation_predictors: Sequence[str],
     procedure: RecoveryProcedure,
 ) -> tuple[tuple[str, ...], pd.DataFrame]:
+    """Predictive baseline: select ecological terms by inner record ranking."""
+
     remaining = list(_unique_predictors(ecological_predictors))
     selected: list[str] = []
     observation = _unique_predictors(observation_predictors)
@@ -121,12 +121,12 @@ def _predictive_forward_select(
             current_score = 0.5
     else:
         current_score = 0.5
-    rows: list[dict[str, object]] = []
+    trace: list[dict[str, object]] = []
     step = 0
     while remaining and (
         procedure.max_predictors is None or len(selected) < procedure.max_predictors
     ):
-        evaluated: list[tuple[float, str]] = []
+        scores: list[tuple[float, str]] = []
         for predictor in remaining:
             model_predictors = _with_observation_terms(
                 (*selected, predictor), observation
@@ -142,32 +142,35 @@ def _predictive_forward_select(
                     model_spec=procedure.model_spec,
                 )
             except ValueError:
-                score = float("nan")
+                continue
             if np.isfinite(score):
-                evaluated.append((float(score), predictor))
-        if not evaluated:
+                scores.append((float(score), predictor))
+        if not scores:
             break
-        evaluated.sort(key=lambda item: (-item[0], item[1]))
-        best_score, best_predictor = evaluated[0]
+        scores.sort(key=lambda item: (-item[0], item[1]))
+        best_score, best_predictor = scores[0]
         gain = best_score - current_score
-        rows.append(
+        accepted = gain >= procedure.predictive_min_gain - 1e-12
+        trace.append(
             {
                 "step": step,
                 "chosen_predictor": best_predictor,
                 "inner_presence_rank": best_score,
                 "gain": gain,
-                "accepted": bool(gain >= procedure.predictive_min_gain - 1e-12),
+                "accepted": bool(accepted),
             }
         )
-        if gain < procedure.predictive_min_gain - 1e-12:
+        if not accepted:
             break
         selected.append(best_predictor)
         remaining.remove(best_predictor)
         current_score = best_score
         step += 1
+
+    # Keep the predictive baseline evaluable even if an optional positive-gain
+    # guardrail rejects the first step. This is a deterministic baseline fallback,
+    # not an ecological promotion rule.
     if not selected and remaining:
-        # A procedure must remain evaluable even if nothing clears an optional
-        # positive-gain guardrail. Choose the best first predictor deterministically.
         scores = []
         for predictor in remaining:
             model_predictors = _with_observation_terms((predictor,), observation)
@@ -188,7 +191,7 @@ def _predictive_forward_select(
         if scores:
             scores.sort(key=lambda item: (-item[0], item[1]))
             selected.append(scores[0][1])
-    return _with_observation_terms(selected, observation), pd.DataFrame(rows)
+    return _with_observation_terms(selected, observation), pd.DataFrame(trace)
 
 
 def _inner_recovery_candidates(
@@ -261,6 +264,8 @@ def _niche_forward_select(
     minimum_auc_margin: float,
     auc_sem_multiplier: float,
 ) -> tuple[tuple[str, ...], pd.DataFrame]:
+    """Forward search driven by ecological recovery, not prediction gain."""
+
     remaining = list(_unique_predictors(ecological_predictors))
     selected: list[str] = []
     trace_rows: list[dict[str, object]] = []
@@ -291,12 +296,16 @@ def _niche_forward_select(
             auc_sem_multiplier=auc_sem_multiplier,
         )
         winner = selection.candidate
+        # GeneralizationGatedNicheRecoverySelection intentionally wraps the
+        # ecological Pareto result. Trace the actual ecological frontier rather
+        # than pretending the prediction gate itself has a Pareto front.
+        pareto_front = selection.recovery_selection.pareto_front
         trace_rows.append(
             {
                 "step": step,
                 "winner": winner,
                 "selected_before": ",".join(selected),
-                "pareto_front": ",".join(selection.pareto_front),
+                "pareto_front": ",".join(pareto_front),
                 "n_inner_candidates": int(metrics["candidate"].nunique()),
             }
         )
@@ -307,9 +316,9 @@ def _niche_forward_select(
         step += 1
     if not selected:
         raise ValueError("niche-forward procedure selected no ecological predictor")
-    return _with_observation_terms(
-        selected, observation_predictors
-    ), pd.DataFrame(trace_rows)
+    return _with_observation_terms(selected, observation_predictors), pd.DataFrame(
+        trace_rows
+    )
 
 
 def _select_fold_predictors(
@@ -390,14 +399,13 @@ def cross_validated_recovery_procedure(
     minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
 ) -> RecoveryProcedureBenchmark:
-    """Evaluate one tuning procedure with nested spatial information barriers."""
+    """Evaluate one procedure with nested spatial information barriers."""
 
     p_groups = np.asarray(presence_groups)
     b_groups = np.asarray(background_groups)
     if len(p_groups) != len(presence) or len(b_groups) != len(background):
         raise ValueError("spatial group arrays must align with model-pool rows")
-    unique = np.unique(p_groups)
-    folds = min(int(outer_folds), len(unique))
+    folds = min(int(outer_folds), len(np.unique(p_groups)))
     if folds < 2:
         raise ValueError("at least two outer spatial blocks are required")
     observation = _unique_predictors(procedure.observation_predictors)
@@ -529,7 +537,7 @@ def benchmark_recovery_procedures(
     minimum_auc_margin: float = 0.01,
     auc_sem_multiplier: float = 1.0,
 ) -> RecoveryProcedureBenchmark:
-    """Evaluate predeclared procedures on the same outer spatial recovery folds."""
+    """Evaluate predeclared procedures on identical outer spatial folds."""
 
     procedures = tuple(procedures)
     if not procedures:
@@ -537,8 +545,8 @@ def benchmark_recovery_procedures(
     labels = [procedure.label for procedure in procedures]
     if len(set(labels)) != len(labels):
         raise ValueError("recovery procedure labels must be unique")
-    metric_frames = []
-    trace_frames = []
+    metric_frames: list[pd.DataFrame] = []
+    trace_frames: list[pd.DataFrame] = []
     for procedure in procedures:
         result = cross_validated_recovery_procedure(
             presence,
