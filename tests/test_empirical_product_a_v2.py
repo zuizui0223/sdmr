@@ -6,6 +6,7 @@ from sdmr.empirical_product_a_v2 import (
     benchmark_empirical_product_a_v2,
 )
 from sdmr.known_truth_scenarios import simulate_known_truth_plant_niche, standard_known_truth_candidates
+from sdmr.pilot import OUTER_ROLE_COL
 
 
 def _groups(frame):
@@ -28,6 +29,34 @@ def _perturbation(name, family, seed, *, recording_bias=3.0):
         background=simulation.target_group,
         presence_groups=_groups(simulation.occurrences),
         background_groups=_groups(simulation.target_group),
+    )
+
+
+def _preassigned_perturbation(name, seed):
+    simulation = simulate_known_truth_plant_niche(
+        "gaussian",
+        seed=seed,
+        n_cells=1800,
+        n_occurrences=240,
+        n_target_group=650,
+    )
+    presence = simulation.occurrences.sort_values("longitude").reset_index(drop=True).copy()
+    background = simulation.target_group.sort_values("longitude").reset_index(drop=True).copy()
+    p_cut = int(round(len(presence) * 0.80))
+    b_cut = int(round(len(background) * 0.80))
+    presence[OUTER_ROLE_COL] = np.where(
+        np.arange(len(presence)) < p_cut, "model", "sealed"
+    )
+    background[OUTER_ROLE_COL] = np.where(
+        np.arange(len(background)) < b_cut, "model", "sealed"
+    )
+    return EmpiricalNichePerturbation.from_preassigned_outer_roles(
+        name,
+        "sampling_or_background",
+        presence,
+        background,
+        n_spatial_blocks=4,
+        random_state=seed,
     )
 
 
@@ -59,6 +88,7 @@ def test_empirical_orchestrator_returns_prediction_ecology_and_interpretation_se
     assert result.robustness_error is None
     assert not result.observation_correction_active
     assert result.interpretation is not None
+    assert result.sealed_validation.empty
     assert result.certificate.status in {
         "model_consensus",
         "process_consensus_model_uncertainty",
@@ -121,6 +151,40 @@ def test_replicated_observation_signal_restricts_ecological_candidates_not_auc_c
     # Conventional AUC remains free to choose any record-prediction candidate.
     assert result.canonical_auc_candidate in candidates
     assert result.observation_signal_by_perturbation["correction_active"].all()
+
+
+def test_preassigned_outer_sealed_rows_are_opened_only_after_selection():
+    candidates_all = standard_known_truth_candidates()
+    candidates = {
+        name: candidates_all[name]
+        for name in ("tw_linear", "tw_quadratic", "proxy_water_quadratic")
+    }
+    canonical = _preassigned_perturbation("canonical", 61)
+    alternate = _preassigned_perturbation("background_alt", 62)
+    assert canonical.has_sealed_validation
+    result = benchmark_empirical_product_a_v2(
+        (canonical, alternate),
+        candidates,
+        ("temperature", "water", "temp_proxy"),
+        canonical_perturbation="canonical",
+        process_groups={
+            "temperature": "temperature",
+            "temp_proxy": "temperature",
+            "water": "water",
+        },
+        n_splits=2,
+    )
+    assert len(result.sealed_validation) >= 4
+    assert set(result.sealed_validation["selector"]) >= {
+        "canonical_auc",
+        "canonical_ecology",
+    }
+    assert (result.sealed_validation["n_sealed_presence"] > 0).all()
+    assert (result.sealed_validation["n_sealed_background"] > 0).all()
+    assert "n_sealed_presence" not in result.candidate_fold_metrics.columns
+    assert "n_sealed_background" not in result.candidate_fold_metrics.columns
+    forbidden = {"true_suitability", "truth_surface_rank", "driver_process_f1"}
+    assert not forbidden.intersection(result.sealed_validation.columns)
 
 
 def test_empirical_orchestrator_rejects_observation_variable_in_ecological_audit_space():
