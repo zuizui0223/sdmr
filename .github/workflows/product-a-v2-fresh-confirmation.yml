@@ -6,6 +6,8 @@ on:
       - 'src/sdmr/niche_recovery_perturbation.py'
       - 'src/sdmr/replicated_observation_gate.py'
       - 'src/sdmr/known_truth_replicated_observation_experiment.py'
+      - 'src/sdmr/ecological_inference_certificate.py'
+      - 'src/sdmr/known_truth_certificate_experiment.py'
       - 'src/sdmr/observation_admissibility.py'
       - 'src/sdmr/observation_process.py'
       - 'src/sdmr/observation_corrected_recovery.py'
@@ -41,6 +43,9 @@ jobs:
           from pathlib import Path
           import pandas as pd
 
+          from sdmr.known_truth_certificate_experiment import (
+              audit_ecological_inference_certificates,
+          )
           from sdmr.known_truth_experiment import _summarize_truth
           from sdmr.known_truth_perturbation import DEFAULT_KNOWN_TRUTH_PERTURBATIONS
           from sdmr.known_truth_replicated_observation_experiment import (
@@ -181,6 +186,35 @@ jobs:
           }])
           agreement.to_csv('confirmation_result/agreement_summary.csv', index=False)
 
+          # Consensus-first interpretation layer.  The certificate is built only
+          # from truth-free ecological selector choices; process truth is opened
+          # afterwards by the development-only audit.
+          certificates = audit_ecological_inference_certificates(choices)
+          certificates.to_csv(
+              'confirmation_result/ecological_inference_certificates.csv', index=False
+          )
+          status_counts = (
+              certificates.groupby('status', as_index=False)
+              .agg(n_cases=('seed','size'))
+          )
+          status_counts.to_csv(
+              'confirmation_result/ecological_certificate_status_counts.csv', index=False
+          )
+          certificate_summary = pd.DataFrame([{
+              'n_cases': len(certificates),
+              'model_consensus_fraction': float(certificates['model_consensus'].mean()),
+              'process_set_consensus_fraction': float(certificates['process_set_consensus'].mean()),
+              'mean_stable_core_precision': float(certificates['stable_core_precision'].mean()),
+              'mean_stable_core_recall': float(certificates['stable_core_recall'].mean()),
+              'mean_stable_core_f1': float(certificates['stable_core_f1'].mean()),
+              'mean_process_union_precision': float(certificates['process_union_precision'].mean()),
+              'mean_process_union_recall': float(certificates['process_union_recall'].mean()),
+              'mean_process_union_f1': float(certificates['process_union_f1'].mean()),
+          }])
+          certificate_summary.to_csv(
+              'confirmation_result/ecological_certificate_truth_summary.csv', index=False
+          )
+
           contract = {
               'purpose': 'fresh_seed_confirmation_after_scoping_hard_prediction_gate',
               'families': list(families),
@@ -194,6 +228,8 @@ jobs:
               'record_prediction_comparator': 'canonical_auc',
               'hidden_truth_used_during_selection': False,
               'primary_confirmation_focus': 'auc_vs_robust_disagreement_hidden_truth',
+              'ecological_certificate_policy': 'stable_process_core_is_intersection_of_canonical_and_robust_process_groups; selector_specific_processes_are_contested',
+              'certificate_uses_weighted_super_score': False,
               'no_requirement_that_ecological_selector_beat_auc': True,
           }
           Path('confirmation_result/contract.json').write_text(
@@ -210,6 +246,10 @@ jobs:
               if len(disagreement_summary)
               else 'No disagreements with both selectors present.'
           )
+          print('\nEcological certificate truth summary:')
+          print(certificate_summary.to_string(index=False))
+          print('\nEcological certificate statuses:')
+          print(status_counts.to_string(index=False))
           print('\nBy scenario:')
           print(scenario_summary.to_string(index=False))
           PY
