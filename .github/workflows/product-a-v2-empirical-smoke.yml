@@ -6,6 +6,7 @@ on:
       - 'src/sdmr/niche_recovery_procedure.py'
       - 'src/sdmr/recovery_procedure_fit.py'
       - 'src/sdmr/procedure_ecological_certificate.py'
+      - 'src/sdmr/empirical_audit_space.py'
       - 'src/sdmr/prepared_recovery_procedure_cli.py'
       - 'src/sdmr/prepared_recovery_smoke_safe.py'
       - 'src/sdmr/empirical_product_a_v2.py'
@@ -72,7 +73,7 @@ jobs:
             --seed 20260816 \
             --source-run-id "$STRICT_CACHE_RUN_ID" \
             --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
-      - name: Verify barriers, selected procedures and explicit abstention
+      - name: Verify barriers, audit space, selected procedures and explicit abstention
         run: |
           python - <<'PY'
           import json
@@ -87,7 +88,13 @@ jobs:
           assert contract['m_grid_as_sensitivity'] is True
           assert contract['outer_sealed_opened_after_procedure_selection'] is True
           assert contract['candidate_object'] == 'procedure_not_fixed_predictor_set'
+          assert contract['candidate_predictor_universe_size'] == 43
+          assert contract['audit_space_source'] == 'model_pool_availability_and_predeclared_manifest_process_only'
+          assert contract['sealed_rows_used_for_audit_axis_selection'] is False
+          assert contract['canonical_ecology_abstention_is_valid_result'] is True
           assert contract['robust_abstention_is_valid_result'] is True
+          assert contract['final_fit_abstention_is_valid_result'] is True
+          assert contract['no_post_selection_fallback_procedure'] is True
           assert contract['prediction_ecology_weighted_super_score'] is False
           assert contract['hidden_truth_used'] is False
           assert contract['scientific_promotion_run'] is False
@@ -96,6 +103,8 @@ jobs:
           metrics = pd.read_csv(root / 'procedure_fold_metrics.csv')
           choices = pd.read_csv(root / 'procedure_selector_choices.csv')
           robustness = pd.read_csv(root / 'robustness_certificates.csv')
+          audit = pd.read_csv(root / 'audit_space_ledger.csv')
+          final_fit = pd.read_csv(root / 'final_fit_status.csv')
           sealed = pd.read_csv(root / 'outer_sealed_validation.csv')
           certificates = pd.read_csv(root / 'ecological_inference_certificates.csv')
 
@@ -104,12 +113,19 @@ jobs:
           assert set(metrics['strategy']) == {'all','vif','predictive_forward','niche_forward'}
           assert choices.groupby('species')['selector'].nunique().eq(3).all()
           for species, group in choices.groupby('species'):
-              selected = group.set_index('selector')['status']
-              assert selected['canonical_auc'] == 'selected'
-              assert selected['canonical_ecology'] == 'selected'
-              assert selected['robust_ecology'] == 'selected' or str(selected['robust_ecology']).startswith('abstain_')
+              status = group.set_index('selector')['status']
+              assert status['canonical_auc'] == 'selected'
+              assert status['canonical_ecology'] == 'selected' or str(status['canonical_ecology']).startswith('abstain_')
+              assert status['robust_ecology'] == 'selected' or str(status['robust_ecology']).startswith('abstain_')
+
+          selected_audit = audit.loc[audit['selected'].astype(bool)]
+          assert selected_audit.groupby('species')['process'].nunique().ge(4).all()
+          assert selected_audit.groupby('species')['minimum_observed_joint_coverage'].min().ge(0.80).all()
           assert robustness['species'].nunique() == 2
-          assert len(sealed) >= 4
+          assert final_fit.groupby('species')['selector'].nunique().eq(3).all()
+          assert final_fit.groupby('species')['final_fit_status'].apply(lambda x: x.eq('success').any()).all()
+          n_success = int(final_fit['final_fit_status'].eq('success').sum())
+          assert len(sealed) == n_success
           assert (sealed['n_sealed_presence'] > 0).all()
           assert (sealed['n_sealed_background'] > 0).all()
           assert certificates['species'].nunique() == 2
