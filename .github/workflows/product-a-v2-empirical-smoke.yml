@@ -32,7 +32,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       STRICT_CACHE_RUN_ID: '31870747020'
       STRICT_CACHE_ARTIFACT_ID: '9244072277'
-      STRICT_CACHE_ARTIFACT_NAME: product-a-v1-feature-cache-block-v3-2026-08-01
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,15 +40,22 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Download strict frozen feature cache
+      - name: Download strict frozen feature cache by artifact ID
         run: |
+          rm -rf prepared_feature_cache strict_cache.zip
           mkdir -p prepared_feature_cache
-          gh run download "$STRICT_CACHE_RUN_ID" \
-            --name "$STRICT_CACHE_ARTIFACT_NAME" \
-            --dir prepared_feature_cache
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$STRICT_CACHE_ARTIFACT_ID/zip" \
+            --output strict_cache.zip
+          unzip -q strict_cache.zip -d prepared_feature_cache
           test -f prepared_feature_cache/feature_cache_contract.json
           test -f prepared_feature_cache/pilot_occurrences.csv
+          test -f prepared_feature_cache/specifications/buffer_150km/background.csv
           test -f prepared_feature_cache/specifications/buffer_300km/background.csv
+          test -f prepared_feature_cache/specifications/buffer_500km/background.csv
       - name: Run two-taxon empirical Product-A v2 plumbing smoke
         run: |
           rm -rf empirical_v2_smoke
