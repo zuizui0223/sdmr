@@ -37,6 +37,7 @@ from .niche_recovery_selection import select_generalization_gated_niche_recovery
 from .replicated_observation_gate import (
     evaluate_replicated_observation_gate_perturbations,
 )
+from .robustness_certificate import build_perturbation_robustness_certificate
 
 
 def run_known_truth_replicated_observation_experiment(
@@ -68,7 +69,9 @@ def run_known_truth_replicated_observation_experiment(
 
     Returns selector choices, hidden-truth evaluation, truth summary, effective
     candidate selection evidence and one row per family×seed×perturbation
-    describing the observation signal and resulting model admissibility.
+    describing the observation signal, model admissibility and robustness
+    certificate. A robust-selector abstention is therefore a first-class result,
+    not a missing row that must be repaired by threshold relaxation.
     """
 
     candidates = dict(candidates or standard_known_truth_candidates())
@@ -103,12 +106,35 @@ def run_known_truth_replicated_observation_experiment(
             )
             metrics = gate.result.fold_metrics.assign(scenario=family, seed=seed)
             metric_frames.append(metrics)
+
+            certificate_metrics = metrics.loc[
+                metrics["observation_model_admissible"].astype(bool)
+            ].copy()
+            certificate = build_perturbation_robustness_certificate(
+                certificate_metrics,
+                selection=gate.result.selection,
+                selection_error=gate.result.selection_error,
+                chance_auc=chance_auc,
+                minimum_auc_margin=minimum_auc_margin,
+                auc_sem_multiplier=auc_sem_multiplier,
+            )
+
             signal = gate.signal_summary.copy()
             signal["scenario"] = family
             signal["seed"] = seed
             signal["global_correction_active"] = bool(gate.global_correction_active)
             signal["n_active_signal_perturbations"] = gate.n_active_signal_perturbations
             signal["n_signal_perturbations"] = gate.n_signal_perturbations
+            signal["robustness_status"] = certificate.status
+            signal["robustness_selected_candidate"] = certificate.selected_candidate or ""
+            signal["robustness_selection_error"] = certificate.selection_error or ""
+            signal["robustness_max_passed_perturbations"] = certificate.max_passed_perturbations
+            signal["robustness_near_complete_candidates"] = ",".join(
+                certificate.near_complete_candidates
+            )
+            signal["robustness_critical_perturbations"] = ",".join(
+                certificate.critical_perturbations
+            )
             gate_rows.append(signal)
 
             # Conventional AUC stays outside observation-model admissibility. Use
@@ -197,6 +223,15 @@ def run_known_truth_replicated_observation_experiment(
                         ),
                         "observation_model_admissible": bool(is_admissible),
                         "required_observation_predictors": required_text,
+                        "robustness_status": certificate.status,
+                        "robustness_selected_candidate": certificate.selected_candidate or "",
+                        "robustness_max_passed_perturbations": certificate.max_passed_perturbations,
+                        "robustness_near_complete_candidates": ",".join(
+                            certificate.near_complete_candidates
+                        ),
+                        "robustness_critical_perturbations": ",".join(
+                            certificate.critical_perturbations
+                        ),
                         "n_active_signal_perturbations": gate.n_active_signal_perturbations,
                         "n_signal_perturbations": gate.n_signal_perturbations,
                         "mean_canonical_auc": float(
@@ -220,6 +255,7 @@ def run_known_truth_replicated_observation_experiment(
                             gate.global_correction_active
                         ),
                         "observation_model_admissible": bool(is_admissible),
+                        "robustness_status": certificate.status,
                         **_hidden_truth_profile(
                             simulation,
                             candidate,
