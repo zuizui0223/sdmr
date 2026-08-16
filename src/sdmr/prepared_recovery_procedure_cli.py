@@ -38,7 +38,7 @@ REQUIRED_CACHE_CONTRACT = {
     "outer_sealed_before_M": True,
     "M_grid_as_sensitivity": True,
     "contains_method_winner": False,
-    "raster_extraction_mode": "full_chelsa",
+    "status": "prepared_feature_evidence_only_no_method_selection",
 }
 
 
