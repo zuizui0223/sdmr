@@ -1,0 +1,113 @@
+name: product-a-v2-empirical-smoke
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/niche_recovery_procedure.py'
+      - 'src/sdmr/recovery_procedure_fit.py'
+      - 'src/sdmr/procedure_ecological_certificate.py'
+      - 'src/sdmr/prepared_recovery_procedure_cli.py'
+      - 'src/sdmr/empirical_product_a_v2.py'
+      - 'src/sdmr/ecological_response_profile.py'
+      - 'src/sdmr/predictor_process_registry.py'
+      - 'configs/product_a_v2_empirical_smoke_taxa.csv'
+      - 'configs/chelsa_v2_1_plant_candidates.csv'
+      - 'pyproject.toml'
+      - '.github/workflows/product-a-v2-empirical-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-empirical-smoke-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  empirical-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STRICT_CACHE_RUN_ID: '31870747020'
+      STRICT_CACHE_ARTIFACT_ID: '9244072277'
+      STRICT_CACHE_ARTIFACT_NAME: product-a-v1-feature-cache-2026-08-01
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Download strict frozen feature cache
+        run: |
+          mkdir -p prepared_feature_cache
+          gh run download "$STRICT_CACHE_RUN_ID" \
+            --name "$STRICT_CACHE_ARTIFACT_NAME" \
+            --dir prepared_feature_cache
+          test -f prepared_feature_cache/feature_cache_contract.json
+          test -f prepared_feature_cache/pilot_occurrences.csv
+          test -f prepared_feature_cache/specifications/buffer_300km/background.csv
+      - name: Run two-taxon empirical Product-A v2 plumbing smoke
+        run: |
+          rm -rf empirical_v2_smoke
+          sdmr-prepared-v2 \
+            --prepared-dir prepared_feature_cache \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --taxa configs/product_a_v2_empirical_smoke_taxa.csv \
+            --output-dir empirical_v2_smoke \
+            --canonical-spec buffer_300km \
+            --procedure-profile smoke_linear \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 2 \
+            --seed 20260816 \
+            --source-run-id "$STRICT_CACHE_RUN_ID" \
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID" \
+            --purpose empirical_product_a_v2_plumbing_smoke
+      - name: Verify information barriers and smoke outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('empirical_v2_smoke')
+          contract = json.loads((root / 'product_a_v2_empirical_contract.json').read_text())
+          assert contract['source_run_id'] == '31870747020'
+          assert contract['source_artifact_id'] == '9244072277'
+          assert contract['outer_sealed_before_M'] is True
+          assert contract['m_grid_as_sensitivity'] is True
+          assert contract['outer_sealed_opened_after_procedure_selection'] is True
+          assert contract['candidate_object'] == 'procedure_not_fixed_predictor_set'
+          assert contract['prediction_ecology_weighted_super_score'] is False
+          assert contract['hidden_truth_used'] is False
+          assert contract['scientific_promotion_run'] is False
+          assert len(contract['taxa']) == 2
+
+          metrics = pd.read_csv(root / 'procedure_fold_metrics.csv')
+          choices = pd.read_csv(root / 'procedure_selector_choices.csv')
+          final_sets = pd.read_csv(root / 'final_predictor_sets.csv')
+          sealed = pd.read_csv(root / 'outer_sealed_validation.csv')
+          certificates = pd.read_csv(root / 'ecological_inference_certificates.csv')
+          assert metrics['species'].nunique() == 2
+          assert set(metrics['perturbation']) == {'buffer_150km','buffer_300km','buffer_500km'}
+          assert set(metrics['strategy']) == {'all','vif','predictive_forward','niche_forward'}
+          assert choices.groupby('species')['selector'].nunique().eq(3).all()
+          assert final_sets['perturbation'].nunique() == 3
+          assert len(sealed) > 0
+          assert (sealed['n_sealed_presence'] > 0).all()
+          assert (sealed['n_sealed_background'] > 0).all()
+          assert certificates['species'].nunique() == 2
+          forbidden = {'true_suitability','truth_surface_rank','driver_process_f1'}
+          for frame in (metrics, sealed):
+              assert not forbidden.intersection(frame.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-empirical-smoke
+          path: empirical_v2_smoke/
+          if-no-files-found: error
+          retention-days: 90
