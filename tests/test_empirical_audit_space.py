@@ -88,8 +88,7 @@ def test_sealed_rows_are_not_an_input_to_audit_selection():
     # A hypothetical sealed table can be arbitrarily changed; because the public
     # API accepts only explicitly supplied model-pool frames it cannot affect the
     # result unless a caller violates the information barrier and passes it in.
-    sealed = model.copy()
-    sealed.loc[:, :] = None
+    sealed = pd.DataFrame(float("nan"), index=model.index, columns=model.columns)
     second = select_empirical_audit_space(
         _manifest(), [model], minimum_predictor_coverage=0.80, minimum_joint_coverage=0.80
     )
