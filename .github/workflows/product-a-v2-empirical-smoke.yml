@@ -7,6 +7,7 @@ on:
       - 'src/sdmr/recovery_procedure_fit.py'
       - 'src/sdmr/procedure_ecological_certificate.py'
       - 'src/sdmr/prepared_recovery_procedure_cli.py'
+      - 'src/sdmr/prepared_recovery_smoke_safe.py'
       - 'src/sdmr/empirical_product_a_v2.py'
       - 'src/sdmr/ecological_response_profile.py'
       - 'src/sdmr/predictor_process_registry.py'
@@ -56,24 +57,22 @@ jobs:
           test -f prepared_feature_cache/specifications/buffer_150km/background.csv
           test -f prepared_feature_cache/specifications/buffer_300km/background.csv
           test -f prepared_feature_cache/specifications/buffer_500km/background.csv
-      - name: Run two-taxon empirical Product-A v2 plumbing smoke
+      - name: Run abstention-safe two-taxon empirical Product-A v2 smoke
         run: |
           rm -rf empirical_v2_smoke
-          sdmr-prepared-v2 \
+          python -m sdmr.prepared_recovery_smoke_safe \
             --prepared-dir prepared_feature_cache \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
             --taxa configs/product_a_v2_empirical_smoke_taxa.csv \
             --output-dir empirical_v2_smoke \
             --canonical-spec buffer_300km \
-            --procedure-profile smoke_linear \
             --inner-folds 2 \
             --outer-folds 2 \
             --max-predictors 2 \
             --seed 20260816 \
             --source-run-id "$STRICT_CACHE_RUN_ID" \
-            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID" \
-            --purpose empirical_product_a_v2_plumbing_smoke
-      - name: Verify information barriers and smoke outputs
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
+      - name: Verify barriers, selected procedures and explicit abstention
         run: |
           python - <<'PY'
           import json
@@ -88,6 +87,7 @@ jobs:
           assert contract['m_grid_as_sensitivity'] is True
           assert contract['outer_sealed_opened_after_procedure_selection'] is True
           assert contract['candidate_object'] == 'procedure_not_fixed_predictor_set'
+          assert contract['robust_abstention_is_valid_result'] is True
           assert contract['prediction_ecology_weighted_super_score'] is False
           assert contract['hidden_truth_used'] is False
           assert contract['scientific_promotion_run'] is False
@@ -95,15 +95,21 @@ jobs:
 
           metrics = pd.read_csv(root / 'procedure_fold_metrics.csv')
           choices = pd.read_csv(root / 'procedure_selector_choices.csv')
-          final_sets = pd.read_csv(root / 'final_predictor_sets.csv')
+          robustness = pd.read_csv(root / 'robustness_certificates.csv')
           sealed = pd.read_csv(root / 'outer_sealed_validation.csv')
           certificates = pd.read_csv(root / 'ecological_inference_certificates.csv')
+
           assert metrics['species'].nunique() == 2
           assert set(metrics['perturbation']) == {'buffer_150km','buffer_300km','buffer_500km'}
           assert set(metrics['strategy']) == {'all','vif','predictive_forward','niche_forward'}
           assert choices.groupby('species')['selector'].nunique().eq(3).all()
-          assert final_sets['perturbation'].nunique() == 3
-          assert len(sealed) > 0
+          for species, group in choices.groupby('species'):
+              selected = group.set_index('selector')['status']
+              assert selected['canonical_auc'] == 'selected'
+              assert selected['canonical_ecology'] == 'selected'
+              assert selected['robust_ecology'] == 'selected' or str(selected['robust_ecology']).startswith('abstain_')
+          assert robustness['species'].nunique() == 2
+          assert len(sealed) >= 4
           assert (sealed['n_sealed_presence'] > 0).all()
           assert (sealed['n_sealed_background'] > 0).all()
           assert certificates['species'].nunique() == 2
