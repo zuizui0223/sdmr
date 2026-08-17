@@ -848,7 +848,7 @@ def run_certificate_experiment(
             ) = _fit_validation_taxon(
                 panel=panel.name,
                 simulation=simulation,
-                products=products.drop(columns=("panel", "n_complete_candidates")),
+                products=products.drop(columns=["panel", "n_complete_candidates"]),
                 procedures=procedures,
                 minimum_predictor_coverage=minimum_predictor_coverage,
                 prediction_surface_coverage_floor=(
