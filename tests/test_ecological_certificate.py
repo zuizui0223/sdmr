@@ -137,8 +137,14 @@ def test_point_response_audit_is_normalized_by_environmental_span():
     summary, audit = audit_point_response_against_truth(point, _truth_response())
 
     assert summary["n_point_boundaries_evaluable"] == 3
-    assert summary["mean_normalized_absolute_error"] == pytest.approx(0.1)
-    assert np.isfinite(audit["normalized_absolute_error"]).all()
+    expected_errors = np.array([0.10, 0.05, 0.10])
+    assert summary["mean_normalized_absolute_error"] == pytest.approx(
+        expected_errors.mean()
+    )
+    assert np.allclose(
+        np.sort(audit["normalized_absolute_error"].to_numpy(float)),
+        np.sort(expected_errors),
+    )
 
 
 def test_response_point_estimates_return_all_three_quantities():
