@@ -1,3 +1,4 @@
+import inspect
 import json
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from sdmr.v2_3_ecological_certificate_experiment import (
     PRODUCTS,
     identified_set_decision,
     load_certificate_panels,
+    run_certificate_experiment,
 )
 
 
@@ -143,3 +145,9 @@ def test_identified_set_not_supported_when_coverage_or_sharpness_fails(kwargs):
 def test_identified_set_unavailable_when_any_panel_lacks_complete_certificate():
     decision = identified_set_decision(_summary(pareto_complete=2))
     assert decision.iloc[0]["decision"] == "identified_set_unavailable"
+
+
+def test_multi_panel_product_projection_uses_a_column_list():
+    source = inspect.getsource(run_certificate_experiment)
+    assert 'drop(columns=["panel", "n_complete_candidates"])' in source
+    assert 'drop(columns=("panel", "n_complete_candidates"))' not in source
