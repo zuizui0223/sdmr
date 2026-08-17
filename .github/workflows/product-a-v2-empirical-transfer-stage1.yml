@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/sdmr/prepared_taxon_transfer_cli.py'
+      - 'src/sdmr/prepared_taxon_transfer_safe_cli.py'
       - 'src/sdmr/prepared_recovery_procedure_cli.py'
       - 'src/sdmr/niche_recovery_procedure.py'
       - 'src/sdmr/niche_recovery_perturbation.py'
@@ -40,7 +41,7 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Unit-test transfer barrier
+      - name: Unit-test transfer barrier and abstention semantics
         run: pytest -q tests/test_prepared_taxon_transfer_cli.py
       - name: Download strict frozen feature cache by artifact ID
         run: |
@@ -58,10 +59,10 @@ jobs:
           test -f prepared_feature_cache/specifications/buffer_150km/background.csv
           test -f prepared_feature_cache/specifications/buffer_300km/background.csv
           test -f prepared_feature_cache/specifications/buffer_500km/background.csv
-      - name: Run outcome-blind cross-taxon transfer stage1
+      - name: Run outcome-blind abstention-safe cross-taxon transfer stage1
         run: |
           rm -rf empirical_transfer_stage1
-          python -m sdmr.prepared_taxon_transfer_cli \
+          python -m sdmr.prepared_taxon_transfer_safe_cli \
             --prepared-dir prepared_feature_cache \
             --manifest configs/chelsa_v2_1_plant_candidates.csv \
             --taxa configs/product_a_v2_empirical_transfer_stage1_taxa.csv \
@@ -74,12 +75,18 @@ jobs:
             --seed 20260814 \
             --source-run-id "$STRICT_CACHE_RUN_ID" \
             --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
-      - name: Verify discovery-validation information barrier
+      - name: Verify discovery-validation information barrier and explicit abstention
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           import pandas as pd
+
+          def safe_csv(path):
+              path = Path(path)
+              if not path.exists() or path.stat().st_size == 0:
+                  return pd.DataFrame()
+              return pd.read_csv(path)
 
           root = Path('empirical_transfer_stage1')
           contract = json.loads((root / 'product_a_v2_taxon_transfer_contract.json').read_text())
@@ -90,6 +97,9 @@ jobs:
           assert contract['validation_sealed_opened_after_all_validation_fit_attempts'] is True
           assert contract['validation_results_can_change_frozen_selector'] is False
           assert contract['no_post_validation_fallback_procedure'] is True
+          assert contract['missing_discovery_benchmark_cell_is_abstention_not_dropped'] is True
+          assert contract['canonical_selectors_require_complete_canonical_discovery_cells'] is True
+          assert contract['robust_selector_requires_complete_discovery_taxon_by_M_cells'] is True
           assert contract['outer_sealed_before_M'] is True
           assert contract['m_grid_as_sensitivity'] is True
           assert contract['candidate_object'] == 'procedure_not_fixed_predictor_set'
@@ -101,29 +111,47 @@ jobs:
           assert len(contract['validation_taxa']) == 2
           assert set(contract['validation_taxa']) == {'Rhizophora mangle', 'Larrea tridentata'}
 
-          discovery = pd.read_csv(root / 'discovery_procedure_fold_metrics.csv')
+          status = pd.read_csv(root / 'discovery_benchmark_status.csv')
+          discovery = safe_csv(root / 'discovery_procedure_fold_metrics.csv')
           selectors = pd.read_csv(root / 'frozen_discovery_selectors.csv')
+          robust = pd.read_csv(root / 'discovery_robustness_certificate.csv')
           fit = pd.read_csv(root / 'validation_final_fit_status.csv')
-          sealed = pd.read_csv(root / 'validation_outer_sealed.csv')
+          sealed = safe_csv(root / 'validation_outer_sealed.csv')
           audit = pd.read_csv(root / 'audit_space_ledger.csv')
           certificates = pd.read_csv(root / 'validation_ecological_inference_certificates.csv')
 
-          assert set(discovery['species']) == set(contract['discovery_taxa'])
-          assert not set(contract['validation_taxa']).intersection(discovery['species'])
-          assert set(discovery['perturbation']) == {'buffer_150km', 'buffer_300km', 'buffer_500km'}
-          assert set(discovery['strategy']) == {'all', 'vif', 'predictive_forward', 'niche_forward'}
+          expected_cells = {
+              (sp, m)
+              for sp in contract['discovery_taxa']
+              for m in ('buffer_150km', 'buffer_300km', 'buffer_500km')
+          }
+          observed_cells = set(zip(status['species'].astype(str), status['perturbation'].astype(str)))
+          assert observed_cells == expected_cells
+          assert len(status) == 9
+          assert set(status['status']).issubset({'success', 'abstain_no_evaluable_outer_folds'})
+
+          if not discovery.empty:
+              assert set(discovery['species']).issubset(set(contract['discovery_taxa']))
+              assert not set(contract['validation_taxa']).intersection(discovery['species'])
+              assert set(discovery['perturbation']).issubset({'buffer_150km', 'buffer_300km', 'buffer_500km'})
+              assert set(discovery['strategy']).issubset({'all', 'vif', 'predictive_forward', 'niche_forward'})
+
           assert set(selectors['selector']) == {'canonical_auc', 'canonical_ecology', 'robust_ecology'}
-          assert selectors.set_index('selector').loc['canonical_auc', 'status'] == 'selected'
+          assert selectors['status'].apply(lambda x: x == 'selected' or str(x).startswith('abstain_')).all()
+          assert len(robust) == 1
+          assert str(robust.loc[0, 'status']) == 'selected' or str(robust.loc[0, 'status']).startswith('abstain_')
 
           assert set(fit['species']) == set(contract['validation_taxa'])
           assert fit.groupby('species')['selector'].nunique().eq(3).all()
-          assert fit.groupby('species')['final_fit_status'].apply(lambda x: x.eq('success').any()).all()
           n_success = int(fit['final_fit_status'].eq('success').sum())
-          assert len(sealed) == n_success
-          assert set(sealed['species']) == set(contract['validation_taxa'])
-          assert not set(contract['discovery_taxa']).intersection(sealed['species'])
-          assert (sealed['n_sealed_presence'] > 0).all()
-          assert (sealed['n_sealed_background'] > 0).all()
+          if n_success:
+              assert len(sealed) == n_success
+              assert set(sealed['species']).issubset(set(contract['validation_taxa']))
+              assert not set(contract['discovery_taxa']).intersection(sealed['species'])
+              assert (sealed['n_sealed_presence'] > 0).all()
+              assert (sealed['n_sealed_background'] > 0).all()
+          else:
+              assert sealed.empty
           assert certificates['species'].nunique() == 2
 
           selected_audit = audit.loc[audit['selected'].astype(bool)]
