@@ -1,11 +1,12 @@
 """Abstention-safe cross-taxon Product-A v2 transfer orchestration.
 
 A discovery taxon × M cell can legitimately fail to produce evaluable spatial
-outer folds.  That is evidence insufficiency, not a reason to change the seed,
-relax the recovery profile, or silently drop the cell.  This runner records those
-cells explicitly.  Canonical selectors require complete canonical-M discovery
-evidence; the cross-M robust selector requires every predeclared discovery taxon
-× M cell.  Validation taxa remain unavailable to all discovery selection.
+outer folds. That is evidence insufficiency, not a reason to change the seed,
+relax the recovery profile, or silently drop the cell. This runner records those
+cells explicitly. Canonical selectors require complete canonical-M discovery
+evidence for the candidate procedure in every discovery taxon; the cross-M robust
+selector requires every predeclared discovery taxon × M cell. Validation taxa
+remain unavailable to all discovery selection.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ from .niche_recovery_procedure import (
     benchmark_recovery_procedures,
     select_recovery_procedure,
 )
+from .niche_recovery_selection import RECOVERY_DIRECTIONS
 from .predictor_process_registry import PredictorProcessRegistry
 from .prepared_recovery_procedure_cli import (
     _mean_auc_winner,
@@ -44,6 +46,45 @@ from .recovery_procedure_fit import FittedRecoveryProcedure, fit_recovery_proced
 from .robustness_certificate import build_perturbation_robustness_certificate
 
 
+def _candidate_labels_with_complete_taxon_evidence(
+    metrics: pd.DataFrame,
+    discovery_taxa: tuple[str, ...],
+    required_columns: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Return candidates with finite evidence in every discovery taxon.
+
+    A procedure that fails in all outer folds for one taxon must not be allowed to
+    win a cross-taxon selector using only the remaining taxa. This is a candidate-
+    level coverage gate; it does not alter any score or ecological threshold.
+    """
+
+    required = {"species", "candidate", *required_columns}
+    missing = required - set(metrics.columns)
+    if missing:
+        return ()
+    target_taxa = set(str(x) for x in discovery_taxa)
+    eligible: list[str] = []
+    data = metrics.copy()
+    data["species"] = data["species"].astype(str)
+    data["candidate"] = data["candidate"].astype(str)
+    for candidate, group in data.groupby("candidate", sort=True):
+        if set(group["species"]) != target_taxa:
+            continue
+        complete = True
+        for species in target_taxa:
+            species_rows = group.loc[group["species"].eq(species)]
+            for column in required_columns:
+                values = pd.to_numeric(species_rows[column], errors="coerce").to_numpy(float)
+                if not np.isfinite(values).any():
+                    complete = False
+                    break
+            if not complete:
+                break
+        if complete:
+            eligible.append(str(candidate))
+    return tuple(sorted(eligible))
+
+
 def _freeze_with_explicit_missing_cells(
     metrics: pd.DataFrame,
     benchmark_status: pd.DataFrame,
@@ -54,13 +95,19 @@ def _freeze_with_explicit_missing_cells(
 ) -> tuple[dict[str, str | None], dict[str, str | None], dict[str, Any]]:
     successful = set(
         zip(
-            benchmark_status.loc[benchmark_status["status"].eq("success"), "species"].astype(str),
-            benchmark_status.loc[benchmark_status["status"].eq("success"), "perturbation"].astype(str),
+            benchmark_status.loc[
+                benchmark_status["status"].eq("success"), "species"
+            ].astype(str),
+            benchmark_status.loc[
+                benchmark_status["status"].eq("success"), "perturbation"
+            ].astype(str),
         )
     )
     expected = {(sp, spec) for sp in discovery_taxa for spec in specs}
     missing = sorted(expected - successful)
-    missing_canonical = sorted(sp for sp in discovery_taxa if (sp, canonical_spec) not in successful)
+    missing_canonical = sorted(
+        sp for sp in discovery_taxa if (sp, canonical_spec) not in successful
+    )
 
     winners: dict[str, str | None] = {
         "canonical_auc": None,
@@ -70,18 +117,51 @@ def _freeze_with_explicit_missing_cells(
     errors: dict[str, str | None] = {key: None for key in winners}
 
     if missing_canonical:
-        message = "missing canonical-M discovery benchmark cells: " + ",".join(missing_canonical)
+        message = "missing canonical-M discovery benchmark cells: " + ",".join(
+            missing_canonical
+        )
         errors["canonical_auc"] = message
         errors["canonical_ecology"] = message
     else:
-        canonical = metrics.loc[metrics["perturbation"].astype(str).eq(canonical_spec)].copy()
-        winners["canonical_auc"] = _mean_auc_winner(canonical)
-        try:
-            winners["canonical_ecology"] = select_recovery_procedure(
-                RecoveryProcedureBenchmark(canonical, pd.DataFrame())
-            ).candidate
-        except ValueError as exc:
-            errors["canonical_ecology"] = str(exc)
+        canonical = metrics.loc[
+            metrics["perturbation"].astype(str).eq(canonical_spec)
+        ].copy()
+        auc_eligible = _candidate_labels_with_complete_taxon_evidence(
+            canonical,
+            discovery_taxa,
+            ("presence_rank",),
+        )
+        if auc_eligible:
+            winners["canonical_auc"] = _mean_auc_winner(
+                canonical.loc[canonical["candidate"].astype(str).isin(auc_eligible)]
+            )
+        else:
+            errors["canonical_auc"] = (
+                "no canonical candidate has finite prediction evidence in every discovery taxon"
+            )
+
+        ecology_eligible = _candidate_labels_with_complete_taxon_evidence(
+            canonical,
+            discovery_taxa,
+            ("presence_rank", *tuple(RECOVERY_DIRECTIONS)),
+        )
+        if ecology_eligible:
+            try:
+                winners["canonical_ecology"] = select_recovery_procedure(
+                    RecoveryProcedureBenchmark(
+                        canonical.loc[
+                            canonical["candidate"].astype(str).isin(ecology_eligible)
+                        ].copy(),
+                        pd.DataFrame(),
+                    )
+                ).candidate
+            except ValueError as exc:
+                errors["canonical_ecology"] = str(exc)
+        else:
+            errors["canonical_ecology"] = (
+                "no canonical candidate has complete finite prediction and ecological "
+                "recovery evidence in every discovery taxon"
+            )
 
     robust_payload: dict[str, Any]
     if missing:
@@ -94,7 +174,9 @@ def _freeze_with_explicit_missing_cells(
             "selected_procedure": None,
             "selection_error": errors["robust_ecology"],
             "near_complete_candidates": "",
-            "critical_perturbations": ";".join(f"{sp}::{spec}" for sp, spec in missing),
+            "critical_perturbations": ";".join(
+                f"{sp}::{spec}" for sp, spec in missing
+            ),
             "max_passed_perturbations": len(expected) - len(missing),
             "n_perturbations": len(expected),
         }
@@ -141,14 +223,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--taxa", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--canonical-spec", default="buffer_300km")
-    parser.add_argument("--procedure-profile", choices=["smoke_linear", "core_l2"], default="smoke_linear")
+    parser.add_argument(
+        "--procedure-profile",
+        choices=["smoke_linear", "core_l2"],
+        default="smoke_linear",
+    )
     parser.add_argument("--inner-folds", type=int, default=2)
     parser.add_argument("--outer-folds", type=int, default=2)
     parser.add_argument("--max-predictors", type=int, default=3)
     parser.add_argument("--seed", type=int, default=20260814)
     parser.add_argument("--source-run-id", default="")
     parser.add_argument("--source-artifact-id", default="")
-    parser.add_argument("--purpose", default="empirical_product_a_v2_cross_taxon_transfer_stage1")
+    parser.add_argument(
+        "--purpose", default="empirical_product_a_v2_cross_taxon_transfer_stage1"
+    )
     parser.add_argument("--audit-minimum-predictor-coverage", type=float, default=0.95)
     parser.add_argument("--audit-minimum-joint-coverage", type=float, default=0.80)
     parser.add_argument("--audit-minimum-processes", type=int, default=4)
@@ -161,24 +249,42 @@ def main(argv: list[str] | None = None) -> int:
     contract = _validate_cache(root, manifest)
     roles = _load_taxon_role_config(roles_path)
     panel_contract = _validate_outcome_blind_panel(root, roles, contract)
-    discovery_taxa = tuple(roles.loc[roles["role"].eq("discovery"), "scientific_name"].astype(str))
-    validation_taxa = tuple(roles.loc[roles["role"].eq("validation"), "scientific_name"].astype(str))
+    discovery_taxa = tuple(
+        roles.loc[roles["role"].eq("discovery"), "scientific_name"].astype(str)
+    )
+    validation_taxa = tuple(
+        roles.loc[roles["role"].eq("validation"), "scientific_name"].astype(str)
+    )
     panel_taxa = tuple(roles["scientific_name"].astype(str))
 
     predictors = tuple(manifest["predictor"].astype(str))
-    process_groups = PredictorProcessRegistry.from_candidate_manifest(manifest).process_aliases()
-    required_cols = ["species", "longitude", "latitude", "__sdmr_outer_role", *predictors]
-    occurrences = _read_selected_csv(root / "pilot_occurrences.csv", set(panel_taxa), required_cols)
+    process_groups = PredictorProcessRegistry.from_candidate_manifest(
+        manifest
+    ).process_aliases()
+    required_cols = [
+        "species",
+        "longitude",
+        "latitude",
+        "__sdmr_outer_role",
+        *predictors,
+    ]
+    occurrences = _read_selected_csv(
+        root / "pilot_occurrences.csv", set(panel_taxa), required_cols
+    )
     grid = pd.read_csv(root / "pilot_grid_frozen.csv")
     specs = tuple(grid["name"].astype(str))
     backgrounds = {
         spec: _read_selected_csv(
-            root / "specifications" / spec / "background.csv", set(panel_taxa), required_cols
+            root / "specifications" / spec / "background.csv",
+            set(panel_taxa),
+            required_cols,
         )
         for spec in specs
     }
     procedures = _procedure_profile(
-        args.procedure_profile, inner_folds=args.inner_folds, max_predictors=args.max_predictors
+        args.procedure_profile,
+        inner_folds=args.inner_folds,
+        max_predictors=args.max_predictors,
     )
     procedure_by_label = {procedure.label: procedure for procedure in procedures}
 
@@ -188,7 +294,9 @@ def main(argv: list[str] | None = None) -> int:
     audit_frames: list[pd.DataFrame] = []
 
     for taxon_index, species in enumerate(discovery_taxa):
-        species_occ = occurrences.loc[occurrences["species"].astype(str).eq(species)].reset_index(drop=True)
+        species_occ = occurrences.loc[
+            occurrences["species"].astype(str).eq(species)
+        ].reset_index(drop=True)
         audit = _audit_for_species(
             species,
             species_occ,
@@ -238,7 +346,12 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 continue
             benchmark_status_rows.append(
-                {"species": species, "perturbation": spec, "status": "success", "error": None}
+                {
+                    "species": species,
+                    "perturbation": spec,
+                    "status": "success",
+                    "error": None,
+                }
             )
             fold = benchmark.fold_metrics.copy()
             fold["species"] = species
@@ -254,7 +367,9 @@ def main(argv: list[str] | None = None) -> int:
                 trace["perturbation"] = spec
                 trace_frames.append(trace)
 
-    discovery_metrics = pd.concat(metric_frames, ignore_index=True) if metric_frames else pd.DataFrame()
+    discovery_metrics = (
+        pd.concat(metric_frames, ignore_index=True) if metric_frames else pd.DataFrame()
+    )
     benchmark_status = pd.DataFrame(benchmark_status_rows)
     winners, selector_errors, robust_payload = _freeze_with_explicit_missing_cells(
         discovery_metrics,
@@ -269,8 +384,6 @@ def main(argv: list[str] | None = None) -> int:
             status = "selected"
         elif selector == "robust_ecology":
             status = robust_payload["status"]
-        elif selector == "canonical_ecology" and selector_errors[selector]:
-            status = "abstain_canonical_discovery_evidence"
         else:
             status = "abstain_canonical_discovery_evidence"
         selector_rows.append(
@@ -290,8 +403,12 @@ def main(argv: list[str] | None = None) -> int:
     canonical_by_species: dict[str, FittedRecoveryProcedure | None] = {}
     robust_by_species: dict[str, FittedRecoveryProcedure | None] = {}
 
-    for taxon_offset, species in enumerate(validation_taxa, start=len(discovery_taxa)):
-        species_occ = occurrences.loc[occurrences["species"].astype(str).eq(species)].reset_index(drop=True)
+    for taxon_offset, species in enumerate(
+        validation_taxa, start=len(discovery_taxa)
+    ):
+        species_occ = occurrences.loc[
+            occurrences["species"].astype(str).eq(species)
+        ].reset_index(drop=True)
         audit = _audit_for_species(
             species,
             species_occ,
@@ -370,7 +487,9 @@ def main(argv: list[str] | None = None) -> int:
                         "final_fit_status": "success",
                         "final_fit_error": None,
                         "selected_predictors": ",".join(fitted.selected_predictors),
-                        "selected_ecological_predictors": ",".join(fitted.selected_ecological_predictors),
+                        "selected_ecological_predictors": ",".join(
+                            fitted.selected_ecological_predictors
+                        ),
                         "n_predictors": len(fitted.selected_predictors),
                     }
                 )
@@ -412,15 +531,25 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     discovery_metrics.to_csv(out / "discovery_procedure_fold_metrics.csv", index=False)
     benchmark_status.to_csv(out / "discovery_benchmark_status.csv", index=False)
-    (pd.concat(trace_frames, ignore_index=True) if trace_frames else pd.DataFrame()).to_csv(
-        out / "discovery_selection_trace.csv", index=False
+    (
+        pd.concat(trace_frames, ignore_index=True) if trace_frames else pd.DataFrame()
+    ).to_csv(out / "discovery_selection_trace.csv", index=False)
+    pd.DataFrame(selector_rows).to_csv(
+        out / "frozen_discovery_selectors.csv", index=False
     )
-    pd.DataFrame(selector_rows).to_csv(out / "frozen_discovery_selectors.csv", index=False)
-    pd.DataFrame([robust_payload]).to_csv(out / "discovery_robustness_certificate.csv", index=False)
-    pd.concat(audit_frames, ignore_index=True).to_csv(out / "audit_space_ledger.csv", index=False)
-    pd.DataFrame(validation_fit_rows).to_csv(out / "validation_final_fit_status.csv", index=False)
+    pd.DataFrame([robust_payload]).to_csv(
+        out / "discovery_robustness_certificate.csv", index=False
+    )
+    pd.concat(audit_frames, ignore_index=True).to_csv(
+        out / "audit_space_ledger.csv", index=False
+    )
+    pd.DataFrame(validation_fit_rows).to_csv(
+        out / "validation_final_fit_status.csv", index=False
+    )
     pd.DataFrame(sealed_rows).to_csv(out / "validation_outer_sealed.csv", index=False)
-    pd.DataFrame(certificate_rows).to_csv(out / "validation_ecological_inference_certificates.csv", index=False)
+    pd.DataFrame(certificate_rows).to_csv(
+        out / "validation_ecological_inference_certificates.csv", index=False
+    )
 
     run_contract = {
         "purpose": args.purpose,
@@ -439,10 +568,13 @@ def main(argv: list[str] | None = None) -> int:
         "no_post_validation_fallback_procedure": True,
         "missing_discovery_benchmark_cell_is_abstention_not_dropped": True,
         "canonical_selectors_require_complete_canonical_discovery_cells": True,
+        "canonical_candidate_requires_evidence_in_every_discovery_taxon": True,
         "robust_selector_requires_complete_discovery_taxon_by_M_cells": True,
         "candidate_object": "procedure_not_fixed_predictor_set",
         "candidate_predictor_universe_size": len(predictors),
-        "audit_space_source": "model_pool_availability_and_predeclared_manifest_process_only",
+        "audit_space_source": (
+            "model_pool_availability_and_predeclared_manifest_process_only"
+        ),
         "sealed_rows_used_for_audit_axis_selection": False,
         "outer_sealed_before_M": True,
         "m_grid_as_sensitivity": True,
