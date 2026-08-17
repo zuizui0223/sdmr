@@ -1,0 +1,71 @@
+{
+  "purpose": "predeclared_unseen_known_truth_panels_for_product_a_v2_2_surface_stability",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "opened_known_truth_seeds_excluded": {
+    "minimum": 1,
+    "maximum": 123
+  },
+  "selectors": [
+    "canonical_auc",
+    "canonical_ecology",
+    "robust_ecology",
+    "stable_ecology"
+  ],
+  "selection_order": [
+    "complete_candidate_evidence",
+    "absolute_prediction_adequacy",
+    "mean_ecological_recovery_pareto",
+    "common_reference_surface_stability_pareto_minimax",
+    "parsimony_tiebreak"
+  ],
+  "panels": [
+    {
+      "name": "panel_S1",
+      "discovery": [
+        {"family": "gaussian", "seed": 171},
+        {"family": "asymmetric", "seed": 181},
+        {"family": "interaction", "seed": 191}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 201},
+        {"family": "omitted_driver", "seed": 211},
+        {"family": "observation_confounded", "seed": 221}
+      ]
+    },
+    {
+      "name": "panel_S2",
+      "discovery": [
+        {"family": "gaussian", "seed": 172},
+        {"family": "asymmetric", "seed": 182},
+        {"family": "interaction", "seed": 192}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 202},
+        {"family": "omitted_driver", "seed": 212},
+        {"family": "observation_confounded", "seed": 222}
+      ]
+    },
+    {
+      "name": "panel_S3",
+      "discovery": [
+        {"family": "gaussian", "seed": 173},
+        {"family": "asymmetric", "seed": 183},
+        {"family": "interaction", "seed": 193}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 203},
+        {"family": "omitted_driver", "seed": 213},
+        {"family": "observation_confounded", "seed": 223}
+      ]
+    }
+  ],
+  "decision_states": [
+    "surface_stability_supported",
+    "surface_stability_indistinguishable",
+    "surface_stability_not_supported",
+    "surface_stability_unstable_or_abstained"
+  ],
+  "supported_result_only_allows": "freeze_before_newly_rebuilt_sealed_before_M_empirical_confirmation"
+}
