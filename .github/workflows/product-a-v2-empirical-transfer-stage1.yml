@@ -86,7 +86,10 @@ jobs:
               path = Path(path)
               if not path.exists() or path.stat().st_size == 0:
                   return pd.DataFrame()
-              return pd.read_csv(path)
+              try:
+                  return pd.read_csv(path)
+              except pd.errors.EmptyDataError:
+                  return pd.DataFrame()
 
           root = Path('empirical_transfer_stage1')
           contract = json.loads((root / 'product_a_v2_taxon_transfer_contract.json').read_text())
@@ -99,6 +102,7 @@ jobs:
           assert contract['no_post_validation_fallback_procedure'] is True
           assert contract['missing_discovery_benchmark_cell_is_abstention_not_dropped'] is True
           assert contract['canonical_selectors_require_complete_canonical_discovery_cells'] is True
+          assert contract['canonical_candidate_requires_evidence_in_every_discovery_taxon'] is True
           assert contract['robust_selector_requires_complete_discovery_taxon_by_M_cells'] is True
           assert contract['outer_sealed_before_M'] is True
           assert contract['m_grid_as_sensitivity'] is True
