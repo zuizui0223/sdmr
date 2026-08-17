@@ -129,6 +129,46 @@ def test_discovery_freeze_separates_auc_and_ecological_procedures():
     assert robust_cert.status == "selected"
 
 
+def test_partial_taxon_candidate_cannot_win_canonical_transfer():
+    metrics = _discovery_metrics()
+    partial_rows = []
+    for perturbation in ("buffer_150km", "buffer_300km", "buffer_500km"):
+        for fold in (0, 1):
+            partial_rows.append(
+                {
+                    "species": "sp1",
+                    "candidate": "partial_but_perfect",
+                    "strategy": "niche_forward",
+                    "perturbation": perturbation,
+                    "perturbation_type": "sampling_or_background",
+                    "fold": fold,
+                    "presence_rank": 0.99,
+                    "n_predictors": 1,
+                    "niche_overlap_schoener_d_pc12": 0.99,
+                    "centroid_distance": 0.01,
+                    "breadth_log_sd_error": 0.01,
+                    "quantile_profile_error": 0.01,
+                }
+            )
+    metrics = pd.concat([metrics, pd.DataFrame(partial_rows)], ignore_index=True)
+    winners, errors, robust = _freeze_with_explicit_missing_cells(
+        metrics,
+        _status(),
+        ("sp1", "sp2"),
+        ("buffer_150km", "buffer_300km", "buffer_500km"),
+        canonical_spec="buffer_300km",
+    )
+    assert winners["canonical_auc"] == "auc_method"
+    assert winners["canonical_ecology"] == "eco_method"
+    assert winners["robust_ecology"] == "eco_method"
+    assert errors == {
+        "canonical_auc": None,
+        "canonical_ecology": None,
+        "robust_ecology": None,
+    }
+    assert robust["status"] == "selected"
+
+
 def test_missing_noncanonical_discovery_cell_abstains_robust_only():
     missing = {("sp2", "buffer_500km")}
     metrics = _discovery_metrics()
