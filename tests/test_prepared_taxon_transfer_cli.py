@@ -1,5 +1,3 @@
-import json
-
 import pandas as pd
 
 from sdmr.prepared_taxon_transfer_cli import (
@@ -7,6 +5,7 @@ from sdmr.prepared_taxon_transfer_cli import (
     _load_taxon_role_config,
     _validate_outcome_blind_panel,
 )
+from sdmr.prepared_taxon_transfer_safe_cli import _freeze_with_explicit_missing_cells
 
 
 def test_stage1_panel_and_roles_are_recoverable_from_frozen_preoutcome_metadata(tmp_path):
@@ -95,6 +94,25 @@ def _discovery_metrics():
     return pd.DataFrame(rows)
 
 
+def _status(missing=()):
+    missing = set(missing)
+    rows = []
+    for species in ("sp1", "sp2"):
+        for perturbation in ("buffer_150km", "buffer_300km", "buffer_500km"):
+            key = (species, perturbation)
+            rows.append(
+                {
+                    "species": species,
+                    "perturbation": perturbation,
+                    "status": (
+                        "abstain_no_evaluable_outer_folds" if key in missing else "success"
+                    ),
+                    "error": "no evaluable folds" if key in missing else None,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 def test_discovery_freeze_separates_auc_and_ecological_procedures():
     winners, errors, robust_selection, robust_cert = _freeze_discovery_selectors(
         _discovery_metrics(), canonical_spec="buffer_300km"
@@ -109,6 +127,57 @@ def test_discovery_freeze_separates_auc_and_ecological_procedures():
     }
     assert robust_selection is not None
     assert robust_cert.status == "selected"
+
+
+def test_missing_noncanonical_discovery_cell_abstains_robust_only():
+    missing = {("sp2", "buffer_500km")}
+    metrics = _discovery_metrics()
+    metrics = metrics.loc[
+        ~(
+            metrics["species"].eq("sp2")
+            & metrics["perturbation"].eq("buffer_500km")
+        )
+    ].reset_index(drop=True)
+    winners, errors, robust = _freeze_with_explicit_missing_cells(
+        metrics,
+        _status(missing),
+        ("sp1", "sp2"),
+        ("buffer_150km", "buffer_300km", "buffer_500km"),
+        canonical_spec="buffer_300km",
+    )
+    assert winners["canonical_auc"] == "auc_method"
+    assert winners["canonical_ecology"] == "eco_method"
+    assert winners["robust_ecology"] is None
+    assert errors["canonical_auc"] is None
+    assert errors["canonical_ecology"] is None
+    assert robust["status"] == "abstain_missing_discovery_benchmark_cells"
+    assert "sp2::buffer_500km" in robust["critical_perturbations"]
+
+
+def test_missing_canonical_discovery_cell_abstains_canonical_and_robust():
+    missing = {("sp2", "buffer_300km")}
+    metrics = _discovery_metrics()
+    metrics = metrics.loc[
+        ~(
+            metrics["species"].eq("sp2")
+            & metrics["perturbation"].eq("buffer_300km")
+        )
+    ].reset_index(drop=True)
+    winners, errors, robust = _freeze_with_explicit_missing_cells(
+        metrics,
+        _status(missing),
+        ("sp1", "sp2"),
+        ("buffer_150km", "buffer_300km", "buffer_500km"),
+        canonical_spec="buffer_300km",
+    )
+    assert winners == {
+        "canonical_auc": None,
+        "canonical_ecology": None,
+        "robust_ecology": None,
+    }
+    assert "sp2" in errors["canonical_auc"]
+    assert "sp2" in errors["canonical_ecology"]
+    assert robust["status"] == "abstain_missing_discovery_benchmark_cells"
 
 
 def test_taxon_role_loader_rejects_single_validation_taxon(tmp_path):
