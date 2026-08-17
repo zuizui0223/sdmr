@@ -1,0 +1,150 @@
+name: one-time-record-v2-3-decision-v2
+
+on:
+  push:
+    branches:
+      - agent/product-a-v2-3-ecological-certificate
+    paths:
+      - '.github/workflows/one-time-record-v2-3-decision-v2.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  record-decision:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/product-a-v2-3-ecological-certificate
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install evidence-record dependencies
+        run: python -m pip install pandas tabulate
+      - name: Locate latest completed certificate run on the development branch
+        id: source
+        run: |
+          set -euo pipefail
+          run_id=''
+          conclusion=''
+          head_sha=''
+          for attempt in $(seq 1 120); do
+            runs=$(curl --fail --silent --show-error --location \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs?branch=agent%2Fproduct-a-v2-3-ecological-certificate&per_page=100")
+            run_id=$(jq -r '[.workflow_runs[] | select(.name == "product-a-v2-3-ecological-certificate")][0].id // empty' <<<"$runs")
+            status=$(jq -r '[.workflow_runs[] | select(.name == "product-a-v2-3-ecological-certificate")][0].status // empty' <<<"$runs")
+            conclusion=$(jq -r '[.workflow_runs[] | select(.name == "product-a-v2-3-ecological-certificate")][0].conclusion // empty' <<<"$runs")
+            head_sha=$(jq -r '[.workflow_runs[] | select(.name == "product-a-v2-3-ecological-certificate")][0].head_sha // empty' <<<"$runs")
+            if [[ "$status" == 'completed' ]]; then
+              break
+            fi
+            sleep 5
+          done
+          test -n "$run_id"
+          test -n "$head_sha"
+          test "$conclusion" = 'success'
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+      - name: Download immutable certificate artifact
+        id: artifact
+        run: |
+          set -euo pipefail
+          run_id='${{ steps.source.outputs.run_id }}'
+          artifacts=$(curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts?per_page=100")
+          artifact_id=$(jq -r '[.artifacts[] | select(.name == "product-a-v2-3-ecological-certificate" and .expired == false)][0].id // empty' <<<"$artifacts")
+          digest=$(jq -r '[.artifacts[] | select(.name == "product-a-v2-3-ecological-certificate" and .expired == false)][0].digest // empty' <<<"$artifacts")
+          test -n "$artifact_id"
+          rm -rf certificate_evidence certificate.zip
+          mkdir -p certificate_evidence
+          curl --fail --retry 6 --retry-all-errors --retry-delay 3 --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+            --output certificate.zip
+          unzip -q certificate.zip -d certificate_evidence
+          test -f certificate_evidence/decision.csv
+          test -f certificate_evidence/contract.json
+          test -f certificate_evidence/product_summary.csv
+          echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Write repository evidence record
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('certificate_evidence')
+          decision = pd.read_csv(root / 'decision.csv').iloc[0].to_dict()
+          contract = json.loads((root / 'contract.json').read_text(encoding='utf-8'))
+          summary = pd.read_csv(root / 'product_summary.csv')
+          payload = {
+              'purpose': 'product_a_v2_3_unseen_known_truth_decision_record',
+              'source_head_sha': '${{ steps.source.outputs.head_sha }}',
+              'source_run_id': '${{ steps.source.outputs.run_id }}',
+              'source_artifact_id': '${{ steps.artifact.outputs.artifact_id }}',
+              'source_artifact_digest': '${{ steps.artifact.outputs.digest }}',
+              'decision': decision,
+              'scientific_promotion_allowed': False,
+              'real_empirical_data_read': False,
+              'old_external_sealed_outcomes_read': False,
+              'previously_opened_known_truth_used_for_validation': False,
+              'panels': contract['panels'],
+              'discovery_seeds': contract['discovery_seeds'],
+              'validation_seeds': contract['validation_seeds'],
+              'products': contract['products'],
+              'product_summary': summary.to_dict(orient='records'),
+          }
+          out = Path('evidence/product_a_v2_3')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'decision.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True, default=str) + '\n',
+              encoding='utf-8',
+          )
+          lines = [
+              '# Product-A v2.3 unseen known-truth decision',
+              '',
+              f"- decision: `{decision['decision']}`",
+              f"- scientific promotion allowed: `{decision['scientific_promotion_allowed']}`",
+              f"- source head: `${{ steps.source.outputs.head_sha }}`",
+              f"- source run: `${{ steps.source.outputs.run_id }}`",
+              f"- artifact: `${{ steps.artifact.outputs.artifact_id }}`",
+              f"- artifact digest: `${{ steps.artifact.outputs.digest }}`",
+              '',
+              'The discovery candidate sets were frozen before validation truth was opened.',
+              'This is development known-truth evidence, not empirical Product-A promotion.',
+              '',
+              '## Decision row',
+              '',
+          ]
+          for key, value in decision.items():
+              lines.append(f'- {key}: `{value}`')
+          lines.extend(['', '## Product summary', '', summary.to_markdown(index=False), ''])
+          (out / 'decision.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+      - name: Commit evidence and remove one-time recorders
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/product_a_v2_3/decision.json evidence/product_a_v2_3/decision.md
+          for path in \
+            .github/workflows/one-time-record-v2-3-decision.yml \
+            .github/workflows/one-time-record-v2-3-decision-v2.yml; do
+            if [[ -e "$path" ]]; then git rm "$path"; fi
+          done
+          git commit -m 'Record v2.3 unseen certificate decision'
+          git push origin HEAD:agent/product-a-v2-3-ecological-certificate
