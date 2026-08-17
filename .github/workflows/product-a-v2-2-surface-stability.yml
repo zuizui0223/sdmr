@@ -1,0 +1,134 @@
+name: product-a-v2-2-surface-stability
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/procedure_surface_stability.py'
+      - 'src/sdmr/v2_2_surface_stability_experiment.py'
+      - 'tests/test_procedure_surface_stability.py'
+      - 'tests/test_v2_2_surface_stability_experiment.py'
+      - 'configs/product_a_v2_2_surface_stability_panels.json'
+      - 'docs/product_a_v2_2_surface_stability_plan.md'
+      - '.github/workflows/product-a-v2-2-surface-stability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-2-surface-stability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unseen-known-truth-panels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test staged surface-stability governance
+        run: |
+          pytest -q \
+            tests/test_procedure_surface_stability.py \
+            tests/test_v2_2_surface_stability_experiment.py
+      - name: Run predeclared unseen surface-stability panels
+        run: |
+          rm -rf product_a_v2_2_surface_stability
+          python -m sdmr.v2_2_surface_stability_experiment \
+            --panel-config configs/product_a_v2_2_surface_stability_panels.json \
+            --output-dir product_a_v2_2_surface_stability \
+            --n-cells 1800 \
+            --n-occurrences 180 \
+            --n-target-group 700 \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 4 \
+            --minimum-predictor-coverage 0.95 \
+            --prediction-surface-coverage-floor 0.95 \
+            --max-stability-reference-rows 256
+      - name: Verify unopened-panel and staged-selector contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+
+          root = Path('product_a_v2_2_surface_stability')
+          contract = json.loads((root / 'contract.json').read_text())
+          selectors = pd.read_csv(root / 'selectors.csv')
+          metrics = pd.read_csv(root / 'discovery_metrics.csv')
+          truth = pd.read_csv(root / 'validation_truth.csv')
+          decision = pd.read_csv(root / 'decision.csv')
+
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['previously_opened_known_truth_used_for_validation'] is False
+          assert contract['selection_never_uses_truth'] is True
+          assert contract['validation_truth_opened_after_panel_selectors_frozen'] is True
+          assert contract['recovery_stability_combined_weighted_score'] is False
+          assert min(contract['discovery_seeds'] + contract['validation_seeds']) > 123
+          assert len(set(contract['discovery_seeds'] + contract['validation_seeds'])) == 18
+          assert contract['selectors'] == [
+              'canonical_auc', 'canonical_ecology',
+              'robust_ecology', 'stable_ecology'
+          ]
+
+          assert set(selectors['panel']) == {'panel_S1','panel_S2','panel_S3'}
+          assert set(selectors['selector']) == set(contract['selectors'])
+          assert selectors['status'].apply(
+              lambda value: value == 'selected' or str(value).startswith('abstain_')
+          ).all()
+          assert set(metrics['panel']) == {'panel_S1','panel_S2','panel_S3'}
+          assert set(truth['panel']) == {'panel_S1','panel_S2','panel_S3'}
+
+          stability_columns = {
+              'ecological_surface_stability_rank_mean',
+              'ecological_surface_stability_rank_min',
+              'ecological_surface_stability_nrmse_mean',
+              'ecological_surface_stability_nrmse_max',
+          }
+          assert stability_columns <= set(metrics.columns)
+          assert not any(
+              str(column).startswith('sealed_')
+              or str(column).startswith('n_sealed_')
+              for column in metrics.columns
+          )
+          stable_rows = selectors.loc[selectors['selector'].eq('stable_ecology')]
+          assert len(stable_rows) == 3
+          for row in stable_rows.itertuples(index=False):
+              if row.status == 'selected':
+                  candidate = str(row.candidate)
+                  candidate_metrics = metrics.loc[
+                      metrics['panel'].eq(row.panel)
+                      & metrics['candidate'].astype(str).eq(candidate)
+                  ]
+                  assert len(candidate_metrics) > 0
+                  assert np.isfinite(
+                      candidate_metrics[list(stability_columns)].to_numpy(float)
+                  ).all()
+
+          allowed = {
+              'surface_stability_supported',
+              'surface_stability_indistinguishable',
+              'surface_stability_not_supported',
+              'surface_stability_unstable_or_abstained',
+          }
+          assert len(decision) == 1
+          assert decision.iloc[0]['decision'] in allowed
+          assert not bool(decision.iloc[0]['scientific_promotion_allowed'])
+          assert contract['decision'] == decision.iloc[0]['decision']
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-2-surface-stability
+          path: product_a_v2_2_surface_stability/
+          if-no-files-found: error
+          retention-days: 90
