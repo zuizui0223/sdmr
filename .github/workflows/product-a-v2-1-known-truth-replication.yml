@@ -1,0 +1,143 @@
+name: product-a-v2-1-known-truth-replication
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/v2_1_known_truth_replication.py'
+      - 'src/sdmr/v2_1_known_truth_gate_ablation.py'
+      - 'src/sdmr/model_pool_predictor_admissibility.py'
+      - 'src/sdmr/candidate_outer_fold_evidence.py'
+      - 'src/sdmr/known_truth.py'
+      - 'src/sdmr/known_truth_scenarios.py'
+      - 'src/sdmr/known_truth_response.py'
+      - 'src/sdmr/niche_recovery_procedure.py'
+      - 'tests/test_v2_1_known_truth_replication.py'
+      - '.github/workflows/product-a-v2-1-known-truth-replication.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-1-known-truth-replication-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repeated-unseen-seeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test repeated-panel governance and decision semantics
+        run: pytest -q tests/test_v2_1_known_truth_replication.py
+      - name: Run predeclared repeated unseen-seed panels
+        run: |
+          rm -rf v2_1_known_truth_replication
+          python -m sdmr.v2_1_known_truth_replication \
+            --output-dir v2_1_known_truth_replication \
+            --n-cells 1800 \
+            --n-occurrences 180 \
+            --n-target-group 700 \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 4 \
+            --minimum-predictor-coverage 0.95 \
+            --prediction-surface-coverage-floor 0.95
+      - name: Verify repeated panels remain predeclared and truth-blind
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('v2_1_known_truth_replication')
+          contract = json.loads((root / 'replication_contract.json').read_text())
+          selectors = pd.read_csv(root / 'selectors.csv')
+          metrics = pd.read_csv(root / 'discovery_metrics.csv')
+          coverage = pd.read_csv(root / 'discovery_coverage.csv')
+          disagreement = pd.read_csv(root / 'selector_disagreement.csv')
+          truth = pd.read_csv(root / 'validation_truth.csv')
+          summary = pd.read_csv(root / 'validation_summary.csv')
+          decision = pd.read_csv(root / 'decision.csv')
+
+          assert contract['scientific_promotion_run'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['thresholds_or_procedures_changed_after_first_truth_panel'] is False
+          assert contract['selection_never_uses_truth'] is True
+          assert contract['validation_truth_opened_after_panel_selectors_frozen'] is True
+          assert contract['negative_and_abstention_outcomes_accepted'] is True
+          assert contract['regime'] == 'coverage_complete'
+          assert contract['minimum_predictor_coverage'] == 0.95
+          assert contract['outer_folds'] == 2
+          assert len(contract['panels']) == 3
+
+          discovery_taxa = [
+              row['taxon']
+              for panel in contract['panels']
+              for row in panel['discovery']
+          ]
+          validation_taxa = [
+              row['taxon']
+              for panel in contract['panels']
+              for row in panel['validation']
+          ]
+          assert len(discovery_taxa) == 9
+          assert len(validation_taxa) == 9
+          assert len(set(discovery_taxa + validation_taxa)) == 18
+          assert not set(discovery_taxa).intersection(validation_taxa)
+
+          assert set(selectors['panel']) == {'panel_1', 'panel_2', 'panel_3'}
+          assert set(selectors['regime']) == {'coverage_complete'}
+          assert set(selectors['selector']) == {
+              'canonical_auc', 'canonical_ecology', 'robust_ecology'
+          }
+          assert len(selectors) == 9
+          assert len(disagreement) == 3
+          assert set(disagreement['panel']) == {'panel_1', 'panel_2', 'panel_3'}
+
+          assert metrics['species'].nunique() == 9
+          assert set(metrics['panel']) == {'panel_1', 'panel_2', 'panel_3'}
+          forbidden_discovery = {
+              'true_suitability', 'truth_surface_rank', 'driver_process_f1',
+              'n_sealed_presence', 'n_sealed_background'
+          }
+          assert not forbidden_discovery.intersection(metrics.columns)
+
+          sparse = coverage.loc[
+              coverage['predictor'].isin({'sparse_temp_proxy', 'sparse_noise'})
+          ]
+          assert sparse['species'].nunique() == 9
+          assert not sparse['eligible_all_perturbations'].any()
+
+          assert truth['species'].nunique() == 9
+          assert set(truth['panel']) == {'panel_1', 'panel_2', 'panel_3'}
+          assert len(truth) == 27
+          assert set(truth['truth_status']).issubset({
+              'complete',
+              'not_evaluable_discovery_selector_abstained',
+              'not_evaluable_final_fit_abstained',
+              'abstain_prediction_surface_coverage',
+              'abstain_nonfinite_truth_metric',
+          })
+          assert set(summary['panel']).issubset({'panel_1', 'panel_2', 'panel_3'})
+          assert decision.loc[0, 'decision'] in {
+              'canonical_selection_unstable',
+              'selector_indistinguishable',
+              'differentiated_supported',
+              'differentiated_not_supported',
+          }
+          assert not bool(decision.loc[0, 'scientific_promotion_allowed'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-1-known-truth-replication
+          path: v2_1_known_truth_replication/
+          if-no-files-found: error
+          retention-days: 90
