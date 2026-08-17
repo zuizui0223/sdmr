@@ -1,0 +1,132 @@
+name: one-time-route-v2-3-decision
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/one-time-route-v2-3-decision.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          fetch-depth: 0
+      - name: Read immutable v2.3 decision and choose one next lane
+        id: route
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          evidence = json.loads(
+              Path('evidence/product_a_v2_3/decision.json').read_text(encoding='utf-8')
+          )
+          decision = str(evidence['decision']['decision'])
+          routes = {
+              'identified_set_supported': {
+                  'slug': 'fresh-empirical-confirmation',
+                  'title': 'Product-A v2.4: freeze the supported certificate before fresh empirical confirmation',
+                  'objective': 'Freeze the v2.3 set-valued procedure and rebuild a genuinely new seal-before-M empirical validation line before any outcome is opened.',
+                  'promotion': 'possible_only_after_new_empirical_confirmation',
+              },
+              'identified_set_trivial': {
+                  'slug': 'certificate-sharpness',
+                  'title': 'Product-A v2.4: sharpen a truth-covering but trivial ecological certificate',
+                  'objective': 'Reduce certificate width using only pre-outcome/model-pool information while preserving truth coverage on new known-truth panels.',
+                  'promotion': 'blocked_certificate_too_broad',
+              },
+              'identified_set_not_supported': {
+                  'slug': 'certificate-diagnosis',
+                  'title': 'Product-A v2.4: diagnose failure of the set-valued ecological certificate',
+                  'objective': 'Locate whether false necessary processes, lost possible-process recall, or boundary undercoverage caused the frozen v2.3 rejection without retuning against opened validation truth.',
+                  'promotion': 'blocked_certificate_not_supported',
+              },
+              'identified_set_unavailable': {
+                  'slug': 'certificate-availability',
+                  'title': 'Product-A v2.4: repair set-valued certificate availability',
+                  'objective': 'Restore complete member fitting and boundary evaluation using only pre-outcome support diagnostics; keep unavailable as a valid final outcome.',
+                  'promotion': 'blocked_certificate_unavailable',
+              },
+          }
+          if decision not in routes:
+              raise SystemExit(f'unknown v2.3 decision: {decision}')
+          route = routes[decision]
+          print(f'decision={decision}')
+          print(f"slug={route['slug']}")
+          print(f"title={route['title']}")
+          print(f"objective={route['objective']}")
+          print(f"promotion={route['promotion']}")
+          PY
+      - name: Write decision-specific route document
+        run: |
+          mkdir -p docs
+          cat > docs/product_a_v2_4_route.md <<EOF
+          # Product-A v2.4 route
+
+          - source evidence: \`evidence/product_a_v2_3/decision.json\`
+          - frozen v2.3 decision: \`${{ steps.route.outputs.decision }}\`
+          - selected lane: \`${{ steps.route.outputs.slug }}\`
+          - Product-A empirical promotion: \`${{ steps.route.outputs.promotion }}\`
+
+          ## Objective
+
+          ${{ steps.route.outputs.objective }}
+
+          ## Information boundary
+
+          The v2.3 validation truth and the old external empirical sealed outcomes
+          are historical falsification evidence only. They may define the class of
+          failure being diagnosed, but may not choose thresholds, taxa, M, seeds,
+          procedures, certificate members, or stopping rules for v2.4.
+
+          PR #1 remains blocked from \`main\` until its explicit empirical
+          confirmatory Product-A gate is satisfied. A successful development or
+          known-truth lane is not sufficient.
+          EOF
+      - name: Open or reuse the decision-specific issue
+        run: |
+          title='${{ steps.route.outputs.title }}'
+          existing=$(gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --search "$title in:title" \
+            --json number,title \
+            --jq '.[0].number // empty')
+          if [[ -z "$existing" ]]; then
+            cat > /tmp/issue.md <<EOF
+          ## Frozen input
+
+          - v2.3 decision: \`${{ steps.route.outputs.decision }}\`
+          - evidence: \`evidence/product_a_v2_3/decision.json\`
+          - route: \`docs/product_a_v2_4_route.md\`
+
+          ## Objective
+
+          ${{ steps.route.outputs.objective }}
+
+          ## Governance
+
+          Do not use opened v2.3 validation truth or old empirical sealed outcomes
+          to tune v2.4. Do not merge PR #1 into \`main\` from development evidence.
+          Negative, trivial, and unavailable outcomes remain valid.
+          EOF
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body-file /tmp/issue.md
+          fi
+      - name: Commit route and remove one-time workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/product_a_v2_4_route.md
+          git rm .github/workflows/one-time-route-v2-3-decision.yml
+          git commit -m 'Route Product-A v2.4 from frozen v2.3 decision'
+          git push origin HEAD:agent/nested-spatial-raster-benchmark
