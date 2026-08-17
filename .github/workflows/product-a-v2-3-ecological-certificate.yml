@@ -103,7 +103,11 @@ jobs:
 
           canonical = audits.loc[audits['product'].eq('canonical_auc_point')]
           assert len(canonical) == 9
-          assert canonical[['panel', 'species']].drop_duplicates().shape[0] == 9
+          assert canonical.groupby('panel').size().to_dict() == {
+              'panel_C1': 3,
+              'panel_C2': 3,
+              'panel_C3': 3,
+          }
           assert canonical['certificate_status'].eq('complete').all()
 
           for frame in (products, metrics, fits, audits, intervals, summary):
