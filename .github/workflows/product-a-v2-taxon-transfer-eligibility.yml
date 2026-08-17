@@ -1,0 +1,148 @@
+name: product-a-v2-taxon-transfer-eligibility
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/taxon_transfer_spatial_eligibility.py'
+      - 'src/sdmr/prepared_taxon_transfer_eligibility_cli.py'
+      - 'src/sdmr/prepared_taxon_transfer_cli.py'
+      - 'src/sdmr/validation.py'
+      - 'tests/test_taxon_transfer_spatial_eligibility.py'
+      - 'configs/product_a_v2_empirical_transfer_stage1_taxa.csv'
+      - 'configs/chelsa_v2_1_plant_candidates.csv'
+      - '.github/workflows/product-a-v2-taxon-transfer-eligibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-taxon-transfer-eligibility-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spatial-eligibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STRICT_CACHE_RUN_ID: '31870747020'
+      STRICT_CACHE_ARTIFACT_ID: '9244072277'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test model-free eligibility logic
+        run: pytest -q tests/test_taxon_transfer_spatial_eligibility.py
+      - name: Download strict frozen feature cache by artifact ID
+        run: |
+          rm -rf prepared_feature_cache strict_cache.zip
+          mkdir -p prepared_feature_cache
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$STRICT_CACHE_ARTIFACT_ID/zip" \
+            --output strict_cache.zip
+          unzip -q strict_cache.zip -d prepared_feature_cache
+      - name: Build pre-model spatial eligibility ledger
+        run: |
+          rm -rf taxon_transfer_eligibility
+          python -m sdmr.prepared_taxon_transfer_eligibility_cli \
+            --prepared-dir prepared_feature_cache \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --candidate-taxa configs/product_a_v2_empirical_transfer_stage1_taxa.csv \
+            --output-dir taxon_transfer_eligibility \
+            --outer-folds 2 \
+            --n-spatial-blocks 4 \
+            --minimum-background-rows-per-side 5 \
+            --minimum-presence-rows-per-side 2 \
+            --seed 20260814 \
+            --source-run-id "$STRICT_CACHE_RUN_ID" \
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
+      - name: Verify eligibility is model-outcome-free and deterministic
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('taxon_transfer_eligibility')
+          contract = json.loads((root / 'taxon_transfer_spatial_eligibility_contract.json').read_text())
+          folds = pd.read_csv(root / 'spatial_support_fold_ledger.csv')
+          species = pd.read_csv(root / 'spatial_support_species_eligibility.csv')
+          roles = pd.read_csv(root / 'eligible_taxon_roles.csv')
+
+          assert contract['source_run_id'] == '31870747020'
+          assert contract['source_artifact_id'] == '9244072277'
+          assert contract['scientific_promotion_run'] is False
+          assert contract['model_scores_used'] is False
+          assert contract['environmental_predictor_values_used'] is False
+          assert contract['hidden_truth_used'] is False
+          assert contract['sealed_rows_used_for_eligibility'] is False
+          assert contract['eligibility_uses_model_pool_coordinates_and_row_counts_only'] is True
+          assert contract['outer_folds'] == 2
+          assert contract['n_spatial_blocks'] == 4
+          assert contract['minimum_background_rows_per_side'] == 5
+          assert contract['minimum_presence_rows_per_side'] == 2
+
+          assert set(contract['candidate_panel_taxa']) == {
+              'Nothofagus pumilio', 'Eucalyptus pauciflora', 'Picea mariana',
+              'Rhizophora mangle', 'Larrea tridentata'
+          }
+          assert set(contract['eligible_taxa']) == {
+              'Nothofagus pumilio', 'Eucalyptus pauciflora',
+              'Rhizophora mangle', 'Larrea tridentata'
+          }
+          assert contract['ineligible_taxa'] == ['Picea mariana']
+          assert contract['role_assignments'] == {
+              'Eucalyptus pauciflora': 'discovery',
+              'Larrea tridentata': 'validation',
+              'Nothofagus pumilio': 'discovery',
+              'Rhizophora mangle': 'validation',
+          }
+
+          eligible = species.loc[species['eligible'].astype(bool), 'scientific_name'].astype(str)
+          assert set(eligible) == set(contract['eligible_taxa'])
+          picea = species.loc[species['scientific_name'].eq('Picea mariana')].iloc[0]
+          assert not bool(picea['eligible'])
+          assert 'buffer_300km' in str(picea['failing_perturbations'])
+
+          picea300 = folds.loc[
+              folds['species'].eq('Picea mariana') & folds['perturbation'].eq('buffer_300km')
+          ]
+          assert len(picea300) == 2
+          assert not picea300['eligible_fold'].all()
+          assert (
+              (picea300['n_background_train'] < 5)
+              | (picea300['n_background_test'] < 5)
+          ).any()
+
+          included_folds = folds.loc[folds['species'].isin(contract['eligible_taxa'])]
+          assert included_folds['eligible_fold'].all()
+          assert set(roles.loc[roles['role'].eq('validation'), 'scientific_name']) == {
+              'Rhizophora mangle', 'Larrea tridentata'
+          }
+          assert set(roles.loc[roles['role'].eq('discovery'), 'scientific_name']) == {
+              'Nothofagus pumilio', 'Eucalyptus pauciflora'
+          }
+
+          forbidden = {
+              'presence_rank', 'continuous_boyce', 'or10',
+              'niche_overlap_schoener_d_pc12', 'centroid_distance',
+              'breadth_log_sd_error', 'quantile_profile_error', 'true_suitability'
+          }
+          assert not forbidden.intersection(folds.columns)
+          assert not forbidden.intersection(species.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-taxon-transfer-eligibility
+          path: taxon_transfer_eligibility/
+          if-no-files-found: error
+          retention-days: 90
