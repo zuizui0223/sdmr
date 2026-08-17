@@ -1,0 +1,75 @@
+{
+  "purpose": "predeclared_unseen_known_truth_panels_for_product_a_v2_3_set_valued_certificate",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "opened_known_truth_seeds_excluded": {
+    "minimum": 1,
+    "maximum": 223
+  },
+  "products": [
+    "canonical_auc_point",
+    "complete_adequate_certificate",
+    "ecological_pareto_certificate"
+  ],
+  "candidate_set_order": [
+    "complete_candidate_evidence",
+    "absolute_prediction_adequacy",
+    "ecological_recovery_pareto_set"
+  ],
+  "process_set_semantics": {
+    "necessary": "intersection_over_all_successful_retained_procedure_by_M_fits",
+    "possible": "union_over_all_successful_retained_procedure_by_M_fits",
+    "contested": "possible_minus_necessary",
+    "unsupported": "predeclared_process_universe_minus_possible",
+    "support_frequency_threshold": null
+  },
+  "panels": [
+    {
+      "name": "panel_C1",
+      "discovery": [
+        {"family": "gaussian", "seed": 271},
+        {"family": "asymmetric", "seed": 281},
+        {"family": "interaction", "seed": 291}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 301},
+        {"family": "omitted_driver", "seed": 311},
+        {"family": "observation_confounded", "seed": 321}
+      ]
+    },
+    {
+      "name": "panel_C2",
+      "discovery": [
+        {"family": "gaussian", "seed": 272},
+        {"family": "asymmetric", "seed": 282},
+        {"family": "interaction", "seed": 292}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 302},
+        {"family": "omitted_driver", "seed": 312},
+        {"family": "observation_confounded", "seed": 322}
+      ]
+    },
+    {
+      "name": "panel_C3",
+      "discovery": [
+        {"family": "gaussian", "seed": 273},
+        {"family": "asymmetric", "seed": 283},
+        {"family": "interaction", "seed": 293}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 303},
+        {"family": "omitted_driver", "seed": 313},
+        {"family": "observation_confounded", "seed": 323}
+      ]
+    }
+  ],
+  "decision_states": [
+    "identified_set_supported",
+    "identified_set_trivial",
+    "identified_set_not_supported",
+    "identified_set_unavailable"
+  ],
+  "supported_result_only_allows": "retain_certificate_method_for_later_newly_rebuilt_sealed_before_M_confirmation"
+}
