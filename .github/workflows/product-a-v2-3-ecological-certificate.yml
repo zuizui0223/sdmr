@@ -5,8 +5,10 @@ on:
     paths:
       - 'src/sdmr/ecological_certificate.py'
       - 'src/sdmr/v2_3_ecological_certificate_experiment.py'
+      - 'src/sdmr/preoutcome_artifact_normalization.py'
       - 'tests/test_ecological_certificate.py'
       - 'tests/test_v2_3_ecological_certificate_experiment.py'
+      - 'tests/test_preoutcome_artifact_normalization.py'
       - 'configs/product_a_v2_3_ecological_certificate_panels.json'
       - 'docs/product_a_v2_3_ecological_certificate_plan.md'
       - '.github/workflows/product-a-v2-3-ecological-certificate.yml'
@@ -35,7 +37,8 @@ jobs:
         run: |
           pytest -q \
             tests/test_ecological_certificate.py \
-            tests/test_v2_3_ecological_certificate_experiment.py
+            tests/test_v2_3_ecological_certificate_experiment.py \
+            tests/test_preoutcome_artifact_normalization.py
       - name: Run predeclared unseen certificate panels
         run: |
           rm -rf product_a_v2_3_certificate
@@ -50,6 +53,37 @@ jobs:
             --max-predictors 4 \
             --minimum-predictor-coverage 0.95 \
             --prediction-surface-coverage-floor 0.95
+      - name: Normalize model-pool outer-CV artifact labels
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          from sdmr.preoutcome_artifact_normalization import (
+              normalize_model_pool_outer_cv_columns,
+          )
+
+          root = Path('product_a_v2_3_certificate')
+          path = root / 'discovery_metrics.csv'
+          metrics = pd.read_csv(path)
+          metrics, renamed = normalize_model_pool_outer_cv_columns(metrics)
+          metrics.to_csv(path, index=False)
+          report = {
+              'artifact': str(path.name),
+              'provenance': 'known_truth_discovery_model_pool_outer_cv_only',
+              'renamed_columns': list(renamed),
+              'authoritative_sealed_rows_read': False,
+              'old_external_sealed_outcomes_read': False,
+          }
+          (root / 'outer_cv_column_normalization.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True),
+              encoding='utf-8',
+          )
+          assert set(renamed) == {
+              'n_sealed_occurrences',
+              'sealed_pc12_envelope_coverage90',
+          }
+          PY
       - name: Verify unopened-panel and complete-member contract
         run: |
           python - <<'PY'
@@ -60,6 +94,9 @@ jobs:
 
           root = Path('product_a_v2_3_certificate')
           contract = json.loads((root / 'contract.json').read_text())
+          normalization = json.loads(
+              (root / 'outer_cv_column_normalization.json').read_text()
+          )
           products = pd.read_csv(root / 'products.csv')
           metrics = pd.read_csv(root / 'discovery_metrics.csv')
           fits = pd.read_csv(root / 'member_fits.csv')
@@ -87,6 +124,8 @@ jobs:
           assert min(contract['discovery_seeds'] + contract['validation_seeds']) > 223
           assert len(set(contract['discovery_seeds'] + contract['validation_seeds'])) == 18
           assert set(contract['panels']) == expected_panels
+          assert normalization['authoritative_sealed_rows_read'] is False
+          assert normalization['old_external_sealed_outcomes_read'] is False
 
           assert set(products['panel']) == expected_panels
           assert set(products['product']) == expected_products
