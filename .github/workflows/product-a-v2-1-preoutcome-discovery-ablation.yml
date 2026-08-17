@@ -50,6 +50,8 @@ jobs:
           rm -rf prepared_feature_cache strict_cache.zip
           mkdir -p prepared_feature_cache
           curl --fail --location \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 900 \
             --header "Authorization: Bearer $GH_TOKEN" \
             --header "Accept: application/vnd.github+json" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
@@ -62,6 +64,8 @@ jobs:
           rm -rf taxon_transfer_eligibility eligibility.zip
           mkdir -p taxon_transfer_eligibility
           curl --fail --location \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 300 \
             --header "Authorization: Bearer $GH_TOKEN" \
             --header "Accept: application/vnd.github+json" \
             --header "X-GitHub-Api-Version: 2022-11-28" \
