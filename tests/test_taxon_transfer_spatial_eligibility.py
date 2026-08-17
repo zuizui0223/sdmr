@@ -8,7 +8,10 @@ from sdmr.taxon_transfer_spatial_eligibility import (
 
 def test_spatial_support_gate_records_background_failure_without_model_scores():
     presence_groups = np.array([0, 0, 1, 1, 2, 2, 3, 3])
-    background_groups = np.array([0] * 10 + [1] * 10 + [2] * 1 + [3] * 1)
+    # GroupKFold pairs {0,2} against {1,3}; concentrate background support on
+    # the first pair so the opposite side has only two raw rows, matching the
+    # structural Picea-300km failure without invoking any model outcome.
+    background_groups = np.array([0] * 10 + [1] * 1 + [2] * 10 + [3] * 1)
     ledger = spatial_support_fold_ledger(
         presence_groups,
         background_groups,
