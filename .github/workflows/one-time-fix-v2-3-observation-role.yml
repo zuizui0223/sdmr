@@ -1,0 +1,41 @@
+name: one-time-fix-v2-3-observation-role
+
+on:
+  push:
+    branches:
+      - agent/product-a-v2-3-ecological-certificate
+    paths:
+      - '.github/workflows/one-time-fix-v2-3-observation-role.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/product-a-v2-3-ecological-certificate
+          fetch-depth: 0
+      - name: Exclude observation nuisance terms from ecological process certificates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/sdmr/v2_3_ecological_certificate_experiment.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'processes = _process_groups(fitted.selected_predictors)'
+          new = 'processes = _process_groups(fitted.selected_ecological_predictors)'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one target expression, found {text.count(old)}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+      - name: Commit exact fix and remove one-time workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/sdmr/v2_3_ecological_certificate_experiment.py
+          git rm .github/workflows/one-time-fix-v2-3-observation-role.yml
+          git commit -m 'Exclude observation terms from ecological certificates'
+          git push origin HEAD:agent/product-a-v2-3-ecological-certificate
