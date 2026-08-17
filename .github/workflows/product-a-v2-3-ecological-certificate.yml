@@ -101,6 +101,11 @@ jobs:
           assert set(summary['panel']) == expected_panels
           assert set(summary['product']) == expected_products
 
+          canonical = audits.loc[audits['product'].eq('canonical_auc_point')]
+          assert len(canonical) == 9
+          assert canonical[['panel', 'species']].drop_duplicates().shape[0] == 9
+          assert canonical['certificate_status'].eq('complete').all()
+
           for frame in (products, metrics, fits, audits, intervals, summary):
               assert not any(
                   str(column).startswith('sealed_')
