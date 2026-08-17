@@ -8,6 +8,7 @@ import pytest
 from sdmr.v2_3_ecological_certificate_experiment import (
     DECISION_STATES,
     PRODUCTS,
+    _fit_validation_taxon,
     identified_set_decision,
     load_certificate_panels,
     run_certificate_experiment,
@@ -151,3 +152,9 @@ def test_multi_panel_product_projection_uses_a_column_list():
     source = inspect.getsource(run_certificate_experiment)
     assert 'drop(columns=["panel", "n_complete_candidates"])' in source
     assert 'drop(columns=("panel", "n_complete_candidates"))' not in source
+
+
+def test_observation_nuisance_is_excluded_from_ecological_process_membership():
+    source = inspect.getsource(_fit_validation_taxon)
+    assert "_process_groups(fitted.selected_ecological_predictors)" in source
+    assert "_process_groups(fitted.selected_predictors)" not in source
