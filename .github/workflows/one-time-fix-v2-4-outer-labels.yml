@@ -1,0 +1,101 @@
+name: one-time-fix-v2-4-outer-labels
+
+on:
+  push:
+    branches:
+      - agent/product-a-v2-4-exclusion-certificate
+    paths:
+      - '.github/workflows/one-time-fix-v2-4-outer-labels.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/product-a-v2-4-exclusion-certificate
+          fetch-depth: 0
+      - name: Normalize known model-pool outer-CV labels fail-closed
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/sdmr/v2_4_knockout_discovery_experiment.py')
+          text = path.read_text(encoding='utf-8')
+
+          old_import = (
+              'from .process_exclusion_certificate import '
+              'summarize_knockout_discovery_evidence\n'
+          )
+          new_import = old_import + (
+              'from .preoutcome_artifact_normalization import '
+              'LEGACY_OUTER_CV_RENAMES\n'
+          )
+          if text.count(old_import) != 1:
+              raise SystemExit(f'import anchor count={text.count(old_import)}')
+          text = text.replace(old_import, new_import)
+
+          anchor = '''def _benchmark_library(
+'''
+          helper = '''def _normalize_outer_cv_metric_labels(frame: pd.DataFrame) -> pd.DataFrame:
+              """Rename only the two verified legacy model-pool outer-CV columns."""
+
+              sealed_like = {
+                  str(column)
+                  for column in frame.columns
+                  if str(column).lower().startswith("sealed_")
+                  or str(column).lower().startswith("n_sealed_")
+              }
+              unknown = sorted(sealed_like - set(LEGACY_OUTER_CV_RENAMES))
+              if unknown:
+                  raise ValueError(
+                      "unknown sealed-looking discovery metrics are forbidden: "
+                      + ", ".join(unknown)
+                  )
+              active = {
+                  source: target
+                  for source, target in LEGACY_OUTER_CV_RENAMES.items()
+                  if source in frame.columns
+              }
+              collisions = sorted(target for target in active.values() if target in frame.columns)
+              if collisions:
+                  raise ValueError(
+                      "outer-CV normalization would overwrite columns: "
+                      + ", ".join(collisions)
+                  )
+              return frame.rename(columns=active)
+
+
+'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'function anchor count={text.count(anchor)}')
+          text = text.replace(anchor, helper + anchor)
+
+          replacements = {
+              'metrics = benchmark.fold_metrics.copy()': (
+                  'metrics = _normalize_outer_cv_metric_labels('
+                  'benchmark.fold_metrics.copy())'
+              ),
+              'metrics = knockout_benchmark.fold_metrics.copy()': (
+                  'metrics = _normalize_outer_cv_metric_labels('
+                  'knockout_benchmark.fold_metrics.copy())'
+              ),
+          }
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'{old!r} count={text.count(old)}')
+              text = text.replace(old, new)
+          path.write_text(text, encoding='utf-8')
+          PY
+          python -m compileall -q src/sdmr/v2_4_knockout_discovery_experiment.py
+      - name: Commit exact fix and remove one-time workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/sdmr/v2_4_knockout_discovery_experiment.py
+          git rm .github/workflows/one-time-fix-v2-4-outer-labels.yml
+          git commit -m 'Normalize v2.4 discovery outer-CV labels'
+          git push origin HEAD:agent/product-a-v2-4-exclusion-certificate
