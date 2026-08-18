@@ -1,5 +1,6 @@
 name: product-a-v2-4-calibrate-frozen-refits
 
+# This second commit registers the calibration-only workflow before execution.
 on:
   pull_request:
     paths:
