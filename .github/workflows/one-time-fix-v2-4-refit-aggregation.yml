@@ -1,0 +1,92 @@
+name: one-time-fix-v2-4-refit-aggregation
+
+on:
+  push:
+    branches:
+      - agent/product-a-v2-4-exclusion-certificate
+    paths:
+      - '.github/workflows/one-time-fix-v2-4-refit-aggregation.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/product-a-v2-4-exclusion-certificate
+          fetch-depth: 0
+      - name: Fix product-to-truth cardinality and empty response schema
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          calibration = Path('src/sdmr/v2_4_discovery_calibration.py')
+          text = calibration.read_text(encoding='utf-8')
+          old = '''        validate="one_to_one",
+    )
+    for column in (lower_col, upper_col, "truth_estimate"):
+'''
+          new = '''        validate="many_to_one",
+    )
+    for column in (lower_col, upper_col, "truth_estimate"):
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'calibration merge anchor count={text.count(old)}')
+          calibration.write_text(text.replace(old, new), encoding='utf-8')
+
+          worker = Path('src/sdmr/v2_4_refit_worker.py')
+          text = worker.read_text(encoding='utf-8')
+          old = '''    response_estimates = (
+        pd.concat(response_frames, ignore_index=True)
+        if response_frames
+        else pd.DataFrame()
+    )
+'''
+          new = '''    response_estimates = (
+        pd.concat(response_frames, ignore_index=True)
+        if response_frames
+        else pd.DataFrame(
+            columns=[
+                "member_id",
+                "predictor",
+                "quantity",
+                "estimate",
+                "environment_span",
+                "panel",
+                "role",
+                "species",
+                "family",
+                "seed",
+                "group",
+                "candidate",
+                "base_candidate",
+                "excluded_process",
+                "excluded_predictors",
+                "perturbation",
+                "fit_mode",
+                "refit_index",
+                "partition_seed",
+            ]
+        )
+    )
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'worker empty-schema anchor count={text.count(old)}')
+          worker.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python -m compileall -q \
+            src/sdmr/v2_4_discovery_calibration.py \
+            src/sdmr/v2_4_refit_worker.py
+      - name: Commit exact fix and remove one-time workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            src/sdmr/v2_4_discovery_calibration.py \
+            src/sdmr/v2_4_refit_worker.py
+          git rm .github/workflows/one-time-fix-v2-4-refit-aggregation.yml
+          git commit -m 'Fix v2.4 refit aggregation cardinality'
+          git push origin HEAD:agent/product-a-v2-4-exclusion-certificate
