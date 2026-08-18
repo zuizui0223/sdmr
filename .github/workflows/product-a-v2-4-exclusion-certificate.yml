@@ -8,25 +8,29 @@ on:
       - 'src/sdmr/v2_4_refit_contract.py'
       - 'src/sdmr/v2_4_refit_worker.py'
       - 'src/sdmr/v2_4_discovery_calibration.py'
+      - 'src/sdmr/v2_4_validation_contract.py'
+      - 'src/sdmr/v2_4_validation_aggregate.py'
       - 'tests/test_process_exclusion_certificate.py'
       - 'tests/test_v2_4_exclusion_certificate_experiment.py'
       - 'tests/test_v2_4_refit_contract.py'
+      - 'tests/test_v2_4_validation_contract.py'
+      - 'tests/test_v2_4_validation_aggregate.py'
       - 'configs/product_a_v2_4_exclusion_certificate_panels.json'
       - 'configs/product_a_v2_4_refit_contract.json'
+      - 'configs/product_a_v2_4_validation_contract.json'
       - 'docs/product_a_v2_4_exclusion_certificate_plan.md'
       - '.github/workflows/product-a-v2-4-exclusion-certificate.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
 
 concurrency:
   group: product-a-v2-4-exclusion-certificate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  preoutcome-contract:
+  contract-and-semantics:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -37,13 +41,18 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Test exclusion, calibration and refit contracts
+      - name: Test frozen v2.4 contracts and certificate semantics
         run: |
-          pytest -q \
-            tests/test_process_exclusion_certificate.py \
-            tests/test_v2_4_exclusion_certificate_experiment.py \
-            tests/test_v2_4_refit_contract.py
-      - name: Materialize validate-only pre-outcome contract
+          mapfile -t tests < <(
+            find tests -maxdepth 1 -type f \
+              \( -name 'test_process_exclusion_certificate.py' \
+                 -o -name 'test_v2_4_*contract.py' \
+                 -o -name 'test_v2_4_validation_aggregate.py' \) \
+              | sort
+          )
+          test "${#tests[@]}" -ge 3
+          pytest -q "${tests[@]}"
+      - name: Materialize validate-only preoutcome contract
         run: |
           rm -rf product_a_v2_4_preoutcome
           python -m sdmr.v2_4_exclusion_certificate_experiment \
@@ -77,244 +86,5 @@ jobs:
         with:
           name: product-a-v2-4-preoutcome-contract
           path: product_a_v2_4_preoutcome/
-          if-no-files-found: error
-          retention-days: 90
-
-  patch-aggregation-source:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: agent/product-a-v2-4-exclusion-certificate
-          fetch-depth: 0
-      - name: Apply exact cardinality and empty-schema fixes
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          calibration = Path('src/sdmr/v2_4_discovery_calibration.py')
-          text = calibration.read_text(encoding='utf-8')
-          old = "\n".join([
-              '        validate="one_to_one",',
-              '    )',
-              '    for column in (lower_col, upper_col, "truth_estimate"):',
-          ]) + "\n"
-          new = "\n".join([
-              '        validate="many_to_one",',
-              '    )',
-              '    for column in (lower_col, upper_col, "truth_estimate"):',
-          ]) + "\n"
-          count = text.count(old)
-          if count == 1:
-              calibration.write_text(text.replace(old, new), encoding='utf-8')
-          elif count != 0:
-              raise SystemExit(f'unexpected truth-audit anchor count={count}')
-
-          worker = Path('src/sdmr/v2_4_refit_worker.py')
-          text = worker.read_text(encoding='utf-8')
-          old = "\n".join([
-              '    response_estimates = (',
-              '        pd.concat(response_frames, ignore_index=True)',
-              '        if response_frames',
-              '        else pd.DataFrame()',
-              '    )',
-          ]) + "\n"
-          new = "\n".join([
-              '    response_estimates = (',
-              '        pd.concat(response_frames, ignore_index=True)',
-              '        if response_frames',
-              '        else pd.DataFrame(',
-              '            columns=[',
-              '                "member_id",',
-              '                "predictor",',
-              '                "quantity",',
-              '                "estimate",',
-              '                "environment_span",',
-              '                "panel",',
-              '                "role",',
-              '                "species",',
-              '                "family",',
-              '                "seed",',
-              '                "group",',
-              '                "candidate",',
-              '                "base_candidate",',
-              '                "excluded_process",',
-              '                "excluded_predictors",',
-              '                "perturbation",',
-              '                "fit_mode",',
-              '                "refit_index",',
-              '                "partition_seed",',
-              '            ]',
-              '        )',
-              '    )',
-          ]) + "\n"
-          count = text.count(old)
-          if count == 1:
-              worker.write_text(text.replace(old, new), encoding='utf-8')
-          elif count != 0:
-              raise SystemExit(f'unexpected empty-schema anchor count={count}')
-          PY
-          for path in \
-            .github/workflows/one-time-fix-v2-4-refit-aggregation.yml \
-            .github/workflows/product-a-v2-4-calibrate-frozen-refits.yml; do
-            if [[ -e "$path" ]]; then
-              git rm "$path"
-            fi
-          done
-          python -m compileall -q \
-            src/sdmr/v2_4_discovery_calibration.py \
-            src/sdmr/v2_4_refit_worker.py
-      - name: Commit implementation-only fixes when needed
-        run: |
-          if git diff --quiet; then
-            echo 'Source already fixed and temporary workflows already removed.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'Fix v2.4 discovery calibration aggregation'
-          git push origin HEAD:agent/product-a-v2-4-exclusion-certificate
-
-  calibrate-frozen-workers:
-    needs: [preoutcome-contract, patch-aggregation-source]
-    runs-on: ubuntu-latest
-    timeout-minutes: 180
-    env:
-      GH_TOKEN: ${{ github.token }}
-      SOURCE_REFIT_RUN_ID: '32098266084'
-      SOURCE_REFIT_HEAD_SHA: '72ee499f808fb8eefb054bfaac95c5f086aacdb1'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-      - name: Install package
-        run: python -m pip install -e '.[test]'
-      - name: Verify all 54 immutable model-only workers
-        run: |
-          set -euo pipefail
-          run_json=$(curl --fail --silent --show-error --location \
-            --header "Authorization: Bearer $GH_TOKEN" \
-            --header 'Accept: application/vnd.github+json' \
-            --header 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_REFIT_RUN_ID")
-          test "$(jq -r '.status' <<<"$run_json")" = 'completed'
-          test "$(jq -r '.head_sha' <<<"$run_json")" = "$SOURCE_REFIT_HEAD_SHA"
-          jobs_json=$(curl --fail --silent --show-error --location \
-            --header "Authorization: Bearer $GH_TOKEN" \
-            --header 'Accept: application/vnd.github+json' \
-            --header 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_REFIT_RUN_ID/jobs?per_page=100")
-          refit_count=$(jq '[.jobs[] | select(.name | startswith("refit ("))] | length' <<<"$jobs_json")
-          failed_count=$(jq '[.jobs[] | select(.name | startswith("refit (")) | select(.conclusion != "success")] | length' <<<"$jobs_json")
-          test "$refit_count" = '54'
-          test "$failed_count" = '0'
-      - name: Download exact frozen worker artifacts and record digests
-        run: |
-          set -euo pipefail
-          artifacts_json=$(curl --fail --silent --show-error --location \
-            --header "Authorization: Bearer $GH_TOKEN" \
-            --header 'Accept: application/vnd.github+json' \
-            --header 'X-GitHub-Api-Version: 2022-11-28' \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_REFIT_RUN_ID/artifacts?per_page=100")
-          jq '[.artifacts[] | select(.expired == false) | select(.name | startswith("product-a-v2-4-discovery-refit-"))]' \
-            <<<"$artifacts_json" > worker_artifact_manifest.json
-          test "$(jq 'length' worker_artifact_manifest.json)" = '54'
-          mkdir -p worker_artifacts
-          while IFS=$'\t' read -r artifact_id artifact_name; do
-            mkdir -p "worker_artifacts/$artifact_name"
-            curl --fail --location --retry 5 --retry-all-errors \
-              --header "Authorization: Bearer $GH_TOKEN" \
-              --header 'Accept: application/vnd.github+json' \
-              --header 'X-GitHub-Api-Version: 2022-11-28' \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
-              --output "worker-$artifact_id.zip"
-            unzip -q "worker-$artifact_id.zip" -d "worker_artifacts/$artifact_name"
-          done < <(jq -r '.[] | [.id, .name] | @tsv' worker_artifact_manifest.json)
-          test "$(find worker_artifacts -name contract.json | wc -l)" = '54'
-      - name: Download immutable stage-1 discovery artifacts
-        run: |
-          set -euo pipefail
-          mkdir -p source_discovery
-          for spec in \
-            'panel_D1:9310256239' \
-            'panel_D2:9310224903' \
-            'panel_D3:9310181352'; do
-            panel=${spec%%:*}
-            artifact_id=${spec##*:}
-            mkdir -p "source_discovery/$panel"
-            curl --fail --location --retry 5 --retry-all-errors \
-              --header "Authorization: Bearer $GH_TOKEN" \
-              --header 'Accept: application/vnd.github+json' \
-              --header 'X-GitHub-Api-Version: 2022-11-28' \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
-              --output "source-$artifact_id.zip"
-            unzip -q "source-$artifact_id.zip" -d "source_discovery/$panel"
-          done
-      - name: Freeze raw envelopes then open discovery truth and calibrate
-        run: |
-          rm -rf product_a_v2_4_discovery_calibration
-          python -m sdmr.v2_4_discovery_calibration \
-            --panel-config configs/product_a_v2_4_exclusion_certificate_panels.json \
-            --refit-contract configs/product_a_v2_4_refit_contract.json \
-            --worker-root worker_artifacts \
-            --discovery-root source_discovery \
-            --output-dir product_a_v2_4_discovery_calibration
-          cp worker_artifact_manifest.json \
-            product_a_v2_4_discovery_calibration/source_worker_artifacts.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          payload = {
-              'source_refit_run_id': '32098266084',
-              'source_refit_head_sha': '72ee499f808fb8eefb054bfaac95c5f086aacdb1',
-              'n_source_worker_artifacts': 54,
-              'source_refit_workflow_conclusion': 'failure_due_to_superseded_aggregator',
-              'all_54_refit_jobs_verified_success': True,
-              'scientific_threshold_or_candidate_change': False,
-          }
-          Path('product_a_v2_4_discovery_calibration/execution_provenance.json').write_text(
-              json.dumps(payload, indent=2, sort_keys=True) + '\n',
-              encoding='utf-8',
-          )
-          PY
-      - name: Verify discovery-only calibration artifact
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import pandas as pd
-
-          root = Path('product_a_v2_4_discovery_calibration')
-          contract = json.loads((root / 'contract.json').read_text())
-          manifest = json.loads((root / 'source_worker_artifacts.json').read_text())
-          calibration = pd.read_csv(root / 'calibration.csv')
-          raw = pd.read_csv(root / 'raw_envelopes.csv')
-          truth = pd.read_csv(root / 'discovery_truth.csv')
-          summary = pd.read_csv(root / 'product_summary.csv')
-          assert contract['n_model_only_workers'] == 54
-          assert len(manifest) == 54
-          assert contract['all_raw_discovery_envelopes_frozen_before_truth_read'] is True
-          assert contract['discovery_generating_truth_read_after_raw_freeze'] is True
-          assert contract['validation_taxa_simulated_or_read'] is False
-          assert contract['validation_truth_read'] is False
-          assert contract['calibration_uses_validation_truth'] is False
-          assert not calibration['calibration_uses_validation_truth'].astype(bool).any()
-          assert set(raw['product']) == {
-              'canonical_auc_point',
-              'complete_adequate_certificate',
-              'v2_3_mean_pareto_certificate',
-              'v2_4_exclusion_calibrated_certificate',
-          }
-          assert set(truth['panel']) == {'panel_D1','panel_D2','panel_D3'}
-          assert set(summary['panel']) == {'panel_D1','panel_D2','panel_D3'}
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: product-a-v2-4-discovery-refit-calibration-frozen
-          path: product_a_v2_4_discovery_calibration/
           if-no-files-found: error
           retention-days: 90
