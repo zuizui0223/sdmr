@@ -1,0 +1,132 @@
+{
+  "purpose": "product_a_v2_4_predeclared_validation_transfer_and_decision_contract",
+  "scientific_promotion_run": false,
+  "scientific_promotion_allowed": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "validation_truth_read_before_all_fits_and_certificates_frozen": false,
+  "source_discovery": {
+    "run_id": "32096477308",
+    "head_sha": "3c222249109ac2c15f6258ebc79bb1c957dd42a4",
+    "artifacts": {
+      "panel_D1": {
+        "artifact_id": "9310256239",
+        "artifact_digest": "sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db"
+      },
+      "panel_D2": {
+        "artifact_id": "9310224903",
+        "artifact_digest": "sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b"
+      },
+      "panel_D3": {
+        "artifact_id": "9310181352",
+        "artifact_digest": "sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e"
+      }
+    }
+  },
+  "source_discovery_calibration": {
+    "run_id": "32099494627",
+    "head_sha": "54ced575b0751fa7c2ca18fb2544badc6643f37c",
+    "artifact_id": "9311087568",
+    "artifact_name": "product-a-v2-4-discovery-refit-calibration-frozen",
+    "artifact_digest": "sha256:2fad05bc40af18292ff1fb24c2580ef5c603338da302f168cb130299a126363b",
+    "n_complete_calibration_keys": 18,
+    "validation_stage_allowed": true,
+    "calibration_uses_validation_truth": false
+  },
+  "panels": {
+    "panel_D1": {
+      "validation": [
+        {"family": "soft_threshold", "seed": 401},
+        {"family": "omitted_driver", "seed": 411},
+        {"family": "observation_confounded", "seed": 421}
+      ]
+    },
+    "panel_D2": {
+      "validation": [
+        {"family": "soft_threshold", "seed": 402},
+        {"family": "omitted_driver", "seed": 412},
+        {"family": "observation_confounded", "seed": 422}
+      ]
+    },
+    "panel_D3": {
+      "validation": [
+        {"family": "soft_threshold", "seed": 403},
+        {"family": "omitted_driver", "seed": 413},
+        {"family": "observation_confounded", "seed": 423}
+      ]
+    }
+  },
+  "fit_contract": {
+    "source": "configs/product_a_v2_4_refit_contract.json",
+    "role": "validation",
+    "n_worker_cells": 54,
+    "groups": ["base", "noise", "seasonality", "soil", "temperature", "water"],
+    "M_specs": ["m_core", "m_mid", "m_wide"],
+    "full_fit_code": 9,
+    "spatial_refit_codes": [0, 1, 2, 3, 4],
+    "validation_role_offset": 50000,
+    "generating_truth_read_by_worker": false
+  },
+  "products": [
+    "canonical_auc_point",
+    "complete_adequate_certificate",
+    "v2_3_mean_pareto_certificate",
+    "v2_4_exclusion_calibrated_certificate"
+  ],
+  "process_certificate": {
+    "process_universe": ["temperature", "water", "soil", "seasonality", "noise"],
+    "required_status": "required_by_frozen_evidence_contract",
+    "refuted_status": "refuted_as_necessary",
+    "unresolved_status": "unresolved",
+    "refuted_rule": "at_least_one_frozen_admitted_process_knockout_full_fit_succeeds_across_every_required_M",
+    "required_rule": "all_predeclared_discovery_knockout_routes_complete_and_none_passed_the_frozen_absolute_prediction_gate",
+    "unresolved_rule": "discovery_evidence_or_validation_transfer_fits_incomplete",
+    "missing_or_failed_transfer_means_required": false,
+    "possible_processes": "union_of_selected_process_groups_across_all_successful_frozen_full_fit_base_and_admitted_knockout_members_across_M",
+    "unsupported_processes": "frozen_process_universe_minus_possible_processes",
+    "possible_process_recall_audited_only_after_truth_freeze": true
+  },
+  "boundary_certificate": {
+    "canonical_auc_point": "frozen_canonical_candidate_at_canonical_M_full_fit",
+    "complete_adequate_certificate": "all_frozen_complete_adequate_base_candidates_by_M_full_fit",
+    "v2_3_mean_pareto_certificate": "frozen_mean_pareto_base_candidates_by_M_full_fit",
+    "v2_4_exclusion_calibrated_certificate": "all_frozen_complete_adequate_base_and_admitted_knockout_candidates_by_M_by_five_spatial_refits_then_frozen_discovery_radius",
+    "all_expected_members_required": true,
+    "missing_member_makes_interval_unavailable": true,
+    "validation_truth_used_for_calibration": false,
+    "calibration_applied_before_validation_truth_read": true
+  },
+  "truth_opening_order": [
+    "verify_54_model_only_worker_artifacts",
+    "freeze_process_transfer_statuses",
+    "freeze_possible_and_unsupported_process_sets",
+    "freeze_four_raw_product_envelopes",
+    "apply_frozen_discovery_calibration_to_v2_4_envelopes",
+    "freeze_all_pretruth_products_and_fingerprints",
+    "open_validation_generating_truth_once",
+    "audit_process_and_boundary_products",
+    "apply_predeclared_decision"
+  ],
+  "decision_states": [
+    "exclusion_certificate_supported",
+    "exclusion_certificate_process_only",
+    "exclusion_certificate_boundary_only",
+    "exclusion_certificate_not_supported",
+    "exclusion_certificate_unavailable"
+  ],
+  "availability_requires": {
+    "all_54_validation_workers_present": true,
+    "all_expected_product_intervals_complete": true,
+    "all_process_transfer_cells_classified": true,
+    "all_18_calibration_keys_complete": true
+  },
+  "process_support_requires_every_panel": {
+    "false_required_processes": 0,
+    "possible_process_recall_for_every_validation_taxon": 1.0
+  },
+  "boundary_support_requires_every_panel": {
+    "v2_4_calibrated_boundary_coverage_no_worse_than_complete_adequate": true
+  },
+  "supported_result_only_allows": "freeze_method_before_a_newly_rebuilt_real_data_sealed_before_M_confirmation",
+  "no_result_directly_allows": "merge_PR_1_to_main_or_claim_universal_plant_niche_drivers"
+}
