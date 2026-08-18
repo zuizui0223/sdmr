@@ -1,0 +1,152 @@
+{
+  "purpose": "predeclared_unseen_known_truth_panels_for_product_a_v2_4_exclusion_calibrated_certificate",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "previously_opened_known_truth_used_for_validation": false,
+  "opened_known_truth_seeds_excluded": {
+    "minimum": 1,
+    "maximum": 323
+  },
+  "products": [
+    "canonical_auc_point",
+    "complete_adequate_certificate",
+    "v2_3_mean_pareto_certificate",
+    "v2_4_exclusion_calibrated_certificate"
+  ],
+  "candidate_set_order": [
+    "complete_candidate_evidence",
+    "absolute_prediction_adequacy",
+    "explicit_process_knockout_admission",
+    "coverage_first_spatial_refit_envelope",
+    "discovery_only_interval_calibration"
+  ],
+  "process_predictor_aliases": {
+    "temperature": "temperature",
+    "temp_proxy": "temperature",
+    "sparse_temp_proxy": "temperature",
+    "water": "water",
+    "soil": "soil",
+    "seasonality": "seasonality",
+    "noise": "noise",
+    "sparse_noise": "noise",
+    "recording_bias": "observation_process"
+  },
+  "ecological_process_universe": [
+    "temperature",
+    "water",
+    "soil",
+    "seasonality",
+    "noise"
+  ],
+  "ecological_predictor_universe": [
+    "temperature",
+    "water",
+    "temp_proxy",
+    "seasonality",
+    "soil",
+    "noise",
+    "sparse_temp_proxy",
+    "sparse_noise"
+  ],
+  "observation_predictors": [
+    "recording_bias"
+  ],
+  "base_procedures": [
+    "all|logit_l2_C0.1_degree1",
+    "vif|logit_l2_C0.1_degree1",
+    "predictive_forward|logit_l2_C0.1_degree1",
+    "niche_forward|logit_l2_C0.1_degree1",
+    "all|logit_l2_C1_degree2",
+    "vif|logit_l2_C1_degree2",
+    "predictive_forward|logit_l2_C1_degree2",
+    "niche_forward|logit_l2_C1_degree2"
+  ],
+  "knockout_semantics": {
+    "candidate_label": "<base_procedure>::exclude::<process>",
+    "excluded_predictors": "all_ecological_predictors_whose_frozen_alias_equals_the_process",
+    "observation_predictors_removed": false,
+    "missing_or_failed_knockout_means_required": false,
+    "refuted_as_necessary": "at_least_one_discovery_admitted_knockout_has_complete_successful_validation_fits_across_all_M",
+    "required_by_frozen_evidence_contract": "all_predeclared_knockout_routes_have_complete_discovery_evidence_and_none_passes_the_frozen_absolute_prediction_gate",
+    "unresolved": "discovery_evidence_or_transferred_member_fits_are_incomplete"
+  },
+  "prediction_adequacy": {
+    "metric": "presence_rank",
+    "chance_auc": 0.5,
+    "minimum_auc_margin": 0.01,
+    "auc_sem_multiplier": 1.0,
+    "relative_to_best_gate": false
+  },
+  "boundary_semantics": {
+    "quantities": [
+      "optimum",
+      "lower_limit",
+      "upper_limit"
+    ],
+    "spatial_refits_per_member": 5,
+    "raw_interval": "minimum_and_maximum_over_all_complete_retained_procedure_by_M_by_spatial_refit_estimates",
+    "calibration_source": "discovery_taxa_only",
+    "calibration_radius": "maximum_normalized_outside_interval_miss_by_predictor_and_quantity_across_discovery_taxa",
+    "validation_truth_used_for_calibration": false,
+    "coverage_priority": true,
+    "width_can_override_coverage": false
+  },
+  "panels": [
+    {
+      "name": "panel_D1",
+      "discovery": [
+        {"family": "gaussian", "seed": 371},
+        {"family": "asymmetric", "seed": 381},
+        {"family": "interaction", "seed": 391}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 401},
+        {"family": "omitted_driver", "seed": 411},
+        {"family": "observation_confounded", "seed": 421}
+      ]
+    },
+    {
+      "name": "panel_D2",
+      "discovery": [
+        {"family": "gaussian", "seed": 372},
+        {"family": "asymmetric", "seed": 382},
+        {"family": "interaction", "seed": 392}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 402},
+        {"family": "omitted_driver", "seed": 412},
+        {"family": "observation_confounded", "seed": 422}
+      ]
+    },
+    {
+      "name": "panel_D3",
+      "discovery": [
+        {"family": "gaussian", "seed": 373},
+        {"family": "asymmetric", "seed": 383},
+        {"family": "interaction", "seed": 393}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 403},
+        {"family": "omitted_driver", "seed": 413},
+        {"family": "observation_confounded", "seed": 423}
+      ]
+    }
+  ],
+  "decision_states": [
+    "exclusion_certificate_supported",
+    "exclusion_certificate_process_only",
+    "exclusion_certificate_boundary_only",
+    "exclusion_certificate_not_supported",
+    "exclusion_certificate_unavailable"
+  ],
+  "supported_result_requires": {
+    "all_panels_available": true,
+    "all_validation_taxa_evaluable": true,
+    "false_required_processes": 0,
+    "possible_process_recall": 1.0,
+    "boundary_coverage_no_worse_than_complete_adequate": true,
+    "validation_truth_used_before_freeze": false
+  },
+  "supported_result_only_allows": "freeze_method_before_a_newly_rebuilt_real_data_sealed_before_M_confirmation"
+}
