@@ -1,0 +1,89 @@
+{
+  "purpose": "product_a_v2_4_predeclared_validation_decision_record",
+  "source_head_sha": "b84742ef01e95e956c1f530a62b44f78352284a9",
+  "source_run_id": "32103035210",
+  "source_artifact_id": "9312286681",
+  "source_artifact_digest": "sha256:3c8b23ffb1a78c4538076cfe1ca23f85060b3ef578f5be1d08cdd43604c80ee9",
+  "decision": "exclusion_certificate_unavailable",
+  "scientific_promotion_allowed": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "all_panels_available": false,
+  "process_support": false,
+  "boundary_support": false,
+  "n_model_only_validation_workers": 54,
+  "validation_truth_used_for_calibration": false,
+  "all_process_and_boundary_products_frozen_before_truth_read": true,
+  "validation_generating_truth_read_after_product_freeze": true,
+  "panel_summary": [
+    {
+      "panel": "panel_D1",
+      "n_validation_taxa": 3,
+      "n_complete_process_certificates": 3,
+      "total_false_required_processes": 0,
+      "minimum_possible_process_recall": 1.0,
+      "mean_possible_process_precision": 0.4666666666666667,
+      "n_complete_boundary_certificates": 3,
+      "complete_adequate_boundary_coverage": 0.3333333333333333,
+      "n_calibrated_response_keys": 21,
+      "n_complete_calibrated_intervals": 18,
+      "v2_4_calibrated_boundary_coverage": 0.47619047619047616,
+      "v2_4_mean_calibrated_width": 0.312826
+    },
+    {
+      "panel": "panel_D2",
+      "n_validation_taxa": 3,
+      "n_complete_process_certificates": 3,
+      "total_false_required_processes": 0,
+      "minimum_possible_process_recall": 1.0,
+      "mean_possible_process_precision": 0.4666666666666667,
+      "n_complete_boundary_certificates": 3,
+      "complete_adequate_boundary_coverage": 0.3333333333333333,
+      "n_calibrated_response_keys": 21,
+      "n_complete_calibrated_intervals": 18,
+      "v2_4_calibrated_boundary_coverage": 0.7142857142857143,
+      "v2_4_mean_calibrated_width": 0.363779
+    },
+    {
+      "panel": "panel_D3",
+      "n_validation_taxa": 3,
+      "n_complete_process_certificates": 3,
+      "total_false_required_processes": 0,
+      "minimum_possible_process_recall": 1.0,
+      "mean_possible_process_precision": 0.4666666666666667,
+      "n_complete_boundary_certificates": 3,
+      "complete_adequate_boundary_coverage": 0.3333333333333333,
+      "n_calibrated_response_keys": 21,
+      "n_complete_calibrated_intervals": 18,
+      "v2_4_calibrated_boundary_coverage": 0.6666666666666666,
+      "v2_4_mean_calibrated_width": 0.341522
+    }
+  ],
+  "unavailable_boundary_keys": [
+    "panel_D1/omitted_driver__seed411/soil/lower_limit",
+    "panel_D1/omitted_driver__seed411/soil/optimum",
+    "panel_D1/omitted_driver__seed411/soil/upper_limit",
+    "panel_D2/omitted_driver__seed412/soil/lower_limit",
+    "panel_D2/omitted_driver__seed412/soil/optimum",
+    "panel_D2/omitted_driver__seed412/soil/upper_limit",
+    "panel_D3/omitted_driver__seed413/soil/lower_limit",
+    "panel_D3/omitted_driver__seed413/soil/optimum",
+    "panel_D3/omitted_driver__seed413/soil/upper_limit"
+  ],
+  "pretruth_fingerprints": {
+    "calibrated_envelopes_sha256": "c3bf3234d10dee3ff8d5b99b62fa1bd69d850d271889e88b74501d7f9c9c7f98",
+    "process_certificates_sha256": "277ddf9bbb8eb58d634119fd16174721bfaa6b44a78f2e94e03d52f2fc86e39a",
+    "process_status_sha256": "f5dea40d6a88c747d706c96dbae3879b37db17ec4efadb564d81ae0ae8ce4c1e",
+    "product_membership_sha256": "fd7c40f47feb75b328691c17b23fbe59c022df50ee8b69cfa69541b580c586a5",
+    "raw_envelopes_sha256": "2ddfb8f03d69ad16ed435c5f2b0a7414ece1ed5684cc37bf7c8eaf51fff99ed7"
+  },
+  "decision_correction": {
+    "earlier_run_id": "32102526506",
+    "earlier_artifact_id": "9312119021",
+    "earlier_reported_decision": "exclusion_certificate_supported",
+    "problem": "decision availability omitted the frozen requirement that every discovery-calibrated v2.4 validation response key have a complete calibrated interval",
+    "fix": "availability now requires n_complete_calibrated_intervals == n_calibrated_response_keys in every panel",
+    "scientific_thresholds_changed": false,
+    "validation_outcomes_used_to_add_calibration": false
+  }
+}
