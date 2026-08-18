@@ -317,7 +317,29 @@ def run_refit_worker(
     response_estimates = (
         pd.concat(response_frames, ignore_index=True)
         if response_frames
-        else pd.DataFrame()
+        else pd.DataFrame(
+            columns=[
+                "member_id",
+                "predictor",
+                "quantity",
+                "estimate",
+                "environment_span",
+                "panel",
+                "role",
+                "species",
+                "family",
+                "seed",
+                "group",
+                "candidate",
+                "base_candidate",
+                "excluded_process",
+                "excluded_predictors",
+                "perturbation",
+                "fit_mode",
+                "refit_index",
+                "partition_seed",
+            ]
+        )
     )
     expected_keys = pd.DataFrame(
         [

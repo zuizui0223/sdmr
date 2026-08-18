@@ -204,7 +204,7 @@ def _truth_audit(
         truth[["panel", "species", "predictor", "quantity", "truth_estimate"]],
         on=["panel", "species", "predictor", "quantity"],
         how="outer",
-        validate="one_to_one",
+        validate="many_to_one",
     )
     for column in (lower_col, upper_col, "truth_estimate"):
         audit[column] = pd.to_numeric(audit[column], errors="coerce")
