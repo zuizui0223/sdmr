@@ -194,13 +194,23 @@ def load_validation_contract(path: str | Path) -> dict[str, Any]:
 
 
 def exclusion_certificate_decision(panel_summary: pd.DataFrame) -> pd.DataFrame:
-    """Apply the frozen cross-panel process/boundary decision rule."""
+    """Apply the frozen cross-panel process/boundary decision rule.
+
+    Availability follows the predeclared contract literally: every validation
+    taxon must have a complete process certificate, all four raw boundary
+    products must be complete, and every discovery-calibrated v2.4 response key
+    must also have a complete calibrated interval. A calibrated key that is
+    missing because discovery supplied no calibration radius is evidence
+    unavailability, not something that can be silently omitted from coverage.
+    """
 
     required = {
         "panel",
         "n_validation_taxa",
         "n_complete_process_certificates",
         "n_complete_boundary_certificates",
+        "n_calibrated_response_keys",
+        "n_complete_calibrated_intervals",
         "total_false_required_processes",
         "minimum_possible_process_recall",
         "complete_adequate_boundary_coverage",
@@ -240,6 +250,10 @@ def exclusion_certificate_decision(panel_summary: pd.DataFrame) -> pd.DataFrame:
         and data["n_validation_taxa"].eq(3).all()
         and data["n_complete_process_certificates"].eq(3).all()
         and data["n_complete_boundary_certificates"].eq(3).all()
+        and data["n_calibrated_response_keys"].gt(0).all()
+        and data["n_complete_calibrated_intervals"].eq(
+            data["n_calibrated_response_keys"]
+        ).all()
     )
     process_support = bool(
         available
