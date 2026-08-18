@@ -1,0 +1,131 @@
+name: product-a-v2-4-knockout-discovery
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/v2_4_knockout_discovery_experiment.py'
+      - 'src/sdmr/process_exclusion_certificate.py'
+      - 'src/sdmr/v2_4_exclusion_certificate_experiment.py'
+      - 'configs/product_a_v2_4_exclusion_certificate_panels.json'
+      - '.github/workflows/product-a-v2-4-knockout-discovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-4-knockout-discovery-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discovery-panel:
+    strategy:
+      fail-fast: false
+      matrix:
+        panel: [panel_D1, panel_D2, panel_D3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run sealed-blind knockout discovery panel
+        run: |
+          rm -rf "product_a_v2_4_discovery_${{ matrix.panel }}"
+          python -m sdmr.v2_4_knockout_discovery_experiment \
+            --panel-config configs/product_a_v2_4_exclusion_certificate_panels.json \
+            --panel "${{ matrix.panel }}" \
+            --output-dir "product_a_v2_4_discovery_${{ matrix.panel }}"
+      - name: Verify discovery-only information barrier and frozen denominator
+        run: |
+          PANEL='${{ matrix.panel }}' python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import pandas as pd
+
+          panel = os.environ['PANEL']
+          root = Path(f'product_a_v2_4_discovery_{panel}')
+          contract = json.loads((root / 'contract.json').read_text())
+          products = pd.read_csv(root / 'base_products.csv')
+          base = pd.read_csv(root / 'base_metrics.csv')
+          knockout = pd.read_csv(root / 'knockout_metrics.csv')
+          candidates = pd.read_csv(root / 'knockout_candidate_summary.csv')
+          processes = pd.read_csv(root / 'knockout_process_summary.csv')
+          status = pd.read_csv(root / 'benchmark_status.csv')
+          registry = pd.read_csv(root / 'knockout_registry.csv')
+
+          expected_seeds = {
+              'panel_D1': ({371, 381, 391}, {401, 411, 421}),
+              'panel_D2': ({372, 382, 392}, {402, 412, 422}),
+              'panel_D3': ({373, 383, 393}, {403, 413, 423}),
+          }
+          discovery_seeds, validation_seeds = expected_seeds[panel]
+          assert contract['panel'] == panel
+          assert set(contract['discovery_seeds']) == discovery_seeds
+          assert set(contract['validation_seeds_reserved_unopened']) == validation_seeds
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['discovery_generating_truth_read'] is False
+          assert contract['validation_taxa_simulated_or_read'] is False
+          assert contract['validation_truth_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['n_base_procedures'] == 8
+          assert contract['n_processes'] == 5
+          assert contract['n_declared_knockout_routes'] == 40
+
+          assert len(registry) == 40
+          assert len(candidates) == 40
+          assert len(processes) == 5
+          assert len(products) == 3
+          assert set(products['product']) == {
+              'canonical_auc_point',
+              'complete_adequate_certificate',
+              'ecological_pareto_certificate',
+          }
+          allowed_process = {
+              'exclusion_witness_frozen',
+              'required_by_frozen_discovery_contract',
+              'unresolved_discovery_evidence',
+          }
+          assert set(processes['discovery_process_state']).issubset(allowed_process)
+          assert status['status'].isin({
+              'success',
+              'abstain_no_evaluable_outer_folds',
+              'abstain_no_retained_ecological_predictors',
+          }).all()
+
+          expected_taxa = {
+              f'gaussian__seed{min(discovery_seeds)}',
+              f'asymmetric__seed{sorted(discovery_seeds)[1]}',
+              f'interaction__seed{max(discovery_seeds)}',
+          }
+          assert set(base['species']).issubset(expected_taxa)
+          assert set(knockout['species']).issubset(expected_taxa)
+          for seed in validation_seeds:
+              assert not base['species'].astype(str).str.contains(f'seed{seed}').any()
+              assert not knockout['species'].astype(str).str.contains(f'seed{seed}').any()
+          forbidden = {
+              'true_suitability',
+              'sampling_effort',
+              'focal_recording_multiplier',
+          }
+          for frame in (base, knockout, candidates, processes, status):
+              assert not forbidden.intersection(frame.columns)
+              assert not any(
+                  str(column).startswith('sealed_')
+                  or str(column).startswith('n_sealed_')
+                  for column in frame.columns
+              )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-4-knockout-discovery-${{ matrix.panel }}
+          path: product_a_v2_4_discovery_${{ matrix.panel }}/
+          if-no-files-found: error
+          retention-days: 90
