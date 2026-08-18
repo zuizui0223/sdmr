@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
 
+# Second push ensures this newly introduced workflow is registered before use.
 jobs:
   patch-source:
     runs-on: ubuntu-latest
