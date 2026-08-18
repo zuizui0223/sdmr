@@ -33,6 +33,8 @@ def _summary(**overrides):
             "n_validation_taxa": 3,
             "n_complete_process_certificates": 3,
             "n_complete_boundary_certificates": 3,
+            "n_calibrated_response_keys": 21,
+            "n_complete_calibrated_intervals": 21,
             "total_false_required_processes": 0,
             "minimum_possible_process_recall": 1.0,
             "complete_adequate_boundary_coverage": 0.50,
@@ -147,7 +149,14 @@ def test_validation_decision_unavailable_on_missing_or_incomplete_panel():
     ).iloc[0]
     assert missing["decision"] == "exclusion_certificate_unavailable"
 
-    incomplete = exclusion_certificate_decision(
+    incomplete_raw = exclusion_certificate_decision(
         _summary(n_complete_boundary_certificates=2)
     ).iloc[0]
-    assert incomplete["decision"] == "exclusion_certificate_unavailable"
+    assert incomplete_raw["decision"] == "exclusion_certificate_unavailable"
+
+    incomplete_calibrated = exclusion_certificate_decision(
+        _summary(n_complete_calibrated_intervals=18)
+    ).iloc[0]
+    assert incomplete_calibrated["decision"] == "exclusion_certificate_unavailable"
+    assert not bool(incomplete_calibrated["process_support"])
+    assert not bool(incomplete_calibrated["boundary_support"])
