@@ -1,7 +1,7 @@
 """Sealed-blind discovery stage for Product-A v2.4 process knockouts.
 
 This stage executes the predeclared base and process-knockout procedure library on
-D1--D3 discovery taxa only.  It freezes complete/adequate base products and the
+D1--D3 discovery taxa only. It freezes complete/adequate base products and the
 admitted process-exclusion routes before any discovery generating truth or any
 validation taxon is accessed.
 """
@@ -17,6 +17,7 @@ import pandas as pd
 
 from .model_pool_predictor_admissibility import select_model_pool_admissible_predictors
 from .niche_recovery_procedure import benchmark_recovery_procedures
+from .preoutcome_artifact_normalization import LEGACY_OUTER_CV_RENAMES
 from .process_exclusion_certificate import summarize_knockout_discovery_evidence
 from .v2_1_known_truth_gate_ablation import (
     CANDIDATE_ECOLOGICAL_PREDICTORS,
@@ -55,6 +56,35 @@ def _assert_model_only(frame: pd.DataFrame) -> None:
         )
 
 
+def _normalize_outer_cv_metric_labels(frame: pd.DataFrame) -> pd.DataFrame:
+    """Rename only verified model-pool outer-CV labels and reject all others."""
+
+    sealed_like = {
+        str(column)
+        for column in frame.columns
+        if str(column).lower().startswith("sealed_")
+        or str(column).lower().startswith("n_sealed_")
+    }
+    unknown = sorted(sealed_like - set(LEGACY_OUTER_CV_RENAMES))
+    if unknown:
+        raise ValueError(
+            "unknown sealed-looking discovery metrics are forbidden: "
+            + ", ".join(unknown)
+        )
+    active = {
+        source: target
+        for source, target in LEGACY_OUTER_CV_RENAMES.items()
+        if source in frame.columns
+    }
+    collisions = sorted(target for target in active.values() if target in frame.columns)
+    if collisions:
+        raise ValueError(
+            "outer-CV normalization would overwrite columns: "
+            + ", ".join(collisions)
+        )
+    return frame.rename(columns=active)
+
+
 def _benchmark_library(
     occurrence: pd.DataFrame,
     background: pd.DataFrame,
@@ -86,6 +116,23 @@ def _benchmark_library(
     )
 
 
+def _decorate_metrics(
+    frame: pd.DataFrame,
+    *,
+    panel: str,
+    species: str,
+    perturbation: str,
+    candidate_type: str,
+) -> pd.DataFrame:
+    metrics = _normalize_outer_cv_metric_labels(frame.copy())
+    metrics["panel"] = panel
+    metrics["species"] = species
+    metrics["perturbation"] = perturbation
+    metrics["perturbation_type"] = "sampling_or_background"
+    metrics["candidate_type"] = candidate_type
+    return metrics
+
+
 def run_knockout_discovery_panel(
     panel_config: str | Path,
     panel_name: str,
@@ -98,7 +145,7 @@ def run_knockout_discovery_panel(
         raise ValueError(f"unknown frozen v2.4 panel: {panel_name}")
     panel: ExclusionCertificatePanel = panel_by_name[str(panel_name)]
     panel_index = tuple(panel_by_name).index(panel.name)
-    simulation_contract = config.get("simulation_contract", {})
+    simulation_contract = config["simulation_contract"]
     n_cells = int(simulation_contract["n_cells"])
     n_occurrences = int(simulation_contract["n_occurrences"])
     n_target_group = int(simulation_contract["n_target_group"])
@@ -133,11 +180,11 @@ def run_knockout_discovery_panel(
     status_rows: list[dict[str, object]] = []
     coverage_frames: list[pd.DataFrame] = []
     predictor_rows: list[dict[str, object]] = []
-
     process_registry = {
         str(process): group.copy()
         for process, group in registry.groupby("excluded_process", sort=False)
     }
+
     for taxon_index, (taxon, simulation) in enumerate(simulations.items()):
         occurrence = _model_only_frame(simulation.occurrences).reset_index(drop=True)
         backgrounds = {
@@ -211,14 +258,16 @@ def run_knockout_discovery_panel(
                         "random_state": random_state,
                     }
                 )
-                metrics = benchmark.fold_metrics.copy()
-                if not metrics.empty:
-                    metrics["panel"] = panel.name
-                    metrics["species"] = taxon
-                    metrics["perturbation"] = perturbation
-                    metrics["perturbation_type"] = "sampling_or_background"
-                    metrics["candidate_type"] = "base"
-                    base_metric_frames.append(metrics)
+                if not benchmark.fold_metrics.empty:
+                    base_metric_frames.append(
+                        _decorate_metrics(
+                            benchmark.fold_metrics,
+                            panel=panel.name,
+                            species=taxon,
+                            perturbation=perturbation,
+                            candidate_type="base",
+                        )
+                    )
 
             for process_index, (process, group) in enumerate(
                 process_registry.items()
@@ -280,20 +329,23 @@ def run_knockout_discovery_panel(
                         "random_state": knockout_state,
                     }
                 )
-                metrics = knockout_benchmark.fold_metrics.copy()
-                if metrics.empty:
+                if knockout_benchmark.fold_metrics.empty:
                     continue
+                metrics = _decorate_metrics(
+                    knockout_benchmark.fold_metrics,
+                    panel=panel.name,
+                    species=taxon,
+                    perturbation=perturbation,
+                    candidate_type="process_knockout",
+                )
                 metrics["base_candidate"] = metrics["candidate"].astype(str)
                 label_map = group.set_index("base_candidate")["candidate"].astype(str)
                 metrics["candidate"] = metrics["base_candidate"].map(label_map)
                 if metrics["candidate"].isna().any():
-                    raise AssertionError("knockout benchmark emitted an unknown base candidate")
+                    raise AssertionError(
+                        "knockout benchmark emitted an unknown base candidate"
+                    )
                 metrics["procedure"] = metrics["candidate"]
-                metrics["panel"] = panel.name
-                metrics["species"] = taxon
-                metrics["perturbation"] = perturbation
-                metrics["perturbation_type"] = "sampling_or_background"
-                metrics["candidate_type"] = "process_knockout"
                 metrics["excluded_process"] = process
                 metrics["excluded_predictors"] = ",".join(sorted(excluded))
                 metrics["n_retained_candidate_predictors"] = len(retained)
@@ -384,6 +436,7 @@ def run_knockout_discovery_panel(
             ["process", "discovery_process_state"]
         ].to_dict(orient="records"),
         "simulation_contract": config["simulation_contract"],
+        "legacy_outer_cv_labels_normalized": sorted(LEGACY_OUTER_CV_RENAMES),
     }
     return {
         "contract": contract,
