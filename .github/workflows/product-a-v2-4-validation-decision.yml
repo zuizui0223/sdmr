@@ -1,0 +1,288 @@
+name: product-a-v2-4-validation-decision
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/v2_4_validation_contract.py'
+      - 'src/sdmr/v2_4_validation_aggregate.py'
+      - 'src/sdmr/v2_4_refit_worker.py'
+      - 'configs/product_a_v2_4_validation_contract.json'
+      - '.github/workflows/product-a-v2-4-validation-decision.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-4-validation-decision-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validation-refit:
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        panel: [panel_D1, panel_D2, panel_D3]
+        taxon_index: [0, 1, 2]
+        group: [base, noise, seasonality, soil, temperature, water]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_DISCOVERY_RUN_ID: '32096477308'
+      SOURCE_DISCOVERY_HEAD_SHA: '3c222249109ac2c15f6258ebc79bb1c957dd42a4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify and download frozen discovery artifact
+        run: |
+          set -euo pipefail
+          case '${{ matrix.panel }}' in
+            panel_D1)
+              artifact_id='9310256239'
+              artifact_name='product-a-v2-4-knockout-discovery-panel_D1'
+              artifact_digest='sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db'
+              ;;
+            panel_D2)
+              artifact_id='9310224903'
+              artifact_name='product-a-v2-4-knockout-discovery-panel_D2'
+              artifact_digest='sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b'
+              ;;
+            panel_D3)
+              artifact_id='9310181352'
+              artifact_name='product-a-v2-4-knockout-discovery-panel_D3'
+              artifact_digest='sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e'
+              ;;
+          esac
+          run_json=$(curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_DISCOVERY_RUN_ID")
+          test "$(jq -r '.status' <<<"$run_json")" = 'completed'
+          test "$(jq -r '.conclusion' <<<"$run_json")" = 'success'
+          test "$(jq -r '.head_sha' <<<"$run_json")" = "$SOURCE_DISCOVERY_HEAD_SHA"
+
+          artifact_json=$(curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+          test "$(jq -r '.name' <<<"$artifact_json")" = "$artifact_name"
+          test "$(jq -r '.digest' <<<"$artifact_json")" = "$artifact_digest"
+          test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$SOURCE_DISCOVERY_RUN_ID"
+          test "$(jq -r '.workflow_run.head_sha' <<<"$artifact_json")" = "$SOURCE_DISCOVERY_HEAD_SHA"
+
+          rm -rf source_discovery source_discovery.zip
+          mkdir -p source_discovery
+          curl --fail --location --retry 5 --retry-all-errors \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+            --output source_discovery.zip
+          unzip -q source_discovery.zip -d source_discovery
+          test -f source_discovery/contract.json
+          test -f source_discovery/knockout_candidate_summary.csv
+      - name: Fit frozen validation members without truth
+        run: |
+          rm -rf worker_output
+          python -m sdmr.v2_4_refit_worker \
+            --panel-config configs/product_a_v2_4_exclusion_certificate_panels.json \
+            --refit-contract configs/product_a_v2_4_refit_contract.json \
+            --discovery-dir source_discovery \
+            --panel '${{ matrix.panel }}' \
+            --role validation \
+            --taxon-index '${{ matrix.taxon_index }}' \
+            --group '${{ matrix.group }}' \
+            --output-dir worker_output
+      - name: Verify model-only validation worker contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('worker_output')
+          contract = json.loads((root / 'contract.json').read_text())
+          expected = pd.read_csv(root / 'expected_members.csv')
+          fits = pd.read_csv(root / 'fit_ledger.csv')
+          responses = pd.read_csv(root / 'response_estimates.csv')
+          candidates = pd.read_csv(root / 'frozen_candidates.csv')
+
+          assert contract['purpose'] == 'product_a_v2_4_model_only_refit_worker'
+          assert contract['role'] == 'validation'
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['generating_truth_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['n_frozen_candidates'] == len(candidates)
+          assert contract['n_expected_members'] == len(expected)
+          assert len(expected) == len(candidates) * 3 * 6
+          assert set(expected['fit_mode']) == {'full_fit', 'spatial_refit'}
+          assert set(expected.loc[expected['fit_mode'].eq('spatial_refit'), 'refit_index']) == {0,1,2,3,4}
+          assert set(expected.loc[expected['fit_mode'].eq('full_fit'), 'refit_index']) == {-1}
+          assert fits['fit_status'].isin({'success', 'abstain_member_fit'}).all()
+          forbidden = {'true_suitability','sampling_effort','focal_recording_multiplier'}
+          for frame in (expected, fits, responses, candidates):
+              assert not forbidden.intersection(frame.columns)
+              assert not any(
+                  str(column).startswith('sealed_') or str(column).startswith('n_sealed_')
+                  for column in frame.columns
+              )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-4-validation-refit-${{ matrix.panel }}-taxon${{ matrix.taxon_index }}-${{ matrix.group }}
+          path: worker_output/
+          if-no-files-found: error
+          retention-days: 90
+
+  decision:
+    needs: validation-refit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CALIBRATION_ARTIFACT_ID: '9311087568'
+      CALIBRATION_ARTIFACT_DIGEST: 'sha256:2fad05bc40af18292ff1fb24c2580ef5c603338da302f168cb130299a126363b'
+      CALIBRATION_RUN_ID: '32099494627'
+      CALIBRATION_HEAD_SHA: '54ced575b0751fa7c2ca18fb2544badc6643f37c'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-v2-4-validation-refit-*
+          path: validation_workers
+          merge-multiple: false
+      - name: Verify 54 model-only validation workers before truth opening
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          contracts=[]
+          for path in Path('validation_workers').rglob('contract.json'):
+              row=json.loads(path.read_text())
+              if row.get('purpose') == 'product_a_v2_4_model_only_refit_worker':
+                  contracts.append(row)
+          assert len(contracts) == 54, len(contracts)
+          assert all(row['role'] == 'validation' for row in contracts)
+          assert all(row['generating_truth_read'] is False for row in contracts)
+          assert all(row['real_empirical_data_read'] is False for row in contracts)
+          assert all(row['old_external_sealed_outcomes_read'] is False for row in contracts)
+          keys={(row['panel'], int(row['taxon_index']), row['group']) for row in contracts}
+          assert len(keys) == 54
+          PY
+      - name: Download immutable discovery artifacts
+        run: |
+          set -euo pipefail
+          rm -rf source_discovery
+          mkdir -p source_discovery
+          for spec in \
+            'panel_D1:9310256239' \
+            'panel_D2:9310224903' \
+            'panel_D3:9310181352'; do
+            panel=${spec%%:*}
+            artifact_id=${spec##*:}
+            mkdir -p "source_discovery/$panel"
+            curl --fail --location --retry 5 --retry-all-errors \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header 'Accept: application/vnd.github+json' \
+              --header 'X-GitHub-Api-Version: 2022-11-28' \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+              --output "$panel.zip"
+            unzip -q "$panel.zip" -d "source_discovery/$panel"
+          done
+      - name: Download and verify immutable discovery calibration
+        run: |
+          set -euo pipefail
+          artifact_json=$(curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$CALIBRATION_ARTIFACT_ID")
+          test "$(jq -r '.digest' <<<"$artifact_json")" = "$CALIBRATION_ARTIFACT_DIGEST"
+          test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$CALIBRATION_RUN_ID"
+          test "$(jq -r '.workflow_run.head_sha' <<<"$artifact_json")" = "$CALIBRATION_HEAD_SHA"
+          rm -rf frozen_calibration calibration.zip
+          mkdir -p frozen_calibration
+          curl --fail --location --retry 5 --retry-all-errors \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$CALIBRATION_ARTIFACT_ID/zip" \
+            --output calibration.zip
+          unzip -q calibration.zip -d frozen_calibration
+          test -f frozen_calibration/contract.json
+          test -f frozen_calibration/calibration.csv
+      - name: Freeze products then open validation truth once and decide
+        run: |
+          rm -rf product_a_v2_4_validation_decision
+          python -m sdmr.v2_4_validation_aggregate \
+            --panel-config configs/product_a_v2_4_exclusion_certificate_panels.json \
+            --refit-contract configs/product_a_v2_4_refit_contract.json \
+            --validation-contract configs/product_a_v2_4_validation_contract.json \
+            --worker-root validation_workers \
+            --discovery-root source_discovery \
+            --calibration-root frozen_calibration \
+            --output-dir product_a_v2_4_validation_decision
+      - name: Verify final frozen decision contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root=Path('product_a_v2_4_validation_decision')
+          contract=json.loads((root/'contract.json').read_text())
+          decision=pd.read_csv(root/'decision.csv')
+          panels=pd.read_csv(root/'panel_summary.csv')
+          fingerprints=pd.read_csv(root/'pretruth_fingerprints.csv')
+          workers=pd.read_csv(root/'worker_contracts.csv')
+
+          allowed={
+              'exclusion_certificate_supported',
+              'exclusion_certificate_process_only',
+              'exclusion_certificate_boundary_only',
+              'exclusion_certificate_not_supported',
+              'exclusion_certificate_unavailable',
+          }
+          assert contract['purpose'] == 'product_a_v2_4_predeclared_validation_decision'
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['source_calibration_run_id'] == '32099494627'
+          assert contract['source_calibration_artifact_id'] == '9311087568'
+          assert contract['all_process_and_boundary_products_frozen_before_truth_read'] is True
+          assert contract['validation_generating_truth_read_after_product_freeze'] is True
+          assert contract['validation_truth_used_for_calibration'] is False
+          assert contract['n_model_only_validation_workers'] == 54
+          assert len(workers) == 54
+          assert len(fingerprints) == 5
+          assert len(decision) == 1
+          assert decision.iloc[0]['decision'] in allowed
+          assert contract['decision'] == decision.iloc[0]['decision']
+          assert set(panels['panel']) == {'panel_D1','panel_D2','panel_D3'}
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-4-validation-decision
+          path: product_a_v2_4_validation_decision/
+          if-no-files-found: error
+          retention-days: 90
