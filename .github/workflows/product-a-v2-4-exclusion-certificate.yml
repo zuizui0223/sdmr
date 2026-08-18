@@ -1,0 +1,85 @@
+name: product-a-v2-4-exclusion-certificate
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_exclusion_certificate.py'
+      - 'src/sdmr/v2_4_exclusion_certificate_experiment.py'
+      - 'tests/test_process_exclusion_certificate.py'
+      - 'tests/test_v2_4_exclusion_certificate_experiment.py'
+      - 'configs/product_a_v2_4_exclusion_certificate_panels.json'
+      - 'docs/product_a_v2_4_exclusion_certificate_plan.md'
+      - '.github/workflows/product-a-v2-4-exclusion-certificate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-4-exclusion-certificate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preoutcome-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Test exclusion and calibration semantics
+        run: |
+          pytest -q \
+            tests/test_process_exclusion_certificate.py \
+            tests/test_v2_4_exclusion_certificate_experiment.py
+      - name: Materialize validate-only pre-outcome contract
+        run: |
+          rm -rf product_a_v2_4_preoutcome
+          python -m sdmr.v2_4_exclusion_certificate_experiment \
+            --panel-config configs/product_a_v2_4_exclusion_certificate_panels.json \
+            --output-dir product_a_v2_4_preoutcome
+      - name: Verify frozen denominator and information barrier
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('product_a_v2_4_preoutcome')
+          contract = json.loads((root / 'contract.json').read_text())
+          registry = pd.read_csv(root / 'process_knockout_registry.csv')
+
+          assert contract['implementation_stage'] == 'preoutcome_contract_and_pure_semantics'
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['validation_truth_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['panels'] == ['panel_D1', 'panel_D2', 'panel_D3']
+          assert min(contract['discovery_seeds'] + contract['validation_seeds']) > 323
+          assert len(set(contract['discovery_seeds'] + contract['validation_seeds'])) == 18
+          assert contract['n_base_procedures'] == 8
+          assert contract['n_processes'] == 5
+          assert contract['n_knockout_routes'] == 40
+          assert contract['spatial_refits_per_member'] == 5
+          assert contract['calibration_source'] == 'discovery_taxa_only'
+          assert contract['missing_or_failed_knockout_means_required'] is False
+
+          assert len(registry) == 40
+          assert registry['candidate'].nunique() == 40
+          assert set(registry['excluded_process']) == {
+              'temperature', 'water', 'soil', 'seasonality', 'noise'
+          }
+          assert registry['observation_predictors'].eq('recording_bias').all()
+          assert not registry['excluded_predictors'].str.contains('recording_bias').any()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-4-preoutcome-contract
+          path: product_a_v2_4_preoutcome/
+          if-no-files-found: error
+          retention-days: 90
