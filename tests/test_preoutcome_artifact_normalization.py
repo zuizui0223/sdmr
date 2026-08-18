@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from sdmr.preoutcome_artifact_normalization import (
+    normalize_model_pool_outer_cv_columns,
     normalize_preoutcome_model_pool_artifact,
 )
 
@@ -22,7 +23,7 @@ def _write_contract(root: Path, **overrides):
     )
 
 
-def _write_metrics(root: Path, **extra_columns):
+def _metrics_frame(**extra_columns):
     data = {
         "candidate": ["candidate_a"],
         "species": ["sp1"],
@@ -33,7 +34,26 @@ def _write_metrics(root: Path, **extra_columns):
         "sealed_pc12_envelope_coverage90": [0.8],
     }
     data.update(extra_columns)
-    pd.DataFrame(data).to_csv(root / "procedure_fold_metrics.csv", index=False)
+    return pd.DataFrame(data)
+
+
+def _write_metrics(root: Path, **extra_columns):
+    _metrics_frame(**extra_columns).to_csv(
+        root / "procedure_fold_metrics.csv", index=False
+    )
+
+
+def test_pure_model_pool_outer_cv_labels_are_renamed():
+    metrics, renamed = normalize_model_pool_outer_cv_columns(_metrics_frame())
+
+    assert renamed == (
+        "n_sealed_occurrences",
+        "sealed_pc12_envelope_coverage90",
+    )
+    assert "n_sealed_occurrences" not in metrics.columns
+    assert "sealed_pc12_envelope_coverage90" not in metrics.columns
+    assert metrics.loc[0, "n_outer_heldout_occurrences"] == 12
+    assert metrics.loc[0, "heldout_pc12_envelope_coverage90"] == 0.8
 
 
 def test_known_model_pool_outer_cv_labels_are_renamed(tmp_path):
@@ -68,3 +88,10 @@ def test_unknown_sealed_metric_is_never_allowlisted(tmp_path):
 
     with pytest.raises(ValueError, match="unknown sealed-looking"):
         normalize_preoutcome_model_pool_artifact(tmp_path)
+
+
+def test_pure_normalizer_rejects_unknown_sealed_metric():
+    with pytest.raises(ValueError, match="unknown sealed-looking"):
+        normalize_model_pool_outer_cv_columns(
+            _metrics_frame(sealed_presence_rank=[0.9])
+        )

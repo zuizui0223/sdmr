@@ -1,0 +1,201 @@
+name: product-a-v2-3-ecological-certificate
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/ecological_certificate.py'
+      - 'src/sdmr/v2_3_ecological_certificate_experiment.py'
+      - 'src/sdmr/preoutcome_artifact_normalization.py'
+      - 'tests/test_ecological_certificate.py'
+      - 'tests/test_v2_3_ecological_certificate_experiment.py'
+      - 'tests/test_preoutcome_artifact_normalization.py'
+      - 'configs/product_a_v2_3_ecological_certificate_panels.json'
+      - 'docs/product_a_v2_3_ecological_certificate_plan.md'
+      - '.github/workflows/product-a-v2-3-ecological-certificate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-3-certificate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unseen-known-truth-certificate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test set-valued certificate semantics
+        run: |
+          pytest -q \
+            tests/test_ecological_certificate.py \
+            tests/test_v2_3_ecological_certificate_experiment.py \
+            tests/test_preoutcome_artifact_normalization.py
+      - name: Run predeclared unseen certificate panels
+        run: |
+          rm -rf product_a_v2_3_certificate
+          python -m sdmr.v2_3_ecological_certificate_experiment \
+            --panel-config configs/product_a_v2_3_ecological_certificate_panels.json \
+            --output-dir product_a_v2_3_certificate \
+            --n-cells 1700 \
+            --n-occurrences 170 \
+            --n-target-group 680 \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 4 \
+            --minimum-predictor-coverage 0.95 \
+            --prediction-surface-coverage-floor 0.95
+      - name: Normalize model-pool outer-CV artifact labels
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          from sdmr.preoutcome_artifact_normalization import (
+              normalize_model_pool_outer_cv_columns,
+          )
+
+          root = Path('product_a_v2_3_certificate')
+          path = root / 'discovery_metrics.csv'
+          metrics = pd.read_csv(path)
+          metrics, renamed = normalize_model_pool_outer_cv_columns(metrics)
+          metrics.to_csv(path, index=False)
+          report = {
+              'artifact': str(path.name),
+              'provenance': 'known_truth_discovery_model_pool_outer_cv_only',
+              'renamed_columns': list(renamed),
+              'authoritative_sealed_rows_read': False,
+              'old_external_sealed_outcomes_read': False,
+          }
+          (root / 'outer_cv_column_normalization.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True),
+              encoding='utf-8',
+          )
+          assert set(renamed) == {
+              'n_sealed_occurrences',
+              'sealed_pc12_envelope_coverage90',
+          }
+          PY
+      - name: Verify unopened-panel and complete-member contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+
+          root = Path('product_a_v2_3_certificate')
+          contract = json.loads((root / 'contract.json').read_text())
+          normalization = json.loads(
+              (root / 'outer_cv_column_normalization.json').read_text()
+          )
+          products = pd.read_csv(root / 'products.csv')
+          metrics = pd.read_csv(root / 'discovery_metrics.csv')
+          fits = pd.read_csv(root / 'member_fits.csv')
+          audits = pd.read_csv(root / 'certificate_audit.csv')
+          intervals = pd.read_csv(root / 'certificate_intervals.csv')
+          summary = pd.read_csv(root / 'product_summary.csv')
+          decision = pd.read_csv(root / 'decision.csv')
+
+          expected_products = {
+              'canonical_auc_point',
+              'complete_adequate_certificate',
+              'ecological_pareto_certificate',
+          }
+          expected_panels = {'panel_C1', 'panel_C2', 'panel_C3'}
+
+          assert contract['scientific_promotion_run'] is False
+          assert contract['scientific_promotion_allowed'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['previously_opened_known_truth_used_for_validation'] is False
+          assert contract['discovery_candidate_sets_frozen_before_validation_truth'] is True
+          assert contract['single_winner_selected_from_pareto_set'] is False
+          assert contract['process_support_frequency_threshold'] is None
+          assert set(contract['products']) == expected_products
+          assert min(contract['discovery_seeds'] + contract['validation_seeds']) > 223
+          assert len(set(contract['discovery_seeds'] + contract['validation_seeds'])) == 18
+          assert set(contract['panels']) == expected_panels
+          assert normalization['authoritative_sealed_rows_read'] is False
+          assert normalization['old_external_sealed_outcomes_read'] is False
+
+          assert set(products['panel']) == expected_panels
+          assert set(products['product']) == expected_products
+          assert len(products) == 9
+          assert products['status'].isin({'frozen', 'unavailable'}).all()
+          frozen = products.loc[products['status'].eq('frozen')]
+          assert (pd.to_numeric(frozen['n_candidates'], errors='raise') > 0).all()
+
+          assert set(metrics['panel']) == expected_panels
+          assert set(audits['panel']) == expected_panels
+          assert set(audits['product']) == expected_products
+          assert set(summary['panel']) == expected_panels
+          assert set(summary['product']) == expected_products
+
+          canonical = audits.loc[audits['product'].eq('canonical_auc_point')]
+          assert len(canonical) == 9
+          assert canonical.groupby('panel').size().to_dict() == {
+              'panel_C1': 3,
+              'panel_C2': 3,
+              'panel_C3': 3,
+          }
+          assert canonical['certificate_status'].eq('complete').all()
+
+          for frame in (products, metrics, fits, audits, intervals, summary):
+              assert not any(
+                  str(column).startswith('sealed_')
+                  or str(column).startswith('n_sealed_')
+                  for column in frame.columns
+              )
+
+          complete = audits.loc[audits['certificate_status'].eq('complete')].copy()
+          if len(complete):
+              assert (
+                  pd.to_numeric(complete['n_successful_members'], errors='raise')
+                  == pd.to_numeric(complete['n_expected_members'], errors='raise')
+              ).all()
+              assert pd.to_numeric(complete['n_members'], errors='raise').ge(1).all()
+              certificate_rows = complete.loc[
+                  complete['product'].isin({
+                      'complete_adequate_certificate',
+                      'ecological_pareto_certificate',
+                  })
+              ]
+              if len(certificate_rows):
+                  assert certificate_rows[
+                      'all_retained_members_boundary_evaluable'
+                  ].astype(str).str.lower().eq('true').all()
+                  assert pd.to_numeric(
+                      certificate_rows['boundary_coverage_fraction'],
+                      errors='raise',
+                  ).between(0.0, 1.0).all()
+                  assert pd.to_numeric(
+                      certificate_rows['mean_normalized_interval_width'],
+                      errors='raise',
+                  ).ge(0.0).all()
+
+          allowed = {
+              'identified_set_supported',
+              'identified_set_trivial',
+              'identified_set_not_supported',
+              'identified_set_unavailable',
+          }
+          assert len(decision) == 1
+          assert decision.iloc[0]['decision'] in allowed
+          assert str(decision.iloc[0]['scientific_promotion_allowed']).lower() == 'false'
+          assert contract['decision'] == decision.iloc[0]['decision']
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-3-ecological-certificate
+          path: product_a_v2_3_certificate/
+          if-no-files-found: error
+          retention-days: 90
