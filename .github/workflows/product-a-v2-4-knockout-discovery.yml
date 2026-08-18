@@ -1,20 +1,13 @@
 name: product-a-v2-4-knockout-discovery
 
 on:
-  pull_request:
-    paths:
-      - 'src/sdmr/v2_4_knockout_discovery_experiment.py'
-      - 'src/sdmr/process_exclusion_certificate.py'
-      - 'src/sdmr/v2_4_exclusion_certificate_experiment.py'
-      - 'configs/product_a_v2_4_exclusion_certificate_panels.json'
-      - '.github/workflows/product-a-v2-4-knockout-discovery.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: product-a-v2-4-knockout-discovery-${{ github.event.pull_request.number || github.ref }}
+  group: product-a-v2-4-knockout-discovery-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
