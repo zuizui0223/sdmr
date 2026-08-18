@@ -41,6 +41,35 @@ DECISION_STATES = (
     "exclusion_certificate_not_supported",
     "exclusion_certificate_unavailable",
 )
+EXPECTED_PROCESS_ALIASES = {
+    "temperature": "temperature",
+    "temp_proxy": "temperature",
+    "sparse_temp_proxy": "temperature",
+    "water": "water",
+    "soil": "soil",
+    "seasonality": "seasonality",
+    "noise": "noise",
+    "sparse_noise": "noise",
+    "recording_bias": "observation_process",
+}
+EXPECTED_PROCESS_UNIVERSE = (
+    "temperature",
+    "water",
+    "soil",
+    "seasonality",
+    "noise",
+)
+EXPECTED_ECOLOGICAL_PREDICTORS = (
+    "temperature",
+    "water",
+    "temp_proxy",
+    "seasonality",
+    "soil",
+    "noise",
+    "sparse_temp_proxy",
+    "sparse_noise",
+)
+EXPECTED_OBSERVATION_PREDICTORS = ("recording_bias",)
 MAXIMUM_OPENED_KNOWN_TRUTH_SEED = 323
 EXPECTED_SPATIAL_REFITS_PER_MEMBER = 5
 
@@ -67,6 +96,11 @@ def load_exclusion_certificate_config(
 
     config_path = Path(path)
     payload = json.loads(config_path.read_text(encoding="utf-8"))
+    if payload.get("purpose") != (
+        "predeclared_unseen_known_truth_panels_for_product_a_v2_4_"
+        "exclusion_calibrated_certificate"
+    ):
+        raise ValueError("v2.4 purpose changed after predeclaration")
     frozen_false = (
         "scientific_promotion_run",
         "real_empirical_data_read",
@@ -100,12 +134,23 @@ def load_exclusion_certificate_config(
         raise ValueError("v2.4 absolute prediction-adequacy contract changed")
 
     boundary = payload.get("boundary_semantics", {})
+    if tuple(boundary.get("quantities", ())) != (
+        "optimum",
+        "lower_limit",
+        "upper_limit",
+    ):
+        raise ValueError("v2.4 response quantities changed")
     if int(boundary.get("spatial_refits_per_member", -1)) != (
         EXPECTED_SPATIAL_REFITS_PER_MEMBER
     ):
         raise ValueError("v2.4 spatial-refit count changed")
     if boundary.get("calibration_source") != "discovery_taxa_only":
         raise ValueError("v2.4 calibration must use discovery taxa only")
+    if boundary.get("calibration_radius") != (
+        "maximum_normalized_outside_interval_miss_by_predictor_and_quantity_"
+        "across_discovery_taxa"
+    ):
+        raise ValueError("v2.4 discovery calibration rule changed")
     if boundary.get("validation_truth_used_for_calibration") is not False:
         raise ValueError("v2.4 validation-truth calibration is forbidden")
     if boundary.get("coverage_priority") is not True:
@@ -126,6 +171,15 @@ def load_exclusion_certificate_config(
     observation_predictors = tuple(
         str(x) for x in payload.get("observation_predictors", ())
     )
+    if process_aliases != EXPECTED_PROCESS_ALIASES:
+        raise ValueError("v2.4 process aliases changed after predeclaration")
+    if process_universe != EXPECTED_PROCESS_UNIVERSE:
+        raise ValueError("v2.4 process universe changed after predeclaration")
+    if ecological_predictors != EXPECTED_ECOLOGICAL_PREDICTORS:
+        raise ValueError("v2.4 ecological predictor universe changed")
+    if observation_predictors != EXPECTED_OBSERVATION_PREDICTORS:
+        raise ValueError("v2.4 observation predictor contract changed")
+
     expected_procedures = tuple(
         procedure.label
         for procedure in _procedure_library(inner_folds=2, max_predictors=4)
@@ -145,6 +199,8 @@ def load_exclusion_certificate_config(
         raise AssertionError("v2.4 knockout registry is incomplete")
 
     knockout = payload.get("knockout_semantics", {})
+    if knockout.get("candidate_label") != "<base_procedure>::exclude::<process>":
+        raise ValueError("v2.4 knockout candidate-label contract changed")
     if knockout.get("observation_predictors_removed") is not False:
         raise ValueError("v2.4 ecological knockouts cannot remove observation terms")
     if knockout.get("missing_or_failed_knockout_means_required") is not False:
