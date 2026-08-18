@@ -8,6 +8,22 @@
     "minimum": 1,
     "maximum": 323
   },
+  "simulation_contract": {
+    "n_cells": 1500,
+    "n_occurrences": 150,
+    "n_target_group": 600,
+    "inner_folds": 2,
+    "outer_folds": 2,
+    "max_predictors": 4,
+    "minimum_predictor_coverage": 0.95,
+    "prediction_surface_coverage_floor": 0.95,
+    "M_specs": [
+      "m_core",
+      "m_mid",
+      "m_wide"
+    ],
+    "canonical_M": "m_mid"
+  },
   "products": [
     "canonical_auc_point",
     "complete_adequate_certificate",
