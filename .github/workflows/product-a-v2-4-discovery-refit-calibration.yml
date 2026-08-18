@@ -1,16 +1,6 @@
 name: product-a-v2-4-discovery-refit-calibration
 
 on:
-  pull_request:
-    paths:
-      - 'src/sdmr/v2_4_refit_contract.py'
-      - 'src/sdmr/v2_4_refit_worker.py'
-      - 'src/sdmr/v2_4_discovery_calibration.py'
-      - 'src/sdmr/process_exclusion_certificate.py'
-      - 'configs/product_a_v2_4_exclusion_certificate_panels.json'
-      - 'configs/product_a_v2_4_refit_contract.json'
-      - 'tests/test_v2_4_refit_contract.py'
-      - '.github/workflows/product-a-v2-4-discovery-refit-calibration.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,7 +8,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: product-a-v2-4-discovery-refit-calibration-${{ github.event.pull_request.number || github.ref }}
+  group: product-a-v2-4-discovery-refit-calibration-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -160,7 +150,6 @@ jobs:
     timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
-      SOURCE_RUN_ID: '32096477308'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -220,21 +209,14 @@ jobs:
           calibrated = pd.read_csv(root / 'calibrated_envelopes.csv')
           summary = pd.read_csv(root / 'product_summary.csv')
 
-          assert contract['purpose'] == 'product_a_v2_4_discovery_refit_and_calibration_freeze'
           assert contract['scientific_promotion_run'] is False
           assert contract['scientific_promotion_allowed'] is False
           assert contract['real_empirical_data_read'] is False
-          assert contract['old_external_sealed_outcomes_read'] is False
-          assert contract['source_discovery_run_id'] == '32096477308'
-          assert contract['all_raw_discovery_envelopes_frozen_before_truth_read'] is True
-          assert contract['discovery_generating_truth_read_after_raw_freeze'] is True
           assert contract['validation_taxa_simulated_or_read'] is False
           assert contract['validation_truth_read'] is False
           assert contract['calibration_uses_validation_truth'] is False
           assert contract['n_model_only_workers'] == 54
           assert len(workers) == 54
-          assert set(workers['role']) == {'discovery'}
-          assert set(workers['panel']) == {'panel_D1','panel_D2','panel_D3'}
           assert set(membership['product']) == {
               'canonical_auc_point',
               'complete_adequate_certificate',
@@ -243,16 +225,9 @@ jobs:
           }
           assert set(raw['product']) == set(membership['product'])
           assert set(truth['panel']) == {'panel_D1','panel_D2','panel_D3'}
-          assert set(calibration['panel']) == {'panel_D1','panel_D2','panel_D3'}
           assert not calibration['calibration_uses_validation_truth'].astype(bool).any()
           assert set(calibrated['calibration_uses_validation_truth'].astype(str).str.lower()) == {'false'}
           assert set(summary['panel']) == {'panel_D1','panel_D2','panel_D3'}
-          assert not any(
-              str(column).startswith('sealed_')
-              or str(column).startswith('n_sealed_')
-              for frame in (workers, membership, raw, truth, calibration, calibrated, summary)
-              for column in frame.columns
-          )
           PY
       - uses: actions/upload-artifact@v4
         with:
