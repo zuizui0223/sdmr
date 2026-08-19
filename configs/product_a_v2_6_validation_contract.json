@@ -37,7 +37,7 @@
     "M_specs": ["m_core", "m_mid", "m_wide"],
     "full_fit_code": 9,
     "spatial_refit_codes": [0, 1, 2, 3, 4],
-    "validation_role_offset": 10000000,
+    "validation_role_offset": 5000000,
     "candidate_selection_allowed": false,
     "scientific_threshold_tuning_allowed": false,
     "generating_truth_read_by_worker": false
