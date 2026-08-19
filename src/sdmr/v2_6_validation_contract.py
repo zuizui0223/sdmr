@@ -78,7 +78,7 @@ def load_v2_6_validation_contract(path: str | Path) -> dict[str, Any]:
         "M_specs": ["m_core", "m_mid", "m_wide"],
         "full_fit_code": 9,
         "spatial_refit_codes": [0, 1, 2, 3, 4],
-        "validation_role_offset": 10000000,
+        "validation_role_offset": 5000000,
         "candidate_selection_allowed": False,
         "scientific_threshold_tuning_allowed": False,
         "generating_truth_read_by_worker": False,
