@@ -50,6 +50,26 @@
     "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
     "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
     "process_domains": ["thermal", "water", "seasonality_phenology", "energy_productivity", "snow", "wind"],
+    "minimum_model_pool_predictor_coverage": 0.95,
+    "procedure_library": {
+      "strategies": ["all", "vif", "predictive_forward", "niche_forward"],
+      "model_specs": [
+        {"C": 0.1, "degree": 1, "penalty": "l2"},
+        {"C": 1.0, "degree": 2, "penalty": "l2"}
+      ],
+      "inner_folds": 3,
+      "outer_folds": 4,
+      "max_predictors": 8,
+      "vif_threshold": 5.0,
+      "predictive_min_gain": 0.0,
+      "observation_predictors": []
+    },
+    "prediction_adequacy": {
+      "chance_auc": 0.50,
+      "minimum_auc_margin": 0.01,
+      "auc_sem_multiplier": 1.0,
+      "complete_outer_fold_evidence_required": true
+    },
     "split_seeds": [2026081901, 2026081902, 2026081903],
     "sealed_fractions": [0.20, 0.30],
     "n_confirmation_parts": 6
@@ -84,8 +104,7 @@
     "process_reproducibility": {
       "modal_status_fraction_min": 0.6666666666666666,
       "required_for_every_taxon_domain": true,
-      "missing_status_is_unavailable_not_consensus"
-        : true
+      "missing_status_is_unavailable_not_consensus": true
     },
     "scientific_promotion_allowed_by_this_decision": false,
     "supported_result_allows": "freeze_empirically_confirmed_Product_A_for_separate_promotion_decision",
