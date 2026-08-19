@@ -1,0 +1,76 @@
+{
+  "purpose": "product_a_v2_6_predeclared_empirical_confirmation_contract",
+  "scientific_promotion_run": false,
+  "product_b_unblocked": false,
+  "known_truth_outcomes_used_to_tune_empirical_thresholds": false,
+  "old_real_model_outputs_reused": false,
+  "old_real_background_outputs_reused": false,
+  "old_real_sealed_outcomes_read": false,
+  "source_evidence_reuse_only": true,
+  "known_truth_source": {
+    "decision": "v2_6_supported",
+    "run_id": "32251711573",
+    "artifact_id": "9364873176",
+    "artifact_digest": "sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba"
+  },
+  "raw_empirical_sources": {
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "focal": {
+      "source_run_id": "31806923431",
+      "artifact_name": "citable-product-a-v1-2026-08-01",
+      "sha256": "0ace62d7b500ca72249a98a05ecf49d0c72d75645506b3b358a23ca816583280",
+      "query_sha256": "4368fa8dde4ff54f515b1ee0d8f0c82d50a49e4c5a47d034a0db15398a99907d"
+    },
+    "target_group": {
+      "source_run_id": "31859498088",
+      "artifact_name": "product-a-v1-target-cache-parallel-2026-08-01",
+      "sha256": "84afef32f27ef65d304d59d22f3dabd38fb360e029ceaae8a21a0dab43f71dd1",
+      "query_sha256": "9c13226199cbf690bb8d82e1fee0c64956ffa9dccc9761bc089a1297aa2f2b4a",
+      "focal_taxa_excluded_pre_split": true,
+      "one_per_grid_cell_degrees": 0.05
+    }
+  },
+  "information_barrier": {
+    "focal_thinning_before_outer_split": true,
+    "outer_sealed_before_M": true,
+    "M_built_from_model_pool_only": true,
+    "target_group_background_excludes_focal_taxa_pre_split": true,
+    "sealed_occurrences_used_for_selection": false,
+    "sealed_occurrences_used_for_M": false,
+    "sealed_occurrences_first_opened_for_final_empirical_audit": true,
+    "M_grid_as_sensitivity_not_optimized": true
+  },
+  "fixed_design": {
+    "taxon_panel_path": "configs/product_a_pilot_taxa_v1.csv",
+    "require_all_12_taxa": true,
+    "M_km": [150, 300, 500],
+    "audit_environment": "all_active_CHELSA_predictors_common_space",
+    "split_seeds": [2026081901, 2026081902, 2026081903],
+    "sealed_fractions": [0.20, 0.30],
+    "n_confirmation_parts": 6
+  },
+  "empirical_target": {
+    "claim": "realized_environmental_niche_recovery_and_stability",
+    "fundamental_niche_truth_claim_allowed": false,
+    "metrics": [
+      "niche_overlap_schoener_d_pc12",
+      "centroid_distance",
+      "breadth_log_sd_error",
+      "quantile_profile_error",
+      "sealed_pc12_envelope_coverage90"
+    ],
+    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true
+  },
+  "execution_order": [
+    "verify_known_truth_v2_6_artifact_provenance",
+    "verify_raw_focal_and_target_source_fingerprints",
+    "freeze_empirical_decision_rule_before_any_new_sealed_outcome",
+    "rebuild_each_split_from_raw_source_evidence",
+    "seal_focal_occurrences_before_M_and_background",
+    "freeze_model_pool_selection_and_predictions",
+    "open_sealed_occurrences_for_empirical_niche_recovery_once",
+    "apply_predeclared_empirical_decision"
+  ]
+}
