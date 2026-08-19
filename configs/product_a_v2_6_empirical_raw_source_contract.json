@@ -1,0 +1,22 @@
+{
+  "purpose": "product_a_v2_6_empirical_raw_source_artifact_contract",
+  "focal": {
+    "run_id": "31806923431",
+    "artifact_id": "9224454509",
+    "artifact_name": "citable-product-a-v1-2026-08-01",
+    "artifact_digest": "sha256:18faee8c839888822cdbebfdb33fa66681f30210b241cfd34646b16e643a71a3",
+    "internal_path": "citable_input/focal.parquet",
+    "file_sha256": "0ace62d7b500ca72249a98a05ecf49d0c72d75645506b3b358a23ca816583280"
+  },
+  "target_group": {
+    "run_id": "31859498088",
+    "artifact_id": "9240312889",
+    "artifact_name": "product-a-v1-target-cache-parallel-2026-08-01",
+    "artifact_digest": "sha256:7c941b7e833979534ad073abbb328a3ca1584eb755e4ceb94b3c3cd6abca7dc1",
+    "internal_path": "target_group.parquet",
+    "file_sha256": "84afef32f27ef65d304d59d22f3dabd38fb360e029ceaae8a21a0dab43f71dd1"
+  },
+  "allowed_read_scope": "only_the_two_raw_parquet_files_and_their_provenance_citation_metadata",
+  "old_citable_result_directory_read": false,
+  "old_empirical_model_or_sealed_result_read": false
+}
