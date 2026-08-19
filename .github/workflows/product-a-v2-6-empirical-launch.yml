@@ -1,0 +1,30 @@
+name: product-a-v2-6-empirical-launch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'configs/product_a_v2_6_empirical_confirmation_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch frozen empirical confirmation workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/product-a-v2-6-empirical-confirmation.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "dispatched product-a-v2-6-empirical-confirmation on main"
