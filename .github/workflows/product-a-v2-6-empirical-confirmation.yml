@@ -1,0 +1,325 @@
+name: product-a-v2-6-empirical-confirmation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  raw-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate pretruth contracts before reading raw evidence
+        run: |
+          python -m pip install -e '.[test,parquet]'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from sdmr.v2_6_empirical_model_contract import load_v2_6_empirical_model_contract
+          from sdmr.v2_6_empirical_model_pool_worker import _partition_contract, _procedure_library
+          c = load_v2_6_empirical_model_contract('configs/product_a_v2_6_empirical_confirmation_contract.json')
+          _partition_contract('configs/product_a_v2_6_empirical_partition_contract.json')
+          assert len(_procedure_library(c)) == 8
+          raw = json.loads(Path('configs/product_a_v2_6_empirical_raw_source_contract.json').read_text())
+          assert raw['old_citable_result_directory_read'] is False
+          assert raw['old_empirical_model_or_sealed_result_read'] is False
+          PY
+      - name: Download only the two pinned raw parquet files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p raw/focal raw/target
+          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/9224454509/zip" -o focal.zip
+          unzip -q focal.zip 'citable_input/focal.parquet' -d raw/focal
+          mv raw/focal/citable_input/focal.parquet raw/focal.parquet
+          rm -rf raw/focal focal.zip
+          echo '0ace62d7b500ca72249a98a05ecf49d0c72d75645506b3b358a23ca816583280  raw/focal.parquet' | sha256sum -c -
+
+          curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/9240312889/zip" -o target.zip
+          unzip -q target.zip 'target_group.parquet' -d raw/target
+          mv raw/target/target_group.parquet raw/target_group.parquet
+          rm -rf raw/target target.zip
+          echo '84afef32f27ef65d304d59d22f3dabd38fb360e029ceaae8a21a0dab43f71dd1  raw/target_group.parquet' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-raw-source-pair
+          path: raw/
+          retention-days: 14
+          compression-level: 1
+
+  materialize:
+    needs: raw-source
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-raw-source-pair
+          path: raw
+      - name: Rebuild sealed-before-M part and extract model-pool CHELSA only
+        run: |
+          python -m sdmr.v2_6_empirical_materialize \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --focal raw/focal.parquet \
+            --target raw/target_group.parquet \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --seed ${{ matrix.seed }} \
+            --sealed-fraction ${{ matrix.sealed_fraction }} \
+            --output-dir part
+          python - <<'PY'
+          import json
+          c=json.load(open('part/contract.json'))
+          assert c['sealed_occurrence_raster_values_extracted'] is False
+          assert c['sealed_background_raster_values_extracted'] is False
+          assert c['n_taxa'] == 12
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part/
+          retention-days: 14
+          compression-level: 1
+
+  model-pool:
+    needs: materialize
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - name: Evaluate complete base and process-knockout libraries without sealed environments
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          i=int('${{ matrix.taxon_index }}')
+          print(pd.read_csv('configs/product_a_pilot_taxa_v1.csv').iloc[i]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_6_empirical_model_pool_worker \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --partition-contract configs/product_a_v2_6_empirical_partition_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_occurrence_used_for_selection'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 14
+
+  pretruth-freeze:
+    needs: model-pool
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-empirical-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze complete adequate set, representatives, process statuses, and fingerprints
+        run: |
+          python -m sdmr.v2_6_empirical_pretruth_aggregate \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --worker-root workers \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_audit_authorized'] is True
+          assert c['n_taxa'] == 12
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 14
+
+  final-fit:
+    needs: pretruth-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize both frozen representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          i=int('${{ matrix.taxon_index }}')
+          print(pd.read_csv('configs/product_a_pilot_taxa_v1.csv').iloc[i]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_6_empirical_final_fit \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --partition-contract configs/product_a_v2_6_empirical_partition_contract.json \
+            --part-dir part \
+            --worker-dir worker \
+            --pretruth-dir pretruth \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --output-dir final
+          python - <<'PY'
+          import json
+          c=json.load(open('final/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['final_models_serialized_before_sealed_audit'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 14
+
+  sealed-audit:
+    needs: final-fit
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-empirical-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open sealed CHELSA environments once and audit frozen models
+        run: |
+          python -m sdmr.v2_6_empirical_sealed_audit \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-empirical-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-empirical-audit-*
+          path: audits
+      - name: Apply the six-part frozen empirical confirmation decision
+        run: |
+          python -m sdmr.v2_6_empirical_confirmation_aggregate --audit-root audits --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-independent-empirical-confirmation-decision
+          path: decision/
+          retention-days: 90
