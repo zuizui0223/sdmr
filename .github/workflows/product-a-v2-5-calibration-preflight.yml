@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/sdmr/v2_5_calibration_support.py'
+      - 'src/sdmr/v2_5_contract.py'
       - 'configs/product_a_v2_5_calibration_support.json'
       - 'tests/test_v2_5_calibration_support.py'
       - '.github/workflows/product-a-v2-5-calibration-preflight.yml'
@@ -24,16 +25,16 @@ jobs:
           cache: pip
       - name: Install package
         run: python -m pip install -e '.[test]'
-      - name: Verify calibration support before fresh validation
+      - name: Verify frozen contract before fresh validation
         run: |
           python - <<'PY'
-          import json
           from pathlib import Path
-          from sdmr.v2_5_calibration_support import require_calibration_support
+          from sdmr.v2_5_contract import load_v2_5_contract
 
-          path = Path('configs/product_a_v2_5_calibration_support.json')
-          config = json.loads(path.read_text())
-          audit = require_calibration_support(config)
+          contract = load_v2_5_contract(
+              Path('configs/product_a_v2_5_calibration_support.json')
+          )
+          audit = contract.support_audit
           assert audit.complete
           assert audit.minimum_support_per_key == 2
           assert len(audit.required_validation_keys) == 9
@@ -42,21 +43,21 @@ jobs:
           assert support[('soil', 'optimum')] == 2
           assert support[('soil', 'lower_limit')] == 2
           assert support[('soil', 'upper_limit')] == 2
-          assert config['opened_known_truth_seeds_excluded']['maximum'] == 423
-          validation_seeds = {
-              int(spec['seed'])
-              for panel in config['panels']
-              for spec in panel['validation']
-          }
           calibration_seeds = {
-              int(spec['seed'])
-              for panel in config['panels']
-              for spec in panel['calibration']
+              spec.seed for panel in contract.panels for spec in panel.calibration
           }
-          assert validation_seeds.isdisjoint(calibration_seeds)
-          assert min(validation_seeds) > 423
+          validation_seeds = {
+              spec.seed for panel in contract.panels for spec in panel.validation
+          }
+          assert len(calibration_seeds) == 15
+          assert len(validation_seeds) == 9
+          assert calibration_seeds.isdisjoint(validation_seeds)
           assert min(calibration_seeds) > 423
-          print('v2.5 pretruth calibration support: PASS')
+          assert min(validation_seeds) > 423
+          assert all(spec.role == 'calibration' for panel in contract.panels for spec in panel.calibration)
+          assert all(spec.role == 'validation' for panel in contract.panels for spec in panel.validation)
+          print('v2.5 frozen pretruth contract: PASS')
+          print('contract sha256:', contract.sha256)
           print('required keys:', audit.required_validation_keys)
           print('minimum support:', min(support.values()))
           PY
