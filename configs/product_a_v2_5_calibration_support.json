@@ -1,0 +1,86 @@
+{
+  "purpose": "product_a_v2_5_pretruth_calibration_support_and_fresh_validation_contract",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "opened_known_truth_seeds_excluded": {
+    "minimum": 1,
+    "maximum": 423
+  },
+  "successor_of": "product_a_v2_4_exclusion_calibrated_certificate",
+  "v2_4_failure_repaired": "validation_required_soil_response_without_discovery_calibration_support",
+  "calibration_support": {
+    "check_timing": "before_any_fresh_validation_worker_starts",
+    "validation_truth_read": false,
+    "quantities": ["optimum", "lower_limit", "upper_limit"],
+    "minimum_calibration_taxa_per_key": 2,
+    "required_rule": "every_predictor_by_quantity_key_required_by_declared_validation_families_has_at_least_minimum_calibration_taxa_in_each_panel",
+    "failure_semantics": "fail_closed_without_consuming_fresh_validation_seed"
+  },
+  "calibration_semantics": {
+    "role": "calibration_only",
+    "candidate_selection_allowed": false,
+    "scientific_threshold_tuning_allowed": false,
+    "interval_radius": "maximum_normalized_outside_interval_miss_over_complete_calibration_taxa",
+    "validation_truth_used_for_radius": false
+  },
+  "validation_semantics": {
+    "role": "fresh_confirmation_only",
+    "candidate_selection_allowed": false,
+    "calibration_allowed": false,
+    "threshold_tuning_allowed": false,
+    "truth_opened_once_after_products_frozen": true
+  },
+  "panels": [
+    {
+      "name": "panel_D1",
+      "calibration": [
+        {"family": "gaussian", "seed": 431},
+        {"family": "asymmetric", "seed": 432},
+        {"family": "interaction", "seed": 433},
+        {"family": "omitted_driver", "seed": 434},
+        {"family": "omitted_driver", "seed": 435}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 501},
+        {"family": "omitted_driver", "seed": 511},
+        {"family": "observation_confounded", "seed": 521}
+      ]
+    },
+    {
+      "name": "panel_D2",
+      "calibration": [
+        {"family": "gaussian", "seed": 436},
+        {"family": "asymmetric", "seed": 437},
+        {"family": "interaction", "seed": 438},
+        {"family": "omitted_driver", "seed": 439},
+        {"family": "omitted_driver", "seed": 440}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 502},
+        {"family": "omitted_driver", "seed": 512},
+        {"family": "observation_confounded", "seed": 522}
+      ]
+    },
+    {
+      "name": "panel_D3",
+      "calibration": [
+        {"family": "gaussian", "seed": 441},
+        {"family": "asymmetric", "seed": 442},
+        {"family": "interaction", "seed": 443},
+        {"family": "omitted_driver", "seed": 444},
+        {"family": "omitted_driver", "seed": 445}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 503},
+        {"family": "omitted_driver", "seed": 513},
+        {"family": "observation_confounded", "seed": 523}
+      ]
+    }
+  ],
+  "promotion_boundary": {
+    "known_truth_supported_result_means": "eligible_to_freeze_for_new_real_data_sealed_before_M_confirmation",
+    "known_truth_supported_result_does_not_mean": "final_empirical_or_fundamental_niche_validation",
+    "product_b_remains_blocked_until_empirical_confirmation": true
+  }
+}
