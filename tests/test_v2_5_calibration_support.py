@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 
@@ -8,6 +9,10 @@ from sdmr.v2_5_calibration_support import (
     require_calibration_support,
     response_processes_for_family,
 )
+from sdmr.v2_5_contract import load_v2_5_contract
+
+
+CONFIG_PATH = Path("configs/product_a_v2_5_calibration_support.json")
 
 
 def test_omitted_driver_requires_soil_response_axis():
@@ -48,8 +53,7 @@ def test_v24_discovery_family_pattern_fails_before_validation_opening():
 
 
 def test_v25_config_covers_every_validation_response_key_twice():
-    path = Path("configs/product_a_v2_5_calibration_support.json")
-    config = json.loads(path.read_text())
+    config = json.loads(CONFIG_PATH.read_text())
 
     audit = require_calibration_support(config)
     support = {(p, q): n for p, q, n in audit.support_counts}
@@ -85,3 +89,35 @@ def test_panel_failure_is_fail_closed_and_names_missing_key():
     with pytest.raises(ValueError, match="D_bad") as exc:
         require_calibration_support(config)
     assert "soil/optimum" in str(exc.value)
+
+
+def test_v25_contract_freezes_disjoint_unopened_seed_roles():
+    contract = load_v2_5_contract(CONFIG_PATH)
+    calibration = {spec.seed for panel in contract.panels for spec in panel.calibration}
+    validation = {spec.seed for panel in contract.panels for spec in panel.validation}
+
+    assert contract.support_audit.complete
+    assert len(contract.panels) == 3
+    assert len(calibration) == 15
+    assert len(validation) == 9
+    assert calibration.isdisjoint(validation)
+    assert min(calibration) > 423
+    assert min(validation) > 423
+    assert len(contract.sha256) == 64
+
+
+def test_v25_contract_rejects_opened_or_overlapping_validation_seed(tmp_path):
+    payload = json.loads(CONFIG_PATH.read_text())
+    bad = copy.deepcopy(payload)
+    bad["panels"][0]["validation"][0]["seed"] = 401
+    path = tmp_path / "opened.json"
+    path.write_text(json.dumps(bad))
+    with pytest.raises(ValueError, match="reuses previously opened"):
+        load_v2_5_contract(path)
+
+    bad = copy.deepcopy(payload)
+    bad["panels"][0]["validation"][0]["seed"] = bad["panels"][0]["calibration"][0]["seed"]
+    path = tmp_path / "overlap.json"
+    path.write_text(json.dumps(bad))
+    with pytest.raises(ValueError, match="must be disjoint"):
+        load_v2_5_contract(path)
