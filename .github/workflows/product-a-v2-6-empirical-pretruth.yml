@@ -1,0 +1,80 @@
+name: product-a-v2-6-empirical-pretruth
+
+on:
+  pull_request:
+    paths:
+      - 'configs/product_a_v2_6_empirical_confirmation_contract.json'
+      - 'configs/product_a_empirical_process_registry_v1.csv'
+      - 'src/sdmr/v2_6_empirical_contract.py'
+      - 'src/sdmr/v2_6_empirical_decision.py'
+      - 'tests/test_v2_6_empirical_*.py'
+      - '.github/workflows/product-a-v2-6-empirical-pretruth.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  pretruth-source-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate immutable empirical contract and decision rule
+        run: |
+          python - <<'PY'
+          from sdmr.v2_6_empirical_contract import load_v2_6_empirical_contract
+          c = load_v2_6_empirical_contract('configs/product_a_v2_6_empirical_confirmation_contract.json')
+          print('empirical contract frozen:', c['fixed_design']['n_confirmation_parts'], 'parts')
+          PY
+          pytest -q tests/test_v2_6_empirical_contract.py tests/test_v2_6_empirical_decision.py
+      - name: Verify frozen known-truth and raw-source artifact identities without opening empirical outcomes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+
+          c = json.loads(Path('configs/product_a_v2_6_empirical_confirmation_contract.json').read_text())
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/vnd.github+json'}
+
+          def get(url):
+              with urlopen(Request(url, headers=headers), timeout=60) as r:
+                  return json.load(r)
+
+          truth = c['known_truth_source']
+          artifact = get(f"https://api.github.com/repos/{repo}/actions/artifacts/{truth['artifact_id']}")
+          if str(artifact.get('digest')) != truth['artifact_digest']:
+              raise SystemExit('known-truth artifact digest mismatch')
+          wr = artifact.get('workflow_run') or {}
+          if str(wr.get('id')) != str(truth['run_id']):
+              raise SystemExit('known-truth artifact run mismatch')
+
+          for key in ('focal', 'target_group'):
+              source = c['raw_empirical_sources'][key]
+              payload = get(f"https://api.github.com/repos/{repo}/actions/runs/{source['source_run_id']}/artifacts?per_page=100")
+              matches = [a for a in payload.get('artifacts', []) if a.get('name') == source['artifact_name'] and not a.get('expired')]
+              if len(matches) != 1:
+                  raise SystemExit(f"{key}: expected exactly one live frozen source artifact, found {len(matches)}")
+              print(key, 'source artifact', matches[0]['id'], 'verified without reading model/sealed outcomes')
+          PY
+      - name: Reassert no old empirical result paths are part of this gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c = json.loads(Path('configs/product_a_v2_6_empirical_confirmation_contract.json').read_text())
+          assert c['old_real_model_outputs_reused'] is False
+          assert c['old_real_background_outputs_reused'] is False
+          assert c['old_real_sealed_outcomes_read'] is False
+          assert c['source_evidence_reuse_only'] is True
+          PY
