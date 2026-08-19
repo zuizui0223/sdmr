@@ -18,9 +18,12 @@ from .v2_6_contract import load_v2_6_contract
 
 
 PANELS = ("panel_D1", "panel_D2", "panel_D3")
-ROLE_OFFSETS = {"calibration": 0, "validation": 100000}
-SEED_BASE = 610000
-PANEL_STRIDE = 200000
+ROLE_OFFSETS = {"calibration": 0, "validation": 5000000}
+SEED_BASE = 6100000
+PANEL_STRIDE = 10000000
+TAXON_STRIDE = 500000
+GROUP_STRIDE = 50000
+CANDIDATE_STRIDE = 100
 
 
 def v2_6_refit_seed(
@@ -42,8 +45,8 @@ def v2_6_refit_seed(
     maximum_taxon_index = 8 if role == "calibration" else 2
     if not 0 <= int(taxon_index) <= maximum_taxon_index:
         raise ValueError("taxon_index is outside the frozen v2.6 role")
-    if int(candidate_index) < 0:
-        raise ValueError("candidate_index must be >= 0")
+    if not 0 <= int(candidate_index) < 100:
+        raise ValueError("candidate_index must be in frozen collision-free range 0..99")
     if not 0 <= int(m_index) < len(M_SPECS):
         raise ValueError("m_index is outside the frozen M grid")
     if int(fit_code) not in (*SPATIAL_REFIT_CODES, FULL_FIT_CODE):
@@ -52,9 +55,9 @@ def v2_6_refit_seed(
         SEED_BASE
         + PANELS.index(panel) * PANEL_STRIDE
         + ROLE_OFFSETS[role]
-        + int(taxon_index) * 10000
-        + GROUPS.index(group) * 1000
-        + int(candidate_index) * 100
+        + int(taxon_index) * TAXON_STRIDE
+        + GROUPS.index(group) * GROUP_STRIDE
+        + int(candidate_index) * CANDIDATE_STRIDE
         + int(m_index) * 10
         + int(fit_code)
     )
