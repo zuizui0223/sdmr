@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from sdmr.v2_6_empirical_model_contract import load_v2_6_empirical_model_contract
 from sdmr.v2_6_empirical_model_pool_worker import _partition_contract, _procedure_library
@@ -31,8 +32,8 @@ def test_knockout_route_requires_complete_three_M_by_four_fold_evidence():
         pd.DataFrame(rows), chance=0.50, margin=0.01, sem_multiplier=1.0
     )
     assert complete and adequate
-    assert mean == 0.60
-    assert sem == 0.0
+    assert mean == pytest.approx(0.60)
+    assert sem == pytest.approx(0.0)
 
     incomplete = pd.DataFrame(rows[:-1])
     complete, adequate, _, _ = _route_adequacy(
