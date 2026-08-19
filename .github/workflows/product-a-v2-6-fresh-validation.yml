@@ -1,0 +1,199 @@
+name: product-a-v2-6-fresh-validation
+
+on:
+  pull_request:
+    paths:
+      - 'configs/product_a_v2_6_validation_contract.json'
+      - 'src/sdmr/v2_6_validation_contract.py'
+      - 'src/sdmr/v2_6_validation_aggregate.py'
+      - 'src/sdmr/v2_6_refit_worker.py'
+      - '.github/workflows/product-a-v2-6-fresh-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-6-fresh-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CAL_RUN_ID: '32249349433'
+  CAL_HEAD_SHA: '6dde7706eabd1a4279d2c9f142922f8a67ca2b8f'
+  CAL_ARTIFACT_ID: '9364460724'
+  CAL_DIGEST: 'sha256:838954febe3024fbfeaa26b3c3b8f349321ac32704a0b9be0d31fc4231389185'
+  BASE_CONTRACT_SHA256: 'fab5f822954580b903018216ce2f2ea2aeef6f41492cc350f108ef0223e1434a'
+  DISCOVERY_RUN_ID: '32096477308'
+  DISCOVERY_HEAD_SHA: '3c222249109ac2c15f6258ebc79bb1c957dd42a4'
+
+jobs:
+  pretruth-source-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Verify validation contract before opening 501-523
+        run: pytest -q tests/test_v2_6_validation_contract.py
+      - name: Verify successful frozen calibration provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run=$(curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$CAL_RUN_ID")
+          test "$(jq -r .status <<<"$run")" = completed
+          test "$(jq -r .conclusion <<<"$run")" = success
+          test "$(jq -r .head_sha <<<"$run")" = "$CAL_HEAD_SHA"
+          art=$(curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$CAL_ARTIFACT_ID")
+          test "$(jq -r .name <<<"$art")" = product-a-v2-6-frozen-calibration
+          test "$(jq -r .digest <<<"$art")" = "$CAL_DIGEST"
+          test "$(jq -r .workflow_run.id <<<"$art")" = "$CAL_RUN_ID"
+          test "$(jq -r .workflow_run.head_sha <<<"$art")" = "$CAL_HEAD_SHA"
+
+  validation-refit:
+    needs: pretruth-source-gate
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        panel: [panel_D1, panel_D2, panel_D3]
+        taxon_index: [0, 1, 2]
+        group: [base, noise, seasonality, soil, temperature, water]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Download immutable v2.4 discovery candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          case '${{ matrix.panel }}' in
+            panel_D1) artifact_id='9310256239'; digest='sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db' ;;
+            panel_D2) artifact_id='9310224903'; digest='sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b' ;;
+            panel_D3) artifact_id='9310181352'; digest='sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e' ;;
+          esac
+          art=$(curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+          test "$(jq -r .digest <<<"$art")" = "$digest"
+          test "$(jq -r .workflow_run.id <<<"$art")" = "$DISCOVERY_RUN_ID"
+          test "$(jq -r .workflow_run.head_sha <<<"$art")" = "$DISCOVERY_HEAD_SHA"
+          mkdir -p source_discovery
+          curl --fail --location --retry 5 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" -o d.zip
+          unzip -q d.zip -d source_discovery
+      - name: Fit reserved validation members without truth
+        run: |
+          python -m sdmr.v2_6_refit_worker \
+            --contract configs/product_a_v2_6_calibration_redundancy.json \
+            --discovery-dir source_discovery \
+            --panel '${{ matrix.panel }}' --role validation \
+            --taxon-index '${{ matrix.taxon_index }}' --group '${{ matrix.group }}' \
+            --output-dir worker_output
+      - name: Verify model-only barrier
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('worker_output/contract.json').read_text())
+          assert c['purpose']=='product_a_v2_6_model_only_refit_worker'
+          assert c['role']=='validation'
+          assert c['contract_sha256']=='fab5f822954580b903018216ce2f2ea2aeef6f41492cc350f108ef0223e1434a'
+          assert c['generating_truth_read'] is False
+          assert c['real_empirical_data_read'] is False
+          assert c['candidate_selection_performed'] is False
+          assert c['scientific_threshold_tuning_performed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-validation-refit-${{ matrix.panel }}-taxon${{ matrix.taxon_index }}-${{ matrix.group }}
+          path: worker_output/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate-validation:
+    needs: validation-refit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-v2-6-validation-refit-*
+          path: validation_workers
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 32249349433
+          name: product-a-v2-6-frozen-calibration
+          path: calibration
+      - name: Download three immutable discovery artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p discovery/panel_D1 discovery/panel_D2 discovery/panel_D3
+          for spec in 'panel_D1 9310256239' 'panel_D2 9310224903' 'panel_D3 9310181352'; do
+            set -- $spec; panel=$1; id=$2
+            curl --fail --location --retry 5 --retry-all-errors -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" -o "$panel.zip"
+            unzip -q "$panel.zip" -d "discovery/$panel"
+          done
+      - name: Verify all 54 workers before truth opening
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in Path('validation_workers').rglob('contract.json'):
+            r=json.loads(p.read_text())
+            if r.get('purpose')=='product_a_v2_6_model_only_refit_worker': rows.append(r)
+          assert len(rows)==54, len(rows)
+          assert len({(r['panel'],int(r['taxon_index']),r['group']) for r in rows})==54
+          assert all(r['role']=='validation' and r['generating_truth_read'] is False for r in rows)
+          PY
+      - name: Freeze products then open reserved validation truth once
+        run: |
+          python -m sdmr.v2_6_validation_aggregate \
+            --base-contract configs/product_a_v2_6_calibration_redundancy.json \
+            --validation-contract configs/product_a_v2_6_validation_contract.json \
+            --worker-root validation_workers --discovery-root discovery \
+            --calibration-root calibration --output-dir validation_result \
+            --calibration-run-id "$CAL_RUN_ID" --calibration-head-sha "$CAL_HEAD_SHA" \
+            --calibration-artifact-id "$CAL_ARTIFACT_ID" --calibration-artifact-digest "$CAL_DIGEST"
+      - name: Verify frozen decision artifact
+        run: |
+          python - <<'PY'
+          import json, pandas as pd
+          from pathlib import Path
+          r=Path('validation_result')
+          c=json.loads((r/'contract.json').read_text())
+          d=pd.read_csv(r/'decision.csv')
+          assert c['purpose']=='product_a_v2_6_predeclared_fresh_validation_decision'
+          assert c['source_calibration_artifact_id']=='9364460724'
+          assert c['source_calibration_artifact_digest']=='sha256:838954febe3024fbfeaa26b3c3b8f349321ac32704a0b9be0d31fc4231389185'
+          assert c['n_model_only_validation_workers']==54
+          assert c['validation_truth_used_for_calibration'] is False
+          assert c['candidate_selection_performed_during_validation'] is False
+          assert c['scientific_threshold_tuning_performed_during_validation'] is False
+          assert d.iloc[0]['decision'] in {'v2_6_supported','v2_6_process_only','v2_6_boundary_only','v2_6_not_supported','v2_6_unavailable'}
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-fresh-validation-decision
+          path: validation_result/
+          if-no-files-found: error
+          retention-days: 90
