@@ -15,6 +15,8 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
+from .known_truth_scenarios import KNOWN_TRUTH_FAMILIES
+
 
 DEFAULT_RESPONSE_QUANTITIES = ("optimum", "lower_limit", "upper_limit")
 
@@ -33,16 +35,11 @@ class CalibrationSupportAudit:
 
 
 def response_processes_for_family(family: str) -> tuple[str, ...]:
-    """Return frozen response axes required by one bundled known-truth family.
-
-    This mirrors the scenario semantics in ``known_truth_response`` without
-    constructing the simulation. Only ``omitted_driver`` requires the additional
-    soil axis; all currently bundled families audit temperature and water.
-    """
+    """Return frozen response axes required by one bundled known-truth family."""
 
     family = str(family)
-    if not family:
-        raise ValueError("family must be non-empty")
+    if family not in KNOWN_TRUTH_FAMILIES:
+        raise ValueError(f"unknown known-truth family: {family!r}")
     if family == "omitted_driver":
         return ("temperature", "water", "soil")
     return ("temperature", "water")
@@ -54,6 +51,7 @@ def _families(rows: Sequence[Mapping[str, object]], *, label: str) -> tuple[str,
         family = str(row.get("family", ""))
         if not family:
             raise ValueError(f"{label} contains a row without family")
+        response_processes_for_family(family)
         values.append(family)
     if not values:
         raise ValueError(f"{label} must be non-empty")
@@ -119,12 +117,7 @@ def audit_calibration_support(
 
 
 def require_calibration_support(config: Mapping[str, object]) -> CalibrationSupportAudit:
-    """Fail closed unless every panel has predeclared calibration support.
-
-    The v2.5 config contains a top-level ``calibration_support`` contract and one
-    ``calibration`` plus ``validation`` taxon list per panel. The returned audit
-    is the union across panels; any panel failure raises before model fitting.
-    """
+    """Fail closed unless every panel has predeclared calibration support."""
 
     support = config.get("calibration_support")
     if not isinstance(support, Mapping):
