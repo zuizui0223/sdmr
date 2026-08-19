@@ -21,7 +21,7 @@ def test_v26_validation_contract_keeps_reserved_truth_and_source_gate():
     seeds = [row["seed"] for panel in c["validation"].values() for row in panel]
     assert sorted(seeds) == [501, 502, 503, 511, 512, 513, 521, 522, 523]
     assert c["boundary_certificate"]["minimum_complete_calibration_taxa_per_key"] == 2
-    assert c["worker_contract"]["validation_role_offset"] == 10000000
+    assert c["worker_contract"]["validation_role_offset"] == 5000000
 
 
 def _summary(process=True, boundary=True):
