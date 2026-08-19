@@ -1,0 +1,14 @@
+{
+  "conclusion": "failure",
+  "created_at": "2026-08-19T13:40:59Z",
+  "cutoff_utc": "2026-08-19T13:40:00Z",
+  "dispatched_now": false,
+  "head_sha": "d2fbfb828bb1c1333619379da5d163a4ced6a34f",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32259483460",
+  "launcher_trigger_sha": "449a9d8028015bda0e380cd3f2d5dd7c4378b04c",
+  "purpose": "product_a_v2_6_empirical_confirmation_launch_receipt",
+  "run_id": 32259483460,
+  "run_number": 1,
+  "status": "completed",
+  "workflow_name": "product-a-v2-6-empirical-confirmation"
+}
