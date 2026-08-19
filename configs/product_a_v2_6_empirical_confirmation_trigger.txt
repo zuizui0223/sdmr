@@ -1,8 +1,9 @@
 Product-A v2.6 independent empirical confirmation trigger
 
 Frozen main contract merge: 679a7150d9c9bb70e9f3fd0aaa4f2e81f299bcf8
-Initial launcher commit: ab723aef6e23e2f22d559bd86d8d1ba3912d2641
-Idempotent launcher commit: 7613453b799874936ffb241de2f37feaf155214c
-Triggered after PR #22 pretruth, tests, and real-api-smoke were green.
-No empirical sealed outcome had been opened before the initial trigger.
-This update is idempotent: it records an existing run if already launched, otherwise dispatches exactly one run.
+Schema-fix merge: 463c1d81c7b64979eb7d7eb718b0cdda30ef701b
+Exact-SHA launcher commit: 08404cfc77d39012530eb79b24ea785e0749445e
+Initial empirical run 32259483460 failed in materialization before any sealed environmental read because GBIF-native coordinate names bypassed the established schema adapter.
+The schema fix routes the same immutable raw parquet bytes through load_gbif_download without changing scientific contracts.
+PR #23 pretruth, tests, and real-api-smoke were green before this retrigger.
+This trigger launches exactly one workflow_dispatch run whose head_sha equals this trigger commit.
