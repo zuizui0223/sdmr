@@ -26,10 +26,13 @@
     "groups": ["base", "noise", "seasonality", "soil", "temperature", "water"],
     "n_blocks": 5, "holdout_fraction": 0.2,
     "spatial_refit_codes": [0, 1, 2, 3, 4], "full_fit_code": 9,
-    "seed_base": 610000,
-    "role_offsets": {"calibration": 0, "validation": 100000},
-    "panel_stride": 200000,
-    "seed_formula": "610000 + panel_index*200000 + role_offset + taxon_index*10000 + group_index*1000 + candidate_index*100 + M_index*10 + fit_code",
+    "seed_base": 6100000,
+    "panel_stride": 10000000,
+    "role_offsets": {"calibration": 0, "validation": 5000000},
+    "taxon_stride": 500000,
+    "group_stride": 50000,
+    "candidate_stride": 100,
+    "seed_formula": "6100000 + panel_index*10000000 + role_offset + taxon_index*500000 + group_index*50000 + candidate_index*100 + M_index*10 + fit_code",
     "all_partition_seeds_must_be_unique_across_roles": true
   },
   "calibration_support": {
