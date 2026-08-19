@@ -1,0 +1,11 @@
+{
+  "purpose": "product_a_v2_6_empirical_model_pool_partition_contract",
+  "source_contract_path": "configs/product_a_v2_6_empirical_confirmation_contract.json",
+  "n_spatial_blocks": 5,
+  "partition_holdout_fraction": 0.20,
+  "partition_seed_formula": "part_seed + taxon_index*100 + M_index",
+  "partition_uses_model_pool_rows_only": true,
+  "sealed_occurrence_coordinates_used": false,
+  "sealed_environment_values_used": false,
+  "same_partition_shared_by_all_base_and_knockout_procedures_within_taxon_M": true
+}
