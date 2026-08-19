@@ -9,6 +9,9 @@
     "run_id": "32249349433",
     "head_sha": "6dde7706eabd1a4279d2c9f142922f8a67ca2b8f",
     "artifact_name": "product-a-v2-6-frozen-calibration",
+    "artifact_id": "9364460724",
+    "artifact_digest": "sha256:838954febe3024fbfeaa26b3c3b8f349321ac32704a0b9be0d31fc4231389185",
+    "source_contract_sha256": "fab5f822954580b903018216ce2f2ea2aeef6f41492cc350f108ef0223e1434a",
     "base_contract_path": "configs/product_a_v2_6_calibration_redundancy.json",
     "must_be_completed_success_before_validation_workers": true,
     "artifact_digest_recorded_before_validation_workers": true
