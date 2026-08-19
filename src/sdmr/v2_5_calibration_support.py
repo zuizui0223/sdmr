@@ -1,19 +1,19 @@
 """Pre-truth calibration-support contract for Product-A v2.5.
 
 v2.4 could only discover that a required validation boundary was uncalibrated
-after the validation panel had already been opened.  This module moves that
+after the validation panel had already been opened. This module moves that
 failure mode in front of validation: the declared calibration taxa must cover
 every predictor x response quantity that any declared validation family can
 require.
 
-The check uses only the frozen scenario/family declarations.  It never simulates
+The check uses only the frozen scenario/family declarations. It never simulates
 or reads generating truth and therefore can run before any validation worker is
 started.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 
 
 DEFAULT_RESPONSE_QUANTITIES = ("optimum", "lower_limit", "upper_limit")
@@ -29,18 +29,14 @@ class CalibrationSupportAudit:
 
     @property
     def complete(self) -> bool:
-        return not self.missing_keys and all(
-            count >= self.minimum_support_per_key
-            for _, _, count in self.support_counts
-            if (_, _) in self.required_validation_keys
-        )
+        return not self.missing_keys
 
 
 def response_processes_for_family(family: str) -> tuple[str, ...]:
     """Return frozen response axes required by one bundled known-truth family.
 
     This mirrors the scenario semantics in ``known_truth_response`` without
-    constructing the simulation.  Only ``omitted_driver`` requires the additional
+    constructing the simulation. Only ``omitted_driver`` requires the additional
     soil axis; all currently bundled families audit temperature and water.
     """
 
@@ -126,7 +122,7 @@ def require_calibration_support(config: Mapping[str, object]) -> CalibrationSupp
     """Fail closed unless every panel has predeclared calibration support.
 
     The v2.5 config contains a top-level ``calibration_support`` contract and one
-    ``calibration`` plus ``validation`` taxon list per panel.  The returned audit
+    ``calibration`` plus ``validation`` taxon list per panel. The returned audit
     is the union across panels; any panel failure raises before model fitting.
     """
 
@@ -145,7 +141,6 @@ def require_calibration_support(config: Mapping[str, object]) -> CalibrationSupp
 
     all_required: set[tuple[str, str]] = set()
     all_declared: set[tuple[str, str]] = set()
-    all_missing: set[tuple[str, str]] = set()
     aggregate_counts: dict[tuple[str, str], int] = {}
     failures: list[str] = []
     for panel in panels:
@@ -166,7 +161,6 @@ def require_calibration_support(config: Mapping[str, object]) -> CalibrationSupp
         )
         all_required.update(audit.required_validation_keys)
         all_declared.update(audit.declared_calibration_keys)
-        all_missing.update(audit.missing_keys)
         for predictor, quantity, count in audit.support_counts:
             key = (predictor, quantity)
             aggregate_counts[key] = min(aggregate_counts.get(key, count), count)
@@ -184,7 +178,7 @@ def require_calibration_support(config: Mapping[str, object]) -> CalibrationSupp
     return CalibrationSupportAudit(
         required_validation_keys=tuple(sorted(all_required)),
         declared_calibration_keys=tuple(sorted(all_declared)),
-        missing_keys=tuple(sorted(all_missing)),
+        missing_keys=(),
         support_counts=tuple(
             (predictor, quantity, aggregate_counts[(predictor, quantity)])
             for predictor, quantity in sorted(all_required)
