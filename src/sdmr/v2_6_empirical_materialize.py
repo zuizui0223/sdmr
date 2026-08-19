@@ -13,7 +13,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from .data import OccurrenceAdmissionConfig, raster_specs_from_chelsa_manifest
+from .data import (
+    OccurrenceAdmissionConfig,
+    load_gbif_download,
+    raster_specs_from_chelsa_manifest,
+)
 from .pilot import MODEL_ROLE, OUTER_ROLE_COL, SEALED_ROLE, prepare_product_a_pilot
 from .pilot_grid_cli import extract_protocol_grid_rasters, read_pilot_grid
 from .specification import occurrence_table_fingerprint
@@ -41,8 +45,12 @@ def materialize_empirical_part(
     if float(sealed_fraction) not in {float(x) for x in design["sealed_fractions"]}:
         raise ValueError("sealed fraction is not in the frozen empirical confirmation design")
 
-    focal = pd.read_parquet(focal_path)
-    target = pd.read_parquet(target_path)
+    # Use the same stable GBIF schema adapter as every other Product-A real-data
+    # path. The immutable raw parquet preserves GBIF-native names such as
+    # decimalLongitude/decimalLatitude; load_gbif_download normalizes those to
+    # SDMR's longitude/latitude contract without changing rows or evidence.
+    focal = load_gbif_download(focal_path).records
+    target = load_gbif_download(target_path).records
     taxa = pd.read_csv(taxa_path)
     grid = read_pilot_grid(str(grid_path))
     expected_m = tuple(int(x) for x in design["M_km"])
