@@ -1,0 +1,170 @@
+name: citable-product-a-promotion
+
+on:
+  workflow_run:
+    workflows: ["citable-product-a-stability-v1"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      stability_run_id:
+        description: "Successful citable-product-a-stability-v1 workflow run ID"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: citable-product-a-promotion-${{ github.event.workflow_run.id || inputs.stability_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  assess:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Resolve stability run ID
+        id: stability
+        run: |
+          python - <<'PY'
+          import os
+          event = os.environ['GITHUB_EVENT_NAME']
+          run_id = '${{ github.event.workflow_run.id }}' if event == 'workflow_run' else '${{ inputs.stability_run_id }}'
+          if not str(run_id).strip():
+              raise SystemExit('stability run ID is required')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'run_id={run_id}\n')
+          print('stability_run_id', run_id)
+          PY
+      - name: Download frozen stability artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.stability.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-stability-v1-*
+          path: source_stability
+          merge-multiple: true
+      - name: Resolve Product-A source analysis SHA
+        id: source
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          values = {}
+          path = Path('source_stability/stability_inputs.txt')
+          if not path.exists():
+              raise SystemExit('stability artifact lacks stability_inputs.txt')
+          for line in path.read_text(encoding='utf-8').splitlines():
+              if '=' in line:
+                  key, value = line.split('=', 1)
+                  values[key.strip()] = value.strip()
+          sha = values.get('source_head_sha', '')
+          if not sha:
+              raise SystemExit('stability_inputs.txt lacks source_head_sha')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'head_sha={sha}\n')
+          print('source_head_sha', sha)
+          PY
+      - name: Checkout exact Product-A v1 analysis code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.head_sha }}
+          path: analysis
+      - name: Install frozen SDMR assessment code
+        working-directory: analysis
+        run: python -m pip install -e .
+      - name: Verify frozen promotion criteria artifact
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          artifact = Path('source_stability/promotion_criteria_predeclared_before_stability.csv')
+          source = Path('analysis/configs/product_a_promotion_criteria_v1.csv')
+          if not artifact.exists() or not source.exists():
+              raise SystemExit('missing frozen Product-A promotion criteria')
+          a = hashlib.sha256(artifact.read_bytes()).hexdigest()
+          b = hashlib.sha256(source.read_bytes()).hexdigest()
+          print('promotion_criteria_sha256', a)
+          if a != b:
+              raise SystemExit('stability artifact criteria differ from exact source-head criteria')
+          PY
+      - name: Apply frozen Product-A promotion criteria v1
+        run: |
+          python - <<'PY'
+          import csv
+          import subprocess
+          from pathlib import Path
+
+          criteria_path = Path('source_stability/promotion_criteria_predeclared_before_stability.csv')
+          values = {row['criterion']: row['value'] for row in csv.DictReader(criteria_path.open(encoding='utf-8'))}
+          required = [
+              'min_protocol_selection_fraction',
+              'min_runs_selected',
+              'min_m_spec_win_fraction',
+              'min_mean_delta_presence_rank',
+              'min_positive_pair_fraction',
+              'min_pairs_per_comparator',
+              'required_comparators',
+          ]
+          missing = [key for key in required if key not in values]
+          if missing:
+              raise SystemExit(f'promotion criteria missing: {missing}')
+
+          root = Path('source_stability')
+          runs = root / 'protocol_stability_runs.csv'
+          choice = root / 'protocol_choice_stability.csv'
+          paired = root / 'protocol_validation_paired_deltas.csv'
+          for path in (runs, choice, paired):
+              if not path.exists():
+                  raise SystemExit(f'missing required stability output: {path}')
+
+          cmd = [
+              'sdmr-promote-protocol',
+              '--runs', str(runs.resolve()),
+              '--choice-stability', str(choice.resolve()),
+              '--paired-validation-deltas', str(paired.resolve()),
+              '--output-dir', str(Path('promotion_result').resolve()),
+              '--min-protocol-selection-fraction', values['min_protocol_selection_fraction'],
+              '--min-runs-selected', values['min_runs_selected'],
+              '--min-m-spec-win-fraction', values['min_m_spec_win_fraction'],
+              '--min-mean-delta-presence-rank', values['min_mean_delta_presence_rank'],
+              '--min-positive-pair-fraction', values['min_positive_pair_fraction'],
+              '--min-pairs-per-comparator', values['min_pairs_per_comparator'],
+              '--required-comparators', values['required_comparators'],
+          ]
+          print(' '.join(cmd))
+          completed = subprocess.run(cmd, check=False, cwd='analysis')
+          Path('promotion_result').mkdir(parents=True, exist_ok=True)
+          (Path('promotion_result') / 'promotion_cli_exit_code.txt').write_text(
+              str(completed.returncode) + '\n', encoding='utf-8'
+          )
+          if completed.returncode not in (0, 2):
+              raise SystemExit(completed.returncode)
+          PY
+      - name: Record immutable promotion contract
+        if: always()
+        run: |
+          mkdir -p promotion_result
+          cp source_stability/promotion_criteria_predeclared_before_stability.csv promotion_result/product_a_promotion_criteria_v1.csv
+          cp source_stability/source_citable_snapshot_contract.json promotion_result/ 2>/dev/null || true
+          cp source_stability/stability_inputs.txt promotion_result/ 2>/dev/null || true
+          cat > promotion_result/PROMOTION_BOUNDARY.txt <<EOF
+          Product-A promotion was assessed with the exact criteria file frozen in the stability artifact and verified against
+          the exact Product-A source head ${{ steps.source.outputs.head_sha }}. No current-branch governance file is consulted.
+          M/background specifications are a predeclared sensitivity set, not optimized candidates. The selected universe x
+          strategy must remain robust across M, repeated splits, and matched unseen-taxon comparisons. Exit code 2 /
+          promotion_not_met is a valid scientific outcome and thresholds must not be relaxed post hoc.
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: citable-product-a-promotion-source-${{ steps.stability.outputs.run_id }}
+          path: promotion_result/
+          if-no-files-found: error
+          retention-days: 90

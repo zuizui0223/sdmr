@@ -1,0 +1,154 @@
+name: gbif-snapshot-catalog
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/gbif-snapshot-catalog.yml'
+      - 'src/sdmr/data/snapshot_catalog.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbif-snapshot-catalog-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resolve latest available GBIF snapshot DOI from citation.txt
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import time
+          from datetime import date
+          from urllib.error import HTTPError, URLError
+          from urllib.request import Request, urlopen
+
+          headers = {
+              'User-Agent': 'sdmr-gbif-snapshot-catalog/1.0',
+              'Accept': 'text/plain,application/json;q=0.9,*/*;q=0.1',
+          }
+
+          def previous_month(day):
+              if day.month == 1:
+                  return day.replace(year=day.year - 1, month=12, day=1)
+              return day.replace(month=day.month - 1, day=1)
+
+          def fetch(url, *, attempts=5):
+              last = None
+              for attempt in range(attempts):
+                  req = Request(url, headers=headers)
+                  try:
+                      with urlopen(req, timeout=60) as response:
+                          return response.read().decode('utf-8', errors='replace')
+                  except HTTPError as exc:
+                      last = exc
+                      if exc.code == 404:
+                          raise
+                      if exc.code not in {429, 500, 502, 503, 504} or attempt == attempts - 1:
+                          raise
+                  except URLError as exc:
+                      last = exc
+                      if attempt == attempts - 1:
+                          raise
+                  time.sleep(min(16, 2 ** attempt))
+              raise last
+
+          today = date.today()
+          candidates = [today.replace(day=1), previous_month(today)]
+          attempts = []
+          resolved = None
+          for snapshot_day in candidates:
+              snapshot_date = snapshot_day.isoformat()
+              citation_url = (
+                  'https://gbif-open-data-us-east-1.s3.us-east-1.amazonaws.com/'
+                  f'occurrence/{snapshot_date}/citation.txt'
+              )
+              try:
+                  citation = fetch(citation_url)
+              except (HTTPError, URLError) as exc:
+                  attempts.append({
+                      'snapshot_date': snapshot_date,
+                      'citation_url': citation_url,
+                      'status': 'unavailable',
+                      'error_type': type(exc).__name__,
+                      'http_status': getattr(exc, 'code', None),
+                      'message': str(exc),
+                  })
+                  continue
+
+              doi_match = re.search(r'10\.15468/dl\.[A-Za-z0-9]+', citation, flags=re.IGNORECASE)
+              attempts.append({
+                  'snapshot_date': snapshot_date,
+                  'citation_url': citation_url,
+                  'status': 'citation_found',
+                  'citation_bytes': len(citation.encode('utf-8')),
+                  'doi_found': doi_match.group(0).lower() if doi_match else '',
+              })
+              safe_date = snapshot_date.replace('-', '')
+              with open(f'citation_{safe_date}.txt', 'w', encoding='utf-8') as fh:
+                  fh.write(citation)
+              if not doi_match:
+                  continue
+
+              doi = doi_match.group(0).lower()
+              # Cross-check the DOI registration through public DataCite metadata.
+              datacite_url = 'https://api.datacite.org/dois/' + doi
+              datacite = json.loads(fetch(datacite_url))
+              attrs = (datacite.get('data') or {}).get('attributes') or {}
+              registered_doi = str(attrs.get('doi') or '').lower()
+              if registered_doi != doi:
+                  raise SystemExit(
+                      f'citation DOI/DataCite mismatch for {snapshot_date}: citation={doi} datacite={registered_doi}'
+                  )
+              with open('snapshot_doi_datacite.json', 'w', encoding='utf-8') as fh:
+                  json.dump(datacite, fh, indent=2, sort_keys=True)
+
+              resolved = {
+                  'snapshot_date': snapshot_date,
+                  'snapshot_doi': doi,
+                  'citation_url': citation_url,
+                  'citation_sha256': __import__('hashlib').sha256(citation.encode('utf-8')).hexdigest(),
+                  'datacite_url': datacite_url,
+                  'datacite_title': ((attrs.get('titles') or [{}])[0]).get('title'),
+                  'datacite_publisher': attrs.get('publisher'),
+                  'datacite_created': attrs.get('created'),
+                  'datacite_landing_url': attrs.get('url'),
+              }
+              break
+
+          summary = {
+              'resolution_mode': 'snapshot_s3_citation_txt',
+              'attempts': attempts,
+              'snapshot_resolved': resolved is not None,
+              'latest': resolved or {},
+              'source_rule': (
+                  'GBIF official AWS snapshot documentation states each occurrence/YYYY-MM-DD snapshot contains '
+                  'citation.txt with citation instructions. SDMR accepts only a DOI parsed from that same snapshot '
+                  'citation file and cross-checked against DataCite.'
+              ),
+          }
+          with open('gbif_snapshot_catalog_summary.json', 'w', encoding='utf-8') as fh:
+              json.dump(summary, fh, indent=2, sort_keys=True)
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          if resolved is None:
+              raise SystemExit('No DOI-bearing citation.txt found for current or previous monthly snapshot')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gbif-snapshot-catalog
+          path: |
+            gbif_snapshot_catalog_summary.json
+            citation_*.txt
+            snapshot_doi_datacite.json
+          if-no-files-found: warn

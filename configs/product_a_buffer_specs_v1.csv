@@ -1,0 +1,4 @@
+name,m_strategy,bbox_buffer_degrees,occurrence_buffer_km,background_points,background_cell_size_degrees
+buffer_150km,buffer,,150,2000,0.05
+buffer_300km,buffer,,300,2000,0.05
+buffer_500km,buffer,,500,2000,0.05

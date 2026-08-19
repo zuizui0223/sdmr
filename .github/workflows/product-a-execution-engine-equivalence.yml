@@ -1,0 +1,54 @@
+name: product-a-execution-engine-equivalence
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - '.github/workflows/product-a-execution-engine-equivalence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout frozen execution engine
+        uses: actions/checkout@v4
+        with:
+          ref: bda132ff8a59ad42d43b86e5ca865f7f525e0642
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install test and geo dependencies
+        run: python -m pip install -e '.[test,geo]'
+      - name: Verify all performance changes preserve exact semantics
+        run: |
+          pytest -q \
+            tests/test_robust_protocol_parallel.py \
+            tests/test_method_modelspec_parallel.py \
+            tests/test_raster_block_sampling.py \
+            tests/test_continuous_boyce.py \
+            tests/test_metrics.py
+      - name: Freeze engine proof
+        run: |
+          cat > execution_engine_equivalence.txt <<'EOF'
+          execution_engine_sha=bda132ff8a59ad42d43b86e5ca865f7f525e0642
+          outer_method_parallel_exact=true
+          modelspec_parallel_exact=true
+          raster_block_vs_rasterio_sample_exact=true
+          raster_layer_parallel_exact=true
+          random_baseline_removal_product_a_exact=true
+          continuous_boyce_secondary_only=true
+          scientific_selection_semantics_changed=false
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-execution-engine-equivalence
+          path: execution_engine_equivalence.txt
+          if-no-files-found: error
+          retention-days: 90

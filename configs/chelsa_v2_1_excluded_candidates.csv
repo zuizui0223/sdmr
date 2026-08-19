@@ -1,0 +1,4 @@
+predictor,source,version,candidate_class,process,mechanism,unit,retrieval,remote_name,summary,availability,exclusion_reason,notes
+rlus,CHELSA-BIOCLIM+-paper,2.1,extended_climate,radiation,upwelling_longwave_radiation,W_m-2,unresolved,rlus,,paper_only,no_current_direct_cog_verified,described in BIOCLIM+ paper but no current direct CHELSA V2.1 COG route verified
+awc,CHELSA-BIOCLIM+-paper,2.1,contextual_water,water_balance,available_soil_water_capacity,kg_m-2,unresolved,awc,,paper_only,no_current_direct_cog_verified,auxiliary BIOCLIM+ input; no current direct CHELSA V2.1 COG route verified
+swb,CHELSA-BIOCLIM+-archive,2.1,contextual_water,water_balance,site_water_balance,kg_m-2,unresolved,swb,,legacy_archive,current_direct_cog_not_verified,legacy archive route exists but no current direct COG route verified

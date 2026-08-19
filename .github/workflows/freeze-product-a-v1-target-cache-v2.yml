@@ -1,0 +1,170 @@
+name: freeze-product-a-v1-target-cache-v2
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/product_a_v1_target_cache_freeze_v2_trigger.txt'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: freeze-product-a-v1-target-cache-v2
+  cancel-in-progress: true
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Wait for exact parallel target-footprint run 31859498088
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from urllib.request import Request, urlopen
+          run_id = '31859498088'
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
+          headers = {'Authorization': f"Bearer {os.environ['GH_TOKEN']}", 'Accept': 'application/vnd.github+json'}
+          for _ in range(540):
+              with urlopen(Request(url, headers=headers), timeout=60) as response:
+                  payload = json.load(response)
+              print('parallel-target-cache', payload.get('status'), payload.get('conclusion'))
+              if payload.get('status') == 'completed':
+                  if payload.get('conclusion') != 'success':
+                      raise SystemExit(f"parallel target-cache run failed: {payload.get('conclusion')}")
+                  break
+              time.sleep(20)
+          else:
+              raise SystemExit('parallel target-cache run did not finish within 180 minutes')
+          PY
+      - name: Download exact parallel target artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31859498088
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v1-target-cache-parallel-2026-08-01
+          path: target_cache_bundle
+      - name: Synchronize latest Product-A branch before writing contract
+        run: |
+          git fetch origin agent/nested-spatial-raster-benchmark
+          git checkout agent/nested-spatial-raster-benchmark
+          git reset --hard origin/agent/nested-spatial-raster-benchmark
+      - name: Verify exact parallel source and freeze target contract
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json
+          from pathlib import Path
+
+          def unique(name):
+              hits = list(Path('target_cache_bundle').rglob(name))
+              if len(hits) != 1:
+                  raise SystemExit(f'expected exactly one {name}; found {len(hits)}')
+              return hits[0]
+
+          manifest_path = unique('target_cache_manifest.json')
+          target_path = unique('target_group.parquet')
+          prov_path = unique('target_group.provenance.csv')
+          citation_path = unique('target_group.parquet.citation.txt')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          target_sha = hashlib.sha256(target_path.read_bytes()).hexdigest()
+          citation_sha = hashlib.sha256(citation_path.read_bytes()).hexdigest()
+          with prov_path.open(encoding='utf-8', newline='') as fh:
+              prov_rows = list(csv.DictReader(fh))
+          if len(prov_rows) != 1:
+              raise SystemExit(f'expected exactly one provenance row, found {len(prov_rows)}')
+          prov = prov_rows[0]
+          taxa_sha = hashlib.sha256(Path('configs/product_a_pilot_taxa_v1.csv').read_bytes()).hexdigest()
+
+          if target_sha != str(manifest.get('target_sha256','')).lower() or target_sha != str(prov.get('sha256','')).lower():
+              raise SystemExit('target file SHA mismatch')
+          if str(manifest.get('target_query_sha256','')).lower() != str(prov.get('query_sha256','')).lower():
+              raise SystemExit('target query SHA mismatch')
+          if citation_sha != '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050':
+              raise SystemExit('target citation SHA differs from frozen 2026-08-01 snapshot')
+          if str(manifest.get('snapshot_date','')) != '2026-08-01' or str(manifest.get('snapshot_doi','')).lower() != '10.15468/dl.fs3btq':
+              raise SystemExit('target snapshot date/DOI mismatch')
+          if str(prov.get('cloud_provider','')).lower() != 'aws':
+              raise SystemExit('target cache was not built from hardened AWS transport')
+          if str(manifest.get('sampling_mode','')) != 'global_nonfocal_one_per_grid_cell_sampling_footprint':
+              raise SystemExit('refusing target cache that can contain focal taxa')
+          if manifest.get('source_independent_of_focal_occurrence_geography') is not True:
+              raise SystemExit('target source depends on focal occurrence geography')
+          if manifest.get('focal_taxa_excluded_pre_split') is not True:
+              raise SystemExit('target source did not exclude focal taxa before split assignment')
+          if int(manifest.get('excluded_taxa_count',0)) != 12:
+              raise SystemExit('target source did not exclude all 12 focal taxa')
+          if str(manifest.get('excluded_taxa_sha256','')).lower() != taxa_sha:
+              raise SystemExit('target source focal-taxa exclusion fingerprint differs from current predeclared panel')
+          if abs(float(manifest.get('one_per_grid_cell_degrees',0)) - 0.05) > 1e-12:
+              raise SystemExit('target grid is not the frozen 0.05-degree footprint')
+          if int(manifest.get('snapshot_shard_count',0)) != 9705:
+              raise SystemExit('target source does not cover the verified 9705-shard snapshot')
+          if int(manifest.get('parallel_chunk_count',0)) != 8:
+              raise SystemExit('target source does not use the frozen 8-way exact reduction')
+          if 'ARG_MIN' not in str(manifest.get('parallel_reduction','')):
+              raise SystemExit('target source lacks exact chunk-min/global-min reduction record')
+
+          columns = [
+              'source_run_id','artifact_name','target_sha256','target_query_sha256','citation_sha256',
+              'snapshot_date','snapshot_doi','target_rows','target_species','cloud_provider','sampling_mode',
+              'one_per_grid_cell_degrees','source_independent_of_focal_occurrence_geography',
+              'focal_taxa_excluded_pre_split','excluded_taxa_count','excluded_taxa_sha256',
+              'snapshot_shard_count','snapshot_shard_catalog_sha256','parallel_chunk_count','parallel_reduction',
+              'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout'
+          ]
+          row = {
+              'source_run_id': '31859498088',
+              'artifact_name': 'product-a-v1-target-cache-parallel-2026-08-01',
+              'target_sha256': target_sha,
+              'target_query_sha256': str(manifest.get('target_query_sha256','')),
+              'citation_sha256': citation_sha,
+              'snapshot_date': '2026-08-01',
+              'snapshot_doi': '10.15468/dl.fs3btq',
+              'target_rows': str(manifest.get('target_rows','')),
+              'target_species': str(manifest.get('target_species','')),
+              'cloud_provider': str(manifest.get('cloud_provider','')),
+              'sampling_mode': str(manifest.get('sampling_mode','')),
+              'one_per_grid_cell_degrees': str(manifest.get('one_per_grid_cell_degrees','')),
+              'source_independent_of_focal_occurrence_geography': 'true',
+              'focal_taxa_excluded_pre_split': 'true',
+              'excluded_taxa_count': str(manifest.get('excluded_taxa_count','')),
+              'excluded_taxa_sha256': str(manifest.get('excluded_taxa_sha256','')),
+              'snapshot_shard_count': str(manifest.get('snapshot_shard_count','')),
+              'snapshot_shard_catalog_sha256': str(manifest.get('snapshot_shard_catalog_sha256','')),
+              'parallel_chunk_count': str(manifest.get('parallel_chunk_count','')),
+              'parallel_reduction': str(manifest.get('parallel_reduction','')),
+              'http_keep_alive': str(manifest.get('http_keep_alive','')),
+              'http_retries': str(manifest.get('http_retries','')),
+              'http_retry_wait_ms': str(manifest.get('http_retry_wait_ms','')),
+              'http_retry_backoff': str(manifest.get('http_retry_backoff','')),
+              'http_timeout': str(manifest.get('http_timeout','')),
+          }
+          out = Path('configs/product_a_v1_target_cache.csv')
+          with out.open('w', encoding='utf-8', newline='') as fh:
+              writer = csv.DictWriter(fh, fieldnames=columns)
+              writer.writeheader(); writer.writerow(row)
+          print(row)
+          PY
+      - name: Commit exact parallel target contract on latest branch
+        run: |
+          git config user.name 'sdmr-evidence-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add configs/product_a_v1_target_cache.csv
+          if git diff --cached --quiet; then
+            echo 'Target-cache contract already identical.'
+          else
+            git commit -m 'Freeze exact parallel Product-A v1 target source'
+            git push origin HEAD:agent/nested-spatial-raster-benchmark
+          fi

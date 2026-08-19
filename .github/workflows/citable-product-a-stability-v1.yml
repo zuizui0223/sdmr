@@ -1,0 +1,296 @@
+name: citable-product-a-stability-v1
+
+on:
+  workflow_run:
+    workflows: ["citable-product-a-v1"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful leakage-safe M-sensitivity citable-product-a-v1 run ID"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: citable-product-a-stability-v1-${{ github.event.workflow_run.id || inputs.source_run_id }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.source.outputs.run_id }}
+      head_sha: ${{ steps.source.outputs.head_sha }}
+    steps:
+      - name: Checkout current governance files
+        uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          path: governance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resolve source run and exact analysis head
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from urllib.request import Request, urlopen
+
+          event = os.environ['GITHUB_EVENT_NAME']
+          if event == 'workflow_run':
+              run_id = '${{ github.event.workflow_run.id }}'
+              head_sha = '${{ github.event.workflow_run.head_sha }}'
+          else:
+              run_id = '${{ inputs.source_run_id }}'.strip()
+              if not run_id:
+                  raise SystemExit('source_run_id is required')
+              url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{run_id}"
+              req = Request(url, headers={
+                  'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+              })
+              with urlopen(req, timeout=60) as response:
+                  head_sha = str(json.load(response).get('head_sha') or '')
+              if not head_sha:
+                  raise SystemExit('Could not resolve source head SHA')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'run_id={run_id}\n')
+              fh.write(f'head_sha={head_sha}\n')
+          print('source_run_id', run_id, 'source_head_sha', head_sha)
+          PY
+      - name: Download citable source contract
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-v1-*
+          path: source_bundle
+          merge-multiple: true
+      - name: Require leakage-safe M-sensitivity source evidence and full taxon panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          result = Path('source_bundle/citable_result')
+          contract_path = result / 'citable_snapshot_contract.json'
+          grid_spec_path = result / 'pilot_grid_specification.json'
+          target_path = Path('source_bundle/citable_input/target_group.parquet')
+          raw_focal = Path('source_bundle/citable_input/focal.parquet')
+          species_gate_path = result / 'species_gate.csv'
+          taxa_path = Path('governance/configs/product_a_pilot_taxa_v1.csv')
+          for path in (contract_path, grid_spec_path, target_path, raw_focal, species_gate_path, taxa_path):
+              if not path.exists():
+                  raise SystemExit(f'Missing required leakage-safe source evidence: {path}')
+          contract = json.loads(contract_path.read_text(encoding='utf-8'))
+          grid_spec = json.loads(grid_spec_path.read_text(encoding='utf-8'))
+          if contract.get('protocol_version') != 'product_a_v1_leakage_safe_M_sensitivity':
+              raise SystemExit('Source artifact predates the M-sensitivity Product-A contract')
+          if contract.get('outer_sealed_before_M') is not True or grid_spec.get('outer_sealed_before_M') is not True:
+              raise SystemExit('Source artifact did not seal focal occurrences before M/background construction')
+          if contract.get('m_grid_as_sensitivity') is not True or grid_spec.get('m_grid_as_sensitivity') is not True:
+              raise SystemExit('Source artifact optimized M instead of treating it as a sensitivity axis')
+          if float(grid_spec.get('focal_thin_cell_size_degrees', 0) or 0) <= 0:
+              raise SystemExit('Source artifact lacks the predeclared focal thinning grid')
+          if int(contract.get('chelsa_probe_failures', 1)) != 0:
+              raise SystemExit('Source artifact did not pass full CHELSA preflight')
+          if str(contract.get('citation_sha256_expected', '')).lower() != str(contract.get('citation_sha256_focal', '')).lower():
+              raise SystemExit('Source artifact citation fingerprint does not match frozen snapshot contract')
+
+          expected = set(pd.read_csv(taxa_path)['scientific_name'].astype(str))
+          gate = pd.read_csv(species_gate_path)
+          eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              missing = sorted(expected - eligible)
+              extra = sorted(eligible - expected)
+              raise SystemExit(
+                  'The source split did not retain the complete predeclared 12-taxon panel. '
+                  f'missing={missing}, extra={extra}. Do not continue stability on a split-selected taxon subset.'
+              )
+          print('Leakage-safe M-sensitivity source gate passed for all', len(expected), 'predeclared taxa')
+          PY
+
+  stability_part:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        seed: [11, 22, 33, 44, 55]
+        sealed_fraction: ['0.15', '0.20', '0.30']
+    steps:
+      - name: Checkout exact Product-A analysis code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate.outputs.head_sha }}
+          path: analysis
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install frozen SDMR cloud/geo dependencies
+        working-directory: analysis
+        run: python -m pip install -e '.[cloud,geo,parquet]'
+      - name: Download exact DOI-backed source artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ needs.gate.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-v1-*
+          path: source_bundle
+          merge-multiple: true
+      - name: Rebuild split-specific M/background and rank methods across M sensitivity
+        run: |
+          SOURCE_KEY="stability-source:${{ needs.gate.outputs.run_id }}"
+          cd analysis
+          sdmr-pilot-grid \
+            --gbif-download "$GITHUB_WORKSPACE/source_bundle/citable_input/focal.parquet" \
+            --gbif-download-key "$SOURCE_KEY" \
+            --target-group-download "$GITHUB_WORKSPACE/source_bundle/citable_input/target_group.parquet" \
+            --target-group-download-key "$SOURCE_KEY" \
+            --checklist-key 'snapshot-interpreted:2026-08-01' \
+            --taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir "$GITHUB_WORKSPACE/part_result" \
+            --m-grid-as-sensitivity \
+            --min-occurrences 80 \
+            --min-unique-cells 50 \
+            --gate-cell-size-degrees 0.05 \
+            --spatial-test-fraction '${{ matrix.sealed_fraction }}' \
+            --taxon-validation-fraction 0.25 \
+            --vif-threshold 5 \
+            --max-predictors 8 \
+            --random-baseline-repeats 0 \
+            --seed '${{ matrix.seed }}'
+      - name: Require complete panel and M-sensitivity semantics in this split
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          expected = set(pd.read_csv('analysis/configs/product_a_pilot_taxa_v1.csv')['scientific_name'].astype(str))
+          gate = pd.read_csv('part_result/species_gate.csv')
+          eligible = set(gate.loc[gate['eligible'].astype(bool), 'species'].astype(str))
+          if eligible != expected:
+              raise SystemExit(
+                  'This seed/holdout split cannot support the full predeclared panel: '
+                  f'missing={sorted(expected - eligible)}, extra={sorted(eligible - expected)}'
+              )
+          spec = json.loads(Path('part_result/pilot_grid_specification.json').read_text(encoding='utf-8'))
+          if spec.get('m_grid_as_sensitivity') is not True:
+              raise SystemExit('Stability part optimized M rather than ranking methods within each M sensitivity spec')
+          PY
+      - name: Freeze part metadata
+        if: always()
+        run: |
+          mkdir -p part_result
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          metadata = {
+              'source_run_id': '${{ needs.gate.outputs.run_id }}',
+              'source_head_sha': '${{ needs.gate.outputs.head_sha }}',
+              'seed': int('${{ matrix.seed }}'),
+              'sealed_fraction': float('${{ matrix.sealed_fraction }}'),
+              'taxon_validation_fraction': 0.25,
+              'M_background_rebuilt_from_model_pool': True,
+              'M_grid_treated_as_sensitivity_not_optimized': True,
+              'raw_focal_reprocessed_for_split': True,
+              'require_full_predeclared_taxon_panel': True,
+              'random_baseline_repeats': 0,
+          }
+          Path('part_result/part_metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-stability-part-seed-${{ matrix.seed }}-fraction-${{ matrix.sealed_fraction }}
+          path: |
+            part_result/part_metadata.json
+            part_result/product_a_protocol_choice.txt
+            part_result/pilot_grid_specification.json
+            part_result/protocol_discovery_summary.csv
+            part_result/protocol_validation_metrics.csv
+            part_result/protocol_validation_summary.csv
+            part_result/protocol_validation_paired_deltas.csv
+            part_result/species_gate.csv
+            part_result/specifications/*/background_ledger.csv
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: [gate, stability_part]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout current aggregation/governance code
+        uses: actions/checkout@v4
+        with:
+          ref: agent/nested-spatial-raster-benchmark
+          path: governance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install aggregation package
+        run: python -m pip install -e governance
+      - name: Download all independently rebuilt stability parts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-stability-part-*
+          path: stability_parts
+      - name: Aggregate without reselecting models or M
+        run: |
+          python governance/scripts/aggregate_leakage_safe_stability.py \
+            --parts-root stability_parts \
+            --output-dir stability_result
+      - name: Download source citable contract for provenance
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ needs.gate.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: citable-product-a-v1-*
+          path: source_bundle
+          merge-multiple: true
+      - name: Freeze stability evidence contract
+        run: |
+          cp source_bundle/citable_result/citable_snapshot_contract.json stability_result/source_citable_snapshot_contract.json
+          cp governance/configs/product_a_promotion_criteria_v1.csv stability_result/promotion_criteria_predeclared_before_stability.csv
+          cat > stability_result/stability_inputs.txt <<EOF
+          source_run_id=${{ needs.gate.outputs.run_id }}
+          source_head_sha=${{ needs.gate.outputs.head_sha }}
+          analysis_code_ref=${{ needs.gate.outputs.head_sha }}
+          stability_design=raw_focal_reprocessed_M_background_regenerated_and_M_used_as_sensitivity_per_run
+          seeds=11,22,33,44,55
+          sealed_fractions=0.15,0.20,0.30
+          taxon_validation_fraction=0.25
+          require_full_predeclared_taxon_panel=true
+          M_grid_as_sensitivity=true
+          random_baseline_repeats=0
+          promotion_criteria=governance/configs/product_a_promotion_criteria_v1.csv
+          EOF
+          cat > stability_result/STABILITY_BOUNDARY.txt <<'EOF'
+          Each of the 15 stability parts restarts from the exact same DOI-backed raw focal subset and target-group subset.
+          Focal rows are independently thinned and assigned model/sealed spatial roles before any M/background construction.
+          M/background are rebuilt from each part's model-pool occurrences. The 150/300/500 km M specifications are not candidates
+          for optimization: universe x strategy is compared within matched species x M cases and aggregated across M. Every part
+          must retain the full predeclared 12-taxon panel. Promotion criteria were committed before these results existed.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: citable-product-a-stability-v1-source-${{ needs.gate.outputs.run_id }}
+          path: stability_result/
+          if-no-files-found: error
+          retention-days: 90

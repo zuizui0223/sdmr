@@ -1,0 +1,118 @@
+name: product-a-v2-taxon-transfer-eligibility-all12
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/taxon_transfer_spatial_eligibility.py'
+      - 'src/sdmr/prepared_taxon_transfer_eligibility_cli.py'
+      - 'src/sdmr/prepared_taxon_transfer_cli.py'
+      - 'src/sdmr/validation.py'
+      - 'configs/product_a_v2_empirical_transfer_all12_taxa.csv'
+      - 'configs/chelsa_v2_1_plant_candidates.csv'
+      - '.github/workflows/product-a-v2-taxon-transfer-eligibility-all12.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-taxon-transfer-eligibility-all12-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  all12-spatial-eligibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STRICT_CACHE_RUN_ID: '31870747020'
+      STRICT_CACHE_ARTIFACT_ID: '9244072277'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Download strict frozen feature cache
+        run: |
+          rm -rf prepared_feature_cache strict_cache.zip
+          mkdir -p prepared_feature_cache
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$STRICT_CACHE_ARTIFACT_ID/zip" \
+            --output strict_cache.zip
+          unzip -q strict_cache.zip -d prepared_feature_cache
+          test -f prepared_feature_cache/feature_cache_contract.json
+          test -f prepared_feature_cache/taxon_selection_ledger.csv
+      - name: Build all-12 pre-model spatial eligibility ledger
+        run: |
+          rm -rf taxon_transfer_eligibility_all12
+          python -m sdmr.prepared_taxon_transfer_eligibility_cli \
+            --prepared-dir prepared_feature_cache \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --candidate-taxa configs/product_a_v2_empirical_transfer_all12_taxa.csv \
+            --output-dir taxon_transfer_eligibility_all12 \
+            --outer-folds 2 \
+            --n-spatial-blocks 4 \
+            --minimum-background-rows-per-side 5 \
+            --minimum-presence-rows-per-side 2 \
+            --seed 20260814 \
+            --source-run-id "$STRICT_CACHE_RUN_ID" \
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID"
+      - name: Verify all-12 eligibility remains outcome blind
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('taxon_transfer_eligibility_all12')
+          contract = json.loads((root / 'taxon_transfer_spatial_eligibility_contract.json').read_text())
+          folds = pd.read_csv(root / 'spatial_support_fold_ledger.csv')
+          species = pd.read_csv(root / 'spatial_support_species_eligibility.csv')
+          roles = pd.read_csv(root / 'eligible_taxon_roles.csv')
+
+          assert contract['source_run_id'] == '31870747020'
+          assert contract['source_artifact_id'] == '9244072277'
+          assert contract['scientific_promotion_run'] is False
+          assert contract['model_scores_used'] is False
+          assert contract['environmental_predictor_values_used'] is False
+          assert contract['hidden_truth_used'] is False
+          assert contract['sealed_rows_used_for_eligibility'] is False
+          assert contract['eligibility_uses_model_pool_coordinates_and_row_counts_only'] is True
+          assert contract['outer_folds'] == 2
+          assert contract['n_spatial_blocks'] == 4
+          assert contract['minimum_background_rows_per_side'] == 5
+          assert contract['minimum_presence_rows_per_side'] == 2
+          assert len(contract['candidate_panel_taxa']) == 12
+          assert species['scientific_name'].nunique() == 12
+          assert len(folds) == 12 * 3 * 2
+          assert set(folds['perturbation']) == {'buffer_150km','buffer_300km','buffer_500km'}
+          assert set(folds['species']) == set(contract['candidate_panel_taxa'])
+          assert set(contract['eligible_taxa']) == set(roles['scientific_name'].astype(str))
+          assert set(contract['ineligible_taxa']).isdisjoint(set(contract['eligible_taxa']))
+          assert len(contract['eligible_taxa']) >= 4
+          assert roles['role'].eq('validation').sum() >= 2
+          assert roles['role'].eq('discovery').sum() >= 2
+          assert set(roles['role']) == {'discovery','validation'}
+          assert folds['eligible_fold'].dtype == bool or set(folds['eligible_fold'].astype(str)) <= {'True','False'}
+
+          forbidden = {
+              'presence_rank','continuous_boyce','or10',
+              'niche_overlap_schoener_d_pc12','centroid_distance',
+              'breadth_log_sd_error','quantile_profile_error','true_suitability'
+          }
+          assert not forbidden.intersection(folds.columns)
+          assert not forbidden.intersection(species.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-taxon-transfer-eligibility-all12
+          path: taxon_transfer_eligibility_all12/
+          if-no-files-found: error
+          retention-days: 90

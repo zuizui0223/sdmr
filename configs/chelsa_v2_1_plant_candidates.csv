@@ -1,0 +1,44 @@
+predictor,source,version,candidate_class,process,mechanism,unit,retrieval,remote_name,summary,availability,notes
+bio1,CHELSA-bioclim,2.1,core_climate,temperature,annual_mean_temperature,C,annual_bio_cog,bio1,,current,mean annual near-surface air temperature
+bio2,CHELSA-bioclim,2.1,core_climate,temperature,diurnal_temperature_range,C,annual_bio_cog,bio2,,current,mean diurnal near-surface air temperature range
+bio3,CHELSA-bioclim,2.1,core_climate,seasonality,isothermality,index,annual_bio_cog,bio3,,current,day-night variability relative to annual temperature range
+bio4,CHELSA-bioclim,2.1,core_climate,seasonality,temperature_seasonality,index,annual_bio_cog,bio4,,current,temperature seasonality
+bio5,CHELSA-bioclim,2.1,core_climate,thermal_extremes,warmest_month_max_temperature,C,annual_bio_cog,bio5,,current,warm extreme
+bio6,CHELSA-bioclim,2.1,core_climate,thermal_extremes,coldest_month_min_temperature,C,annual_bio_cog,bio6,,current,cold extreme
+bio7,CHELSA-bioclim,2.1,core_climate,seasonality,annual_temperature_range,C,annual_bio_cog,bio7,,current,annual thermal amplitude
+bio8,CHELSA-bioclim,2.1,core_climate,temperature,wettest_quarter_temperature,C,annual_bio_cog,bio8,,current,temperature during wettest quarter
+bio9,CHELSA-bioclim,2.1,core_climate,temperature,driest_quarter_temperature,C,annual_bio_cog,bio9,,current,temperature during driest quarter
+bio10,CHELSA-bioclim,2.1,core_climate,temperature,warmest_quarter_temperature,C,annual_bio_cog,bio10,,current,temperature during warmest quarter
+bio11,CHELSA-bioclim,2.1,core_climate,temperature,coldest_quarter_temperature,C,annual_bio_cog,bio11,,current,temperature during coldest quarter
+bio12,CHELSA-bioclim,2.1,core_climate,water,annual_precipitation,kg_m-2_yr-1,annual_bio_cog,bio12,,current,annual precipitation amount
+bio13,CHELSA-bioclim,2.1,core_climate,water,wettest_month_precipitation,kg_m-2_month-1,annual_bio_cog,bio13,,current,wet extreme
+bio14,CHELSA-bioclim,2.1,core_climate,drought,driest_month_precipitation,kg_m-2_month-1,annual_bio_cog,bio14,,current,dry extreme
+bio15,CHELSA-bioclim,2.1,core_climate,seasonality,precipitation_seasonality,index,annual_bio_cog,bio15,,current,monthly precipitation variability
+bio16,CHELSA-bioclim,2.1,core_climate,water,wettest_quarter_precipitation,kg_m-2_month-1,annual_bio_cog,bio16,,current,wet-season water supply
+bio17,CHELSA-bioclim,2.1,core_climate,drought,driest_quarter_precipitation,kg_m-2_month-1,annual_bio_cog,bio17,,current,dry-season water supply
+bio18,CHELSA-bioclim,2.1,core_climate,water,warmest_quarter_precipitation,kg_m-2_month-1,annual_bio_cog,bio18,,current,warm-season water supply
+bio19,CHELSA-bioclim,2.1,core_climate,water,coldest_quarter_precipitation,kg_m-2_month-1,annual_bio_cog,bio19,,current,cold-season water supply
+fcf,CHELSA-bioclim,2.1,extended_climate,cold_stress,freeze_thaw_frequency,count,annual_bio_cog,fcf,,current,freeze-thaw transitions per year
+fgd,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_start,julian_day,annual_bio_cog,fgd,,current,first day of growing season TREELIM
+gdd0,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_0,C_day,annual_bio_cog,gdd0,,current,growing degree day heat sum above 0 C
+gdd5,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_5,C_day,annual_bio_cog,gdd5,,current,growing degree day heat sum above 5 C
+gdd10,CHELSA-bioclim,2.1,extended_climate,thermal_energy,gdd_above_10,C_day,annual_bio_cog,gdd10,,current,growing degree day heat sum above 10 C
+gdgfgd5,CHELSA-bioclim,2.1,extended_climate,phenology,first_day_above_5,julian_day,annual_bio_cog,gdgfgd5,,current,first growing-degree day above 5 C
+gdgfgd10,CHELSA-bioclim,2.1,extended_climate,phenology,first_day_above_10,julian_day,annual_bio_cog,gdgfgd10,,current,first growing-degree day above 10 C
+gsl,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_length,days,annual_bio_cog,gsl,,current,growing season length
+gsp,CHELSA-bioclim,2.1,extended_climate,water,growing_season_precipitation,kg_m-2_gsl-1,annual_bio_cog,gsp,,current,precipitation accumulated during growing season
+gst,CHELSA-bioclim,2.1,extended_climate,temperature,growing_season_temperature,C,annual_bio_cog,gst,,current,mean temperature during growing season
+lgd,CHELSA-bioclim,2.1,extended_climate,phenology,growing_season_end,julian_day,annual_bio_cog,lgd,,current,last day of growing season TREELIM
+ngd0,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_0,days,annual_bio_cog,ngd0,,current,number of days above 0 C
+ngd5,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_5,days,annual_bio_cog,ngd5,,current,number of days above 5 C
+ngd10,CHELSA-bioclim,2.1,extended_climate,thermal_energy,days_above_10,days,annual_bio_cog,ngd10,,current,number of days above 10 C
+npp,CHELSA-bioclim,2.1,extended_climate,productivity,potential_net_primary_productivity,g_C_m-2_yr-1,annual_bio_cog,npp,,current,climate-related potential net primary productivity
+scd,CHELSA-bioclim,2.1,extended_climate,snow,snow_cover_days,days,annual_bio_cog,scd,,current,snow cover days
+swe,CHELSA-bioclim,2.1,extended_climate,snow,snow_water_equivalent,kg_m-2_yr-1,annual_bio_cog,swe,,current,snow water equivalent
+vpd,CHELSA-BIOCLIM+-archive,2.1,extended_climate,drought,vapor_pressure_deficit,Pa,annual_bio_summary_cog,vpd,mean,current,1981-2010 mean; current COG confirmed
+pet,CHELSA-BIOCLIM+-archive,2.1,extended_climate,water_balance,potential_evapotranspiration,kg_m-2_month-1,annual_bio_summary_cog,pet_penman,mean,current,Penman PET 1981-2010 mean; current COG confirmed
+cmi,CHELSA-BIOCLIM+-archive,2.1,extended_climate,water_balance,climate_moisture_index,kg_m-2_month-1,annual_bio_summary_cog,cmi,mean,current,1981-2010 mean; current COG confirmed
+rsds,CHELSA-BIOCLIM+-archive,2.1,extended_climate,radiation,downwelling_shortwave_radiation,W_m-2,annual_bio_summary_cog,rsds,mean,current,1981-2010 mean; filename order differs and is encoded in resolver
+sfcWind,CHELSA-BIOCLIM+-archive,2.1,extended_climate,wind,near_surface_wind_speed,m_s-1,annual_bio_summary_cog,sfcWind,mean,current,1981-2010 mean; current COG confirmed
+hurs,CHELSA-BIOCLIM+-archive,2.1,extended_climate,humidity,relative_humidity,percent,annual_bio_summary_cog,hurs,mean,current,1981-2010 mean; current COG confirmed
+clt,CHELSA-BIOCLIM+-archive,2.1,extended_climate,cloud,cloud_area_fraction,percent,annual_bio_summary_cog,clt,mean,current,1981-2010 mean; current COG confirmed

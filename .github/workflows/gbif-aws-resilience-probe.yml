@@ -1,0 +1,64 @@
+name: gbif-aws-resilience-probe
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/data/snapshot.py'
+      - '.github/workflows/gbif-aws-resilience-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gbif-aws-resilience-probe-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud]'
+      - name: Probe previously failing 2026-08 shard with hardened HTTP settings
+        run: |
+          python - <<'PY'
+          import duckdb
+          from sdmr.data.snapshot import _configure_duckdb_cloud
+
+          shard = 's3://gbif-open-data-us-east-1/occurrence/2026-08-01/occurrence.parquet/000593'
+          con = duckdb.connect()
+          try:
+              _configure_duckdb_cloud(con, cloud_provider='aws', region='us-east-1')
+              settings = con.execute(
+                  "SELECT name, value FROM duckdb_settings() WHERE name IN ("
+                  "'http_keep_alive','http_retries','http_retry_wait_ms','http_retry_backoff','http_timeout',"
+                  "'enable_http_metadata_cache','enable_external_file_cache') ORDER BY name"
+              ).fetchall()
+              print('effective_http_settings')
+              for row in settings:
+                  print(row)
+              schema = con.execute(
+                  f"DESCRIBE SELECT * FROM read_parquet('{shard}')"
+              ).fetchdf()
+              required = {'gbifid', 'species', 'decimallatitude', 'decimallongitude'}
+              names = {str(x).lower() for x in schema['column_name']}
+              missing = sorted(required - names)
+              if missing:
+                  raise SystemExit(f'Previously failing shard lacks required columns: {missing}')
+              rows = con.execute(
+                  f"SELECT gbifid, species, decimallatitude, decimallongitude FROM read_parquet('{shard}') LIMIT 1000"
+              ).fetchall()
+              if not rows:
+                  raise SystemExit('Previously failing shard returned no rows')
+              print('probe_rows', len(rows))
+              print('probe_shard', shard)
+          finally:
+              con.close()
+          PY

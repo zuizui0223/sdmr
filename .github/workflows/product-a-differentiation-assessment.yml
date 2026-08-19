@@ -1,0 +1,63 @@
+name: product-a-differentiation-assessment
+
+on:
+  workflow_run:
+    workflows: ["product-a-v1-evidence-orchestrator-v2"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  assess:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          path: analysis
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source-frozen assessment package
+        run: python -m pip install -e analysis
+      - name: Download source-run stability aggregate
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v1-stability-v2-aggregate
+          path: stability_result
+      - name: Apply predeclared transfer-differentiation criteria
+        run: |
+          sdmr-assess-differentiation \
+            --summary stability_result/selector_contrast_comparator_summary.csv \
+            --criteria analysis/configs/product_a_differentiation_criteria_v1.csv \
+            --output-dir differentiation_result
+          cp analysis/configs/product_a_differentiation_criteria_v1.csv differentiation_result/
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          criteria = Path('differentiation_result/product_a_differentiation_criteria_v1.csv')
+          result = json.loads(Path('differentiation_result/product_a_differentiation_result.json').read_text(encoding='utf-8'))
+          result['criteria_sha256'] = hashlib.sha256(criteria.read_bytes()).hexdigest()
+          result['source_head_sha'] = '${{ github.event.workflow_run.head_sha }}'
+          result['source_orchestrator_run_id'] = '${{ github.event.workflow_run.id }}'
+          Path('differentiation_result/product_a_differentiation_result.json').write_text(
+              json.dumps(result, indent=2, sort_keys=True), encoding='utf-8'
+          )
+          PY
+          cat > differentiation_result/DIFFERENTIATION_BOUNDARY.txt <<'EOF'
+          This is a source-frozen empirical claim gate, separate from Product-A method promotion. A positive result requires SDMR
+          to exceed canonical-M AUC selection, canonical-M Boyce selection, and per-species local nested spatial-CV AUC selection
+          on the same outer-sealed unseen species x M cases under the criteria committed before confirmatory results existed.
+          A negative result is a valid conclusion: AUC/Boyce remain model-level metrics and no predictive selection advantage is claimed.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v1-differentiation-assessment
+          path: differentiation_result/
+          if-no-files-found: error
+          retention-days: 90

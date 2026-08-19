@@ -1,0 +1,119 @@
+{
+  "purpose": "product_a_v2_4_stage2_discovery_refit_and_calibration_contract",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "opened_discovery_selection_evidence_allowed": true,
+  "discovery_generating_truth_read_before_raw_envelope_freeze": false,
+  "validation_taxa_simulated_or_read": false,
+  "validation_truth_read": false,
+  "source_discovery": {
+    "run_id": "32096477308",
+    "head_sha": "3c222249109ac2c15f6258ebc79bb1c957dd42a4",
+    "panels": {
+      "panel_D1": {
+        "artifact_id": "9310256239",
+        "artifact_name": "product-a-v2-4-knockout-discovery-panel_D1",
+        "artifact_digest": "sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db",
+        "n_complete_adequate_base_candidates": 4,
+        "n_admitted_knockout_candidates": 20
+      },
+      "panel_D2": {
+        "artifact_id": "9310224903",
+        "artifact_name": "product-a-v2-4-knockout-discovery-panel_D2",
+        "artifact_digest": "sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b",
+        "n_complete_adequate_base_candidates": 6,
+        "n_admitted_knockout_candidates": 30
+      },
+      "panel_D3": {
+        "artifact_id": "9310181352",
+        "artifact_name": "product-a-v2-4-knockout-discovery-panel_D3",
+        "artifact_digest": "sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e",
+        "n_complete_adequate_base_candidates": 6,
+        "n_admitted_knockout_candidates": 29
+      }
+    }
+  },
+  "fit_groups": [
+    "base",
+    "noise",
+    "seasonality",
+    "soil",
+    "temperature",
+    "water"
+  ],
+  "fit_modes": {
+    "full_fit": {
+      "uses_all_model_pool_rows": true,
+      "fit_code": 9,
+      "used_for": [
+        "canonical_auc_point",
+        "complete_adequate_certificate",
+        "v2_3_mean_pareto_certificate",
+        "process_exclusion_transfer_status"
+      ]
+    },
+    "spatial_refit": {
+      "n_refits": 5,
+      "fit_codes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "uses_training_blocks_only": true,
+      "used_for": [
+        "v2_4_raw_response_envelope",
+        "v2_4_discovery_interval_calibration"
+      ]
+    }
+  },
+  "spatial_partition": {
+    "n_blocks": 5,
+    "holdout_fraction": 0.2,
+    "seed_formula": "210000 + panel_index*100000 + role_offset + taxon_index*10000 + group_index*1000 + candidate_index*100 + M_index*10 + fit_code",
+    "role_offsets": {
+      "discovery": 0,
+      "validation": 50000
+    },
+    "group_indices": {
+      "base": 0,
+      "noise": 1,
+      "seasonality": 2,
+      "soil": 3,
+      "temperature": 4,
+      "water": 5
+    }
+  },
+  "model_projection": {
+    "environment": "complete_simulated_environment_after_removing_generating_truth_and_observation_truth_columns",
+    "observation_reference": "complete_frozen_M_background",
+    "prediction_surface_coverage_floor": 0.95,
+    "response_quantities": [
+      "optimum",
+      "lower_limit",
+      "upper_limit"
+    ]
+  },
+  "product_membership": {
+    "canonical_auc_point": "frozen_canonical_auc_candidate_at_canonical_M_full_fit",
+    "complete_adequate_certificate": "all_frozen_complete_adequate_base_candidates_by_M_full_fit",
+    "v2_3_mean_pareto_certificate": "frozen_ecological_pareto_base_candidates_by_M_full_fit",
+    "v2_4_exclusion_calibrated_certificate": "all_complete_adequate_base_and_admitted_knockout_candidates_by_M_by_spatial_refit"
+  },
+  "raw_envelope": {
+    "requires_every_expected_member": true,
+    "missing_or_nonfinite_member_makes_interval_unavailable": true,
+    "lower_bound": "minimum_estimate",
+    "upper_bound": "maximum_estimate"
+  },
+  "discovery_calibration": {
+    "truth_opened_only_after_all_raw_discovery_envelopes_frozen": true,
+    "radius": "maximum_normalized_outside_interval_miss_by_panel_predictor_quantity_across_the_three_discovery_taxa",
+    "validation_truth_used": false,
+    "applied_symmetrically_to_validation_intervals": true,
+    "width_can_override_coverage": false
+  },
+  "validation_stage_allowed_only_after": "immutable_discovery_refit_and_calibration_artifact_is_frozen"
+}

@@ -1,0 +1,167 @@
+name: product-a-v2-1-preoutcome-decision
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/preoutcome_ablation_decision.py'
+      - 'src/sdmr/preoutcome_artifact_normalization.py'
+      - 'tests/test_preoutcome_ablation_decision.py'
+      - 'tests/test_preoutcome_artifact_normalization.py'
+      - '.github/workflows/product-a-v2-1-preoutcome-decision.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-1-preoutcome-decision-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  decide-before-known-truth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: '32025224007'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test sealed-blind decision states
+        run: |
+          pytest -q \
+            tests/test_preoutcome_ablation_decision.py \
+            tests/test_preoutcome_artifact_normalization.py
+      - name: Wait for immutable source ablation and download its artifact
+        run: |
+          set -euo pipefail
+          rm -rf source_ablation source_ablation.zip
+          mkdir -p source_ablation
+          completed='false'
+          for attempt in $(seq 1 120); do
+            run_json=$(curl --fail --silent --show-error --location \
+              --retry 6 --retry-all-errors --retry-delay 5 \
+              --connect-timeout 20 --max-time 120 \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")
+            status=$(jq -r '.status' <<<"$run_json")
+            conclusion=$(jq -r '.conclusion // ""' <<<"$run_json")
+            if [[ "$status" == 'completed' ]]; then
+              test "$conclusion" = 'success'
+              completed='true'
+              break
+            fi
+            sleep 30
+          done
+          test "$completed" = 'true'
+
+          artifacts_json=$(curl --fail --silent --show-error --location \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 120 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100")
+          artifact_id=$(jq -r '[.artifacts[] | select(.expired == false)][0].id // empty' <<<"$artifacts_json")
+          test -n "$artifact_id"
+          printf '%s\n' "$artifact_id" > source_ablation/source_artifact_id.txt
+          curl --fail --location \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 20 --max-time 300 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+            --output source_ablation.zip
+          unzip -q source_ablation.zip -d source_ablation
+      - name: Normalize legacy model-pool outer-CV labels
+        run: |
+          python -m sdmr.preoutcome_artifact_normalization \
+            --input-dir source_ablation
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(
+              Path('source_ablation/preoutcome_artifact_normalization.json').read_text()
+          )
+          assert payload['model_pool_only_contract_verified'] is True
+          assert payload['authoritative_sealed_rows_read'] is False
+          assert payload['old_external_sealed_outcomes_read'] is False
+          assert set(payload['renamed_columns']).issubset({
+              'n_sealed_occurrences',
+              'sealed_pc12_envelope_coverage90',
+          })
+          PY
+      - name: Reconstruct complete-fold decision without sealed outcomes
+        id: decision
+        run: |
+          mkdir -p preoutcome_decision
+          python -m sdmr.preoutcome_ablation_decision \
+            --input-dir source_ablation \
+            --output-json preoutcome_decision/decision.json \
+            --output-markdown preoutcome_decision/decision.md \
+            --output-candidates preoutcome_decision/candidate_complete_fold_decision.csv \
+            --expected-outer-folds 2
+          cp source_ablation/preoutcome_artifact_normalization.json preoutcome_decision/
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('preoutcome_decision/decision.json').read_text())
+          assert payload['uses_sealed_outcomes'] is False
+          assert payload['scientific_promotion_run'] is False
+          assert payload['sealed_artifacts_detected'] == []
+          with Path('preoutcome_decision/decision_status.txt').open('w') as fh:
+              fh.write(str(payload['status']) + '\n')
+          with Path('preoutcome_decision/decision_counts.json').open('w') as fh:
+              json.dump(
+                  {
+                      'status': payload['status'],
+                      'n_candidates_seen': len(payload['candidates_seen']),
+                      'n_complete_prediction_candidates': len(payload['complete_prediction_candidates']),
+                      'n_complete_ecological_candidates': len(payload['complete_ecological_candidates']),
+                      'n_expected_cells': len(payload['expected_cells']),
+                  },
+                  fh,
+                  indent=2,
+                  sort_keys=True,
+              )
+          print(f"status={payload['status']}")
+          PY
+          status=$(cat preoutcome_decision/decision_status.txt)
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+      - name: Run known-truth regression only after complete empirical discovery evidence
+        if: steps.decision.outputs.status == 'ready_for_known_truth'
+        run: |
+          mapfile -t tests < <(
+            find tests -maxdepth 1 -type f \
+              \( -name 'test_known_truth*.py' -o -name 'test_*niche_recovery_stability*.py' \) \
+              | sort
+          )
+          test "${#tests[@]}" -gt 0
+          pytest -q "${tests[@]}" | tee preoutcome_decision/known_truth_regression.log
+      - name: Record empirical abstention without threshold relaxation
+        if: steps.decision.outputs.status != 'ready_for_known_truth'
+        run: |
+          cat > preoutcome_decision/known_truth_not_run.md <<'EOF'
+          # Known-truth stage not entered
+
+          The sealed-blind empirical discovery artifact did not contain a candidate
+          with complete required evidence. This is an explicit development
+          abstention. No coverage threshold, fold requirement, taxon panel, M grid,
+          seed, or ecological gate was relaxed, and no old sealed validation result
+          was used to select a fallback.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-1-preoutcome-decision
+          path: preoutcome_decision/
+          if-no-files-found: error
+          retention-days: 90

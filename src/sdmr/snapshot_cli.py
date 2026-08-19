@@ -1,0 +1,172 @@
+"""Materialize auditable subsets of GBIF's public monthly cloud snapshots."""
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import pandas as pd
+
+from .data.snapshot import GBIF_CLOUD_PROVIDERS, SnapshotBounds, materialize_gbif_snapshot_subset
+from .data.snapshot_bounds import bounds_from_occurrences, tiled_bounds_from_occurrences
+from .data.snapshot_citation import validate_snapshot_citation
+
+
+def _read_taxa(path: str) -> list[str]:
+    frame = pd.read_csv(path)
+    if "scientific_name" not in frame:
+        raise ValueError("taxa CSV must contain scientific_name")
+    return frame["scientific_name"].dropna().astype(str).str.strip().loc[lambda x: x.ne("")].tolist()
+
+
+def _read_table(path: str) -> pd.DataFrame:
+    p = Path(path)
+    if p.suffix.lower() in {".parquet", ".pq"}:
+        try:
+            return pd.read_parquet(p)
+        except ImportError as exc:
+            raise ImportError("Reading focal Parquet for bounds requires pyarrow; install sdmr[parquet].") from exc
+    return pd.read_csv(p)
+
+
+def _read_bounds(path: str) -> list[SnapshotBounds]:
+    frame = pd.read_csv(path)
+    required = {"west", "east", "south", "north"}
+    missing = required - set(frame.columns)
+    if missing:
+        raise ValueError(f"bounds CSV missing columns: {sorted(missing)}")
+    return [
+        SnapshotBounds(
+            west=float(row.west),
+            east=float(row.east),
+            south=float(row.south),
+            north=float(row.north),
+        )
+        for row in frame.itertuples(index=False)
+    ]
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Extract a citable subset from GBIF's public monthly Parquet snapshot. "
+            "Use --taxa for focal records or --kingdom plus spatial bounds for a target-group subset."
+        )
+    )
+    parser.add_argument("--snapshot-date", required=True, help="Monthly snapshot date YYYY-MM-01")
+    parser.add_argument("--snapshot-doi", required=True, help="DOI recorded in this snapshot's GBIF citation.txt")
+    parser.add_argument(
+        "--cloud-provider",
+        choices=GBIF_CLOUD_PROVIDERS,
+        default="aws",
+        help=(
+            "Cloud transport for the snapshot Parquet files. AWS and Azure are GBIF mirrors of the same dated snapshot; "
+            "the DOI is always validated against the exact snapshot citation.txt before scanning."
+        ),
+    )
+    parser.add_argument("--region", default="us-east-1", help="AWS mirror region; ignored for Azure Parquet transport")
+    parser.add_argument("--taxa", help="CSV containing scientific_name")
+    parser.add_argument("--kingdom", help="Taxonomic kingdom, e.g. Plantae")
+    parser.add_argument("--bounds", help="Optional CSV: west,east,south,north; rows are OR-combined")
+    parser.add_argument(
+        "--bounds-from-occurrences",
+        help="Optional focal CSV/Parquet used to derive cloud-query bounds.",
+    )
+    parser.add_argument(
+        "--bounds-mode",
+        choices=("species_bbox", "tiles"),
+        default="species_bbox",
+        help="species_bbox = one box per species; tiles = only occupied geographic tiles (recommended for widespread taxa).",
+    )
+    parser.add_argument("--bounds-buffer-degrees", type=float, default=2.0)
+    parser.add_argument(
+        "--bounds-buffer-km",
+        type=float,
+        help=(
+            "Distance-aware buffer for --bounds-mode tiles. When supplied it overrides --bounds-buffer-degrees "
+            "and expands longitude conservatively at high latitudes."
+        ),
+    )
+    parser.add_argument("--bounds-tile-degrees", type=float, default=5.0)
+    parser.add_argument(
+        "--one-per-grid-cell-degrees",
+        type=float,
+        help=(
+            "Optional cloud-side target-group compression: retain one deterministic record per lon/lat grid cell. "
+            "Do not use this for focal occurrence thinning unless explicitly intended."
+        ),
+    )
+    parser.add_argument("--output", required=True, help="Local .parquet subset path")
+    parser.add_argument("--provenance", help="Output provenance CSV; default <output>.provenance.csv")
+    parser.add_argument("--overwrite", action="store_true")
+    args = parser.parse_args(argv)
+
+    if args.bounds and args.bounds_from_occurrences:
+        parser.error("Use --bounds or --bounds-from-occurrences, not both")
+    if args.bounds_buffer_degrees < 0:
+        parser.error("--bounds-buffer-degrees must be >= 0")
+    if args.bounds_buffer_km is not None and args.bounds_buffer_km <= 0:
+        parser.error("--bounds-buffer-km must be > 0")
+    if args.bounds_buffer_km is not None and args.bounds_mode != "tiles":
+        parser.error("--bounds-buffer-km requires --bounds-mode tiles")
+    if not 0 < args.bounds_tile_degrees <= 180:
+        parser.error("--bounds-tile-degrees must be in (0, 180]")
+    if args.one_per_grid_cell_degrees is not None and args.one_per_grid_cell_degrees <= 0:
+        parser.error("--one-per-grid-cell-degrees must be > 0")
+
+    species_names = _read_taxa(args.taxa) if args.taxa else None
+    if args.bounds:
+        bounds = _read_bounds(args.bounds)
+    elif args.bounds_from_occurrences:
+        focal = _read_table(args.bounds_from_occurrences)
+        if args.bounds_mode == "tiles":
+            bounds = tiled_bounds_from_occurrences(
+                focal,
+                tile_degrees=args.bounds_tile_degrees,
+                buffer_degrees=args.bounds_buffer_degrees,
+                buffer_km=args.bounds_buffer_km,
+            )
+        else:
+            bounds = bounds_from_occurrences(
+                focal,
+                buffer_degrees=args.bounds_buffer_degrees,
+            )
+    else:
+        bounds = None
+    if not species_names and not args.kingdom:
+        parser.error("Provide --taxa and/or --kingdom; unfiltered global snapshot extraction is intentionally disabled")
+    if args.kingdom and not bounds and not species_names:
+        parser.error("Kingdom-only extraction requires spatial bounds to avoid accidentally materializing a huge global subset")
+
+    # The DOI contract is independent of the Parquet transport. Validate it
+    # against the exact snapshot's AWS-hosted citation.txt before any cloud scan.
+    citation = validate_snapshot_citation(
+        args.snapshot_date,
+        args.snapshot_doi,
+        region=args.region,
+    )
+
+    result = materialize_gbif_snapshot_subset(
+        args.output,
+        snapshot_date=args.snapshot_date,
+        snapshot_doi=citation.doi,
+        species_names=species_names,
+        kingdom=args.kingdom,
+        bounds=bounds,
+        region=args.region,
+        cloud_provider=args.cloud_provider,
+        one_per_grid_cell_degrees=args.one_per_grid_cell_degrees,
+        overwrite=args.overwrite,
+    )
+    result.provenance["snapshot_citation_url"] = citation.citation_url
+    result.provenance["snapshot_citation_sha256"] = citation.citation_sha256
+    result.provenance["snapshot_citation_doi"] = citation.doi
+
+    provenance_path = Path(args.provenance) if args.provenance else Path(str(args.output) + ".provenance.csv")
+    provenance_path.parent.mkdir(parents=True, exist_ok=True)
+    result.provenance.to_csv(provenance_path, index=False)
+    Path(str(args.output) + ".citation.txt").write_text(citation.citation_text, encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,268 @@
+{
+  "discovery_generating_truth_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "panels": [
+    {
+      "artifact_digest": "sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db",
+      "artifact_id": "9310256239",
+      "artifact_name": "product-a-v2-4-knockout-discovery-panel_D1",
+      "base_products": [
+        {
+          "candidates": [
+            "niche_forward|logit_l2_C1_degree2"
+          ],
+          "product": "canonical_auc_point",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C1_degree2",
+            "niche_forward|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C1_degree2",
+            "vif|logit_l2_C1_degree2"
+          ],
+          "product": "complete_adequate_certificate",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C1_degree2",
+            "niche_forward|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C1_degree2"
+          ],
+          "product": "ecological_pareto_certificate",
+          "status": "frozen"
+        }
+      ],
+      "discovery_seeds": [
+        371,
+        381,
+        391
+      ],
+      "n_admitted_knockout_routes": 20,
+      "n_complete_knockout_routes": 33,
+      "n_declared_knockout_routes": 40,
+      "panel": "panel_D1",
+      "processes": [
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 4,
+          "n_complete_knockout_routes": 7,
+          "n_declared_knockout_routes": 8,
+          "process": "noise"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 4,
+          "n_complete_knockout_routes": 7,
+          "n_declared_knockout_routes": 8,
+          "process": "seasonality"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 4,
+          "n_complete_knockout_routes": 7,
+          "n_declared_knockout_routes": 8,
+          "process": "soil"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 5,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "temperature"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 3,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "water"
+        }
+      ],
+      "validation_seeds_reserved_unopened": [
+        401,
+        411,
+        421
+      ]
+    },
+    {
+      "artifact_digest": "sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b",
+      "artifact_id": "9310224903",
+      "artifact_name": "product-a-v2-4-knockout-discovery-panel_D2",
+      "base_products": [
+        {
+          "candidates": [
+            "all|logit_l2_C1_degree2"
+          ],
+          "product": "canonical_auc_point",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C0.1_degree1",
+            "all|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C0.1_degree1",
+            "predictive_forward|logit_l2_C1_degree2",
+            "vif|logit_l2_C0.1_degree1",
+            "vif|logit_l2_C1_degree2"
+          ],
+          "product": "complete_adequate_certificate",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C1_degree2"
+          ],
+          "product": "ecological_pareto_certificate",
+          "status": "frozen"
+        }
+      ],
+      "discovery_seeds": [
+        372,
+        382,
+        392
+      ],
+      "n_admitted_knockout_routes": 30,
+      "n_complete_knockout_routes": 30,
+      "n_declared_knockout_routes": 40,
+      "panel": "panel_D2",
+      "processes": [
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "noise"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "seasonality"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "soil"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "temperature"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "water"
+        }
+      ],
+      "validation_seeds_reserved_unopened": [
+        402,
+        412,
+        422
+      ]
+    },
+    {
+      "artifact_digest": "sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e",
+      "artifact_id": "9310181352",
+      "artifact_name": "product-a-v2-4-knockout-discovery-panel_D3",
+      "base_products": [
+        {
+          "candidates": [
+            "predictive_forward|logit_l2_C1_degree2"
+          ],
+          "product": "canonical_auc_point",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C0.1_degree1",
+            "all|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C0.1_degree1",
+            "predictive_forward|logit_l2_C1_degree2",
+            "vif|logit_l2_C0.1_degree1",
+            "vif|logit_l2_C1_degree2"
+          ],
+          "product": "complete_adequate_certificate",
+          "status": "frozen"
+        },
+        {
+          "candidates": [
+            "all|logit_l2_C1_degree2",
+            "predictive_forward|logit_l2_C1_degree2"
+          ],
+          "product": "ecological_pareto_certificate",
+          "status": "frozen"
+        }
+      ],
+      "discovery_seeds": [
+        373,
+        383,
+        393
+      ],
+      "n_admitted_knockout_routes": 29,
+      "n_complete_knockout_routes": 30,
+      "n_declared_knockout_routes": 40,
+      "panel": "panel_D3",
+      "processes": [
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "noise"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 5,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "seasonality"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "soil"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "temperature"
+        },
+        {
+          "discovery_process_state": "exclusion_witness_frozen",
+          "n_admitted_knockout_routes": 6,
+          "n_complete_knockout_routes": 6,
+          "n_declared_knockout_routes": 8,
+          "process": "water"
+        }
+      ],
+      "validation_seeds_reserved_unopened": [
+        403,
+        413,
+        423
+      ]
+    }
+  ],
+  "purpose": "product_a_v2_4_sealed_blind_knockout_discovery_freeze",
+  "real_empirical_data_read": false,
+  "scientific_promotion_allowed": false,
+  "scientific_promotion_run": false,
+  "source_head_sha": "3c222249109ac2c15f6258ebc79bb1c957dd42a4",
+  "source_run_id": "32096477308",
+  "validation_taxa_simulated_or_read": false,
+  "validation_truth_read": false
+}

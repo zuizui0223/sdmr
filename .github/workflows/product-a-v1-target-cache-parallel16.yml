@@ -1,0 +1,128 @@
+name: product-a-v1-target-cache-parallel16
+
+on:
+  push:
+    branches:
+      - agent/nested-spatial-raster-benchmark
+    paths:
+      - 'configs/product_a_v1_target_parallel16_trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v1-target-cache-parallel16
+  cancel-in-progress: true
+
+jobs:
+  chunk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Materialize exact shard-chunk cell minima
+        run: |
+          mkdir -p chunk_output
+          sdmr-gbif-target-footprint-parallel chunk \
+            --snapshot-date 2026-08-01 \
+            --region us-east-1 \
+            --exclude-taxa configs/product_a_pilot_taxa_v1.csv \
+            --grid-cell-degrees 0.05 \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 16 \
+            --output chunk_output/partial.parquet \
+            --metadata chunk_output/partial.metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-target16-chunk-${{ matrix.chunk }}
+          path: chunk_output/
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-target16-chunk-*
+          path: target_parts
+      - name: Reduce to exact global non-focal footprint
+        run: |
+          mkdir -p target_cache
+          sdmr-gbif-target-footprint-parallel aggregate \
+            --parts-root target_parts \
+            --snapshot-doi 10.15468/dl.fs3btq \
+            --output target_cache/target_group.parquet \
+            --provenance target_cache/target_group.provenance.csv
+      - name: Verify and write final manifest
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          import pandas as pd
+          target = Path('target_cache/target_group.parquet')
+          prov = pd.read_csv('target_cache/target_group.provenance.csv').iloc[0].to_dict()
+          citation = Path('target_cache/target_group.parquet.citation.txt')
+          taxa = Path('configs/product_a_pilot_taxa_v1.csv')
+          target_sha = hashlib.sha256(target.read_bytes()).hexdigest()
+          citation_sha = hashlib.sha256(citation.read_bytes()).hexdigest()
+          taxa_sha = hashlib.sha256(taxa.read_bytes()).hexdigest()
+          if target_sha != str(prov.get('sha256','')).lower(): raise SystemExit('target SHA mismatch')
+          if citation_sha != '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050': raise SystemExit('citation mismatch')
+          if str(prov.get('sampling_mode','')) != 'global_nonfocal_one_per_grid_cell_sampling_footprint': raise SystemExit('sampling mode mismatch')
+          if int(prov.get('excluded_taxa_count',0)) != 12 or str(prov.get('excluded_taxa_sha256','')).lower() != taxa_sha: raise SystemExit('taxon exclusion mismatch')
+          if int(prov.get('snapshot_shard_count',0)) != 9705: raise SystemExit('shard coverage mismatch')
+          if int(prov.get('parallel_chunk_count',0)) != 16: raise SystemExit('chunk count mismatch')
+          frame = pd.read_parquet(target, columns=['species'])
+          manifest = {
+              'protocol_source': 'product_a_v1_global_nonfocal_target_group_footprint_parallel_exact',
+              'snapshot_date': '2026-08-01', 'snapshot_doi': '10.15468/dl.fs3btq',
+              'citation_sha256': citation_sha, 'target_sha256': target_sha,
+              'target_query_sha256': str(prov.get('query_sha256','')),
+              'target_rows': int(len(frame)), 'target_species': int(frame['species'].nunique()),
+              'sampling_mode': str(prov.get('sampling_mode','')),
+              'one_per_grid_cell_degrees': float(prov.get('one_per_grid_cell_degrees')),
+              'source_independent_of_focal_occurrence_geography': True,
+              'focal_taxa_excluded_pre_split': True,
+              'excluded_taxa_count': int(prov.get('excluded_taxa_count')),
+              'excluded_taxa_sha256': str(prov.get('excluded_taxa_sha256','')),
+              'snapshot_shard_count': int(prov.get('snapshot_shard_count')),
+              'snapshot_shard_catalog_sha256': str(prov.get('snapshot_shard_catalog_sha256','')),
+              'parallel_chunk_count': int(prov.get('parallel_chunk_count')),
+              'parallel_reduction': str(prov.get('parallel_reduction','')),
+              'cloud_provider': str(prov.get('cloud_provider','')),
+              'http_keep_alive': prov.get('http_keep_alive'), 'http_retries': prov.get('http_retries'),
+              'http_retry_wait_ms': prov.get('http_retry_wait_ms'), 'http_retry_backoff': prov.get('http_retry_backoff'),
+              'http_timeout': prov.get('http_timeout'),
+          }
+          Path('target_cache/target_cache_manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding='utf-8')
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v1-target-cache-parallel16-2026-08-01
+          path: target_cache/
+          if-no-files-found: error
+          retention-days: 90

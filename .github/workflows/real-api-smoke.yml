@@ -1,0 +1,76 @@
+name: real-api-smoke
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: real-api-smoke-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diagnostic-real-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install SDMR geo dependencies
+        run: python -m pip install -e '.[geo]'
+      - name: Materialize diagnostic GBIF corpus
+        run: python scripts/real_api_smoke.py --output-dir diagnostic_input --records-per-taxon 180
+      - name: Build real GBIF × CHELSA feature tables
+        run: |
+          sdmr-pilot \
+            --gbif-download diagnostic_input/diagnostic_occurrences.csv \
+            --gbif-download-key DIAGNOSTIC_GBIF_SEARCH_API_NONCITABLE \
+            --taxa diagnostic_input/diagnostic_taxa.csv \
+            --allow-pilot-target-group \
+            --output-dir diagnostic_result \
+            --min-occurrences 40 \
+            --min-unique-cells 25 \
+            --gate-cell-size-degrees 0.10 \
+            --m-strategy bbox \
+            --bbox-buffer-degrees 8 \
+            --background-points 160 \
+            --background-cell-size-degrees 0.10 \
+            --extract-chelsa \
+            --only bio1,bio12 \
+            --seed 20260814
+      - name: Run sealed Product-A smoke on fixed feature tables
+        run: |
+          printf 'bio1\nbio12\n' > diagnostic_input/predictors.txt
+          sdmr \
+            --mode method \
+            --occurrences diagnostic_result/pilot_occurrences.csv \
+            --background diagnostic_result/pilot_background.csv \
+            --predictors diagnostic_input/predictors.txt \
+            --output-dir diagnostic_method \
+            --spatial-test-fraction 0.20 \
+            --taxon-validation-fraction 0.25 \
+            --max-predictors 2 \
+            --random-baseline-repeats 1 \
+            --seed 20260814
+      - name: Record diagnostic boundary
+        if: always()
+        run: |
+          mkdir -p diagnostic_result diagnostic_method
+          cat > diagnostic_result/DIAGNOSTIC_ONLY.txt <<'EOF'
+          This run uses GBIF occurrence search and focal-pilot-only target-group background.
+          It is a pipeline smoke test, not admissible evidence for Product-A method promotion.
+          Scientific promotion requires versioned/citable bulk or monthly-snapshot inputs and a predeclared broader target-group corpus.
+          EOF
+          cp diagnostic_result/DIAGNOSTIC_ONLY.txt diagnostic_method/DIAGNOSTIC_ONLY.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-real-gbif-chelsa-smoke
+          path: |
+            diagnostic_input/
+            diagnostic_result/
+            diagnostic_method/
+          if-no-files-found: warn

@@ -1,0 +1,183 @@
+name: product-a-v2-eligible-taxon-transfer-core
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/prepared_taxon_transfer_eligible_cli.py'
+      - 'src/sdmr/prepared_taxon_transfer_safe_cli.py'
+      - 'src/sdmr/prepared_recovery_procedure_cli.py'
+      - 'src/sdmr/niche_recovery_procedure.py'
+      - 'src/sdmr/niche_recovery_perturbation.py'
+      - 'src/sdmr/recovery_procedure_fit.py'
+      - 'src/sdmr/empirical_audit_space.py'
+      - 'src/sdmr/empirical_product_a_v2.py'
+      - 'configs/product_a_v2_empirical_transfer_stage1_taxa.csv'
+      - 'configs/chelsa_v2_1_plant_candidates.csv'
+      - '.github/workflows/product-a-v2-eligible-taxon-transfer-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-eligible-taxon-transfer-core-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eligible-transfer-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STRICT_CACHE_RUN_ID: '31870747020'
+      STRICT_CACHE_ARTIFACT_ID: '9244072277'
+      ELIGIBILITY_RUN_ID: '32021964464'
+      ELIGIBILITY_ARTIFACT_ID: '9285693372'
+      ELIGIBILITY_ARTIFACT_DIGEST: 'sha256:c2570fe285d70d38740c524bbeb4a6b06d1aa645e7d8d581fa21ead1bc0d1840'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Download strict frozen feature cache
+        run: |
+          rm -rf prepared_feature_cache strict_cache.zip
+          mkdir -p prepared_feature_cache
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$STRICT_CACHE_ARTIFACT_ID/zip" \
+            --output strict_cache.zip
+          unzip -q strict_cache.zip -d prepared_feature_cache
+          test -f prepared_feature_cache/feature_cache_contract.json
+      - name: Download immutable model-free eligibility artifact
+        run: |
+          rm -rf taxon_transfer_eligibility eligibility.zip
+          mkdir -p taxon_transfer_eligibility
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ELIGIBILITY_ARTIFACT_ID/zip" \
+            --output eligibility.zip
+          unzip -q eligibility.zip -d taxon_transfer_eligibility
+          test -f taxon_transfer_eligibility/taxon_transfer_spatial_eligibility_contract.json
+          test -f taxon_transfer_eligibility/eligible_taxon_roles.csv
+      - name: Run predeclared core-L2 unseen-taxon transfer
+        run: |
+          rm -rf eligible_transfer_core
+          python -m sdmr.prepared_taxon_transfer_eligible_cli \
+            --prepared-dir prepared_feature_cache \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --candidate-taxa configs/product_a_v2_empirical_transfer_stage1_taxa.csv \
+            --eligibility-dir taxon_transfer_eligibility \
+            --output-dir eligible_transfer_core \
+            --canonical-spec buffer_300km \
+            --procedure-profile core_l2 \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 4 \
+            --seed 20260814 \
+            --purpose empirical_product_a_v2_eligibility_gated_transfer_core_l2 \
+            --source-run-id "$STRICT_CACHE_RUN_ID" \
+            --source-artifact-id "$STRICT_CACHE_ARTIFACT_ID" \
+            --eligibility-run-id "$ELIGIBILITY_RUN_ID" \
+            --eligibility-artifact-id "$ELIGIBILITY_ARTIFACT_ID" \
+            --eligibility-artifact-digest "$ELIGIBILITY_ARTIFACT_DIGEST"
+      - name: Verify frozen Tier-2 transfer contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          def safe_csv(path):
+              path = Path(path)
+              if not path.exists() or path.stat().st_size == 0:
+                  return pd.DataFrame()
+              try:
+                  return pd.read_csv(path)
+              except pd.errors.EmptyDataError:
+                  return pd.DataFrame()
+
+          root = Path('eligible_transfer_core')
+          contract = json.loads((root / 'product_a_v2_eligible_taxon_transfer_contract.json').read_text())
+          status = pd.read_csv(root / 'discovery_benchmark_status.csv')
+          discovery = safe_csv(root / 'discovery_procedure_fold_metrics.csv')
+          selectors = pd.read_csv(root / 'frozen_discovery_selectors.csv')
+          fit = pd.read_csv(root / 'validation_final_fit_status.csv')
+          sealed = safe_csv(root / 'validation_outer_sealed.csv')
+
+          assert contract['purpose'] == 'empirical_product_a_v2_eligibility_gated_transfer_core_l2'
+          assert contract['procedure_profile'] == 'core_l2'
+          assert len(contract['procedure_labels']) == 24
+          assert contract['inner_folds'] == 2
+          assert contract['outer_folds'] == 2
+          assert contract['max_predictors'] == 4
+          assert contract['seed'] == 20260814
+          assert contract['source_run_id'] == '31870747020'
+          assert contract['source_artifact_id'] == '9244072277'
+          assert contract['eligibility_run_id'] == '32021964464'
+          assert contract['eligibility_artifact_id'] == '9285693372'
+          assert contract['eligibility_artifact_digest'] == 'sha256:c2570fe285d70d38740c524bbeb4a6b06d1aa645e7d8d581fa21ead1bc0d1840'
+          assert contract['original_candidate_panel_taxa'] == [
+              'Nothofagus pumilio', 'Eucalyptus pauciflora', 'Picea mariana',
+              'Rhizophora mangle', 'Larrea tridentata'
+          ]
+          assert contract['ineligible_taxa'] == ['Picea mariana']
+          assert set(contract['discovery_taxa']) == {'Nothofagus pumilio', 'Eucalyptus pauciflora'}
+          assert set(contract['validation_taxa']) == {'Rhizophora mangle', 'Larrea tridentata'}
+          assert contract['original_panel_index_by_species']['Rhizophora mangle'] == 3
+          assert contract['original_panel_index_by_species']['Larrea tridentata'] == 4
+          assert contract['eligibility_applied_before_candidate_model_fitting'] is True
+          assert contract['ineligible_taxa_removed_by_model_outcomes'] is False
+          assert contract['original_panel_indices_preserved_for_spatial_seeds'] is True
+          assert contract['validation_taxa_used_for_discovery_selection'] is False
+          assert contract['validation_sealed_opened_after_all_validation_fit_attempts'] is True
+          assert contract['validation_results_can_change_frozen_selector'] is False
+          assert contract['no_post_validation_fallback_procedure'] is True
+          assert contract['outer_sealed_before_M'] is True
+          assert contract['m_grid_as_sensitivity'] is True
+          assert contract['candidate_predictor_universe_size'] == 43
+          assert contract['hidden_truth_used'] is False
+
+          expected_cells = {
+              (sp, m)
+              for sp in contract['discovery_taxa']
+              for m in ('buffer_150km', 'buffer_300km', 'buffer_500km')
+          }
+          assert set(zip(status['species'].astype(str), status['perturbation'].astype(str))) == expected_cells
+          assert set(status['status']).issubset({'success', 'abstain_no_evaluable_outer_folds'})
+          assert 'Picea mariana' not in set(status['species'].astype(str))
+
+          if not discovery.empty:
+              assert set(discovery['species']).issubset(set(contract['discovery_taxa']))
+              assert not set(contract['validation_taxa']).intersection(discovery['species'])
+              assert discovery['candidate'].nunique() <= 24
+
+          assert set(selectors['selector']) == {'canonical_auc', 'canonical_ecology', 'robust_ecology'}
+          assert selectors['status'].apply(lambda x: x == 'selected' or str(x).startswith('abstain_')).all()
+          assert set(fit['species']) == set(contract['validation_taxa'])
+          assert fit.groupby('species')['selector'].nunique().eq(3).all()
+          n_success = int(fit['final_fit_status'].eq('success').sum())
+          assert len(sealed) == n_success
+          if n_success:
+              assert set(sealed['species']).issubset(set(contract['validation_taxa']))
+              assert (sealed['n_sealed_presence'] > 0).all()
+              assert (sealed['n_sealed_background'] > 0).all()
+
+          forbidden = {'true_suitability', 'truth_surface_rank', 'driver_process_f1'}
+          for frame in (discovery, sealed):
+              assert not forbidden.intersection(frame.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-eligible-taxon-transfer-core
+          path: eligible_transfer_core/
+          if-no-files-found: error
+          retention-days: 90

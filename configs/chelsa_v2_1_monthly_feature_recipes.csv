@@ -1,0 +1,13 @@
+predictor,source_variable,feature_recipe,unit,process,mechanism
+vpd_mean,vpd,annual_mean,Pa,drought,mean_vapor_pressure_deficit
+vpd_max,vpd,annual_max,Pa,drought,peak_vapor_pressure_deficit
+cmi_mean,cmi,annual_mean,kg_m-2_month-1,water_balance,mean_climate_moisture_index
+cmi_min,cmi,annual_min,kg_m-2_month-1,drought,minimum_climate_moisture_index
+pet_annual,pet,annual_sum,kg_m-2_yr-1,water_balance,annual_potential_evapotranspiration
+rsds_mean,rsds,annual_mean,W_m-2,radiation,mean_shortwave_radiation
+rsds_max,rsds,annual_max,W_m-2,radiation,peak_shortwave_radiation
+sfcWind_mean,sfcWind,annual_mean,m_s-1,wind,mean_near_surface_wind_speed
+sfcWind_max,sfcWind,annual_max,m_s-1,wind,peak_near_surface_wind_speed
+hurs_mean,hurs,annual_mean,percent,humidity,mean_relative_humidity
+hurs_min,hurs,annual_min,percent,drought,minimum_relative_humidity
+clt_mean,clt,annual_mean,percent,cloud,mean_cloud_cover

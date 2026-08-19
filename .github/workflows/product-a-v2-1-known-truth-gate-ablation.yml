@@ -1,0 +1,134 @@
+name: product-a-v2-1-known-truth-gate-ablation
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/model_pool_predictor_admissibility.py'
+      - 'src/sdmr/candidate_outer_fold_evidence.py'
+      - 'src/sdmr/v2_1_known_truth_gate_ablation.py'
+      - 'src/sdmr/known_truth.py'
+      - 'src/sdmr/known_truth_scenarios.py'
+      - 'src/sdmr/known_truth_response.py'
+      - 'src/sdmr/niche_recovery_procedure.py'
+      - 'tests/test_v2_1_known_truth_gate_ablation.py'
+      - '.github/workflows/product-a-v2-1-known-truth-gate-ablation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-1-known-truth-gates-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  known-truth-gate-ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Unit-test v2.1 known-truth barrier and gate semantics
+        run: pytest -q tests/test_v2_1_known_truth_gate_ablation.py
+      - name: Run unseen known-truth gate ablation
+        run: |
+          rm -rf v2_1_known_truth_gate_ablation
+          python -m sdmr.v2_1_known_truth_gate_ablation \
+            --output-dir v2_1_known_truth_gate_ablation \
+            --n-cells 2200 \
+            --n-occurrences 220 \
+            --n-target-group 850 \
+            --inner-folds 2 \
+            --outer-folds 2 \
+            --max-predictors 4 \
+            --minimum-predictor-coverage 0.95 \
+            --prediction-surface-coverage-floor 0.95
+      - name: Verify truth opens only after selector freeze and negative outcomes remain valid
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          root = Path('v2_1_known_truth_gate_ablation')
+          contract = json.loads(
+              (root / 'product_a_v2_1_known_truth_contract.json').read_text()
+          )
+          selectors = pd.read_csv(root / 'discovery_frozen_selectors.csv')
+          truth = pd.read_csv(root / 'validation_truth_evaluation.csv')
+          summary = pd.read_csv(root / 'validation_truth_summary.csv')
+          decision = pd.read_csv(root / 'development_decision.csv')
+          raw_coverage = pd.read_csv(root / 'discovery_predictor_coverage__raw.csv')
+          gated_universe = pd.read_csv(
+              root / 'discovery_predictor_universe__coverage.csv'
+          )
+
+          assert contract['scientific_promotion_run'] is False
+          assert contract['real_empirical_data_read'] is False
+          assert contract['old_external_sealed_outcomes_read'] is False
+          assert contract['selection_never_uses_truth'] is True
+          assert contract['truth_columns_removed_before_discovery_selection'] is True
+          assert contract['validation_truth_opened_after_all_discovery_selectors_frozen'] is True
+          assert contract['negative_and_abstention_outcomes_accepted'] is True
+          assert contract['candidate_predictor_gate']['minimum_coverage'] == 0.95
+          assert contract['candidate_predictor_gate']['model_pool_only'] is True
+          assert contract['candidate_outer_fold_gate']['expected_outer_folds'] == 2
+          assert contract['regimes'] == [
+              'raw_available', 'raw_complete',
+              'coverage_available', 'coverage_complete'
+          ]
+          assert len(contract['discovery_taxa']) == 3
+          assert len(contract['validation_taxa']) == 3
+          assert {x['family'] for x in contract['validation_taxa']} == {
+              'soft_threshold', 'omitted_driver', 'observation_confounded'
+          }
+
+          assert set(selectors['regime']) == set(contract['regimes'])
+          assert set(selectors['selector']) == {
+              'canonical_auc', 'canonical_ecology', 'robust_ecology'
+          }
+          assert len(selectors) == 12
+          assert set(truth['regime']) == set(contract['regimes'])
+          assert set(truth['selector']) == set(contract['selectors'])
+          assert truth['species'].nunique() == 3
+          assert set(truth['truth_status']).issubset({
+              'complete',
+              'not_evaluable_discovery_selector_abstained',
+              'not_evaluable_final_fit_abstained',
+              'abstain_prediction_surface_coverage',
+              'abstain_nonfinite_truth_metric',
+          })
+          assert set(summary['regime']).issubset(set(contract['regimes']))
+          assert decision.loc[0, 'decision'] in {
+              'supported', 'partially_supported', 'not_supported'
+          }
+          assert not bool(decision.loc[0, 'scientific_promotion_allowed'])
+
+          sparse = raw_coverage.loc[
+              raw_coverage['predictor'].isin({'sparse_temp_proxy', 'sparse_noise'})
+          ]
+          assert sparse['species'].nunique() == 3
+          assert not sparse['eligible_all_perturbations'].any()
+          assert gated_universe['n_model_pool_admissible_predictors'].lt(
+              gated_universe['n_raw_predictors']
+          ).all()
+
+          forbidden_discovery = {
+              'true_suitability', 'truth_surface_rank', 'driver_process_f1',
+              'n_sealed_presence', 'n_sealed_background'
+          }
+          for universe in ('raw', 'coverage'):
+              metrics = pd.read_csv(root / f'discovery_fold_metrics__{universe}.csv')
+              assert not forbidden_discovery.intersection(metrics.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-1-known-truth-gate-ablation
+          path: v2_1_known_truth_gate_ablation/
+          if-no-files-found: error
+          retention-days: 90

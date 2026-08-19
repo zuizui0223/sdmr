@@ -1,0 +1,38 @@
+name: product-a-transfer-contrast-diagnostic
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/evaluation_contrast.py'
+      - 'src/sdmr/evaluation_contrast_aggregate.py'
+      - 'src/sdmr/evaluation_contrast_cli.py'
+      - 'src/sdmr/target_footprint_parallel_cli.py'
+      - 'src/sdmr/data/background.py'
+      - 'tests/test_evaluation_contrast.py'
+      - 'tests/test_evaluation_contrast_aggregate.py'
+      - 'tests/test_target_footprint_parallel.py'
+      - 'tests/test_background_buffer.py'
+      - '.github/workflows/product-a-transfer-contrast-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contrast-and-source-equivalence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install tests
+        run: python -m pip install -e . pytest
+      - name: Run transfer/source equivalence tests
+        run: |
+          pytest -q \
+            tests/test_evaluation_contrast.py \
+            tests/test_evaluation_contrast_aggregate.py \
+            tests/test_target_footprint_parallel.py \
+            tests/test_background_buffer.py
