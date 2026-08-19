@@ -1,0 +1,52 @@
+name: product-a-v2-5-calibration-diagnose
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/product-a-v2-5-calibration-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_RUN_ID: '32232483982'
+    steps:
+      - name: Collect all calibration jobs and artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostic
+          curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/jobs?per_page=100" \
+            > diagnostic/jobs.json
+          curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID/artifacts?per_page=100" \
+            > diagnostic/artifacts.json
+          jq '[.jobs[] | {id,name,status,conclusion}]' diagnostic/jobs.json > diagnostic/job_summary.json
+          jq '[.jobs[] | select(.conclusion != "success" and .conclusion != null) | {id,name,status,conclusion}]' diagnostic/jobs.json > diagnostic/non_success_jobs.json
+          jq '[.artifacts[] | {id,name,digest,expired,workflow_run}]' diagnostic/artifacts.json > diagnostic/artifact_summary.json
+          jq -n \
+            --argjson total "$(jq '.total_count' diagnostic/jobs.json)" \
+            --argjson failed "$(jq '[.jobs[] | select(.conclusion != "success" and .conclusion != null)] | length' diagnostic/jobs.json)" \
+            --argjson artifacts "$(jq '.total_count' diagnostic/artifacts.json)" \
+            '{total_jobs:$total, non_success_jobs:$failed, artifact_count:$artifacts}' \
+            > diagnostic/counts.json
+          cat diagnostic/counts.json
+          cat diagnostic/non_success_jobs.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-5-calibration-diagnostic
+          path: diagnostic/
+          if-no-files-found: error
+          retention-days: 30

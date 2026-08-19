@@ -1,0 +1,118 @@
+name: v25-calibration-recover
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/v2_5_calibration_aggregate.py'
+      - 'tests/test_v2_5_calibration_complete_taxa.py'
+      - '.github/workflows/v25-calibration-recover.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  recover-calibration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SOURCE_WORKER_RUN_ID: '32232483982'
+      SOURCE_WORKER_HEAD_SHA: 'b87f5dd949fde415b07d0b158e31700ce920b1f2'
+      SOURCE_CONTRACT_SHA256: '5ec53b200a2c5d53df56cc496d8c0dcca36908eba0de7836ad606c070c3ba8f7'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify corrected semantics tests
+        run: pytest -q tests/test_v2_5_calibration_complete_taxa.py tests/test_v2_5_calibration_support.py
+      - name: Verify source worker provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_json=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_WORKER_RUN_ID")
+          test "$(jq -r '.head_sha' <<<"$run_json")" = "$SOURCE_WORKER_HEAD_SHA"
+          artifact_json=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_WORKER_RUN_ID/artifacts?per_page=100")
+          test "$(jq '[.artifacts[] | select(.name | startswith("product-a-v2-5-calibration-refit-"))] | length' <<<"$artifact_json")" = '90'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '32232483982'
+          pattern: product-a-v2-5-calibration-refit-*
+          path: calibration_workers
+          merge-multiple: false
+      - name: Verify all 90 immutable worker contracts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for path in Path('calibration_workers').rglob('contract.json'):
+              row=json.loads(path.read_text())
+              if row.get('purpose') == 'product_a_v2_5_model_only_refit_worker':
+                  rows.append(row)
+          assert len(rows) == 90, len(rows)
+          assert all(r['contract_sha256'] == '5ec53b200a2c5d53df56cc496d8c0dcca36908eba0de7836ad606c070c3ba8f7' for r in rows)
+          assert all(r['role'] == 'calibration' for r in rows)
+          assert all(r['generating_truth_read'] is False for r in rows)
+          assert all(r['candidate_selection_performed'] is False for r in rows)
+          assert all(r['scientific_threshold_tuning_performed'] is False for r in rows)
+          keys={(r['panel'], int(r['taxon_index']), r['group']) for r in rows}
+          assert len(keys) == 90
+          PY
+      - name: Rebuild frozen calibration with predeclared complete-taxa semantics
+        run: |
+          rm -rf product_a_v2_5_calibration
+          python -m sdmr.v2_5_calibration_aggregate \
+            --contract configs/product_a_v2_5_calibration_support.json \
+            --worker-root calibration_workers \
+            --output-dir product_a_v2_5_calibration
+          cat > product_a_v2_5_calibration/worker_provenance.json <<EOF
+          {"source_worker_run_id":"$SOURCE_WORKER_RUN_ID","source_worker_head_sha":"$SOURCE_WORKER_HEAD_SHA","source_contract_sha256":"$SOURCE_CONTRACT_SHA256"}
+          EOF
+      - name: Verify 27 of 27 frozen calibration keys
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          root=Path('product_a_v2_5_calibration')
+          c=json.loads((root/'contract.json').read_text())
+          cal=pd.read_csv(root/'calibration.csv')
+          assert c['purpose'] == 'product_a_v2_5_frozen_calibration_radii'
+          assert c['n_model_only_calibration_workers'] == 90
+          assert c['n_calibration_keys'] == 27
+          assert c['minimum_complete_calibration_taxa_per_key'] == 2
+          assert c['calibration_radius_uses_complete_taxa_only'] is True
+          assert c['all_required_validation_keys_calibrated'] is True
+          assert c['fresh_validation_taxa_simulated_or_read'] is False
+          assert c['fresh_validation_truth_read'] is False
+          assert c['validation_truth_used_for_calibration'] is False
+          assert len(cal) == 27
+          assert cal['calibration_status'].astype(str).eq('complete').all()
+          assert (pd.to_numeric(cal['n_evaluable_discovery_keys']) >= 2).all()
+          assert np.isfinite(pd.to_numeric(cal['normalized_expansion_radius'])).all()
+          assert set(cal['panel']) == {'panel_D1','panel_D2','panel_D3'}
+          assert set(cal['predictor']) == {'temperature','water','soil'}
+          assert set(cal['quantity']) == {'optimum','lower_limit','upper_limit'}
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-5-frozen-calibration-recovered
+          path: product_a_v2_5_calibration/
+          if-no-files-found: error
+          retention-days: 90

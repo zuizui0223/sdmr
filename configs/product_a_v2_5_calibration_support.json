@@ -1,0 +1,116 @@
+{
+  "purpose": "product_a_v2_5_pretruth_calibration_support_and_fresh_validation_contract",
+  "scientific_promotion_run": false,
+  "real_empirical_data_read": false,
+  "old_external_sealed_outcomes_read": false,
+  "opened_known_truth_seeds_excluded": {
+    "minimum": 1,
+    "maximum": 423
+  },
+  "successor_of": "product_a_v2_4_exclusion_calibrated_certificate",
+  "v2_4_failure_repaired": "validation_required_soil_response_without_discovery_calibration_support",
+  "source_discovery": {
+    "run_id": "32096477308",
+    "head_sha": "3c222249109ac2c15f6258ebc79bb1c957dd42a4",
+    "panels": {
+      "panel_D1": {"artifact_id": "9310256239", "artifact_digest": "sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db"},
+      "panel_D2": {"artifact_id": "9310224903", "artifact_digest": "sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b"},
+      "panel_D3": {"artifact_id": "9310181352", "artifact_digest": "sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e"}
+    }
+  },
+  "simulation_contract": {
+    "n_cells": 1500,
+    "n_occurrences": 150,
+    "n_target_group": 600,
+    "inner_folds": 2,
+    "max_predictors": 4,
+    "minimum_predictor_coverage": 0.95,
+    "prediction_surface_coverage_floor": 0.95,
+    "M_specs": ["m_core", "m_mid", "m_wide"]
+  },
+  "refit_semantics": {
+    "groups": ["base", "noise", "seasonality", "soil", "temperature", "water"],
+    "n_blocks": 5,
+    "holdout_fraction": 0.2,
+    "spatial_refit_codes": [0, 1, 2, 3, 4],
+    "full_fit_code": 9,
+    "seed_base": 510000,
+    "role_offsets": {"calibration": 0, "validation": 50000},
+    "seed_formula": "510000 + panel_index*100000 + role_offset + taxon_index*10000 + group_index*1000 + candidate_index*100 + M_index*10 + fit_code"
+  },
+  "calibration_support": {
+    "check_timing": "before_any_fresh_validation_worker_starts",
+    "validation_truth_read": false,
+    "quantities": ["optimum", "lower_limit", "upper_limit"],
+    "minimum_calibration_taxa_per_key": 2,
+    "required_rule": "every_predictor_by_quantity_key_required_by_declared_validation_families_has_at_least_minimum_calibration_taxa_in_each_panel",
+    "failure_semantics": "fail_closed_without_consuming_fresh_validation_seed"
+  },
+  "calibration_semantics": {
+    "role": "calibration_only",
+    "candidate_selection_allowed": false,
+    "scientific_threshold_tuning_allowed": false,
+    "interval_radius": "maximum_normalized_outside_interval_miss_over_complete_calibration_taxa",
+    "truth_opened_only_after_all_raw_calibration_envelopes_frozen": true,
+    "validation_truth_used_for_radius": false
+  },
+  "validation_semantics": {
+    "role": "fresh_confirmation_only",
+    "candidate_selection_allowed": false,
+    "calibration_allowed": false,
+    "threshold_tuning_allowed": false,
+    "truth_opened_once_after_products_frozen": true
+  },
+  "panels": [
+    {
+      "name": "panel_D1",
+      "calibration": [
+        {"family": "gaussian", "seed": 431},
+        {"family": "asymmetric", "seed": 432},
+        {"family": "interaction", "seed": 433},
+        {"family": "omitted_driver", "seed": 434},
+        {"family": "omitted_driver", "seed": 435}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 501},
+        {"family": "omitted_driver", "seed": 511},
+        {"family": "observation_confounded", "seed": 521}
+      ]
+    },
+    {
+      "name": "panel_D2",
+      "calibration": [
+        {"family": "gaussian", "seed": 436},
+        {"family": "asymmetric", "seed": 437},
+        {"family": "interaction", "seed": 438},
+        {"family": "omitted_driver", "seed": 439},
+        {"family": "omitted_driver", "seed": 440}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 502},
+        {"family": "omitted_driver", "seed": 512},
+        {"family": "observation_confounded", "seed": 522}
+      ]
+    },
+    {
+      "name": "panel_D3",
+      "calibration": [
+        {"family": "gaussian", "seed": 441},
+        {"family": "asymmetric", "seed": 442},
+        {"family": "interaction", "seed": 443},
+        {"family": "omitted_driver", "seed": 444},
+        {"family": "omitted_driver", "seed": 445}
+      ],
+      "validation": [
+        {"family": "soft_threshold", "seed": 503},
+        {"family": "omitted_driver", "seed": 513},
+        {"family": "observation_confounded", "seed": 523}
+      ]
+    }
+  ],
+  "promotion_boundary": {
+    "known_truth_supported_result_means": "eligible_to_freeze_for_new_real_data_sealed_before_M_confirmation",
+    "known_truth_supported_result_does_not_mean": "final_empirical_or_fundamental_niche_validation",
+    "product_b_remains_blocked_until_empirical_confirmation": true
+  }
+}

@@ -1,0 +1,63 @@
+name: product-a-v2-5-calibration-preflight
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/v2_5_calibration_support.py'
+      - 'src/sdmr/v2_5_contract.py'
+      - 'configs/product_a_v2_5_calibration_support.json'
+      - 'tests/test_v2_5_calibration_support.py'
+      - '.github/workflows/product-a-v2-5-calibration-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pretruth-calibration-support:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify frozen contract before fresh validation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from sdmr.v2_5_contract import load_v2_5_contract
+
+          contract = load_v2_5_contract(
+              Path('configs/product_a_v2_5_calibration_support.json')
+          )
+          audit = contract.support_audit
+          assert audit.complete
+          assert audit.minimum_support_per_key == 2
+          assert len(audit.required_validation_keys) == 9
+          support = {(p, q): n for p, q, n in audit.support_counts}
+          assert min(support.values()) >= 2
+          assert support[('soil', 'optimum')] == 2
+          assert support[('soil', 'lower_limit')] == 2
+          assert support[('soil', 'upper_limit')] == 2
+          calibration_seeds = {
+              spec.seed for panel in contract.panels for spec in panel.calibration
+          }
+          validation_seeds = {
+              spec.seed for panel in contract.panels for spec in panel.validation
+          }
+          assert len(calibration_seeds) == 15
+          assert len(validation_seeds) == 9
+          assert calibration_seeds.isdisjoint(validation_seeds)
+          assert min(calibration_seeds) > 423
+          assert min(validation_seeds) > 423
+          assert all(spec.role == 'calibration' for panel in contract.panels for spec in panel.calibration)
+          assert all(spec.role == 'validation' for panel in contract.panels for spec in panel.validation)
+          print('v2.5 frozen pretruth contract: PASS')
+          print('contract sha256:', contract.sha256)
+          print('required keys:', audit.required_validation_keys)
+          print('minimum support:', min(support.values()))
+          PY
