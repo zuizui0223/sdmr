@@ -1,0 +1,206 @@
+name: product-a-v2-6-calibration-freeze
+
+on:
+  pull_request:
+    paths:
+      - 'configs/product_a_v2_6_calibration_redundancy.json'
+      - 'src/sdmr/v2_6_contract.py'
+      - 'src/sdmr/v2_6_refit_worker.py'
+      - 'src/sdmr/v2_6_calibration_aggregate.py'
+      - 'tests/test_v2_6_contract.py'
+      - '.github/workflows/product-a-v2-6-calibration-freeze.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-6-calibration-freeze-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pretruth-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify contract and collision-free seeds before opening 446-472
+        run: |
+          pytest -q tests/test_v2_6_contract.py tests/test_v2_5_calibration_complete_taxa.py
+          python - <<'PY'
+          from sdmr.v2_6_contract import load_v2_6_contract
+          c=load_v2_6_contract('configs/product_a_v2_6_calibration_redundancy.json')
+          assert c.support_audit.complete
+          assert c.support_audit.minimum_support_per_key == 2
+          assert len(c.support_audit.required_validation_keys) == 9
+          assert all(len(p.calibration) == 9 for p in c.panels)
+          assert all(sum(s.family == 'omitted_driver' for s in p.calibration) == 6 for p in c.panels)
+          assert {s.seed for p in c.panels for s in p.calibration} == set(range(446,473))
+          assert {s.seed for p in c.panels for s in p.validation} == {501,502,503,511,512,513,521,522,523}
+          print('v2.6 PRETRUTH CONTRACT PASS', c.sha256)
+          PY
+
+  calibration-refit:
+    needs: pretruth-contract
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        panel: [panel_D1, panel_D2, panel_D3]
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+        group: [base, noise, seasonality, soil, temperature, water]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_DISCOVERY_RUN_ID: '32096477308'
+      SOURCE_DISCOVERY_HEAD_SHA: '3c222249109ac2c15f6258ebc79bb1c957dd42a4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify and download immutable v2.4 discovery candidates
+        run: |
+          set -euo pipefail
+          case '${{ matrix.panel }}' in
+            panel_D1) artifact_id='9310256239'; artifact_digest='sha256:aace53635728c8a2edf4a92de8136e127a21d9552679cad0f30048195e25e7db' ;;
+            panel_D2) artifact_id='9310224903'; artifact_digest='sha256:b47f660cab44e2c8e7a29131c163447a39d7aa6332a4c83a3ea0f7aebdd0936b' ;;
+            panel_D3) artifact_id='9310181352'; artifact_digest='sha256:5f325c22cffd3048ba99aecf24bf94dc6e95c9264aae6953e7ae0a9b473dc85e' ;;
+          esac
+          run_json=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_DISCOVERY_RUN_ID")
+          test "$(jq -r '.status' <<<"$run_json")" = completed
+          test "$(jq -r '.conclusion' <<<"$run_json")" = success
+          test "$(jq -r '.head_sha' <<<"$run_json")" = "$SOURCE_DISCOVERY_HEAD_SHA"
+          artifact_json=$(curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id")
+          test "$(jq -r '.digest' <<<"$artifact_json")" = "$artifact_digest"
+          test "$(jq -r '.workflow_run.id' <<<"$artifact_json")" = "$SOURCE_DISCOVERY_RUN_ID"
+          rm -rf source_discovery source_discovery.zip && mkdir source_discovery
+          curl --fail --location --retry 5 --retry-all-errors \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" \
+            -o source_discovery.zip
+          unzip -q source_discovery.zip -d source_discovery
+      - name: Fit frozen v2.6 calibration members without truth
+        run: |
+          rm -rf worker_output
+          python -m sdmr.v2_6_refit_worker \
+            --contract configs/product_a_v2_6_calibration_redundancy.json \
+            --discovery-dir source_discovery \
+            --panel '${{ matrix.panel }}' \
+            --role calibration \
+            --taxon-index '${{ matrix.taxon_index }}' \
+            --group '${{ matrix.group }}' \
+            --output-dir worker_output
+      - name: Verify model-only worker barrier
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          root=Path('worker_output')
+          c=json.loads((root/'contract.json').read_text())
+          fits=pd.read_csv(root/'fit_ledger.csv')
+          assert c['purpose'] == 'product_a_v2_6_model_only_refit_worker'
+          assert c['role'] == 'calibration'
+          assert c['generating_truth_read'] is False
+          assert c['real_empirical_data_read'] is False
+          assert c['candidate_selection_performed'] is False
+          assert c['scientific_threshold_tuning_performed'] is False
+          assert c['worker_algorithm_source'] == 'v2_5_refit_worker_unchanged_core'
+          assert fits['fit_status'].isin({'success','abstain_member_fit'}).all()
+          forbidden={'true_suitability','sampling_effort','focal_recording_multiplier'}
+          for name in ('expected_members.csv','expected_response_keys.csv','fit_ledger.csv','response_estimates.csv','frozen_candidates.csv'):
+              frame=pd.read_csv(root/name)
+              assert not forbidden.intersection(frame.columns)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-calibration-refit-${{ matrix.panel }}-taxon${{ matrix.taxon_index }}-${{ matrix.group }}
+          path: worker_output/
+          if-no-files-found: error
+          retention-days: 90
+
+  freeze-calibration:
+    needs: calibration-refit
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-v2-6-calibration-refit-*
+          path: calibration_workers
+          merge-multiple: false
+      - name: Verify all 162 workers before calibration truth opens
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in Path('calibration_workers').rglob('contract.json'):
+              r=json.loads(p.read_text())
+              if r.get('purpose') == 'product_a_v2_6_model_only_refit_worker': rows.append(r)
+          assert len(rows) == 162, len(rows)
+          assert len({(r['panel'],int(r['taxon_index']),r['group']) for r in rows}) == 162
+          assert all(r['generating_truth_read'] is False for r in rows)
+          assert all(r['candidate_selection_performed'] is False for r in rows)
+          PY
+      - name: Freeze raw envelopes then open only calibration truth
+        run: |
+          rm -rf product_a_v2_6_calibration
+          python -m sdmr.v2_6_calibration_aggregate \
+            --contract configs/product_a_v2_6_calibration_redundancy.json \
+            --worker-root calibration_workers \
+            --output-dir product_a_v2_6_calibration
+      - name: Verify complete 27-key calibration and untouched validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          root=Path('product_a_v2_6_calibration')
+          c=json.loads((root/'contract.json').read_text())
+          cal=pd.read_csv(root/'calibration.csv')
+          assert c['purpose'] == 'product_a_v2_6_frozen_calibration_radii'
+          assert c['n_model_only_calibration_workers'] == 162
+          assert c['n_calibration_keys'] == 27
+          assert c['minimum_complete_calibration_taxa_per_key'] == 2
+          assert c['minimum_observed_complete_calibration_taxa_per_key'] >= 2
+          assert c['reserved_validation_taxa_simulated_or_read'] is False
+          assert c['reserved_validation_truth_read'] is False
+          assert c['validation_truth_used_for_calibration'] is False
+          assert len(cal) == 27
+          assert cal['calibration_status'].astype(str).eq('complete').all()
+          assert (pd.to_numeric(cal['n_evaluable_discovery_keys']) >= 2).all()
+          assert np.isfinite(pd.to_numeric(cal['normalized_expansion_radius'])).all()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-frozen-calibration
+          path: product_a_v2_6_calibration/
+          if-no-files-found: error
+          retention-days: 90
