@@ -47,6 +47,9 @@
     "require_all_12_taxa": true,
     "M_km": [150, 300, 500],
     "audit_environment": "all_active_CHELSA_predictors_common_space",
+    "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
+    "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
+    "process_domains": ["thermal", "water", "seasonality_phenology", "energy_productivity", "snow", "wind"],
     "split_seeds": [2026081901, 2026081902, 2026081903],
     "sealed_fractions": [0.20, 0.30],
     "n_confirmation_parts": 6
@@ -58,18 +61,44 @@
       "niche_overlap_schoener_d_pc12",
       "centroid_distance",
       "breadth_log_sd_error",
-      "quantile_profile_error",
-      "sealed_pc12_envelope_coverage90"
+      "quantile_profile_error"
     ],
-    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true
+    "descriptive_only": ["sealed_pc12_envelope_coverage90"],
+    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
+    "representative_selection": "model_pool_only_niche_recovery_pareto_minimax_within_v2_6_complete_adequate_set",
+    "prediction_comparator": "model_pool_only_auc_selected_representative"
+  },
+  "decision_rule": {
+    "states": ["empirical_confirmation_supported", "empirical_confirmation_not_supported", "empirical_confirmation_unavailable"],
+    "all_6_parts_required": true,
+    "all_12_taxa_required_in_every_part": true,
+    "all_3_M_specs_required_in_every_part": true,
+    "prediction_guardrail": {
+      "mean_presence_rank_deficit_vs_auc_comparator_min": -0.01
+    },
+    "ecological_noninferiority": {
+      "rule": "v2_6_representative_not_pareto_dominated_by_auc_representative_on_four_recovery_metrics",
+      "minimum_parts": 4,
+      "strict_improvement_minimum_parts": 3
+    },
+    "process_reproducibility": {
+      "modal_status_fraction_min": 0.6666666666666666,
+      "required_for_every_taxon_domain": true,
+      "missing_status_is_unavailable_not_consensus"
+        : true
+    },
+    "scientific_promotion_allowed_by_this_decision": false,
+    "supported_result_allows": "freeze_empirically_confirmed_Product_A_for_separate_promotion_decision",
+    "product_b_remains_blocked_until_separate_promotion_decision": true
   },
   "execution_order": [
     "verify_known_truth_v2_6_artifact_provenance",
     "verify_raw_focal_and_target_source_fingerprints",
+    "verify_process_registry_complete_and_one_to_one",
     "freeze_empirical_decision_rule_before_any_new_sealed_outcome",
     "rebuild_each_split_from_raw_source_evidence",
     "seal_focal_occurrences_before_M_and_background",
-    "freeze_model_pool_selection_and_predictions",
+    "freeze_model_pool_candidate_set_process_statuses_and_representatives",
     "open_sealed_occurrences_for_empirical_niche_recovery_once",
     "apply_predeclared_empirical_decision"
   ]
