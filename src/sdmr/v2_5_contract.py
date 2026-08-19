@@ -38,8 +38,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _spec(row: dict[str, object]) -> SimulatedTaxonSpec:
-    return SimulatedTaxonSpec(family=str(row["family"]), seed=int(row["seed"]))
+def _spec(row: dict[str, object], *, role: str) -> SimulatedTaxonSpec:
+    return SimulatedTaxonSpec(
+        family=str(row["family"]),
+        seed=int(row["seed"]),
+        role=str(role),
+    )
 
 
 def load_v2_5_contract(path: str | Path) -> V25Contract:
@@ -67,8 +71,12 @@ def load_v2_5_contract(path: str | Path) -> V25Contract:
         if not name or name in names:
             raise ValueError("v2.5 panel names must be non-empty and unique")
         names.add(name)
-        calibration = tuple(_spec(dict(row)) for row in panel["calibration"])
-        validation = tuple(_spec(dict(row)) for row in panel["validation"])
+        calibration = tuple(
+            _spec(dict(row), role="calibration") for row in panel["calibration"]
+        )
+        validation = tuple(
+            _spec(dict(row), role="validation") for row in panel["validation"]
+        )
         if not calibration or not validation:
             raise ValueError(f"panel {name} requires calibration and validation taxa")
         for spec in calibration:
