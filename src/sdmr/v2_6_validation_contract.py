@@ -17,6 +17,9 @@ VALIDATION_SPECS = {
 SOURCE_CALIBRATION_RUN_ID = "32249349433"
 SOURCE_CALIBRATION_HEAD_SHA = "6dde7706eabd1a4279d2c9f142922f8a67ca2b8f"
 SOURCE_CALIBRATION_ARTIFACT_NAME = "product-a-v2-6-frozen-calibration"
+SOURCE_CALIBRATION_ARTIFACT_ID = "9364460724"
+SOURCE_CALIBRATION_ARTIFACT_DIGEST = "sha256:838954febe3024fbfeaa26b3c3b8f349321ac32704a0b9be0d31fc4231389185"
+SOURCE_CALIBRATION_CONTRACT_SHA256 = "fab5f822954580b903018216ce2f2ea2aeef6f41492cc350f108ef0223e1434a"
 PRODUCTS = (
     "canonical_auc_point",
     "complete_adequate_certificate",
@@ -48,12 +51,17 @@ def load_v2_6_validation_contract(path: str | Path) -> dict[str, Any]:
             raise ValueError(f"v2.6 validation requires {key}=false")
 
     source = payload.get("source_calibration", {})
-    if str(source.get("run_id")) != SOURCE_CALIBRATION_RUN_ID:
-        raise ValueError("v2.6 source calibration run changed")
-    if str(source.get("head_sha")) != SOURCE_CALIBRATION_HEAD_SHA:
-        raise ValueError("v2.6 source calibration head changed")
-    if source.get("artifact_name") != SOURCE_CALIBRATION_ARTIFACT_NAME:
-        raise ValueError("v2.6 source calibration artifact name changed")
+    expected_source = {
+        "run_id": SOURCE_CALIBRATION_RUN_ID,
+        "head_sha": SOURCE_CALIBRATION_HEAD_SHA,
+        "artifact_name": SOURCE_CALIBRATION_ARTIFACT_NAME,
+        "artifact_id": SOURCE_CALIBRATION_ARTIFACT_ID,
+        "artifact_digest": SOURCE_CALIBRATION_ARTIFACT_DIGEST,
+        "source_contract_sha256": SOURCE_CALIBRATION_CONTRACT_SHA256,
+    }
+    for key, expected in expected_source.items():
+        if str(source.get(key)) != expected:
+            raise ValueError(f"v2.6 source calibration {key} changed")
     if source.get("must_be_completed_success_before_validation_workers") is not True:
         raise ValueError("v2.6 validation cannot start before successful calibration")
     if source.get("artifact_digest_recorded_before_validation_workers") is not True:
