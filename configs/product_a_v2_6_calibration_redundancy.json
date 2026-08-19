@@ -3,10 +3,7 @@
   "scientific_promotion_run": false,
   "real_empirical_data_read": false,
   "old_external_sealed_outcomes_read": false,
-  "opened_known_truth_seeds_excluded": {
-    "minimum": 1,
-    "maximum": 445
-  },
+  "opened_known_truth_seeds_excluded": {"minimum": 1, "maximum": 445},
   "successor_of": "product_a_v2_5_calibration_availability_failure",
   "v2_5_failure_repaired": "two_soil_capable_calibration_taxa_did_not_yield_two_complete_soil_envelopes_in_panel_D1",
   "source_discovery": {
@@ -19,24 +16,21 @@
     }
   },
   "simulation_contract": {
-    "n_cells": 1500,
-    "n_occurrences": 150,
-    "n_target_group": 600,
-    "inner_folds": 2,
-    "max_predictors": 4,
+    "n_cells": 1500, "n_occurrences": 150, "n_target_group": 600,
+    "inner_folds": 2, "max_predictors": 4,
     "minimum_predictor_coverage": 0.95,
     "prediction_surface_coverage_floor": 0.95,
     "M_specs": ["m_core", "m_mid", "m_wide"]
   },
   "refit_semantics": {
     "groups": ["base", "noise", "seasonality", "soil", "temperature", "water"],
-    "n_blocks": 5,
-    "holdout_fraction": 0.2,
-    "spatial_refit_codes": [0, 1, 2, 3, 4],
-    "full_fit_code": 9,
+    "n_blocks": 5, "holdout_fraction": 0.2,
+    "spatial_refit_codes": [0, 1, 2, 3, 4], "full_fit_code": 9,
     "seed_base": 610000,
-    "role_offsets": {"calibration": 0, "validation": 50000},
-    "seed_formula": "610000 + panel_index*200000 + role_offset + taxon_index*10000 + group_index*1000 + candidate_index*100 + M_index*10 + fit_code"
+    "role_offsets": {"calibration": 0, "validation": 100000},
+    "panel_stride": 200000,
+    "seed_formula": "610000 + panel_index*200000 + role_offset + taxon_index*10000 + group_index*1000 + candidate_index*100 + M_index*10 + fit_code",
+    "all_partition_seeds_must_be_unique_across_roles": true
   },
   "calibration_support": {
     "check_timing": "before_any_reserved_validation_worker_starts",
@@ -65,63 +59,21 @@
     "reserved_validation_seeds_unchanged_from_v2_5": true
   },
   "panels": [
-    {
-      "name": "panel_D1",
-      "calibration": [
-        {"family": "gaussian", "seed": 446},
-        {"family": "asymmetric", "seed": 447},
-        {"family": "interaction", "seed": 448},
-        {"family": "omitted_driver", "seed": 449},
-        {"family": "omitted_driver", "seed": 450},
-        {"family": "omitted_driver", "seed": 451},
-        {"family": "omitted_driver", "seed": 452},
-        {"family": "omitted_driver", "seed": 453},
-        {"family": "omitted_driver", "seed": 454}
-      ],
-      "validation": [
-        {"family": "soft_threshold", "seed": 501},
-        {"family": "omitted_driver", "seed": 511},
-        {"family": "observation_confounded", "seed": 521}
-      ]
-    },
-    {
-      "name": "panel_D2",
-      "calibration": [
-        {"family": "gaussian", "seed": 455},
-        {"family": "asymmetric", "seed": 456},
-        {"family": "interaction", "seed": 457},
-        {"family": "omitted_driver", "seed": 458},
-        {"family": "omitted_driver", "seed": 459},
-        {"family": "omitted_driver", "seed": 460},
-        {"family": "omitted_driver", "seed": 461},
-        {"family": "omitted_driver", "seed": 462},
-        {"family": "omitted_driver", "seed": 463}
-      ],
-      "validation": [
-        {"family": "soft_threshold", "seed": 502},
-        {"family": "omitted_driver", "seed": 512},
-        {"family": "observation_confounded", "seed": 522}
-      ]
-    },
-    {
-      "name": "panel_D3",
-      "calibration": [
-        {"family": "gaussian", "seed": 464},
-        {"family": "asymmetric", "seed": 465},
-        {"family": "interaction", "seed": 466},
-        {"family": "omitted_driver", "seed": 467},
-        {"family": "omitted_driver", "seed": 468},
-        {"family": "omitted_driver", "seed": 469},
-        {"family": "omitted_driver", "seed": 470},
-        {"family": "omitted_driver", "seed": 471},
-        {"family": "omitted_driver", "seed": 472}
-      ],
-      "validation": [
-        {"family": "soft_threshold", "seed": 503},
-        {"family": "omitted_driver", "seed": 513},
-        {"family": "observation_confounded", "seed": 523}
-      ]
-    }
+    {"name": "panel_D1", "calibration": [
+      {"family":"gaussian","seed":446},{"family":"asymmetric","seed":447},{"family":"interaction","seed":448},
+      {"family":"omitted_driver","seed":449},{"family":"omitted_driver","seed":450},{"family":"omitted_driver","seed":451},
+      {"family":"omitted_driver","seed":452},{"family":"omitted_driver","seed":453},{"family":"omitted_driver","seed":454}],
+     "validation":[{"family":"soft_threshold","seed":501},{"family":"omitted_driver","seed":511},{"family":"observation_confounded","seed":521}]},
+    {"name": "panel_D2", "calibration": [
+      {"family":"gaussian","seed":455},{"family":"asymmetric","seed":456},{"family":"interaction","seed":457},
+      {"family":"omitted_driver","seed":458},{"family":"omitted_driver","seed":459},{"family":"omitted_driver","seed":460},
+      {"family":"omitted_driver","seed":461},{"family":"omitted_driver","seed":462},{"family":"omitted_driver","seed":463}],
+     "validation":[{"family":"soft_threshold","seed":502},{"family":"omitted_driver","seed":512},{"family":"observation_confounded","seed":522}]},
+    {"name": "panel_D3", "calibration": [
+      {"family":"gaussian","seed":464},{"family":"asymmetric","seed":465},{"family":"interaction","seed":466},
+      {"family":"omitted_driver","seed":467},{"family":"omitted_driver","seed":468},{"family":"omitted_driver","seed":469},
+      {"family":"omitted_driver","seed":470},{"family":"omitted_driver","seed":471},{"family":"omitted_driver","seed":472}],
+     "validation":[{"family":"soft_threshold","seed":503},{"family":"omitted_driver","seed":513},{"family":"observation_confounded","seed":523}]}
   ],
   "promotion_boundary": {
     "known_truth_supported_result_means": "eligible_to_freeze_for_new_real_data_sealed_before_M_confirmation",
