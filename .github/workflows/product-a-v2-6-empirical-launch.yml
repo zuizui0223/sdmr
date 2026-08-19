@@ -18,7 +18,6 @@ jobs:
       - name: Idempotently dispatch frozen empirical confirmation and record receipt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CUTOFF_UTC: '2026-08-19T13:40:00Z'
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -31,7 +30,7 @@ jobs:
 
           repo = os.environ['GITHUB_REPOSITORY']
           token = os.environ['GH_TOKEN']
-          cutoff = os.environ['CUTOFF_UTC']
+          trigger_sha = os.environ['GITHUB_SHA']
           workflow = 'product-a-v2-6-empirical-confirmation.yml'
           api = f'https://api.github.com/repos/{repo}'
           headers = {
@@ -53,17 +52,17 @@ jobs:
                       return None
                   raise
 
-          def recent_runs():
+          def matching_runs():
               payload = request(
-                  f'{api}/actions/workflows/{workflow}/runs?branch=main&event=workflow_dispatch&per_page=20'
+                  f'{api}/actions/workflows/{workflow}/runs?branch=main&event=workflow_dispatch&per_page=30'
               )
               runs = [
                   run for run in payload.get('workflow_runs', [])
-                  if str(run.get('created_at', '')) >= cutoff
+                  if str(run.get('head_sha', '')) == trigger_sha
               ]
               return sorted(runs, key=lambda run: str(run.get('created_at', '')), reverse=True)
 
-          runs = recent_runs()
+          runs = matching_runs()
           dispatched_now = False
           if not runs:
               request(
@@ -74,17 +73,16 @@ jobs:
               dispatched_now = True
               for _ in range(12):
                   time.sleep(5)
-                  runs = recent_runs()
+                  runs = matching_runs()
                   if runs:
                       break
           if not runs:
-              raise SystemExit('empirical confirmation dispatch produced no discoverable workflow run')
+              raise SystemExit('empirical confirmation dispatch produced no run for the trigger SHA')
 
           run = runs[0]
           receipt = {
               'purpose': 'product_a_v2_6_empirical_confirmation_launch_receipt',
-              'launcher_trigger_sha': os.environ['GITHUB_SHA'],
-              'cutoff_utc': cutoff,
+              'launcher_trigger_sha': trigger_sha,
               'dispatched_now': dispatched_now,
               'run_id': int(run['id']),
               'run_number': int(run['run_number']),
