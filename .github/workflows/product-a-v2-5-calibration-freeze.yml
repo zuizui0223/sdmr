@@ -186,12 +186,15 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
+          import numpy as np
           import pandas as pd
           root=Path('product_a_v2_5_calibration')
           c=json.loads((root/'contract.json').read_text())
           cal=pd.read_csv(root/'calibration.csv')
           assert c['purpose'] == 'product_a_v2_5_frozen_calibration_radii'
           assert c['n_model_only_calibration_workers'] == 90
+          assert c['minimum_complete_calibration_taxa_per_key'] == 2
+          assert c['calibration_radius_uses_complete_taxa_only'] is True
           assert c['raw_envelopes_frozen_before_calibration_truth_read'] is True
           assert c['calibration_generating_truth_read_after_raw_freeze'] is True
           assert c['fresh_validation_taxa_simulated_or_read'] is False
@@ -200,6 +203,8 @@ jobs:
           assert c['all_required_validation_keys_calibrated'] is True
           assert len(cal) == 27
           assert cal['calibration_status'].astype(str).eq('complete').all()
+          assert (pd.to_numeric(cal['n_evaluable_discovery_keys']) >= 2).all()
+          assert np.isfinite(pd.to_numeric(cal['normalized_expansion_radius'])).all()
           assert set(cal['predictor']) == {'temperature','water','soil'}
           assert set(cal['quantity']) == {'optimum','lower_limit','upper_limit'}
           PY
