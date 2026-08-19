@@ -4,9 +4,10 @@ on:
   pull_request:
     paths:
       - 'configs/product_a_v2_6_empirical_confirmation_contract.json'
+      - 'configs/product_a_v2_6_empirical_raw_source_contract.json'
+      - 'configs/product_a_v2_6_empirical_partition_contract.json'
       - 'configs/product_a_empirical_process_registry_v1.csv'
-      - 'src/sdmr/v2_6_empirical_contract.py'
-      - 'src/sdmr/v2_6_empirical_decision.py'
+      - 'src/sdmr/v2_6_empirical_*.py'
       - 'tests/test_v2_6_empirical_*.py'
       - '.github/workflows/product-a-v2-6-empirical-pretruth.yml'
   workflow_dispatch:
@@ -24,13 +25,17 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install test dependencies
-        run: python -m pip install -e '.[test]'
-      - name: Validate immutable empirical contract and decision rule
+        run: python -m pip install -e '.[test,parquet]'
+      - name: Validate immutable empirical contracts and decision rule
         run: |
           python - <<'PY'
-          from sdmr.v2_6_empirical_contract import load_v2_6_empirical_contract
-          c = load_v2_6_empirical_contract('configs/product_a_v2_6_empirical_confirmation_contract.json')
-          print('empirical contract frozen:', c['fixed_design']['n_confirmation_parts'], 'parts')
+          from sdmr.v2_6_empirical_model_contract import load_v2_6_empirical_model_contract
+          from sdmr.v2_6_empirical_model_pool_worker import _partition_contract, _procedure_library
+          c = load_v2_6_empirical_model_contract('configs/product_a_v2_6_empirical_confirmation_contract.json')
+          _partition_contract('configs/product_a_v2_6_empirical_partition_contract.json')
+          procedures = _procedure_library(c)
+          assert len(procedures) == 8
+          print('empirical contract frozen:', c['fixed_design']['n_confirmation_parts'], 'parts;', len(procedures), 'procedures')
           PY
           pytest -q tests/test_v2_6_empirical_contract.py tests/test_v2_6_empirical_decision.py
       - name: Verify frozen known-truth and raw-source artifact identities without opening empirical outcomes
@@ -43,6 +48,7 @@ jobs:
           from urllib.request import Request, urlopen
 
           c = json.loads(Path('configs/product_a_v2_6_empirical_confirmation_contract.json').read_text())
+          raw = json.loads(Path('configs/product_a_v2_6_empirical_raw_source_contract.json').read_text())
           repo = os.environ['GITHUB_REPOSITORY']
           token = os.environ['GH_TOKEN']
           headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/vnd.github+json'}
@@ -60,12 +66,23 @@ jobs:
               raise SystemExit('known-truth artifact run mismatch')
 
           for key in ('focal', 'target_group'):
-              source = c['raw_empirical_sources'][key]
-              payload = get(f"https://api.github.com/repos/{repo}/actions/runs/{source['source_run_id']}/artifacts?per_page=100")
-              matches = [a for a in payload.get('artifacts', []) if a.get('name') == source['artifact_name'] and not a.get('expired')]
-              if len(matches) != 1:
-                  raise SystemExit(f"{key}: expected exactly one live frozen source artifact, found {len(matches)}")
-              print(key, 'source artifact', matches[0]['id'], 'verified without reading model/sealed outcomes')
+              source = raw[key]
+              artifact = get(f"https://api.github.com/repos/{repo}/actions/artifacts/{source['artifact_id']}")
+              if artifact.get('name') != source['artifact_name']:
+                  raise SystemExit(f'{key}: raw artifact name mismatch')
+              if str(artifact.get('digest')) != source['artifact_digest']:
+                  raise SystemExit(f'{key}: raw artifact digest mismatch')
+              wr = artifact.get('workflow_run') or {}
+              if str(wr.get('id')) != str(source['run_id']):
+                  raise SystemExit(f'{key}: raw artifact run mismatch')
+              if artifact.get('expired'):
+                  raise SystemExit(f'{key}: raw artifact expired')
+              base = c['raw_empirical_sources'][key]
+              if str(base['source_run_id']) != str(source['run_id']) or base['artifact_name'] != source['artifact_name'] or base['sha256'] != source['file_sha256']:
+                  raise SystemExit(f'{key}: base/raw source contracts disagree')
+              print(key, 'raw source artifact', source['artifact_id'], 'digest pinned')
+          if raw.get('old_citable_result_directory_read') is not False or raw.get('old_empirical_model_or_sealed_result_read') is not False:
+              raise SystemExit('raw source contract crosses old empirical outcome boundary')
           PY
       - name: Reassert no old empirical result paths are part of this gate
         run: |
