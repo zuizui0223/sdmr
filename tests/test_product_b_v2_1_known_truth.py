@@ -55,7 +55,7 @@ def test_structural_outer_fold_guard_requires_background_in_both_folds():
     )
 
     bad_background = pd.DataFrame({"x": range(10)})
-    bad_groups = np.repeat(np.array([0, 1]), 5)
+    bad_groups = np.zeros(10, dtype=int)
     with pytest.raises(ValueError, match="partition cannot support"):
         _require_structurally_evaluable_outer_folds(
             occurrence,
