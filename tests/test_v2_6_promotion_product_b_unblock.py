@@ -76,6 +76,7 @@ def test_promotion_contract_is_preoutcome_and_pins_v21_implementation_before_run
     c = load_promotion_contract(CONFIG)
     assert c["contract_frozen_before_empirical_product_a_outcome"] is True
     assert c["contract_frozen_before_product_b_v2_known_truth_outcome"] is True
+    assert c["product_b_v2_1_source_frozen_before_outcome"] is True
     assert c["new_postoutcome_scientific_thresholds"] is False
     assert c["known_truth_product_a_source"]["head_sha"] == "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9"
     assert c["independent_empirical_product_a_source"]["run_id"] == 32323931807
