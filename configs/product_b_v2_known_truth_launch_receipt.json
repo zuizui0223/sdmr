@@ -1,0 +1,13 @@
+{
+  "conclusion": null,
+  "created_at": "2026-08-20T07:42:30Z",
+  "dispatched_now": true,
+  "head_sha": "5be2b16d98404846bff01c79aad101ea45de9c3b",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32345246380",
+  "launcher_trigger_sha": "5be2b16d98404846bff01c79aad101ea45de9c3b",
+  "purpose": "product_b_v2_known_truth_launch_receipt",
+  "run_id": 32345246380,
+  "run_number": 1,
+  "status": "in_progress",
+  "workflow_name": "product-b-v2-known-truth"
+}
