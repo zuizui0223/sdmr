@@ -1,0 +1,7 @@
+Product-A v2.6 empirical recovery trigger
+
+Scientific contract unchanged from PR #22 / v2.6 empirical confirmation.
+Source materialization run: 32260616084 (6/6 sealed-blind materialize success).
+Recovery implementation merge: cd820b77b28ee55bee92e6972e74c3470149a608.
+Reason: original taxon-level model-pool workers exceeded the GitHub hosted 6-hour wall-clock limit; computation is sharded by frozen M and exact-merged before pretruth.
+No sealed occurrence environmental values were opened before this trigger.
