@@ -56,6 +56,7 @@ def load_promotion_contract(path: str | Path) -> dict[str, Any]:
     for key in (
         "contract_frozen_before_empirical_product_a_outcome",
         "contract_frozen_before_product_b_v2_known_truth_outcome",
+        "product_b_v2_1_source_frozen_before_outcome",
     ):
         if payload.get(key) is not True:
             raise ValueError(f"promotion contract requires {key}=true")
