@@ -54,7 +54,7 @@ def _sources(tmp_path: Path, *, a_emp_supported: bool = True, b_supported: bool 
     b = tmp_path / "b"; b.mkdir()
     b_decision = "product_b_v2_known_truth_supported" if b_supported else "product_b_v2_known_truth_not_supported"
     _write_json(b / "contract.json", {
-        "purpose": "product_b_v2_fresh_known_truth_decision",
+        "purpose": "product_b_v2_1_fresh_known_truth_decision",
         "decision": b_decision,
         "generating_process_truth_opened_after_pretruth_freeze": True,
         "process_losses_frozen_before_generating_truth_audit": True,
@@ -72,14 +72,21 @@ def _sources(tmp_path: Path, *, a_emp_supported: bool = True, b_supported: bool 
     return a_kt, a_emp, b
 
 
-def test_promotion_contract_is_preoutcome_and_threshold_free():
+def test_promotion_contract_is_preoutcome_and_pins_v21_implementation_before_run():
     c = load_promotion_contract(CONFIG)
     assert c["contract_frozen_before_empirical_product_a_outcome"] is True
     assert c["contract_frozen_before_product_b_v2_known_truth_outcome"] is True
     assert c["new_postoutcome_scientific_thresholds"] is False
     assert c["known_truth_product_a_source"]["head_sha"] == "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9"
     assert c["independent_empirical_product_a_source"]["run_id"] == 32323931807
-    assert c["fresh_known_truth_product_b_v2_source"]["run_id"] == 32345246380
+    b = c["fresh_known_truth_product_b_v2_source"]
+    assert b["version"] == "v2.1"
+    assert b["implementation_sha"] == "064db306a44ce1104327b73b70e055e56e451018"
+    assert b["frozen_ref"] == "frozen/product-b-v2-1-064db306"
+    assert b["workflow_file"] == "product-b-v2-1-known-truth.yml"
+    assert b["requires_single_completed_run_for_frozen_source"] is True
+    assert b["predecessor_run_id"] == 32345246380
+    assert b["predecessor_generating_truth_opened"] is False
 
 
 def test_all_predeclared_support_promotes_a_and_unblocks_b(tmp_path):
@@ -100,6 +107,7 @@ def test_all_predeclared_support_promotes_a_and_unblocks_b(tmp_path):
     assert protocol["promoted"] is True
     assert protocol["product"]["fundamental_niche_claim_allowed"] is False
     assert unblock["empirical_product_b_execution_allowed"] is True
+    assert unblock["product"]["product"] == "Product-B-v2.1"
 
 
 def test_product_b_failure_does_not_revoke_a_promotion(tmp_path):
