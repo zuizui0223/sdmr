@@ -1,0 +1,55 @@
+name: product-a-v2-6-empirical-recovery-launch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'configs/product_a_v2_6_empirical_recovery_trigger.txt'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch recovery and record run receipt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import base64, json, os, time, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          workflow='product-a-v2-6-empirical-recovery.yml'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+          def req(url, method='GET', payload=None):
+            data=None if payload is None else json.dumps(payload).encode()
+            with urllib.request.urlopen(urllib.request.Request(url,data=data,headers=headers,method=method),timeout=60) as r:
+              raw=r.read(); return json.loads(raw) if raw else None
+          before={int(r['id']) for r in req(f'{api}/actions/workflows/{workflow}/runs?branch=main&event=workflow_dispatch&per_page=20').get('workflow_runs',[])}
+          req(f'{api}/actions/workflows/{workflow}/dispatches',method='POST',payload={'ref':'main'})
+          run=None
+          for _ in range(18):
+            time.sleep(5)
+            runs=req(f'{api}/actions/workflows/{workflow}/runs?branch=main&event=workflow_dispatch&per_page=20').get('workflow_runs',[])
+            fresh=[r for r in runs if int(r['id']) not in before]
+            if fresh:
+              run=sorted(fresh,key=lambda r:r['created_at'],reverse=True)[0]; break
+          if run is None: raise SystemExit('recovery dispatch produced no new run')
+          receipt={
+            'purpose':'product_a_v2_6_empirical_recovery_launch_receipt',
+            'run_id':int(run['id']),'run_number':int(run['run_number']),'status':str(run['status']),
+            'conclusion':run.get('conclusion'),'created_at':str(run['created_at']),'head_sha':str(run['head_sha']),
+            'html_url':str(run['html_url']),'launcher_trigger_sha':os.environ['GITHUB_SHA'],
+            'source_materialization_run_id':32260616084,
+          }
+          path='configs/product_a_v2_6_empirical_recovery_launch_receipt.json'
+          try: existing=req(f'{api}/contents/{path}?ref=main')
+          except Exception: existing=None
+          payload={'message':f'Record v2.6 empirical recovery run {run["id"]}','content':base64.b64encode((json.dumps(receipt,indent=2,sort_keys=True)+'\n').encode()).decode(),'branch':'main'}
+          if existing: payload['sha']=existing['sha']
+          req(f'{api}/contents/{path}',method='PUT',payload=payload)
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
