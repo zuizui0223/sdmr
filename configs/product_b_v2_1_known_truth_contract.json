@@ -24,6 +24,8 @@
     "M_specs": ["m_core", "m_mid", "m_wide"]
   },
   "partition_contract": {
+    "method_partition_seed_base": 960000,
+    "process_partition_seed_base": 970000,
     "method_partition_seed_formula": "960000 + taxon_index*10 + M_index",
     "process_partition_seed_formula": "970000 + taxon_index*10 + M_index",
     "fixed_n_spatial_blocks": 8,
