@@ -1,7 +1,8 @@
 """Mechanical Product-A v2.6 promotion and Product-B v2.2 unblock gate.
 
-This gate adds no ecological threshold. It composes only decisions whose
-scientific criteria and exact source identities were frozen before outcomes.
+No ecological threshold is introduced here. The Product-B v2.2 scientific
+contract is unchanged by the recovery source: only artifact transport changed
+after the first v2.2 execution failed before fresh taxa were generated.
 """
 from __future__ import annotations
 
@@ -24,17 +25,21 @@ from .v2_6_promotion_product_b_unblock import (
 
 PURPOSE = "product_a_v2_6_promotion_and_product_b_v2_2_unblock_preoutcome_contract"
 EXPECTED_B_KT = {
-    "version": "v2.2",
-    "implementation_sha": "88580599bdb278273ea80fc039fd2204f5aac8a6",
-    "frozen_ref": "frozen/product-b-v2-2-88580599",
-    "workflow_file": "product-b-v2-2-known-truth.yml",
+    "version": "v2.2-recovery",
+    "implementation_sha": "daaf207d1574befbc703ace02a82971d4980a865",
+    "frozen_ref": "frozen/product-b-v2-2-recovery-daaf207d",
+    "workflow_file": "product-b-v2-2-known-truth-recovery.yml",
     "artifact_name": "product-b-v2-2-fresh-known-truth-decision",
     "expected_purpose": "product_b_v2_2_fresh_known_truth_decision",
     "required_decision": "product_b_v2_known_truth_supported",
     "requires_single_run_for_frozen_source": True,
-    "predecessor_run_id": 32356754388,
-    "predecessor_failure_stage": "process_shard",
+    "scientific_identity": "Product-B-v2.2",
+    "scientific_contract_changed_from_88580599": False,
+    "predecessor_run_id": 32422606768,
+    "predecessor_failure_stage": "frozen-method-source",
+    "predecessor_fresh_taxa_generated": False,
     "predecessor_generating_truth_opened": False,
+    "predecessor_failure_reason": "artifact_redirect_authorization_401",
 }
 
 
@@ -57,7 +62,7 @@ def load_promotion_contract(path: str | Path) -> dict[str, Any]:
     if payload.get("independent_empirical_product_a_source") != EXPECTED_A_EMP:
         raise ValueError("independent empirical Product-A source changed")
     if payload.get("fresh_known_truth_product_b_v2_2_source") != EXPECTED_B_KT:
-        raise ValueError("fresh known-truth Product-B v2.2 source changed")
+        raise ValueError("fresh known-truth Product-B v2.2 recovery source changed")
 
     a_rule = payload.get("product_a_promotion_rule", {})
     if a_rule.get("logic") != "all_required_predeclared_decisions_supported":
@@ -153,7 +158,7 @@ def apply_promotion_and_unblock(
         "causal_physiological_driver_claim_allowed": False,
     }]).to_csv(out / "decision.csv", index=False)
 
-    (out / "promoted_product_a_v2_6_protocol.json").write_text(json.dumps({
+    promoted = {
         "purpose": "promoted_product_a_v2_6_protocol",
         "promotion_contract_sha256": config["contract_sha256"],
         "promoted": product_a_promoted,
@@ -166,9 +171,12 @@ def apply_promotion_and_unblock(
         "empirical_ecological_support": bool(a_emp_row.get("ecological_support", False)),
         "empirical_process_reproducibility_support": bool(a_emp_row.get("process_reproducibility_support", False)),
         "new_postoutcome_scientific_thresholds": False,
-    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    }
+    (out / "promoted_product_a_v2_6_protocol.json").write_text(
+        json.dumps(promoted, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
-    (out / "product_b_v2_2_formal_unblock_contract.json").write_text(json.dumps({
+    unblock = {
         "purpose": "product_b_v2_2_formal_unblock_contract",
         "promotion_contract_sha256": config["contract_sha256"],
         "unblocked": product_b_unblocked,
@@ -181,7 +189,10 @@ def apply_promotion_and_unblock(
         "known_truth_mean_taxon_process_precision": float(b_row.get("mean_taxon_process_precision", float("nan"))),
         "new_postoutcome_scientific_thresholds": False,
         "empirical_product_b_execution_allowed": product_b_unblocked,
-    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    }
+    (out / "product_b_v2_2_formal_unblock_contract.json").write_text(
+        json.dumps(unblock, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     result = {
         "purpose": "product_a_v2_6_promotion_and_product_b_v2_2_unblock_decision",
@@ -192,7 +203,9 @@ def apply_promotion_and_unblock(
         "new_postoutcome_scientific_thresholds": False,
         "threshold_relaxation_after_failure": False,
     }
-    (out / "contract.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (out / "contract.json").write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     return result
 
 
