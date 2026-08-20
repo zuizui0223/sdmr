@@ -1,0 +1,434 @@
+{
+  "all_jobs": [
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352521730,
+      "name": "pretruth-contract",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660455,
+      "name": "method-shard (2, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660457,
+      "name": "method-shard (2, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660460,
+      "name": "method-shard (1, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660462,
+      "name": "method-shard (1, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660468,
+      "name": "method-shard (0, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660473,
+      "name": "method-shard (1, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660474,
+      "name": "method-shard (2, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660530,
+      "name": "method-shard (3, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660542,
+      "name": "method-shard (3, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660547,
+      "name": "method-shard (4, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660568,
+      "name": "method-shard (3, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660574,
+      "name": "method-shard (5, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660626,
+      "name": "method-shard (4, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660649,
+      "name": "method-shard (0, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660658,
+      "name": "method-shard (4, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660662,
+      "name": "method-shard (5, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660664,
+      "name": "method-shard (5, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96352660701,
+      "name": "method-shard (0, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353160562,
+      "name": "method-freeze",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308221,
+      "name": "process-shard (0, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308224,
+      "name": "process-shard (1, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308250,
+      "name": "process-shard (4, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308254,
+      "name": "process-shard (1, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308255,
+      "name": "process-shard (4, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308261,
+      "name": "process-shard (3, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308265,
+      "name": "process-shard (5, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308270,
+      "name": "process-shard (5, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308272,
+      "name": "process-shard (0, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308274,
+      "name": "process-shard (2, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308278,
+      "name": "process-shard (4, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308293,
+      "name": "process-shard (3, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308296,
+      "name": "process-shard (8, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308301,
+      "name": "process-shard (3, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308306,
+      "name": "process-shard (6, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308309,
+      "name": "process-shard (8, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308316,
+      "name": "process-shard (11, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308317,
+      "name": "process-shard (8, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308328,
+      "name": "process-shard (9, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308329,
+      "name": "process-shard (2, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308331,
+      "name": "process-shard (9, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308336,
+      "name": "process-shard (6, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308347,
+      "name": "process-shard (0, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308348,
+      "name": "process-shard (1, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308356,
+      "name": "process-shard (9, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308364,
+      "name": "process-shard (10, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308368,
+      "name": "process-shard (7, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308372,
+      "name": "process-shard (2, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308385,
+      "name": "process-shard (10, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308419,
+      "name": "process-shard (5, 0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308426,
+      "name": "process-shard (7, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308437,
+      "name": "process-shard (7, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308446,
+      "name": "process-shard (6, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353308452,
+      "name": "process-shard (10, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353309402,
+      "name": "process-shard (11, 2)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "failed_steps": [],
+      "id": 96353309421,
+      "name": "process-shard (11, 1)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Freeze process losses and unseen-taxon universal core before truth",
+          "number": 7
+        }
+      ],
+      "id": 96354037753,
+      "name": "pretruth-freeze",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "failed_steps": [],
+      "id": 96354155277,
+      "name": "truth-audit",
+      "status": "completed"
+    }
+  ],
+  "non_success_jobs": [
+    {
+      "conclusion": "failure",
+      "failed_steps": [
+        {
+          "conclusion": "failure",
+          "name": "Freeze process losses and unseen-taxon universal core before truth",
+          "number": 7
+        }
+      ],
+      "id": 96354037753,
+      "name": "pretruth-freeze",
+      "status": "completed"
+    }
+  ],
+  "purpose": "product_b_v2_known_truth_run_diagnosis",
+  "run_id": 32345246380,
+  "total_jobs": 58
+}
