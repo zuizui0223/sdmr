@@ -1,0 +1,5 @@
+purpose=trigger_product_b_v2_2_frozen_known_truth_validation
+frozen_ref=frozen/product-b-v2-2-88580599
+implementation_sha=88580599bdb278273ea80fc039fd2204f5aac8a6
+workflow=product-b-v2-2-known-truth.yml
+source_gate_main_sha=00ec6ab6b43e78676cfa5e09273cc47e1ac4db86
