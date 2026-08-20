@@ -1,0 +1,7 @@
+Product-B v2 fresh known-truth validation trigger
+
+Scientific contract merged before trigger: 7dc1a927f284e199e1050dd6ad3ef356e1213491
+Launcher installed before trigger: 1000f9531c38986ff944272ee6e564f263d97fd8
+All known-truth method/evaluation seeds are fresh and exceed previously opened seed 523.
+No Product-B generating process truth from seeds 601-622 was opened before this trigger.
+No empirical Product-B claim is authorized by this run.
