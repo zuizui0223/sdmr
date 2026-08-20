@@ -1,6 +1,6 @@
-"""Mechanical Product-A v2.6 promotion and Product-B v2 unblock gate.
+"""Mechanical Product-A v2.6 promotion and Product-B v2.1 unblock gate.
 
-No ecological threshold is introduced here.  This module only composes decisions
+No ecological threshold is introduced here. This module only composes decisions
 whose scientific criteria were frozen before their outcomes were opened.
 """
 from __future__ import annotations
@@ -30,11 +30,17 @@ EXPECTED_A_EMP = {
     "required_decision": "empirical_confirmation_supported",
 }
 EXPECTED_B_KT = {
-    "run_id": 32345246380,
-    "head_sha": "5be2b16d98404846bff01c79aad101ea45de9c3b",
-    "artifact_name": "product-b-v2-fresh-known-truth-decision",
-    "expected_purpose": "product_b_v2_fresh_known_truth_decision",
+    "version": "v2.1",
+    "implementation_sha": "064db306a44ce1104327b73b70e055e56e451018",
+    "frozen_ref": "frozen/product-b-v2-1-064db306",
+    "workflow_file": "product-b-v2-1-known-truth.yml",
+    "artifact_name": "product-b-v2-1-fresh-known-truth-decision",
+    "expected_purpose": "product_b_v2_1_fresh_known_truth_decision",
     "required_decision": "product_b_v2_known_truth_supported",
+    "requires_single_completed_run_for_frozen_source": True,
+    "predecessor_run_id": 32345246380,
+    "predecessor_failure_stage": "pretruth_freeze",
+    "predecessor_generating_truth_opened": False,
 }
 
 
@@ -60,7 +66,7 @@ def load_promotion_contract(path: str | Path) -> dict[str, Any]:
     if payload.get("independent_empirical_product_a_source") != EXPECTED_A_EMP:
         raise ValueError("independent empirical Product-A source changed")
     if payload.get("fresh_known_truth_product_b_v2_source") != EXPECTED_B_KT:
-        raise ValueError("fresh known-truth Product-B source changed")
+        raise ValueError("fresh known-truth Product-B v2.1 source changed")
 
     a_rule = payload.get("product_a_promotion_rule", {})
     if a_rule.get("logic") != "all_required_predeclared_decisions_supported":
@@ -168,15 +174,15 @@ def _b_known_truth(root: Path) -> tuple[bool, dict[str, Any], pd.Series]:
     c = _contract(root)
     row = _single_decision(root)
     if c.get("purpose") != EXPECTED_B_KT["expected_purpose"]:
-        raise ValueError("Product-B known-truth purpose mismatch")
+        raise ValueError("Product-B v2.1 known-truth purpose mismatch")
     if str(c.get("decision")) != str(row["decision"]):
-        raise ValueError("Product-B known-truth contract/CSV decision mismatch")
+        raise ValueError("Product-B v2.1 known-truth contract/CSV decision mismatch")
     for key in (
         "generating_process_truth_opened_after_pretruth_freeze",
         "process_losses_frozen_before_generating_truth_audit",
     ):
         if c.get(key) is not True:
-            raise ValueError(f"Product-B known-truth barrier failed: {key}")
+            raise ValueError(f"Product-B v2.1 known-truth barrier failed: {key}")
     for key in (
         "thresholds_retuned_after_truth",
         "real_empirical_data_read",
@@ -185,7 +191,7 @@ def _b_known_truth(root: Path) -> tuple[bool, dict[str, Any], pd.Series]:
         "scientific_empirical_product_b_claim_allowed",
     ):
         if c.get(key) is not False:
-            raise ValueError(f"Product-B known-truth source requires {key}=false")
+            raise ValueError(f"Product-B v2.1 known-truth source requires {key}=false")
     return str(row["decision"]) == EXPECTED_B_KT["required_decision"], c, row
 
 
