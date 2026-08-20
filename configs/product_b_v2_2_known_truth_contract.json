@@ -45,6 +45,13 @@
     "minimum_predictor_coverage": 0.95,
     "M_specs": ["m_core", "m_mid", "m_wide"]
   },
+  "base_procedure_execution_contract": {
+    "chance_auc": 0.5,
+    "minimum_auc_margin": 0.01,
+    "auc_sem_multiplier": 1.0,
+    "observation_correction_active": false,
+    "observation_weight_truncation_quantile": 0.99
+  },
   "partition_contract": {
     "process_partition_seed_base": 990000,
     "process_partition_seed_formula": "990000 + taxon_index*10 + M_index",
@@ -89,6 +96,7 @@
     "refit_statistical_response_after_drop": true,
     "same_outer_fold_partition_for_base_and_ablation": true,
     "constant_null_representation_allowed_if_no_predictor_remains": true,
+    "constant_null_ecological_representation_allowed_if_only_observation_predictors_remain": true,
     "compensated_reoptimization_is_not_used_for_core_process_support": true,
     "interpretation": "process contribution to the already recovered niche representation, distinct from Product-A replaceability/necessity"
   },
