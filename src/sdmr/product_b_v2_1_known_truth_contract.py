@@ -59,8 +59,9 @@ def load_product_b_v2_1_known_truth_contract(path: str | Path) -> dict[str, Any]
     }
     if sim != expected_sim:
         raise ValueError("Product-B v2.1 simulation contract changed")
-    partition = payload.get("partition_contract", {})
     expected_partition = {
+        "method_partition_seed_base": 960000,
+        "process_partition_seed_base": 970000,
         "method_partition_seed_formula": "960000 + taxon_index*10 + M_index",
         "process_partition_seed_formula": "970000 + taxon_index*10 + M_index",
         "fixed_n_spatial_blocks": 8,
@@ -70,7 +71,7 @@ def load_product_b_v2_1_known_truth_contract(path: str | Path) -> dict[str, Any]
         "partition_uses_niche_recovery_scores": False,
         "all_requested_outer_folds_must_be_evaluable": True,
     }
-    if partition != expected_partition:
+    if payload.get("partition_contract", {}) != expected_partition:
         raise ValueError("Product-B v2.1 partition contract changed")
     if {str(k): str(v) for k, v in payload.get("process_predictor_aliases", {}).items()} != EXPECTED_ALIASES:
         raise ValueError("Product-B v2.1 process aliases changed")
@@ -91,8 +92,7 @@ def load_product_b_v2_1_known_truth_contract(path: str | Path) -> dict[str, Any]
         if str(spec.get("family")) not in KNOWN_TRUTH_FAMILIES:
             raise ValueError(f"unknown known-truth family: {spec.get('family')!r}")
 
-    freeze = payload.get("method_freeze", {})
-    if freeze != {
+    if payload.get("method_freeze", {}) != {
         "candidate_selection_target": "product_a_generalization_gated_niche_recovery",
         "prediction_adequacy": {"chance_auc": 0.5, "minimum_auc_margin": 0.01, "auc_sem_multiplier": 1.0},
         "generating_truth_used": False,
@@ -110,7 +110,7 @@ def load_product_b_v2_1_known_truth_contract(path: str | Path) -> dict[str, Any]
         if rule.get(key) is not True:
             raise ValueError(f"Product-B process rule requires {key}=true")
     universality = payload.get("universality_rule", {})
-    if tuple(int(x) for x in universality.get("split_seeds", ())) != (71,72,73,74,75):
+    if tuple(int(x) for x in universality.get("split_seeds", ())) != (71, 72, 73, 74, 75):
         raise ValueError("universality split seeds changed")
     if abs(float(universality.get("validation_fraction", -1)) - 1/3) > 1e-12:
         raise ValueError("universality validation fraction changed")
@@ -135,8 +135,7 @@ def load_product_b_v2_1_known_truth_contract(path: str | Path) -> dict[str, Any]
         "stable_core_threshold": 0.8,
     }:
         raise ValueError("Product-B v2.1 support gate changed")
-    order = payload.get("truth_opening_order", {})
-    if order != {
+    if payload.get("truth_opening_order", {}) != {
         "method_frozen_before_product_b_taxa_simulated": True,
         "process_losses_frozen_before_generating_truth_audit": True,
         "thresholds_retuned_after_truth": False,
