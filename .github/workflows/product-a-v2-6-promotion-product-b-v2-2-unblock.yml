@@ -1,0 +1,138 @@
+name: product-a-v2-6-promotion-product-b-v2-2-unblock
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  promote-and-unblock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Validate pre-outcome v2.2 promotion contract
+        run: |
+          pytest -q tests/test_v2_6_promotion_product_b_v2_2_unblock.py
+          python - <<'PY'
+          from sdmr.v2_6_promotion_product_b_v2_2_unblock import load_promotion_contract
+          c=load_promotion_contract('configs/product_a_v2_6_promotion_product_b_v2_2_unblock_contract.json')
+          assert c['new_postoutcome_scientific_thresholds'] is False
+          assert c['product_b_v2_2_source_frozen_before_outcome'] is True
+          b=c['fresh_known_truth_product_b_v2_2_source']
+          assert b['implementation_sha']=='88580599bdb278273ea80fc039fd2204f5aac8a6'
+          assert b['frozen_ref']=='frozen/product-b-v2-2-88580599'
+          assert b['requires_single_run_for_frozen_source'] is True
+          PY
+      - name: Download exact frozen decision sources
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import io, json, os, urllib.request, zipfile
+          from pathlib import Path
+          from sdmr.v2_6_promotion_product_b_v2_2_unblock import load_promotion_contract
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v26-product-b-v22-promotion-gate',
+          }
+          api=f'https://api.github.com/repos/{repo}'
+          contract=load_promotion_contract('configs/product_a_v2_6_promotion_product_b_v2_2_unblock_contract.json')
+          b_source=contract['fresh_known_truth_product_b_v2_2_source']
+
+          def get(url):
+              req=urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=60) as r:
+                  return json.loads(r.read())
+          def bytes_get(url):
+              req=urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=120) as r:
+                  return r.read()
+          def verify_run(run_id, head_sha):
+              run=get(f'{api}/actions/runs/{run_id}')
+              if str(run.get('head_sha')) != str(head_sha):
+                  raise SystemExit(f'run {run_id} head mismatch: {run.get("head_sha")}')
+              if run.get('status') != 'completed' or run.get('conclusion') != 'success':
+                  raise SystemExit(f'run {run_id} not successfully completed: {run.get("status")}/{run.get("conclusion")}')
+              return run
+          def artifact_by_name(run_id, name):
+              payload=get(f'{api}/actions/runs/{run_id}/artifacts?per_page=100')
+              found=[a for a in payload.get('artifacts',[]) if a.get('name')==name and not a.get('expired')]
+              if len(found)!=1:
+                  raise SystemExit(f'run {run_id} expected one artifact {name!r}, found {len(found)}')
+              return found[0]
+          def unpack(artifact, target):
+              data=bytes_get(artifact['archive_download_url'])
+              Path(target).mkdir(parents=True, exist_ok=True)
+              with zipfile.ZipFile(io.BytesIO(data)) as z:
+                  z.extractall(target)
+          def unique_b_run():
+              payload=get(f"{api}/actions/workflows/{b_source['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
+              matches=[]
+              for run in payload.get('workflow_runs', []):
+                  if str(run.get('head_sha')) != b_source['implementation_sha']:
+                      continue
+                  if str(run.get('head_branch')) != b_source['frozen_ref']:
+                      continue
+                  if str(run.get('event')) != 'workflow_dispatch':
+                      continue
+                  matches.append(run)
+              if len(matches)!=1:
+                  raise SystemExit(f"expected exactly one Product-B v2.2 run for frozen source, found {len(matches)}")
+              run=matches[0]
+              if run.get('status') != 'completed' or run.get('conclusion') != 'success':
+                  raise SystemExit(f"frozen Product-B v2.2 run not successfully completed: {run.get('status')}/{run.get('conclusion')}")
+              return run
+
+          verify_run(32251711573, '715f62ef453636e0e60a4a04d3fa71fdbfdf57a9')
+          a_kt=get(f'{api}/actions/artifacts/9364873176')
+          if a_kt.get('digest') != 'sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba':
+              raise SystemExit('Product-A known-truth artifact digest mismatch')
+          unpack(a_kt, 'sources/a_known_truth')
+
+          verify_run(32323931807, '7f79dd10f312c42168f0d80496c7299d0e629cad')
+          a_emp=artifact_by_name(32323931807, 'product-a-v2-6-independent-empirical-confirmation-decision')
+          unpack(a_emp, 'sources/a_empirical')
+          Path('sources/a_empirical_artifact_identity.json').write_text(json.dumps({
+              'run_id':32323931807,'id':a_emp['id'],'name':a_emp['name'],'digest':a_emp.get('digest')
+          }, indent=2, sort_keys=True)+'\n')
+
+          b_run=unique_b_run()
+          b_artifact=artifact_by_name(int(b_run['id']), b_source['artifact_name'])
+          unpack(b_artifact, 'sources/b_known_truth')
+          Path('sources/b_known_truth_artifact_identity.json').write_text(json.dumps({
+              'run_id':int(b_run['id']),
+              'head_sha':str(b_run['head_sha']),
+              'head_branch':str(b_run['head_branch']),
+              'workflow_file':b_source['workflow_file'],
+              'id':b_artifact['id'],'name':b_artifact['name'],'digest':b_artifact.get('digest')
+          }, indent=2, sort_keys=True)+'\n')
+          PY
+      - name: Apply frozen gate-of-gates only
+        run: |
+          python -m sdmr.v2_6_promotion_product_b_v2_2_unblock \
+            --contract configs/product_a_v2_6_promotion_product_b_v2_2_unblock_contract.json \
+            --product-a-known-truth-dir sources/a_known_truth \
+            --product-a-empirical-dir sources/a_empirical \
+            --product-b-known-truth-dir sources/b_known_truth \
+            --output-dir promotion
+          cp sources/a_empirical_artifact_identity.json promotion/
+          cp sources/b_known_truth_artifact_identity.json promotion/
+          cat promotion/decision.csv
+          cat promotion/contract.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-promotion-product-b-v2-2-unblock-decision
+          path: promotion/
+          retention-days: 90
