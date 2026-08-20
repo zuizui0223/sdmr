@@ -24,6 +24,13 @@ FROZEN_METHOD_SOURCE = {
     "candidate_frozen_before_v2_1_evaluation_taxa": True,
     "generating_truth_read": False,
 }
+BASE_EXECUTION_CONTRACT = {
+    "chance_auc": 0.5,
+    "minimum_auc_margin": 0.01,
+    "auc_sem_multiplier": 1.0,
+    "observation_correction_active": False,
+    "observation_weight_truncation_quantile": 0.99,
+}
 
 
 def _sha(path: Path) -> str:
@@ -40,8 +47,6 @@ def load_product_b_v2_2_known_truth_contract(path: str | Path) -> dict[str, Any]
     if payload.get("purpose") != PURPOSE:
         raise ValueError("Product-B v2.2 purpose changed")
     history = payload.get("successor_history", [])
-    if len(history) != 2:
-        raise ValueError("Product-B v2.2 successor history changed")
     expected_history = [
         {
             "version": "v2.0",
@@ -85,6 +90,8 @@ def load_product_b_v2_2_known_truth_contract(path: str | Path) -> dict[str, Any]
     }
     if payload.get("simulation_contract") != expected_sim:
         raise ValueError("Product-B v2.2 simulation contract changed")
+    if payload.get("base_procedure_execution_contract") != BASE_EXECUTION_CONTRACT:
+        raise ValueError("Product-B v2.2 base procedure execution contract changed")
     expected_partition = {
         "process_partition_seed_base": 990000,
         "process_partition_seed_formula": "990000 + taxon_index*10 + M_index",
@@ -123,6 +130,7 @@ def load_product_b_v2_2_known_truth_contract(path: str | Path) -> dict[str, Any]
         "refit_statistical_response_after_drop": True,
         "same_outer_fold_partition_for_base_and_ablation": True,
         "constant_null_representation_allowed_if_no_predictor_remains": True,
+        "constant_null_ecological_representation_allowed_if_only_observation_predictors_remain": True,
         "compensated_reoptimization_is_not_used_for_core_process_support": True,
         "interpretation": "process contribution to the already recovered niche representation, distinct from Product-A replaceability/necessity",
     }
