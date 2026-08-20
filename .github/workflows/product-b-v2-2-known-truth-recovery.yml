@@ -1,0 +1,195 @@
+name: product-b-v2-2-known-truth-recovery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-method-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-1-frozen-method
+          path: method
+          repository: zuizui0223/sdmr
+          run-id: 32356754388
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate unchanged v2.2 contract and exact frozen method source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pytest -q tests/test_product_b_v2_2_frozen_ablation.py tests/test_product_b_v2_2_contract_execution.py tests/test_product_b_v2.py
+          python - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+          from sdmr.product_b_v2_2_known_truth_contract import load_product_b_v2_2_known_truth_contract
+          c=load_product_b_v2_2_known_truth_contract('configs/product_b_v2_2_known_truth_contract.json')
+          source=c['frozen_product_a_method_source']
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=60) as r:
+                  return json.loads(r.read())
+          api=f'https://api.github.com/repos/{repo}'
+          run=get(f"{api}/actions/runs/{source['run_id']}")
+          artifact=get(f"{api}/actions/artifacts/{source['artifact_id']}")
+          assert run['head_sha']==source['head_sha']
+          assert artifact['name']==source['artifact_name']
+          assert artifact.get('digest')==source['artifact_digest']
+          assert artifact['workflow_run']['id']==source['run_id']
+          assert artifact['workflow_run']['head_sha']==source['head_sha']
+          m=json.load(open('method/contract.json'))
+          assert m['purpose']==source['expected_purpose']
+          assert m['source_contract_sha256']==source['source_contract_sha256']
+          assert m['frozen_candidate']==source['frozen_candidate']
+          assert m['candidate_frozen_before_product_b_evaluation_taxa'] is True
+          assert m['product_b_evaluation_taxa_simulated_or_read'] is False
+          assert m['generating_truth_read'] is False
+          Path('method/source_identity.json').write_text(json.dumps({
+              'run_id':source['run_id'],'head_sha':source['head_sha'],
+              'artifact_id':source['artifact_id'],'artifact_name':source['artifact_name'],
+              'artifact_digest':source['artifact_digest'],
+              'download_transport':'actions/download-artifact@v4'
+          },indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-2-frozen-method-source
+          path: method/
+          retention-days: 30
+
+  process-shard:
+    needs: frozen-method-source
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        m_index: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-2-frozen-method-source
+          path: method
+      - name: Run frozen-representation process ablation without reselection
+        run: |
+          python -m sdmr.product_b_v2_2_known_truth process-shard \
+            --contract configs/product_b_v2_2_known_truth_contract.json \
+            --method-dir method \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --m-index ${{ matrix.m_index }} \
+            --output-dir shard
+          python - <<'PY'
+          import json, pandas as pd
+          c=json.load(open('shard/contract.json'))
+          assert c['generating_truth_read'] is False
+          assert c['base_selected_predictors_frozen_before_process_drop'] is True
+          assert c['predictor_reselection_after_process_drop'] is False
+          assert c['same_outer_fold_partition_for_base_and_all_ablations'] is True
+          ko=pd.read_csv('shard/knockout_fold_metrics.csv')
+          assert ko['predictor_reselection_after_process_drop'].eq(False).all()
+          assert ko['frozen_representation_ablation'].eq(True).all()
+          for _,g in ko.groupby('excluded_process_domain'):
+              assert set(g['fold'].astype(int))=={0,1}
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-2-process-shard-t${{ matrix.taxon_index }}-m${{ matrix.m_index }}
+          path: shard/
+          retention-days: 14
+
+  pretruth-freeze:
+    needs: process-shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-2-frozen-method-source
+          path: method
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-b-v2-2-process-shard-*
+          path: process_shards
+      - name: Freeze complete universal process core before truth
+        run: |
+          python -m sdmr.product_b_v2_2_known_truth pretruth-freeze \
+            --contract configs/product_b_v2_2_known_truth_contract.json \
+            --method-dir method \
+            --worker-root process_shards \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['purpose']=='product_b_v2_2_known_truth_process_core_pretruth_freeze'
+          assert c['n_process_shards']==36
+          assert c['all_M_x_fold_evidence_complete'] is True
+          assert c['frozen_representation_ablation'] is True
+          assert c['predictor_reselection_after_process_drop'] is False
+          assert c['process_losses_frozen_before_generating_truth_audit'] is True
+          assert c['generating_truth_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-2-pretruth-process-core
+          path: pretruth/
+          retention-days: 30
+
+  truth-audit:
+    needs: pretruth-freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-2-pretruth-process-core
+          path: pretruth
+      - name: Open fresh 681-692 generating process truth once and apply unchanged gate
+        run: |
+          python -m sdmr.product_b_v2_2_known_truth truth-audit \
+            --contract configs/product_b_v2_2_known_truth_contract.json \
+            --pretruth-dir pretruth \
+            --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+          python - <<'PY'
+          import json
+          c=json.load(open('decision/contract.json'))
+          assert c['purpose']=='product_b_v2_2_fresh_known_truth_decision'
+          assert c['generating_process_truth_opened_after_pretruth_freeze'] is True
+          assert c['thresholds_retuned_after_truth'] is False
+          assert c['real_empirical_data_read'] is False
+          assert c['product_b_formally_unblocked'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-2-fresh-known-truth-decision
+          path: decision/
+          retention-days: 90
