@@ -6,7 +6,9 @@ import json
 from pathlib import Path
 from typing import Callable
 
+import numpy as np
 import pandas as pd
+from sklearn.model_selection import GroupKFold
 
 from .model_pool_predictor_admissibility import select_model_pool_admissible_predictors
 from .niche_recovery_procedure import benchmark_recovery_procedures
@@ -24,6 +26,35 @@ from .validation import make_spatial_partition
 
 FORBIDDEN = {"true_suitability", "sampling_effort", "focal_recording_multiplier"}
 ContractLoader = Callable[[str | Path], dict]
+
+
+def _require_structurally_evaluable_outer_folds(
+    occurrence: pd.DataFrame,
+    background: pd.DataFrame,
+    presence_groups: np.ndarray,
+    background_groups: np.ndarray,
+    *,
+    outer_folds: int,
+) -> None:
+    p_groups = np.asarray(presence_groups)
+    b_groups = np.asarray(background_groups)
+    if len(np.unique(p_groups)) < int(outer_folds):
+        raise ValueError("partition has fewer presence blocks than requested outer folds")
+    splitter = GroupKFold(n_splits=int(outer_folds))
+    dummy = np.zeros(len(occurrence), dtype=int)
+    observed = 0
+    for train_idx, test_idx in splitter.split(dummy, groups=p_groups):
+        train_blocks = np.unique(p_groups[train_idx])
+        test_blocks = np.unique(p_groups[test_idx])
+        bg_train = np.isin(b_groups, train_blocks)
+        bg_test = np.isin(b_groups, test_blocks)
+        if bg_train.sum() < 5 or bg_test.sum() < 5 or len(test_idx) < 2:
+            raise ValueError(
+                "partition cannot support every requested outer fold with >=5 matched background rows and >=2 held-out presences"
+            )
+        observed += 1
+    if observed != int(outer_folds):
+        raise ValueError("partition did not yield the requested number of structurally evaluable outer folds")
 
 
 def run_method_freeze_shard(
@@ -82,6 +113,14 @@ def run_method_freeze_shard(
         holdout_fraction=0.20,
         random_state=random_state,
     )
+    if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
+        _require_structurally_evaluable_outer_folds(
+            occurrence,
+            background,
+            partition.presence_blocks,
+            partition.background_blocks,
+            outer_folds=int(simc["outer_folds"]),
+        )
     benchmark = benchmark_recovery_procedures(
         occurrence,
         background,
@@ -98,14 +137,6 @@ def run_method_freeze_shard(
     metrics = benchmark.fold_metrics.copy()
     if metrics.empty:
         raise ValueError("method-freeze shard produced no fold metrics")
-    expected_folds = set(range(int(simc["outer_folds"])))
-    if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
-        for candidate, group in metrics.groupby("candidate", sort=False):
-            observed = set(pd.to_numeric(group["fold"], errors="coerce").dropna().astype(int))
-            if observed != expected_folds:
-                raise ValueError(
-                    f"method-freeze candidate {candidate} has incomplete outer folds: expected={sorted(expected_folds)}, observed={sorted(observed)}"
-                )
     metrics["taxon"] = spec.taxon
     metrics["species"] = spec.taxon
     metrics["M"] = m_name
@@ -132,6 +163,7 @@ def run_method_freeze_shard(
         "partition_seed": random_state,
         "n_spatial_blocks": n_blocks,
         "requested_outer_folds": int(simc["outer_folds"]),
+        "partition_structurally_supports_all_requested_outer_folds": True,
         "generating_truth_read": False,
         "product_b_evaluation_taxa_simulated_or_read": False,
         "real_empirical_data_read": False,
