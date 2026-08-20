@@ -24,6 +24,7 @@ jobs:
           from sdmr.v2_6_promotion_product_b_unblock import load_promotion_contract
           c=load_promotion_contract('configs/product_a_v2_6_promotion_product_b_v2_unblock_contract.json')
           assert c['new_postoutcome_scientific_thresholds'] is False
+          assert c['product_b_v2_1_source_frozen_before_outcome'] is True
           assert c['independent_empirical_product_a_source']['run_id']==32323931807
           b=c['fresh_known_truth_product_b_v2_source']
           assert b['implementation_sha']=='064db306a44ce1104327b73b70e055e56e451018'
@@ -87,14 +88,12 @@ jobs:
                       continue
                   if str(run.get('event')) != 'workflow_dispatch':
                       continue
-                  if str(run.get('status')) != 'completed':
-                      continue
                   matches.append(run)
               if len(matches)!=1:
-                  raise SystemExit(f"expected exactly one completed Product-B v2.1 run for frozen source, found {len(matches)}")
+                  raise SystemExit(f"expected exactly one Product-B v2.1 run for frozen source, found {len(matches)}")
               run=matches[0]
-              if run.get('conclusion') != 'success':
-                  raise SystemExit(f"frozen Product-B v2.1 run did not complete successfully: {run.get('conclusion')}")
+              if run.get('status') != 'completed' or run.get('conclusion') != 'success':
+                  raise SystemExit(f"frozen Product-B v2.1 run not successfully completed: {run.get('status')}/{run.get('conclusion')}")
               return run
 
           verify_run(32251711573, '715f62ef453636e0e60a4a04d3fa71fdbfdf57a9')
