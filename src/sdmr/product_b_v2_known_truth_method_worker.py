@@ -1,9 +1,10 @@
-"""Model-only Product-A method-freeze shard for Product-B v2 known truth."""
+"""Model-only Product-A method-freeze shard for Product-B known truth."""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -22,12 +23,18 @@ from .v2_1_known_truth_gate_ablation import (
 from .validation import make_spatial_partition
 
 FORBIDDEN = {"true_suitability", "sampling_effort", "focal_recording_multiplier"}
+ContractLoader = Callable[[str | Path], dict]
 
 
 def run_method_freeze_shard(
-    *, contract_path: str | Path, taxon_index: int, m_index: int, output_dir: str | Path
+    *,
+    contract_path: str | Path,
+    taxon_index: int,
+    m_index: int,
+    output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     specs = contract["method_freeze_taxa"]
     if not 0 <= int(taxon_index) < len(specs):
         raise ValueError("method-freeze taxon_index out of range")
@@ -63,13 +70,15 @@ def run_method_freeze_shard(
     )
     m_name = M_SPECS[int(m_index)]
     background = backgrounds[m_name]
-    random_state = 720000 + int(taxon_index) * 10 + int(m_index)
+    partition_contract = contract.get("partition_contract", {})
+    random_state = int(partition_contract.get("method_partition_seed_base", 720000)) + int(taxon_index) * 10 + int(m_index)
+    n_blocks = int(partition_contract.get("fixed_n_spatial_blocks", max(4, int(simc["outer_folds"]) + 1)))
     partition = make_spatial_partition(
         occurrence["longitude"].to_numpy(float),
         occurrence["latitude"].to_numpy(float),
         background["longitude"].to_numpy(float),
         background["latitude"].to_numpy(float),
-        n_blocks=max(4, int(simc["outer_folds"]) + 1),
+        n_blocks=n_blocks,
         holdout_fraction=0.20,
         random_state=random_state,
     )
@@ -89,6 +98,14 @@ def run_method_freeze_shard(
     metrics = benchmark.fold_metrics.copy()
     if metrics.empty:
         raise ValueError("method-freeze shard produced no fold metrics")
+    expected_folds = set(range(int(simc["outer_folds"])))
+    if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
+        for candidate, group in metrics.groupby("candidate", sort=False):
+            observed = set(pd.to_numeric(group["fold"], errors="coerce").dropna().astype(int))
+            if observed != expected_folds:
+                raise ValueError(
+                    f"method-freeze candidate {candidate} has incomplete outer folds: expected={sorted(expected_folds)}, observed={sorted(observed)}"
+                )
     metrics["taxon"] = spec.taxon
     metrics["species"] = spec.taxon
     metrics["M"] = m_name
@@ -112,6 +129,9 @@ def run_method_freeze_shard(
         "n_procedures": len(procedures),
         "n_admissible_predictors": len(admissibility.predictors),
         "admissible_predictors": list(admissibility.predictors),
+        "partition_seed": random_state,
+        "n_spatial_blocks": n_blocks,
+        "requested_outer_folds": int(simc["outer_folds"]),
         "generating_truth_read": False,
         "product_b_evaluation_taxa_simulated_or_read": False,
         "real_empirical_data_read": False,
