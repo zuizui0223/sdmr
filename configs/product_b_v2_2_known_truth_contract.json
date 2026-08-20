@@ -1,0 +1,128 @@
+{
+  "purpose": "product_b_v2_2_predeclared_frozen_representation_known_truth_validation",
+  "successor_history": [
+    {
+      "version": "v2.0",
+      "run_id": 32345246380,
+      "failure_stage": "pretruth_freeze",
+      "generating_process_truth_opened": false,
+      "reason": "requested outer-fold denominator was structurally incomplete"
+    },
+    {
+      "version": "v2.1",
+      "run_id": 32356754388,
+      "head_sha": "064db306a44ce1104327b73b70e055e56e451018",
+      "failure_stage": "process_shard",
+      "generating_process_truth_opened": false,
+      "reason": "process removal followed by niche-forward reselection made some otherwise valid water-knockout folds procedure-unevaluable"
+    }
+  ],
+  "frozen_product_a_method_source": {
+    "run_id": 32356754388,
+    "head_sha": "064db306a44ce1104327b73b70e055e56e451018",
+    "artifact_id": 9402671599,
+    "artifact_name": "product-b-v2-1-frozen-method",
+    "artifact_digest": "sha256:e4ec80cd5b6827c47f1d5eab41f29739711d1c85c399296fdaed0ee59c0d8a41",
+    "expected_purpose": "product_b_v2_frozen_product_a_method_pretruth",
+    "source_contract_sha256": "55136e97bb5230ed13309a75482f63a69901255905ad75d6f8233c8bb92f1815",
+    "frozen_candidate": "niche_forward|logit_l2_C1_degree2",
+    "candidate_frozen_before_v2_1_evaluation_taxa": true,
+    "generating_truth_read": false
+  },
+  "previous_model_only_evaluation_seeds_excluded": [611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670, 671, 672],
+  "opened_generating_truth_seed_maximum": 523,
+  "real_empirical_data_read": false,
+  "empirical_sealed_outcomes_read": false,
+  "product_b_formally_unblocked": false,
+  "simulation_contract": {
+    "n_cells": 1500,
+    "n_occurrences": 150,
+    "n_target_group": 600,
+    "inner_folds": 2,
+    "outer_folds": 2,
+    "n_spatial_blocks": 8,
+    "max_predictors": 4,
+    "minimum_predictor_coverage": 0.95,
+    "M_specs": ["m_core", "m_mid", "m_wide"]
+  },
+  "partition_contract": {
+    "process_partition_seed_base": 990000,
+    "process_partition_seed_formula": "990000 + taxon_index*10 + M_index",
+    "fixed_n_spatial_blocks": 8,
+    "partition_search_or_reselection": false,
+    "partition_uses_coordinates_only": true,
+    "partition_uses_generating_truth": false,
+    "partition_uses_niche_recovery_scores": false,
+    "all_requested_outer_folds_must_be_evaluable": true
+  },
+  "product_b_evaluation_taxa": [
+    {"family": "gaussian", "seed": 681},
+    {"family": "gaussian", "seed": 682},
+    {"family": "asymmetric", "seed": 683},
+    {"family": "asymmetric", "seed": 684},
+    {"family": "soft_threshold", "seed": 685},
+    {"family": "soft_threshold", "seed": 686},
+    {"family": "interaction", "seed": 687},
+    {"family": "interaction", "seed": 688},
+    {"family": "omitted_driver", "seed": 689},
+    {"family": "omitted_driver", "seed": 690},
+    {"family": "observation_confounded", "seed": 691},
+    {"family": "observation_confounded", "seed": 692}
+  ],
+  "process_predictor_aliases": {
+    "temperature": "temperature",
+    "temp_proxy": "temperature",
+    "sparse_temp_proxy": "temperature",
+    "water": "water",
+    "soil": "soil",
+    "seasonality": "seasonality",
+    "noise": "noise",
+    "sparse_noise": "noise",
+    "recording_bias": "observation_process"
+  },
+  "ecological_process_universe": ["temperature", "water", "soil", "seasonality", "noise"],
+  "process_ablation_semantics": {
+    "base_product_a_procedure_is_frozen": true,
+    "base_selected_predictors_are_frozen_within_outer_fold": true,
+    "remove_only_selected_predictors_in_target_process": true,
+    "predictor_reselection_after_process_drop": false,
+    "refit_statistical_response_after_drop": true,
+    "same_outer_fold_partition_for_base_and_ablation": true,
+    "constant_null_representation_allowed_if_no_predictor_remains": true,
+    "compensated_reoptimization_is_not_used_for_core_process_support": true,
+    "interpretation": "process contribution to the already recovered niche representation, distinct from Product-A replaceability/necessity"
+  },
+  "process_constraint_rule": {
+    "min_pareto_worsening_fraction": 0.6666666666666666,
+    "max_pareto_improvement_fraction": 0.3333333333333333,
+    "weighted_super_score": false,
+    "presence_rank_is_guardrail_not_process_target": true,
+    "requires_complete_M_x_fold_evidence": true
+  },
+  "universality_rule": {
+    "split_seeds": [71, 72, 73, 74, 75],
+    "validation_fraction": 0.3333333333333333,
+    "min_taxon_support_fraction": 0.6666666666666666,
+    "stable_core_min_validation_confirmation_fraction": 0.8
+  },
+  "known_truth_expectation": {
+    "universal_processes": ["temperature", "water"],
+    "omitted_driver_additional_process": "soil",
+    "noncausal_processes": ["seasonality", "noise"],
+    "observation_process_is_not_ecological_process": true
+  },
+  "supported_result_requires": {
+    "all_product_b_taxa_complete": true,
+    "universal_process_recall": 1.0,
+    "false_stable_universal_processes": 0,
+    "mean_taxon_process_recall_minimum": 0.9,
+    "mean_taxon_process_precision_minimum": 0.8,
+    "stable_core_threshold": 0.8
+  },
+  "truth_opening_order": {
+    "frozen_product_a_method_preexists_fresh_v2_2_taxa": true,
+    "process_losses_frozen_before_generating_truth_audit": true,
+    "thresholds_retuned_after_truth": false
+  },
+  "claim_boundary": "development_known_truth_only_no_empirical_product_b_claim"
+}
