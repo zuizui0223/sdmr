@@ -6,14 +6,14 @@ That is a necessity / replaceability question.
 
 Product B asks a different question: after Product A has recovered one ecological
 representation, how much of that recovered niche geometry is carried by each
-process domain across taxa?  Re-running feature selection after a process is
+process domain across taxa? Re-running feature selection after a process is
 removed lets the algorithm adapt and can make the Product-B result depend on
 selection feasibility rather than on the recovered representation itself.
 
 This module therefore freezes the predictors selected by the Product-A procedure
 within each outer fold, removes one process from that selected representation,
 refits only the statistical response surface, and evaluates the same held-out
-fold.  No predictor selection or process-dependent candidate selection is rerun.
+fold. No predictor selection or process-dependent candidate selection is rerun.
 """
 from __future__ import annotations
 
@@ -24,10 +24,16 @@ import pandas as pd
 from sklearn.model_selection import GroupKFold
 
 from .metrics import continuous_boyce_index, presence_rank_score
-from .model import fit_relative_suitability_model, score_ecological_suitability, score_relative_suitability
+from .model import (
+    fit_relative_suitability_model,
+    score_ecological_suitability,
+    score_relative_suitability,
+)
 from .model_criteria import or10
 from .niche_recovery_procedure import RecoveryProcedure
-from .observation_corrected_recovery import observation_corrected_heldout_niche_recovery_profile
+from .observation_corrected_recovery import (
+    observation_corrected_heldout_niche_recovery_profile,
+)
 from .observation_process import inverse_observation_propensity_weights
 
 
@@ -59,14 +65,15 @@ def frozen_representation_process_ablation(
     """Ablate processes from the base fold representation without reselection.
 
     ``base_fold_metrics`` must contain exactly one row for every requested fold
-    of the already evaluated frozen Product-A procedure.  Its
+    of the already evaluated frozen Product-A procedure. Its
     ``selected_predictors`` column is the representation being intervened on.
 
-    If removing a process leaves no fitted predictor, the ablated ecological
-    surface is defined as constant suitability.  This is an explicit null
-    representation, not a failed or silently skipped fold, so Product B retains a
-    complete denominator without interpreting numerical/selection failure as
-    biological necessity.
+    If removing a process leaves no fitted predictor, the ablated model surface
+    is defined as constant suitability. If only observation-process predictors
+    remain, the fitted observation-aware model is retained for the prediction
+    guardrail, while ecological marginalization naturally yields a constant
+    ecological surface. Both are explicit null-representation states rather than
+    failed/skipped folds.
     """
 
     p_groups = np.asarray(presence_groups)
@@ -81,10 +88,13 @@ def frozen_representation_process_ablation(
         base_fold_metrics["candidate"].astype(str).eq(procedure.label)
     ].copy()
     expected_folds = tuple(range(int(outer_folds)))
-    observed_folds = tuple(sorted(pd.to_numeric(base["fold"], errors="raise").astype(int)))
+    observed_folds = tuple(
+        sorted(pd.to_numeric(base["fold"], errors="raise").astype(int))
+    )
     if observed_folds != expected_folds or len(base) != len(expected_folds):
         raise ValueError(
-            f"base representation requires exact folds {list(expected_folds)}, observed={list(observed_folds)}"
+            f"base representation requires exact folds {list(expected_folds)}, "
+            f"observed={list(observed_folds)}"
         )
     if base.duplicated("fold").any():
         raise ValueError("base representation is not unique by fold")
@@ -98,27 +108,44 @@ def frozen_representation_process_ablation(
         raise ValueError("requested Product-B outer folds are not structurally available")
     splitter = GroupKFold(n_splits=folds)
     dummy = np.zeros(len(presence), dtype=int)
-    observation = tuple(dict.fromkeys(str(x) for x in procedure.observation_predictors))
+    observation = tuple(
+        dict.fromkeys(str(x) for x in procedure.observation_predictors)
+    )
+    observation_set = set(observation)
     aliases = {str(k): str(v) for k, v in process_aliases.items()}
+    processes = tuple(str(x) for x in process_domains)
+    if not processes or len(set(processes)) != len(processes):
+        raise ValueError("process_domains must be non-empty and unique")
     rows: list[dict[str, object]] = []
 
-    for fold, (train_idx, test_idx) in enumerate(splitter.split(dummy, groups=p_groups)):
+    for fold, (train_idx, test_idx) in enumerate(
+        splitter.split(dummy, groups=p_groups)
+    ):
         train_blocks = np.unique(p_groups[train_idx])
         test_blocks = np.unique(p_groups[test_idx])
         bg_train_mask = np.isin(b_groups, train_blocks)
         bg_test_mask = np.isin(b_groups, test_blocks)
         if bg_train_mask.sum() < 5 or bg_test_mask.sum() < 5 or len(test_idx) < 2:
-            raise ValueError(f"frozen Product-B fold {fold} lacks structural background support")
+            raise ValueError(
+                f"frozen Product-B fold {fold} lacks structural background support"
+            )
         p_train = presence.iloc[train_idx].reset_index(drop=True)
         p_test = presence.iloc[test_idx].reset_index(drop=True)
         b_train = background.loc[bg_train_mask].reset_index(drop=True)
         b_test = background.loc[bg_test_mask].reset_index(drop=True)
-        base_selected = _selected_predictors(getattr(base_by_fold[fold], "selected_predictors"))
+        base_selected = _selected_predictors(
+            getattr(base_by_fold[fold], "selected_predictors")
+        )
         if not base_selected:
             raise ValueError(f"base fold {fold} selected no predictors")
-        unknown = sorted(set(base_selected) - set(presence.columns) - set(background.columns))
-        if unknown:
-            raise KeyError(f"base fold {fold} references unknown predictors: {unknown}")
+        missing_presence = sorted(set(base_selected) - set(presence.columns))
+        missing_background = sorted(set(base_selected) - set(background.columns))
+        if missing_presence or missing_background:
+            raise KeyError(
+                f"base fold {fold} references unavailable predictors: "
+                f"presence_missing={missing_presence}, "
+                f"background_missing={missing_background}"
+            )
 
         weights = inverse_observation_propensity_weights(
             p_train,
@@ -128,17 +155,21 @@ def frozen_representation_process_ablation(
             truncation_quantile=observation_weight_truncation_quantile,
         )
 
-        for process in process_domains:
-            process = str(process)
+        for process in processes:
             excluded = tuple(
                 predictor
                 for predictor in base_selected
-                if predictor not in set(observation)
+                if predictor not in observation_set
                 and aliases.get(str(predictor), str(predictor)) == process
             )
-            retained = tuple(p for p in base_selected if p not in set(excluded))
+            excluded_set = set(excluded)
+            retained = tuple(p for p in base_selected if p not in excluded_set)
             retained_observation = tuple(p for p in observation if p in retained)
-            retained_ecological = tuple(p for p in retained if p not in set(retained_observation))
+            retained_observation_set = set(retained_observation)
+            retained_ecological = tuple(
+                p for p in retained if p not in retained_observation_set
+            )
+            null_ecological_representation = len(retained_ecological) == 0
 
             if retained:
                 model = fit_relative_suitability_model(
@@ -147,7 +178,9 @@ def frozen_representation_process_ablation(
                     retained,
                     model_spec=procedure.model_spec,
                 )
-                train_p_scores = score_relative_suitability(model, p_train, retained)
+                train_p_scores = score_relative_suitability(
+                    model, p_train, retained
+                )
                 test_p_scores = score_relative_suitability(model, p_test, retained)
                 test_b_scores = score_relative_suitability(model, b_test, retained)
                 ecological_b_scores = score_ecological_suitability(
@@ -157,13 +190,13 @@ def frozen_representation_process_ablation(
                     observation_predictors=retained_observation,
                     observation_reference=b_train,
                 )
-                null_representation = False
+                null_model_representation = False
             else:
                 train_p_scores = _constant_scores(len(p_train))
                 test_p_scores = _constant_scores(len(p_test))
                 test_b_scores = _constant_scores(len(b_test))
                 ecological_b_scores = _constant_scores(len(b_test))
-                null_representation = True
+                null_model_representation = True
 
             profile = observation_corrected_heldout_niche_recovery_profile(
                 b_train,
@@ -182,7 +215,9 @@ def frozen_representation_process_ablation(
                     "strategy": procedure.strategy,
                     "model": procedure.model_spec.label,
                     "selected_predictors": ",".join(retained),
-                    "selected_ecological_predictors": ",".join(retained_ecological),
+                    "selected_ecological_predictors": ",".join(
+                        retained_ecological
+                    ),
                     "n_predictors": len(retained),
                     "n_ecological_predictors": len(retained_ecological),
                     "base_selected_predictors": ",".join(base_selected),
@@ -190,11 +225,26 @@ def frozen_representation_process_ablation(
                     "excluded_predictors": ",".join(excluded),
                     "predictor_reselection_after_process_drop": False,
                     "frozen_representation_ablation": True,
-                    "null_representation_after_drop": bool(null_representation),
-                    "presence_rank": presence_rank_score(test_p_scores, test_b_scores),
-                    "continuous_boyce": continuous_boyce_index(test_p_scores, test_b_scores),
+                    "null_model_representation_after_drop": bool(
+                        null_model_representation
+                    ),
+                    "null_ecological_representation_after_drop": bool(
+                        null_ecological_representation
+                    ),
+                    # Compatibility alias retained for the first v2.2 draft.
+                    "null_representation_after_drop": bool(
+                        null_model_representation
+                    ),
+                    "presence_rank": presence_rank_score(
+                        test_p_scores, test_b_scores
+                    ),
+                    "continuous_boyce": continuous_boyce_index(
+                        test_p_scores, test_b_scores
+                    ),
                     "or10": or10(train_p_scores, test_p_scores),
-                    "observation_correction_active": bool(observation_correction_active),
+                    "observation_correction_active": bool(
+                        observation_correction_active
+                    ),
                     "observation_weight_ess": weights.effective_sample_size,
                     "n_model_presence": len(p_train),
                     "n_heldout_presence": len(p_test),
@@ -205,10 +255,11 @@ def frozen_representation_process_ablation(
             )
 
     result = pd.DataFrame(rows)
-    expected_rows = len(expected_folds) * len(tuple(process_domains))
+    expected_rows = len(expected_folds) * len(processes)
     if len(result) != expected_rows:
         raise AssertionError(
-            f"frozen Product-B ablation denominator changed: expected {expected_rows}, observed {len(result)}"
+            f"frozen Product-B ablation denominator changed: expected "
+            f"{expected_rows}, observed {len(result)}"
         )
     return result.sort_values(
         ["excluded_process_domain", "fold"], kind="mergesort"
