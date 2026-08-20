@@ -1,7 +1,7 @@
 {
   "conclusion": null,
   "created_at": "2026-08-20T10:00:24Z",
-  "dispatched_now": true,
+  "dispatched_now": false,
   "frozen_ref": "frozen/product-b-v2-1-064db306",
   "head_branch": "frozen/product-b-v2-1-064db306",
   "head_sha": "064db306a44ce1104327b73b70e055e56e451018",
