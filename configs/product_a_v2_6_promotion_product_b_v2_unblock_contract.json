@@ -5,7 +5,7 @@
   "new_postoutcome_scientific_thresholds": false,
   "known_truth_product_a_source": {
     "run_id": 32251711573,
-    "head_sha": "f8423b83b165d448b04c2c1f8ff0d89d2bc11e4d",
+    "head_sha": "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9",
     "artifact_id": 9364873176,
     "artifact_digest": "sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba",
     "expected_purpose": "product_a_v2_6_predeclared_fresh_validation_decision",
