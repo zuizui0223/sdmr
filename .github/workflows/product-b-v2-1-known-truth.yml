@@ -1,0 +1,230 @@
+name: product-b-v2-1-known-truth
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  pretruth-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Validate v2.1 successor contract before fresh taxa are simulated
+        run: |
+          pytest -q tests/test_product_b_v2_1_known_truth.py tests/test_product_b_v2.py
+          python - <<'PY'
+          from sdmr.product_b_v2_1_known_truth_contract import load_product_b_v2_1_known_truth_contract
+          c=load_product_b_v2_1_known_truth_contract('configs/product_b_v2_1_known_truth_contract.json')
+          assert c['successor_to_failed_pretruth_run']['generating_process_truth_opened'] is False
+          assert c['partition_contract']['fixed_n_spatial_blocks']==8
+          assert c['partition_contract']['partition_search_or_reselection'] is False
+          assert c['opened_generating_truth_seed_maximum']==523
+          assert min(x['seed'] for x in c['method_freeze_taxa']+c['product_b_evaluation_taxa'])>622
+          PY
+
+  method-shard:
+    needs: pretruth-contract
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        taxon_index: [0, 1, 2, 3, 4, 5]
+        m_index: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Evaluate method-freeze taxa under fixed eight-block partitions
+        run: |
+          python -m sdmr.product_b_v2_1_known_truth method-shard \
+            --contract configs/product_b_v2_1_known_truth_contract.json \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --m-index ${{ matrix.m_index }} \
+            --output-dir shard
+          python - <<'PY'
+          import json
+          c=json.load(open('shard/contract.json'))
+          assert c['n_spatial_blocks']==8
+          assert c['requested_outer_folds']==2
+          assert c['partition_structurally_supports_all_requested_outer_folds'] is True
+          assert c['generating_truth_read'] is False
+          assert c['product_b_evaluation_taxa_simulated_or_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-1-method-shard-t${{ matrix.taxon_index }}-m${{ matrix.m_index }}
+          path: shard/
+          retention-days: 14
+
+  method-freeze:
+    needs: method-shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-b-v2-1-method-shard-*
+          path: method_shards
+      - name: Freeze Product-A ecological candidate before v2.1 evaluation taxa exist
+        run: |
+          python -m sdmr.product_b_v2_1_known_truth method-freeze \
+            --contract configs/product_b_v2_1_known_truth_contract.json \
+            --worker-root method_shards \
+            --output-dir method
+          python - <<'PY'
+          import json
+          c=json.load(open('method/contract.json'))
+          assert c['n_method_freeze_shards']==18
+          assert c['candidate_frozen_before_product_b_evaluation_taxa'] is True
+          assert c['product_b_evaluation_taxa_simulated_or_read'] is False
+          assert c['generating_truth_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-1-frozen-method
+          path: method/
+          retention-days: 30
+
+  process-shard:
+    needs: method-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        m_index: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-1-frozen-method
+          path: method
+      - name: Run frozen candidate and five process knockouts with exact 2/2 folds
+        run: |
+          python -m sdmr.product_b_v2_1_known_truth process-shard \
+            --contract configs/product_b_v2_1_known_truth_contract.json \
+            --method-dir method \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --m-index ${{ matrix.m_index }} \
+            --output-dir shard
+          python - <<'PY'
+          import json, pandas as pd
+          c=json.load(open('shard/contract.json'))
+          assert c['n_spatial_blocks']==8
+          assert c['requested_outer_folds']==2
+          assert c['all_requested_outer_folds_evaluable'] is True
+          assert c['same_spatial_partition_for_base_and_all_knockouts'] is True
+          assert c['generating_truth_read'] is False
+          base=pd.read_csv('shard/base_fold_metrics.csv')
+          ko=pd.read_csv('shard/knockout_fold_metrics.csv')
+          assert set(base['fold'].astype(int))=={0,1}
+          for _,g in ko.groupby('excluded_process_domain'):
+              assert set(g['fold'].astype(int))=={0,1}
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-1-process-shard-t${{ matrix.taxon_index }}-m${{ matrix.m_index }}
+          path: shard/
+          retention-days: 14
+
+  pretruth-freeze:
+    needs: process-shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-1-frozen-method
+          path: method
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-b-v2-1-process-shard-*
+          path: process_shards
+      - name: Freeze complete Product-B v2.1 process core before generating truth
+        run: |
+          python -m sdmr.product_b_v2_1_known_truth pretruth-freeze \
+            --contract configs/product_b_v2_1_known_truth_contract.json \
+            --method-dir method \
+            --worker-root process_shards \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['purpose']=='product_b_v2_1_known_truth_process_core_pretruth_freeze'
+          assert c['n_process_shards']==36
+          assert c['outer_folds']==2
+          assert c['strict_requested_outer_folds'] is True
+          assert c['all_M_x_fold_evidence_complete'] is True
+          assert c['process_losses_frozen_before_generating_truth_audit'] is True
+          assert c['generating_truth_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-1-pretruth-process-core
+          path: pretruth/
+          retention-days: 30
+
+  truth-audit:
+    needs: pretruth-freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-b-v2-1-pretruth-process-core
+          path: pretruth
+      - name: Open fresh 661-672 generating process truth once and apply unchanged decision rule
+        run: |
+          python -m sdmr.product_b_v2_1_known_truth truth-audit \
+            --contract configs/product_b_v2_1_known_truth_contract.json \
+            --pretruth-dir pretruth \
+            --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+          python - <<'PY'
+          import json
+          c=json.load(open('decision/contract.json'))
+          assert c['purpose']=='product_b_v2_1_fresh_known_truth_decision'
+          assert c['generating_process_truth_opened_after_pretruth_freeze'] is True
+          assert c['thresholds_retuned_after_truth'] is False
+          assert c['real_empirical_data_read'] is False
+          assert c['product_b_formally_unblocked'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-b-v2-1-fresh-known-truth-decision
+          path: decision/
+          retention-days: 90

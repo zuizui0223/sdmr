@@ -1,11 +1,14 @@
-"""Model-only Product-A method-freeze shard for Product-B v2 known truth."""
+"""Model-only Product-A method-freeze shard for Product-B known truth."""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
+import numpy as np
 import pandas as pd
+from sklearn.model_selection import GroupKFold
 
 from .model_pool_predictor_admissibility import select_model_pool_admissible_predictors
 from .niche_recovery_procedure import benchmark_recovery_procedures
@@ -22,12 +25,47 @@ from .v2_1_known_truth_gate_ablation import (
 from .validation import make_spatial_partition
 
 FORBIDDEN = {"true_suitability", "sampling_effort", "focal_recording_multiplier"}
+ContractLoader = Callable[[str | Path], dict]
+
+
+def _require_structurally_evaluable_outer_folds(
+    occurrence: pd.DataFrame,
+    background: pd.DataFrame,
+    presence_groups: np.ndarray,
+    background_groups: np.ndarray,
+    *,
+    outer_folds: int,
+) -> None:
+    p_groups = np.asarray(presence_groups)
+    b_groups = np.asarray(background_groups)
+    if len(np.unique(p_groups)) < int(outer_folds):
+        raise ValueError("partition has fewer presence blocks than requested outer folds")
+    splitter = GroupKFold(n_splits=int(outer_folds))
+    dummy = np.zeros(len(occurrence), dtype=int)
+    observed = 0
+    for train_idx, test_idx in splitter.split(dummy, groups=p_groups):
+        train_blocks = np.unique(p_groups[train_idx])
+        test_blocks = np.unique(p_groups[test_idx])
+        bg_train = np.isin(b_groups, train_blocks)
+        bg_test = np.isin(b_groups, test_blocks)
+        if bg_train.sum() < 5 or bg_test.sum() < 5 or len(test_idx) < 2:
+            raise ValueError(
+                "partition cannot support every requested outer fold with >=5 matched background rows and >=2 held-out presences"
+            )
+        observed += 1
+    if observed != int(outer_folds):
+        raise ValueError("partition did not yield the requested number of structurally evaluable outer folds")
 
 
 def run_method_freeze_shard(
-    *, contract_path: str | Path, taxon_index: int, m_index: int, output_dir: str | Path
+    *,
+    contract_path: str | Path,
+    taxon_index: int,
+    m_index: int,
+    output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     specs = contract["method_freeze_taxa"]
     if not 0 <= int(taxon_index) < len(specs):
         raise ValueError("method-freeze taxon_index out of range")
@@ -63,16 +101,26 @@ def run_method_freeze_shard(
     )
     m_name = M_SPECS[int(m_index)]
     background = backgrounds[m_name]
-    random_state = 720000 + int(taxon_index) * 10 + int(m_index)
+    partition_contract = contract.get("partition_contract", {})
+    random_state = int(partition_contract.get("method_partition_seed_base", 720000)) + int(taxon_index) * 10 + int(m_index)
+    n_blocks = int(partition_contract.get("fixed_n_spatial_blocks", max(4, int(simc["outer_folds"]) + 1)))
     partition = make_spatial_partition(
         occurrence["longitude"].to_numpy(float),
         occurrence["latitude"].to_numpy(float),
         background["longitude"].to_numpy(float),
         background["latitude"].to_numpy(float),
-        n_blocks=max(4, int(simc["outer_folds"]) + 1),
+        n_blocks=n_blocks,
         holdout_fraction=0.20,
         random_state=random_state,
     )
+    if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
+        _require_structurally_evaluable_outer_folds(
+            occurrence,
+            background,
+            partition.presence_blocks,
+            partition.background_blocks,
+            outer_folds=int(simc["outer_folds"]),
+        )
     benchmark = benchmark_recovery_procedures(
         occurrence,
         background,
@@ -112,6 +160,10 @@ def run_method_freeze_shard(
         "n_procedures": len(procedures),
         "n_admissible_predictors": len(admissibility.predictors),
         "admissible_predictors": list(admissibility.predictors),
+        "partition_seed": random_state,
+        "n_spatial_blocks": n_blocks,
+        "requested_outer_folds": int(simc["outer_folds"]),
+        "partition_structurally_supports_all_requested_outer_folds": True,
         "generating_truth_read": False,
         "product_b_evaluation_taxa_simulated_or_read": False,
         "real_empirical_data_read": False,

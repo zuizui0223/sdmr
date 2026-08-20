@@ -1,9 +1,10 @@
-"""Run one fresh Product-B v2 taxon x M process-knockout shard without truth."""
+"""Run one fresh Product-B taxon x M process-knockout shard without truth."""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -21,6 +22,15 @@ from .v2_1_known_truth_gate_ablation import (
 from .validation import make_spatial_partition
 
 FORBIDDEN = {"true_suitability", "sampling_effort", "focal_recording_multiplier"}
+ContractLoader = Callable[[str | Path], dict]
+
+
+def _require_requested_folds(frame: pd.DataFrame, *, expected_folds: set[int], label: str) -> None:
+    observed = set(pd.to_numeric(frame["fold"], errors="coerce").dropna().astype(int))
+    if observed != expected_folds or len(frame) != len(expected_folds):
+        raise ValueError(
+            f"{label} outer-fold denominator incomplete: expected={sorted(expected_folds)}, observed={sorted(observed)}, rows={len(frame)}"
+        )
 
 
 def run_product_b_process_shard(
@@ -30,8 +40,9 @@ def run_product_b_process_shard(
     taxon_index: int,
     m_index: int,
     output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     method = json.loads((Path(method_dir) / "contract.json").read_text(encoding="utf-8"))
     if method.get("purpose") != "product_b_v2_frozen_product_a_method_pretruth":
         raise ValueError("Product-B process shard requires frozen Product-A method")
@@ -89,13 +100,15 @@ def run_product_b_process_shard(
 
     m_name = M_SPECS[int(m_index)]
     background = backgrounds[m_name]
-    random_state = 830000 + int(taxon_index) * 10 + int(m_index)
+    partition_contract = contract.get("partition_contract", {})
+    random_state = int(partition_contract.get("process_partition_seed_base", 830000)) + int(taxon_index) * 10 + int(m_index)
+    n_blocks = int(partition_contract.get("fixed_n_spatial_blocks", max(4, int(simc["outer_folds"]) + 1)))
     partition = make_spatial_partition(
         occurrence["longitude"].to_numpy(float),
         occurrence["latitude"].to_numpy(float),
         background["longitude"].to_numpy(float),
         background["latitude"].to_numpy(float),
-        n_blocks=max(4, int(simc["outer_folds"]) + 1),
+        n_blocks=n_blocks,
         holdout_fraction=0.20,
         random_state=random_state,
     )
@@ -115,6 +128,9 @@ def run_product_b_process_shard(
     base = benchmark_recovery_procedures(ecological_predictors=predictors, **common).fold_metrics.copy()
     if base.empty:
         raise ValueError("Product-B base benchmark produced no metrics")
+    expected_folds = set(range(int(simc["outer_folds"])))
+    if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
+        _require_requested_folds(base, expected_folds=expected_folds, label="base")
     base["taxon"] = spec.taxon
     base["M"] = m_name
     base["family"] = spec.family
@@ -130,6 +146,8 @@ def run_product_b_process_shard(
         result = benchmark_recovery_procedures(ecological_predictors=retained, **common).fold_metrics.copy()
         if result.empty:
             raise ValueError(f"Product-B knockout produced no metrics: {process}")
+        if partition_contract.get("all_requested_outer_folds_must_be_evaluable") is True:
+            _require_requested_folds(result, expected_folds=expected_folds, label=f"knockout {process}")
         result["base_candidate"] = frozen_candidate
         result["candidate"] = frozen_candidate + "::exclude::" + str(process)
         result["procedure"] = result["candidate"]
@@ -158,6 +176,10 @@ def run_product_b_process_shard(
         "M": m_name,
         "m_index": int(m_index),
         "n_processes": len(contract["ecological_process_universe"]),
+        "partition_seed": random_state,
+        "n_spatial_blocks": n_blocks,
+        "requested_outer_folds": int(simc["outer_folds"]),
+        "all_requested_outer_folds_evaluable": True,
         "same_spatial_partition_for_base_and_all_knockouts": True,
         "admissibility_computed_across_all_frozen_M": True,
         "generating_truth_read": False,

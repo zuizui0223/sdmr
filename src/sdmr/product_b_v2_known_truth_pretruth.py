@@ -1,9 +1,10 @@
-"""Freeze Product-B v2 process evidence and unseen-taxon core before truth opens."""
+"""Freeze Product-B process evidence and unseen-taxon core before truth opens."""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -14,6 +15,8 @@ from .product_b_v2 import (
 )
 from .product_b_v2_known_truth_contract import M_SPECS, load_product_b_v2_known_truth_contract
 
+ContractLoader = Callable[[str | Path], dict]
+
 
 def freeze_product_b_v2_process_core(
     *,
@@ -21,8 +24,10 @@ def freeze_product_b_v2_process_core(
     method_dir: str | Path,
     worker_root: str | Path,
     output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
+    result_purpose: str = "product_b_v2_known_truth_process_core_pretruth_freeze",
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     method = json.loads((Path(method_dir) / "contract.json").read_text(encoding="utf-8"))
     if method.get("purpose") != "product_b_v2_frozen_product_a_method_pretruth":
         raise ValueError("Product-B pretruth requires frozen Product-A method")
@@ -33,6 +38,7 @@ def freeze_product_b_v2_process_core(
     contracts: list[dict[str, object]] = []
     base_frames: list[pd.DataFrame] = []
     knockout_frames: list[pd.DataFrame] = []
+    strict_folds = contract.get("partition_contract", {}).get("all_requested_outer_folds_must_be_evaluable") is True
     for path in sorted(Path(worker_root).rglob("contract.json")):
         row = json.loads(path.read_text(encoding="utf-8"))
         if row.get("purpose") != "product_b_v2_known_truth_process_shard_pretruth":
@@ -53,6 +59,8 @@ def freeze_product_b_v2_process_core(
             raise ValueError("base/knockout spatial partition mismatch")
         if row.get("admissibility_computed_across_all_frozen_M") is not True:
             raise ValueError("Product-B shard changed admissibility semantics")
+        if strict_folds and row.get("all_requested_outer_folds_evaluable") is not True:
+            raise ValueError("strict Product-B shard did not certify all requested outer folds")
         base = pd.read_csv(path.parent / "base_fold_metrics.csv")
         knockout = pd.read_csv(path.parent / "knockout_fold_metrics.csv")
         if base.empty or knockout.empty:
@@ -114,7 +122,7 @@ def freeze_product_b_v2_process_core(
     repeated.split_summary.to_csv(out / "universality_split_summary.csv", index=False)
     stability.to_csv(out / "process_stability.csv", index=False)
     result = {
-        "purpose": "product_b_v2_known_truth_process_core_pretruth_freeze",
+        "purpose": str(result_purpose),
         "source_contract_sha256": contract["contract_sha256"],
         "frozen_candidate": frozen_candidate,
         "n_process_shards": len(contracts),
@@ -124,6 +132,7 @@ def freeze_product_b_v2_process_core(
         "outer_folds": outer_folds,
         "stable_core_threshold": stable_threshold,
         "stable_universal_core": list(stable_core),
+        "strict_requested_outer_folds": strict_folds,
         "all_M_x_fold_evidence_complete": True,
         "process_losses_frozen_before_generating_truth_audit": True,
         "generating_truth_read": False,

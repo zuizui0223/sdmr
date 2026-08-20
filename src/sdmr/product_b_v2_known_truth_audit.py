@@ -1,14 +1,16 @@
-"""Open fresh generating process truth only after Product-B v2 pretruth freeze."""
+"""Open fresh generating process truth only after Product-B pretruth freeze."""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
-import numpy as np
 import pandas as pd
 
 from .product_b_v2_known_truth_contract import load_product_b_v2_known_truth_contract
+
+ContractLoader = Callable[[str | Path], dict]
 
 
 def _true_processes(family: str) -> set[str]:
@@ -19,12 +21,18 @@ def _true_processes(family: str) -> set[str]:
 
 
 def audit_product_b_v2_known_truth(
-    *, contract_path: str | Path, pretruth_dir: str | Path, output_dir: str | Path
+    *,
+    contract_path: str | Path,
+    pretruth_dir: str | Path,
+    output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
+    expected_pretruth_purpose: str = "product_b_v2_known_truth_process_core_pretruth_freeze",
+    result_purpose: str = "product_b_v2_fresh_known_truth_decision",
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     root = Path(pretruth_dir)
     frozen = json.loads((root / "contract.json").read_text(encoding="utf-8"))
-    if frozen.get("purpose") != "product_b_v2_known_truth_process_core_pretruth_freeze":
+    if frozen.get("purpose") != expected_pretruth_purpose:
         raise ValueError("truth audit requires frozen Product-B process core")
     if frozen.get("source_contract_sha256") != contract["contract_sha256"]:
         raise ValueError("truth audit contract mismatch")
@@ -143,7 +151,7 @@ def audit_product_b_v2_known_truth(
     stability.to_csv(out / "pretruth_process_stability.csv", index=False)
     decision_frame.to_csv(out / "decision.csv", index=False)
     result = {
-        "purpose": "product_b_v2_fresh_known_truth_decision",
+        "purpose": str(result_purpose),
         "source_contract_sha256": contract["contract_sha256"],
         "decision": decision,
         "generating_process_truth_opened_after_pretruth_freeze": True,

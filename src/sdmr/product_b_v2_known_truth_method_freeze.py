@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 
@@ -11,11 +12,17 @@ from .candidate_outer_fold_evidence import require_complete_outer_fold_evidence
 from .niche_recovery_selection import RECOVERY_DIRECTIONS, select_generalization_gated_niche_recovery_protocol
 from .product_b_v2_known_truth_contract import M_SPECS, load_product_b_v2_known_truth_contract
 
+ContractLoader = Callable[[str | Path], dict]
+
 
 def freeze_product_b_v2_method(
-    *, contract_path: str | Path, worker_root: str | Path, output_dir: str | Path
+    *,
+    contract_path: str | Path,
+    worker_root: str | Path,
+    output_dir: str | Path,
+    contract_loader: ContractLoader = load_product_b_v2_known_truth_contract,
 ) -> dict[str, object]:
-    contract = load_product_b_v2_known_truth_contract(contract_path)
+    contract = contract_loader(contract_path)
     root = Path(worker_root)
     contracts: list[dict[str, object]] = []
     frames: list[pd.DataFrame] = []
