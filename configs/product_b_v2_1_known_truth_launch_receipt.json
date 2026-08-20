@@ -1,0 +1,15 @@
+{
+  "conclusion": null,
+  "created_at": "2026-08-20T10:00:24Z",
+  "dispatched_now": true,
+  "frozen_ref": "frozen/product-b-v2-1-064db306",
+  "head_branch": "frozen/product-b-v2-1-064db306",
+  "head_sha": "064db306a44ce1104327b73b70e055e56e451018",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32356754388",
+  "implementation_sha": "064db306a44ce1104327b73b70e055e56e451018",
+  "purpose": "product_b_v2_1_known_truth_launch_receipt",
+  "run_id": 32356754388,
+  "run_number": 1,
+  "status": "queued",
+  "workflow_name": "product-b-v2-1-known-truth"
+}
