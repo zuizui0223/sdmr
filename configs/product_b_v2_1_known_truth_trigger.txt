@@ -3,3 +3,4 @@ frozen_ref=frozen/product-b-v2-1-064db306
 implementation_sha=064db306a44ce1104327b73b70e055e56e451018
 workflow=product-b-v2-1-known-truth.yml
 source_gate_main_sha=d389a36df911dce42b9375ec5563c9681d82256f
+launch_transport=contents_api_main_push
