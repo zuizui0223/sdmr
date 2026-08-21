@@ -1,0 +1,5 @@
+purpose=trigger_exact_frozen_a_cont3_and_b_v4
+product_a_ref=frozen/product-a-v2-6-continuation-v3-5ce106bb
+product_a_sha=5ce106bb955d0912b1c65ff8dd23a61a3e66aee1
+product_b_ref=frozen/product-b-v4-7873c341
+product_b_sha=7873c341f3ef05ce51293ac73693ba9729f93d8f
