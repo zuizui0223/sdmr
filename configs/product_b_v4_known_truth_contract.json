@@ -1,0 +1,126 @@
+{
+  "purpose": "product_b_v4_predeclared_frozen_surface_known_truth_validation",
+  "successor_history": [
+    {"version":"v2.0","run_id":32345246380,"generating_process_truth_opened":false,"outcome":"technical_pretruth_failure"},
+    {"version":"v2.1","run_id":32356754388,"generating_process_truth_opened":false,"outcome":"technical_process_failure"},
+    {"version":"v2.2-initial","run_id":32422606768,"generating_process_truth_opened":false,"outcome":"technical_source_failure"},
+    {"version":"v2.2-recovery","run_id":32433302497,"generating_process_truth_opened":false,"outcome":"upstream_candidate_portability_failure"},
+    {"version":"v3","run_id":32441530888,"generating_process_truth_opened":true,"outcome":"product_b_v3_known_truth_not_supported","stable_universal_core":[],"universal_process_recall":0.0,"mean_taxon_process_recall":0.3055555555555556,"mean_taxon_process_precision":0.5}
+  ],
+  "diagnosis": {
+    "v3_failure_mode": "true process information was often replaceable by remaining correlated predictors because v3 refit model parameters after process drop",
+    "v4_estimand": "dependence of the frozen Product-A recovered niche surface on information carried by each ecological process",
+    "model_refit_after_process_intervention": false,
+    "predictor_reselection_after_process_intervention": false,
+    "v3_thresholds_retuned": false,
+    "v3_truth_reused_for_v4_scoring": false
+  },
+  "opened_generating_truth_seed_maximum": 712,
+  "previous_product_b_evaluation_seeds_excluded": [611,612,613,614,615,616,617,618,619,620,621,622,661,662,663,664,665,666,667,668,669,670,671,672,681,682,683,684,685,686,687,688,689,690,691,692,701,702,703,704,705,706,707,708,709,710,711,712],
+  "real_empirical_data_read": false,
+  "empirical_sealed_outcomes_read": false,
+  "product_b_formally_unblocked": false,
+  "simulation_contract": {
+    "n_cells": 1500,
+    "n_occurrences": 150,
+    "n_target_group": 600,
+    "inner_folds": 2,
+    "outer_folds": 2,
+    "n_spatial_blocks": 8,
+    "max_predictors": 4,
+    "minimum_predictor_coverage": 0.95,
+    "M_specs": ["m_core","m_mid","m_wide"]
+  },
+  "partition_contract": {
+    "partition_seed_base": 1210000,
+    "partition_seed_formula": "1210000 + taxon_index*10 + M_index",
+    "fixed_n_spatial_blocks": 8,
+    "partition_search_or_reselection": false,
+    "partition_uses_coordinates_only": true,
+    "partition_uses_generating_truth": false,
+    "partition_uses_process_intervention_outcomes": false
+  },
+  "product_b_evaluation_taxa": [
+    {"family":"gaussian","seed":721},
+    {"family":"gaussian","seed":722},
+    {"family":"asymmetric","seed":723},
+    {"family":"asymmetric","seed":724},
+    {"family":"soft_threshold","seed":725},
+    {"family":"soft_threshold","seed":726},
+    {"family":"interaction","seed":727},
+    {"family":"interaction","seed":728},
+    {"family":"omitted_driver","seed":729},
+    {"family":"omitted_driver","seed":730},
+    {"family":"observation_confounded","seed":731},
+    {"family":"observation_confounded","seed":732}
+  ],
+  "product_a_selector": {
+    "candidate_pool": "four_frozen_strategies_x_two_frozen_model_specs",
+    "requires_complete_taxon_M_fold_evidence": true,
+    "chance_auc": 0.50,
+    "minimum_auc_margin": 0.01,
+    "auc_sem_multiplier": 1.0,
+    "selector": "select_generalization_gated_niche_recovery_protocol",
+    "representative_frozen_before_any_product_b_process_intervention": true,
+    "weighted_super_score": false
+  },
+  "process_predictor_aliases": {
+    "temperature":"temperature",
+    "temp_proxy":"temperature",
+    "sparse_temp_proxy":"temperature",
+    "water":"water",
+    "soil":"soil",
+    "seasonality":"seasonality",
+    "noise":"noise",
+    "sparse_noise":"noise",
+    "recording_bias":"observation_process"
+  },
+  "ecological_process_universe": ["temperature","water","soil","seasonality","noise"],
+  "process_intervention_semantics": {
+    "use_product_a_base_fold_selected_predictors_already_frozen_by_product_a_benchmark": true,
+    "reconstruct_product_a_base_fit_once_per_fold": true,
+    "verify_reconstructed_base_metrics_before_intervention": true,
+    "base_reconstruction_tolerance": 1e-8,
+    "model_refit_after_process_intervention": false,
+    "predictor_reselection_after_process_intervention": false,
+    "intervention": "joint_training_background_marginalization",
+    "process_reference_rows_maximum": 64,
+    "jointly_preserve_within_process_reference_covariance": true,
+    "same_outer_fold_partition_as_product_a_base_evidence": true,
+    "interpretation": "process information dependence of the recovered Product-A niche surface, not unique contribution after reoptimization"
+  },
+  "process_constraint_rule": {
+    "min_pareto_worsening_fraction": 0.6666666666666666,
+    "max_pareto_improvement_fraction": 0.3333333333333333,
+    "weighted_super_score": false,
+    "presence_rank_is_guardrail_not_process_target": true,
+    "requires_complete_M_x_fold_evidence": true
+  },
+  "universality_rule": {
+    "split_seeds": [71,72,73,74,75],
+    "validation_fraction": 0.3333333333333333,
+    "min_taxon_support_fraction": 0.6666666666666666,
+    "stable_core_min_validation_confirmation_fraction": 0.8
+  },
+  "known_truth_expectation": {
+    "universal_processes": ["temperature","water"],
+    "omitted_driver_additional_process": "soil",
+    "noncausal_processes": ["seasonality","noise"],
+    "observation_process_is_not_ecological_process": true
+  },
+  "supported_result_requires": {
+    "product_a_representative_available": true,
+    "all_product_b_taxa_complete": true,
+    "universal_process_recall": 1.0,
+    "false_stable_universal_processes": 0,
+    "mean_taxon_process_recall_minimum": 0.9,
+    "mean_taxon_process_precision_minimum": 0.8,
+    "stable_core_threshold": 0.8
+  },
+  "truth_opening_order": {
+    "product_a_candidate_frozen_before_process_intervention": true,
+    "process_losses_frozen_before_generating_truth_audit": true,
+    "thresholds_retuned_after_truth": false
+  },
+  "claim_boundary": "development_known_truth_only_no_empirical_product_b_claim"
+}
