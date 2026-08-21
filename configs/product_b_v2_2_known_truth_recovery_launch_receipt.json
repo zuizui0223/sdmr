@@ -1,0 +1,19 @@
+{
+  "conclusion": null,
+  "created_at": "2026-08-21T00:36:32Z",
+  "dispatched_now": true,
+  "frozen_ref": "frozen/product-b-v2-2-recovery-daaf207d",
+  "head_branch": "frozen/product-b-v2-2-recovery-daaf207d",
+  "head_sha": "daaf207d1574befbc703ace02a82971d4980a865",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32433302497",
+  "implementation_sha": "daaf207d1574befbc703ace02a82971d4980a865",
+  "launcher_trigger_sha": "550b22fd865b34ffa6293db33e17d95486127b13",
+  "predecessor_fresh_taxa_generated": false,
+  "predecessor_generating_truth_opened": false,
+  "predecessor_run_id": 32422606768,
+  "purpose": "product_b_v2_2_known_truth_recovery_launch_receipt",
+  "run_id": 32433302497,
+  "run_number": 1,
+  "status": "in_progress",
+  "workflow_name": "product-b-v2-2-known-truth-recovery"
+}
