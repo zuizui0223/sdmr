@@ -1,0 +1,44 @@
+{
+  "purpose": "product_a_v2_6_empirical_presealed_continuation",
+  "source_recovery_run": {
+    "run_id": 32323931807,
+    "head_sha": "7f79dd10f312c42168f0d80496c7299d0e629cad",
+    "run_attempts_observed": [1, 2],
+    "failure_stage": "merge_worker_before_pretruth",
+    "pretruth_artifacts_observed": 0,
+    "sealed_audit_artifacts_observed": 0,
+    "decision_artifacts_observed": 0
+  },
+  "source_shards": {
+    "artifact_prefix": "v26-recovery-shard-",
+    "required_count": 216,
+    "dimensions": {
+      "part_seeds": [2026081901, 2026081902, 2026081903],
+      "sealed_fractions": ["0.20", "0.30"],
+      "taxon_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "m_indices": [0, 1, 2]
+    },
+    "all_shards_must_be_used": true,
+    "subset_repair_forbidden": true,
+    "sealed_occurrence_environment_read": false
+  },
+  "continuation_semantics": {
+    "recompute_model_pool_shards": false,
+    "reconstruct_all_72_taxon_workers_with_existing_exact_merge": true,
+    "rerun_pretruth_aggregate_unchanged": true,
+    "rerun_final_fit_unchanged": true,
+    "sealed_environment_first_read_only_after_all_6_pretruth_and_72_final_fit_outputs": true,
+    "rerun_sealed_audit_unchanged": true,
+    "rerun_six_part_decision_unchanged": true,
+    "scientific_thresholds_changed": false,
+    "candidate_selection_rules_changed": false,
+    "M_semantics_changed": false,
+    "process_registry_changed": false
+  },
+  "upstream_materialization_source": {
+    "run_id": 32260616084,
+    "head_sha": "b626b98470da2a75e50f55c5fa8b152bd31647e9"
+  },
+  "decision_artifact_name": "product-a-v2-6-independent-empirical-confirmation-decision-continuation",
+  "claim_boundary": "same_predeclared_independent_empirical_confirmation_recovered_from_presealed_computational_failure"
+}
