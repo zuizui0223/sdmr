@@ -1,8 +1,15 @@
+import hashlib
 import json
 from pathlib import Path
 
 ENDPOINT = Path('configs/product_a_v2_7_1_development_endpoint.json')
 SOURCE_GATE = Path('configs/product_a_v2_7_1_fresh_empirical_source_gate.json')
+CONFIRMATION = Path('configs/product_a_v2_7_1_fresh_confirmation_contract.json')
+PANEL = Path('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv')
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def test_v271_development_endpoint_is_frozen_without_promotion():
@@ -31,33 +38,56 @@ def test_v271_development_endpoint_is_frozen_without_promotion():
     assert c['next_lane']['genuinely_fresh_empirical_evidence_required'] is True
 
 
-def test_fresh_empirical_source_gate_fails_closed_until_source_is_pinned():
+def test_fresh_taxon_holdout_source_gate_is_bound_but_still_fail_closed():
     c = json.loads(SOURCE_GATE.read_text())
     assert c['purpose'] == 'product_a_v2_7_1_fresh_empirical_source_gate'
-    assert c['gate_state'] == 'blocked_until_genuinely_fresh_source_is_pinned'
+    assert c['gate_state'] == 'blocked_until_raw_sources_and_exact_execution_identity_are_pinned'
     assert c['execution_allowed'] is False
-    assert c['historical_development_source']['snapshot_date'] == '2026-08-01'
-    assert c['historical_development_source']['may_be_used_as_fresh_confirmation_denominator'] is False
-    assert c['historical_development_source']['existing_six_split_parts_may_be_relabelled_as_fresh'] is False
-    assert c['freshness_rule']['requires_new_untouched_occurrence_snapshot_and_or_new_taxon_panel'] is True
+
+    fresh = c['freshness_design']
+    assert fresh['independence_axis'] == 'taxon_holdout_not_temporal'
+    assert fresh['disjoint_from_current_pilot_12'] is True
+    assert fresh['temporal_independence_claim_allowed'] is False
+    assert fresh['new_taxon_panel_path'] == str(PANEL)
+    assert fresh['new_taxon_panel_sha256'] == sha256(PANEL)
+    assert fresh['eligibility_run_id'] == 32474864368
+    assert fresh['eligibility_artifact_id'] == 9444172302
+
+    historical = c['historical_catalog_transport']
+    assert historical['snapshot_date'] == '2026-08-01'
+    assert historical['catalog_may_be_requeried_for_frozen_disjoint_taxon_panel'] is True
+    assert historical['old_pilot_focal_artifact_may_be_reused'] is False
+    assert historical['old_target_artifact_excluding_old_pilot_12_may_be_reused'] is False
+    assert historical['existing_six_split_parts_may_be_reused_or_relabelled_as_fresh'] is False
+
+    design = c['fixed_confirmation_design']
+    assert design['decision_contract_path'] == str(CONFIRMATION)
+    assert design['decision_contract_sha256'] == sha256(CONFIRMATION)
+    assert design['split_seeds'] == [2026082201, 2026082202, 2026082203]
+    assert design['sealed_fractions'] == [0.2, 0.3]
+    assert design['n_confirmation_parts'] == 6
+
     required = c['required_before_execution']
     for key in (
-        'snapshot_or_download_identifier',
-        'snapshot_created_at',
+        'new_focal_artifact_run_id',
+        'new_focal_artifact_name',
         'focal_file_sha256',
+        'focal_query_sha256',
+        'new_target_group_artifact_run_id',
+        'new_target_group_artifact_name',
         'target_group_file_sha256',
-        'taxon_panel_path',
-        'taxon_panel_sha256',
+        'target_group_query_sha256',
         'implementation_sha',
         'frozen_ref',
-        'split_seeds',
-        'sealed_fractions',
-        'decision_contract_path',
+        'workflow_file',
     ):
         assert required[key] is None
-    assert c['scientific_constraints']['ordinary_prediction_metrics_are_guardrails_not_tuning_target'] is True
-    assert c['scientific_constraints']['post_outcome_candidate_reselection_allowed'] is False
-    assert c['scientific_constraints']['post_outcome_threshold_tuning_allowed'] is False
-    assert c['scientific_constraints']['development_70_of_72_result_may_define_new_scientific_thresholds'] is False
-    assert c['scientific_constraints']['scientific_promotion_allowed_before_gate_is_satisfied'] is False
-    assert c['scientific_constraints']['product_b_unblocked_before_separate_promotion_decision'] is False
+    assert required['target_group_excluded_taxa_sha256'] == sha256(PANEL)
+
+    constraints = c['scientific_constraints']
+    assert constraints['ordinary_prediction_metrics_are_guardrails_not_tuning_target'] is True
+    assert constraints['post_outcome_candidate_reselection_allowed'] is False
+    assert constraints['post_outcome_threshold_tuning_allowed'] is False
+    assert constraints['development_70_of_72_result_may_define_new_scientific_thresholds'] is False
+    assert constraints['scientific_promotion_allowed_before_separate_promotion_decision'] is False
+    assert constraints['product_b_unblocked_before_separate_promotion_decision'] is False
