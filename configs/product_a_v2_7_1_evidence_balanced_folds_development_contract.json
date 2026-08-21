@@ -1,0 +1,77 @@
+{
+  "purpose": "product_a_v2_7_1_evidence_balanced_folds_development_contract",
+  "development_only": true,
+  "scientific_promotion_allowed": false,
+  "independent_empirical_confirmation_claim_allowed": false,
+  "product_b_unblocked": false,
+  "predecessor_v2_7_development_result": {
+    "run_id": 32447844270,
+    "head_sha": "0bb0bdd99303ca956681de15cfe3fad903dad7a9",
+    "summary_artifact_id": 9434699815,
+    "summary_artifact_digest": "sha256:389a1d4008e7373ccee8741b4defc4705e0fe44c6f25c4060613b6e0a0f4bda4",
+    "n_diagnostics": 72,
+    "n_audit_support_available": 39,
+    "availability_fraction": 0.5416666666666666,
+    "legacy_43_predictor_supported_M_fold_cells_total": 573,
+    "total_M_fold_cells": 864,
+    "sealed_environment_read": false,
+    "candidate_model_fitting_performed": false
+  },
+  "diagnosis": {
+    "remaining_failure_not_solved_by_audit_axis_pruning_alone": true,
+    "example_taxon": "Picea mariana",
+    "example_part_seed": 2026081901,
+    "example_part_label": "0.20",
+    "example_failing_cell": "buffer_300km_fold2",
+    "example_total_evaluation_background_rows": 2,
+    "minimum_required_evaluation_background_rows": 5,
+    "root_issue": "spatial fold assignment_does_not_jointly_balance_presence_and_all_M_background_row_support"
+  },
+  "development_source": {
+    "model_pool_materialization_run_id": 32260616084,
+    "model_pool_only_reuse_allowed": true,
+    "outer_sealed_environment_read_allowed": false,
+    "current_model_pool_may_inform_partition_development": true,
+    "current_v2_6_split_may_not_be_relabelled_as_fresh_confirmation": true,
+    "future_independent_confirmation_requires_genuinely_fresh_empirical_evidence": true
+  },
+  "evidence_balanced_partition": {
+    "constructor": "make_evidence_balanced_spatial_partitions",
+    "spatial_microblocks": 12,
+    "outer_folds": 4,
+    "microblock_constructor": "KMeans_on_model_pool_occurrence_unit_sphere_coordinates",
+    "microblock_atomicity_preserved": true,
+    "fold_assignment": "StratifiedGroupKFold_over_presence_and_all_M_background_resource_types",
+    "assignment_attempts": 32,
+    "assignment_seed_formula": "part_seed + taxon_index*100 + 271",
+    "shared_occurrence_fold_assignment_across_all_M": true,
+    "backgrounds_used_jointly_for_fold_support": ["buffer_150km","buffer_300km","buffer_500km"],
+    "minimum_evaluation_occurrences_per_fold": 2,
+    "minimum_evaluation_background_rows_per_M_fold": 5,
+    "minimum_training_background_rows_per_M_fold": 5,
+    "environmental_values_used": false,
+    "candidate_scores_used": false,
+    "candidate_response_magnitudes_used": false,
+    "process_knockout_outcomes_used": false,
+    "sealed_rows_used": false,
+    "choose_feasible_assignment_by": "minimum_max_then_mean_normalized_row_count_imbalance",
+    "abstain_if_no_feasible_assignment": true
+  },
+  "audit_space_after_partition": {
+    "selector": "select_partition_aware_empirical_audit_space",
+    "minimum_predictor_coverage": 0.95,
+    "minimum_joint_coverage": 0.80,
+    "minimum_processes": 4,
+    "minimum_complete_fit_background_rows_per_M_fold": 5,
+    "minimum_complete_evaluation_background_rows_per_M_fold": 5,
+    "minimum_complete_heldout_occurrence_rows_per_M_fold": 2,
+    "candidate_scores_used": false,
+    "sealed_rows_used": false,
+    "thresholds_unchanged_from_v2_7": true
+  },
+  "diagnostic_success_means": {
+    "structural_partition_support_complete_before_environmental_missingness_check": true,
+    "audit_support_complete_before_candidate_evaluation": true,
+    "does_not_validate_or_promote_Product_A": true
+  }
+}
