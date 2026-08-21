@@ -31,11 +31,11 @@ def test_process_representative_space_avoids_43_variable_complete_case_collapse(
     def frame(n):
         data = pd.DataFrame({name: np.arange(n, dtype=float) for name in predictors})
         non_reps = [name for name in predictors if name not in set(representatives.values())]
-        # Spread one missing value per non-representative so the 43-variable
-        # complete-case intersection collapses, while each process has one fully
-        # observed representative.
-        for i, name in enumerate(non_reps):
-            data.loc[i % n, name] = np.nan
+        # Every row loses one non-representative axis, so the 43-variable joint
+        # complete-case intersection is zero.  Missingness is spread over 37
+        # non-representatives, keeping each individual axis above 95% coverage.
+        for row in range(n):
+            data.loc[row, non_reps[row % len(non_reps)]] = np.nan
         return data
 
     occurrence = frame(24)
