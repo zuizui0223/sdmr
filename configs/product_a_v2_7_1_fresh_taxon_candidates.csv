@@ -1,0 +1,37 @@
+scientific_name,validation_stratum,candidate_rank,selection_basis
+Capsella bursa-pastoris,temperate_annual_herb,1,widespread annual herb analog selected before eligibility query
+Stellaria media,temperate_annual_herb,2,widespread annual herb fallback selected before eligibility query
+Senecio vulgaris,temperate_annual_herb,3,widespread annual herb fallback selected before eligibility query
+Betula pendula,temperate_deciduous_tree,1,widespread deciduous tree analog selected before eligibility query
+Fagus sylvatica,temperate_deciduous_tree,2,widespread deciduous tree fallback selected before eligibility query
+Acer pseudoplatanus,temperate_deciduous_tree,3,widespread deciduous tree fallback selected before eligibility query
+Picea abies,boreal_temperate_conifer,1,boreal temperate conifer analog selected before eligibility query
+Juniperus communis,boreal_temperate_conifer,2,widespread conifer fallback selected before eligibility query
+Abies alba,boreal_temperate_conifer,3,temperate montane conifer fallback selected before eligibility query
+Phalaris arundinacea,wetland_grass,1,widespread wetland graminoid analog selected before eligibility query
+Glyceria maxima,wetland_grass,2,wetland graminoid fallback selected before eligibility query
+Calamagrostis canadensis,wetland_grass,3,wetland graminoid fallback selected before eligibility query
+Vaccinium myrtillus,temperate_shrub,1,widespread temperate shrub analog selected before eligibility query
+Ulex europaeus,temperate_shrub,2,temperate shrub fallback selected before eligibility query
+Rubus idaeus,temperate_shrub,3,temperate shrub fallback selected before eligibility query
+Pteridium aquilinum,fern,1,widespread fern analog selected before eligibility query
+Athyrium filix-femina,fern,2,widespread fern fallback selected before eligibility query
+Polypodium vulgare,fern,3,widespread fern fallback selected before eligibility query
+Artemisia tridentata,arid_shrub,1,arid shrub analog selected before eligibility query
+Atriplex canescens,arid_shrub,2,arid shrub fallback selected before eligibility query
+Encelia farinosa,arid_shrub,3,arid shrub fallback selected before eligibility query
+Avicennia germinans,tropical_mangrove,1,tropical mangrove analog selected before eligibility query
+Avicennia marina,tropical_mangrove,2,tropical mangrove fallback selected before eligibility query
+Laguncularia racemosa,tropical_mangrove,3,tropical mangrove fallback selected before eligibility query
+Nothofagus antarctica,southern_temperate_tree,1,southern temperate tree analog selected before eligibility query
+Nothofagus betuloides,southern_temperate_tree,2,southern temperate tree fallback selected before eligibility query
+Eucalyptus globulus,southern_temperate_tree,3,southern hemisphere tree fallback selected before eligibility query
+Abies lasiocarpa,montane_tree,1,montane tree analog selected before eligibility query
+Pinus cembra,montane_tree,2,montane tree fallback selected before eligibility query
+Eucalyptus delegatensis,montane_tree,3,montane tree fallback selected before eligibility query
+Picea glauca,boreal_conifer,1,boreal conifer analog selected before eligibility query
+Larix laricina,boreal_conifer,2,boreal conifer fallback selected before eligibility query
+Pinus banksiana,boreal_conifer,3,boreal conifer fallback selected before eligibility query
+Typha angustifolia,wetland_emergent,1,widespread wetland emergent analog selected before eligibility query
+Iris pseudacorus,wetland_emergent,2,widespread wetland emergent fallback selected before eligibility query
+Schoenoplectus tabernaemontani,wetland_emergent,3,widespread wetland emergent fallback selected before eligibility query
