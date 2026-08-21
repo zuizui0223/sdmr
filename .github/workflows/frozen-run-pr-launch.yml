@@ -1,0 +1,97 @@
+name: frozen-run-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/frozen_run_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exact frozen A cont3 and B v4 runs idempotently
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.request
+          from pathlib import Path
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-frozen-pr-launcher',
+          }
+          targets=[
+              {
+                  'name':'product_a_continuation_v3',
+                  'workflow':'product-a-v2-6-empirical-presealed-continuation-v2.yml',
+                  'ref':'frozen/product-a-v2-6-continuation-v3-5ce106bb',
+                  'sha':'5ce106bb955d0912b1c65ff8dd23a61a3e66aee1',
+              },
+              {
+                  'name':'product_b_v4_known_truth',
+                  'workflow':'product-b-v4-known-truth.yml',
+                  'ref':'frozen/product-b-v4-7873c341',
+                  'sha':'7873c341f3ef05ce51293ac73693ba9729f93d8f',
+              },
+          ]
+          def request(url, *, method='GET', payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  raw=r.read(); return json.loads(raw) if raw else None
+          def matches(target):
+              p=request(f"{api}/actions/workflows/{target['workflow']}/runs?event=workflow_dispatch&per_page=100")
+              return [r for r in p.get('workflow_runs',[]) if str(r.get('head_sha'))==target['sha'] and str(r.get('head_branch'))==target['ref'] and str(r.get('event'))=='workflow_dispatch']
+
+          receipt={
+              'purpose':'frozen_a_cont3_b_v4_pr_launch_receipt',
+              'pull_request':int(os.environ['GITHUB_EVENT_PATH'] and json.load(open(os.environ['GITHUB_EVENT_PATH']))['pull_request']['number']),
+              'launcher_sha':os.environ['GITHUB_SHA'],
+              'targets':[],
+          }
+          for target in targets:
+              runs=matches(target); dispatched=False
+              if len(runs)>1:
+                  raise SystemExit(f"{target['name']}: multiple exact-source runs already exist: {len(runs)}")
+              if not runs:
+                  request(f"{api}/actions/workflows/{target['workflow']}/dispatches",method='POST',payload={'ref':target['ref']})
+                  dispatched=True
+                  for _ in range(24):
+                      time.sleep(5); runs=matches(target)
+                      if runs: break
+              if len(runs)!=1:
+                  raise SystemExit(f"{target['name']}: expected exactly one exact-source run, found {len(runs)}")
+              run=runs[0]
+              receipt['targets'].append({
+                  **target,
+                  'dispatched_now':dispatched,
+                  'run_id':int(run['id']),
+                  'run_number':int(run['run_number']),
+                  'status':str(run['status']),
+                  'conclusion':run.get('conclusion'),
+                  'created_at':str(run['created_at']),
+                  'html_url':str(run['html_url']),
+              })
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frozen-a-cont3-b-v4-launch-receipt
+          path: launch/receipt.json
+          retention-days: 90
