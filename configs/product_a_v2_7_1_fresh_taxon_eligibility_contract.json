@@ -1,0 +1,52 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_taxon_panel_eligibility_contract",
+  "development_endpoint_path": "configs/product_a_v2_7_1_development_endpoint.json",
+  "freshness_basis": "new_taxa_not_used_as_focal_development_taxa",
+  "candidate_pool_path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+  "historical_snapshot": {
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "role": "availability_only_for_predeclared_new_taxon_candidates",
+    "candidate_taxa_were_focal_development_taxa": false,
+    "reuse_of_current_six_focal_split_parts": false
+  },
+  "eligibility_inputs_allowed": [
+    "candidate_scientific_name",
+    "validation_stratum",
+    "candidate_rank",
+    "raw_occurrence_row_count",
+    "unique_0_05_degree_cell_count"
+  ],
+  "eligibility_inputs_forbidden": [
+    "CHELSA_environmental_values",
+    "candidate_model_scores",
+    "AUC",
+    "CBI",
+    "OR10",
+    "AICc",
+    "niche_recovery_metrics",
+    "process_knockout_outcomes",
+    "sealed_confirmation_outcomes"
+  ],
+  "thresholds": {
+    "minimum_occurrences": 80,
+    "minimum_unique_0_05_degree_cells": 50
+  },
+  "selection_rule": {
+    "required_strata": 12,
+    "required_candidates_per_stratum": 3,
+    "select_exactly_one_taxon_per_stratum": true,
+    "within_stratum_rule": "lowest_predeclared_candidate_rank_meeting_both_eligibility_thresholds",
+    "if_no_candidate_is_eligible": "panel_unavailable_fail_closed",
+    "post_eligibility_candidate_reordering_allowed": false,
+    "threshold_relaxation_after_counts_are_seen_allowed": false
+  },
+  "information_barrier": {
+    "environmental_values_read": false,
+    "candidate_model_fitting_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "selected_panel_may_only_become_confirmation_evidence_after_separate_source_and_decision_gate": true
+  }
+}
