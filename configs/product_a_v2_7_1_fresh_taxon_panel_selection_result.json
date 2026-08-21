@@ -1,0 +1,69 @@
+{
+  "artifact_selected_panel_sha256": "48389da3980764ee4668a905a1c33844a2f9f373a00b81cde0a2c884099d0443",
+  "availability_counts_sha256": "4a795aabc939a5149ffdddaf981e1a0de8ba4a70cc524be35368b97ad40ef862",
+  "availability_query_contract_sha256": "9e9a32fb47344f26741244398d7cc2cc6a6287bdcd7a7a91e5b4afa2063acd27",
+  "availability_query_sha256": "1777c3b09d14e05355b5429a8c1b4380de9283cb1c7df99d161f20a97eeed052",
+  "candidate_pool": {
+    "n_candidates": 36,
+    "n_eligible": 36,
+    "path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+    "sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00"
+  },
+  "eligibility_artifact": {
+    "artifact_digest": "sha256:ab0dbb9098603b9597925b385a050a436dc08fecd38a00b6c7e764268b8fc3b1",
+    "artifact_id": 9444172302,
+    "artifact_name": "product-a-v2-7-1-fresh-taxon-eligibility"
+  },
+  "eligibility_contract_sha256": "7a5a3fe8d4fada3f4eb73176a382fe5b020f39bce8ec08a89d922edd9b5511d7",
+  "eligibility_run_id": 32474864368,
+  "eligibility_source_head_sha": "17a00cf6d0c36dcae8f80dd233f13d4cc992d158",
+  "historical_snapshot": {
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "role": "availability_screening_only_before_fresh_taxon_panel_freeze",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq"
+  },
+  "independence": {
+    "axis": "taxon_holdout_not_temporal",
+    "disjoint_from_product_a_pilot_12": true,
+    "old_pilot_focal_artifact_reused": false,
+    "old_six_split_parts_reused": false,
+    "temporal_independence_claim_allowed": false
+  },
+  "next_gate": "materialize_and_pin_new_raw_focal_and_nonfocal_target_artifacts_then_pin_exact_confirmation_implementation_before_any_sealed_outcome",
+  "product_b_unblocked": false,
+  "purpose": "product_a_v2_7_1_fresh_taxon_panel_selection_result",
+  "repository_panel": {
+    "n_taxa": 12,
+    "path": "configs/product_a_v2_7_1_fresh_confirmation_taxa.csv",
+    "sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
+    "transformation_from_artifact": "same scientific_name and validation_stratum rows; candidate/count columns replaced by fixed reason column for compatibility with Product-A taxon-panel readers"
+  },
+  "scientific_promotion_allowed": false,
+  "selected_taxa": [
+    "Artemisia tridentata",
+    "Picea glauca",
+    "Picea abies",
+    "Pteridium aquilinum",
+    "Abies lasiocarpa",
+    "Nothofagus antarctica",
+    "Capsella bursa-pastoris",
+    "Betula pendula",
+    "Vaccinium myrtillus",
+    "Avicennia germinans",
+    "Typha angustifolia",
+    "Phalaris arundinacea"
+  ],
+  "selection_information_barrier": {
+    "AICc_used": false,
+    "AUC_used": false,
+    "CBI_used": false,
+    "OR10_used": false,
+    "candidate_model_scores_used": false,
+    "environmental_values_used": false,
+    "niche_recovery_outcomes_used": false,
+    "post_count_candidate_reordering": false,
+    "post_count_threshold_relaxation": false,
+    "sealed_confirmation_outcomes_used": false
+  }
+}
