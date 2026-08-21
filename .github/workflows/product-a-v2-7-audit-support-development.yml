@@ -1,0 +1,133 @@
+name: product-a-v2-7-audit-support-development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit-support:
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0,1,2,3,4,5,6,7,8,9,10,11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: zuizui0223/sdmr
+          run-id: 32260616084
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Diagnose partition-aware ecological audit support without candidate fitting
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          i=int('${{ matrix.taxon_index }}')
+          print(pd.read_csv('configs/product_a_pilot_taxa_v1.csv').iloc[i]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_empirical_audit_support_diagnostic \
+            --development-contract configs/product_a_v2_7_audit_support_development_contract.json \
+            --model-contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --partition-contract configs/product_a_v2_6_empirical_partition_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --output-dir diagnostic
+          python - <<'PY'
+          import json
+          c=json.load(open('diagnostic/contract.json'))
+          assert c['purpose']=='product_a_v2_7_empirical_audit_support_diagnostic'
+          assert c['candidate_predictor_universe_unchanged'] is True
+          assert c['audit_space_frozen_before_candidate_benchmark'] is True
+          assert c['candidate_scores_read'] is False
+          assert c['process_knockout_outcomes_read'] is False
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_background_environment_read'] is False
+          assert c['development_only'] is True
+          assert c['scientific_promotion_allowed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v27-audit-support-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: diagnostic/
+          retention-days: 30
+
+  aggregate:
+    needs: audit-support
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pandas
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v27-audit-support-*
+          path: diagnostics
+      - name: Summarize 72 sealed-blind audit-support diagnostics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          rows=[]
+          for path in sorted(Path('diagnostics').rglob('contract.json')):
+              c=json.loads(path.read_text())
+              if c.get('purpose')!='product_a_v2_7_empirical_audit_support_diagnostic':
+                  continue
+              if c.get('sealed_occurrence_environment_read') is not False or c.get('sealed_background_environment_read') is not False:
+                  raise SystemExit('sealed environment crossed v2.7 development barrier')
+              rows.append({
+                  'taxon':c['taxon'],
+                  'taxon_index':c['taxon_index'],
+                  'part_seed':c['part_seed'],
+                  'audit_support_available':c['audit_support_available'],
+                  'n_selected_audit_processes':c['n_selected_audit_processes'],
+                  'legacy_43_predictor_supported_M_fold_cells':c['legacy_43_predictor_supported_M_fold_cells'],
+                  'total_M_fold_cells':c['total_M_fold_cells'],
+                  'unavailable_reason':c['audit_support_unavailable_reason'],
+              })
+          frame=pd.DataFrame(rows)
+          if len(frame)!=72:
+              raise SystemExit(f'expected 72 audit diagnostics, found {len(frame)}')
+          out=Path('summary'); out.mkdir()
+          frame.to_csv(out/'diagnostic_summary.csv',index=False)
+          summary={
+              'purpose':'product_a_v2_7_audit_support_development_summary',
+              'n_diagnostics':len(frame),
+              'n_audit_support_available':int(frame['audit_support_available'].astype(bool).sum()),
+              'availability_fraction':float(frame['audit_support_available'].astype(bool).mean()),
+              'legacy_43_predictor_supported_M_fold_cells_total':int(frame['legacy_43_predictor_supported_M_fold_cells'].sum()),
+              'total_M_fold_cells':int(frame['total_M_fold_cells'].sum()),
+              'sealed_environment_read':False,
+              'candidate_model_fitting_performed':False,
+              'development_only':True,
+              'scientific_promotion_allowed':False,
+              'independent_empirical_confirmation_claim_allowed':False,
+          }
+          (out/'contract.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-audit-support-development-summary
+          path: summary/
+          retention-days: 90
