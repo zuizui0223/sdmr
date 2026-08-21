@@ -1,0 +1,5 @@
+purpose=trigger_product_a_v2_7_1_evidence_balanced_development
+implementation_sha=e93e93cc97551df3fa32a8dfb17bc813dd2cdf39
+frozen_ref=frozen/product-a-v2-7-1-evidence-balanced-e93e93cc
+workflow=product-a-v2-7-1-evidence-balanced-folds-development.yml
+execution_gate_main_sha=04fbf3b9d2a37a652848959883fe9567064ca00b
