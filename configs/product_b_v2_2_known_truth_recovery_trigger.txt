@@ -1,0 +1,8 @@
+purpose=trigger_product_b_v2_2_frozen_known_truth_recovery
+frozen_ref=frozen/product-b-v2-2-recovery-daaf207d
+implementation_sha=daaf207d1574befbc703ace02a82971d4980a865
+workflow=product-b-v2-2-known-truth-recovery.yml
+source_gate_main_sha=5714cb61f064081c3f093b331e7891b206997755
+predecessor_run_id=32422606768
+predecessor_fresh_taxa_generated=false
+predecessor_generating_truth_opened=false
