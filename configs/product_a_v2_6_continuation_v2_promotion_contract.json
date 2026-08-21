@@ -1,0 +1,53 @@
+{
+  "purpose": "product_a_v2_6_continuation_v2_promotion_preoutcome_contract",
+  "contract_frozen_before_continuation_v2_sealed_outcome": true,
+  "new_postoutcome_scientific_thresholds": false,
+  "known_truth_source": {
+    "run_id": 32251711573,
+    "head_sha": "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9",
+    "artifact_id": 9364873176,
+    "artifact_digest": "sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba",
+    "artifact_name": "product-a-v2-6-fresh-validation-decision",
+    "expected_purpose": "product_a_v2_6_predeclared_fresh_validation_decision",
+    "required_decision": "v2_6_supported"
+  },
+  "independent_empirical_continuation_v2_source": {
+    "implementation_sha": "d560076793199b5486b7d2c678eeb4b4c551a81f",
+    "frozen_ref": "frozen/product-a-v2-6-continuation-v2-d5600767",
+    "workflow_file": "product-a-v2-6-empirical-presealed-continuation-v2.yml",
+    "artifact_name": "product-a-v2-6-independent-empirical-confirmation-decision-continuation-v2",
+    "expected_purpose": "product_a_v2_6_independent_empirical_confirmation_decision",
+    "required_decision": "empirical_confirmation_supported",
+    "requires_single_workflow_dispatch_run_for_frozen_source": true,
+    "source_presealed_run_id": 32323931807,
+    "source_presealed_head_sha": "7f79dd10f312c42168f0d80496c7299d0e629cad",
+    "failed_predecessor_continuation_run_id": 32434610154,
+    "failed_predecessor_pretruth_artifacts": 0,
+    "failed_predecessor_sealed_audit_artifacts": 0,
+    "failed_predecessor_sealed_environment_opened": false
+  },
+  "promotion_rule": {
+    "logic": "known_truth_supported_and_independent_empirical_continuation_v2_supported",
+    "requires_known_truth_support": true,
+    "requires_empirical_prediction_guardrail": true,
+    "requires_empirical_ecological_support": true,
+    "requires_empirical_process_reproducibility_support": true,
+    "requires_no_post_sealed_retuning": true,
+    "requires_all_information_barriers": true,
+    "adds_no_new_metric_threshold": true
+  },
+  "promoted_product_identity": {
+    "product": "Product-A-v2.6",
+    "target": "realized_environmental_niche_recovery",
+    "selection_semantics": "prediction_adequacy_then_pareto_minimax_niche_recovery_with_process_knockout_audit",
+    "M_semantics": "150_300_500_km_sensitivity_never_optimized",
+    "process_semantics": "process_domain_not_individual_raster_importance",
+    "fundamental_niche_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false
+  },
+  "failure_semantics": {
+    "negative_or_unavailable_continuation_v2_outcome_is_retained": true,
+    "threshold_relaxation_after_outcome_forbidden": true,
+    "product_b_empirical_use_remains_separately_gated": true
+  }
+}
