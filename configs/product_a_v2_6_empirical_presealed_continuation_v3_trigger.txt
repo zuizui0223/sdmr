@@ -3,3 +3,4 @@ frozen_ref=frozen/product-a-v2-6-continuation-v3-5ce106bb
 implementation_sha=5ce106bb955d0912b1c65ff8dd23a61a3e66aee1
 workflow=product-a-v2-6-empirical-presealed-continuation-v2.yml
 source_promotion_gate_main_sha=c49a7c6915b17635af802d26c6d01f9da43efacc
+merge_trigger=1
