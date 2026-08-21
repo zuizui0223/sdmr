@@ -1,0 +1,31 @@
+{
+  "conclusion": null,
+  "created_at": "2026-08-21T02:55:24Z",
+  "dispatched_now": true,
+  "fresh_evaluation_seeds": [
+    701,
+    702,
+    703,
+    704,
+    705,
+    706,
+    707,
+    708,
+    709,
+    710,
+    711,
+    712
+  ],
+  "frozen_ref": "frozen/product-b-v3-06350e55",
+  "head_branch": "frozen/product-b-v3-06350e55",
+  "head_sha": "06350e55541f3ae0d846985edb196b68c536e2ab",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32441530888",
+  "implementation_sha": "06350e55541f3ae0d846985edb196b68c536e2ab",
+  "launcher_trigger_sha": "1d0ffc4ad34b52516573569a929a5dfd1294f364",
+  "opened_generating_truth_seed_maximum_before_run": 523,
+  "purpose": "product_b_v3_known_truth_launch_receipt",
+  "run_id": 32441530888,
+  "run_number": 1,
+  "status": "in_progress",
+  "workflow_name": "product-b-v3-known-truth"
+}
