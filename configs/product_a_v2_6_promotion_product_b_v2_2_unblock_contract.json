@@ -20,17 +20,21 @@
     "required_decision": "empirical_confirmation_supported"
   },
   "fresh_known_truth_product_b_v2_2_source": {
-    "version": "v2.2",
-    "implementation_sha": "88580599bdb278273ea80fc039fd2204f5aac8a6",
-    "frozen_ref": "frozen/product-b-v2-2-88580599",
-    "workflow_file": "product-b-v2-2-known-truth.yml",
+    "version": "v2.2-recovery",
+    "implementation_sha": "daaf207d1574befbc703ace02a82971d4980a865",
+    "frozen_ref": "frozen/product-b-v2-2-recovery-daaf207d",
+    "workflow_file": "product-b-v2-2-known-truth-recovery.yml",
     "artifact_name": "product-b-v2-2-fresh-known-truth-decision",
     "expected_purpose": "product_b_v2_2_fresh_known_truth_decision",
     "required_decision": "product_b_v2_known_truth_supported",
     "requires_single_run_for_frozen_source": true,
-    "predecessor_run_id": 32356754388,
-    "predecessor_failure_stage": "process_shard",
-    "predecessor_generating_truth_opened": false
+    "scientific_identity": "Product-B-v2.2",
+    "scientific_contract_changed_from_88580599": false,
+    "predecessor_run_id": 32422606768,
+    "predecessor_failure_stage": "frozen-method-source",
+    "predecessor_fresh_taxa_generated": false,
+    "predecessor_generating_truth_opened": false,
+    "predecessor_failure_reason": "artifact_redirect_authorization_401"
   },
   "product_a_promotion_rule": {
     "logic": "all_required_predeclared_decisions_supported",

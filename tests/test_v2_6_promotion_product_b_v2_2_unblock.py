@@ -70,20 +70,25 @@ def _sources(tmp_path: Path, *, a_emp_supported: bool = True, b_supported: bool 
     return a_kt, a_emp, b
 
 
-def test_v22_promotion_contract_pins_exact_preoutcome_source():
+def test_v22_promotion_contract_pins_exact_recovery_source_before_outcome():
     c = load_promotion_contract(CONFIG)
     assert c["contract_frozen_before_product_b_v2_2_known_truth_outcome"] is True
     assert c["product_b_v2_2_source_frozen_before_outcome"] is True
     assert c["new_postoutcome_scientific_thresholds"] is False
     b = c["fresh_known_truth_product_b_v2_2_source"]
-    assert b["version"] == "v2.2"
-    assert b["implementation_sha"] == "88580599bdb278273ea80fc039fd2204f5aac8a6"
-    assert b["frozen_ref"] == "frozen/product-b-v2-2-88580599"
-    assert b["workflow_file"] == "product-b-v2-2-known-truth.yml"
+    assert b["version"] == "v2.2-recovery"
+    assert b["scientific_identity"] == "Product-B-v2.2"
+    assert b["scientific_contract_changed_from_88580599"] is False
+    assert b["implementation_sha"] == "daaf207d1574befbc703ace02a82971d4980a865"
+    assert b["frozen_ref"] == "frozen/product-b-v2-2-recovery-daaf207d"
+    assert b["workflow_file"] == "product-b-v2-2-known-truth-recovery.yml"
     assert b["artifact_name"] == "product-b-v2-2-fresh-known-truth-decision"
     assert b["requires_single_run_for_frozen_source"] is True
-    assert b["predecessor_run_id"] == 32356754388
+    assert b["predecessor_run_id"] == 32422606768
+    assert b["predecessor_failure_stage"] == "frozen-method-source"
+    assert b["predecessor_fresh_taxa_generated"] is False
     assert b["predecessor_generating_truth_opened"] is False
+    assert b["predecessor_failure_reason"] == "artifact_redirect_authorization_401"
 
 
 def test_supported_sources_promote_a_and_unblock_v22(tmp_path):
