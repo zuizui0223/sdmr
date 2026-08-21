@@ -1,0 +1,195 @@
+name: product-a-v2-7-1-fresh-taxon-eligibility
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'configs/product_a_v2_7_1_fresh_taxon_candidates.csv'
+      - 'configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json'
+      - 'tests/test_product_a_v2_7_1_fresh_taxon_eligibility.py'
+      - '.github/workflows/product-a-v2-7-1-fresh-taxon-eligibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eligibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install snapshot dependencies
+        run: python -m pip install -e '.[cloud,parquet,test]'
+
+      - name: Verify predeclared candidate and selection contracts
+        run: |
+          python -m pytest -q tests/test_product_a_v2_7_1_fresh_taxon_eligibility.py
+
+      - name: Materialize only the predeclared candidate taxa from the historical availability snapshot
+        run: |
+          mkdir -p eligibility
+          sdmr-gbif-snapshot \
+            --snapshot-date 2026-08-01 \
+            --snapshot-doi 10.15468/dl.fs3btq \
+            --region us-east-1 \
+            --taxa configs/product_a_v2_7_1_fresh_taxon_candidates.csv \
+            --output eligibility/focal_candidates.parquet \
+            --provenance eligibility/focal_candidates.provenance.csv
+
+      - name: Select one fresh taxon per stratum using counts only
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import math
+          from pathlib import Path
+
+          import pandas as pd
+
+          candidate_path = Path('configs/product_a_v2_7_1_fresh_taxon_candidates.csv')
+          pilot_path = Path('configs/product_a_pilot_taxa_v1.csv')
+          contract_path = Path('configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json')
+          occurrence_path = Path('eligibility/focal_candidates.parquet')
+          provenance_path = Path('eligibility/focal_candidates.provenance.csv')
+          output_dir = Path('eligibility')
+          output_dir.mkdir(exist_ok=True)
+
+          def sha256(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          candidates = pd.read_csv(candidate_path)
+          pilot = pd.read_csv(pilot_path)
+          contract = json.loads(contract_path.read_text())
+          frame = pd.read_parquet(occurrence_path)
+          provenance = pd.read_csv(provenance_path).iloc[0].to_dict()
+
+          if set(candidates['scientific_name']) & set(pilot['scientific_name']):
+              raise SystemExit('fresh candidate pool overlaps Product-A pilot taxa')
+          if contract['historical_snapshot']['snapshot_date'] != '2026-08-01':
+              raise SystemExit('eligibility contract snapshot changed')
+          if str(provenance.get('snapshot_date', '')) != '2026-08-01':
+              raise SystemExit('materialized snapshot date mismatch')
+          if str(provenance.get('snapshot_doi', '')).lower() != '10.15468/dl.fs3btq':
+              raise SystemExit('materialized snapshot DOI mismatch')
+
+          required_columns = {'species', 'decimallongitude', 'decimallatitude'}
+          missing = required_columns - set(frame.columns)
+          if missing:
+              raise SystemExit(f'occurrence materialization missing columns: {sorted(missing)}')
+
+          work = frame[['species', 'decimallongitude', 'decimallatitude']].copy()
+          work = work.dropna(subset=['species', 'decimallongitude', 'decimallatitude'])
+          work['species'] = work['species'].astype(str)
+          work['cell_x'] = ((work['decimallongitude'].astype(float) + 180.0) / 0.05).map(math.floor)
+          work['cell_y'] = ((work['decimallatitude'].astype(float) + 90.0) / 0.05).map(math.floor)
+
+          occurrence_counts = work.groupby('species', sort=False).size().rename('n_occurrences')
+          cell_counts = (
+              work[['species', 'cell_x', 'cell_y']]
+              .drop_duplicates()
+              .groupby('species', sort=False)
+              .size()
+              .rename('n_unique_0_05_degree_cells')
+          )
+          counts = pd.concat([occurrence_counts, cell_counts], axis=1).fillna(0).astype(int)
+
+          audit = candidates.merge(counts, how='left', left_on='scientific_name', right_index=True)
+          audit[['n_occurrences', 'n_unique_0_05_degree_cells']] = audit[
+              ['n_occurrences', 'n_unique_0_05_degree_cells']
+          ].fillna(0).astype(int)
+          min_occ = int(contract['thresholds']['minimum_occurrences'])
+          min_cells = int(contract['thresholds']['minimum_unique_0_05_degree_cells'])
+          audit['eligible'] = (
+              (audit['n_occurrences'] >= min_occ)
+              & (audit['n_unique_0_05_degree_cells'] >= min_cells)
+          )
+          audit = audit.sort_values(['validation_stratum', 'candidate_rank', 'scientific_name']).reset_index(drop=True)
+          audit.to_csv(output_dir / 'candidate_eligibility.csv', index=False)
+
+          selected_rows = []
+          unavailable_strata = []
+          for stratum, group in audit.groupby('validation_stratum', sort=True):
+              eligible = group.loc[group['eligible']].sort_values(['candidate_rank', 'scientific_name'])
+              if eligible.empty:
+                  unavailable_strata.append(stratum)
+                  continue
+              selected_rows.append(eligible.iloc[0])
+
+          selected = pd.DataFrame(selected_rows)
+          selected_columns = [
+              'scientific_name',
+              'validation_stratum',
+              'candidate_rank',
+              'n_occurrences',
+              'n_unique_0_05_degree_cells',
+          ]
+          if len(selected):
+              selected = selected[selected_columns].sort_values('validation_stratum').reset_index(drop=True)
+          else:
+              selected = pd.DataFrame(columns=selected_columns)
+          selected.to_csv(output_dir / 'selected_fresh_taxa.csv', index=False)
+
+          selected_names = set(selected['scientific_name'].astype(str))
+          if selected_names & set(pilot['scientific_name'].astype(str)):
+              raise SystemExit('selected fresh panel overlaps pilot taxa')
+
+          status = 'available' if not unavailable_strata and len(selected) == int(contract['selection_rule']['required_strata']) else 'unavailable'
+          selected_sha = sha256(output_dir / 'selected_fresh_taxa.csv')
+          selection_contract = {
+              'purpose': 'product_a_v2_7_1_fresh_taxon_panel_eligibility_result',
+              'status': status,
+              'development_endpoint_path': contract['development_endpoint_path'],
+              'snapshot_date': '2026-08-01',
+              'snapshot_doi': '10.15468/dl.fs3btq',
+              'snapshot_citation_sha256': contract['historical_snapshot']['citation_sha256'],
+              'snapshot_role': contract['historical_snapshot']['role'],
+              'candidate_pool_path': str(candidate_path),
+              'candidate_pool_sha256': sha256(candidate_path),
+              'eligibility_contract_sha256': sha256(contract_path),
+              'occurrence_subset_sha256': sha256(occurrence_path),
+              'occurrence_query_sha256': str(provenance.get('query_sha256', '')),
+              'thresholds': contract['thresholds'],
+              'selection_rule': contract['selection_rule'],
+              'n_candidates': int(len(audit)),
+              'n_eligible_candidates': int(audit['eligible'].sum()),
+              'n_selected_taxa': int(len(selected)),
+              'unavailable_strata': sorted(unavailable_strata),
+              'selected_panel_path': str(output_dir / 'selected_fresh_taxa.csv'),
+              'selected_panel_sha256': selected_sha,
+              'selected_taxa_disjoint_from_pilot_12': True,
+              'eligibility_used_environmental_values': False,
+              'eligibility_used_candidate_model_scores': False,
+              'candidate_model_fitting_performed': False,
+              'sealed_confirmation_outcomes_read': False,
+              'scientific_promotion_allowed': False,
+              'product_b_unblocked': False,
+              'fresh_confirmation_execution_allowed_by_this_result': False,
+              'next_gate': 'pin_selected_panel_source_and_exact_confirmation_execution_before_any_sealed_outcome',
+          }
+          (output_dir / 'selection_contract.json').write_text(
+              json.dumps(selection_contract, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(selection_contract, indent=2, sort_keys=True))
+          print(audit.to_string(index=False))
+
+          if status != 'available':
+              raise SystemExit(
+                  'fresh taxon panel unavailable under the frozen eligibility rule; '
+                  f'unavailable_strata={sorted(unavailable_strata)}'
+              )
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-v2-7-1-fresh-taxon-eligibility
+          path: eligibility/
+          if-no-files-found: warn
+          retention-days: 90
