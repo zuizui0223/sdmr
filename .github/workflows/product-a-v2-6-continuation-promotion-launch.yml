@@ -1,0 +1,84 @@
+name: product-a-v2-6-continuation-promotion-launch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'configs/product_a_v2_6_continuation_promotion_trigger.txt'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require completed frozen continuation then dispatch one frozen promotion run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, json, os, time, urllib.error, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          cont_workflow='product-a-v2-6-empirical-presealed-continuation.yml'
+          cont_ref='frozen/product-a-v2-6-presealed-continuation-da421c88'
+          cont_sha='da421c88717b193a1c1046c4d6920e841a4b7584'
+          cont_artifact='product-a-v2-6-independent-empirical-confirmation-decision-continuation'
+          promotion_workflow='product-a-v2-6-continuation-promotion.yml'
+          promotion_ref='frozen/product-a-v2-6-continuation-promotion-24785761'
+          promotion_sha='247857614d3844d44a390027c6f06fabb990a38d'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v26-promotion-launcher'}
+          def req(url,*,method='GET',payload=None,allow_404=False):
+              data=None if payload is None else json.dumps(payload).encode()
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(url,data=data,headers=headers,method=method),timeout=60) as r:
+                      raw=r.read(); return json.loads(raw) if raw else None
+              except urllib.error.HTTPError as exc:
+                  if allow_404 and exc.code==404: return None
+                  raise
+          def exact_runs(workflow,sha,ref):
+              p=req(f'{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100')
+              return [r for r in p.get('workflow_runs',[]) if str(r.get('head_sha'))==sha and str(r.get('head_branch'))==ref and str(r.get('event'))=='workflow_dispatch']
+          cont=exact_runs(cont_workflow,cont_sha,cont_ref)
+          if len(cont)!=1: raise SystemExit(f'expected one Product-A continuation run, found {len(cont)}')
+          cont_run=cont[0]
+          if cont_run.get('status')!='completed' or cont_run.get('conclusion')!='success':
+              raise SystemExit(f'Product-A continuation not successfully complete: {cont_run.get("status")}/{cont_run.get("conclusion")}')
+          arts=req(f'{api}/actions/runs/{cont_run["id"]}/artifacts?per_page=100').get('artifacts',[])
+          found=[a for a in arts if a.get('name')==cont_artifact and not a.get('expired')]
+          if len(found)!=1: raise SystemExit(f'continuation decision artifact count={len(found)}')
+          runs=exact_runs(promotion_workflow,promotion_sha,promotion_ref); dispatched=False
+          if len(runs)>1: raise SystemExit(f'multiple frozen Product-A promotion runs exist: {len(runs)}')
+          if not runs:
+              req(f'{api}/actions/workflows/{promotion_workflow}/dispatches',method='POST',payload={'ref':promotion_ref}); dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=exact_runs(promotion_workflow,promotion_sha,promotion_ref)
+                  if runs: break
+          if len(runs)!=1: raise SystemExit(f'expected one frozen Product-A promotion run, found {len(runs)}')
+          run=runs[0]
+          receipt={
+              'purpose':'product_a_v2_6_continuation_promotion_launch_receipt',
+              'launcher_trigger_sha':os.environ['GITHUB_SHA'],
+              'dispatched_now':dispatched,
+              'run_id':int(run['id']),
+              'run_number':int(run['run_number']),
+              'status':str(run['status']),
+              'conclusion':run.get('conclusion'),
+              'head_sha':str(run['head_sha']),
+              'head_branch':str(run['head_branch']),
+              'implementation_sha':promotion_sha,
+              'frozen_ref':promotion_ref,
+              'underlying_continuation_run_id':int(cont_run['id']),
+              'underlying_continuation_artifact_id':int(found[0]['id']),
+              'underlying_continuation_artifact_digest':found[0].get('digest'),
+              'html_url':str(run['html_url']),
+          }
+          path='configs/product_a_v2_6_continuation_promotion_launch_receipt.json'
+          old=req(f'{api}/contents/{path}?ref=main',allow_404=True)
+          payload={'message':f'Record Product-A continuation promotion run {run["id"]}','content':base64.b64encode((json.dumps(receipt,indent=2,sort_keys=True)+'\n').encode()).decode(),'branch':'main'}
+          if old: payload['sha']=old['sha']
+          req(f'{api}/contents/{path}',method='PUT',payload=payload)
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
