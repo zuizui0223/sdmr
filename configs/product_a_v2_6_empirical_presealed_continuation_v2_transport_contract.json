@@ -1,0 +1,51 @@
+{
+  "purpose": "product_a_v2_6_empirical_presealed_continuation_v2_transport_contract",
+  "scientific_contract_unchanged": true,
+  "scientific_contract_path": "configs/product_a_v2_6_empirical_confirmation_contract.json",
+  "source_presealed_run": {
+    "run_id": 32323931807,
+    "head_sha": "7f79dd10f312c42168f0d80496c7299d0e629cad",
+    "required_M_shard_count": 216,
+    "sealed_environment_opened": false
+  },
+  "failed_predecessor_continuation": {
+    "run_id": 32434610154,
+    "head_sha": "da421c88717b193a1c1046c4d6920e841a4b7584",
+    "failure_stage": "merge_worker_cross_run_artifact_listing",
+    "pretruth_artifact_count": 0,
+    "final_fit_artifact_count": 0,
+    "sealed_audit_artifact_count": 0,
+    "decision_artifact_count": 0,
+    "sealed_environment_opened": false
+  },
+  "transport_change_only": {
+    "old_transport": "actions/download-artifact@v4 cross-run pattern listing",
+    "old_failure": "cross-run artifact enumeration stopped at first 200 artifacts so valid older shard names were invisible",
+    "new_transport": "gh run download with exact artifact name for each of m0,m1,m2",
+    "source_artifact_names_selected_by_scientific_outcome": false,
+    "all_216_predeclared_M_shards_remain_required": true,
+    "subset_repair_forbidden": true
+  },
+  "continuation_stages_unchanged": [
+    "72_exact_three_M_worker_merges",
+    "6_pretruth_freezes",
+    "72_final_fits",
+    "6_sealed_audits",
+    "unchanged_six_part_empirical_decision"
+  ],
+  "scientific_changes": {
+    "candidate_universe_changed": false,
+    "M_semantics_changed": false,
+    "process_registry_changed": false,
+    "prediction_adequacy_changed": false,
+    "niche_recovery_metrics_changed": false,
+    "ecological_selector_changed": false,
+    "empirical_decision_thresholds_changed": false,
+    "post_sealed_retuning_allowed": false
+  },
+  "information_barrier": {
+    "pretruth_must_precede_sealed_environment_read": true,
+    "all_final_models_must_be_serialized_before_sealed_audit": true,
+    "sealed_audit_is_first_authorized_sealed_environment_read": true
+  }
+}
