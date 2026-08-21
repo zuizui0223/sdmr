@@ -1,0 +1,284 @@
+name: product-a-v2-6-empirical-presealed-continuation-v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Verify complete presealed source and transport-only successor contract
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pytest -q tests/test_v2_6_empirical_presealed_continuation_contract.py tests/test_v2_6_empirical_presealed_continuation_v2_transport_contract.py
+          python - <<'PY'
+          import json, os, urllib.request
+          scientific=json.load(open('configs/product_a_v2_6_empirical_presealed_continuation_contract.json'))
+          transport=json.load(open('configs/product_a_v2_6_empirical_presealed_continuation_v2_transport_contract.json'))
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v26-cont2-source-gate'}
+          api=f'https://api.github.com/repos/{repo}'
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=60) as r:
+                  return json.loads(r.read())
+          source=scientific['source_recovery_run']
+          run=get(f"{api}/actions/runs/{source['run_id']}")
+          assert run['head_sha']==source['head_sha']==transport['source_presealed_run']['head_sha']
+          artifacts=[]
+          for page in range(1,20):
+              payload=get(f"{api}/actions/runs/{source['run_id']}/artifacts?per_page=100&page={page}")
+              batch=payload.get('artifacts',[]); artifacts.extend(batch)
+              if len(batch)<100: break
+          active=[a for a in artifacts if not a.get('expired')]
+          names=[str(a['name']) for a in active]
+          dims=scientific['source_shards']['dimensions']
+          expected={f"v26-recovery-shard-{seed}-{frac}-taxon{taxon}-m{m}" for seed in dims['part_seeds'] for frac in dims['sealed_fractions'] for taxon in dims['taxon_indices'] for m in dims['m_indices']}
+          observed={n for n in names if n.startswith(scientific['source_shards']['artifact_prefix'])}
+          if observed != expected or len(observed)!=216:
+              raise SystemExit(f'source shard denominator changed: {len(observed)}/216')
+          forbidden_prefixes=('v26-empirical-pretruth-','v26-empirical-final-','v26-empirical-audit-')
+          forbidden=[n for n in names if n.startswith(forbidden_prefixes) or n=='product-a-v2-6-independent-empirical-confirmation-decision']
+          if forbidden:
+              raise SystemExit(f'original source is no longer presealed: {forbidden[:20]}')
+          predecessor=transport['failed_predecessor_continuation']
+          p_run=get(f"{api}/actions/runs/{predecessor['run_id']}")
+          assert p_run['head_sha']==predecessor['head_sha']
+          p_artifacts=[]
+          for page in range(1,10):
+              payload=get(f"{api}/actions/runs/{predecessor['run_id']}/artifacts?per_page=100&page={page}")
+              batch=payload.get('artifacts',[]); p_artifacts.extend(batch)
+              if len(batch)<100: break
+          p_names=[str(a['name']) for a in p_artifacts if not a.get('expired')]
+          assert not any(n.startswith('v26-cont-pretruth-') for n in p_names)
+          assert not any(n.startswith('v26-cont-final-') for n in p_names)
+          assert not any(n.startswith('v26-cont-audit-') for n in p_names)
+          assert 'product-a-v2-6-independent-empirical-confirmation-decision-continuation' not in p_names
+          assert transport['transport_change_only']['all_216_predeclared_M_shards_remain_required'] is True
+          assert transport['transport_change_only']['subset_repair_forbidden'] is True
+          print('verified 216/216 presealed source shards; predecessor stopped before pretruth; transport-only successor authorized')
+          PY
+
+  merge-worker:
+    needs: source-gate
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - name: Download exact three M shards without the 200-artifact listing ceiling
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for M in 0 1 2; do
+            NAME="v26-recovery-shard-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-m${M}"
+            DEST="shards/m${M}"
+            mkdir -p "$DEST"
+            gh run download 32323931807 --repo "$GITHUB_REPOSITORY" --name "$NAME" --dir "$DEST"
+            test -f "$DEST/contract.json"
+          done
+      - name: Reconstruct all taxon workers with the unchanged exact three-M merge
+        run: |
+          python -m sdmr.v2_6_empirical_model_pool_merge --worker-root shards --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['M_specs']==['buffer_150km','buffer_300km','buffer_500km']
+          assert c['computational_sharding']=='taxon_x_M_then_exact_merge'
+          assert c['sealed_occurrence_environment_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-cont2-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 30
+
+  pretruth-freeze:
+    needs: merge-worker
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-cont2-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze complete evidence before any sealed environmental read
+        run: |
+          python -m sdmr.v2_6_empirical_pretruth_aggregate \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --worker-root workers --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['n_taxa']==12
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_audit_authorized'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-cont2-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 30
+
+  final-fit:
+    needs: pretruth-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: zuizui0223/sdmr
+          run-id: 32260616084
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-cont2-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-cont2-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize both frozen representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          i=int('${{ matrix.taxon_index }}')
+          print(pd.read_csv('configs/product_a_pilot_taxa_v1.csv').iloc[i]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_6_empirical_final_fit \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --partition-contract configs/product_a_v2_6_empirical_partition_contract.json \
+            --part-dir part --worker-dir worker --pretruth-dir pretruth \
+            --taxon "$TAXON" --taxon-index ${{ matrix.taxon_index }} --output-dir final
+          python - <<'PY'
+          import json
+          c=json.load(open('final/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['final_models_serialized_before_sealed_audit'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-cont2-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 30
+
+  sealed-audit:
+    needs: final-fit
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026081901, 2026081902, 2026081903]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: zuizui0223/sdmr
+          run-id: 32260616084
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-cont2-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-cont2-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open sealed CHELSA environments once after complete pretruth and final-model freeze
+        run: |
+          python -m sdmr.v2_6_empirical_sealed_audit \
+            --contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --part-dir part --pretruth-dir pretruth --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-cont2-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-cont2-audit-*
+          path: audits
+      - name: Apply the unchanged frozen six-part empirical decision
+        run: |
+          python -m sdmr.v2_6_empirical_confirmation_aggregate --audit-root audits --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-independent-empirical-confirmation-decision-continuation-v2
+          path: decision/
+          retention-days: 90
