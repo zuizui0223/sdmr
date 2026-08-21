@@ -1,0 +1,105 @@
+name: product-a-v2-6-continuation-promotion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test]'
+      - name: Validate continuation promotion contract before reading outcomes
+        run: |
+          pytest -q tests/test_v2_6_continuation_promotion.py
+          python - <<'PY'
+          from sdmr.v2_6_continuation_promotion import load_continuation_promotion_contract
+          c=load_continuation_promotion_contract('configs/product_a_v2_6_continuation_promotion_contract.json')
+          assert c['contract_frozen_before_continuation_sealed_outcome'] is True
+          assert c['new_postoutcome_scientific_thresholds'] is False
+          source=c['independent_empirical_continuation_source']
+          assert source['implementation_sha']=='da421c88717b193a1c1046c4d6920e841a4b7584'
+          assert source['frozen_ref']=='frozen/product-a-v2-6-presealed-continuation-da421c88'
+          PY
+      - name: Locate exact source artifacts and verify provenance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+          from sdmr.v2_6_continuation_promotion import load_continuation_promotion_contract
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v26-continuation-promotion'}
+          api=f'https://api.github.com/repos/{repo}'
+          c=load_continuation_promotion_contract('configs/product_a_v2_6_continuation_promotion_contract.json')
+          emp=c['independent_empirical_continuation_source']; kt=c['known_truth_source']
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=60) as r:
+                  return json.loads(r.read())
+          kt_run=get(f"{api}/actions/runs/{kt['run_id']}")
+          if kt_run.get('head_sha')!=kt['head_sha'] or kt_run.get('status')!='completed' or kt_run.get('conclusion')!='success':
+              raise SystemExit('known-truth run provenance/status mismatch')
+          kt_art=get(f"{api}/actions/artifacts/{kt['artifact_id']}")
+          if kt_art.get('name')!=kt['artifact_name'] or kt_art.get('digest')!=kt['artifact_digest'] or kt_art.get('expired'):
+              raise SystemExit('known-truth artifact provenance mismatch')
+          payload=get(f"{api}/actions/workflows/{emp['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
+          matches=[run for run in payload.get('workflow_runs',[])
+                   if str(run.get('head_sha'))==emp['implementation_sha']
+                   and str(run.get('head_branch'))==emp['frozen_ref']
+                   and str(run.get('event'))=='workflow_dispatch']
+          if len(matches)!=1:
+              raise SystemExit(f"expected exactly one continuation run for frozen source, found {len(matches)}")
+          run=matches[0]
+          if run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit(f"continuation run not successfully completed: {run.get('status')}/{run.get('conclusion')}")
+          arts=get(f"{api}/actions/runs/{run['id']}/artifacts?per_page=100")
+          found=[a for a in arts.get('artifacts',[]) if a.get('name')==emp['artifact_name'] and not a.get('expired')]
+          if len(found)!=1:
+              raise SystemExit(f"expected one continuation decision artifact, found {len(found)}")
+          art=found[0]
+          Path('source_identity.json').write_text(json.dumps({
+              'known_truth_run_id':kt['run_id'],
+              'known_truth_artifact_id':kt['artifact_id'],
+              'known_truth_artifact_digest':kt['artifact_digest'],
+              'empirical_continuation_run_id':int(run['id']),
+              'empirical_continuation_head_sha':str(run['head_sha']),
+              'empirical_continuation_head_branch':str(run['head_branch']),
+              'empirical_continuation_artifact_id':int(art['id']),
+              'empirical_continuation_artifact_name':str(art['name']),
+              'empirical_continuation_artifact_digest':art.get('digest'),
+          },indent=2,sort_keys=True)+'\n')
+          Path('emp_run_id.txt').write_text(str(run['id']))
+          PY
+      - name: Download exact decision artifacts with GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p sources/known_truth sources/empirical
+          gh run download 32251711573 --repo "$GITHUB_REPOSITORY" --name product-a-v2-6-fresh-validation-decision --dir sources/known_truth
+          EMP_RUN=$(cat emp_run_id.txt)
+          gh run download "$EMP_RUN" --repo "$GITHUB_REPOSITORY" --name product-a-v2-6-independent-empirical-confirmation-decision-continuation --dir sources/empirical
+      - name: Apply frozen Product-A promotion gate only
+        run: |
+          python -m sdmr.v2_6_continuation_promotion \
+            --contract configs/product_a_v2_6_continuation_promotion_contract.json \
+            --known-truth-dir sources/known_truth \
+            --empirical-continuation-dir sources/empirical \
+            --output-dir promotion
+          cp source_identity.json promotion/
+          cat promotion/decision.csv
+          cat promotion/contract.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-6-continuation-promotion-decision
+          path: promotion/
+          retention-days: 90
