@@ -1,0 +1,404 @@
+name: product-a-v2-7-1-fresh-taxon-eligibility
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'configs/product_a_v2_7_1_fresh_taxon_candidates.csv'
+      - 'configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json'
+      - 'tests/test_product_a_v2_7_1_fresh_taxon_eligibility.py'
+      - '.github/workflows/product-a-v2-7-1-fresh-taxon-eligibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify predeclared candidate and selection contracts
+        run: python -m pytest -q tests/test_product_a_v2_7_1_fresh_taxon_eligibility.py
+      - name: Verify frozen historical snapshot citation
+        run: |
+          python - <<'PY'
+          from sdmr.data.snapshot_citation import validate_snapshot_citation
+          c = validate_snapshot_citation('2026-08-01', '10.15468/dl.fs3btq', region='us-east-1')
+          expected = '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050'
+          if c.citation_sha256 != expected:
+              raise SystemExit(f'citation SHA mismatch: {c.citation_sha256}')
+          print('snapshot_citation_verified', c.doi, c.citation_sha256)
+          PY
+
+  chunk:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install cloud dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Count candidate occurrences and occupied cells in an exact shard partition
+        run: |
+          mkdir -p chunk_output
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import duckdb
+          import pandas as pd
+
+          from sdmr.data.snapshot import (
+              _configure_duckdb_cloud,
+              _sql_literal,
+              build_snapshot_filter_sql,
+              gbif_snapshot_s3_uri,
+          )
+          from sdmr.target_footprint_parallel_cli import (
+              _chunk_files,
+              _list_snapshot_shards,
+              _sql_list,
+          )
+
+          snapshot_date = '2026-08-01'
+          snapshot_doi = '10.15468/dl.fs3btq'
+          region = 'us-east-1'
+          cell = 0.05
+          chunk_index = int('${{ matrix.chunk }}')
+          chunk_count = 16
+          candidate_path = Path('configs/product_a_v2_7_1_fresh_taxon_candidates.csv')
+          candidates = pd.read_csv(candidate_path)
+          names = candidates['scientific_name'].astype(str).tolist()
+          candidate_sha = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+          uri = gbif_snapshot_s3_uri(snapshot_date, region=region)
+          where_sql = build_snapshot_filter_sql(species_names=names, require_coordinates=True)
+          logical_payload = (
+              'product_a_v2_7_1_fresh_taxon_eligibility_exact_shard_union_v1\n'
+              + uri
+              + '\ncandidate_pool_sha256=' + candidate_sha
+              + '\ngrid=0.05\nvalid_coordinates=true\n'
+              + 'outputs=raw_occurrence_count,unique_species_cell_count\n'
+          ).encode('utf-8')
+          logical_query_sha = hashlib.sha256(logical_payload).hexdigest()
+
+          con = duckdb.connect()
+          try:
+              _configure_duckdb_cloud(con, cloud_provider='aws', region=region)
+              files = _list_snapshot_shards(con, snapshot_date, region)
+              selected = _chunk_files(files, chunk_index, chunk_count)
+              if not selected:
+                  raise SystemExit(f'empty shard chunk {chunk_index}')
+              source = f"read_parquet({_sql_list(selected)}, union_by_name=true)"
+              query = f'''
+              WITH filtered AS (
+                SELECT
+                  species,
+                  CAST(FLOOR((decimallongitude + 180.0) / {cell}) AS BIGINT) AS cell_x,
+                  CAST(FLOOR((decimallatitude + 90.0) / {cell}) AS BIGINT) AS cell_y
+                FROM {source}
+                WHERE {where_sql}
+              )
+              SELECT
+                species,
+                cell_x,
+                cell_y,
+                COUNT(*)::BIGINT AS n_occurrences_in_cell
+              FROM filtered
+              GROUP BY species, cell_x, cell_y
+              ORDER BY species, cell_x, cell_y
+              '''
+              output = Path('chunk_output/partial.parquet').resolve()
+              con.execute(
+                  f"COPY ({query}) TO {_sql_literal(str(output))} (FORMAT PARQUET, COMPRESSION ZSTD)"
+              )
+              partial_rows = int(
+                  con.execute(f"SELECT COUNT(*) FROM read_parquet({_sql_literal(str(output))})").fetchone()[0]
+              )
+          finally:
+              con.close()
+
+          catalog_sha = hashlib.sha256(('\n'.join(files) + '\n').encode('utf-8')).hexdigest()
+          chunk_catalog_sha = hashlib.sha256(('\n'.join(selected) + '\n').encode('utf-8')).hexdigest()
+          partial_sha = hashlib.sha256(Path('chunk_output/partial.parquet').read_bytes()).hexdigest()
+          metadata = {
+              'purpose': 'product_a_v2_7_1_fresh_taxon_eligibility_shard_chunk',
+              'snapshot_date': snapshot_date,
+              'snapshot_doi': snapshot_doi,
+              'region': region,
+              'chunk_index': chunk_index,
+              'chunk_count': chunk_count,
+              'snapshot_shard_count': len(files),
+              'snapshot_shard_catalog_sha256': catalog_sha,
+              'chunk_shard_count': len(selected),
+              'chunk_shard_catalog_sha256': chunk_catalog_sha,
+              'first_shard': selected[0],
+              'last_shard': selected[-1],
+              'candidate_pool_sha256': candidate_sha,
+              'logical_query_sha256': logical_query_sha,
+              'partial_rows': partial_rows,
+              'partial_sha256': partial_sha,
+              'projected_source_columns': ['species', 'decimallongitude', 'decimallatitude'],
+              'environmental_values_read': False,
+              'candidate_model_scores_read': False,
+              'candidate_model_fitting_performed': False,
+              'sealed_confirmation_outcomes_read': False,
+          }
+          Path('chunk_output/metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-eligibility-chunk-${{ matrix.chunk }}
+          path: chunk_output/
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install aggregation dependencies
+        run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: product-a-v2-7-1-fresh-eligibility-chunk-*
+          path: chunk_parts
+      - name: Reconstruct exact global counts and apply the frozen eligibility rule
+        run: |
+          mkdir -p eligibility
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          import pandas as pd
+
+          candidate_path = Path('configs/product_a_v2_7_1_fresh_taxon_candidates.csv')
+          pilot_path = Path('configs/product_a_pilot_taxa_v1.csv')
+          contract_path = Path('configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json')
+          root = Path('chunk_parts')
+          output_dir = Path('eligibility')
+
+          def sha256(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          metadata_paths = sorted(root.rglob('metadata.json'))
+          partial_paths = sorted(root.rglob('partial.parquet'))
+          if len(metadata_paths) != 16 or len(partial_paths) != 16:
+              raise SystemExit(
+                  f'expected 16 exact shard chunks; metadata={len(metadata_paths)} partials={len(partial_paths)}'
+              )
+          metadata = [json.loads(path.read_text()) for path in metadata_paths]
+          by_index = {int(row['chunk_index']): row for row in metadata}
+          if set(by_index) != set(range(16)):
+              raise SystemExit(f'incomplete shard chunk indices: {sorted(by_index)}')
+
+          invariant_keys = [
+              'snapshot_date',
+              'snapshot_doi',
+              'region',
+              'chunk_count',
+              'snapshot_shard_count',
+              'snapshot_shard_catalog_sha256',
+              'candidate_pool_sha256',
+              'logical_query_sha256',
+          ]
+          for key in invariant_keys:
+              values = {str(row[key]) for row in metadata}
+              if len(values) != 1:
+                  raise SystemExit(f'chunk invariant differs for {key}: {sorted(values)}')
+          if sum(int(row['chunk_shard_count']) for row in metadata) != int(metadata[0]['snapshot_shard_count']):
+              raise SystemExit('chunk shard counts do not cover the complete snapshot catalog')
+          if any(row['environmental_values_read'] is not False for row in metadata):
+              raise SystemExit('environmental values crossed eligibility information barrier')
+          if any(row['candidate_model_scores_read'] is not False for row in metadata):
+              raise SystemExit('candidate scores crossed eligibility information barrier')
+          if any(row['candidate_model_fitting_performed'] is not False for row in metadata):
+              raise SystemExit('candidate fitting crossed eligibility information barrier')
+
+          partial_sha_expected = sorted(str(row['partial_sha256']) for row in metadata)
+          partial_sha_actual = sorted(sha256(path) for path in partial_paths)
+          if partial_sha_actual != partial_sha_expected:
+              raise SystemExit('partial parquet SHA set differs from chunk metadata')
+
+          partial = pd.concat([pd.read_parquet(path) for path in partial_paths], ignore_index=True)
+          if len(partial):
+              cells = (
+                  partial.groupby(['species', 'cell_x', 'cell_y'], as_index=False)['n_occurrences_in_cell']
+                  .sum()
+              )
+              occurrence_counts = cells.groupby('species')['n_occurrences_in_cell'].sum().rename('n_occurrences')
+              cell_counts = cells.groupby('species').size().rename('n_unique_0_05_degree_cells')
+              counts = pd.concat([occurrence_counts, cell_counts], axis=1).reset_index()
+              counts[['n_occurrences', 'n_unique_0_05_degree_cells']] = counts[
+                  ['n_occurrences', 'n_unique_0_05_degree_cells']
+              ].astype(int)
+          else:
+              counts = pd.DataFrame(columns=['species', 'n_occurrences', 'n_unique_0_05_degree_cells'])
+          counts = counts.sort_values('species').reset_index(drop=True)
+          counts.to_csv(output_dir / 'availability_counts.csv', index=False)
+
+          candidates = pd.read_csv(candidate_path)
+          pilot = pd.read_csv(pilot_path)
+          contract = json.loads(contract_path.read_text())
+          if set(candidates['scientific_name']) & set(pilot['scientific_name']):
+              raise SystemExit('fresh candidate pool overlaps Product-A pilot taxa')
+          if sha256(candidate_path) != metadata[0]['candidate_pool_sha256']:
+              raise SystemExit('candidate pool SHA differs from shard chunks')
+
+          audit = candidates.merge(counts, how='left', left_on='scientific_name', right_on='species')
+          audit = audit.drop(columns=['species'], errors='ignore')
+          audit[['n_occurrences', 'n_unique_0_05_degree_cells']] = audit[
+              ['n_occurrences', 'n_unique_0_05_degree_cells']
+          ].fillna(0).astype(int)
+          min_occ = int(contract['thresholds']['minimum_occurrences'])
+          min_cells = int(contract['thresholds']['minimum_unique_0_05_degree_cells'])
+          audit['eligible'] = (
+              (audit['n_occurrences'] >= min_occ)
+              & (audit['n_unique_0_05_degree_cells'] >= min_cells)
+          )
+          audit = audit.sort_values(['validation_stratum', 'candidate_rank', 'scientific_name']).reset_index(drop=True)
+          audit.to_csv(output_dir / 'candidate_eligibility.csv', index=False)
+
+          selected_rows = []
+          unavailable_strata = []
+          for stratum, group in audit.groupby('validation_stratum', sort=True):
+              eligible = group.loc[group['eligible']].sort_values(['candidate_rank', 'scientific_name'])
+              if eligible.empty:
+                  unavailable_strata.append(stratum)
+                  continue
+              selected_rows.append(eligible.iloc[0])
+
+          selected = pd.DataFrame(selected_rows)
+          selected_columns = [
+              'scientific_name',
+              'validation_stratum',
+              'candidate_rank',
+              'n_occurrences',
+              'n_unique_0_05_degree_cells',
+          ]
+          if len(selected):
+              selected = selected[selected_columns].sort_values('validation_stratum').reset_index(drop=True)
+          else:
+              selected = pd.DataFrame(columns=selected_columns)
+          selected.to_csv(output_dir / 'selected_fresh_taxa.csv', index=False)
+
+          status = (
+              'available'
+              if not unavailable_strata
+              and len(selected) == int(contract['selection_rule']['required_strata'])
+              else 'unavailable'
+          )
+          query_contract = {
+              'purpose': 'product_a_v2_7_1_fresh_taxon_availability_parallel_exact_contract',
+              'snapshot_date': metadata[0]['snapshot_date'],
+              'snapshot_doi': metadata[0]['snapshot_doi'],
+              'snapshot_shard_count': int(metadata[0]['snapshot_shard_count']),
+              'snapshot_shard_catalog_sha256': metadata[0]['snapshot_shard_catalog_sha256'],
+              'parallel_chunk_count': 16,
+              'parallel_reduction': (
+                  'disjoint snapshot shard partitions produce species x 0.05-degree-cell counts; '
+                  'global reduction sums occurrence counts and unions identical species-cell keys'
+              ),
+              'logical_query_sha256': metadata[0]['logical_query_sha256'],
+              'candidate_pool_sha256': metadata[0]['candidate_pool_sha256'],
+              'performance_only_predecessor_run_ids': [32471985118, 32473996326],
+              'predecessor_selection_outcomes_observed_before_parallelization': False,
+              'candidate_pool_changed_after_predecessors_started': False,
+              'eligibility_thresholds_changed_after_predecessors_started': False,
+              'candidate_ranks_changed_after_predecessors_started': False,
+              'scientific_selection_semantics_changed': False,
+              'environmental_values_read': False,
+              'candidate_model_scores_read': False,
+              'candidate_model_fitting_performed': False,
+              'sealed_confirmation_outcomes_read': False,
+          }
+          (output_dir / 'availability_query_contract.json').write_text(
+              json.dumps(query_contract, indent=2, sort_keys=True) + '\n'
+          )
+
+          selected_names = set(selected['scientific_name'].astype(str))
+          if selected_names & set(pilot['scientific_name'].astype(str)):
+              raise SystemExit('selected fresh panel overlaps pilot taxa')
+          selection_contract = {
+              'purpose': 'product_a_v2_7_1_fresh_taxon_panel_eligibility_result',
+              'status': status,
+              'workflow_run_id': int(os.environ['GITHUB_RUN_ID']),
+              'workflow_sha': os.environ['GITHUB_SHA'],
+              'development_endpoint_path': contract['development_endpoint_path'],
+              'snapshot_date': metadata[0]['snapshot_date'],
+              'snapshot_doi': metadata[0]['snapshot_doi'],
+              'snapshot_citation_sha256': contract['historical_snapshot']['citation_sha256'],
+              'snapshot_role': contract['historical_snapshot']['role'],
+              'candidate_pool_path': str(candidate_path),
+              'candidate_pool_sha256': sha256(candidate_path),
+              'eligibility_contract_sha256': sha256(contract_path),
+              'availability_counts_sha256': sha256(output_dir / 'availability_counts.csv'),
+              'availability_query_contract_sha256': sha256(output_dir / 'availability_query_contract.json'),
+              'availability_query_sha256': metadata[0]['logical_query_sha256'],
+              'thresholds': contract['thresholds'],
+              'selection_rule': contract['selection_rule'],
+              'n_candidates': int(len(audit)),
+              'n_eligible_candidates': int(audit['eligible'].sum()),
+              'n_selected_taxa': int(len(selected)),
+              'unavailable_strata': sorted(unavailable_strata),
+              'selected_panel_path': str(output_dir / 'selected_fresh_taxa.csv'),
+              'selected_panel_sha256': sha256(output_dir / 'selected_fresh_taxa.csv'),
+              'selected_taxa_disjoint_from_pilot_12': True,
+              'eligibility_used_environmental_values': False,
+              'eligibility_used_candidate_model_scores': False,
+              'candidate_model_fitting_performed': False,
+              'sealed_confirmation_outcomes_read': False,
+              'scientific_promotion_allowed': False,
+              'product_b_unblocked': False,
+              'fresh_confirmation_execution_allowed_by_this_result': False,
+              'next_gate': 'pin_selected_panel_source_and_exact_confirmation_execution_before_any_sealed_outcome',
+          }
+          (output_dir / 'selection_contract.json').write_text(
+              json.dumps(selection_contract, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(query_contract, indent=2, sort_keys=True))
+          print(json.dumps(selection_contract, indent=2, sort_keys=True))
+          print(audit.to_string(index=False))
+
+          if status != 'available':
+              raise SystemExit(
+                  'fresh taxon panel unavailable under the frozen eligibility rule; '
+                  f'unavailable_strata={sorted(unavailable_strata)}'
+              )
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-v2-7-1-fresh-taxon-eligibility
+          path: eligibility/
+          if-no-files-found: warn
+          retention-days: 90
