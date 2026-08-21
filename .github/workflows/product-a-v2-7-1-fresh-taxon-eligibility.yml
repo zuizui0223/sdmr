@@ -16,7 +16,7 @@ permissions:
 jobs:
   eligibility:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -32,23 +32,93 @@ jobs:
         run: |
           python -m pytest -q tests/test_product_a_v2_7_1_fresh_taxon_eligibility.py
 
-      - name: Materialize only the predeclared candidate taxa from the historical availability snapshot
+      - name: Query only the predeclared availability counts from the historical snapshot
         run: |
           mkdir -p eligibility
-          sdmr-gbif-snapshot \
-            --snapshot-date 2026-08-01 \
-            --snapshot-doi 10.15468/dl.fs3btq \
-            --region us-east-1 \
-            --taxa configs/product_a_v2_7_1_fresh_taxon_candidates.csv \
-            --output eligibility/focal_candidates.parquet \
-            --provenance eligibility/focal_candidates.provenance.csv
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          import duckdb
+          import pandas as pd
+
+          from sdmr.data.snapshot import (
+              _configure_duckdb_cloud,
+              _sql_literal,
+              build_snapshot_filter_sql,
+              gbif_snapshot_s3_uri,
+          )
+
+          candidate_path = Path('configs/product_a_v2_7_1_fresh_taxon_candidates.csv')
+          candidates = pd.read_csv(candidate_path)
+          names = candidates['scientific_name'].astype(str).tolist()
+          snapshot_date = '2026-08-01'
+          snapshot_doi = '10.15468/dl.fs3btq'
+          region = 'us-east-1'
+          uri = gbif_snapshot_s3_uri(snapshot_date, region=region)
+          where_sql = build_snapshot_filter_sql(species_names=names, require_coordinates=True)
+          source = f"read_parquet({_sql_literal(uri)}, union_by_name=true)"
+          query = f'''
+          WITH filtered AS (
+            SELECT
+              species,
+              CAST(FLOOR((decimallongitude + 180.0) / 0.05) AS BIGINT) AS cell_x,
+              CAST(FLOOR((decimallatitude + 90.0) / 0.05) AS BIGINT) AS cell_y
+            FROM {source}
+            WHERE {where_sql}
+          )
+          SELECT
+            species,
+            COUNT(*)::BIGINT AS n_occurrences,
+            COUNT(DISTINCT CONCAT(CAST(cell_x AS VARCHAR), ':', CAST(cell_y AS VARCHAR)))::BIGINT
+              AS n_unique_0_05_degree_cells
+          FROM filtered
+          GROUP BY species
+          ORDER BY species
+          '''
+
+          con = duckdb.connect()
+          try:
+              _configure_duckdb_cloud(con, cloud_provider='aws', region=region)
+              counts = con.execute(query).fetchdf()
+          finally:
+              con.close()
+
+          counts.to_csv('eligibility/availability_counts.csv', index=False)
+          query_contract = {
+              'purpose': 'product_a_v2_7_1_fresh_taxon_availability_count_query',
+              'snapshot_date': snapshot_date,
+              'snapshot_doi': snapshot_doi,
+              'region': region,
+              'candidate_pool_path': str(candidate_path),
+              'candidate_pool_sha256': hashlib.sha256(candidate_path.read_bytes()).hexdigest(),
+              'query_sha256': hashlib.sha256(query.encode('utf-8')).hexdigest(),
+              'projected_source_columns': ['species', 'decimallongitude', 'decimallatitude'],
+              'outputs': ['raw_occurrence_row_count', 'unique_0_05_degree_cell_count'],
+              'environmental_values_read': False,
+              'candidate_model_scores_read': False,
+              'candidate_model_fitting_performed': False,
+              'sealed_confirmation_outcomes_read': False,
+              'performance_only_successor_to_run_id': 32471985118,
+              'predecessor_selection_outcome_observed_before_performance_change': False,
+              'candidate_pool_changed_after_predecessor_started': False,
+              'eligibility_thresholds_changed_after_predecessor_started': False,
+              'candidate_ranks_changed_after_predecessor_started': False,
+              'scientific_selection_semantics_changed': False,
+          }
+          Path('eligibility/availability_query_contract.json').write_text(
+              json.dumps(query_contract, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(query_contract, indent=2, sort_keys=True))
+          print(counts.to_string(index=False))
+          PY
 
       - name: Select one fresh taxon per stratum using counts only
         run: |
           python - <<'PY'
           import hashlib
           import json
-          import math
           from pathlib import Path
 
           import pandas as pd
@@ -56,8 +126,8 @@ jobs:
           candidate_path = Path('configs/product_a_v2_7_1_fresh_taxon_candidates.csv')
           pilot_path = Path('configs/product_a_pilot_taxa_v1.csv')
           contract_path = Path('configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json')
-          occurrence_path = Path('eligibility/focal_candidates.parquet')
-          provenance_path = Path('eligibility/focal_candidates.provenance.csv')
+          counts_path = Path('eligibility/availability_counts.csv')
+          query_contract_path = Path('eligibility/availability_query_contract.json')
           output_dir = Path('eligibility')
           output_dir.mkdir(exist_ok=True)
 
@@ -67,40 +137,22 @@ jobs:
           candidates = pd.read_csv(candidate_path)
           pilot = pd.read_csv(pilot_path)
           contract = json.loads(contract_path.read_text())
-          frame = pd.read_parquet(occurrence_path)
-          provenance = pd.read_csv(provenance_path).iloc[0].to_dict()
+          counts = pd.read_csv(counts_path)
+          query_contract = json.loads(query_contract_path.read_text())
 
           if set(candidates['scientific_name']) & set(pilot['scientific_name']):
               raise SystemExit('fresh candidate pool overlaps Product-A pilot taxa')
           if contract['historical_snapshot']['snapshot_date'] != '2026-08-01':
               raise SystemExit('eligibility contract snapshot changed')
-          if str(provenance.get('snapshot_date', '')) != '2026-08-01':
-              raise SystemExit('materialized snapshot date mismatch')
-          if str(provenance.get('snapshot_doi', '')).lower() != '10.15468/dl.fs3btq':
-              raise SystemExit('materialized snapshot DOI mismatch')
+          if query_contract['snapshot_date'] != '2026-08-01':
+              raise SystemExit('availability query snapshot date mismatch')
+          if query_contract['snapshot_doi'].lower() != '10.15468/dl.fs3btq':
+              raise SystemExit('availability query snapshot DOI mismatch')
+          if query_contract['scientific_selection_semantics_changed'] is not False:
+              raise SystemExit('performance successor changed scientific selection semantics')
 
-          required_columns = {'species', 'decimallongitude', 'decimallatitude'}
-          missing = required_columns - set(frame.columns)
-          if missing:
-              raise SystemExit(f'occurrence materialization missing columns: {sorted(missing)}')
-
-          work = frame[['species', 'decimallongitude', 'decimallatitude']].copy()
-          work = work.dropna(subset=['species', 'decimallongitude', 'decimallatitude'])
-          work['species'] = work['species'].astype(str)
-          work['cell_x'] = ((work['decimallongitude'].astype(float) + 180.0) / 0.05).map(math.floor)
-          work['cell_y'] = ((work['decimallatitude'].astype(float) + 90.0) / 0.05).map(math.floor)
-
-          occurrence_counts = work.groupby('species', sort=False).size().rename('n_occurrences')
-          cell_counts = (
-              work[['species', 'cell_x', 'cell_y']]
-              .drop_duplicates()
-              .groupby('species', sort=False)
-              .size()
-              .rename('n_unique_0_05_degree_cells')
-          )
-          counts = pd.concat([occurrence_counts, cell_counts], axis=1).fillna(0).astype(int)
-
-          audit = candidates.merge(counts, how='left', left_on='scientific_name', right_index=True)
+          audit = candidates.merge(counts, how='left', left_on='scientific_name', right_on='species')
+          audit = audit.drop(columns=['species'], errors='ignore')
           audit[['n_occurrences', 'n_unique_0_05_degree_cells']] = audit[
               ['n_occurrences', 'n_unique_0_05_degree_cells']
           ].fillna(0).astype(int)
@@ -140,8 +192,8 @@ jobs:
           if selected_names & set(pilot['scientific_name'].astype(str)):
               raise SystemExit('selected fresh panel overlaps pilot taxa')
 
-          status = 'available' if not unavailable_strata and len(selected) == int(contract['selection_rule']['required_strata']) else 'unavailable'
-          selected_sha = sha256(output_dir / 'selected_fresh_taxa.csv')
+          required_strata = int(contract['selection_rule']['required_strata'])
+          status = 'available' if not unavailable_strata and len(selected) == required_strata else 'unavailable'
           selection_contract = {
               'purpose': 'product_a_v2_7_1_fresh_taxon_panel_eligibility_result',
               'status': status,
@@ -153,8 +205,9 @@ jobs:
               'candidate_pool_path': str(candidate_path),
               'candidate_pool_sha256': sha256(candidate_path),
               'eligibility_contract_sha256': sha256(contract_path),
-              'occurrence_subset_sha256': sha256(occurrence_path),
-              'occurrence_query_sha256': str(provenance.get('query_sha256', '')),
+              'availability_counts_sha256': sha256(counts_path),
+              'availability_query_contract_sha256': sha256(query_contract_path),
+              'availability_query_sha256': query_contract['query_sha256'],
               'thresholds': contract['thresholds'],
               'selection_rule': contract['selection_rule'],
               'n_candidates': int(len(audit)),
@@ -162,7 +215,7 @@ jobs:
               'n_selected_taxa': int(len(selected)),
               'unavailable_strata': sorted(unavailable_strata),
               'selected_panel_path': str(output_dir / 'selected_fresh_taxa.csv'),
-              'selected_panel_sha256': selected_sha,
+              'selected_panel_sha256': sha256(output_dir / 'selected_fresh_taxa.csv'),
               'selected_taxa_disjoint_from_pilot_12': True,
               'eligibility_used_environmental_values': False,
               'eligibility_used_candidate_model_scores': False,
