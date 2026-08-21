@@ -1,0 +1,48 @@
+{
+  "purpose": "product_b_v4_known_truth_execution_preoutcome_contract",
+  "contract_frozen_before_product_b_v4_known_truth_outcome": true,
+  "new_postoutcome_scientific_thresholds": false,
+  "product_b_v4_source": {
+    "implementation_sha": "7873c341f3ef05ce51293ac73693ba9729f93d8f",
+    "frozen_ref": "frozen/product-b-v4-7873c341",
+    "workflow_file": "product-b-v4-known-truth.yml",
+    "artifact_name": "product-b-v4-fresh-known-truth-decision",
+    "expected_purpose": "product_b_v4_fresh_known_truth_decision",
+    "supported_decision": "product_b_v4_known_truth_supported",
+    "requires_single_workflow_dispatch_run_for_frozen_source": true,
+    "fresh_seed_minimum": 721,
+    "fresh_seed_maximum": 732
+  },
+  "predecessor_v3_negative_evidence": {
+    "run_id": 32441530888,
+    "head_sha": "06350e55541f3ae0d846985edb196b68c536e2ab",
+    "decision_artifact_id": 9432700599,
+    "decision_artifact_digest": "sha256:ed84674657a82af0aba1c7516d66fc340b484a181b326c14b1f68d77a3cd1e81",
+    "decision": "product_b_v3_known_truth_not_supported",
+    "stable_universal_core": [],
+    "universal_process_recall": 0.0,
+    "mean_taxon_process_recall": 0.3055555555555556,
+    "mean_taxon_process_precision": 0.5,
+    "thresholds_retuned_after_v3": false
+  },
+  "v4_scientific_identity": {
+    "upstream_product_a_object": "truth_blind_complete_prediction_adequate_niche_recovery_selector",
+    "process_estimand": "dependence_of_frozen_product_a_niche_surface_on_process_information",
+    "process_intervention": "joint_training_background_marginalization",
+    "model_refit_after_process_intervention": false,
+    "predictor_reselection_after_process_intervention": false,
+    "weighted_super_score": false
+  },
+  "information_order": {
+    "product_a_representative_frozen_before_product_b_process_intervention": true,
+    "process_core_frozen_before_generating_truth_read": true,
+    "v3_truth_not_used_to_score_v4": true,
+    "v4_thresholds_cannot_be_changed_after_outcome": true
+  },
+  "claim_boundary": {
+    "development_known_truth_only": true,
+    "empirical_product_b_execution_allowed": false,
+    "scientific_empirical_product_b_claim_allowed": false,
+    "formal_product_b_unblock_requires_separate_post_product_a_promotion_gate": true
+  }
+}
