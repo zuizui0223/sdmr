@@ -1,0 +1,29 @@
+{
+  "purpose": "product_a_v2_7_1_evidence_balanced_development_execution_contract",
+  "execution_source_frozen_before_diagnostic_outcome": true,
+  "implementation_sha": "e93e93cc97551df3fa32a8dfb17bc813dd2cdf39",
+  "frozen_ref": "frozen/product-a-v2-7-1-evidence-balanced-e93e93cc",
+  "workflow_file": "product-a-v2-7-1-evidence-balanced-folds-development.yml",
+  "summary_artifact_name": "product-a-v2-7-1-evidence-balanced-folds-development-summary",
+  "requires_single_workflow_dispatch_run_for_frozen_source": true,
+  "development_only": true,
+  "scientific_promotion_allowed": false,
+  "independent_empirical_confirmation_claim_allowed": false,
+  "product_b_unblocked": false,
+  "source_model_pool_materialization_run_id": 32260616084,
+  "source_v2_7_development_run_id": 32447844270,
+  "source_v2_7_availability": "39/72",
+  "sealed_environment_read_allowed": false,
+  "candidate_model_fitting_allowed_in_this_diagnostic": false,
+  "diagnostic_denominator": {
+    "part_seeds": [2026081901,2026081902,2026081903],
+    "part_labels": ["0.20","0.30"],
+    "taxon_indices": [0,1,2,3,4,5,6,7,8,9,10,11],
+    "expected_diagnostics": 72
+  },
+  "outcome_use": {
+    "may_inform_v2_7_1_development": true,
+    "may_not_reclassify_current_split_as_independent_confirmation": true,
+    "future_promotion_requires_genuinely_fresh_empirical_evidence": true
+  }
+}
