@@ -1,0 +1,32 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_raw_source_execution_contract",
+  "execution_source_frozen_before_raw_source_outcome": true,
+  "implementation_sha": "7c6dbf0ab11fa21451fc46b7c6960d4aa3ca6656",
+  "frozen_ref": "frozen/product-a-v2-7-1-fresh-source-7c6dbf0a",
+  "workflow_file": "product-a-v2-7-1-fresh-source-acquisition.yml",
+  "requires_single_workflow_dispatch_run_for_frozen_source": true,
+  "source_acquisition_contract_path": "configs/product_a_v2_7_1_fresh_source_acquisition_contract.json",
+  "fresh_taxon_panel_path": "configs/product_a_v2_7_1_fresh_confirmation_taxa.csv",
+  "fresh_taxon_panel_sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
+  "confirmation_decision_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+  "confirmation_decision_contract_sha256": "32ed21aedb87bd796324d569b696b97fc58ddbec2ccd848723006f0ea7b1ba5b",
+  "expected_artifacts": {
+    "focal": "product-a-v2-7-1-fresh-focal-source-2026-08-01",
+    "target_group": "product-a-v2-7-1-fresh-target-source-2026-08-01",
+    "source_receipt": "product-a-v2-7-1-fresh-raw-source-receipt"
+  },
+  "scope": {
+    "raw_occurrence_source_acquisition_only": true,
+    "candidate_model_fitting_allowed": false,
+    "CHELSA_environmental_values_allowed": false,
+    "sealed_confirmation_outcomes_allowed": false,
+    "empirical_confirmation_execution_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "after_success": {
+    "pin_focal_and_target_file_and_query_fingerprints": true,
+    "pin_exact_empirical_confirmation_implementation_sha_and_ref": true,
+    "separate_gate_required_before_any_fresh_taxon_sealed_outcome": true
+  }
+}
