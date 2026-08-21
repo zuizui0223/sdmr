@@ -67,4 +67,4 @@ def test_product_a_representative_is_frozen_from_complete_truth_blind_cohort(tmp
     assert result['product_b_process_ablation_outcomes_read'] is False
     assert result['generating_truth_read'] is False
     summary = pd.read_csv(out / 'product_a_complete_candidate_summary.csv')
-    assert set(summary.loc[summary['complete_outer_evidence'].astype(bool), 'candidate']) == {'candidate_complete'}
+    assert set(summary.loc[summary['eligible_complete_outer_evidence'].astype(bool), 'candidate']) == {'candidate_complete'}
