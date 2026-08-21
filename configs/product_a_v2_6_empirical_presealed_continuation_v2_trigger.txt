@@ -1,0 +1,5 @@
+purpose=trigger_product_a_v2_6_empirical_presealed_continuation_v2
+frozen_ref=frozen/product-a-v2-6-continuation-v2-d5600767
+implementation_sha=d560076793199b5486b7d2c678eeb4b4c551a81f
+workflow=product-a-v2-6-empirical-presealed-continuation-v2.yml
+source_gate_main_sha=6a314a096d8eece401dcbffa3e6adc5b4b98e151
