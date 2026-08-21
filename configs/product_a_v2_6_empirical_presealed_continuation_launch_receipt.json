@@ -1,0 +1,19 @@
+{
+  "conclusion": null,
+  "created_at": "2026-08-21T00:58:00Z",
+  "dispatched_now": true,
+  "frozen_ref": "frozen/product-a-v2-6-presealed-continuation-da421c88",
+  "head_branch": "frozen/product-a-v2-6-presealed-continuation-da421c88",
+  "head_sha": "da421c88717b193a1c1046c4d6920e841a4b7584",
+  "html_url": "https://github.com/zuizui0223/sdmr/actions/runs/32434610154",
+  "implementation_sha": "da421c88717b193a1c1046c4d6920e841a4b7584",
+  "launcher_trigger_sha": "908c2e7067625d4c48e3441f2982fb095b7d4206",
+  "purpose": "product_a_v2_6_empirical_presealed_continuation_launch_receipt",
+  "run_id": 32434610154,
+  "run_number": 1,
+  "source_presealed_run_id": 32323931807,
+  "source_pretruth_artifacts_before_continuation": 0,
+  "source_sealed_audit_artifacts_before_continuation": 0,
+  "status": "in_progress",
+  "workflow_name": "product-a-v2-6-empirical-presealed-continuation"
+}
