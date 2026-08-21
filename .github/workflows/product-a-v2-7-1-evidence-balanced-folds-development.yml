@@ -1,0 +1,138 @@
+name: product-a-v2-7-1-evidence-balanced-folds-development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnostic:
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026081901,2026081902,2026081903]
+        part_label: ['0.20','0.30']
+        taxon_index: [0,1,2,3,4,5,6,7,8,9,10,11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-empirical-part-${{ matrix.seed }}-${{ matrix.part_label }}
+          path: part
+          repository: zuizui0223/sdmr
+          run-id: 32260616084
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build evidence-balanced folds and rerun the unchanged v2.7 audit-support selector
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          i=int('${{ matrix.taxon_index }}')
+          print(pd.read_csv('configs/product_a_pilot_taxa_v1.csv').iloc[i]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_evidence_balanced_diagnostic \
+            --development-contract configs/product_a_v2_7_1_evidence_balanced_folds_development_contract.json \
+            --model-contract configs/product_a_v2_6_empirical_confirmation_contract.json \
+            --legacy-partition-contract configs/product_a_v2_6_empirical_partition_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --part-label ${{ matrix.part_label }} \
+            --output-dir diagnostic
+          python - <<'PY'
+          import json
+          c=json.load(open('diagnostic/contract.json'))
+          assert c['purpose']=='product_a_v2_7_1_evidence_balanced_fold_diagnostic'
+          assert c['environmental_values_used_for_partition_assignment'] is False
+          assert c['candidate_scores_read'] is False
+          assert c['candidate_model_fitting_performed'] is False
+          assert c['process_knockout_outcomes_read'] is False
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_background_environment_read'] is False
+          assert c['scientific_promotion_allowed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fold-support-${{ matrix.seed }}-${{ matrix.part_label }}-taxon${{ matrix.taxon_index }}
+          path: diagnostic/
+          retention-days: 30
+
+  aggregate:
+    needs: diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pandas
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fold-support-*
+          path: diagnostics
+      - name: Summarize structural and audit availability across 72 cells
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          rows=[]
+          for path in sorted(Path('diagnostics').rglob('contract.json')):
+              c=json.loads(path.read_text())
+              if c.get('purpose')!='product_a_v2_7_1_evidence_balanced_fold_diagnostic':
+                  continue
+              if c.get('sealed_occurrence_environment_read') is not False or c.get('sealed_background_environment_read') is not False:
+                  raise SystemExit('sealed environment crossed v2.7.1 development barrier')
+              rows.append({
+                  'taxon':c['taxon'],
+                  'taxon_index':c['taxon_index'],
+                  'part_seed':c['part_seed'],
+                  'part_label':c['part_label'],
+                  'legacy_v2_7_audit_support_available':c['legacy_v2_7_audit_support_available'],
+                  'evidence_balanced_partition_available':c['evidence_balanced_partition_available'],
+                  'structural_support_complete':c['structural_support_complete'],
+                  'v2_7_1_audit_support_available':c['v2_7_1_audit_support_available'],
+                  'v2_7_1_n_selected_audit_processes':c['v2_7_1_n_selected_audit_processes'],
+                  'partition_unavailable_reason':c['evidence_balanced_partition_unavailable_reason'],
+                  'audit_unavailable_reason':c['v2_7_1_audit_support_unavailable_reason'],
+              })
+          frame=pd.DataFrame(rows)
+          if len(frame)!=72:
+              raise SystemExit(f'expected 72 v2.7.1 diagnostics, found {len(frame)}')
+          out=Path('summary'); out.mkdir()
+          frame.to_csv(out/'diagnostic_summary.csv',index=False)
+          summary={
+              'purpose':'product_a_v2_7_1_evidence_balanced_folds_development_summary',
+              'n_diagnostics':len(frame),
+              'legacy_v2_7_audit_support_available':int(frame['legacy_v2_7_audit_support_available'].astype(bool).sum()),
+              'evidence_balanced_partition_available':int(frame['evidence_balanced_partition_available'].astype(bool).sum()),
+              'v2_7_1_audit_support_available':int(frame['v2_7_1_audit_support_available'].astype(bool).sum()),
+              'v2_7_1_audit_support_availability_fraction':float(frame['v2_7_1_audit_support_available'].astype(bool).mean()),
+              'n_improved_from_legacy_v2_7':int((~frame['legacy_v2_7_audit_support_available'].astype(bool) & frame['v2_7_1_audit_support_available'].astype(bool)).sum()),
+              'n_regressed_from_legacy_v2_7':int((frame['legacy_v2_7_audit_support_available'].astype(bool) & ~frame['v2_7_1_audit_support_available'].astype(bool)).sum()),
+              'sealed_environment_read':False,
+              'candidate_model_fitting_performed':False,
+              'development_only':True,
+              'scientific_promotion_allowed':False,
+              'independent_empirical_confirmation_claim_allowed':False,
+          }
+          (out/'contract.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-evidence-balanced-folds-development-summary
+          path: summary/
+          retention-days: 90
