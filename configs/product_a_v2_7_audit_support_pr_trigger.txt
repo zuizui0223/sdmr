@@ -1,0 +1,5 @@
+purpose=trigger_product_a_v2_7_audit_support_development
+implementation_sha=0bb0bdd99303ca956681de15cfe3fad903dad7a9
+frozen_ref=frozen/product-a-v2-7-audit-support-0bb0bdd9
+workflow=product-a-v2-7-audit-support-development.yml
+execution_gate_main_sha=cdcb2907807ca3de4bd3ce3f31018770003503af
