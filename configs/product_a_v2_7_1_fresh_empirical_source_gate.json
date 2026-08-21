@@ -1,54 +1,77 @@
 {
-  "purpose": "product_a_v2_7_1_fresh_empirical_source_gate",
-  "gate_state": "blocked_until_genuinely_fresh_source_is_pinned",
-  "execution_allowed": false,
   "development_endpoint": {
+    "completed_at": "2026-08-21T06:39:12Z",
     "contract_path": "configs/product_a_v2_7_1_development_endpoint.json",
-    "workflow_run_id": 32455011154,
     "implementation_sha": "e93e93cc97551df3fa32a8dfb17bc813dd2cdf39",
-    "completed_at": "2026-08-21T06:39:12Z"
+    "workflow_run_id": 32455011154
   },
-  "historical_development_source": {
-    "snapshot_date": "2026-08-01",
-    "snapshot_doi": "10.15468/dl.fs3btq",
-    "may_be_used_as_fresh_confirmation_denominator": false,
-    "existing_six_split_parts_may_be_relabelled_as_fresh": false
-  },
-  "freshness_rule": {
-    "requires_new_untouched_occurrence_snapshot_and_or_new_taxon_panel": true,
-    "new_occurrence_snapshot_if_used_must_be_created_after": "2026-08-21T06:39:12Z",
-    "new_taxon_panel_if_used_must_exclude_all_current_pilot_taxa": true,
-    "fresh_source_identity_must_be_frozen_before_sealed_outcomes": true
-  },
-  "required_before_execution": {
-    "snapshot_or_download_identifier": null,
-    "snapshot_created_at": null,
-    "focal_file_sha256": null,
-    "target_group_file_sha256": null,
-    "taxon_panel_path": null,
-    "taxon_panel_sha256": null,
+  "execution_allowed": false,
+  "fixed_confirmation_design": {
+    "decision_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "decision_contract_sha256": "32ed21aedb87bd796324d569b696b97fc58ddbec2ccd848723006f0ea7b1ba5b",
+    "n_confirmation_parts": 6,
     "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
     "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
-    "implementation_sha": null,
+    "sealed_fractions": [
+      0.2,
+      0.3
+    ],
+    "split_seeds": [
+      2026082201,
+      2026082202,
+      2026082203
+    ]
+  },
+  "freshness_design": {
+    "disjoint_from_current_pilot_12": true,
+    "eligibility_artifact_digest": "sha256:ab0dbb9098603b9597925b385a050a436dc08fecd38a00b6c7e764268b8fc3b1",
+    "eligibility_artifact_id": 9444172302,
+    "eligibility_run_id": 32474864368,
+    "independence_axis": "taxon_holdout_not_temporal",
+    "new_taxon_panel_path": "configs/product_a_v2_7_1_fresh_confirmation_taxa.csv",
+    "new_taxon_panel_sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
+    "selection_result_path": "configs/product_a_v2_7_1_fresh_taxon_panel_selection_result.json",
+    "temporal_independence_claim_allowed": false
+  },
+  "gate_state": "blocked_until_raw_sources_and_exact_execution_identity_are_pinned",
+  "historical_catalog_transport": {
+    "catalog_may_be_requeried_for_frozen_disjoint_taxon_panel": true,
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "existing_six_split_parts_may_be_reused_or_relabelled_as_fresh": false,
+    "old_pilot_focal_artifact_may_be_reused": false,
+    "old_target_artifact_excluding_old_pilot_12_may_be_reused": false,
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq"
+  },
+  "purpose": "product_a_v2_7_1_fresh_empirical_source_gate",
+  "required_before_execution": {
+    "focal_file_sha256": null,
+    "focal_query_sha256": null,
     "frozen_ref": null,
-    "split_seeds": null,
-    "sealed_fractions": null,
-    "decision_contract_path": null
+    "implementation_sha": null,
+    "new_focal_artifact_name": null,
+    "new_focal_artifact_run_id": null,
+    "new_target_group_artifact_name": null,
+    "new_target_group_artifact_run_id": null,
+    "target_group_excluded_taxa_sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
+    "target_group_file_sha256": null,
+    "target_group_query_sha256": null,
+    "workflow_file": null
   },
   "scientific_constraints": {
-    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
+    "development_70_of_72_result_may_define_new_scientific_thresholds": false,
     "empirical_target": "realized_environmental_niche_recovery_and_stability",
+    "fail_closed_when_structural_or_ecological_support_is_unavailable": true,
+    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false,
+    "product_b_unblocked_before_separate_promotion_decision": false,
     "recovery_metrics_remain_separate": [
       "niche_overlap_schoener_d_pc12",
       "centroid_distance",
       "breadth_log_sd_error",
       "quantile_profile_error"
     ],
-    "post_outcome_candidate_reselection_allowed": false,
-    "post_outcome_threshold_tuning_allowed": false,
-    "development_70_of_72_result_may_define_new_scientific_thresholds": false,
-    "fail_closed_when_ecological_support_is_unavailable": true,
-    "scientific_promotion_allowed_before_gate_is_satisfied": false,
-    "product_b_unblocked_before_separate_promotion_decision": false
+    "scientific_promotion_allowed_before_separate_promotion_decision": false
   }
 }
