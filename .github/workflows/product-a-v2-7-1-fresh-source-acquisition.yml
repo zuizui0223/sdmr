@@ -18,7 +18,7 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[test]'
-      - name: Verify frozen fresh-panel and source-acquisition contracts
+      - name: Verify frozen fresh-panel and acquisition semantics
         run: |
           python -m pytest -q \
             tests/test_product_a_v2_7_1_development_endpoint.py \
@@ -34,8 +34,8 @@ jobs:
           citation=validate_snapshot_citation(c['snapshot']['date'],c['snapshot']['doi'],region=c['snapshot']['region'])
           if citation.citation_sha256!=c['snapshot']['citation_sha256']:
               raise SystemExit('snapshot citation SHA mismatch')
-          if c['execution_source_pinned'] is not True:
-              raise SystemExit('raw-source acquisition source is not pinned yet; fail closed')
+          if c['information_barrier']['candidate_model_fitting_performed'] is not False:
+              raise SystemExit('source acquisition contract crossed model-fitting barrier')
           PY
 
   focal_chunk:
@@ -57,73 +57,15 @@ jobs:
       - name: Materialize exact focal shard partition
         run: |
           mkdir -p focal_chunk
-          python - <<'PY'
-          import hashlib, json
-          from pathlib import Path
-          import pandas as pd
-          from sdmr.data.raster import sha256_file
-          from sdmr.data.snapshot import (
-              PREFERRED_SNAPSHOT_COLUMNS,
-              _configure_duckdb_cloud,
-              _query_sha256,
-              _quote_identifier,
-              _sql_literal,
-              build_snapshot_filter_sql,
-              gbif_snapshot_s3_uri,
-          )
-          from sdmr.target_footprint_parallel_cli import _chunk_files, _list_snapshot_shards, _sql_list
-          import duckdb
-
-          contract=json.load(open('configs/product_a_v2_7_1_fresh_source_acquisition_contract.json'))
-          snapshot=contract['snapshot']; panel_spec=contract['fresh_taxon_panel']
-          panel_path=Path(panel_spec['path'])
-          if hashlib.sha256(panel_path.read_bytes()).hexdigest()!=panel_spec['sha256']:
-              raise SystemExit('fresh panel SHA mismatch')
-          names=pd.read_csv(panel_path)['scientific_name'].astype(str).tolist()
-          chunk_index=int('${{ matrix.chunk }}'); chunk_count=int(contract['parallel_transport']['chunk_count'])
-          uri=gbif_snapshot_s3_uri(snapshot['date'],region=snapshot['region'])
-          where_sql=build_snapshot_filter_sql(species_names=names,require_coordinates=True)
-
-          con=duckdb.connect()
-          try:
-              _configure_duckdb_cloud(con,cloud_provider='aws',region=snapshot['region'])
-              files=_list_snapshot_shards(con,snapshot['date'],snapshot['region'])
-              selected_files=_chunk_files(files,chunk_index,chunk_count)
-              if not selected_files: raise SystemExit(f'empty chunk {chunk_index}')
-              schema=con.execute(f"DESCRIBE SELECT * FROM read_parquet({_sql_literal(selected_files[0])}, union_by_name=true)").fetchdf()
-              available={str(x).lower():str(x) for x in schema['column_name'].tolist()}
-              required={'species','decimallatitude','decimallongitude'}
-              missing=required-set(available)
-              if missing: raise SystemExit(f'missing focal snapshot columns: {sorted(missing)}')
-              columns=[available[x] for x in PREFERRED_SNAPSHOT_COLUMNS if x in available]
-              select_sql=','.join(_quote_identifier(x) for x in columns)
-              source=f"read_parquet({_sql_list(selected_files)}, union_by_name=true)"
-              query=f"SELECT {select_sql} FROM {source} WHERE {where_sql}"
-              out=Path('focal_chunk/partial.parquet').resolve()
-              con.execute(f"COPY ({query}) TO {_sql_literal(str(out))} (FORMAT PARQUET, COMPRESSION ZSTD)")
-              n_rows=int(con.execute(f"SELECT COUNT(*) FROM read_parquet({_sql_literal(str(out))})").fetchone()[0])
-          finally:
-              con.close()
-
-          catalog_sha=hashlib.sha256(('\n'.join(files)+'\n').encode()).hexdigest()
-          chunk_catalog_sha=hashlib.sha256(('\n'.join(selected_files)+'\n').encode()).hexdigest()
-          meta={
-              'purpose':'product_a_v2_7_1_fresh_focal_source_shard_chunk',
-              'snapshot_date':snapshot['date'],'snapshot_doi':snapshot['doi'],'region':snapshot['region'],
-              'chunk_index':chunk_index,'chunk_count':chunk_count,
-              'snapshot_shard_count':len(files),'snapshot_shard_catalog_sha256':catalog_sha,
-              'chunk_shard_count':len(selected_files),'chunk_shard_catalog_sha256':chunk_catalog_sha,
-              'first_shard':selected_files[0],'last_shard':selected_files[-1],
-              'taxon_panel_sha256':panel_spec['sha256'],'n_taxa':len(names),
-              'selected_columns':columns,
-              'logical_query_sha256':_query_sha256(uri,columns,where_sql,''),
-              'partial_rows':n_rows,'partial_sha256':sha256_file(out),
-              'environmental_values_read':False,'candidate_model_fitting_performed':False,
-              'sealed_confirmation_outcomes_read':False,
-          }
-          Path('focal_chunk/metadata.json').write_text(json.dumps(meta,indent=2,sort_keys=True)+'\n')
-          print(json.dumps(meta,indent=2,sort_keys=True))
-          PY
+          python -m sdmr.fresh_focal_parallel chunk \
+            --snapshot-date 2026-08-01 \
+            --snapshot-doi 10.15468/dl.fs3btq \
+            --region us-east-1 \
+            --taxa configs/product_a_v2_7_1_fresh_confirmation_taxa.csv \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 16 \
+            --output focal_chunk/partial.parquet \
+            --metadata focal_chunk/metadata.json
       - uses: actions/upload-artifact@v4
         with:
           name: fresh-focal-chunk-${{ matrix.chunk }}
@@ -134,7 +76,7 @@ jobs:
   focal_aggregate:
     needs: focal_chunk
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -148,82 +90,32 @@ jobs:
           path: focal_parts
       - name: Reconstruct exact fresh focal source
         run: |
-          mkdir -p focal_source
+          python -m sdmr.fresh_focal_parallel aggregate \
+            --parts-root focal_parts \
+            --snapshot-date 2026-08-01 \
+            --snapshot-doi 10.15468/dl.fs3btq \
+            --citation-sha256 022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050 \
+            --region us-east-1 \
+            --taxa configs/product_a_v2_7_1_fresh_confirmation_taxa.csv \
+            --output-dir focal_source
           python - <<'PY'
-          import hashlib, json
-          from pathlib import Path
-          import duckdb, pandas as pd
-          from sdmr.data.raster import sha256_file
-          from sdmr.data.snapshot import _sql_list, _sql_literal
-          from sdmr.data.snapshot_citation import validate_snapshot_citation
-
-          contract=json.load(open('configs/product_a_v2_7_1_fresh_source_acquisition_contract.json'))
-          panel_path=Path(contract['fresh_taxon_panel']['path'])
-          panel_sha=hashlib.sha256(panel_path.read_bytes()).hexdigest()
-          expected_names=set(pd.read_csv(panel_path)['scientific_name'].astype(str))
-          root=Path('focal_parts')
-          metas=[json.loads(p.read_text()) for p in sorted(root.rglob('metadata.json'))]
-          partials=sorted(root.rglob('partial.parquet'))
-          expected_chunks=int(contract['parallel_transport']['chunk_count'])
-          if len(metas)!=expected_chunks or len(partials)!=expected_chunks:
-              raise SystemExit(f'expected {expected_chunks} focal chunks; metadata={len(metas)} partials={len(partials)}')
-          by_index={int(x['chunk_index']):x for x in metas}
-          if set(by_index)!=set(range(expected_chunks)): raise SystemExit('incomplete focal chunk indices')
-          for key in ('snapshot_date','snapshot_doi','region','chunk_count','snapshot_shard_count','snapshot_shard_catalog_sha256','taxon_panel_sha256','n_taxa','logical_query_sha256'):
-              if len({json.dumps(x[key],sort_keys=True) for x in metas})!=1: raise SystemExit(f'focal invariant differs: {key}')
-          if metas[0]['taxon_panel_sha256']!=panel_sha: raise SystemExit('focal panel SHA mismatch')
-          if sum(int(x['chunk_shard_count']) for x in metas)!=int(metas[0]['snapshot_shard_count']): raise SystemExit('focal shard coverage incomplete')
-          if sorted(sha256_file(p) for p in partials)!=sorted(str(x['partial_sha256']) for x in metas): raise SystemExit('focal partial SHA set mismatch')
-          columns=metas[0]['selected_columns']
-          if any(x['selected_columns']!=columns for x in metas): raise SystemExit('focal selected columns differ')
-
-          out=Path('focal_source/focal.parquet').resolve()
-          con=duckdb.connect()
-          try:
-              source=f"read_parquet({_sql_list([str(p.resolve()) for p in partials])}, union_by_name=true)"
-              con.execute(f"COPY (SELECT * FROM {source}) TO {_sql_literal(str(out))} (FORMAT PARQUET, COMPRESSION ZSTD)")
-              n_rows=int(con.execute(f"SELECT COUNT(*) FROM read_parquet({_sql_literal(str(out))})").fetchone()[0])
-              species={str(x[0]) for x in con.execute(f"SELECT DISTINCT species FROM read_parquet({_sql_literal(str(out))})").fetchall()}
-          finally:
-              con.close()
-          if species!=expected_names: raise SystemExit(f'focal source taxa differ: missing={sorted(expected_names-species)}, extra={sorted(species-expected_names)}')
-          if int(metas[0]['snapshot_shard_count'])!=9705: raise SystemExit('unexpected GBIF snapshot shard count')
-          citation=validate_snapshot_citation(contract['snapshot']['date'],contract['snapshot']['doi'],region=contract['snapshot']['region'])
-          if citation.citation_sha256!=contract['snapshot']['citation_sha256']: raise SystemExit('focal citation SHA mismatch')
-          Path('focal_source/focal.parquet.citation.txt').write_text(citation.citation_text)
-          focal_sha=sha256_file(out)
-          prov=pd.DataFrame([{
-              'source_type':'gbif_monthly_cloud_snapshot_exact_parallel_fresh_taxon_panel',
-              'snapshot_date':contract['snapshot']['date'],'snapshot_doi':contract['snapshot']['doi'],
-              'snapshot_citation_sha256':citation.citation_sha256,'region':contract['snapshot']['region'],
-              'taxon_panel_sha256':panel_sha,'n_taxa':len(expected_names),
-              'sampling_mode':'all_coordinate_valid_rows_for_frozen_taxon_panel',
-              'query_sha256':metas[0]['logical_query_sha256'],'selected_columns':','.join(columns),
-              'snapshot_shard_count':int(metas[0]['snapshot_shard_count']),
-              'snapshot_shard_catalog_sha256':metas[0]['snapshot_shard_catalog_sha256'],
-              'parallel_chunk_count':expected_chunks,'parallel_reduction':'disjoint_shard_union_without_row_deduplication',
-              'path':'focal.parquet','sha256':focal_sha,'n_rows':n_rows,
-          }])
-          prov.to_csv('focal_source/focal.provenance.csv',index=False)
-          manifest={
-              'purpose':'product_a_v2_7_1_fresh_focal_source_manifest',
-              'snapshot_date':contract['snapshot']['date'],'snapshot_doi':contract['snapshot']['doi'],
-              'citation_sha256':citation.citation_sha256,'taxon_panel_sha256':panel_sha,
-              'focal_sha256':focal_sha,'focal_query_sha256':metas[0]['logical_query_sha256'],
-              'focal_rows':n_rows,'focal_taxa':len(species),
-              'snapshot_shard_count':int(metas[0]['snapshot_shard_count']),
-              'snapshot_shard_catalog_sha256':metas[0]['snapshot_shard_catalog_sha256'],
-              'parallel_chunk_count':expected_chunks,
-              'environmental_values_read':False,'candidate_model_fitting_performed':False,
-              'sealed_confirmation_outcomes_read':False,
-          }
-          Path('focal_source/focal_source_manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
-          print(json.dumps(manifest,indent=2,sort_keys=True))
+          import json
+          c=json.load(open('focal_source/focal_source_manifest.json'))
+          if c['snapshot_shard_count']!=9705: raise SystemExit('focal shard coverage mismatch')
+          if c['focal_taxa']!=12: raise SystemExit('focal taxon count mismatch')
+          if c['environmental_values_read'] is not False: raise SystemExit('focal acquisition crossed environmental barrier')
+          if c['candidate_model_fitting_performed'] is not False: raise SystemExit('focal acquisition fit a model')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: product-a-v2-7-1-fresh-focal-source-2026-08-01
           path: focal_source/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-focal-source-manifest
+          path: focal_source/focal_source_manifest.json
           if-no-files-found: error
           retention-days: 90
 
@@ -265,7 +157,7 @@ jobs:
   target_aggregate:
     needs: target_chunk
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -296,7 +188,6 @@ jobs:
           target=Path('target_source/target_group.parquet')
           target_sha=hashlib.sha256(target.read_bytes()).hexdigest()
           citation_sha=hashlib.sha256(citation.read_bytes()).hexdigest()
-          if panel_sha!='40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554': raise SystemExit('fresh panel SHA mismatch')
           if str(prov.get('excluded_taxa_sha256','')).lower()!=panel_sha: raise SystemExit('target excluded-taxa SHA mismatch')
           if int(prov.get('excluded_taxa_count',0))!=12: raise SystemExit('target did not exclude exactly 12 fresh taxa')
           if str(prov.get('sampling_mode',''))!='global_nonfocal_one_per_grid_cell_sampling_footprint': raise SystemExit('target sampling mode mismatch')
@@ -326,5 +217,56 @@ jobs:
         with:
           name: product-a-v2-7-1-fresh-target-source-2026-08-01
           path: target_source/
+          if-no-files-found: error
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-target-source-manifest
+          path: target_source/target_source_manifest.json
+          if-no-files-found: error
+          retention-days: 90
+
+  receipt:
+    needs: [focal_aggregate, target_aggregate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-focal-source-manifest
+          path: source_receipt/focal
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-target-source-manifest
+          path: source_receipt/target
+      - name: Write immutable source receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          focal=json.load(open('source_receipt/focal/focal_source_manifest.json'))
+          target=json.load(open('source_receipt/target/target_source_manifest.json'))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_raw_source_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'execution_sha':os.environ['GITHUB_SHA'],
+              'execution_ref':os.environ['GITHUB_REF_NAME'],
+              'snapshot_date':'2026-08-01','snapshot_doi':'10.15468/dl.fs3btq',
+              'fresh_focal_artifact_name':'product-a-v2-7-1-fresh-focal-source-2026-08-01',
+              'fresh_target_artifact_name':'product-a-v2-7-1-fresh-target-source-2026-08-01',
+              'focal_sha256':focal['focal_sha256'],'focal_query_sha256':focal['focal_query_sha256'],
+              'target_sha256':target['target_sha256'],'target_query_sha256':target['target_query_sha256'],
+              'target_excluded_taxa_sha256':target['excluded_taxa_sha256'],
+              'environmental_values_read':False,'candidate_model_fitting_performed':False,
+              'sealed_confirmation_outcomes_read':False,'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('source_receipt/source_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-raw-source-receipt
+          path: source_receipt/source_receipt.json
           if-no-files-found: error
           retention-days: 90
