@@ -1,0 +1,63 @@
+{
+  "purpose": "product_a_v2_7_1_development_endpoint",
+  "development_endpoint_frozen": true,
+  "implementation_sha": "e93e93cc97551df3fa32a8dfb17bc813dd2cdf39",
+  "frozen_ref": "frozen/product-a-v2-7-1-evidence-balanced-e93e93cc",
+  "workflow_run_id": 32455011154,
+  "workflow_run_conclusion": "success",
+  "workflow_completed_at": "2026-08-21T06:39:12Z",
+  "summary_artifact": {
+    "artifact_id": 9437018612,
+    "artifact_name": "product-a-v2-7-1-evidence-balanced-folds-development-summary",
+    "artifact_digest": "sha256:6c12ff53f8a10887ed1c70f06b24d9c15300cb27db4736574d4b9ed0a595c7f5"
+  },
+  "diagnostic_result": {
+    "n_diagnostics": 72,
+    "legacy_v2_7_audit_support_available": 39,
+    "v2_7_1_audit_support_available": 70,
+    "v2_7_1_audit_support_availability_fraction": 0.9722222222222222,
+    "n_improved_from_legacy_v2_7": 31,
+    "n_regressed_from_legacy_v2_7": 0,
+    "evidence_balanced_partition_available": 70
+  },
+  "structural_abstentions": [
+    {
+      "taxon": "Dryopteris filix-mas",
+      "taxon_index": 5,
+      "part_seed": 2026081903,
+      "part_label": "0.20",
+      "legacy_v2_7_audit_support_available": false,
+      "v2_7_1_audit_support_available": false,
+      "reason": "no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"
+    },
+    {
+      "taxon": "Quercus robur",
+      "taxon_index": 1,
+      "part_seed": 2026081903,
+      "part_label": "0.30",
+      "legacy_v2_7_audit_support_available": false,
+      "v2_7_1_audit_support_available": false,
+      "reason": "no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"
+    }
+  ],
+  "information_barrier": {
+    "sealed_environment_read": false,
+    "candidate_model_fitting_performed_in_diagnostic": false,
+    "independent_empirical_confirmation_claim_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "stop_rule": {
+    "retune_on_current_2026_08_01_snapshot_to_force_72_of_72": false,
+    "retune_on_current_six_split_parts_to_remove_structural_abstentions": false,
+    "structural_abstentions_remain_explicit_support_boundary": true,
+    "further_method_changes_require_independent_motivation_and_unseen_evidence": true
+  },
+  "next_lane": {
+    "genuinely_fresh_empirical_evidence_required": true,
+    "current_2026_08_01_snapshot_allowed_as_fresh_confirmation_denominator": false,
+    "current_six_split_parts_allowed_as_fresh_confirmation_denominator": false,
+    "fresh_evidence_must_use_new_untouched_occurrence_snapshot_and_or_new_taxon_panel": true,
+    "fresh_source_must_be_pinned_before_any_fresh_sealed_outcome": true
+  }
+}
