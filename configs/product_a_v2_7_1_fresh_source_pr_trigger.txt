@@ -1,0 +1,5 @@
+purpose=trigger_product_a_v2_7_1_fresh_raw_source_acquisition
+implementation_sha=7c6dbf0ab11fa21451fc46b7c6960d4aa3ca6656
+frozen_ref=frozen/product-a-v2-7-1-fresh-source-7c6dbf0a
+workflow=product-a-v2-7-1-fresh-source-acquisition.yml
+execution_gate_main_sha=26da9df399e50f5b233e46ddca901520dfb8f0fb
