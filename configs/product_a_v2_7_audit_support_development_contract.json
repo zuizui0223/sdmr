@@ -1,0 +1,67 @@
+{
+  "purpose": "product_a_v2_7_audit_support_development_contract",
+  "development_only": true,
+  "scientific_promotion_allowed": false,
+  "independent_empirical_confirmation_claim_allowed": false,
+  "product_b_unblocked": false,
+  "predecessor_v2_6_empirical_result": {
+    "exact_run_id": 32445550518,
+    "exact_head_sha": "5ce106bb955d0912b1c65ff8dd23a61a3e66aee1",
+    "result": "sealed_blind_empirical_confirmation_unavailable",
+    "pretruth_artifact_count": 0,
+    "sealed_audit_artifact_count": 0,
+    "sealed_environment_opened": false,
+    "diagnosed_part": "2026081901_0.20",
+    "diagnosed_taxon_M_cells": 36,
+    "incomplete_taxon_M_cells_per_candidate": 23,
+    "all_eight_candidates_incomplete": true,
+    "primary_failure": "43_variable_audit_complete_case_support_collapse"
+  },
+  "development_source": {
+    "model_pool_materialization_run_id": 32260616084,
+    "model_pool_only_reuse_allowed": true,
+    "outer_sealed_environment_read_allowed": false,
+    "current_v2_6_sealed_split_may_not_be_relabelled_as_fresh_v2_7_confirmation": true,
+    "future_independent_confirmation_requires_genuinely_fresh_evidence": true
+  },
+  "candidate_universe": {
+    "process_registry": "configs/product_a_empirical_process_registry_v1.csv",
+    "all_43_predeclared_CHELSA_predictors_remain_candidate_eligible": true,
+    "candidate_predictor_availability_gate_unchanged": 0.95,
+    "procedure_library_unchanged_from_v2_6": true,
+    "prediction_adequacy_unchanged_from_v2_6": true,
+    "niche_recovery_metrics_unchanged_from_v2_6": true,
+    "weighted_super_score": false
+  },
+  "audit_space": {
+    "selector": "select_partition_aware_empirical_audit_space",
+    "base_selector": "select_empirical_audit_space",
+    "one_representative_predictor_per_process_maximum": true,
+    "selection_inputs": "model_pool_missingness_only",
+    "candidate_scores_used": false,
+    "response_magnitudes_used": false,
+    "process_knockout_outcomes_used": false,
+    "sealed_rows_used": false,
+    "minimum_predictor_coverage": 0.95,
+    "minimum_joint_coverage": 0.80,
+    "minimum_processes": 4,
+    "partition_aware_support": true,
+    "minimum_complete_fit_background_rows_per_M_fold": 5,
+    "minimum_complete_evaluation_background_rows_per_M_fold": 5,
+    "minimum_complete_heldout_occurrence_rows_per_M_fold": 2,
+    "whole_process_axis_pruning_only": true,
+    "pruning_inputs": "complete_row_counts_only",
+    "abstain_if_minimum_four_processes_cannot_support_every_M_fold": true
+  },
+  "information_order": {
+    "outer_model_pool_partition_fixed_before_candidate_evaluation": true,
+    "audit_space_frozen_before_candidate_benchmark": true,
+    "candidate_benchmark_cannot_change_audit_space": true,
+    "sealed_environment_values_remain_unopened": true
+  },
+  "development_success_means": {
+    "audit_support_complete_before_candidate_evaluation": true,
+    "all_four_niche_recovery_metrics_mathematically_evaluable_in_supported_folds": true,
+    "does_not_itself_validate_or_promote_Product_A": true
+  }
+}
