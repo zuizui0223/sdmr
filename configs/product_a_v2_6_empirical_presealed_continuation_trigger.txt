@@ -1,0 +1,8 @@
+purpose=trigger_product_a_v2_6_empirical_presealed_continuation
+frozen_ref=frozen/product-a-v2-6-presealed-continuation-da421c88
+implementation_sha=da421c88717b193a1c1046c4d6920e841a4b7584
+workflow=product-a-v2-6-empirical-presealed-continuation.yml
+source_gate_main_sha=247857614d3844d44a390027c6f06fabb990a38d
+source_presealed_run_id=32323931807
+source_pretruth_artifacts=0
+source_sealed_audit_artifacts=0
