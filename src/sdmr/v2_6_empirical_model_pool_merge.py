@@ -17,13 +17,26 @@ from .v2_6_empirical_model_pool_worker import M_NAMES
 
 
 def _concat_csv(paths: list[Path], name: str) -> pd.DataFrame:
+    """Concatenate shard CSVs while treating blank optional tables as empty.
+
+    Some valid worker diagnostics (notably ``selection_trace.csv``) have no rows
+    for an M shard.  ``DataFrame().to_csv`` serializes that state as a blank
+    line, which raises ``pandas.errors.EmptyDataError`` on read.  A blank table is
+    absence of optional diagnostic rows, not missing scientific evidence, so it
+    is skipped here.  Nonblank malformed CSVs still fail normally, and required
+    predictor-admissibility ledgers are read separately and remain fail-closed.
+    """
+
     frames = []
     for path in paths:
         file = path / name
-        if file.exists():
-            frame = pd.read_csv(file)
-            if not frame.empty:
-                frames.append(frame)
+        if not file.exists():
+            continue
+        if not file.read_text(encoding="utf-8").strip():
+            continue
+        frame = pd.read_csv(file)
+        if not frame.empty:
+            frames.append(frame)
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
