@@ -1,0 +1,78 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_presealed_shard_recovery_build_preoutcome_contract",
+  "contract_frozen_before_any_fresh_pretruth_or_sealed_outcome": true,
+  "primary_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "terminal_model_pool_failure_observed": true,
+    "reference_failed_job_id": 96996726229,
+    "reference_failed_job_name": "model-pool (2026082201, 0.20, 7)",
+    "reference_failed_job_conclusion": "cancelled",
+    "reference_failure_timestamp_utc": "2026-08-22T13:06:27Z",
+    "reference_worker_artifact_written": false,
+    "pretruth_artifacts_observed": 0,
+    "final_fit_artifacts_observed": 0,
+    "sealed_audit_artifacts_observed": 0,
+    "decision_artifacts_observed": 0
+  },
+  "parity_source": {
+    "workflow_run_id": 32574696718,
+    "implementation_sha": "196291c56650809a7c90207a9b25148b8ec04a98",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-sharded-parity-196291c5",
+    "artifact_id": null,
+    "artifact_digest": null,
+    "parity_passed": null
+  },
+  "build_scope": {
+    "sealed_blind_only": true,
+    "reuse_exactly_six_primary_materialization_parts": true,
+    "reuse_primary_worker_outputs": false,
+    "taxon_part_cells": 72,
+    "M_specs_per_cell": 3,
+    "total_M_shards": 216,
+    "rerun_all_taxon_part_M_shards_uniformly": true,
+    "selective_repair_allowed": false,
+    "aggregate_workers_in_this_build": false,
+    "pretruth_in_this_build": false,
+    "final_fit_in_this_build": false,
+    "sealed_audit_in_this_build": false,
+    "decision_in_this_build": false
+  },
+  "scientific_invariants": {
+    "fresh_taxon_panel_changed": false,
+    "split_seeds_or_sealed_fractions_changed": false,
+    "M_grid_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "procedure_library_changed": false,
+    "process_knockout_semantics_changed": false,
+    "candidate_scores_used_for_partition_or_audit_selection": false,
+    "sealed_environment_read_allowed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false
+  },
+  "activation_rule": {
+    "at_least_one_terminal_primary_model_pool_failure_required": true,
+    "primary_run_completion_required_for_shard_build": false,
+    "primary_exactly_six_materialization_parts_required": true,
+    "primary_pretruth_artifacts_must_be_absent": true,
+    "primary_final_fit_artifacts_must_be_absent": true,
+    "primary_sealed_audit_artifacts_must_be_absent": true,
+    "primary_decision_artifact_must_be_absent": true,
+    "activation_may_not_depend_on_candidate_scores_or_scientific_metric_values": true,
+    "successful_pinned_parity_required": true,
+    "exact_execution_identity_required": true
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_file": "product-a-v2-7-1-fresh-presealed-shard-build.yml",
+    "execution_allowed": false
+  },
+  "claim_boundary": {
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "scientific_decision_generated": false
+  }
+}
