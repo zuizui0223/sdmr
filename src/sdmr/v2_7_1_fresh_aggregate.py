@@ -26,11 +26,20 @@ def run_fresh_aggregate(
         if payload.get("candidate_or_threshold_retuning_after_sealed_read") is not False:
             raise ValueError("fresh empirical part retuned after sealed evidence")
         if payload.get("available") is True:
+            if payload.get("sealed_occurrence_environment_read") is not True:
+                raise ValueError("available fresh part did not open its declared sealed evidence")
             if payload.get("sealed_occurrence_first_read_after_pretruth_freeze") is not True:
                 raise ValueError("available fresh part violated pretruth-to-sealed order")
         else:
-            if payload.get("sealed_occurrence_environment_read") is not False:
-                raise ValueError("unavailable fresh part unnecessarily opened sealed environment")
+            sealed_read = payload.get("sealed_occurrence_environment_read") is True
+            if sealed_read:
+                if payload.get("sealed_occurrence_first_read_after_pretruth_freeze") is not True:
+                    raise ValueError("opened unavailable fresh part violated pretruth-to-sealed order")
+                if payload.get("undefined_sealed_ecological_evidence_propagated_as_unavailable") is not True:
+                    raise ValueError("opened unavailable fresh part lacks fail-closed ecological-evidence marker")
+            else:
+                if payload.get("structural_or_audit_abstention_propagated_as_unavailable") is not True:
+                    raise ValueError("presealed unavailable fresh part lacks structural/audit abstention marker")
         root = path.parent
         part_frames.append(pd.read_csv(root / "part_summary.csv"))
         process_frames.append(pd.read_csv(root / "process_status.csv"))
@@ -46,14 +55,28 @@ def run_fresh_aggregate(
         raise ValueError("fresh process-status taxon denominator changed")
     decision = empirical_confirmation_decision(part_summary, process_status)
 
-    out = Path(output_dir); out.mkdir(parents=True, exist_ok=True)
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
     part_summary.sort_values("part_id", kind="mergesort").to_csv(out / "part_summary.csv", index=False)
-    process_status.sort_values(["part_id", "taxon", "process_domain"], kind="mergesort").to_csv(out / "process_status.csv", index=False)
+    process_status.sort_values(["part_id", "taxon", "process_domain"], kind="mergesort").to_csv(
+        out / "process_status.csv", index=False
+    )
     decision.to_csv(out / "decision.csv", index=False)
     result = {
         "purpose": PURPOSE,
         "n_parts": 6,
-        "n_available_parts": int(part_summary.get("part_available", pd.Series(False, index=part_summary.index)).fillna(False).astype(bool).sum()),
+        "n_available_parts": int(
+            part_summary.get("part_available", pd.Series(False, index=part_summary.index))
+            .fillna(False).astype(bool).sum()
+        ),
+        "n_unavailable_before_sealed_read": int(sum(
+            c.get("available") is not True and c.get("sealed_occurrence_environment_read") is False
+            for c in contracts
+        )),
+        "n_unavailable_after_sealed_read": int(sum(
+            c.get("available") is not True and c.get("sealed_occurrence_environment_read") is True
+            for c in contracts
+        )),
         "decision": str(decision.iloc[0]["decision"]),
         "scientific_promotion_allowed": False,
         "product_b_unblocked": False,
@@ -69,8 +92,13 @@ def run_fresh_aggregate(
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(); p.add_argument("--contract", required=True); p.add_argument("--audit-root", required=True); p.add_argument("--output-dir", required=True)
-    a = p.parse_args(argv); run_fresh_aggregate(contract_path=a.contract, audit_root=a.audit_root, output_dir=a.output_dir); return 0
+    p = argparse.ArgumentParser()
+    p.add_argument("--contract", required=True)
+    p.add_argument("--audit-root", required=True)
+    p.add_argument("--output-dir", required=True)
+    a = p.parse_args(argv)
+    run_fresh_aggregate(contract_path=a.contract, audit_root=a.audit_root, output_dir=a.output_dir)
+    return 0
 
 
 if __name__ == "__main__":
