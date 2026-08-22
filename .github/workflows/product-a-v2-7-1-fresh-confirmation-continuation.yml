@@ -1,0 +1,209 @@
+name: product-a-v2-7-1-fresh-confirmation-continuation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-confirmation-continuation
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Verify continuation changes no scientific runtime
+        run: |
+          git diff --exit-code 1f158006c0b5dbdd93af70632464727405ababfe HEAD -- \
+            configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            configs/product_a_v2_7_1_fresh_confirmation_taxa.csv \
+            configs/product_a_v2_7_1_fresh_raw_source_receipt.json \
+            configs/product_a_empirical_process_registry_v1.csv \
+            configs/chelsa_v2_1_plant_candidates.csv \
+            configs/product_a_buffer_specs_v1.csv \
+            src/sdmr/v2_7_1_fresh_contract.py \
+            src/sdmr/v2_7_1_fresh_materialize.py \
+            src/sdmr/v2_7_1_fresh_model_pool_worker.py \
+            src/sdmr/v2_7_1_fresh_pretruth.py \
+            src/sdmr/v2_7_1_fresh_final_fit.py \
+            src/sdmr/v2_7_1_fresh_sealed_audit.py \
+            src/sdmr/v2_7_1_fresh_aggregate.py \
+            src/sdmr/v2_7_1_evidence_balanced_partition.py \
+            src/sdmr/v2_7_empirical_audit_support.py \
+            src/sdmr/v2_6_empirical_decision.py \
+            src/sdmr/v2_6_empirical_sealed_audit.py
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json'))
+          assert c['new_scientific_thresholds'] is False
+          assert c['continuation_scope']['rerun_materialization'] is False
+          assert c['continuation_scope']['rerun_model_pool'] is False
+          assert c['continuation_scope']['rerun_pretruth_selection'] is False
+          assert c['continuation_scope']['rerun_final_model_fitting'] is False
+          assert c['continuation_scope']['rerun_all_six_sealed_audits_not_selected_subset'] is True
+          assert c['claim_boundary']['scientific_promotion_allowed_by_continuation'] is False
+          assert c['claim_boundary']['product_b_unblocked'] is False
+          PY
+      - name: Require exact primary technical failure and complete presealed artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; run_id=32552745281
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v271-fresh-continuation',
+          }
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          run=get(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}')
+          if run.get('status')!='completed' or run.get('conclusion')=='success':
+              raise SystemExit('continuation allowed only after primary completes non-success')
+          if run.get('head_sha')!='1f158006c0b5dbdd93af70632464727405ababfe':
+              raise SystemExit('primary implementation mismatch')
+          if run.get('head_branch')!='frozen/product-a-v2-7-1-fresh-confirmation-1f158006':
+              raise SystemExit('primary ref mismatch')
+          artifacts=[]; page=1
+          while True:
+              data=get(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+              batch=data.get('artifacts',[]); artifacts.extend(batch)
+              if len(batch)<100: break
+              page+=1
+          names=[str(a.get('name','')) for a in artifacts]
+          def count(prefix): return sum(name.startswith(prefix) for name in names)
+          if count('v271-fresh-part-')!=6: raise SystemExit('primary does not have exactly six part artifacts')
+          if count('v271-fresh-pretruth-')!=6: raise SystemExit('primary does not have exactly six pretruth artifacts')
+          if count('v271-fresh-final-')!=72: raise SystemExit('primary does not have exactly 72 final-fit artifacts')
+          if names.count('product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision')!=0:
+              raise SystemExit('primary decision already exists; continuation forbidden')
+          print('primary continuation prerequisites:', {'parts':6,'pretruth':6,'finals':72,'existing_audits':count('v271-fresh-audit-')})
+          PY
+
+  sealed-audit:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: v271-fresh-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Re-run all-six deterministic sealed audit with corrected wrapper assertion
+        run: |
+          python -m sdmr.v2_7_1_fresh_sealed_audit \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          if c['available']:
+              assert c['sealed_occurrence_environment_read'] is True
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          elif c['sealed_occurrence_environment_read']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+              assert c['undefined_sealed_ecological_evidence_propagated_as_unavailable'] is True
+          else:
+              assert c['structural_or_audit_abstention_propagated_as_unavailable'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-continuation-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          if-no-files-found: error
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-continuation-audit-*
+          path: audits
+      - name: Reapply unchanged frozen six-part decision
+        run: |
+          python -m sdmr.v2_7_1_fresh_aggregate \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --audit-root audits \
+            --output-dir decision
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('decision/contract.json'))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_confirmation_continuation_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'primary_run_id':32552745281,
+              'decision':c['decision'],
+              'reran_all_six_sealed_audits':True,
+              'scientific_thresholds_changed':False,
+              'candidate_reselection_performed':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('decision/continuation_execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+          cat decision/decision.csv
+          cat decision/contract.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-continuation
+          path: decision/
+          if-no-files-found: error
+          retention-days: 90
