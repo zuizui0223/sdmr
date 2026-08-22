@@ -1,0 +1,28 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_sharded_parity_execution_contract",
+  "execution_identity_frozen_before_parity_outcome": true,
+  "implementation_sha": "196291c56650809a7c90207a9b25148b8ec04a98",
+  "frozen_ref": "frozen/product-a-v2-7-1-fresh-sharded-parity-196291c5",
+  "workflow_file": "product-a-v2-7-1-fresh-sharded-parity.yml",
+  "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+  "primary_reference": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "worker_artifact_name": "v271-fresh-worker-2026082201-0.30-taxon10",
+    "worker_artifact_id": 9473775642,
+    "worker_artifact_digest": "sha256:95b6d0ed1dc101c3633d45cbf0770f7f3498c0641541521a3c198c55a6052184",
+    "seed": 2026082201,
+    "sealed_fraction": 0.30,
+    "taxon_index": 10
+  },
+  "scope": {
+    "parity_only": true,
+    "all_three_M_recomputed": true,
+    "sealed_environment_read_allowed": false,
+    "scientific_metric_outcome_used_for_dispatch": false,
+    "scientific_threshold_change_allowed": false,
+    "candidate_reselection_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}
