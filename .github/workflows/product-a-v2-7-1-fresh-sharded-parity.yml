@@ -1,0 +1,143 @@
+name: product-a-v2-7-1-fresh-sharded-parity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  shard:
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        M: [buffer_150km, buffer_300km, buffer_500km]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-2026082201-0.30
+          path: part
+      - name: Recompute one exact M shard without sealed evidence
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[10]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index 10 \
+            --part-seed 2026082201 \
+            --M ${{ matrix.M }} \
+            --output-dir shard
+          python - <<'PY'
+          import json
+          c=json.load(open('shard/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False
+          assert c.get('scientific_semantics_changed') is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-parity-shard-${{ matrix.M }}
+          path: shard/
+          retention-days: 30
+
+  aggregate-and-compare:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-parity-shard-*
+          path: shards
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-worker-2026082201-0.30-taxon10
+          path: reference
+      - name: Reassemble and require parity with completed primary worker
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[10]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard_aggregate \
+            --shard-root shards \
+            --taxon "$TAXON" \
+            --taxon-index 10 \
+            --part-seed 2026082201 \
+            --output-dir reconstructed
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          import pandas as pd
+
+          ref=Path('reference'); rec=Path('reconstructed')
+          rc=json.load(open(ref/'contract.json')); cc=json.load(open(rec/'contract.json'))
+          for key in ('purpose','available','taxon','taxon_index','part_seed','M_specs','partition_seed',
+                      'selected_assignment_attempt','n_admissible_predictors','admissible_predictors',
+                      'audit_predictors','audit_processes','sealed_occurrence_environment_read',
+                      'sealed_occurrence_used_for_selection','sealed_occurrence_used_for_process_status',
+                      'candidate_model_fitting_performed','candidate_scores_used_for_partition_or_audit_selection'):
+              assert cc[key] == rc[key], key
+          shared=[
+              'predictor_coverage.csv','evidence_balanced_partition_support.csv',
+              'evidence_balanced_partition_attempts.csv','audit_support.csv','audit_pruning.csv',
+              'base_audit_space.csv','partition_presence.csv',
+              'partition_background__buffer_150km.csv','partition_background__buffer_300km.csv',
+              'partition_background__buffer_500km.csv',
+          ]
+          sha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          for name in shared:
+              assert sha(ref/name) == sha(rec/name), name
+          for name in ('base_fold_metrics.csv','knockout_fold_metrics.csv','selection_trace.csv','worker_status.csv'):
+              a=pd.read_csv(ref/name); b=pd.read_csv(rec/name)
+              pd.testing.assert_frame_equal(a,b,check_dtype=False,check_exact=True)
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_sharded_model_pool_parity',
+              'primary_run_id':32552745281,
+              'reference_worker_artifact_id':9473775642,
+              'reference_worker_artifact_digest':'sha256:95b6d0ed1dc101c3633d45cbf0770f7f3498c0641541521a3c198c55a6052184',
+              'taxon_index':10,
+              'seed':2026082201,
+              'sealed_fraction':0.30,
+              'all_three_M_recomputed':True,
+              'shared_partition_and_audit_ledgers_byte_identical':True,
+              'model_pool_outputs_exactly_equal':True,
+              'sealed_occurrence_environment_read':False,
+              'parity_passed':True,
+          }
+          Path('parity').mkdir()
+          (Path('parity')/'receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-sharded-parity
+          path: parity/
+          retention-days: 90
