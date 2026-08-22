@@ -1,8 +1,10 @@
 """Mechanical pre-outcome promotion gate for Product-A v2.7.1.
 
-This module adds no scientific threshold.  It maps the already frozen predecessor
-known-truth support and the exact fresh taxon-holdout empirical decision onto a
-claim-bounded Product-A promotion state.  Product-B remains a separate gate.
+No scientific threshold is introduced here.  The fresh decision source is selected
+only by predeclared technical availability: the primary decision is used when it
+exists; the frozen all-six sealed-audit continuation is admissible only when the
+primary completed non-success without a decision artifact.  Scientific decision
+values never select the source.
 """
 from __future__ import annotations
 
@@ -40,6 +42,26 @@ EXPECTED_FRESH = {
     "sealed_audit_artifacts_observed_before_contract": 0,
     "decision_artifacts_observed_before_contract": 0,
 }
+EXPECTED_CONTINUATION = {
+    "implementation_sha": "08edc61eaee19461cee440e8e8cfceb769e7f3f6",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-continuation-08edc61e",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation-continuation.yml",
+    "artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-continuation",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "required_decision": "empirical_confirmation_supported",
+    "primary_run_id": 32552745281,
+    "requires_single_workflow_dispatch_run_for_frozen_identity": True,
+    "continuation_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json",
+    "execution_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_execution_contract.json",
+}
+EXPECTED_SOURCE_SELECTION = {
+    "primary_decision_preferred_when_present": True,
+    "continuation_allowed_only_when_primary_completed_non_success_without_decision": True,
+    "continuation_receipt_must_verify_all_six_sealed_audits_rerun": True,
+    "source_selection_may_depend_on_scientific_decision_value": False,
+    "source_selection_may_depend_on_prediction_or_recovery_metrics": False,
+    "multiple_admissible_decision_sources_forbidden": True,
+}
 
 
 def _sha256(path: Path) -> str:
@@ -58,9 +80,13 @@ def load_fresh_promotion_contract(path: str | Path) -> dict[str, Any]:
     if payload.get("inherited_known_truth_source") != EXPECTED_KNOWN_TRUTH:
         raise ValueError("fresh promotion predecessor known-truth source changed")
     if payload.get("fresh_taxon_holdout_source") != EXPECTED_FRESH:
-        raise ValueError("fresh promotion empirical source changed")
+        raise ValueError("fresh promotion primary empirical source changed")
+    if payload.get("technical_continuation_source") != EXPECTED_CONTINUATION:
+        raise ValueError("fresh promotion continuation source changed")
+    if payload.get("fresh_decision_source_selection") != EXPECTED_SOURCE_SELECTION:
+        raise ValueError("fresh promotion source-selection semantics changed")
     rule = payload.get("promotion_rule", {})
-    if rule.get("logic") != "inherited_known_truth_supported_and_exact_fresh_taxon_holdout_supported":
+    if rule.get("logic") != "inherited_known_truth_supported_and_mechanically_selected_fresh_taxon_holdout_supported":
         raise ValueError("fresh promotion logic changed")
     for key in (
         "requires_inherited_known_truth_support",
@@ -118,13 +144,53 @@ def _single_decision(root: Path) -> pd.Series:
     return frame.iloc[0]
 
 
-def _fresh_empirical(root: Path) -> tuple[bool, dict[str, Any], pd.Series]:
+def _source_kind_and_receipt(root: Path) -> tuple[str, dict[str, Any]]:
+    primary = root / "execution_receipt.json"
+    continuation = root / "continuation_execution_receipt.json"
+    if primary.exists() == continuation.exists():
+        raise ValueError("fresh empirical directory must contain exactly one primary/continuation receipt")
+    if primary.exists():
+        receipt = json.loads(primary.read_text(encoding="utf-8"))
+        if receipt.get("purpose") != "product_a_v2_7_1_fresh_confirmation_execution_receipt":
+            raise ValueError("fresh primary execution receipt purpose mismatch")
+        if int(receipt.get("workflow_run_id", -1)) != EXPECTED_FRESH["run_id"]:
+            raise ValueError("fresh primary run identity mismatch")
+        if receipt.get("implementation_sha") != EXPECTED_FRESH["implementation_sha"]:
+            raise ValueError("fresh primary implementation mismatch")
+        if receipt.get("frozen_ref") != EXPECTED_FRESH["frozen_ref"]:
+            raise ValueError("fresh primary ref mismatch")
+        if receipt.get("scientific_promotion_allowed") is not False or receipt.get("product_b_unblocked") is not False:
+            raise ValueError("fresh primary receipt crossed promotion boundary")
+        if receipt.get("post_outcome_retuning_allowed") is not False:
+            raise ValueError("fresh primary receipt permits post-outcome retuning")
+        return "primary", receipt
+    receipt = json.loads(continuation.read_text(encoding="utf-8"))
+    if receipt.get("purpose") != "product_a_v2_7_1_fresh_confirmation_continuation_execution_receipt":
+        raise ValueError("fresh continuation execution receipt purpose mismatch")
+    if receipt.get("implementation_sha") != EXPECTED_CONTINUATION["implementation_sha"]:
+        raise ValueError("fresh continuation implementation mismatch")
+    if receipt.get("frozen_ref") != EXPECTED_CONTINUATION["frozen_ref"]:
+        raise ValueError("fresh continuation ref mismatch")
+    if int(receipt.get("primary_run_id", -1)) != EXPECTED_CONTINUATION["primary_run_id"]:
+        raise ValueError("fresh continuation primary-run identity mismatch")
+    if receipt.get("reran_all_six_sealed_audits") is not True:
+        raise ValueError("fresh continuation did not rerun the complete six-part sealed denominator")
+    for key in ("scientific_thresholds_changed", "candidate_reselection_performed", "scientific_promotion_allowed", "product_b_unblocked"):
+        if receipt.get(key) is not False:
+            raise ValueError(f"fresh continuation receipt requires {key}=false")
+    return "technical_continuation", receipt
+
+
+def _fresh_empirical(root: Path) -> tuple[bool, dict[str, Any], pd.Series, str]:
+    source_kind, receipt = _source_kind_and_receipt(root)
     contract = _load_contract(root)
     row = _single_decision(root)
     if contract.get("purpose") != EXPECTED_FRESH["expected_purpose"]:
         raise ValueError("fresh Product-A empirical purpose mismatch")
     if str(contract.get("decision")) != str(row["decision"]):
         raise ValueError("fresh empirical contract/CSV decision mismatch")
+    if str(receipt.get("decision")) != str(row["decision"]):
+        raise ValueError("fresh empirical execution receipt/decision mismatch")
     if int(contract.get("n_parts", -1)) != 6:
         raise ValueError("fresh empirical confirmation must contain exactly six parts")
     for key in (
@@ -158,7 +224,7 @@ def _fresh_empirical(root: Path) -> tuple[bool, dict[str, Any], pd.Series]:
         ):
             if not bool(row[column]):
                 raise ValueError(f"supported fresh empirical decision lacks {column}=true")
-    return supported, contract, row
+    return supported, contract, row, source_kind
 
 
 def apply_fresh_promotion(
@@ -167,7 +233,7 @@ def apply_fresh_promotion(
 ) -> dict[str, Any]:
     config = load_fresh_promotion_contract(contract_path)
     known_truth_supported, known_truth = _a_known_truth(Path(known_truth_dir))
-    fresh_supported, fresh_contract, fresh_row = _fresh_empirical(Path(fresh_empirical_dir))
+    fresh_supported, fresh_contract, fresh_row, fresh_source_kind = _fresh_empirical(Path(fresh_empirical_dir))
     fresh_state = str(fresh_row["decision"])
     promoted = bool(known_truth_supported and fresh_supported)
     decision = config["state_mapping"][fresh_state] if known_truth_supported else "product_a_v2_7_1_not_promoted"
@@ -177,6 +243,7 @@ def apply_fresh_promotion(
     out = Path(output_dir); out.mkdir(parents=True, exist_ok=True)
     pd.DataFrame([{
         "decision": decision,
+        "fresh_decision_source": fresh_source_kind,
         "inherited_known_truth_supported": bool(known_truth_supported),
         "fresh_taxon_holdout_decision": fresh_state,
         "fresh_taxon_holdout_supported": bool(fresh_supported),
@@ -199,7 +266,9 @@ def apply_fresh_promotion(
         "promoted": promoted,
         "product": config["promoted_product_identity"],
         "known_truth_source": EXPECTED_KNOWN_TRUTH,
-        "fresh_taxon_holdout_source": EXPECTED_FRESH,
+        "fresh_primary_source": EXPECTED_FRESH,
+        "fresh_continuation_source": EXPECTED_CONTINUATION,
+        "fresh_decision_source": fresh_source_kind,
         "known_truth_decision": str(known_truth.get("decision")),
         "fresh_empirical_decision": fresh_state,
         "new_postoutcome_scientific_thresholds": False,
@@ -212,6 +281,7 @@ def apply_fresh_promotion(
         "purpose": "product_a_v2_7_1_fresh_promotion_decision",
         "promotion_contract_sha256": config["contract_sha256"],
         "decision": decision,
+        "fresh_decision_source": fresh_source_kind,
         "product_a_v2_7_1_promoted": promoted,
         "fresh_taxon_holdout_decision": fresh_state,
         "product_b_empirical_use_unblocked": False,
