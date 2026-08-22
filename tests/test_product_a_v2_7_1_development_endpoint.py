@@ -36,11 +36,12 @@ def test_v271_development_endpoint_is_frozen_without_promotion():
     assert c['next_lane']['genuinely_fresh_empirical_evidence_required'] is True
 
 
-def test_fresh_taxon_holdout_raw_sources_are_pinned_but_confirmation_execution_stays_closed():
+def test_fresh_taxon_holdout_sources_and_exact_confirmation_identity_are_pinned():
     c = json.loads(SOURCE_GATE.read_text())
     assert c['purpose'] == 'product_a_v2_7_1_fresh_empirical_source_gate'
-    assert c['gate_state'] == 'raw_sources_pinned_exact_confirmation_implementation_pending'
-    assert c['execution_allowed'] is False
+    assert c['gate_state'] == 'ready_for_one_shot_fresh_confirmation'
+    assert c['execution_allowed'] is True
+    assert c['execution_identity_frozen_before_confirmation_outcome'] is True
 
     fresh = c['freshness_design']
     assert fresh['independence_axis'] == 'taxon_holdout_not_temporal'
@@ -83,9 +84,9 @@ def test_fresh_taxon_holdout_raw_sources_are_pinned_but_confirmation_execution_s
     assert required['target_group_file_sha256'] == '4d6b1830c5750a2339258219bfde24f9e20435c69aaf27eca20c72f59c15a66a'
     assert required['target_group_query_sha256'] == '80864205a643f65e9a42b4a5c282423737d207fb186283a6296e5063f630142e'
     assert required['target_group_excluded_taxa_sha256'] == sha256(PANEL)
-    assert required['implementation_sha'] is None
-    assert required['frozen_ref'] is None
-    assert required['workflow_file'] is None
+    assert required['implementation_sha'] == '1f158006c0b5dbdd93af70632464727405ababfe'
+    assert required['frozen_ref'] == 'frozen/product-a-v2-7-1-fresh-confirmation-1f158006'
+    assert required['workflow_file'] == 'product-a-v2-7-1-fresh-confirmation.yml'
 
     constraints = c['scientific_constraints']
     assert constraints['ordinary_prediction_metrics_are_guardrails_not_tuning_target'] is True
