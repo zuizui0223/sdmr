@@ -23,6 +23,13 @@ PURPOSE = "product_a_v2_7_1_fresh_part_pretruth_freeze"
 WORKER_PURPOSE = "product_a_v2_7_1_fresh_model_pool_worker"
 
 
+def _read_csv_or_empty(path: Path) -> pd.DataFrame:
+    try:
+        return pd.read_csv(path)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+
 def _worker_contracts(root: Path) -> tuple[list[dict], dict[str, Path]]:
     contracts: list[dict] = []
     roots: dict[str, Path] = {}
@@ -37,7 +44,8 @@ def _worker_contracts(root: Path) -> tuple[list[dict], dict[str, Path]]:
         taxon = str(payload.get("taxon", ""))
         if not taxon or taxon in roots:
             raise ValueError("fresh pretruth worker taxon missing or duplicated")
-        contracts.append(payload); roots[taxon] = path.parent
+        contracts.append(payload)
+        roots[taxon] = path.parent
     if len(contracts) != 12:
         raise ValueError(f"fresh part requires exactly 12 taxon workers, found {len(contracts)}")
     if len(roots) != 12:
@@ -104,8 +112,8 @@ def run_fresh_pretruth(
     base_frames, knockout_frames = [], []
     for taxon in sorted(roots):
         root = roots[taxon]
-        base = pd.read_csv(root / "base_fold_metrics.csv")
-        knockout = pd.read_csv(root / "knockout_fold_metrics.csv")
+        base = _read_csv_or_empty(root / "base_fold_metrics.csv")
+        knockout = _read_csv_or_empty(root / "knockout_fold_metrics.csv")
         if base.empty:
             return _write_unavailable(out, contract=contract, workers=workers, reason=f"{taxon}:base_metrics_empty")
         base_frames.append(base)
@@ -140,7 +148,10 @@ def run_fresh_pretruth(
         return _write_unavailable(out, contract=contract, workers=workers, reason=f"auc_comparator:{exc}")
 
     domains = tuple(str(x) for x in contract["fixed_design"]["process_domains"])
-    process_status, knockout_routes = _process_statuses(knockout, taxa=taxa, domains=domains, adequacy=adequacy)
+    try:
+        process_status, knockout_routes = _process_statuses(knockout, taxa=taxa, domains=domains, adequacy=adequacy)
+    except (KeyError, ValueError) as exc:
+        return _write_unavailable(out, contract=contract, workers=workers, reason=f"process_status:{exc}")
     if len(process_status) != 12 * len(domains):
         return _write_unavailable(out, contract=contract, workers=workers, reason="process_status_denominator_incomplete")
 
