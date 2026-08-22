@@ -1,0 +1,180 @@
+name: product-a-v2-7-1-fresh-presealed-shard-build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-presealed-shard-build-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Require terminal primary model-pool failure and successful parity
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+
+          c=json.load(open('configs/product_a_v2_7_1_fresh_presealed_shard_build_contract.json'))
+          e=c['execution_identity']; primary=c['primary_source']; parity=c['parity_source']
+          if e.get('execution_allowed') is not True:
+              raise SystemExit('presealed shard build gate is closed')
+          if e.get('implementation_sha')!=os.environ['GITHUB_SHA'] or e.get('frozen_ref')!=os.environ['GITHUB_REF_NAME']:
+              raise SystemExit('presealed shard build exact execution identity mismatch')
+          if e.get('workflow_file')!='product-a-v2-7-1-fresh-presealed-shard-build.yml':
+              raise SystemExit('presealed shard build workflow identity mismatch')
+          if parity.get('parity_passed') is not True or not int(parity.get('artifact_id',0)) or not str(parity.get('artifact_digest','')).startswith('sha256:'):
+              raise SystemExit('successful sharded parity has not been pinned')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v271-presealed-shard-build'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(run_id):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+          def jobs(run_id):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run_id}/jobs?filter=latest&per_page=100&page={page}')
+                  batch=data.get('jobs',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return out
+
+          run=get(f"{api}/actions/runs/{primary['run_id']}")
+          if run.get('head_sha')!=primary['implementation_sha'] or run.get('head_branch')!=primary['frozen_ref']:
+              raise SystemExit('primary source identity changed')
+          failed=[j for j in jobs(primary['run_id']) if str(j.get('name','')).startswith('model-pool (') and j.get('status')=='completed' and j.get('conclusion') in {'failure','cancelled','timed_out'}]
+          if not failed:
+              raise SystemExit('no terminal primary model-pool technical failure exists')
+          names=[a['name'] for a in artifacts(primary['run_id'])]
+          if sum(n.startswith('v271-fresh-part-') for n in names)!=6:
+              raise SystemExit('primary does not have exactly six presealed materialization parts')
+          for prefix in ('v271-fresh-pretruth-','v271-fresh-final-','v271-fresh-audit-'):
+              if any(n.startswith(prefix) for n in names):
+                  raise SystemExit(f'primary crossed presealed shard-build boundary: {prefix}')
+          if 'product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision' in names:
+              raise SystemExit('primary already produced a decision artifact')
+
+          prun=get(f"{api}/actions/runs/{int(parity['workflow_run_id'])}")
+          if prun.get('head_sha')!=parity['implementation_sha'] or prun.get('head_branch')!=parity['frozen_ref'] or prun.get('status')!='completed' or prun.get('conclusion')!='success':
+              raise SystemExit('pinned parity run identity or status changed')
+          matches=[a for a in artifacts(int(parity['workflow_run_id'])) if int(a['id'])==int(parity['artifact_id'])]
+          if len(matches)!=1 or matches[0].get('name')!='product-a-v2-7-1-fresh-sharded-parity' or matches[0].get('digest')!=parity['artifact_digest']:
+              raise SystemExit('pinned parity artifact identity changed')
+          print(json.dumps({'terminal_failed_model_pool_jobs':len(failed),'sealed_blind':True},indent=2))
+          PY
+
+  shard:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 48
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        M: [buffer_150km, buffer_300km, buffer_500km]
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - name: Build one exact sealed-blind M shard
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --M ${{ matrix.M }} \
+            --output-dir shard
+          python - <<'PY'
+          import json
+          c=json.load(open('shard/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False
+          if c.get('available'):
+              assert c['transport_shard_only'] is True
+              assert c['scientific_semantics_changed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-recovery-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-${{ matrix.M }}
+          path: shard/
+          retention-days: 30
+
+  receipt:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record sealed-blind shard-build boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_presealed_shard_recovery_build_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'n_expected_M_shards':216,
+              'all_taxon_part_M_shards_rerun_uniformly':True,
+              'primary_worker_outputs_reused':False,
+              'sealed_environment_read':False,
+              'pretruth_performed':False,
+              'final_fit_performed':False,
+              'sealed_audit_performed':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('receipt').mkdir()
+          Path('receipt/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-presealed-shard-recovery-build-receipt
+          path: receipt/
+          retention-days: 90
