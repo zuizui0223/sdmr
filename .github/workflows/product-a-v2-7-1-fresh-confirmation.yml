@@ -1,0 +1,397 @@
+name: product-a-v2-7-1-fresh-confirmation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-confirmation-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - name: Verify exact frozen execution and source gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          from sdmr.v2_7_1_fresh_contract import (
+              load_fresh_eligibility_thresholds,
+              load_fresh_source_receipt,
+              load_v2_7_1_fresh_confirmation_contract,
+          )
+          repo=os.environ['GITHUB_REPOSITORY']
+          req=Request(
+              f'https://raw.githubusercontent.com/{repo}/main/configs/product_a_v2_7_1_fresh_empirical_source_gate.json',
+              headers={'Authorization':f'Bearer {os.environ["GH_TOKEN"]}','User-Agent':'sdmr-v271-fresh-confirmation'},
+          )
+          with urlopen(req,timeout=60) as r: gate=json.load(r)
+          required=gate['required_before_execution']
+          if gate.get('gate_state')!='ready_for_one_shot_fresh_confirmation' or gate.get('execution_allowed') is not True:
+              raise SystemExit('fresh confirmation source gate is not open')
+          if required.get('implementation_sha')!=os.environ['GITHUB_SHA']:
+              raise SystemExit('fresh confirmation implementation SHA differs from frozen gate')
+          if required.get('frozen_ref')!=os.environ['GITHUB_REF_NAME']:
+              raise SystemExit('fresh confirmation ref differs from frozen gate')
+          if required.get('workflow_file')!='product-a-v2-7-1-fresh-confirmation.yml':
+              raise SystemExit('fresh confirmation workflow identity differs from frozen gate')
+          c=load_v2_7_1_fresh_confirmation_contract('configs/product_a_v2_7_1_fresh_confirmation_contract.json')
+          r=load_fresh_source_receipt('configs/product_a_v2_7_1_fresh_raw_source_receipt.json')
+          t=load_fresh_eligibility_thresholds('configs/product_a_v2_7_1_fresh_confirmation_contract.json')
+          if required['focal_file_sha256']!=r['focal']['file_sha256'] or required['target_group_file_sha256']!=r['target_group']['file_sha256']:
+              raise SystemExit('main source gate differs from frozen source receipt')
+          if t!={'minimum_occurrences':80,'minimum_unique_cells':50}:
+              raise SystemExit('fresh eligibility threshold contract changed')
+          print('fresh one-shot gate passed:', os.environ['GITHUB_SHA'], os.environ['GITHUB_REF_NAME'])
+          print('parts:', c['fixed_design']['n_confirmation_parts'])
+          PY
+          python -m pytest -q \
+            tests/test_product_a_v2_7_1_fresh_confirmation_contract.py \
+            tests/test_product_a_v2_7_1_fresh_runtime.py
+
+  raw-source:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32477393089
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v2-7-1-fresh-focal-source-2026-08-01
+          path: raw/focal_bundle
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32477393089
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v2-7-1-fresh-target-source-2026-08-01
+          path: raw/target_bundle
+      - name: Verify fresh raw parquet fingerprints
+        run: |
+          set -euo pipefail
+          cp raw/focal_bundle/focal.parquet raw/focal.parquet
+          cp raw/target_bundle/target_group.parquet raw/target_group.parquet
+          echo '96810e03ce557faad28d8b384d2e2e92ce348b405790f52ffff75ab5bd56c0a0  raw/focal.parquet' | sha256sum -c -
+          echo '4d6b1830c5750a2339258219bfde24f9e20435c69aaf27eca20c72f59c15a66a  raw/target_group.parquet' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-raw-source-pair
+          path: |
+            raw/focal.parquet
+            raw/target_group.parquet
+          retention-days: 30
+          compression-level: 1
+
+  materialize:
+    needs: raw-source
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-raw-source-pair
+          path: raw
+      - name: Seal before M and extract only model-pool CHELSA
+        run: |
+          python -m sdmr.v2_7_1_fresh_materialize \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --source-receipt configs/product_a_v2_7_1_fresh_raw_source_receipt.json \
+            --focal raw/focal.parquet \
+            --target raw/target_group.parquet \
+            --taxa configs/product_a_v2_7_1_fresh_confirmation_taxa.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --seed ${{ matrix.seed }} \
+            --sealed-fraction ${{ matrix.sealed_fraction }} \
+            --output-dir part
+          python - <<'PY'
+          import json
+          c=json.load(open('part/contract.json'))
+          assert c['n_taxa']==12
+          assert c['outer_sealed_before_M'] is True
+          assert c['M_built_from_model_pool_only'] is True
+          assert c['sealed_occurrence_raster_values_extracted'] is False
+          assert c['sealed_background_raster_values_extracted'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part/
+          retention-days: 30
+          compression-level: 1
+
+  model-pool:
+    needs: materialize
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - name: Build evidence-balanced folds and evaluate frozen procedure library
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_worker \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_occurrence_used_for_selection'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False if c.get('available') else True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 30
+
+  pretruth-freeze:
+    needs: model-pool
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze candidate set representatives and process statuses
+        run: |
+          python -m sdmr.v2_7_1_fresh_pretruth \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --worker-root workers \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['n_taxa']==12
+          assert c['sealed_occurrence_environment_read'] is False
+          if c['available']:
+              assert c['sealed_audit_authorized'] is True
+          else:
+              assert c['sealed_audit_authorized'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 30
+
+  final-fit:
+    needs: pretruth-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize frozen ecological and AUC representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_final_fit \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --part-dir part \
+            --worker-dir worker \
+            --pretruth-dir pretruth \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --output-dir final
+          python - <<'PY'
+          import json
+          c=json.load(open('final/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          if c['available']:
+              assert c['final_models_serialized_before_sealed_audit'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 30
+
+  sealed-audit:
+    needs: final-fit
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open sealed CHELSA once only when pretruth is available
+        run: |
+          python -m sdmr.v2_7_1_fresh_sealed_audit \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          if c['available']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          else:
+              assert c['sealed_occurrence_environment_read'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-audit-*
+          path: audits
+      - name: Apply the frozen six-part fresh taxon-holdout decision
+        run: |
+          python -m sdmr.v2_7_1_fresh_aggregate \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --audit-root audits \
+            --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('decision/contract.json'))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_confirmation_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'decision':c['decision'],
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'post_outcome_retuning_allowed':False,
+          }
+          Path('decision/execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision
+          path: decision/
+          retention-days: 90
