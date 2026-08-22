@@ -2,7 +2,10 @@ import json
 from pathlib import Path
 
 CONTRACT = Path('configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json')
+EXECUTION = Path('configs/product_a_v2_7_1_fresh_confirmation_continuation_execution_contract.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-1-fresh-confirmation-continuation.yml')
+LAUNCHER = Path('.github/workflows/product-a-v2-7-1-fresh-confirmation-continuation-pr-launch.yml')
+TRIGGER = Path('configs/product_a_v2_7_1_fresh_confirmation_continuation_pr_trigger.txt')
 
 
 def test_continuation_is_preoutcome_transport_fix_not_scientific_redesign():
@@ -34,6 +37,33 @@ def test_continuation_is_preoutcome_transport_fix_not_scientific_redesign():
     assert activation['activation_may_not_depend_on_scientific_metric_values'] is True
     assert c['claim_boundary']['scientific_promotion_allowed_by_continuation'] is False
     assert c['claim_boundary']['product_b_unblocked'] is False
+
+
+def test_continuation_execution_identity_is_frozen_and_launcher_is_dormant():
+    e = json.loads(EXECUTION.read_text())
+    assert e['purpose'] == 'product_a_v2_7_1_fresh_confirmation_continuation_execution_contract'
+    assert e['execution_identity_frozen_before_any_fresh_sealed_audit_artifact'] is True
+    assert e['implementation_sha'] == '08edc61eaee19461cee440e8e8cfceb769e7f3f6'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-1-fresh-confirmation-continuation-08edc61e'
+    assert e['workflow_file'] == 'product-a-v2-7-1-fresh-confirmation-continuation.yml'
+    assert e['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
+    assert e['activation']['primary_completed_non_success_required'] is True
+    assert e['activation']['primary_decision_artifact_absent_required'] is True
+    assert e['activation']['all_6_primary_part_artifacts_required'] is True
+    assert e['activation']['all_6_primary_pretruth_artifacts_required'] is True
+    assert e['activation']['all_72_primary_final_fit_artifacts_required'] is True
+    assert e['activation']['scientific_metric_values_may_select_continuation'] is False
+    assert e['scope']['rerun_all_six_sealed_audits'] is True
+    assert e['scope']['scientific_promotion_allowed'] is False
+    assert e['scope']['product_b_unblocked'] is False
+    assert LAUNCHER.exists()
+    assert not TRIGGER.exists()
+    launcher = LAUNCHER.read_text()
+    assert 'primary must complete non-success before continuation dispatch' in launcher
+    assert "count('v271-fresh-part-')!=6" in launcher
+    assert "count('v271-fresh-pretruth-')!=6" in launcher
+    assert "count('v271-fresh-final-')!=72" in launcher
+    assert "multiple frozen continuation runs exist" in launcher
 
 
 def test_continuation_workflow_accepts_both_fail_closed_unavailable_paths():
