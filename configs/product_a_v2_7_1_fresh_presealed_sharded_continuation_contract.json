@@ -1,0 +1,92 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_presealed_sharded_continuation_preoutcome_contract",
+  "contract_frozen_before_any_fresh_sealed_audit_artifact": true,
+  "new_scientific_thresholds": false,
+  "primary_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation.yml",
+    "sealed_audit_artifacts_observed_at_contract_freeze": 0,
+    "decision_artifacts_observed_at_contract_freeze": 0,
+    "pretruth_artifacts_observed_at_contract_freeze": 0,
+    "final_fit_artifacts_observed_at_contract_freeze": 0
+  },
+  "performance_diagnosis": {
+    "completed_worker_example": "seed2026082201_sealed0.30_taxon10",
+    "completed_worker_model_pool_compute_seconds": 8135,
+    "primary_worker_timeout_minutes": 360,
+    "multiple_primary_workers_observed_in_progress_beyond_five_hours": true,
+    "failure_class": "execution_granularity_timeout_risk_before_pretruth",
+    "scientific_failure": false
+  },
+  "continuation_scope": {
+    "reuse_primary_six_presealed_materialization_parts": true,
+    "reuse_primary_worker_outputs": false,
+    "rerun_all_72_taxon_part_workers": true,
+    "split_each_worker_into_exactly_three_M_transport_shards": true,
+    "n_M_shards": 216,
+    "M_specs": ["buffer_150km", "buffer_300km", "buffer_500km"],
+    "aggregate_three_M_shards_back_to_original_worker_contract": true,
+    "require_byte_identical_shared_partition_and_audit_ledgers_across_M_shards": true,
+    "rerun_pretruth_for_all_six_parts": true,
+    "rerun_all_72_final_fits": true,
+    "rerun_all_six_sealed_audits": true,
+    "reapply_same_frozen_six_part_decision": true,
+    "selective_repair_of_only_failed_primary_workers_allowed": false
+  },
+  "scientific_invariants": {
+    "fresh_taxon_panel_changed": false,
+    "split_seeds_or_sealed_fractions_changed": false,
+    "M_grid_changed": false,
+    "evidence_balanced_partition_changed": false,
+    "partition_seed_formula_changed": false,
+    "partition_or_audit_selection_uses_candidate_scores": false,
+    "audit_space_rule_changed": false,
+    "procedure_library_changed": false,
+    "prediction_adequacy_rule_changed": false,
+    "process_domains_changed": false,
+    "process_knockout_semantics_changed": false,
+    "pretruth_candidate_selection_changed": false,
+    "sealed_audit_metrics_changed": false,
+    "six_part_decision_rule_changed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false
+  },
+  "activation_rule": {
+    "primary_run_must_complete_non_success": true,
+    "primary_decision_artifact_must_be_absent": true,
+    "primary_pretruth_artifacts_must_be_absent": true,
+    "primary_sealed_audit_artifacts_must_be_absent": true,
+    "primary_exactly_six_materialization_parts_required": true,
+    "activation_may_not_depend_on_candidate_scores_or_scientific_metric_values": true,
+    "parity_gate_required_before_continuation_dispatch": true,
+    "execution_identity_must_be_frozen_before_continuation_dispatch": true
+  },
+  "parity_gate": {
+    "reference_primary_worker": {
+      "seed": 2026082201,
+      "sealed_fraction": 0.30,
+      "taxon_index": 10,
+      "artifact_name": "v271-fresh-worker-2026082201-0.30-taxon10",
+      "artifact_id": 9473775642
+    },
+    "required_comparison": "reconstructed_sharded_worker_matches_primary_reference_on_contract_identity_shared_ledgers_and_numeric_model_pool_outputs",
+    "scientific_outcome_read_allowed": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_file": "product-a-v2-7-1-fresh-presealed-sharded-continuation.yml",
+    "parity_workflow_file": "product-a-v2-7-1-fresh-sharded-parity.yml",
+    "execution_allowed": false
+  },
+  "claim_boundary": {
+    "scientific_promotion_allowed_by_continuation": false,
+    "product_b_unblocked": false,
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false,
+    "universal_process_claim_allowed": false
+  }
+}
