@@ -1,0 +1,96 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_post_shard_continuation_preoutcome_contract",
+  "contract_frozen_before_any_recovered_pretruth_or_sealed_outcome": true,
+  "new_scientific_thresholds": false,
+  "primary_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "terminal_model_pool_timeout_observed": true,
+    "pretruth_artifacts_observed_at_contract_freeze": 0,
+    "final_fit_artifacts_observed_at_contract_freeze": 0,
+    "sealed_audit_artifacts_observed_at_contract_freeze": 0,
+    "decision_artifacts_observed_at_contract_freeze": 0
+  },
+  "parity_source": {
+    "workflow_run_id": 32574696718,
+    "implementation_sha": "196291c56650809a7c90207a9b25148b8ec04a98",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-sharded-parity-196291c5",
+    "artifact_id": null,
+    "artifact_digest": null,
+    "parity_passed": null
+  },
+  "shard_build_source": {
+    "implementation_sha": "e4f407cfd3c9fc76804243f3e26613531474ff5e",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-presealed-shard-build-e4f407cf",
+    "workflow_file": "product-a-v2-7-1-fresh-presealed-shard-build.yml",
+    "workflow_run_id": null,
+    "receipt_artifact_name": "product-a-v2-7-1-fresh-presealed-shard-recovery-build-receipt",
+    "receipt_artifact_id": null,
+    "receipt_artifact_digest": null,
+    "required_M_shard_artifact_prefix": "v271-fresh-recovery-M-",
+    "required_M_shard_artifact_count": 216,
+    "sealed_environment_read": false,
+    "scientific_decision_generated": false
+  },
+  "continuation_scope": {
+    "consume_one_exact_shard_build_run_only": true,
+    "consume_primary_worker_outputs": false,
+    "aggregate_exactly_216_M_shards_into_72_workers": true,
+    "require_three_M_shards_per_taxon_part_cell": true,
+    "require_byte_identical_shared_partition_and_audit_ledgers_across_M_shards": true,
+    "freeze_exactly_six_pretruth_parts": true,
+    "fit_exactly_72_final_taxon_part_models_before_sealed_audit": true,
+    "open_exactly_six_sealed_audits_after_pretruth_and_final_fit": true,
+    "apply_same_frozen_six_part_decision": true,
+    "selective_shard_or_worker_repair_allowed": false
+  },
+  "scientific_invariants": {
+    "fresh_taxon_panel_changed": false,
+    "split_seeds_or_sealed_fractions_changed": false,
+    "M_grid_changed": false,
+    "evidence_balanced_partition_changed": false,
+    "partition_seed_formula_changed": false,
+    "audit_space_rule_changed": false,
+    "procedure_library_changed": false,
+    "prediction_adequacy_rule_changed": false,
+    "process_domains_changed": false,
+    "process_knockout_semantics_changed": false,
+    "pretruth_candidate_selection_changed": false,
+    "sealed_audit_metrics_changed": false,
+    "six_part_decision_rule_changed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false
+  },
+  "activation_rule": {
+    "successful_pinned_parity_required": true,
+    "successful_exact_216_shard_build_required": true,
+    "primary_pretruth_artifacts_must_be_absent": true,
+    "primary_final_fit_artifacts_must_be_absent": true,
+    "primary_sealed_audit_artifacts_must_be_absent": true,
+    "primary_decision_artifact_must_be_absent": true,
+    "activation_may_not_depend_on_candidate_scores_or_scientific_metric_values": true,
+    "exact_execution_identity_must_be_frozen_before_dispatch": true,
+    "promotion_source_gate_must_be_frozen_before_any_recovered_sealed_audit": true
+  },
+  "decision_artifact": {
+    "name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-post-shard-continuation",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "scientific_promotion_allowed_by_this_workflow": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_file": "product-a-v2-7-1-fresh-post-shard-continuation.yml",
+    "execution_allowed": false
+  },
+  "claim_boundary": {
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false,
+    "universal_process_claim_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}
