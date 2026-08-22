@@ -1,0 +1,57 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_confirmation_technical_continuation_preoutcome_contract",
+  "contract_frozen_before_any_fresh_sealed_audit_artifact": true,
+  "new_scientific_thresholds": false,
+  "primary_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation.yml",
+    "decision_artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision"
+  },
+  "preoutcome_bug": {
+    "stage": "sealed_audit_workflow_wrapper",
+    "description": "workflow assertion required sealed_occurrence_environment_read=false for every unavailable part even though the frozen sealed-audit module correctly allows fail-closed unavailable after an authorized sealed read when required ecological evidence is undefined",
+    "scientific_module_behavior_correct": true,
+    "workflow_wrapper_behavior_incomplete": true,
+    "sealed_audit_artifacts_observed_at_discovery": 0,
+    "decision_artifacts_observed_at_discovery": 0
+  },
+  "continuation_scope": {
+    "reuse_primary_raw_source_pair": false,
+    "rerun_materialization": false,
+    "rerun_model_pool": false,
+    "rerun_pretruth_selection": false,
+    "rerun_final_model_fitting": false,
+    "download_exact_primary_part_artifacts": true,
+    "download_exact_primary_pretruth_artifacts": true,
+    "download_exact_primary_final_model_artifacts": true,
+    "rerun_all_six_sealed_audits_not_selected_subset": true,
+    "reapply_same_frozen_six_part_decision": true,
+    "scientific_runtime_files_must_match_primary_source": true,
+    "candidate_reselection_allowed": false,
+    "threshold_retuning_allowed": false
+  },
+  "activation_rule": {
+    "primary_run_must_be_completed_non_success": true,
+    "primary_decision_artifact_must_be_absent": true,
+    "primary_six_part_artifacts_required": true,
+    "primary_six_pretruth_artifacts_required": true,
+    "primary_72_final_fit_artifacts_required": true,
+    "continuation_execution_identity_must_be_pinned_before_dispatch": true,
+    "activation_may_not_depend_on_scientific_metric_values": true
+  },
+  "corrected_unavailable_assertion": {
+    "presealed_unavailable_requires_sealed_environment_read_false": true,
+    "postsealed_unavailable_requires_sealed_environment_read_true": true,
+    "postsealed_unavailable_requires_undefined_sealed_ecological_evidence_marker": true,
+    "available_requires_pretruth_before_sealed_marker": true
+  },
+  "claim_boundary": {
+    "scientific_promotion_allowed_by_continuation": false,
+    "product_b_unblocked": false,
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "post_outcome_retuning_allowed": false
+  }
+}
