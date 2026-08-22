@@ -1,0 +1,138 @@
+name: product-a-v2-7-1-fresh-promotion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-promotion
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Select the single admissible fresh decision source without reading its decision value
+        id: fresh_source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          from sdmr.v2_7_1_fresh_promotion import load_fresh_promotion_contract
+
+          c=load_fresh_promotion_contract('configs/product_a_v2_7_1_fresh_promotion_contract.json')
+          primary=c['fresh_taxon_holdout_source']; continuation=c['technical_continuation_source']
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v271-fresh-promotion',
+          }
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(run_id):
+              result=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); result.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return result
+
+          run=get(f"{api}/actions/runs/{primary['run_id']}")
+          if run.get('head_sha')!=primary['implementation_sha'] or run.get('head_branch')!=primary['frozen_ref'] or run.get('event')!='workflow_dispatch':
+              raise SystemExit('primary fresh source identity mismatch')
+          primary_decisions=[a for a in artifacts(primary['run_id']) if a.get('name')==primary['artifact_name'] and not a.get('expired')]
+          if len(primary_decisions)>1:
+              raise SystemExit('multiple primary decision artifacts are forbidden')
+
+          runs=get(f"{api}/actions/workflows/{continuation['workflow_file']}/runs?event=workflow_dispatch&per_page=100").get('workflow_runs',[])
+          continuation_runs=[
+              r for r in runs
+              if r.get('head_sha')==continuation['implementation_sha']
+              and r.get('head_branch')==continuation['frozen_ref']
+              and r.get('event')=='workflow_dispatch'
+          ]
+          if len(continuation_runs)>1:
+              raise SystemExit('multiple frozen continuation runs are forbidden')
+          continuation_decisions=[]
+          if continuation_runs:
+              crun=continuation_runs[0]
+              continuation_decisions=[a for a in artifacts(crun['id']) if a.get('name')==continuation['artifact_name'] and not a.get('expired')]
+              if len(continuation_decisions)>1:
+                  raise SystemExit('multiple continuation decision artifacts are forbidden')
+
+          if primary_decisions:
+              if continuation_decisions:
+                  raise SystemExit('both primary and continuation decisions exist; promotion source is ambiguous')
+              selected_run=int(primary['run_id']); selected_name=primary['artifact_name']; selected_kind='primary'
+          else:
+              if run.get('status')!='completed' or run.get('conclusion')=='success':
+                  raise SystemExit('primary decision is absent but primary has not technically failed')
+              if len(continuation_runs)!=1:
+                  raise SystemExit('primary failed without decision and no single frozen continuation run exists')
+              crun=continuation_runs[0]
+              if crun.get('status')!='completed' or crun.get('conclusion')!='success' or len(continuation_decisions)!=1:
+                  raise SystemExit('frozen continuation has not produced one successful decision artifact')
+              selected_run=int(crun['id']); selected_name=continuation['artifact_name']; selected_kind='technical_continuation'
+
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write(f'run_id={selected_run}\n')
+              f.write(f'artifact_name={selected_name}\n')
+              f.write(f'source_kind={selected_kind}\n')
+          print(json.dumps({'source_kind':selected_kind,'run_id':selected_run,'artifact_name':selected_name},indent=2))
+          PY
+          python -m pytest -q \
+            tests/test_product_a_v2_7_1_fresh_promotion.py \
+            tests/test_product_a_v2_7_1_fresh_continuation_contract.py
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32251711573
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v2-6-fresh-validation-decision
+          path: known_truth
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.fresh_source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.fresh_source.outputs.artifact_name }}
+          path: fresh_empirical
+      - name: Apply only the predeclared promotion mapping
+        env:
+          EXPECTED_SOURCE: ${{ steps.fresh_source.outputs.source_kind }}
+        run: |
+          python -m sdmr.v2_7_1_fresh_promotion \
+            --contract configs/product_a_v2_7_1_fresh_promotion_contract.json \
+            --known-truth-dir known_truth \
+            --fresh-empirical-dir fresh_empirical \
+            --output-dir promotion
+          cat promotion/decision.csv
+          cat promotion/contract.json
+          python - <<'PY'
+          import json, os
+          c=json.load(open('promotion/contract.json'))
+          assert c['fresh_decision_source']==os.environ['EXPECTED_SOURCE']
+          assert c['product_b_empirical_use_unblocked'] is False
+          assert c['new_postoutcome_scientific_thresholds'] is False
+          assert c['threshold_relaxation_after_outcome'] is False
+          assert c['candidate_reselection_after_outcome'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-promotion-decision
+          path: promotion/
+          if-no-files-found: error
+          retention-days: 90

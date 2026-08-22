@@ -1,0 +1,34 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_confirmation_continuation_execution_contract",
+  "execution_identity_frozen_before_any_fresh_sealed_audit_artifact": true,
+  "implementation_sha": "08edc61eaee19461cee440e8e8cfceb769e7f3f6",
+  "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-continuation-08edc61e",
+  "workflow_file": "product-a-v2-7-1-fresh-confirmation-continuation.yml",
+  "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+  "continuation_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json",
+  "primary_run": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "decision_artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision"
+  },
+  "activation": {
+    "primary_completed_non_success_required": true,
+    "primary_decision_artifact_absent_required": true,
+    "all_6_primary_part_artifacts_required": true,
+    "all_6_primary_pretruth_artifacts_required": true,
+    "all_72_primary_final_fit_artifacts_required": true,
+    "scientific_metric_values_may_select_continuation": false
+  },
+  "scope": {
+    "rerun_all_six_sealed_audits": true,
+    "rerun_materialization": false,
+    "rerun_model_pool": false,
+    "rerun_pretruth": false,
+    "rerun_final_fit": false,
+    "candidate_reselection_allowed": false,
+    "threshold_retuning_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}

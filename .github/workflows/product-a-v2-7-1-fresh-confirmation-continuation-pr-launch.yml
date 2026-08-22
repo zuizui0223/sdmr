@@ -1,0 +1,114 @@
+name: product-a-v2-7-1-fresh-confirmation-continuation-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_7_1_fresh_confirmation_continuation_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch at most one frozen technical continuation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.request
+          from pathlib import Path
+
+          execution=json.load(open('configs/product_a_v2_7_1_fresh_confirmation_continuation_execution_contract.json'))
+          if execution.get('requires_single_workflow_dispatch_run_for_frozen_identity') is not True:
+              raise SystemExit('continuation execution is not one-shot')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v271-fresh-continuation-launcher',
+          }
+          def request(url,*,method='GET',payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  raw=r.read(); return json.loads(raw) if raw else None
+
+          primary=execution['primary_run']; run=request(f"{api}/actions/runs/{primary['run_id']}")
+          if run.get('status')!='completed' or run.get('conclusion')=='success':
+              raise SystemExit('primary must complete non-success before continuation dispatch')
+          if run.get('head_sha')!=primary['implementation_sha'] or run.get('head_branch')!=primary['frozen_ref']:
+              raise SystemExit('primary frozen identity mismatch')
+          artifacts=[]; page=1
+          while True:
+              data=request(f"{api}/actions/runs/{primary['run_id']}/artifacts?per_page=100&page={page}")
+              batch=data.get('artifacts',[]); artifacts.extend(batch)
+              if len(batch)<100: break
+              page+=1
+          names=[str(a.get('name','')) for a in artifacts]
+          def count(prefix): return sum(name.startswith(prefix) for name in names)
+          if names.count(primary['decision_artifact_name'])!=0:
+              raise SystemExit('primary decision exists; continuation forbidden')
+          if count('v271-fresh-part-')!=6 or count('v271-fresh-pretruth-')!=6 or count('v271-fresh-final-')!=72:
+              raise SystemExit('primary presealed artifacts incomplete; continuation forbidden')
+
+          def matches():
+              p=request(f"{api}/actions/workflows/{execution['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
+              return [
+                  r for r in p.get('workflow_runs',[])
+                  if str(r.get('head_sha'))==execution['implementation_sha']
+                  and str(r.get('head_branch'))==execution['frozen_ref']
+                  and str(r.get('event'))=='workflow_dispatch'
+              ]
+          runs=matches(); dispatched=False
+          if len(runs)>1:
+              raise SystemExit(f'multiple frozen continuation runs exist: {len(runs)}')
+          if not runs:
+              request(
+                  f"{api}/actions/workflows/{execution['workflow_file']}/dispatches",
+                  method='POST', payload={'ref':execution['frozen_ref']},
+              )
+              dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=matches()
+                  if runs: break
+          if len(runs)!=1:
+              raise SystemExit(f'expected exactly one frozen continuation run, found {len(runs)}')
+          launched=runs[0]; event=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_confirmation_continuation_launch_receipt',
+              'pull_request':int(event['pull_request']['number']),
+              'launcher_sha':os.environ['GITHUB_SHA'],
+              'primary_run_id':int(primary['run_id']),
+              'implementation_sha':execution['implementation_sha'],
+              'frozen_ref':execution['frozen_ref'],
+              'workflow_file':execution['workflow_file'],
+              'dispatched_now':dispatched,
+              'run_id':int(launched['id']),
+              'run_number':int(launched['run_number']),
+              'status':str(launched['status']),
+              'created_at':str(launched['created_at']),
+              'rerun_all_six_sealed_audits':True,
+              'scientific_thresholds_changed':False,
+              'candidate_reselection_allowed':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-confirmation-continuation-launch-receipt
+          path: launch/receipt.json
+          if-no-files-found: error
+          retention-days: 90

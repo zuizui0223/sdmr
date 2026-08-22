@@ -1,0 +1,98 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_promotion_preoutcome_contract",
+  "contract_frozen_before_fresh_sealed_outcome": true,
+  "new_postoutcome_scientific_thresholds": false,
+  "development_endpoint": {
+    "run_id": 32455011154,
+    "implementation_sha": "e93e93cc97551df3fa32a8dfb17bc813dd2cdf39",
+    "n_diagnostics": 72,
+    "n_audit_support_available": 70,
+    "n_improved_from_legacy_v2_7": 31,
+    "n_regressed_from_legacy_v2_7": 0,
+    "role": "development_endpoint_only_not_promotion_evidence"
+  },
+  "inherited_known_truth_source": {
+    "run_id": 32251711573,
+    "head_sha": "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9",
+    "artifact_id": 9364873176,
+    "artifact_digest": "sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba",
+    "artifact_name": "product-a-v2-6-fresh-validation-decision",
+    "expected_purpose": "product_a_v2_6_predeclared_fresh_validation_decision",
+    "required_decision": "v2_6_supported",
+    "role": "predecessor_method_known_truth_support_not_direct_validation_of_v2_7_1_partition"
+  },
+  "fresh_taxon_holdout_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation.yml",
+    "artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "required_decision": "empirical_confirmation_supported",
+    "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+    "independence_axis": "taxon_holdout_not_temporal",
+    "sealed_audit_artifacts_observed_before_contract": 0,
+    "decision_artifacts_observed_before_contract": 0
+  },
+  "technical_continuation_source": {
+    "implementation_sha": "08edc61eaee19461cee440e8e8cfceb769e7f3f6",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-continuation-08edc61e",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation-continuation.yml",
+    "artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-continuation",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "required_decision": "empirical_confirmation_supported",
+    "primary_run_id": 32552745281,
+    "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+    "continuation_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json",
+    "execution_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_execution_contract.json"
+  },
+  "fresh_decision_source_selection": {
+    "primary_decision_preferred_when_present": true,
+    "continuation_allowed_only_when_primary_completed_non_success_without_decision": true,
+    "continuation_receipt_must_verify_all_six_sealed_audits_rerun": true,
+    "source_selection_may_depend_on_scientific_decision_value": false,
+    "source_selection_may_depend_on_prediction_or_recovery_metrics": false,
+    "multiple_admissible_decision_sources_forbidden": true
+  },
+  "promotion_rule": {
+    "logic": "inherited_known_truth_supported_and_mechanically_selected_fresh_taxon_holdout_supported",
+    "requires_inherited_known_truth_support": true,
+    "requires_all_6_fresh_parts_available": true,
+    "requires_fresh_prediction_guardrail": true,
+    "requires_fresh_ecological_support": true,
+    "requires_fresh_process_reproducibility_support": true,
+    "requires_no_post_sealed_retuning": true,
+    "requires_no_post_outcome_candidate_reselection": true,
+    "requires_all_information_barriers": true,
+    "adds_no_new_metric_threshold": true
+  },
+  "state_mapping": {
+    "empirical_confirmation_supported": "product_a_v2_7_1_promoted",
+    "empirical_confirmation_not_supported": "product_a_v2_7_1_not_promoted",
+    "empirical_confirmation_unavailable": "product_a_v2_7_1_not_promoted"
+  },
+  "promoted_product_identity": {
+    "product": "Product-A-v2.7.1",
+    "target": "realized_environmental_niche_recovery_and_stability",
+    "selection_semantics": "prediction_adequacy_then_pareto_minimax_niche_recovery_with_process_knockout_audit",
+    "partition_semantics": "evidence_balanced_shared_occurrence_folds_across_150_300_500km_M",
+    "M_semantics": "150_300_500_km_sensitivity_never_optimized",
+    "process_semantics": "process_domain_not_individual_raster_importance",
+    "freshness_semantics": "taxon_holdout_across_12_predeclared_ecological_strata",
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false,
+    "universal_process_claim_allowed": false
+  },
+  "failure_semantics": {
+    "empirical_not_supported": "retain_negative_fresh_evidence_do_not_promote_and_do_not_retune",
+    "empirical_unavailable": "retain_unavailability_do_not_promote_and_require_new_predeclared_evidence_for_any_retry",
+    "threshold_relaxation_after_outcome_forbidden": true,
+    "candidate_reselection_after_outcome_forbidden": true
+  },
+  "product_b": {
+    "automatically_unblocked_by_product_a_promotion": false,
+    "separate_formal_unblock_gate_required": true,
+    "empirical_use_unblocked_by_this_contract": false
+  }
+}
