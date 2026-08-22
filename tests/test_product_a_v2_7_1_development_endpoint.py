@@ -4,6 +4,7 @@ from pathlib import Path
 
 ENDPOINT = Path('configs/product_a_v2_7_1_development_endpoint.json')
 SOURCE_GATE = Path('configs/product_a_v2_7_1_fresh_empirical_source_gate.json')
+SOURCE_RECEIPT = Path('configs/product_a_v2_7_1_fresh_raw_source_receipt.json')
 CONFIRMATION = Path('configs/product_a_v2_7_1_fresh_confirmation_contract.json')
 PANEL = Path('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv')
 
@@ -26,10 +27,7 @@ def test_v271_development_endpoint_is_frozen_without_promotion():
     assert c['diagnostic_result']['n_improved_from_legacy_v2_7'] == 31
     assert c['diagnostic_result']['n_regressed_from_legacy_v2_7'] == 0
     assert len(c['structural_abstentions']) == 2
-    assert {x['taxon'] for x in c['structural_abstentions']} == {
-        'Dryopteris filix-mas',
-        'Quercus robur',
-    }
+    assert {x['taxon'] for x in c['structural_abstentions']} == {'Dryopteris filix-mas', 'Quercus robur'}
     assert c['information_barrier']['sealed_environment_read'] is False
     assert c['information_barrier']['candidate_model_fitting_performed_in_diagnostic'] is False
     assert c['information_barrier']['scientific_promotion_allowed'] is False
@@ -38,10 +36,10 @@ def test_v271_development_endpoint_is_frozen_without_promotion():
     assert c['next_lane']['genuinely_fresh_empirical_evidence_required'] is True
 
 
-def test_fresh_taxon_holdout_source_gate_is_bound_but_still_fail_closed():
+def test_fresh_taxon_holdout_raw_sources_are_pinned_but_confirmation_execution_stays_closed():
     c = json.loads(SOURCE_GATE.read_text())
     assert c['purpose'] == 'product_a_v2_7_1_fresh_empirical_source_gate'
-    assert c['gate_state'] == 'blocked_until_raw_sources_and_exact_execution_identity_are_pinned'
+    assert c['gate_state'] == 'raw_sources_pinned_exact_confirmation_implementation_pending'
     assert c['execution_allowed'] is False
 
     fresh = c['freshness_design']
@@ -67,22 +65,27 @@ def test_fresh_taxon_holdout_source_gate_is_bound_but_still_fail_closed():
     assert design['sealed_fractions'] == [0.2, 0.3]
     assert design['n_confirmation_parts'] == 6
 
+    receipt = json.loads(SOURCE_RECEIPT.read_text())
+    assert receipt['workflow_run_id'] == 32477393089
+    assert receipt['workflow_conclusion'] == 'success'
+    assert receipt['receipt_artifact']['artifact_id'] == 9445363468
+    assert receipt['information_barrier']['environmental_values_read'] is False
+    assert receipt['information_barrier']['candidate_model_fitting_performed'] is False
+    assert receipt['information_barrier']['sealed_confirmation_outcomes_read'] is False
+
     required = c['required_before_execution']
-    for key in (
-        'new_focal_artifact_run_id',
-        'new_focal_artifact_name',
-        'focal_file_sha256',
-        'focal_query_sha256',
-        'new_target_group_artifact_run_id',
-        'new_target_group_artifact_name',
-        'target_group_file_sha256',
-        'target_group_query_sha256',
-        'implementation_sha',
-        'frozen_ref',
-        'workflow_file',
-    ):
-        assert required[key] is None
+    assert required['new_focal_artifact_run_id'] == 32477393089
+    assert required['new_focal_artifact_name'] == 'product-a-v2-7-1-fresh-focal-source-2026-08-01'
+    assert required['focal_file_sha256'] == '96810e03ce557faad28d8b384d2e2e92ce348b405790f52ffff75ab5bd56c0a0'
+    assert required['focal_query_sha256'] == '204080e6ca30cb9eafc7093de82d4e42bacefebd251f15fabb14686da02e1716'
+    assert required['new_target_group_artifact_run_id'] == 32477393089
+    assert required['new_target_group_artifact_name'] == 'product-a-v2-7-1-fresh-target-source-2026-08-01'
+    assert required['target_group_file_sha256'] == '4d6b1830c5750a2339258219bfde24f9e20435c69aaf27eca20c72f59c15a66a'
+    assert required['target_group_query_sha256'] == '80864205a643f65e9a42b4a5c282423737d207fb186283a6296e5063f630142e'
     assert required['target_group_excluded_taxa_sha256'] == sha256(PANEL)
+    assert required['implementation_sha'] is None
+    assert required['frozen_ref'] is None
+    assert required['workflow_file'] is None
 
     constraints = c['scientific_constraints']
     assert constraints['ordinary_prediction_metrics_are_guardrails_not_tuning_target'] is True

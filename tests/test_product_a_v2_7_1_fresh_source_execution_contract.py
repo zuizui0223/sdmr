@@ -6,6 +6,7 @@ CONTRACT = Path('configs/product_a_v2_7_1_fresh_source_execution_contract.json')
 PANEL = Path('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv')
 DECISION = Path('configs/product_a_v2_7_1_fresh_confirmation_contract.json')
 SOURCE_GATE = Path('configs/product_a_v2_7_1_fresh_empirical_source_gate.json')
+SOURCE_RECEIPT = Path('configs/product_a_v2_7_1_fresh_raw_source_receipt.json')
 
 
 def sha256(path: Path) -> str:
@@ -35,13 +36,19 @@ def test_fresh_raw_source_execution_is_exactly_pinned_and_non_scientific():
     assert scope['product_b_unblocked'] is False
 
 
-def test_empirical_confirmation_remains_blocked_while_raw_sources_are_acquired():
+def test_raw_sources_are_now_pinned_but_confirmation_identity_remains_blocked():
     c = json.loads(SOURCE_GATE.read_text())
+    r = json.loads(SOURCE_RECEIPT.read_text())
     assert c['execution_allowed'] is False
-    assert c['gate_state'] == 'blocked_until_raw_sources_and_exact_execution_identity_are_pinned'
+    assert c['gate_state'] == 'raw_sources_pinned_exact_confirmation_implementation_pending'
+    assert r['workflow_run_id'] == 32477393089
+    assert r['workflow_conclusion'] == 'success'
     required = c['required_before_execution']
-    assert required['focal_file_sha256'] is None
-    assert required['target_group_file_sha256'] is None
+    assert required['focal_file_sha256'] == r['focal']['file_sha256']
+    assert required['focal_query_sha256'] == r['focal']['query_sha256']
+    assert required['target_group_file_sha256'] == r['target_group']['file_sha256']
+    assert required['target_group_query_sha256'] == r['target_group']['query_sha256']
+    assert required['target_group_excluded_taxa_sha256'] == sha256(PANEL)
     assert required['implementation_sha'] is None
     assert required['frozen_ref'] is None
     assert required['workflow_file'] is None
