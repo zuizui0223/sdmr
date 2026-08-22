@@ -65,8 +65,8 @@
     "exact_execution_identity_required": true
   },
   "execution_identity": {
-    "implementation_sha": null,
-    "frozen_ref": null,
+    "implementation_sha": "e4f407cfd3c9fc76804243f3e26613531474ff5e",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-presealed-shard-build-e4f407cf",
     "workflow_file": "product-a-v2-7-1-fresh-presealed-shard-build.yml",
     "execution_allowed": false
   },
