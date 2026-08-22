@@ -1,0 +1,92 @@
+name: product-a-v2-7-1-fresh-promotion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-promotion
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Validate pre-outcome promotion rule and exact fresh source identity
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          from sdmr.v2_7_1_fresh_promotion import load_fresh_promotion_contract
+
+          c=load_fresh_promotion_contract('configs/product_a_v2_7_1_fresh_promotion_contract.json')
+          source=c['fresh_taxon_holdout_source']
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          req=Request(
+              f"https://api.github.com/repos/{repo}/actions/runs/{source['run_id']}",
+              headers={
+                  'Authorization':f'Bearer {token}',
+                  'Accept':'application/vnd.github+json',
+                  'X-GitHub-Api-Version':'2022-11-28',
+                  'User-Agent':'sdmr-v271-fresh-promotion',
+              },
+          )
+          with urlopen(req,timeout=60) as r: run=json.load(r)
+          if str(run.get('head_sha'))!=source['implementation_sha']:
+              raise SystemExit('fresh promotion source implementation SHA mismatch')
+          if str(run.get('head_branch'))!=source['frozen_ref']:
+              raise SystemExit('fresh promotion source ref mismatch')
+          if str(run.get('event'))!='workflow_dispatch':
+              raise SystemExit('fresh promotion source is not the frozen workflow-dispatch run')
+          if str(run.get('name'))!='product-a-v2-7-1-fresh-confirmation':
+              raise SystemExit('fresh promotion source workflow name mismatch')
+          print('fresh promotion source identity verified:', source['run_id'])
+          PY
+          python -m pytest -q tests/test_product_a_v2_7_1_fresh_promotion.py
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32251711573
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v2-6-fresh-validation-decision
+          path: known_truth
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision
+          path: fresh_empirical
+      - name: Apply only the predeclared promotion mapping
+        run: |
+          python -m sdmr.v2_7_1_fresh_promotion \
+            --contract configs/product_a_v2_7_1_fresh_promotion_contract.json \
+            --known-truth-dir known_truth \
+            --fresh-empirical-dir fresh_empirical \
+            --output-dir promotion
+          cat promotion/decision.csv
+          cat promotion/contract.json
+          python - <<'PY'
+          import json
+          c=json.load(open('promotion/contract.json'))
+          assert c['product_b_empirical_use_unblocked'] is False
+          assert c['new_postoutcome_scientific_thresholds'] is False
+          assert c['threshold_relaxation_after_outcome'] is False
+          assert c['candidate_reselection_after_outcome'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-promotion-decision
+          path: promotion/
+          if-no-files-found: error
+          retention-days: 90
