@@ -12,15 +12,8 @@
     "n_confirmation_parts": 6,
     "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
     "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
-    "sealed_fractions": [
-      0.2,
-      0.3
-    ],
-    "split_seeds": [
-      2026082201,
-      2026082202,
-      2026082203
-    ]
+    "sealed_fractions": [0.2, 0.3],
+    "split_seeds": [2026082201, 2026082202, 2026082203]
   },
   "freshness_design": {
     "disjoint_from_current_pilot_12": true,
@@ -33,7 +26,7 @@
     "selection_result_path": "configs/product_a_v2_7_1_fresh_taxon_panel_selection_result.json",
     "temporal_independence_claim_allowed": false
   },
-  "gate_state": "blocked_until_raw_sources_and_exact_execution_identity_are_pinned",
+  "gate_state": "raw_sources_pinned_exact_confirmation_implementation_pending",
   "historical_catalog_transport": {
     "catalog_may_be_requeried_for_frozen_disjoint_taxon_panel": true,
     "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
@@ -44,18 +37,25 @@
     "snapshot_doi": "10.15468/dl.fs3btq"
   },
   "purpose": "product_a_v2_7_1_fresh_empirical_source_gate",
+  "raw_source_receipt": {
+    "path": "configs/product_a_v2_7_1_fresh_raw_source_receipt.json",
+    "workflow_run_id": 32477393089,
+    "workflow_conclusion": "success",
+    "receipt_artifact_id": 9445363468,
+    "receipt_artifact_digest": "sha256:fe5d12bd9861c8380ebf48c21d81a07cbceb18ce4852bed7fe1df9e2c248da3d"
+  },
   "required_before_execution": {
-    "focal_file_sha256": null,
-    "focal_query_sha256": null,
+    "focal_file_sha256": "96810e03ce557faad28d8b384d2e2e92ce348b405790f52ffff75ab5bd56c0a0",
+    "focal_query_sha256": "204080e6ca30cb9eafc7093de82d4e42bacefebd251f15fabb14686da02e1716",
     "frozen_ref": null,
     "implementation_sha": null,
-    "new_focal_artifact_name": null,
-    "new_focal_artifact_run_id": null,
-    "new_target_group_artifact_name": null,
-    "new_target_group_artifact_run_id": null,
+    "new_focal_artifact_name": "product-a-v2-7-1-fresh-focal-source-2026-08-01",
+    "new_focal_artifact_run_id": 32477393089,
+    "new_target_group_artifact_name": "product-a-v2-7-1-fresh-target-source-2026-08-01",
+    "new_target_group_artifact_run_id": 32477393089,
     "target_group_excluded_taxa_sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
-    "target_group_file_sha256": null,
-    "target_group_query_sha256": null,
+    "target_group_file_sha256": "4d6b1830c5750a2339258219bfde24f9e20435c69aaf27eca20c72f59c15a66a",
+    "target_group_query_sha256": "80864205a643f65e9a42b4a5c282423737d207fb186283a6296e5063f630142e",
     "workflow_file": null
   },
   "scientific_constraints": {
