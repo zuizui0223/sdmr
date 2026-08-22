@@ -34,8 +34,28 @@
     "sealed_audit_artifacts_observed_before_contract": 0,
     "decision_artifacts_observed_before_contract": 0
   },
+  "technical_continuation_source": {
+    "implementation_sha": "08edc61eaee19461cee440e8e8cfceb769e7f3f6",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-continuation-08edc61e",
+    "workflow_file": "product-a-v2-7-1-fresh-confirmation-continuation.yml",
+    "artifact_name": "product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-continuation",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "required_decision": "empirical_confirmation_supported",
+    "primary_run_id": 32552745281,
+    "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+    "continuation_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_contract.json",
+    "execution_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_continuation_execution_contract.json"
+  },
+  "fresh_decision_source_selection": {
+    "primary_decision_preferred_when_present": true,
+    "continuation_allowed_only_when_primary_completed_non_success_without_decision": true,
+    "continuation_receipt_must_verify_all_six_sealed_audits_rerun": true,
+    "source_selection_may_depend_on_scientific_decision_value": false,
+    "source_selection_may_depend_on_prediction_or_recovery_metrics": false,
+    "multiple_admissible_decision_sources_forbidden": true
+  },
   "promotion_rule": {
-    "logic": "inherited_known_truth_supported_and_exact_fresh_taxon_holdout_supported",
+    "logic": "inherited_known_truth_supported_and_mechanically_selected_fresh_taxon_holdout_supported",
     "requires_inherited_known_truth_support": true,
     "requires_all_6_fresh_parts_available": true,
     "requires_fresh_prediction_guardrail": true,
