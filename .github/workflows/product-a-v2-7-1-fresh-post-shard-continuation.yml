@@ -1,0 +1,342 @@
+name: product-a-v2-7-1-fresh-post-shard-continuation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-post-shard-continuation-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Require one exact successful shard build and preserved primary barrier
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+
+          c=json.load(open('configs/product_a_v2_7_1_fresh_post_shard_continuation_contract.json'))
+          e=c['execution_identity']; p=c['primary_source']; s=c['shard_build_source']; parity=c['parity_source']
+          if e.get('execution_allowed') is not True:
+              raise SystemExit('post-shard continuation gate is closed')
+          if e.get('implementation_sha')!=os.environ['GITHUB_SHA'] or e.get('frozen_ref')!=os.environ['GITHUB_REF_NAME']:
+              raise SystemExit('post-shard continuation exact execution identity mismatch')
+          if parity.get('parity_passed') is not True or not int(parity.get('artifact_id',0)) or not str(parity.get('artifact_digest','')).startswith('sha256:'):
+              raise SystemExit('successful parity is not pinned')
+          run_id=int(s.get('workflow_run_id',0)); receipt_id=int(s.get('receipt_artifact_id',0)); receipt_digest=str(s.get('receipt_artifact_digest',''))
+          if run_id<=0 or receipt_id<=0 or not receipt_digest.startswith('sha256:'):
+              raise SystemExit('exact shard-build evidence is not pinned')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v271-post-shard-continuation'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(run):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+
+          prun=get(f"{api}/actions/runs/{p['run_id']}")
+          if prun.get('head_sha')!=p['implementation_sha'] or prun.get('head_branch')!=p['frozen_ref']:
+              raise SystemExit('primary source identity changed')
+          pnames=[a['name'] for a in artifacts(p['run_id'])]
+          for prefix in ('v271-fresh-pretruth-','v271-fresh-final-','v271-fresh-audit-'):
+              if any(n.startswith(prefix) for n in pnames):
+                  raise SystemExit(f'primary crossed recovered continuation boundary: {prefix}')
+          if 'product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision' in pnames:
+              raise SystemExit('primary already produced a decision')
+
+          brun=get(f'{api}/actions/runs/{run_id}')
+          if brun.get('head_sha')!=s['implementation_sha'] or brun.get('head_branch')!=s['frozen_ref'] or brun.get('status')!='completed' or brun.get('conclusion')!='success':
+              raise SystemExit('shard-build source identity/status changed')
+          arts=artifacts(run_id)
+          shard=[a for a in arts if a.get('name','').startswith(s['required_M_shard_artifact_prefix'])]
+          if len(shard)!=int(s['required_M_shard_artifact_count']):
+              raise SystemExit(f'exact shard-build denominator changed: {len(shard)}')
+          rec=[a for a in arts if int(a['id'])==receipt_id]
+          if len(rec)!=1 or rec[0].get('name')!=s['receipt_artifact_name'] or rec[0].get('digest')!=receipt_digest:
+              raise SystemExit('shard-build receipt identity changed')
+          print(json.dumps({'shard_build_run_id':run_id,'n_M_shards':len(shard),'sealed_outcome_read':False},indent=2))
+          PY
+          python -m pytest -q tests/test_product_a_v2_7_1_fresh_post_shard_continuation.py
+
+  aggregate-worker:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - name: Download exactly three M shards from the pinned build run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID=$(python - <<'PY'
+          import json
+          print(json.load(open('configs/product_a_v2_7_1_fresh_post_shard_continuation_contract.json'))['shard_build_source']['workflow_run_id'])
+          PY
+          )
+          gh run download "$RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern 'v271-fresh-recovery-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-*' \
+            --dir shards
+      - name: Reconstruct the original v2.7.1 worker contract
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard_aggregate \
+            --shard-root shards \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          if c.get('available'):
+              assert c['assembled_from_three_M_transport_shards'] is True
+              assert c['scientific_semantics_changed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-postshard-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 30
+
+  pretruth-freeze:
+    needs: aggregate-worker
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-postshard-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze unchanged candidate representatives and process statuses
+        run: |
+          python -m sdmr.v2_7_1_fresh_pretruth \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --worker-root workers \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['n_taxa']==12
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_audit_authorized'] is bool(c['available'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-postshard-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 30
+
+  final-fit:
+    needs: pretruth-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-postshard-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-postshard-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize unchanged representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_final_fit \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --part-dir part \
+            --worker-dir worker \
+            --pretruth-dir pretruth \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --output-dir final
+          python - <<'PY'
+          import json
+          c=json.load(open('final/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          if c['available']:
+              assert c['final_models_serialized_before_sealed_audit'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-postshard-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 30
+
+  sealed-audit:
+    needs: final-fit
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v271-fresh-postshard-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-postshard-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open sealed CHELSA once after frozen pretruth/final models
+        run: |
+          python -m sdmr.v2_7_1_fresh_sealed_audit \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          if c['available']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          elif c['sealed_occurrence_environment_read']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+              assert c['undefined_sealed_ecological_evidence_propagated_as_unavailable'] is True
+          else:
+              assert c['structural_or_audit_abstention_propagated_as_unavailable'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-postshard-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v271-fresh-postshard-audit-*
+          path: audits
+      - name: Apply unchanged frozen six-part decision
+        run: |
+          python -m sdmr.v2_7_1_fresh_aggregate \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --audit-root audits \
+            --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('decision/contract.json'))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_post_shard_continuation_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'decision':c['decision'],
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'post_outcome_retuning_allowed':False,
+              'source_is_one_exact_216_shard_build':True,
+          }
+          Path('decision/execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision-post-shard-continuation
+          path: decision/
+          retention-days: 90
