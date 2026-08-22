@@ -1,0 +1,5 @@
+purpose=trigger_only_product_a_v2_7_1_fresh_sharded_parity
+execution_gate_main_sha=62a055ac0aa55614c896bf24bfc40cc63cad1b5c
+implementation_sha=196291c56650809a7c90207a9b25148b8ec04a98
+frozen_ref=frozen/product-a-v2-7-1-fresh-sharded-parity-196291c5
+must_not_merge=true
