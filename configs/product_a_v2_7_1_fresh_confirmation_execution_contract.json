@@ -1,0 +1,24 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_confirmation_execution_contract",
+  "execution_identity_frozen_before_confirmation_outcome": true,
+  "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+  "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+  "workflow_file": "product-a-v2-7-1-fresh-confirmation.yml",
+  "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+  "source_gate_path": "configs/product_a_v2_7_1_fresh_empirical_source_gate.json",
+  "raw_source_receipt_path": "configs/product_a_v2_7_1_fresh_raw_source_receipt.json",
+  "raw_source_workflow_run_id": 32477393089,
+  "fresh_taxon_panel_path": "configs/product_a_v2_7_1_fresh_confirmation_taxa.csv",
+  "fresh_taxon_panel_sha256": "40364e45ce523abe346a32bf7fbbfa70f8aba152a4d9a89f845a58c05b64e554",
+  "decision_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+  "decision_contract_sha256": "32ed21aedb87bd796324d569b696b97fc58ddbec2ccd848723006f0ea7b1ba5b",
+  "scope": {
+    "fresh_taxon_holdout_empirical_confirmation_execution": true,
+    "taxon_panel_change_allowed": false,
+    "split_or_threshold_change_allowed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}
