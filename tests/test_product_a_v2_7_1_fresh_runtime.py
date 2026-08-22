@@ -32,7 +32,8 @@ def test_unavailable_worker_makes_pretruth_unavailable_without_sealed_access(tmp
     taxa = list(pd.read_csv(PANEL)['scientific_name'].astype(str))
     root = tmp_path / 'workers'
     for i, taxon in enumerate(taxa):
-        d = root / f'w{i}'; d.mkdir(parents=True)
+        d = root / f'w{i}'
+        d.mkdir(parents=True)
         payload = {
             'purpose': 'product_a_v2_7_1_fresh_model_pool_worker',
             'available': i != 3,
@@ -56,24 +57,30 @@ def test_unavailable_worker_makes_pretruth_unavailable_without_sealed_access(tmp
     assert set(status['status']) == {'unavailable'}
 
 
-def test_six_unavailable_parts_produce_unavailable_decision_without_promotion(tmp_path):
+def test_unavailable_parts_before_or_after_sealed_read_force_unavailable_decision(tmp_path):
     taxa = list(pd.read_csv(PANEL)['scientific_name'].astype(str))
     domains = ['thermal', 'water', 'seasonality_phenology', 'energy_productivity', 'snow', 'wind']
     root = tmp_path / 'audits'
     parts = [(seed, fraction) for seed in (2026082201, 2026082202, 2026082203) for fraction in (0.20, 0.30)]
     for j, (seed, fraction) in enumerate(parts):
-        d = root / f'p{j}'; d.mkdir(parents=True)
+        d = root / f'p{j}'
+        d.mkdir(parents=True)
         part_id = f'seed{seed}_sealed{fraction:.2f}'
+        opened = j == 0
         (d / 'contract.json').write_text(json.dumps({
             'purpose': 'product_a_v2_7_1_fresh_part_sealed_audit',
             'part_id': part_id,
             'available': False,
-            'sealed_occurrence_environment_read': False,
-            'sealed_occurrence_first_read_after_pretruth_freeze': False,
+            'sealed_occurrence_environment_read': opened,
+            'sealed_occurrence_first_read_after_pretruth_freeze': opened,
             'candidate_or_threshold_retuning_after_sealed_read': False,
+            'structural_or_audit_abstention_propagated_as_unavailable': not opened,
+            'undefined_sealed_ecological_evidence_propagated_as_unavailable': opened,
         }), encoding='utf-8')
         pd.DataFrame([{
-            'part_id': part_id, 'all_12_taxa': False, 'all_3_M_specs': False,
+            'part_id': part_id,
+            'all_12_taxa': False,
+            'all_3_M_specs': False,
             'mean_presence_rank_delta_vs_auc': np.nan,
             'ecologically_nondominated_vs_auc': False,
             'strict_ecological_improvement_vs_auc': False,
@@ -87,6 +94,8 @@ def test_six_unavailable_parts_produce_unavailable_decision_without_promotion(tm
     result = run_fresh_aggregate(contract_path=CONTRACT, audit_root=root, output_dir=out)
     assert result['decision'] == 'empirical_confirmation_unavailable'
     assert result['n_available_parts'] == 0
+    assert result['n_unavailable_before_sealed_read'] == 5
+    assert result['n_unavailable_after_sealed_read'] == 1
     assert result['scientific_promotion_allowed'] is False
     assert result['product_b_unblocked'] is False
     assert result['fresh_thresholds_retuned_after_sealed_read'] is False
