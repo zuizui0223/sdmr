@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .ecological_inference_certificate import audit_ecological_inference_certificates
+from .known_truth_certificate_experiment import audit_ecological_inference_certificates
 from .known_truth_replicated_observation_experiment import (
     run_known_truth_replicated_observation_experiment,
 )
@@ -154,6 +154,7 @@ def run_confirmation(output_dir: str | Path, *, contract_path: str | Path = CONT
         "seeds": list(cfg["seeds"]),
         "n_cases": int(cfg["n_cases"]),
         "model_random_state": random_state,
+        "selection_process_numpy_seed": int(cfg["selection_process_numpy_seed"]),
         "candidate_names": sorted(candidates),
         "hidden_truth_used_during_selection": False,
         "scientific_promotion_allowed": False,
