@@ -27,7 +27,7 @@ jobs:
       - run: python -m pip install -e '.[test]'
       - name: Run independent deterministic known-truth replicate
         run: |
-          python -m sdmr.v2_7_2_known_truth_confirmation run \
+          python -m sdmr.v2_7_2_seeded_entrypoint run \
             --output-dir result
       - uses: actions/upload-artifact@v4
         with:
