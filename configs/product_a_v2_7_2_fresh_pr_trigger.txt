@@ -1,0 +1,3 @@
+trigger one-shot Product-A v2.7.2 rank-2 empirical confirmation
+runtime=a5c2b4bb3b00581f7eea67327ac9f89074e914bb
+source_run=32631351934
