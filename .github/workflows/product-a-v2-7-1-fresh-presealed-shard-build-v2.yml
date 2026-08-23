@@ -1,0 +1,238 @@
+name: product-a-v2-7-1-fresh-presealed-shard-build-v2
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_wrapper_sha:
+        description: Exact wrapper commit SHA frozen before dispatch
+        required: true
+        type: string
+      expected_wrapper_ref:
+        description: Exact frozen wrapper ref
+        required: true
+        type: string
+      parity_artifact_id:
+        description: Successful parity-v2 artifact ID
+        required: true
+        type: string
+      parity_artifact_digest:
+        description: Successful parity-v2 artifact digest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-1-fresh-presealed-shard-build-v2-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Require exact wrapper, primary boundary, and successful parity v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_WRAPPER_SHA: ${{ inputs.expected_wrapper_sha }}
+          EXPECTED_WRAPPER_REF: ${{ inputs.expected_wrapper_ref }}
+          PARITY_ARTIFACT_ID: ${{ inputs.parity_artifact_id }}
+          PARITY_ARTIFACT_DIGEST: ${{ inputs.parity_artifact_digest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+
+          c=json.load(open('configs/product_a_v2_7_1_fresh_presealed_shard_build_v2_invariants.json'))
+          primary=c['primary_source']; parity=c['parity_source']; scope=c['build_scope']
+          if c.get('frozen_before_parity_v2_outcome_opened') is not True:
+              raise SystemExit('v2 shard-build invariants were not frozen pre-outcome')
+          if os.environ['GITHUB_SHA'] != os.environ['EXPECTED_WRAPPER_SHA']:
+              raise SystemExit('wrapper SHA differs from predeclared execution input')
+          if os.environ['GITHUB_REF_NAME'] != os.environ['EXPECTED_WRAPPER_REF']:
+              raise SystemExit('wrapper ref differs from predeclared execution input')
+          if scope.get('sealed_blind_only') is not True or scope.get('total_M_shards') != 216:
+              raise SystemExit('v2 shard-build scope changed')
+          if c['scientific_source'].get('execution_uses_exact_source_checkout') is not True:
+              raise SystemExit('scientific source is not exact-checkout bound')
+
+          artifact_id=int(os.environ['PARITY_ARTIFACT_ID'])
+          artifact_digest=str(os.environ['PARITY_ARTIFACT_DIGEST'])
+          if artifact_id <= 0 or not artifact_digest.startswith('sha256:'):
+              raise SystemExit('parity artifact identity is not pinned')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v271-presealed-shard-build-v2'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(run_id):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+          def jobs(run_id):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run_id}/jobs?filter=latest&per_page=100&page={page}')
+                  batch=data.get('jobs',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return out
+
+          prun=get(f"{api}/actions/runs/{int(primary['run_id'])}")
+          if prun.get('head_sha')!=primary['implementation_sha'] or prun.get('head_branch')!=primary['frozen_ref']:
+              raise SystemExit('primary source identity changed')
+          failed=[j for j in jobs(int(primary['run_id'])) if str(j.get('name','')).startswith('model-pool (') and j.get('status')=='completed' and j.get('conclusion') in {'failure','cancelled','timed_out'}]
+          if not failed:
+              raise SystemExit('no terminal primary model-pool technical failure exists')
+          pnames=[a['name'] for a in artifacts(int(primary['run_id']))]
+          if sum(n.startswith('v271-fresh-part-') for n in pnames)!=int(primary['required_materialization_parts']):
+              raise SystemExit('primary materialization denominator changed')
+          for prefix in ('v271-fresh-pretruth-','v271-fresh-final-','v271-fresh-audit-'):
+              if any(n.startswith(prefix) for n in pnames):
+                  raise SystemExit(f'primary crossed sealed-blind boundary: {prefix}')
+          if 'product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision' in pnames:
+              raise SystemExit('primary already produced a decision')
+
+          run_id=int(parity['workflow_run_id'])
+          run=get(f'{api}/actions/runs/{run_id}')
+          if run.get('head_sha')!=parity['implementation_sha'] or run.get('head_branch')!=parity['frozen_ref']:
+              raise SystemExit('parity v2 source identity changed')
+          if run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit('parity v2 did not complete successfully')
+          matches=[a for a in artifacts(run_id) if int(a['id'])==artifact_id]
+          if len(matches)!=1 or matches[0].get('name')!=parity['artifact_name'] or matches[0].get('digest')!=artifact_digest:
+              raise SystemExit('parity v2 artifact identity changed')
+          print(json.dumps({'wrapper_sha':os.environ['GITHUB_SHA'],'scientific_sha':c['scientific_source']['implementation_sha'],'parity_run_id':run_id,'terminal_failed_model_pool_jobs':len(failed),'sealed_blind':True},indent=2))
+          PY
+      - name: Download and verify parity-v2 receipt content
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download 32614371301 --repo "$GITHUB_REPOSITORY" --name product-a-v2-7-1-fresh-sharded-parity --dir parity
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/product_a_v2_7_1_fresh_presealed_shard_build_v2_invariants.json'))
+          r=json.load(open('parity/receipt.json'))
+          p=c['parity_source']
+          if r.get('purpose')!=p['expected_receipt_purpose'] or r.get('parity_passed') is not True:
+              raise SystemExit('parity-v2 receipt did not pass')
+          if r.get('sealed_occurrence_environment_read') is not False:
+              raise SystemExit('parity-v2 receipt opened sealed environment')
+          if r.get('fit_code_changed_for_parity') is not False or r.get('scientific_thresholds_changed_for_parity') is not False:
+              raise SystemExit('parity-v2 receipt changed scientific computation')
+          if float(r.get('floating_relative_tolerance'))!=float(p['floating_relative_tolerance']) or float(r.get('floating_absolute_tolerance'))!=float(p['floating_absolute_tolerance']):
+              raise SystemExit('parity-v2 tolerance differs from predeclared invariant')
+          if r.get('scientific_promotion_allowed') is not False or r.get('product_b_unblocked') is not False:
+              raise SystemExit('parity-v2 receipt crossed claim boundary')
+          PY
+
+  shard:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 48
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        M: [buffer_150km, buffer_300km, buffer_500km]
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: e4f407cfd3c9fc76804243f3e26613531474ff5e
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - name: Build one exact sealed-blind M shard from original scientific source
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          test "$(git rev-parse HEAD)" = "e4f407cfd3c9fc76804243f3e26613531474ff5e"
+          python -m sdmr.v2_7_1_fresh_model_pool_shard \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --M ${{ matrix.M }} \
+            --output-dir shard
+          python - <<'PY'
+          import json
+          c=json.load(open('shard/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False
+          if c.get('available'):
+              assert c['transport_shard_only'] is True
+              assert c['scientific_semantics_changed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v271-fresh-recovery-v2-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-${{ matrix.M }}
+          path: shard/
+          retention-days: 30
+
+  receipt:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record exact-source sealed-blind shard-build boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('configs/product_a_v2_7_1_fresh_presealed_shard_build_v2_invariants.json'))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_presealed_shard_recovery_build_v2_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'wrapper_sha':os.environ['GITHUB_SHA'],
+              'wrapper_ref':os.environ['GITHUB_REF_NAME'],
+              'scientific_implementation_sha':c['scientific_source']['implementation_sha'],
+              'n_expected_M_shards':216,
+              'all_taxon_part_M_shards_rerun_uniformly':True,
+              'primary_worker_outputs_reused':False,
+              'sealed_environment_read':False,
+              'pretruth_performed':False,
+              'final_fit_performed':False,
+              'sealed_audit_performed':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('receipt').mkdir()
+          Path('receipt/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-presealed-shard-recovery-build-v2-receipt
+          path: receipt/
+          retention-days: 90
