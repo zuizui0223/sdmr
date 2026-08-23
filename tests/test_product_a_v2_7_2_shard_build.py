@@ -10,8 +10,10 @@ TRIGGER=Path('configs/product_a_v2_7_2_shard_build_pr_trigger.txt')
 def test_deterministic_shard_build_gate_is_closed_until_probe_passes():
     c=json.loads(CONTRACT.read_text())
     assert c['execution_allowed'] is False
-    assert c['implementation_sha'] is None
+    assert 'implementation_sha' not in c
     assert c['frozen_ref'] is None
+    assert c['sha_resolution_policy']=='resolve_frozen_ref_tip_at_dispatch'
+    assert c['repository_stored_self_referential_sha_allowed'] is False
     assert c['random_state']==271
     assert c['probe_run_id'] is None
     assert c['probe_artifact_id'] is None
@@ -36,11 +38,15 @@ def test_deterministic_shard_build_reruns_full_denominator_with_seed():
     assert 'product-a-v2-7-2-determinism-probe' in text
 
 
-def test_deterministic_shard_build_launcher_is_one_shot_and_trigger_absent():
+def test_deterministic_shard_build_launcher_resolves_frozen_ref_and_trigger_absent():
     text=LAUNCHER.read_text()
     assert 'product_a_v2_7_2_shard_build_pr_trigger.txt' in text
     assert 'multiple exact deterministic shard-build runs exist' in text
+    assert "quote(c['frozen_ref'],safe='')" in text
+    assert "resolved_sha=str(branch.get('commit',{}).get('sha',''))" in text
+    assert "'expected_sha':resolved_sha" in text
     assert "'probe_artifact_digest':c['probe_artifact_digest']" in text
+    assert "c['implementation_sha']" not in text
     assert "'sealed_environment_read_allowed':False" in text
     assert "'product_b_unblocked':False" in text
     assert not TRIGGER.exists()
