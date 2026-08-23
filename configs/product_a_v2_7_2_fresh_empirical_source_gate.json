@@ -37,7 +37,7 @@
   "historical_catalog_transport": {
     "snapshot_date": "2026-08-01",
     "snapshot_doi": "10.15468/dl.fs3btq",
-    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3ce5c52a0a5fc6016f17050",
     "same_catalog_may_be_requeried_for_unused_rank2_taxa": true,
     "temporal_freshness_claim_allowed": false,
     "v2_7_1_rank1_focal_artifact_may_be_reused": false,
@@ -64,8 +64,8 @@
     "raw_source_receipt_artifact_name": "product-a-v2-7-2-fresh-raw-source-receipt",
     "source_execution_sha": "1de8a07cbbd17bdec80432d4d61c8882d46a0764",
     "source_execution_ref": "frozen/product-a-v2-7-2-fresh-source-1de8a07c",
-    "empirical_runtime_implementation_sha": "a5c2b4bb3b00581f7eea67327ac9f89074e914bb",
-    "empirical_runtime_frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb",
+    "empirical_runtime_implementation_sha": "5073d6c701f36fdae0bf5df9a1d42f1863d994a8",
+    "empirical_runtime_frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-5073d6c7",
     "workflow_file": "product-a-v2-7-2-fresh-confirmation.yml",
     "all_required_fields_must_be_pinned_before_execution_allowed_true": true
   },
