@@ -1,0 +1,4 @@
+trigger repaired one-shot Product-A v2.7.2 rank-2 empirical confirmation
+runtime=5073d6c701f36fdae0bf5df9a1d42f1863d994a8
+source_run=32631351934
+supersedes_failed_run=32637052553
