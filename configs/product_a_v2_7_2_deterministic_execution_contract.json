@@ -1,0 +1,68 @@
+{
+  "purpose": "product_a_v2_7_2_deterministic_execution_repair_contract",
+  "frozen_before_any_fresh_sealed_environment_or_confirmation_outcome": true,
+  "scientific_contract": {
+    "path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "git_blob_sha": "8b7c2680d2999e61c8672934724988bf0e217fe1",
+    "decision_rule_changed": false,
+    "candidate_library_changed": false,
+    "prediction_adequacy_changed": false,
+    "ecological_recovery_metrics_changed": false,
+    "process_domains_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "M_grid_changed": false,
+    "taxon_panel_changed": false,
+    "split_seeds_or_sealed_fractions_changed": false
+  },
+  "technical_diagnosis": {
+    "primary_fresh_run_id": 32552745281,
+    "first_sharded_parity_run_id": 32574696718,
+    "current_frozen_parity_v2_run_id": 32614371301,
+    "liblinear_random_state_was_explicitly_fixed": false,
+    "independent_process_recomputation_is_bitwise_reproducible_without_seed": false,
+    "old_parity_artifact_audit_found_reporting_metric_drift": true,
+    "old_parity_artifact_audit_found_forward_selection_path_order_drift": true,
+    "sealed_environment_used_for_diagnosis": false,
+    "diagnosis_used_candidate_or_sealed_scientific_outcome_to_choose_seed": false
+  },
+  "deterministic_execution": {
+    "environment_variable": "SDMR_LOGISTIC_RANDOM_STATE",
+    "random_state": 271,
+    "seed_choice_basis": "version_identifier_fixed_without_scientific_outcome_optimization",
+    "applies_to_every_logistic_fit_in_model_pool_final_fit_and_sealed_audit_preparation": true,
+    "model_family_changed": false,
+    "regularization_changed": false,
+    "response_complexity_changed": false,
+    "procedure_labels_changed": false
+  },
+  "evidence_reuse_boundary": {
+    "reuse_six_presealed_materialization_parts": true,
+    "reason": "roles_and_model_pool_environment_were_materialized_before_model_fitting_and_sealed_environment_values_remain_unopened",
+    "reuse_any_old_model_pool_worker_output": false,
+    "reuse_any_old_pretruth_output": false,
+    "reuse_any_old_final_fit_output": false,
+    "reuse_any_old_sealed_audit_output": false,
+    "rerun_all_72_taxon_part_cells_uniformly": true,
+    "rerun_all_3_M_specs_per_cell": true,
+    "selective_repair_allowed": false
+  },
+  "required_gates_before_sealed_open": {
+    "core_and_geo_tests_green": true,
+    "independent_process_determinism_probe_required": true,
+    "determinism_probe_uses_model_pool_only": true,
+    "determinism_probe_must_show_exact_scientific_output_identity": true,
+    "216_shard_build_must_complete": true,
+    "72_workers_must_reconstruct": true,
+    "six_pretruth_parts_must_freeze_before_final_fit": true,
+    "all_final_models_must_be_serialized_before_sealed_audit": true,
+    "no_threshold_or_candidate_reselection_after_probe": true
+  },
+  "claim_boundary": {
+    "current_fresh_panel_is_taxon_holdout_not_temporally_independent": true,
+    "fundamental_niche_claim_allowed": false,
+    "causal_driver_claim_allowed": false,
+    "scientific_promotion_allowed_by_technical_repair": false,
+    "product_b_unblocked": false
+  }
+}
