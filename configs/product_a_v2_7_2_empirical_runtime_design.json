@@ -1,0 +1,61 @@
+{
+  "purpose": "product_a_v2_7_2_primary_sharded_empirical_runtime_design",
+  "frozen_before_rank2_raw_source_or_empirical_model_outcome": true,
+  "scientific_contract_path": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
+  "only_runtime_change_from_v2_7_1": "make_deterministic_M_sharding_the_primary_model_pool_execution_unit_instead_of_monolithic_taxon_part_workers",
+  "scientific_thresholds_changed": false,
+  "procedure_library_changed": false,
+  "M_grid_changed": false,
+  "partition_rule_changed": false,
+  "audit_space_rule_changed": false,
+  "sealed_metrics_changed": false,
+  "decision_rule_changed": false,
+  "primary_execution_graph": {
+    "materialization_parts": 6,
+    "taxon_part_cells": 72,
+    "M_specs_per_taxon_part": 3,
+    "primary_model_pool_M_shards": 216,
+    "aggregate_exactly_three_M_shards_per_taxon_part": true,
+    "aggregated_taxon_part_workers": 72,
+    "pretruth_parts": 6,
+    "final_fit_taxon_part_jobs": 72,
+    "sealed_audit_parts": 6,
+    "final_decision_artifacts": 1
+  },
+  "primary_shard_invariants": {
+    "all_216_M_shards_required_for_normal_available_path": true,
+    "selective_repair_or_substitution_allowed": false,
+    "every_M_shard_recomputes_shared_partition_and_audit_space_from_same_model_pool_rows": true,
+    "three_M_shards_must_have_exact_shared_partition_and_audit_ledgers": true,
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "sealed_occurrence_environment_read": false,
+    "candidate_scores_used_for_partition_or_audit_selection": false,
+    "M_is_sensitivity_axis_not_selected": true
+  },
+  "information_order": [
+    "verify_new_rank2_raw_source_fingerprints",
+    "materialize_six_parts_and_seal_occurrences_before_M",
+    "extract_CHELSA_for_model_pool_rows_only",
+    "run_all_216_primary_deterministic_M_shards",
+    "aggregate_three_exact_M_shards_into_each_of_72_taxon_part_workers",
+    "freeze_six_pretruth_representatives_and_process_status_tables",
+    "fit_and_serialize_72_taxon_part_final_representatives",
+    "open_each_parts_sealed_environment_once_only_after_pretruth_and_final_fit",
+    "apply_unchanged_six_part_empirical_decision"
+  ],
+  "failure_policy": {
+    "structural_or_audit_unavailability_is_valid_abstention": true,
+    "M_shard_shared_ledger_disagreement_is_technical_failure": true,
+    "post_outcome_shard_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false,
+    "post_outcome_random_seed_change_allowed": false,
+    "fallback_to_v2_7_1_rank1_or_old_sealed_evidence_allowed": false
+  },
+  "claim_boundary": {
+    "runtime_design_itself_promotes_Product_A": false,
+    "runtime_design_itself_unblocks_Product_B": false,
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false
+  }
+}
