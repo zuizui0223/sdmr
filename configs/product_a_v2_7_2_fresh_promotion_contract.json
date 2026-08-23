@@ -31,12 +31,17 @@
     "required_decision": "empirical_confirmation_supported",
     "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
     "source_must_be_v2_7_2_deterministic_continuation": true,
-    "source_run_id": null,
-    "source_implementation_sha": null,
-    "source_frozen_ref": null,
-    "source_artifact_id": null,
-    "source_artifact_digest": null,
-    "source_fields_must_be_pinned_before_sealed_audit_dispatch": true,
+    "repository_execution_identity_must_be_frozen_before_dispatch": true,
+    "runtime_source_identity_receipt_must_be_created_before_sealed_audit": true,
+    "runtime_source_identity_receipt_must_pin": [
+      "workflow_run_id",
+      "implementation_sha",
+      "frozen_ref",
+      "decision_artifact_name",
+      "random_state"
+    ],
+    "runtime_source_identity_may_not_depend_on_scientific_metric_or_decision_value": true,
+    "decision_artifact_name": "product-a-v2-7-2-fresh-taxon-holdout-confirmation-decision",
     "independence_axis": "taxon_holdout_not_temporal"
   },
   "promotion_rule": {
