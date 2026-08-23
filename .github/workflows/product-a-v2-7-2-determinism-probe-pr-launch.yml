@@ -25,11 +25,12 @@ jobs:
           python - <<'PY'
           import json, os, time, urllib.request
           from pathlib import Path
+          from urllib.parse import quote
           c=json.load(open('configs/product_a_v2_7_2_determinism_probe_execution.json'))
           if c.get('execution_allowed') is not True:
               raise SystemExit('determinism probe gate is closed')
-          if not c.get('implementation_sha') or not c.get('frozen_ref'):
-              raise SystemExit('determinism probe identity is not pinned')
+          if not c.get('frozen_ref'):
+              raise SystemExit('determinism probe frozen ref is not pinned')
           if c.get('random_state')!=271 or c.get('one_shot_required') is not True:
               raise SystemExit('determinism probe contract changed')
           if c.get('sealed_environment_read_allowed') is not False:
@@ -41,14 +42,18 @@ jobs:
               req=urllib.request.Request(url,data=data,headers=headers,method=method)
               with urllib.request.urlopen(req,timeout=60) as r:
                   raw=r.read(); return json.loads(raw) if raw else None
+          branch=request(f"{api}/branches/{quote(c['frozen_ref'],safe='')}")
+          resolved_sha=str(branch.get('commit',{}).get('sha',''))
+          if len(resolved_sha)!=40:
+              raise SystemExit('determinism probe frozen ref did not resolve to one commit')
           def matches():
               data=request(f"{api}/actions/workflows/{c['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
-              return [r for r in data.get('workflow_runs',[]) if r.get('head_sha')==c['implementation_sha'] and r.get('head_branch')==c['frozen_ref'] and r.get('event')=='workflow_dispatch']
+              return [r for r in data.get('workflow_runs',[]) if r.get('head_sha')==resolved_sha and r.get('head_branch')==c['frozen_ref'] and r.get('event')=='workflow_dispatch']
           runs=matches(); dispatched=False
           if len(runs)>1:
               raise SystemExit(f'multiple exact deterministic probe runs exist: {len(runs)}')
           if not runs:
-              request(f"{api}/actions/workflows/{c['workflow_file']}/dispatches",method='POST',payload={'ref':c['frozen_ref'],'inputs':{'expected_sha':c['implementation_sha'],'expected_ref':c['frozen_ref']}})
+              request(f"{api}/actions/workflows/{c['workflow_file']}/dispatches",method='POST',payload={'ref':c['frozen_ref'],'inputs':{'expected_sha':resolved_sha,'expected_ref':c['frozen_ref']}})
               dispatched=True
               for _ in range(24):
                   time.sleep(5); runs=matches()
@@ -59,7 +64,7 @@ jobs:
           receipt={
               'purpose':'product_a_v2_7_2_determinism_probe_launch_receipt',
               'pull_request':int(event['pull_request']['number']),
-              'implementation_sha':c['implementation_sha'],
+              'implementation_sha':resolved_sha,
               'frozen_ref':c['frozen_ref'],
               'random_state':271,
               'dispatched_now':dispatched,
