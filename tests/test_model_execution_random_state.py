@@ -1,3 +1,8 @@
+import json
+import os
+import subprocess
+import sys
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -42,6 +47,21 @@ def test_execution_seed_makes_repeated_fit_exact_after_unrelated_rng_use(monkeyp
         first.named_steps['logisticregression'].intercept_,
         second.named_steps['logisticregression'].intercept_,
     )
+
+
+def test_execution_seed_is_exact_across_independent_python_processes(tmp_path):
+    script=tmp_path/'probe.py'
+    script.write_text('''\nimport json, os\nimport numpy as np\nimport pandas as pd\nfrom sdmr.model import fit_relative_suitability_model\nnp.random.seed(int(os.environ["UNRELATED_NUMPY_SEED"]))\npresence=pd.DataFrame({"x":[0.9,1.1,1.3,1.5,1.7,1.9],"z":[1.8,1.6,1.5,1.2,1.0,0.8]})\nbackground=pd.DataFrame({"x":[-1.8,-1.2,-0.8,-0.2,0.2,0.5,0.7,1.0],"z":[-1.0,-0.5,0.0,0.4,0.8,1.1,1.3,1.5]})\nmodel=fit_relative_suitability_model(presence,background,["x","z"])\nlogit=model.named_steps["logisticregression"]\nprint(json.dumps({"coef":logit.coef_.tolist(),"intercept":logit.intercept_.tolist(),"n_iter":logit.n_iter_.tolist()},sort_keys=True,separators=(",",":")))\n''')
+    outputs=[]
+    for hash_seed,numpy_seed in [('1','111'),('987654','999')]:
+        env=os.environ.copy()
+        env[DETERMINISTIC_RANDOM_STATE_ENV]='271'
+        env['PYTHONHASHSEED']=hash_seed
+        env['UNRELATED_NUMPY_SEED']=numpy_seed
+        outputs.append(subprocess.check_output([sys.executable,str(script)],env=env,text=True).strip())
+    assert outputs[0] == outputs[1]
+    payload=json.loads(outputs[0])
+    assert payload['n_iter']
 
 
 @pytest.mark.parametrize('value',['not-an-int','-1',str(2**32)])
