@@ -57,6 +57,8 @@ def load_v2_7_2_fresh_confirmation_contract(path: str | Path) -> dict[str, Any]:
     changed = [key for key, value in continuity.items() if key.endswith("_changed") and value is not False]
     if changed:
         raise ValueError(f"v2.7.2 changed frozen predecessor science: {changed}")
+    if continuity.get("model_hyperparameters_changed_except_random_identity") is not False:
+        raise ValueError("v2.7.2 changed model hyperparameters beyond deterministic identity")
     if continuity.get("only_method_change") != "explicit deterministic estimator/process RNG identity":
         raise ValueError("v2.7.2 method-change boundary changed")
 
@@ -178,7 +180,8 @@ def load_v2_7_2_fresh_confirmation_contract(path: str | Path) -> dict[str, Any]:
 
     decision = payload.get("decision_rule", {})
     if not all(decision.get(k) is True for k in (
-        "all_6_parts_required", "all_12_taxa_required_in_every_part", "all_3_M_specs_required",
+        "all_6_parts_required", "all_12_taxa_required_in_every_part",
+        "all_3_M_specs_required_in_every_part",
         "structural_or_audit_abstention_makes_part_unavailable_not_pass",
     )):
         raise ValueError("v2.7.2 decision denominator changed")
