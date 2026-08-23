@@ -83,8 +83,8 @@ def test_v272_source_gate_is_ready_only_for_exact_frozen_rank2_runtime():
     assert required['target_group_query_sha256'] == '5180a62553dd71f56f3dd30e486f38f019e1b5fdfc2b9a2d8a57493069856fae'
     assert required['raw_source_receipt_artifact_id'] == 9491375010
     assert required['raw_source_receipt_artifact_digest'] == 'sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887'
-    assert required['empirical_runtime_implementation_sha'] == 'a5c2b4bb3b00581f7eea67327ac9f89074e914bb'
-    assert required['empirical_runtime_frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb'
+    assert required['empirical_runtime_implementation_sha'] == '5073d6c701f36fdae0bf5df9a1d42f1863d994a8'
+    assert required['empirical_runtime_frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-confirmation-5073d6c7'
     assert required['workflow_file'] == 'product-a-v2-7-2-fresh-confirmation.yml'
     assert c['scientific_constraints']['post_outcome_threshold_tuning_allowed'] is False
     assert c['scientific_constraints']['post_outcome_random_seed_change_allowed'] is False
