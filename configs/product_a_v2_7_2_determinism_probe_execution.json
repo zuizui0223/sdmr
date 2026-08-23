@@ -1,8 +1,9 @@
 {
   "purpose": "product_a_v2_7_2_determinism_probe_execution",
   "execution_allowed": false,
-  "implementation_sha": null,
   "frozen_ref": null,
+  "sha_resolution_policy": "resolve_frozen_ref_tip_at_dispatch",
+  "repository_stored_self_referential_sha_allowed": false,
   "workflow_file": "product-a-v2-7-2-determinism-probe.yml",
   "random_state": 271,
   "reference_case": {
