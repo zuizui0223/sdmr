@@ -31,7 +31,7 @@ def test_v272_scientific_contract_and_seeded_library_are_frozen():
     assert all(p.label.endswith('_rs0') for p in procedures)
 
 
-def test_v272_source_receipt_is_pinned_but_runtime_execution_remains_closed():
+def test_v272_source_receipt_and_exact_runtime_authorization_are_pinned():
     receipt = load_v2_7_2_source_receipt(SOURCE_RECEIPT, source_gate_path=SOURCE_GATE)
     gate = json.loads(SOURCE_GATE.read_text())
     required = gate['required_before_execution']
@@ -43,11 +43,11 @@ def test_v272_source_receipt_is_pinned_but_runtime_execution_remains_closed():
     assert receipt['target_group']['query_sha256'] == required['target_group_query_sha256']
     assert required['raw_source_receipt_artifact_id'] == 9491375010
     assert required['raw_source_receipt_artifact_digest'] == 'sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887'
-    assert gate['gate_state'] == 'rank2_raw_sources_pinned_waiting_for_exact_empirical_runtime'
-    assert gate['execution_allowed'] is False
-    assert required['empirical_runtime_implementation_sha'] is None
-    assert required['empirical_runtime_frozen_ref'] is None
-    assert required['workflow_file'] is None
+    assert gate['gate_state'] == 'ready_for_one_shot_rank2_empirical_confirmation'
+    assert gate['execution_allowed'] is True
+    assert required['empirical_runtime_implementation_sha'] == 'a5c2b4bb3b00581f7eea67327ac9f89074e914bb'
+    assert required['empirical_runtime_frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb'
+    assert required['workflow_file'] == 'product-a-v2-7-2-fresh-confirmation.yml'
 
 
 def test_v272_source_loader_fails_closed_for_unpinned_source_gate(tmp_path):

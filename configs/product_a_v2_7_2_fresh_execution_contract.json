@@ -1,0 +1,64 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_empirical_execution_contract",
+  "execution_source_frozen_before_rank2_empirical_outcome": true,
+  "implementation_sha": "a5c2b4bb3b00581f7eea67327ac9f89074e914bb",
+  "frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb",
+  "workflow_file": "product-a-v2-7-2-fresh-confirmation.yml",
+  "workflow_blob_sha": "a03e72d2e04f1866108fdda344251e2c90cc0902",
+  "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+  "frozen_inputs": {
+    "scientific_contract_path": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
+    "scientific_contract_blob_sha": "04ec0d9519b8ea5ed7720f04cffb79ec0cdf4291",
+    "runtime_design_path": "configs/product_a_v2_7_2_empirical_runtime_design.json",
+    "runtime_design_blob_sha": "44d695438ee96eaf8160636b5d4db1f88def2961",
+    "source_gate_path": "configs/product_a_v2_7_2_fresh_empirical_source_gate.json",
+    "source_gate_blob_sha_at_runtime_freeze": "b12690710bbca586f6fc3dab9a249532a4147db7",
+    "source_receipt_path": "configs/product_a_v2_7_2_fresh_raw_source_receipt.json",
+    "source_receipt_blob_sha": "ff5b712124d84b81749e75b248bb817b81574999",
+    "source_run_id": 32631351934,
+    "source_receipt_artifact_id": 9491375010,
+    "source_receipt_artifact_digest": "sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887",
+    "focal_artifact_id": 9491372633,
+    "focal_artifact_digest": "sha256:db44d9bfefffaeb6c35a64838d7902011912d95684abad67e4c85ea047c559a9",
+    "target_artifact_id": 9491264327,
+    "target_artifact_digest": "sha256:d1637373ff62923c3679d87a9e0e4366beaf730e2235dc60eb3f903bf4c06348"
+  },
+  "execution_graph": {
+    "materialization_parts": 6,
+    "primary_M_shards": 216,
+    "aggregated_workers": 72,
+    "pretruth_parts": 6,
+    "final_fit_jobs": 72,
+    "sealed_audit_parts": 6,
+    "decision_artifacts": 1
+  },
+  "information_boundary": {
+    "source_bytes_verified_before_modeling": true,
+    "outer_sealed_before_M": true,
+    "sealed_environment_read_before_pretruth_allowed": false,
+    "sealed_environment_read_before_final_fit_allowed": false,
+    "post_sealed_candidate_reselection_allowed": false,
+    "post_sealed_threshold_tuning_allowed": false,
+    "post_sealed_random_seed_change_allowed": false
+  },
+  "scientific_invariants": {
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "M_grid_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "procedure_library_changed": false,
+    "prediction_adequacy_rule_changed": false,
+    "sealed_metrics_changed": false,
+    "six_part_decision_rule_changed": false,
+    "weighted_super_score_allowed": false,
+    "selective_shard_repair_or_substitution_allowed": false
+  },
+  "claim_boundary": {
+    "this_execution_is_the_fresh_rank2_empirical_confirmation": true,
+    "decision_itself_promotes_Product_A": false,
+    "product_b_unblocked": false,
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false
+  }
+}
