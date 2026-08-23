@@ -1,0 +1,16 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_presealed_shard_build_v2_execution",
+  "execution_allowed": false,
+  "wrapper_sha": null,
+  "wrapper_ref": null,
+  "workflow_file": "product-a-v2-7-1-fresh-presealed-shard-build-v2.yml",
+  "parity_run_id": 32614371301,
+  "parity_artifact_id": null,
+  "parity_artifact_digest": null,
+  "parity_passed": null,
+  "one_shot_required": true,
+  "sealed_environment_read_allowed": false,
+  "scientific_decision_generated": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false
+}
