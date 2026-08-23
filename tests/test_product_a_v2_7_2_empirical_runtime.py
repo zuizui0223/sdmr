@@ -45,8 +45,8 @@ def test_v272_source_receipt_and_exact_runtime_authorization_are_pinned():
     assert required['raw_source_receipt_artifact_digest'] == 'sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887'
     assert gate['gate_state'] == 'ready_for_one_shot_rank2_empirical_confirmation'
     assert gate['execution_allowed'] is True
-    assert required['empirical_runtime_implementation_sha'] == 'a5c2b4bb3b00581f7eea67327ac9f89074e914bb'
-    assert required['empirical_runtime_frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb'
+    assert required['empirical_runtime_implementation_sha'] == '5073d6c701f36fdae0bf5df9a1d42f1863d994a8'
+    assert required['empirical_runtime_frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-confirmation-5073d6c7'
     assert required['workflow_file'] == 'product-a-v2-7-2-fresh-confirmation.yml'
 
 
