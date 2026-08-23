@@ -1,6 +1,10 @@
 {
   "purpose": "product_a_v2_7_2_primary_sharded_empirical_runtime_design",
-  "frozen_before_rank2_raw_source_or_empirical_model_outcome": true,
+  "raw_source_acquisition_started_before_runtime_design_freeze": true,
+  "raw_source_biological_content_used_to_design_runtime": false,
+  "raw_source_file_or_query_fingerprints_used_to_design_runtime": false,
+  "frozen_before_rank2_empirical_model_or_sealed_outcome": true,
+  "scientific_contract_was_frozen_before_rank2_raw_source_acquisition": true,
   "scientific_contract_path": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
   "only_runtime_change_from_v2_7_1": "make_deterministic_M_sharding_the_primary_model_pool_execution_unit_instead_of_monolithic_taxon_part_workers",
   "scientific_thresholds_changed": false,
