@@ -1,0 +1,64 @@
+{
+  "purpose": "product_a_v2_7_1_fresh_presealed_shard_build_v2_invariants",
+  "frozen_before_parity_v2_outcome_opened": true,
+  "scientific_source": {
+    "implementation_sha": "e4f407cfd3c9fc76804243f3e26613531474ff5e",
+    "source_ref": "frozen/product-a-v2-7-1-fresh-presealed-shard-build-e4f407cf",
+    "execution_uses_exact_source_checkout": true,
+    "wrapper_may_not_modify_scientific_source": true
+  },
+  "primary_source": {
+    "run_id": 32552745281,
+    "implementation_sha": "1f158006c0b5dbdd93af70632464727405ababfe",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-confirmation-1f158006",
+    "required_materialization_parts": 6,
+    "pretruth_artifacts_must_be_absent": true,
+    "final_fit_artifacts_must_be_absent": true,
+    "sealed_audit_artifacts_must_be_absent": true,
+    "decision_artifact_must_be_absent": true
+  },
+  "parity_source": {
+    "workflow_run_id": 32614371301,
+    "implementation_sha": "3e578e14f2949662b64206ee959ee571e52cced2",
+    "frozen_ref": "frozen/product-a-v2-7-1-fresh-sharded-parity-v2-3e578e14",
+    "artifact_name": "product-a-v2-7-1-fresh-sharded-parity",
+    "expected_receipt_purpose": "product_a_v2_7_1_fresh_sharded_model_pool_parity_v2",
+    "floating_relative_tolerance": 0.0005,
+    "floating_absolute_tolerance": 0.0005,
+    "parity_passed_required": true
+  },
+  "build_scope": {
+    "sealed_blind_only": true,
+    "reuse_exactly_six_primary_materialization_parts": true,
+    "reuse_primary_worker_outputs": false,
+    "taxon_part_cells": 72,
+    "M_specs_per_cell": 3,
+    "total_M_shards": 216,
+    "rerun_all_taxon_part_M_shards_uniformly": true,
+    "selective_repair_allowed": false,
+    "aggregate_workers_in_this_build": false,
+    "pretruth_in_this_build": false,
+    "final_fit_in_this_build": false,
+    "sealed_audit_in_this_build": false,
+    "decision_in_this_build": false
+  },
+  "scientific_invariants": {
+    "fresh_taxon_panel_changed": false,
+    "split_seeds_or_sealed_fractions_changed": false,
+    "M_grid_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "procedure_library_changed": false,
+    "model_specifications_changed": false,
+    "process_knockout_semantics_changed": false,
+    "candidate_scores_used_for_partition_or_audit_selection": false,
+    "sealed_environment_read_allowed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false
+  },
+  "claim_boundary": {
+    "scientific_decision_generated": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}
