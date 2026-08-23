@@ -1,0 +1,158 @@
+name: product-a-v2-7-2-determinism-probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        required: true
+        type: string
+      expected_ref:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-2-determinism-probe-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact outcome-blind deterministic execution identity
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          EXPECTED_REF: ${{ inputs.expected_ref }}
+        run: |
+          python - <<'PY'
+          import json, os
+          c=json.load(open('configs/product_a_v2_7_2_deterministic_execution_contract.json'))
+          p=json.load(open('configs/product_a_v2_7_2_determinism_probe_execution.json'))
+          if os.environ['GITHUB_SHA']!=os.environ['EXPECTED_SHA'] or os.environ['GITHUB_REF_NAME']!=os.environ['EXPECTED_REF']:
+              raise SystemExit('determinism probe execution identity mismatch')
+          if c['deterministic_execution']['random_state']!=271 or p['random_state']!=271:
+              raise SystemExit('deterministic seed changed')
+          if c['frozen_before_any_fresh_sealed_environment_or_confirmation_outcome'] is not True:
+              raise SystemExit('deterministic repair was not frozen before sealed outcome')
+          if p['sealed_environment_read_allowed'] is not False:
+              raise SystemExit('determinism probe must remain sealed-blind')
+          if p['reference_case']['primary_run_id']!=32552745281 or p['replicas']!=2:
+              raise SystemExit('determinism probe denominator changed')
+          print({'sha':os.environ['GITHUB_SHA'],'ref':os.environ['GITHUB_REF_NAME'],'random_state':271,'sealed_blind':True})
+          PY
+
+  replica:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [a, b]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SDMR_LOGISTIC_RANDOM_STATE: '271'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-2026082201-0.30
+          path: part
+      - name: Run identical real model-pool shard in independent runner
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[10]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index 10 \
+            --part-seed 2026082201 \
+            --M buffer_150km \
+            --output-dir shard
+          python - <<'PY'
+          import json, os
+          c=json.load(open('shard/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False
+          if c.get('available'):
+              assert c['transport_shard_only'] is True
+              assert c['scientific_semantics_changed'] is False
+          assert os.environ['SDMR_LOGISTIC_RANDOM_STATE']=='271'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-determinism-probe-${{ matrix.replica }}
+          path: shard/
+          retention-days: 30
+
+  compare:
+    needs: replica
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-determinism-probe-a
+          path: a
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-determinism-probe-b
+          path: b
+      - name: Require byte-identical independent-process outputs
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          a=Path('a'); b=Path('b')
+          af=sorted(str(p.relative_to(a)) for p in a.rglob('*') if p.is_file())
+          bf=sorted(str(p.relative_to(b)) for p in b.rglob('*') if p.is_file())
+          if af!=bf:
+              raise SystemExit('determinism probe file set differs')
+          rows=[]
+          for rel in af:
+              x=hashlib.sha256((a/rel).read_bytes()).hexdigest()
+              y=hashlib.sha256((b/rel).read_bytes()).hexdigest()
+              rows.append({'file':rel,'sha256':x,'identical':x==y})
+              if x!=y:
+                  raise SystemExit(f'determinism probe mismatch: {rel}')
+          receipt={
+              'purpose':'product_a_v2_7_2_independent_process_determinism_probe',
+              'random_state':271,
+              'reference_seed':2026082201,
+              'reference_sealed_fraction':0.30,
+              'reference_taxon_index':10,
+              'reference_M':'buffer_150km',
+              'n_files':len(rows),
+              'all_files_byte_identical':True,
+              'sealed_environment_read':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'files':rows,
+          }
+          Path('receipt').mkdir()
+          Path('receipt/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-determinism-probe
+          path: receipt/
+          retention-days: 90
