@@ -1,0 +1,4 @@
+Trigger exactly one frozen Product-A v2.7.1 fresh sharded parity v2 run.
+Implementation: 3e578e14f2949662b64206ee959ee571e52cced2
+Frozen ref: frozen/product-a-v2-7-1-fresh-sharded-parity-v2-3e578e14
+No sealed environment read. No scientific promotion.
