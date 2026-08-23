@@ -1,7 +1,7 @@
 {
   "purpose": "product_a_v2_7_2_fresh_empirical_source_gate",
-  "gate_state": "rank2_raw_sources_pinned_waiting_for_exact_empirical_runtime",
-  "execution_allowed": false,
+  "gate_state": "ready_for_one_shot_rank2_empirical_confirmation",
+  "execution_allowed": true,
   "known_truth_endpoint": {
     "implementation_sha": "9b40393dda3d03943a403d0e7875e2d616b914e7",
     "frozen_ref": "frozen/product-a-v2-7-2-known-truth-9b40393d",
@@ -64,9 +64,9 @@
     "raw_source_receipt_artifact_name": "product-a-v2-7-2-fresh-raw-source-receipt",
     "source_execution_sha": "1de8a07cbbd17bdec80432d4d61c8882d46a0764",
     "source_execution_ref": "frozen/product-a-v2-7-2-fresh-source-1de8a07c",
-    "empirical_runtime_implementation_sha": null,
-    "empirical_runtime_frozen_ref": null,
-    "workflow_file": null,
+    "empirical_runtime_implementation_sha": "a5c2b4bb3b00581f7eea67327ac9f89074e914bb",
+    "empirical_runtime_frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb",
+    "workflow_file": "product-a-v2-7-2-fresh-confirmation.yml",
     "all_required_fields_must_be_pinned_before_execution_allowed_true": true
   },
   "scientific_constraints": {
