@@ -1,0 +1,86 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_taxon_panel_selection_result",
+  "selection_frozen_after_known_truth_but_before_any_v2_7_2_empirical_model_or_sealed_outcome": true,
+  "known_truth_prerequisite": {
+    "workflow_run_id": 32629842082,
+    "implementation_sha": "9b40393dda3d03943a403d0e7875e2d616b914e7",
+    "decision_artifact_id": 9490827277,
+    "decision_artifact_digest": "sha256:033b5393444f0d7365d6823d068e08778454496213f0f438188680740f846a17",
+    "determinism_passed": true,
+    "scientific_nonregression_supported": true
+  },
+  "historical_candidate_registry": {
+    "path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+    "sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00",
+    "n_candidates": 36,
+    "n_strata": 12,
+    "predeclared_ranks_per_stratum": [1, 2, 3]
+  },
+  "historical_availability_screen": {
+    "workflow_run_id": 32474864368,
+    "artifact_id": 9444172302,
+    "artifact_digest": "sha256:ab0dbb9098603b9597925b385a050a436dc08fecd38a00b6c7e764268b8fc3b1",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "minimum_occurrences": 80,
+    "minimum_unique_0_05_degree_cells": 50,
+    "n_candidates_screened": 36,
+    "n_candidates_eligible": 36,
+    "role": "availability_only_no_environmental_or_model_outcomes"
+  },
+  "successor_selection_rule": {
+    "rule": "select_predeclared_rank2_in_every_stratum_after_rank1_was_consumed_by_v2_7_1_fresh_model_pool",
+    "why_rank1_is_ineligible": "rank1 taxa were already used as focal model-pool evidence in the failed v2.7.1 fresh empirical lane",
+    "why_rank2_is_selected": "rank2 was frozen before any eligibility or model outcome and is the next unused predeclared rank in each stratum",
+    "rank3_reserved_as_future_fallback": true,
+    "post_known_truth_empirical_candidate_reordering_allowed": false,
+    "post_model_outcome_candidate_reordering_allowed": false,
+    "eligibility_threshold_relaxation_allowed": false,
+    "select_exactly_one_taxon_per_stratum": true,
+    "required_strata": 12
+  },
+  "independence": {
+    "axis": "new_taxa_not_used_in_v2_7_1_focal_model_pool",
+    "disjoint_from_product_a_pilot_12": true,
+    "disjoint_from_v2_7_1_fresh_rank1_panel": true,
+    "same_historical_snapshot_may_be_used_for_new_raw_materialization": true,
+    "temporal_independence_claim_allowed": false,
+    "old_v2_7_1_focal_artifact_reuse_allowed": false,
+    "old_v2_7_1_split_part_reuse_allowed": false,
+    "old_v2_7_1_target_artifact_reuse_allowed": false
+  },
+  "selected_taxa": [
+    "Stellaria media",
+    "Fagus sylvatica",
+    "Juniperus communis",
+    "Glyceria maxima",
+    "Ulex europaeus",
+    "Athyrium filix-femina",
+    "Atriplex canescens",
+    "Avicennia marina",
+    "Nothofagus betuloides",
+    "Pinus cembra",
+    "Larix laricina",
+    "Iris pseudacorus"
+  ],
+  "repository_panel": {
+    "path": "configs/product_a_v2_7_2_fresh_confirmation_taxa.csv",
+    "sha256": "918ea2d3e94f93c26616ab30aa055a5dd72b4550d75dbbeb6a675e7a4e950f44",
+    "n_taxa": 12
+  },
+  "selection_information_barrier": {
+    "CHELSA_environmental_values_used": false,
+    "candidate_model_scores_used": false,
+    "AUC_used": false,
+    "CBI_used": false,
+    "OR10_used": false,
+    "AICc_used": false,
+    "niche_recovery_outcomes_used": false,
+    "process_knockout_outcomes_used": false,
+    "v2_7_1_sealed_confirmation_outcomes_used": false,
+    "v2_7_2_empirical_outcomes_used": false
+  },
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false,
+  "next_gate": "materialize_new_rank2_focal_and_rank2_excluding_target_group_artifacts_then_freeze_exact_v2_7_2_empirical_runtime_before_any_sealed_outcome"
+}
