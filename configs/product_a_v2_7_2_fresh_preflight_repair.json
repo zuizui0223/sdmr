@@ -1,0 +1,38 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_preflight_only_repair",
+  "failed_runtime": {
+    "implementation_sha": "a5c2b4bb3b00581f7eea67327ac9f89074e914bb",
+    "frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-a5c2b4bb",
+    "workflow_run_id": 32637052553,
+    "conclusion": "failure",
+    "failed_stage": "preflight",
+    "failed_expression": "design.failure_policy.selective_repair_or_substitution_allowed",
+    "actual_predeclared_field": "design.primary_shard_invariants.selective_repair_or_substitution_allowed",
+    "raw_source_job_started": false,
+    "materialization_started": false,
+    "model_fitting_started": false,
+    "pretruth_started": false,
+    "sealed_environment_read": false,
+    "scientific_decision_created": false
+  },
+  "repair": {
+    "type": "metadata_alias_for_existing_false_invariant",
+    "failure_policy_selective_repair_or_substitution_allowed": false,
+    "primary_shard_invariant_value_changed": false,
+    "scientific_thresholds_changed": false,
+    "procedure_library_changed": false,
+    "model_random_state_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "M_grid_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "sealed_metrics_changed": false,
+    "decision_rule_changed": false,
+    "source_identity_changed": false
+  },
+  "claim_boundary": {
+    "failed_preflight_is_scientific_evidence": false,
+    "Product_A_promoted": false,
+    "product_b_unblocked": false
+  }
+}
