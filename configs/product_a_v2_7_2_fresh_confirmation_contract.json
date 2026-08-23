@@ -1,0 +1,192 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_taxon_holdout_empirical_confirmation_contract",
+  "predeclared_before_any_v2_7_2_empirical_model_or_sealed_outcome": true,
+  "known_truth_prerequisite": {
+    "workflow_run_id": 32629842082,
+    "implementation_sha": "9b40393dda3d03943a403d0e7875e2d616b914e7",
+    "decision_artifact_id": 9490827277,
+    "decision_artifact_digest": "sha256:033b5393444f0d7365d6823d068e08778454496213f0f438188680740f846a17",
+    "determinism_passed": true,
+    "scientific_nonregression_supported": true,
+    "empirical_promotion_implied": false
+  },
+  "predecessor_rule_continuity": {
+    "source_contract": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "scientific_decision_thresholds_changed": false,
+    "M_grid_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "procedure_strategies_changed": false,
+    "model_hyperparameters_changed_except_random_identity": false,
+    "process_domains_changed": false,
+    "sealed_recovery_metrics_changed": false,
+    "only_method_change": "explicit deterministic estimator/process RNG identity"
+  },
+  "empirical_target": {
+    "claim": "realized_environmental_niche_recovery_and_stability",
+    "metrics": [
+      "niche_overlap_schoener_d_pc12",
+      "centroid_distance",
+      "breadth_log_sd_error",
+      "quantile_profile_error"
+    ],
+    "descriptive_only": ["sealed_pc12_envelope_coverage90"],
+    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
+    "prediction_comparator": "model_pool_only_auc_selected_representative",
+    "representative_selection": "model_pool_only_niche_recovery_pareto_minimax_within_complete_prediction_adequate_set",
+    "recovery_metrics_must_remain_separate": true,
+    "weighted_super_score_allowed": false,
+    "fundamental_niche_truth_claim_allowed": false
+  },
+  "fresh_taxon_panel": {
+    "path": "configs/product_a_v2_7_2_fresh_confirmation_taxa.csv",
+    "sha256": "918ea2d3e94f93c26616ab30aa055a5dd72b4550d75dbbeb6a675e7a4e950f44",
+    "selection_result_path": "configs/product_a_v2_7_2_fresh_taxon_panel_selection_result.json",
+    "require_all_12_taxa": true,
+    "predeclared_candidate_rank": 2,
+    "disjoint_from_product_a_pilot_12": true,
+    "disjoint_from_v2_7_1_fresh_rank1_panel": true
+  },
+  "independence_axis": "taxon_holdout_not_temporal",
+  "temporal_independence_claim_allowed": false,
+  "fixed_design": {
+    "M_km": [150, 300, 500],
+    "split_seeds": [2026082201, 2026082202, 2026082203],
+    "sealed_fractions": [0.2, 0.3],
+    "n_confirmation_parts": 6,
+    "prediction_adequacy": {
+      "chance_auc": 0.5,
+      "minimum_auc_margin": 0.01,
+      "auc_sem_multiplier": 1.0,
+      "complete_outer_fold_evidence_required": true
+    },
+    "procedure_library": {
+      "strategies": ["all", "vif", "predictive_forward", "niche_forward"],
+      "model_specs": [
+        {"C": 0.1, "degree": 1, "penalty": "l2"},
+        {"C": 1.0, "degree": 2, "penalty": "l2"}
+      ],
+      "model_random_state": 0,
+      "selection_process_numpy_seed": 0,
+      "inner_folds": 3,
+      "outer_folds": 4,
+      "max_predictors": 8,
+      "vif_threshold": 5.0,
+      "predictive_min_gain": 0.0,
+      "observation_predictors": []
+    },
+    "process_domains": [
+      "thermal",
+      "water",
+      "seasonality_phenology",
+      "energy_productivity",
+      "snow",
+      "wind"
+    ],
+    "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
+    "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d"
+  },
+  "information_barrier": {
+    "focal_thinning_before_outer_split": true,
+    "outer_sealed_before_M": true,
+    "M_built_from_model_pool_only": true,
+    "M_grid_as_sensitivity_not_optimized": true,
+    "sealed_occurrences_used_for_M": false,
+    "sealed_occurrences_used_for_partition_assignment": false,
+    "sealed_occurrences_used_for_candidate_selection": false,
+    "sealed_occurrences_first_opened_for_final_empirical_audit": true,
+    "target_group_background_excludes_fresh_focal_taxa_pre_split": true,
+    "v2_7_1_rank1_model_pool_or_sealed_rows_reused": false
+  },
+  "raw_source_design": {
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "same_snapshot_allowed_because_rank2_taxa_were_never_v2_7_1_focal_model_pool_taxa": true,
+    "catalog_reuse_is_transport_not_old_focal_evidence_reuse": true,
+    "new_focal_artifact_for_rank2_panel_required": true,
+    "new_target_group_artifact_excluding_rank2_panel_required": true,
+    "old_v2_7_1_focal_artifact_allowed": false,
+    "old_v2_7_1_target_artifact_allowed": false,
+    "old_v2_7_1_split_parts_allowed": false,
+    "focal_taxa_excluded_from_target_group_before_split": true,
+    "target_group_one_per_grid_cell_degrees": 0.05,
+    "source_independent_of_focal_occurrence_geography": true
+  },
+  "evidence_balanced_partition": {
+    "outer_folds": 4,
+    "spatial_microblocks": 12,
+    "assignment_attempts": 32,
+    "assignment_seed_formula": "part_seed + taxon_index*100 + 271",
+    "microblock_constructor": "KMeans_on_model_pool_occurrence_unit_sphere_coordinates",
+    "fold_assignment": "StratifiedGroupKFold_over_presence_and_all_M_background_resource_types",
+    "shared_occurrence_fold_assignment_across_all_M": true,
+    "microblock_atomicity_preserved": true,
+    "minimum_evaluation_occurrences_per_fold": 2,
+    "minimum_evaluation_background_rows_per_M_fold": 5,
+    "minimum_training_background_rows_per_M_fold": 5,
+    "choose_feasible_assignment_by": "minimum_max_then_mean_normalized_row_count_imbalance",
+    "abstain_if_no_feasible_assignment": true,
+    "sealed_rows_used_for_partition_assignment": false,
+    "environmental_values_used_for_partition_assignment": false,
+    "candidate_scores_used_for_partition_assignment": false,
+    "process_knockout_outcomes_used_for_partition_assignment": false
+  },
+  "partition_aware_audit_space": {
+    "minimum_predictor_coverage": 0.95,
+    "minimum_joint_coverage": 0.8,
+    "minimum_processes": 4,
+    "minimum_complete_fit_background_rows_per_M_fold": 5,
+    "minimum_complete_evaluation_background_rows_per_M_fold": 5,
+    "minimum_complete_heldout_occurrence_rows_per_M_fold": 2,
+    "sealed_rows_used": false,
+    "candidate_scores_used": false,
+    "thresholds_unchanged_from_v2_7_1": true
+  },
+  "decision_rule": {
+    "states": [
+      "empirical_confirmation_supported",
+      "empirical_confirmation_not_supported",
+      "empirical_confirmation_unavailable"
+    ],
+    "all_12_taxa_required_in_every_part": true,
+    "all_3_M_specs_required_in_every_part": true,
+    "all_6_parts_required": true,
+    "structural_or_audit_abstention_makes_part_unavailable_not_pass": true,
+    "ecological_noninferiority": {
+      "rule": "v2_7_2_representative_not_pareto_dominated_by_auc_representative_on_four_recovery_metrics",
+      "minimum_parts": 4,
+      "strict_improvement_minimum_parts": 3
+    },
+    "prediction_guardrail": {
+      "mean_presence_rank_deficit_vs_auc_comparator_min": -0.01
+    },
+    "process_reproducibility": {
+      "required_for_every_taxon_domain": true,
+      "modal_status_fraction_min": 0.6666666666666666,
+      "missing_status_is_unavailable_not_consensus": true
+    },
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false,
+    "post_outcome_random_seed_change_allowed": false,
+    "scientific_promotion_allowed_by_this_decision": false,
+    "supported_result_allows": "freeze_rank2_fresh_taxon_holdout_supported_Product_A_for_separate_promotion_decision",
+    "product_b_remains_blocked_until_separate_promotion_decision": true
+  },
+  "execution_order": [
+    "verify_v2_7_2_known_truth_decision",
+    "verify_rank2_taxon_panel_selection_provenance",
+    "materialize_and_pin_new_rank2_focal_and_target_artifacts",
+    "verify_process_registry_complete_and_one_to_one",
+    "freeze_exact_v2_7_2_empirical_runtime_sha_and_ref",
+    "verify_this_decision_rule_was_frozen_before_any_rank2_empirical_model_or_sealed_outcome",
+    "build_each_split_from_new_raw_source_artifacts",
+    "seal_focal_occurrences_before_M_and_background",
+    "build_evidence_balanced_partitions_from_model_pool_coordinates_and_row_counts_only",
+    "freeze_model_pool_candidate_set_process_statuses_audit_space_and_representatives",
+    "open_sealed_occurrences_for_empirical_niche_recovery_once",
+    "apply_predeclared_empirical_decision"
+  ],
+  "scientific_promotion_run": false,
+  "product_b_unblocked": false
+}
