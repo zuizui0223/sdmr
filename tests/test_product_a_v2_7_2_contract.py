@@ -1,9 +1,12 @@
 import json
 from pathlib import Path
 
+import numpy as np
+
 from sdmr.known_truth_scenarios import KNOWN_TRUTH_FAMILIES, standard_known_truth_candidates
 from sdmr.v2_7_2_deterministic_procedure_library import seed_recovery_candidates
 from sdmr.v2_7_2_known_truth_confirmation import load_contract
+from sdmr.v2_7_2_seeded_entrypoint import seed_successor_process
 
 CONTRACT = Path("configs/product_a_v2_7_2_deterministic_successor_contract.json")
 WORKFLOW = Path(".github/workflows/product-a-v2-7-2-known-truth-determinism.yml")
@@ -14,6 +17,8 @@ def test_v272_contract_freezes_determinism_before_new_truth():
     assert c["frozen_before_v2_7_2_known_truth_outcome"] is True
     assert c["implementation_change"]["historical_modelspec_default_random_state"] is None
     assert c["implementation_change"]["successor_model_random_state"] == 0
+    assert c["implementation_change"]["successor_selection_process_numpy_seed"] == 0
+    assert c["known_truth_confirmation"]["selection_process_numpy_seed"] == 0
     assert c["known_truth_confirmation"]["families"] == list(KNOWN_TRUTH_FAMILIES)
     assert c["known_truth_confirmation"]["seeds"] == list(range(3101, 3111))
     assert c["known_truth_confirmation"]["n_cases"] == 60
@@ -46,10 +51,18 @@ def test_seeded_known_truth_candidate_library_preserves_names_and_predictors():
         assert seeded[name].model_spec.label.endswith("_rs0")
 
 
+def test_successor_entrypoint_resets_legacy_global_rng_stream():
+    seed_successor_process(CONTRACT)
+    first = np.random.random(8)
+    seed_successor_process(CONTRACT)
+    second = np.random.random(8)
+    np.testing.assert_array_equal(first, second)
+
+
 def test_known_truth_workflow_is_dispatch_only_and_runs_two_replicates():
     text = WORKFLOW.read_text()
     assert "workflow_dispatch:" in text
     assert "pull_request:" not in text
     assert "replicate: [a, b]" in text
-    assert "v2_7_2_known_truth_confirmation run" in text
+    assert "v2_7_2_seeded_entrypoint run" in text
     assert "v2_7_2_known_truth_confirmation compare" in text
