@@ -25,11 +25,12 @@ jobs:
           python - <<'PY'
           import json, os, time, urllib.request
           from pathlib import Path
+          from urllib.parse import quote
           c=json.load(open('configs/product_a_v2_7_2_post_shard_continuation_execution.json'))
           if c.get('execution_allowed') is not True:
               raise SystemExit('deterministic continuation gate is closed')
-          if not c.get('implementation_sha') or not c.get('frozen_ref'):
-              raise SystemExit('deterministic continuation identity is not pinned')
+          if not c.get('frozen_ref'):
+              raise SystemExit('deterministic continuation frozen ref is not pinned')
           if c.get('random_state')!=271 or c.get('required_M_shard_artifact_count')!=216:
               raise SystemExit('deterministic continuation denominator changed')
           if int(c.get('shard_build_run_id') or 0)<=0 or int(c.get('shard_build_receipt_artifact_id') or 0)<=0 or not str(c.get('shard_build_receipt_artifact_digest') or '').startswith('sha256:'):
@@ -44,15 +45,19 @@ jobs:
               data=None if payload is None else json.dumps(payload).encode(); req=urllib.request.Request(url,data=data,headers=h,method=method)
               with urllib.request.urlopen(req,timeout=60) as r:
                   raw=r.read(); return json.loads(raw) if raw else None
+          branch=request(f"{api}/branches/{quote(c['frozen_ref'],safe='')}")
+          resolved_sha=str(branch.get('commit',{}).get('sha',''))
+          if len(resolved_sha)!=40:
+              raise SystemExit('deterministic continuation frozen ref did not resolve to one commit')
           def matches():
               data=request(f"{api}/actions/workflows/{c['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
-              return [r for r in data.get('workflow_runs',[]) if r.get('head_sha')==c['implementation_sha'] and r.get('head_branch')==c['frozen_ref'] and r.get('event')=='workflow_dispatch']
+              return [r for r in data.get('workflow_runs',[]) if r.get('head_sha')==resolved_sha and r.get('head_branch')==c['frozen_ref'] and r.get('event')=='workflow_dispatch']
           runs=matches(); dispatched=False
           if len(runs)>1:
               raise SystemExit(f'multiple exact deterministic continuation runs exist: {len(runs)}')
           if not runs:
               payload={'ref':c['frozen_ref'],'inputs':{
-                  'expected_sha':c['implementation_sha'],'expected_ref':c['frozen_ref'],
+                  'expected_sha':resolved_sha,'expected_ref':c['frozen_ref'],
                   'shard_build_run_id':str(c['shard_build_run_id']),
                   'shard_build_receipt_artifact_id':str(c['shard_build_receipt_artifact_id']),
                   'shard_build_receipt_artifact_digest':c['shard_build_receipt_artifact_digest']}}
@@ -66,7 +71,7 @@ jobs:
           receipt={
               'purpose':'product_a_v2_7_2_post_shard_continuation_launch_receipt',
               'pull_request':int(event['pull_request']['number']),
-              'implementation_sha':c['implementation_sha'],'frozen_ref':c['frozen_ref'],'random_state':271,
+              'implementation_sha':resolved_sha,'frozen_ref':c['frozen_ref'],'random_state':271,
               'shard_build_run_id':int(c['shard_build_run_id']),
               'shard_build_receipt_artifact_id':int(c['shard_build_receipt_artifact_id']),
               'shard_build_receipt_artifact_digest':c['shard_build_receipt_artifact_digest'],
