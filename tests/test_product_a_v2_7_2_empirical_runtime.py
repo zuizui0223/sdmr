@@ -16,6 +16,7 @@ from sdmr.v2_7_2_fresh_model_pool_shard_aggregate import (
 
 CONTRACT = Path('configs/product_a_v2_7_2_fresh_confirmation_contract.json')
 SOURCE_GATE = Path('configs/product_a_v2_7_2_fresh_empirical_source_gate.json')
+SOURCE_RECEIPT = Path('configs/product_a_v2_7_2_fresh_raw_source_receipt.json')
 
 
 def test_v272_scientific_contract_and_seeded_library_are_frozen():
@@ -30,11 +31,32 @@ def test_v272_scientific_contract_and_seeded_library_are_frozen():
     assert all(p.label.endswith('_rs0') for p in procedures)
 
 
-def test_v272_source_receipt_loader_fails_closed_before_source_identities_are_pinned(tmp_path):
-    receipt = tmp_path / 'receipt.json'
-    receipt.write_text(json.dumps({'purpose': 'product_a_v2_7_2_fresh_raw_source_receipt'}))
+def test_v272_source_receipt_is_pinned_but_runtime_execution_remains_closed():
+    receipt = load_v2_7_2_source_receipt(SOURCE_RECEIPT, source_gate_path=SOURCE_GATE)
+    gate = json.loads(SOURCE_GATE.read_text())
+    required = gate['required_before_execution']
+    assert receipt['workflow_run_id'] == 32631351934
+    assert receipt['workflow_conclusion'] == 'success'
+    assert receipt['focal']['file_sha256'] == required['focal_file_sha256']
+    assert receipt['focal']['query_sha256'] == required['focal_query_sha256']
+    assert receipt['target_group']['file_sha256'] == required['target_group_file_sha256']
+    assert receipt['target_group']['query_sha256'] == required['target_group_query_sha256']
+    assert required['raw_source_receipt_artifact_id'] == 9491375010
+    assert required['raw_source_receipt_artifact_digest'] == 'sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887'
+    assert gate['gate_state'] == 'rank2_raw_sources_pinned_waiting_for_exact_empirical_runtime'
+    assert gate['execution_allowed'] is False
+    assert required['empirical_runtime_implementation_sha'] is None
+    assert required['empirical_runtime_frozen_ref'] is None
+    assert required['workflow_file'] is None
+
+
+def test_v272_source_loader_fails_closed_for_unpinned_source_gate(tmp_path):
+    gate = json.loads(SOURCE_GATE.read_text())
+    gate['required_before_execution']['focal_file_sha256'] = None
+    unpinned = tmp_path / 'gate.json'
+    unpinned.write_text(json.dumps(gate))
     with pytest.raises(ValueError, match='not fully pinned'):
-        load_v2_7_2_source_receipt(receipt, source_gate_path=SOURCE_GATE)
+        load_v2_7_2_source_receipt(SOURCE_RECEIPT, source_gate_path=unpinned)
 
 
 def _write_shard(root: Path, M: str, *, mismatch=False, available=True):
