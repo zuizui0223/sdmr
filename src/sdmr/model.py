@@ -33,11 +33,16 @@ class ModelSpec:
     ``degree=1`` is a linear environmental response. ``degree=2`` adds squares
     and pairwise interactions, giving a deliberately simple analogue of a more
     flexible SDM response surface. ``C`` is inverse regularization strength.
+
+    ``random_state`` is optional so historical frozen Product-A versions retain
+    their original estimator identity when it is omitted. Successor contracts
+    that require process-independent reproducibility must set it explicitly.
     """
 
     C: float = 1.0
     degree: int = 1
     penalty: str = "l2"
+    random_state: int | None = None
 
     def __post_init__(self) -> None:
         if self.C <= 0:
@@ -46,10 +51,15 @@ class ModelSpec:
             raise ValueError("degree must be 1 or 2.")
         if self.penalty not in {"l1", "l2"}:
             raise ValueError("penalty must be 'l1' or 'l2'.")
+        if self.random_state is not None and not isinstance(self.random_state, (int, np.integer)):
+            raise TypeError("random_state must be an integer or None.")
 
     @property
     def label(self) -> str:
-        return f"logit_{self.penalty}_C{self.C:g}_degree{self.degree}"
+        base = f"logit_{self.penalty}_C{self.C:g}_degree{self.degree}"
+        if self.random_state is None:
+            return base
+        return f"{base}_rs{int(self.random_state)}"
 
 
 def fit_relative_suitability_model(
@@ -78,6 +88,7 @@ def fit_relative_suitability_model(
         "solver": "liblinear",
         "class_weight": "balanced",
         "max_iter": 4000,
+        "random_state": spec.random_state,
     }
     penalty_default = inspect.signature(LogisticRegression).parameters["penalty"].default
     if penalty_default == "deprecated":
