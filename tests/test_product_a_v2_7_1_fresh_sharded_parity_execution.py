@@ -10,9 +10,11 @@ def test_sharded_parity_execution_is_exact_and_sealed_blind():
     c=json.loads(CONTRACT.read_text())
     assert c['purpose']=='product_a_v2_7_1_fresh_sharded_parity_execution_contract'
     assert c['execution_identity_frozen_before_parity_outcome'] is True
-    assert c['implementation_sha']=='196291c56650809a7c90207a9b25148b8ec04a98'
-    assert c['frozen_ref']=='frozen/product-a-v2-7-1-fresh-sharded-parity-196291c5'
+    assert c['implementation_sha']=='3e578e14f2949662b64206ee959ee571e52cced2'
+    assert c['frozen_ref']=='frozen/product-a-v2-7-1-fresh-sharded-parity-v2-3e578e14'
     assert c['workflow_file']=='product-a-v2-7-1-fresh-sharded-parity.yml'
+    assert c['parity_definition_contract']=='configs/product_a_v2_7_1_fresh_sharded_parity_v2_contract.json'
+    assert c['supersedes_failed_parity_run_id']==32574696718
     assert c['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
     ref=c['primary_reference']
     assert ref['run_id']==32552745281
@@ -25,6 +27,7 @@ def test_sharded_parity_execution_is_exact_and_sealed_blind():
     assert scope['scientific_metric_outcome_used_for_dispatch'] is False
     assert scope['scientific_threshold_change_allowed'] is False
     assert scope['candidate_reselection_allowed'] is False
+    assert scope['fit_code_change_allowed'] is False
     assert scope['scientific_promotion_allowed'] is False
     assert scope['product_b_unblocked'] is False
 
