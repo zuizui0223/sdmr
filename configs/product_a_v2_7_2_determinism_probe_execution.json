@@ -1,0 +1,23 @@
+{
+  "purpose": "product_a_v2_7_2_determinism_probe_execution",
+  "execution_allowed": false,
+  "implementation_sha": null,
+  "frozen_ref": null,
+  "workflow_file": "product-a-v2-7-2-determinism-probe.yml",
+  "random_state": 271,
+  "reference_case": {
+    "primary_run_id": 32552745281,
+    "seed": 2026082201,
+    "sealed_fraction": 0.30,
+    "taxon_index": 10,
+    "M": "buffer_150km",
+    "selection_basis": "continuity_with_existing_transport_reference_not_scientific_metric_outcome"
+  },
+  "replicas": 2,
+  "exact_artifact_identity_required": true,
+  "one_shot_required": true,
+  "sealed_environment_read_allowed": false,
+  "scientific_decision_generated": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false
+}
