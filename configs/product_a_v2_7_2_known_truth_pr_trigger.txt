@@ -1,0 +1,3 @@
+trigger-only: dispatch frozen Product-A v2.7.2 known-truth determinism run
+implementation: 9b40393dda3d03943a403d0e7875e2d616b914e7
+frozen-ref: frozen/product-a-v2-7-2-known-truth-9b40393d
