@@ -54,6 +54,7 @@
   "failure_policy": {
     "structural_or_audit_unavailability_is_valid_abstention": true,
     "M_shard_shared_ledger_disagreement_is_technical_failure": true,
+    "selective_repair_or_substitution_allowed": false,
     "post_outcome_shard_reselection_allowed": false,
     "post_outcome_threshold_tuning_allowed": false,
     "post_outcome_random_seed_change_allowed": false,
