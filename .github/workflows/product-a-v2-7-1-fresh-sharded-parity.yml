@@ -69,6 +69,20 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[test,parquet]'
+      - name: Verify frozen transport-parity contract and helper tests
+        run: |
+          python -m pytest -q tests/test_transport_parity.py
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/product_a_v2_7_1_fresh_sharded_parity_v2_contract.json'))
+          assert c['contract_frozen_before_any_recovered_pretruth_or_sealed_outcome'] is True
+          assert c['root_cause_boundary']['fit_code_may_be_changed_to_force_parity'] is False
+          assert c['root_cause_boundary']['scientific_thresholds_may_be_changed_to_force_parity'] is False
+          assert c['parity_rule']['fail_closed_if_any_floating_cell_exceeds_envelope'] is True
+          assert c['parity_rule']['tolerance_may_not_be_revised_after_next_parity_result'] is True
+          assert c['claim_boundary']['scientific_promotion_allowed'] is False
+          assert c['claim_boundary']['product_b_unblocked'] is False
+          PY
       - uses: actions/download-artifact@v4
         with:
           pattern: v271-fresh-parity-shard-*
@@ -79,7 +93,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: v271-fresh-worker-2026082201-0.30-taxon10
           path: reference
-      - name: Reassemble and require parity with completed primary worker
+      - name: Reassemble and require frozen transport parity with completed primary worker
         run: |
           TAXON=$(python - <<'PY'
           import pandas as pd
@@ -96,6 +110,13 @@ jobs:
           import hashlib, json
           from pathlib import Path
           import pandas as pd
+
+          from sdmr.transport_parity import assert_transport_frame_parity
+
+          parity_contract=json.load(open('configs/product_a_v2_7_1_fresh_sharded_parity_v2_contract.json'))
+          float_rule=parity_contract['parity_rule']['floating_columns']
+          rtol=float(float_rule['relative_tolerance'])
+          atol=float(float_rule['absolute_tolerance'])
 
           ref=Path('reference'); rec=Path('reconstructed')
           rc=json.load(open(ref/'contract.json')); cc=json.load(open(rec/'contract.json'))
@@ -115,11 +136,16 @@ jobs:
           sha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
           for name in shared:
               assert sha(ref/name) == sha(rec/name), name
+
+          summaries={}
           for name in ('base_fold_metrics.csv','knockout_fold_metrics.csv','selection_trace.csv','worker_status.csv'):
               a=pd.read_csv(ref/name); b=pd.read_csv(rec/name)
-              pd.testing.assert_frame_equal(a,b,check_dtype=False,check_exact=True)
+              summary=assert_transport_frame_parity(a,b,rtol=rtol,atol=atol)
+              summaries[name]=summary.as_dict()
+
           receipt={
-              'purpose':'product_a_v2_7_1_fresh_sharded_model_pool_parity',
+              'purpose':'product_a_v2_7_1_fresh_sharded_model_pool_parity_v2',
+              'parity_contract':'configs/product_a_v2_7_1_fresh_sharded_parity_v2_contract.json',
               'primary_run_id':32552745281,
               'reference_worker_artifact_id':9473775642,
               'reference_worker_artifact_digest':'sha256:95b6d0ed1dc101c3633d45cbf0770f7f3498c0641541521a3c198c55a6052184',
@@ -128,8 +154,16 @@ jobs:
               'sealed_fraction':0.30,
               'all_three_M_recomputed':True,
               'shared_partition_and_audit_ledgers_byte_identical':True,
-              'model_pool_outputs_exactly_equal':True,
+              'discrete_and_structural_model_pool_outputs_exact':True,
+              'floating_model_pool_outputs_within_predeclared_envelope':True,
+              'floating_relative_tolerance':rtol,
+              'floating_absolute_tolerance':atol,
+              'frame_parity_summaries':summaries,
+              'fit_code_changed_for_parity':False,
+              'scientific_thresholds_changed_for_parity':False,
               'sealed_occurrence_environment_read':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
               'parity_passed':True,
           }
           Path('parity').mkdir()
