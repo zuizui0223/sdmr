@@ -1,0 +1,71 @@
+name: product-a-v2-7-2-known-truth-determinism
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-a-v2-7-2-known-truth-determinism-frozen
+  cancel-in-progress: false
+
+jobs:
+  replicate:
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [a, b]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Run independent deterministic known-truth replicate
+        run: |
+          python -m sdmr.v2_7_2_seeded_entrypoint run \
+            --output-dir result
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-known-truth-${{ matrix.replicate }}
+          path: result/
+          if-no-files-found: error
+          retention-days: 90
+
+  compare:
+    needs: replicate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-known-truth-a
+          path: replicate-a
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-known-truth-b
+          path: replicate-b
+      - name: Apply frozen determinism and scientific non-regression gates
+        run: |
+          python -m sdmr.v2_7_2_known_truth_confirmation compare \
+            --first-dir replicate-a \
+            --second-dir replicate-b \
+            --output-dir decision
+          cat decision/determinism_decision.json
+          cat decision/scientific_decision.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-known-truth-determinism-decision
+          path: decision/
+          if-no-files-found: error
+          retention-days: 90

@@ -205,6 +205,7 @@ def cross_validated_observation_corrected_niche_recovery(
     observation_correction_active: bool = True,
     n_splits: int = 4,
     model_spec: ModelSpec | None = None,
+    observation_model_spec: ModelSpec | None = None,
     observation_weight_truncation_quantile: float = 0.99,
 ) -> pd.DataFrame:
     """Return prediction and candidate-independent corrected recovery by fold.
@@ -213,6 +214,10 @@ def cross_validated_observation_corrected_niche_recovery(
     the training-only observation-process signal gate. Every candidate therefore
     sees exactly the same correction state and, within a fold, the same occurrence
     weights. If the gate is inactive, identity weights are used.
+
+    ``observation_model_spec`` controls only the candidate-independent nuisance
+    classifier used for occurrence-target weighting. It defaults to the historical
+    unseeded specification; deterministic successor contracts may freeze it.
     """
 
     candidate_observation_predictors = tuple(
@@ -266,6 +271,7 @@ def cross_validated_observation_corrected_niche_recovery(
                 b_train,
                 p_test,
                 weight_predictors,
+                model_spec=observation_model_spec,
                 truncation_quantile=observation_weight_truncation_quantile,
             )
             profile = observation_corrected_heldout_niche_recovery_profile(

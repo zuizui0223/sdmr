@@ -1,0 +1,96 @@
+{
+  "purpose": "product_a_v2_7_2_deterministic_successor_preoutcome_contract",
+  "frozen_before_v2_7_2_known_truth_outcome": true,
+  "trigger_evidence": {
+    "primary_fresh_run_id": 32552745281,
+    "primary_fresh_sealed_outcome_opened": false,
+    "parity_v1_run_id": 32574696718,
+    "parity_v1_result": "failed_bitwise_floating_output_identity",
+    "parity_v2_run_id": 32614371301,
+    "parity_v2_result": "failed_discrete_selected_predictor_identity",
+    "parity_v2_first_discrete_difference": "selected_predictors: ngd5,bio2,bio16,bio6,ngd10,scd,rsds != ngd5,bio2,bio16,bio6,ngd10,scd",
+    "sealed_environment_read_in_parity": false
+  },
+  "v2_7_1_stop_rule": {
+    "widen_parity_tolerance_allowed": false,
+    "ignore_discrete_selection_difference_allowed": false,
+    "selective_timed_out_worker_repair_allowed": false,
+    "launch_216_shard_recovery_as_semantics_preserving_allowed": false,
+    "open_current_fresh_sealed_outcomes_under_modified_estimator_allowed": false,
+    "product_a_empirically_promoted": false,
+    "product_b_unblocked": false
+  },
+  "implementation_change": {
+    "historical_modelspec_default_random_state": null,
+    "historical_labels_unchanged_when_random_state_omitted": true,
+    "successor_model_random_state": 0,
+    "successor_selection_process_numpy_seed": 0,
+    "successor_label_suffix": "_rs0",
+    "solver": "liblinear",
+    "selection_process_numpy_seed_role": "freeze legacy nuisance-classifier random_state=None paths inside v2.7.2 independent confirmation processes only",
+    "all_other_model_hyperparameters_changed": false,
+    "procedure_strategies_changed": false,
+    "candidate_predictor_universe_changed": false,
+    "prediction_adequacy_changed": false,
+    "ecological_recovery_metrics_changed": false,
+    "weighted_super_score_allowed": false
+  },
+  "known_truth_confirmation": {
+    "families": [
+      "gaussian",
+      "asymmetric",
+      "soft_threshold",
+      "interaction",
+      "omitted_driver",
+      "observation_confounded"
+    ],
+    "seeds": [3101, 3102, 3103, 3104, 3105, 3106, 3107, 3108, 3109, 3110],
+    "n_cases": 60,
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "n_cells": 2400,
+    "n_occurrences": 230,
+    "n_target_group": 820,
+    "n_spatial_blocks": 6,
+    "inner_folds": 3,
+    "minimum_background": 55,
+    "run_two_independent_process_replicates": true,
+    "hidden_truth_used_during_selection": false,
+    "reuse_prior_opened_known_truth_seeds": false
+  },
+  "determinism_gate": {
+    "same_candidate_library_required": true,
+    "selector_choice_rows_exact": true,
+    "selected_candidate_values_exact": true,
+    "observation_gate_states_exact": true,
+    "candidate_fold_discrete_columns_exact": true,
+    "numeric_relative_tolerance": 1e-10,
+    "numeric_absolute_tolerance": 1e-10,
+    "fail_closed_on_any_discrete_difference": true,
+    "tolerance_may_not_be_changed_after_outcome": true
+  },
+  "scientific_nonregression_gate": {
+    "robust_selector_selection_coverage_min": 0.95,
+    "stable_core_precision_min": 0.90,
+    "stable_core_recall_min": 0.90,
+    "stable_core_f1_min": 0.90,
+    "observation_confounded_correction_activation_fraction_min": 1.0,
+    "non_observation_confounded_correction_activation_fraction_max": 0.0,
+    "false_hidden_truth_leakage_allowed": false,
+    "failure_is_valid_negative_evidence": true,
+    "post_outcome_threshold_tuning_allowed": false
+  },
+  "empirical_successor_requirement": {
+    "current_v2_7_1_fresh_model_pool_may_be_relabelled_as_v2_7_2_confirmation": false,
+    "new_disjoint_taxon_panel_or_later_occurrence_snapshot_required": true,
+    "preferred_independence_axis": "new_disjoint_taxon_panel",
+    "same_2026_08_01_snapshot_allowed_only_for_taxa_never_used_in_v2_7_1_model_pool": true,
+    "old_v2_7_1_sealed_rows_may_be_opened_for_v2_7_2": false
+  },
+  "claim_boundary": {
+    "fundamental_niche_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false,
+    "scientific_promotion_allowed_before_new_empirical_confirmation": false,
+    "product_b_unblocked": false
+  }
+}
