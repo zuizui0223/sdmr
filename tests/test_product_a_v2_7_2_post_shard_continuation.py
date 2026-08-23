@@ -11,8 +11,10 @@ TRIGGER=Path('configs/product_a_v2_7_2_post_shard_continuation_pr_trigger.txt')
 def test_continuation_gate_is_closed_until_exact_build_is_pinned():
     c=json.loads(EXECUTION.read_text())
     assert c['execution_allowed'] is False
-    assert c['implementation_sha'] is None
+    assert 'implementation_sha' not in c
     assert c['frozen_ref'] is None
+    assert c['sha_resolution_policy']=='resolve_frozen_ref_tip_at_dispatch'
+    assert c['repository_stored_self_referential_sha_allowed'] is False
     assert c['random_state']==271
     assert c['shard_build_run_id'] is None
     assert c['shard_build_receipt_artifact_id'] is None
@@ -60,11 +62,15 @@ def test_continuation_preserves_full_information_order_and_seed():
     assert "'product_b_unblocked':False" in text
 
 
-def test_continuation_launcher_is_one_shot_and_trigger_absent():
+def test_continuation_launcher_resolves_frozen_ref_and_trigger_absent():
     text=LAUNCHER.read_text()
     assert 'product_a_v2_7_2_post_shard_continuation_pr_trigger.txt' in text
     assert 'multiple exact deterministic continuation runs exist' in text
+    assert "quote(c['frozen_ref'],safe='')" in text
+    assert "resolved_sha=str(branch.get('commit',{}).get('sha',''))" in text
+    assert "'expected_sha':resolved_sha" in text
     assert "'shard_build_receipt_artifact_digest':c['shard_build_receipt_artifact_digest']" in text
+    assert "c['implementation_sha']" not in text
     assert 'promotion source identity was not frozen before dispatch' in text
     assert "'scientific_promotion_allowed':False" in text
     assert "'product_b_unblocked':False" in text
