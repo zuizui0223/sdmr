@@ -60,10 +60,10 @@ def test_v272_empirical_scientific_contract_preserves_v271_decision_thresholds_a
     assert c['product_b_unblocked'] is False
 
 
-def test_v272_source_gate_is_fail_closed_until_new_raw_sources_and_runtime_are_pinned():
+def test_v272_source_gate_has_pinned_rank2_sources_but_remains_closed_until_runtime_is_pinned():
     c = json.loads(GATE.read_text())
     assert c['purpose'] == 'product_a_v2_7_2_fresh_empirical_source_gate'
-    assert c['gate_state'] == 'waiting_for_new_rank2_raw_sources_and_exact_empirical_runtime'
+    assert c['gate_state'] == 'rank2_raw_sources_pinned_waiting_for_exact_empirical_runtime'
     assert c['execution_allowed'] is False
     assert c['known_truth_endpoint']['determinism_passed'] is True
     assert c['known_truth_endpoint']['scientific_nonregression_supported'] is True
@@ -73,11 +73,20 @@ def test_v272_source_gate_is_fail_closed_until_new_raw_sources_and_runtime_are_p
     assert c['historical_catalog_transport']['v2_7_1_split_parts_may_be_reused'] is False
     assert c['historical_catalog_transport']['v2_7_1_sealed_rows_may_be_opened'] is False
     required = c['required_before_execution']
+    assert required['new_rank2_focal_artifact_run_id'] == 32631351934
+    assert required['new_rank2_excluding_target_group_artifact_run_id'] == 32631351934
+    assert required['new_rank2_focal_artifact_id'] == 9491372633
+    assert required['new_rank2_excluding_target_group_artifact_id'] == 9491264327
+    assert required['focal_file_sha256'] == 'c7c989e036e8833190bef1c23901e265d1e19001e443d41e6372be7e9b983ba3'
+    assert required['focal_query_sha256'] == '0bc37b5d5e7ce7d291463bd2b1f6f389c9c13d75df32f72aed358f6d3f422b9c'
+    assert required['target_group_file_sha256'] == '1ee69575ceecb68f5c42e1cd216a131d4ba41ff30ef99a322a2bc2e5cbf549a0'
+    assert required['target_group_query_sha256'] == '5180a62553dd71f56f3dd30e486f38f019e1b5fdfc2b9a2d8a57493069856fae'
+    assert required['raw_source_receipt_artifact_id'] == 9491375010
+    assert required['raw_source_receipt_artifact_digest'] == 'sha256:61f81acd96d8a3f5aad3a2e15599503d754e40607355722eaf6062e8edf91887'
     for key in (
-        'focal_file_sha256', 'focal_query_sha256', 'target_group_file_sha256',
-        'target_group_query_sha256', 'raw_source_receipt_artifact_id',
-        'raw_source_receipt_artifact_digest', 'empirical_runtime_implementation_sha',
-        'empirical_runtime_frozen_ref', 'workflow_file',
+        'empirical_runtime_implementation_sha',
+        'empirical_runtime_frozen_ref',
+        'workflow_file',
     ):
         assert required[key] is None
     assert c['scientific_constraints']['post_outcome_threshold_tuning_allowed'] is False
