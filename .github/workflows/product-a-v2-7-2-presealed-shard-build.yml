@@ -1,0 +1,212 @@
+name: product-a-v2-7-2-presealed-shard-build
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        required: true
+        type: string
+      expected_ref:
+        required: true
+        type: string
+      probe_run_id:
+        required: true
+        type: string
+      probe_artifact_id:
+        required: true
+        type: string
+      probe_artifact_digest:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-2-presealed-shard-build-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require exact deterministic source and successful probe
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          EXPECTED_REF: ${{ inputs.expected_ref }}
+          PROBE_RUN_ID: ${{ inputs.probe_run_id }}
+          PROBE_ARTIFACT_ID: ${{ inputs.probe_artifact_id }}
+          PROBE_ARTIFACT_DIGEST: ${{ inputs.probe_artifact_digest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          c=json.load(open('configs/product_a_v2_7_2_deterministic_execution_contract.json'))
+          if os.environ['GITHUB_SHA']!=os.environ['EXPECTED_SHA'] or os.environ['GITHUB_REF_NAME']!=os.environ['EXPECTED_REF']:
+              raise SystemExit('deterministic shard-build identity mismatch')
+          if c['deterministic_execution']['random_state']!=271:
+              raise SystemExit('deterministic seed changed')
+          if c['evidence_reuse_boundary']['rerun_all_72_taxon_part_cells_uniformly'] is not True:
+              raise SystemExit('uniform rerun boundary changed')
+          if c['evidence_reuse_boundary']['reuse_any_old_model_pool_worker_output'] is not False:
+              raise SystemExit('old worker reuse became allowed')
+          run_id=int(os.environ['PROBE_RUN_ID']); artifact_id=int(os.environ['PROBE_ARTIFACT_ID']); digest=os.environ['PROBE_ARTIFACT_DIGEST']
+          if run_id<=0 or artifact_id<=0 or not digest.startswith('sha256:'):
+              raise SystemExit('determinism probe identity is not pinned')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-shard-build'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(rid):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{rid}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+          run=get(f'{api}/actions/runs/{run_id}')
+          if run.get('head_sha')!=os.environ['GITHUB_SHA'] or run.get('head_branch')!=os.environ['GITHUB_REF_NAME'] or run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit('determinism probe run identity/status changed')
+          matches=[a for a in artifacts(run_id) if int(a['id'])==artifact_id]
+          if len(matches)!=1 or matches[0].get('name')!='product-a-v2-7-2-determinism-probe' or matches[0].get('digest')!=digest:
+              raise SystemExit('determinism probe artifact identity changed')
+          print(json.dumps({'implementation_sha':os.environ['GITHUB_SHA'],'probe_run_id':run_id,'random_state':271,'sealed_blind':True},indent=2))
+          PY
+      - name: Verify probe receipt and untouched primary sealed boundary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROBE_RUN_ID: ${{ inputs.probe_run_id }}
+        run: |
+          gh run download "$PROBE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name product-a-v2-7-2-determinism-probe --dir probe
+          python - <<'PY'
+          import json
+          r=json.load(open('probe/receipt.json'))
+          assert r['purpose']=='product_a_v2_7_2_independent_process_determinism_probe'
+          assert r['random_state']==271
+          assert r['all_files_byte_identical'] is True
+          assert r['sealed_environment_read'] is False
+          assert r['scientific_decision_generated'] is False
+          assert r['product_b_unblocked'] is False
+          PY
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          h={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-primary-boundary'}
+          def get(url):
+              with urlopen(Request(url,headers=h),timeout=60) as r:return json.load(r)
+          arts=[];page=1
+          while True:
+              data=get(f'{api}/actions/runs/32552745281/artifacts?per_page=100&page={page}'); batch=data.get('artifacts',[]); arts.extend(batch)
+              if len(batch)<100:break
+              page+=1
+          names=[a['name'] for a in arts if not a.get('expired')]
+          assert sum(n.startswith('v271-fresh-part-') for n in names)==6
+          assert not any(n.startswith('v271-fresh-pretruth-') for n in names)
+          assert not any(n.startswith('v271-fresh-final-') for n in names)
+          assert not any(n.startswith('v271-fresh-audit-') for n in names)
+          assert 'product-a-v2-7-1-fresh-taxon-holdout-confirmation-decision' not in names
+          PY
+
+  shard:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 48
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        M: [buffer_150km, buffer_300km, buffer_500km]
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      SDMR_LOGISTIC_RANDOM_STATE: '271'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - name: Build one deterministic sealed-blind M shard
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard \
+            --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json \
+            --process-registry configs/product_a_empirical_process_registry_v1.csv \
+            --part-dir part \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --M ${{ matrix.M }} \
+            --output-dir shard
+          python - <<'PY'
+          import json, os
+          c=json.load(open('shard/contract.json'))
+          assert os.environ['SDMR_LOGISTIC_RANDOM_STATE']=='271'
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['candidate_scores_used_for_partition_or_audit_selection'] is False
+          if c.get('available'):
+              assert c['transport_shard_only'] is True
+              assert c['scientific_semantics_changed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-fresh-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-${{ matrix.M }}
+          path: shard/
+          retention-days: 30
+
+  receipt:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Freeze deterministic sealed-blind shard-build receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt={
+              'purpose':'product_a_v2_7_2_deterministic_presealed_shard_build_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'random_state':271,
+              'n_expected_M_shards':216,
+              'all_taxon_part_M_shards_rerun_uniformly':True,
+              'old_worker_outputs_reused':False,
+              'sealed_environment_read':False,
+              'pretruth_performed':False,
+              'final_fit_performed':False,
+              'sealed_audit_performed':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('receipt').mkdir()
+          Path('receipt/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-deterministic-presealed-shard-build-receipt
+          path: receipt/
+          retention-days: 90
