@@ -1,6 +1,9 @@
 {
   "purpose": "product_a_v2_7_2_primary_sharded_empirical_runtime_design",
+  "frozen_before_rank2_raw_source_or_empirical_model_outcome": true,
+  "legacy_freeze_field_scope": "rank2_raw_source_means_the_complete_focal_plus_target_plus_receipt_source_result_not_in_progress_transport_chunks",
   "raw_source_acquisition_started_before_runtime_design_freeze": true,
+  "complete_rank2_raw_source_result_available_at_runtime_design_freeze": false,
   "raw_source_biological_content_used_to_design_runtime": false,
   "raw_source_file_or_query_fingerprints_used_to_design_runtime": false,
   "frozen_before_rank2_empirical_model_or_sealed_outcome": true,
