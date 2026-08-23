@@ -1,0 +1,107 @@
+name: product-a-v2-7-1-fresh-presealed-shard-build-v2-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_7_1_fresh_presealed_shard_build_v2_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch at most one exact sealed-blind shard-build v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.request
+          from pathlib import Path
+
+          c=json.load(open('configs/product_a_v2_7_1_fresh_presealed_shard_build_v2_execution.json'))
+          if c.get('purpose')!='product_a_v2_7_1_fresh_presealed_shard_build_v2_execution':
+              raise SystemExit('wrong shard-build v2 execution contract')
+          if c.get('execution_allowed') is not True:
+              raise SystemExit('shard-build v2 execution gate is closed')
+          if not c.get('wrapper_sha') or not c.get('wrapper_ref'):
+              raise SystemExit('wrapper identity is not pinned')
+          if int(c.get('parity_artifact_id') or 0)<=0 or not str(c.get('parity_artifact_digest') or '').startswith('sha256:'):
+              raise SystemExit('parity artifact is not pinned')
+          if c.get('parity_passed') is not True:
+              raise SystemExit('parity v2 is not pinned as passed')
+          if c.get('one_shot_required') is not True:
+              raise SystemExit('shard-build v2 is not one-shot')
+          if c.get('sealed_environment_read_allowed') is not False or c.get('scientific_decision_generated') is not False:
+              raise SystemExit('shard-build v2 claim boundary changed')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v271-presealed-shard-build-v2-launcher'}
+          def request(url,*,method='GET',payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  raw=r.read(); return json.loads(raw) if raw else None
+          def matches():
+              data=request(f"{api}/actions/workflows/{c['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
+              return [r for r in data.get('workflow_runs',[])
+                      if r.get('head_sha')==c['wrapper_sha']
+                      and r.get('head_branch')==c['wrapper_ref']
+                      and r.get('event')=='workflow_dispatch']
+
+          runs=matches(); dispatched=False
+          if len(runs)>1:
+              raise SystemExit(f'multiple exact shard-build v2 runs exist: {len(runs)}')
+          if not runs:
+              payload={
+                  'ref':c['wrapper_ref'],
+                  'inputs':{
+                      'expected_wrapper_sha':c['wrapper_sha'],
+                      'expected_wrapper_ref':c['wrapper_ref'],
+                      'parity_artifact_id':str(c['parity_artifact_id']),
+                      'parity_artifact_digest':c['parity_artifact_digest'],
+                  },
+              }
+              request(f"{api}/actions/workflows/{c['workflow_file']}/dispatches",method='POST',payload=payload)
+              dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=matches()
+                  if runs: break
+          if len(runs)!=1:
+              raise SystemExit(f'expected one exact shard-build v2 run, found {len(runs)}')
+          run=runs[0]; event=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          receipt={
+              'purpose':'product_a_v2_7_1_fresh_presealed_shard_build_v2_launch_receipt',
+              'pull_request':int(event['pull_request']['number']),
+              'wrapper_sha':c['wrapper_sha'],
+              'wrapper_ref':c['wrapper_ref'],
+              'workflow_file':c['workflow_file'],
+              'parity_run_id':int(c['parity_run_id']),
+              'parity_artifact_id':int(c['parity_artifact_id']),
+              'parity_artifact_digest':c['parity_artifact_digest'],
+              'dispatched_now':dispatched,
+              'run_id':int(run['id']),
+              'run_number':int(run['run_number']),
+              'status':str(run['status']),
+              'conclusion':run.get('conclusion'),
+              'sealed_environment_read_allowed':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-1-fresh-presealed-shard-build-v2-launch-receipt
+          path: launch/receipt.json
+          retention-days: 90
