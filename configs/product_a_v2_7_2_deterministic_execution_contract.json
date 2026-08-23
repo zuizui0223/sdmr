@@ -36,6 +36,20 @@
     "response_complexity_changed": false,
     "procedure_labels_changed": false
   },
+  "runtime_freeze": {
+    "python_version": "3.12.14",
+    "constraints_path": "configs/product_a_v2_7_2_runtime_constraints.txt",
+    "version_source": "successful_2026_08_22_fresh_materialization_and_model_environment_before_sealed_outcome",
+    "runtime_may_not_float_between_probe_build_and_continuation": true
+  },
+  "scientific_execution_fingerprint": {
+    "module": "sdmr.execution_fingerprint",
+    "covers_all_src_sdmr_python": true,
+    "covers_frozen_scientific_contracts_runtime_and_deterministic_workflows": true,
+    "execution_gate_identity_json_excluded": true,
+    "probe_build_and_continuation_must_match": true,
+    "activation_only_commits_allowed_only_when_fingerprint_unchanged": true
+  },
   "evidence_reuse_boundary": {
     "reuse_six_presealed_materialization_parts": true,
     "reason": "roles_and_model_pool_environment_were_materialized_before_model_fitting_and_sealed_environment_values_remain_unopened",
@@ -52,6 +66,7 @@
     "independent_process_determinism_probe_required": true,
     "determinism_probe_uses_model_pool_only": true,
     "determinism_probe_must_show_exact_scientific_output_identity": true,
+    "determinism_probe_build_and_continuation_science_fingerprint_must_match": true,
     "216_shard_build_must_complete": true,
     "72_workers_must_reconstruct": true,
     "six_pretruth_parts_must_freeze_before_final_fit": true,
