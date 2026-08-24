@@ -3,7 +3,10 @@ from pathlib import Path
 
 
 CONTRACT = Path('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json')
+EXECUTION = Path('configs/product_a_v2_7_2_fresh_post_rebuild_execution_contract.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-continuation.yml')
+LAUNCHER = Path('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-pr-launch.yml')
+TRIGGER = Path('configs/product_a_v2_7_2_fresh_post_rebuild_pr_trigger.txt')
 
 
 def test_post_rebuild_contract_stays_closed_until_one_exact_successful_rebuild_is_pinned():
@@ -21,6 +24,24 @@ def test_post_rebuild_contract_stays_closed_until_one_exact_successful_rebuild_i
     assert src['old_partial_shards_from_run_32637712231_allowed'] is False
     assert src['selective_shard_substitution_allowed'] is False
     assert c['execution_identity']['execution_allowed'] is False
+
+
+def test_execution_authorization_is_predeclared_and_closed():
+    e = json.loads(EXECUTION.read_text())
+    assert e['purpose'] == 'product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization'
+    assert e['predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit'] is True
+    for key in (
+        'implementation_sha', 'frozen_ref', 'workflow_blob_sha',
+        'continuation_contract_blob_sha', 'successful_rebuild_run_id',
+        'successful_rebuild_sha', 'successful_rebuild_ref',
+    ):
+        assert e[key] is None
+    assert e['requires_exact_216_rebuild_shards'] is True
+    assert e['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
+    assert e['post_outcome_retuning_allowed'] is False
+    assert e['scientific_promotion_allowed'] is False
+    assert e['product_b_unblocked'] is False
+    assert e['execution_allowed'] is False
 
 
 def test_continuation_graph_preserves_72_6_72_6_1_information_order():
@@ -88,6 +109,19 @@ def test_sealed_audit_cannot_start_before_pretruth_and_all_final_fits():
     assert 'final-fit:\n    needs: pretruth' in text
     assert 'sealed-audit:\n    needs: final-fit' in text
     assert 'aggregate:\n    needs: sealed-audit' in text
+
+
+def test_generic_launcher_is_fail_closed_one_shot_and_trigger_is_absent():
+    text = LAUNCHER.read_text()
+    assert 'product_a_v2_7_2_fresh_post_rebuild_pr_trigger.txt' in text
+    assert "auth.get('execution_allowed') is not True" in text
+    assert "len(names)!=216" in text
+    assert "set(names)!=expected" in text
+    assert 'multiple exact post-rebuild continuation runs exist' in text
+    assert "payload={'ref':auth['frozen_ref']}" in text
+    assert "'scientific_promotion_allowed':False" in text
+    assert "'product_b_unblocked':False" in text
+    assert not TRIGGER.exists()
 
 
 def test_decision_does_not_promote_product_a_or_unblock_product_b():
