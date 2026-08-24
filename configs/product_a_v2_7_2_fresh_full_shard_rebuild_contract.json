@@ -1,0 +1,78 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_full_216_shard_rebuild_contract",
+  "predeclared_before_any_rank2_pretruth_or_sealed_outcome": true,
+  "scientific_parent": {
+    "implementation_sha": "5073d6c701f36fdae0bf5df9a1d42f1863d994a8",
+    "frozen_ref": "frozen/product-a-v2-7-2-fresh-confirmation-5073d6c7",
+    "scientific_contract_path": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0
+  },
+  "superseded_full_run": {
+    "workflow_run_id": 32637712231,
+    "workflow_conclusion": "cancelled",
+    "preflight_success": true,
+    "raw_source_verification_success": true,
+    "all_6_materializations_success": true,
+    "aggregate_worker_started": false,
+    "pretruth_started": false,
+    "sealed_audit_started": false,
+    "scientific_decision_produced": false,
+    "reference_timeout_job_id": 97205950056,
+    "reference_timeout_cell": {
+      "part_seed": 2026082201,
+      "sealed_fraction": 0.20,
+      "taxon_index": 0,
+      "M": "buffer_150km"
+    },
+    "reference_timeout_started_utc": "2026-08-23T14:04:06Z",
+    "reference_timeout_cancelled_utc": "2026-08-23T18:03:51Z",
+    "configured_timeout_minutes": 240,
+    "diagnosis": "configured per-shard execution-time ceiling reached before the shard could serialize; this is technical runtime evidence, not ecological evidence"
+  },
+  "reusable_presealed_materializations": {
+    "source_run_id": 32637712231,
+    "why_reuse_is_allowed": "all six parts were frozen before M-model fitting and contain no sealed environmental values; reuse changes no taxon, split, M, model, process, metric, or threshold",
+    "sealed_environment_values_present": false,
+    "parts": [
+      {"seed": 2026082201, "sealed_fraction": 0.20, "artifact_name": "v272-fresh-part-2026082201-0.20", "artifact_id": 9494092533, "artifact_digest": "sha256:f44a7b0b3771751c7d71b7fa22261c1d0aea7bb3b3c687301671c513c219047f"},
+      {"seed": 2026082201, "sealed_fraction": 0.30, "artifact_name": "v272-fresh-part-2026082201-0.30", "artifact_id": 9494068025, "artifact_digest": "sha256:2a298b250f76d16b6f933f94fd31a13ffb550aa2333d00aaa5c3a47348ff8102"},
+      {"seed": 2026082202, "sealed_fraction": 0.20, "artifact_name": "v272-fresh-part-2026082202-0.20", "artifact_id": 9494144168, "artifact_digest": "sha256:2ee92fe99f6a4aaa631720e96595b79df5d740371e063666dc0106b70f28b4b2"},
+      {"seed": 2026082202, "sealed_fraction": 0.30, "artifact_name": "v272-fresh-part-2026082202-0.30", "artifact_id": 9494332244, "artifact_digest": "sha256:675020677f8773b306c2b04b643b9dbe5e8097077d87d08270830009e07faf05"},
+      {"seed": 2026082203, "sealed_fraction": 0.20, "artifact_name": "v272-fresh-part-2026082203-0.20", "artifact_id": 9493962148, "artifact_digest": "sha256:32774d5d32f3c8d12fba29ede9c0c305ef760be0ce0be057713fbb0506bea711"},
+      {"seed": 2026082203, "sealed_fraction": 0.30, "artifact_name": "v272-fresh-part-2026082203-0.30", "artifact_id": 9494416868, "artifact_digest": "sha256:ad1a90a804c2b9c3c5a15af761c803948744138c0fca5ea2b95558e1abe288ba"}
+    ]
+  },
+  "uniform_rebuild": {
+    "taxon_part_cells": 72,
+    "M_per_cell": 3,
+    "required_shards": 216,
+    "all_216_recomputed": true,
+    "partial_shards_from_run_32637712231_reused": false,
+    "selective_retry_or_substitution_allowed": false,
+    "M_km": [150, 300, 500],
+    "split_seeds": [2026082201, 2026082202, 2026082203],
+    "sealed_fractions": [0.20, 0.30],
+    "previous_timeout_minutes": 240,
+    "rebuild_timeout_minutes": 360,
+    "only_execution_change": "per-M-shard wall-clock budget 240_to_360_minutes",
+    "model_or_scientific_rule_changed": false,
+    "sealed_occurrence_environment_read": false,
+    "candidate_scores_used_for_partition_or_audit_selection": false
+  },
+  "rebuild_scope": {
+    "aggregate_workers_allowed": false,
+    "pretruth_allowed": false,
+    "final_fit_allowed": false,
+    "sealed_audit_allowed": false,
+    "scientific_decision_allowed": false,
+    "product_a_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_file": "product-a-v2-7-2-fresh-full-shard-rebuild.yml",
+    "execution_allowed": false
+  }
+}
