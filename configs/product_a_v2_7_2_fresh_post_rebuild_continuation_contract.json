@@ -1,0 +1,70 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract",
+  "predeclared_before_full_rebuild_outcome_and_before_any_rank2_pretruth_or_sealed_outcome": true,
+  "scientific_parent_sha": "5073d6c701f36fdae0bf5df9a1d42f1863d994a8",
+  "scientific_contract_path": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
+  "materialization_source": {
+    "workflow_run_id": 32637712231,
+    "exact_6_presealed_parts_only": true,
+    "sealed_environment_values_present": false
+  },
+  "required_rebuild_source": {
+    "workflow_file": "product-a-v2-7-2-fresh-full-shard-rebuild.yml",
+    "workflow_run_id": null,
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "require_workflow_conclusion_success": true,
+    "require_exactly_216_rebuild_M_shards": true,
+    "require_all_shards_from_one_exact_rebuild_run": true,
+    "artifact_name_prefix": "v272-rebuild-M-",
+    "old_partial_shards_from_run_32637712231_allowed": false,
+    "selective_shard_substitution_allowed": false
+  },
+  "continuation_graph": {
+    "aggregate_workers": 72,
+    "exactly_three_M_shards_per_worker": true,
+    "shared_partition_and_audit_ledgers_must_be_byte_identical": true,
+    "pretruth_parts": 6,
+    "final_fit_jobs": 72,
+    "sealed_audit_parts": 6,
+    "decision_artifacts": 1
+  },
+  "information_order": [
+    "verify_one_exact_successful_216_shard_rebuild",
+    "aggregate_exactly_three_rebuild_M_shards_into_each_of_72_workers",
+    "freeze_six_pretruth_representatives_and_process_status_tables",
+    "fit_and_serialize_72_final_representatives",
+    "open_each_parts_sealed_environment_only_after_pretruth_and_all_required_final_models",
+    "apply_unchanged_six_part_empirical_decision"
+  ],
+  "scientific_invariants": {
+    "taxon_panel_changed": false,
+    "source_identity_changed": false,
+    "M_grid_changed": false,
+    "model_random_state_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "procedure_library_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "prediction_guardrail_changed": false,
+    "ecological_recovery_metrics_changed": false,
+    "process_semantics_changed": false,
+    "six_part_decision_rule_changed": false,
+    "weighted_super_score_allowed": false,
+    "post_outcome_threshold_tuning_allowed": false,
+    "post_outcome_candidate_reselection_allowed": false,
+    "post_outcome_random_seed_change_allowed": false
+  },
+  "claim_boundary": {
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "continuation_decision_itself_promotes_product_a": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_file": null,
+    "execution_allowed": false
+  }
+}
