@@ -1,0 +1,154 @@
+name: product-a-v2-7-2-fresh-post-rebuild-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_7_2_fresh_post_rebuild_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one frozen post-rebuild continuation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          auth=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_execution_contract.json'))
+          cont=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json'))
+          if auth.get('purpose')!='product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization':
+              raise SystemExit('wrong post-rebuild execution authorization')
+          if auth.get('predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit') is not True:
+              raise SystemExit('execution authorization was not predeclared before outcome')
+          if auth.get('execution_allowed') is not True:
+              raise SystemExit('post-rebuild continuation execution gate is closed')
+          if auth.get('requires_single_workflow_dispatch_run_for_frozen_identity') is not True:
+              raise SystemExit('post-rebuild continuation is not one-shot')
+          if auth.get('requires_exact_216_rebuild_shards') is not True:
+              raise SystemExit('216-shard denominator authorization changed')
+          if auth.get('post_outcome_retuning_allowed') is not False:
+              raise SystemExit('post-outcome retuning authorization changed')
+          if auth.get('scientific_promotion_allowed') is not False or auth.get('product_b_unblocked') is not False:
+              raise SystemExit('launcher crossed Product-A/Product-B claim boundary')
+          if cont.get('purpose')!='product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract':
+              raise SystemExit('wrong continuation contract')
+          src=cont['required_rebuild_source']
+          if int(src.get('workflow_run_id') or 0)!=int(auth.get('successful_rebuild_run_id') or 0):
+              raise SystemExit('authorized rebuild run differs from continuation source')
+          if src.get('implementation_sha')!=auth.get('successful_rebuild_sha') or src.get('frozen_ref')!=auth.get('successful_rebuild_ref'):
+              raise SystemExit('authorized rebuild identity differs from continuation source')
+          if src.get('require_exactly_216_rebuild_M_shards') is not True or src.get('require_all_shards_from_one_exact_rebuild_run') is not True:
+              raise SystemExit('continuation source denominator changed')
+          if src.get('old_partial_shards_from_run_32637712231_allowed') is not False or src.get('selective_shard_substitution_allowed') is not False:
+              raise SystemExit('old partial shard reuse/selective substitution is forbidden')
+
+          required=('implementation_sha','frozen_ref','workflow_blob_sha','continuation_contract_blob_sha')
+          if any(not auth.get(k) for k in required):
+              raise SystemExit('frozen continuation execution identity is incomplete')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v272-post-rebuild-launcher',
+          }
+          def request(url,*,method='GET',payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  raw=response.read(); return json.loads(raw) if raw else None
+          def verify_blob(path,expected):
+              quoted=urllib.parse.quote(path,safe='/')
+              ref=urllib.parse.quote(auth['frozen_ref'],safe='')
+              payload=request(f'{api}/contents/{quoted}?ref={ref}')
+              if payload.get('sha')!=expected:
+                  raise SystemExit(f'frozen continuation blob changed: {path}')
+
+          verify_blob('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-continuation.yml',auth['workflow_blob_sha'])
+          verify_blob(auth['continuation_contract_path'],auth['continuation_contract_blob_sha'])
+
+          rebuild=request(f"{api}/actions/runs/{int(auth['successful_rebuild_run_id'])}")
+          if rebuild.get('head_sha')!=auth['successful_rebuild_sha'] or rebuild.get('head_branch')!=auth['successful_rebuild_ref']:
+              raise SystemExit('authorized rebuild runtime identity changed')
+          if rebuild.get('status')!='completed' or rebuild.get('conclusion')!='success':
+              raise SystemExit('authorized rebuild is not successful')
+
+          def artifacts(run):
+              out=[]; page=1
+              while True:
+                  data=request(f'{api}/actions/runs/{run}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+          expected={
+              f'v272-rebuild-M-{seed}-{fraction}-taxon{taxon}-{M}'
+              for seed in (2026082201,2026082202,2026082203)
+              for fraction in ('0.20','0.30')
+              for taxon in range(12)
+              for M in ('buffer_150km','buffer_300km','buffer_500km')
+          }
+          names=[a['name'] for a in artifacts(int(auth['successful_rebuild_run_id'])) if a.get('name','').startswith('v272-rebuild-M-')]
+          if len(names)!=216 or len(set(names))!=216 or set(names)!=expected:
+              raise SystemExit(f'authorized rebuild artifact set is not exact 216: {len(names)}')
+
+          workflow=auth['continuation_workflow_file']
+          def matches():
+              data=request(f'{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100')
+              return [r for r in data.get('workflow_runs',[])
+                      if r.get('head_sha')==auth['implementation_sha']
+                      and r.get('head_branch')==auth['frozen_ref']
+                      and r.get('event')=='workflow_dispatch']
+
+          runs=matches(); dispatched=False
+          if len(runs)>1:
+              raise SystemExit(f'multiple exact post-rebuild continuation runs exist: {len(runs)}')
+          if not runs:
+              request(f'{api}/actions/workflows/{workflow}/dispatches',method='POST',payload={'ref':auth['frozen_ref']})
+              dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=matches()
+                  if runs: break
+          if len(runs)!=1:
+              raise SystemExit(f'expected one exact post-rebuild continuation run, found {len(runs)}')
+
+          run=runs[0]; event=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          receipt={
+              'purpose':'product_a_v2_7_2_fresh_post_rebuild_continuation_launch_receipt',
+              'pull_request':int(event['pull_request']['number']),
+              'implementation_sha':auth['implementation_sha'],
+              'frozen_ref':auth['frozen_ref'],
+              'workflow_file':workflow,
+              'source_rebuild_run_id':int(auth['successful_rebuild_run_id']),
+              'required_rebuild_shards':216,
+              'dispatched_now':dispatched,
+              'run_id':int(run['id']),
+              'run_number':int(run['run_number']),
+              'status':str(run['status']),
+              'conclusion':run.get('conclusion'),
+              'post_outcome_retuning_allowed':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-post-rebuild-continuation-launch-receipt
+          path: launch/receipt.json
+          retention-days: 90
