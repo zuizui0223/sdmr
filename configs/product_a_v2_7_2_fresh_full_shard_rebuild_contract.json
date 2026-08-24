@@ -70,9 +70,12 @@
     "product_b_unblocked": false
   },
   "execution_identity": {
-    "implementation_sha": null,
-    "frozen_ref": null,
+    "implementation_sha": "820d760d9d852207b521a80aaf5a5ae30451950f",
+    "frozen_ref": "frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d",
     "workflow_file": "product-a-v2-7-2-fresh-full-shard-rebuild.yml",
-    "execution_allowed": false
+    "workflow_blob_sha": "2cfa74be267e2ea60c6a4d1f60aa72c02978af5d",
+    "runtime_contract_blob_sha": "b61b087fd0887c52239ee6f60ffabfd0cd1c4176",
+    "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+    "execution_allowed": true
   }
 }

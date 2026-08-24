@@ -1,0 +1,117 @@
+name: product-a-v2-7-2-fresh-full-shard-rebuild-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_7_2_fresh_full_shard_rebuild_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one frozen sealed-blind 216-shard rebuild
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          c=json.load(open('configs/product_a_v2_7_2_fresh_full_shard_rebuild_contract.json'))
+          if c.get('purpose')!='product_a_v2_7_2_fresh_full_216_shard_rebuild_contract':
+              raise SystemExit('wrong v2.7.2 full-shard rebuild contract')
+          if c.get('predeclared_before_any_rank2_pretruth_or_sealed_outcome') is not True:
+              raise SystemExit('full-shard rebuild was not predeclared before outcome')
+          e=c['execution_identity']
+          if e.get('execution_allowed') is not True:
+              raise SystemExit('full-shard rebuild gate is closed')
+          if e.get('requires_single_workflow_dispatch_run_for_frozen_identity') is not True:
+              raise SystemExit('full-shard rebuild is not one-shot')
+          rebuild=c['uniform_rebuild']
+          if rebuild.get('required_shards')!=216 or rebuild.get('all_216_recomputed') is not True:
+              raise SystemExit('full-shard rebuild denominator changed')
+          if rebuild.get('partial_shards_from_run_32637712231_reused') is not False:
+              raise SystemExit('old partial shards may not be reused')
+          if rebuild.get('selective_retry_or_substitution_allowed') is not False:
+              raise SystemExit('selective shard recovery is forbidden')
+          scope=c['rebuild_scope']
+          for key in ('aggregate_workers_allowed','pretruth_allowed','final_fit_allowed','sealed_audit_allowed','scientific_decision_allowed','product_a_promotion_allowed','product_b_unblocked'):
+              if scope.get(key) is not False:
+                  raise SystemExit(f'full-shard rebuild crossed scope: {key}')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v272-full-shard-rebuild-launcher',
+          }
+          def request(url,*,method='GET',payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  raw=response.read(); return json.loads(raw) if raw else None
+          def verify_blob(path,expected):
+              quoted=urllib.parse.quote(path,safe='/')
+              ref=urllib.parse.quote(e['frozen_ref'],safe='')
+              payload=request(f'{api}/contents/{quoted}?ref={ref}')
+              if payload.get('sha')!=expected:
+                  raise SystemExit(f'frozen rebuild blob changed: {path}')
+
+          verify_blob('.github/workflows/product-a-v2-7-2-fresh-full-shard-rebuild.yml',e['workflow_blob_sha'])
+          verify_blob('configs/product_a_v2_7_2_fresh_full_shard_rebuild_contract.json',e['runtime_contract_blob_sha'])
+
+          def matches():
+              data=request(f"{api}/actions/workflows/{e['workflow_file']}/runs?event=workflow_dispatch&per_page=100")
+              return [r for r in data.get('workflow_runs',[])
+                      if r.get('head_sha')==e['implementation_sha']
+                      and r.get('head_branch')==e['frozen_ref']
+                      and r.get('event')=='workflow_dispatch']
+
+          runs=matches(); dispatched=False
+          if len(runs)>1:
+              raise SystemExit(f'multiple exact full-shard rebuild runs exist: {len(runs)}')
+          if not runs:
+              request(f"{api}/actions/workflows/{e['workflow_file']}/dispatches",method='POST',payload={'ref':e['frozen_ref']})
+              dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=matches()
+                  if runs: break
+          if len(runs)!=1:
+              raise SystemExit(f'expected one exact full-shard rebuild run, found {len(runs)}')
+          run=runs[0]; event=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          receipt={
+              'purpose':'product_a_v2_7_2_fresh_full_shard_rebuild_launch_receipt',
+              'pull_request':int(event['pull_request']['number']),
+              'implementation_sha':e['implementation_sha'],
+              'frozen_ref':e['frozen_ref'],
+              'workflow_file':e['workflow_file'],
+              'dispatched_now':dispatched,
+              'run_id':int(run['id']),
+              'run_number':int(run['run_number']),
+              'status':str(run['status']),
+              'conclusion':run.get('conclusion'),
+              'required_shards':216,
+              'sealed_environment_read_allowed':False,
+              'scientific_decision_generated':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-full-shard-rebuild-launch-receipt
+          path: launch/receipt.json
+          retention-days: 90

@@ -4,6 +4,8 @@ from pathlib import Path
 REBUILD = Path('configs/product_a_v2_7_2_fresh_full_shard_rebuild_contract.json')
 CONT = Path('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-fresh-full-shard-rebuild.yml')
+LAUNCHER = Path('.github/workflows/product-a-v2-7-2-fresh-full-shard-rebuild-pr-launch.yml')
+TRIGGER = Path('configs/product_a_v2_7_2_fresh_full_shard_rebuild_pr_trigger.txt')
 
 
 def test_full_rebuild_uses_only_six_exact_presealed_parts_and_reruns_all_216():
@@ -34,7 +36,14 @@ def test_full_rebuild_uses_only_six_exact_presealed_parts_and_reruns_all_216():
     assert r['rebuild_timeout_minutes'] == 360
     assert r['only_execution_change'] == 'per-M-shard wall-clock budget 240_to_360_minutes'
     assert r['model_or_scientific_rule_changed'] is False
-    assert c['execution_identity']['execution_allowed'] is False
+    execution = c['execution_identity']
+    assert execution['implementation_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert execution['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d'
+    assert execution['workflow_file'] == 'product-a-v2-7-2-fresh-full-shard-rebuild.yml'
+    assert execution['workflow_blob_sha'] == '2cfa74be267e2ea60c6a4d1f60aa72c02978af5d'
+    assert execution['runtime_contract_blob_sha'] == 'b61b087fd0887c52239ee6f60ffabfd0cd1c4176'
+    assert execution['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
+    assert execution['execution_allowed'] is True
 
 
 def test_rebuild_workflow_is_shard_only_and_uses_360_min_uniform_budget():
@@ -78,3 +87,15 @@ def test_post_rebuild_continuation_is_frozen_closed_before_build_outcome():
     assert c['claim_boundary']['continuation_decision_itself_promotes_product_a'] is False
     assert c['claim_boundary']['product_b_unblocked'] is False
     assert c['execution_identity']['execution_allowed'] is False
+
+
+def test_full_rebuild_launcher_is_one_shot_and_trigger_is_not_committed():
+    text = LAUNCHER.read_text()
+    assert 'product_a_v2_7_2_fresh_full_shard_rebuild_pr_trigger.txt' in text
+    assert 'multiple exact full-shard rebuild runs exist' in text
+    assert "payload={'ref':e['frozen_ref']}" in text
+    assert "'required_shards':216" in text
+    assert "'sealed_environment_read_allowed':False" in text
+    assert "'scientific_decision_generated':False" in text
+    assert "'product_b_unblocked':False" in text
+    assert not TRIGGER.exists()
