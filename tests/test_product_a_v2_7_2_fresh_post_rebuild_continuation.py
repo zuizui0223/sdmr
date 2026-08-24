@@ -57,6 +57,15 @@ def test_continuation_workflow_uses_only_rebuild_shards_and_original_presealed_p
     assert "rebuild.get('conclusion')!='success'" in text
 
 
+def test_frozen_runtime_has_no_execution_identity_self_reference():
+    text = WORKFLOW.read_text()
+    assert "e.get('execution_allowed')" not in text
+    assert 'post-rebuild continuation exact execution identity mismatch' not in text
+    assert 'successful rebuild source is not pinned' in text
+    assert "rebuild.get('head_sha')!=s['implementation_sha']" in text
+    assert "rebuild.get('head_branch')!=s['frozen_ref']" in text
+
+
 def test_continuation_reuses_v272_scientific_runtime_without_new_selection_logic():
     text = WORKFLOW.read_text()
     for module in (
