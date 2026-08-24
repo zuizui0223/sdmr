@@ -1,0 +1,367 @@
+name: product-a-v2-7-2-fresh-post-rebuild-continuation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-2-fresh-post-rebuild-continuation-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      rebuild_run_id: ${{ steps.verify.outputs.rebuild_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - id: verify
+        name: Require one exact successful 216-shard rebuild before any pretruth or sealed read
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+
+          c=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json'))
+          if c.get('purpose')!='product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract':
+              raise SystemExit('wrong v2.7.2 post-rebuild continuation contract')
+          if c.get('predeclared_before_full_rebuild_outcome_and_before_any_rank2_pretruth_or_sealed_outcome') is not True:
+              raise SystemExit('continuation was not predeclared before rebuild outcome')
+          s=c['required_rebuild_source']; m=c['materialization_source']
+          if m.get('workflow_run_id')!=32637712231 or m.get('exact_6_presealed_parts_only') is not True or m.get('sealed_environment_values_present') is not False:
+              raise SystemExit('presealed materialization source changed')
+          if s.get('old_partial_shards_from_run_32637712231_allowed') is not False or s.get('selective_shard_substitution_allowed') is not False:
+              raise SystemExit('old partial shard reuse or selective substitution is forbidden')
+          if s.get('require_exactly_216_rebuild_M_shards') is not True or s.get('require_all_shards_from_one_exact_rebuild_run') is not True:
+              raise SystemExit('rebuild denominator/source rule changed')
+          inv=c['scientific_invariants']
+          for key in ('taxon_panel_changed','source_identity_changed','M_grid_changed','model_random_state_changed','selection_process_numpy_seed_changed','procedure_library_changed','partition_rule_changed','audit_space_rule_changed','prediction_guardrail_changed','ecological_recovery_metrics_changed','process_semantics_changed','six_part_decision_rule_changed','weighted_super_score_allowed','post_outcome_threshold_tuning_allowed','post_outcome_candidate_reselection_allowed','post_outcome_random_seed_change_allowed'):
+              if inv.get(key) is not False:
+                  raise SystemExit(f'scientific invariant changed: {key}')
+
+          run_id=int(s.get('workflow_run_id') or 0)
+          if run_id<=0 or not s.get('implementation_sha') or not s.get('frozen_ref'):
+              raise SystemExit('successful rebuild source is not pinned')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-post-rebuild-continuation'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          def artifacts(run):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+
+          rebuild=get(f'{api}/actions/runs/{run_id}')
+          if rebuild.get('head_sha')!=s['implementation_sha'] or rebuild.get('head_branch')!=s['frozen_ref']:
+              raise SystemExit('rebuild source identity changed')
+          if rebuild.get('status')!='completed' or rebuild.get('conclusion')!='success':
+              raise SystemExit('rebuild source is not one completed successful run')
+          if rebuild.get('path')!='.github/workflows/product-a-v2-7-2-fresh-full-shard-rebuild.yml':
+              raise SystemExit('rebuild workflow path changed')
+
+          arts=artifacts(run_id)
+          prefix=s['artifact_name_prefix']
+          shard_names=[a['name'] for a in arts if a.get('name','').startswith(prefix)]
+          expected={
+              f'v272-rebuild-M-{seed}-{fraction}-taxon{taxon}-{M}'
+              for seed in (2026082201,2026082202,2026082203)
+              for fraction in ('0.20','0.30')
+              for taxon in range(12)
+              for M in ('buffer_150km','buffer_300km','buffer_500km')
+          }
+          if len(shard_names)!=216 or len(set(shard_names))!=216 or set(shard_names)!=expected:
+              missing=sorted(expected-set(shard_names))[:10]
+              extra=sorted(set(shard_names)-expected)[:10]
+              raise SystemExit(f'exact rebuild denominator/name set changed: n={len(shard_names)} missing={missing} extra={extra}')
+
+          primary_names=[a['name'] for a in artifacts(32637712231)]
+          for forbidden in ('v272-fresh-worker-','v272-fresh-pretruth-','v272-fresh-final-','v272-fresh-audit-'):
+              if any(n.startswith(forbidden) for n in primary_names):
+                  raise SystemExit(f'superseded primary run crossed information barrier: {forbidden}')
+          if 'product-a-v2-7-2-fresh-rank2-confirmation-decision' in primary_names:
+              raise SystemExit('superseded primary run already produced a decision')
+
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f'rebuild_run_id={run_id}\n')
+          print(json.dumps({'rebuild_run_id':run_id,'n_rebuild_M_shards':216,'sealed_outcome_read':False},indent=2))
+          PY
+          python -m pytest -q tests/test_product_a_v2_7_2_fresh_post_rebuild_continuation.py
+
+  aggregate-worker:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-rebuild-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-*
+          path: shards
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.rebuild_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Require exactly three rebuilt M shards and freeze one taxon-part worker
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_2_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_2_fresh_model_pool_shard_aggregate \
+            --shard-root shards \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --part-seed ${{ matrix.seed }} \
+            --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['purpose']=='product_a_v2_7_2_fresh_model_pool_worker'
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['assembled_from_three_primary_M_shards'] is True
+          assert c['deterministic_successor'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-postrebuild-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 30
+          compression-level: 1
+
+  pretruth:
+    needs: aggregate-worker
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-postrebuild-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze representatives and process statuses before sealed read
+        run: |
+          python -m sdmr.v2_7_2_fresh_pretruth \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --worker-root workers \
+            --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['purpose']=='product_a_v2_7_2_fresh_part_pretruth_freeze'
+          assert c['n_taxa']==12
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_audit_authorized'] is bool(c['available'])
+          assert c['deterministic_successor'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 30
+
+  final-fit:
+    needs: pretruth
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: ${{ github.repository }}
+          run-id: 32637712231
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-postrebuild-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize deterministic representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_2_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_2_fresh_final_fit \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --part-dir part \
+            --worker-dir worker \
+            --pretruth-dir pretruth \
+            --taxon "$TAXON" \
+            --taxon-index ${{ matrix.taxon_index }} \
+            --output-dir final
+          python - <<'PY'
+          import json
+          c=json.load(open('final/contract.json'))
+          assert c['purpose']=='product_a_v2_7_2_fresh_final_models_presealed'
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['deterministic_successor'] is True
+          if c['available']:
+              assert c['final_models_serialized_before_sealed_audit'] is True
+              assert c['model_random_state']==0
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-postrebuild-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 30
+          compression-level: 1
+
+  sealed-audit:
+    needs: final-fit
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: ${{ github.repository }}
+          run-id: 32637712231
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-postrebuild-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open rank-2 sealed environments once and audit frozen representatives
+        run: |
+          python -m sdmr.v2_7_2_fresh_sealed_audit \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['purpose']=='product_a_v2_7_2_fresh_part_sealed_audit'
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          assert c['random_seed_change_after_sealed_read'] is False
+          assert c['deterministic_successor'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-postrebuild-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  aggregate:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-postrebuild-audit-*
+          path: audits
+      - name: Apply unchanged six-part empirical decision exactly once
+        run: |
+          python -m sdmr.v2_7_2_fresh_aggregate \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --audit-root audits \
+            --output-dir decision
+          cat decision/contract.json
+          cat decision/decision.csv
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('decision/contract.json'))
+          source=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json'))['required_rebuild_source']
+          receipt={
+              'purpose':'product_a_v2_7_2_fresh_post_rebuild_continuation_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'source_rebuild_run_id':int(source['workflow_run_id']),
+              'source_is_one_exact_successful_216_shard_rebuild':True,
+              'decision':c['decision'],
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'post_outcome_retuning_allowed':False,
+          }
+          Path('decision/execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-rank2-confirmation-decision
+          path: decision/
+          if-no-files-found: error
+          retention-days: 90
