@@ -1,0 +1,19 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization",
+  "predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit": true,
+  "continuation_workflow_file": "product-a-v2-7-2-fresh-post-rebuild-continuation.yml",
+  "continuation_contract_path": "configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json",
+  "implementation_sha": null,
+  "frozen_ref": null,
+  "workflow_blob_sha": null,
+  "continuation_contract_blob_sha": null,
+  "successful_rebuild_run_id": null,
+  "successful_rebuild_sha": null,
+  "successful_rebuild_ref": null,
+  "requires_exact_216_rebuild_shards": true,
+  "requires_single_workflow_dispatch_run_for_frozen_identity": true,
+  "post_outcome_retuning_allowed": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false,
+  "execution_allowed": false
+}
