@@ -1,0 +1,12 @@
+Trigger the single authorized Product-A v2.7.2 sealed-blind full-shard rebuild.
+
+Exact runtime:
+- implementation SHA: 820d760d9d852207b521a80aaf5a5ae30451950f
+- frozen ref: frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d
+- workflow: product-a-v2-7-2-fresh-full-shard-rebuild.yml
+
+Scope:
+- reuse only the six exact presealed materialization artifacts from run 32637712231;
+- recompute all 216 M shards from scratch with the uniform 360-minute ceiling;
+- reuse no partial M shards and perform no selective retry or substitution;
+- do not aggregate workers, run pretruth, fit final models, open sealed audits, make a scientific decision, promote Product A, or unblock Product B.
