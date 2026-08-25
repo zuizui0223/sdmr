@@ -68,7 +68,7 @@ def test_failed_continuation_is_transport_only_and_recovery_rebuilds_all_72_work
     assert r['execution_identity']['execution_allowed'] is False
 
 
-def test_execution_authorization_records_the_superseded_first_continuation_identity():
+def test_superseded_first_continuation_authorization_is_closed():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization'
     assert e['implementation_sha'] == 'e37c1b5582a75d7685f55b5cc1d3370ef04ed63c'
@@ -78,7 +78,9 @@ def test_execution_authorization_records_the_superseded_first_continuation_ident
     assert e['post_outcome_retuning_allowed'] is False
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
-    assert e['execution_allowed'] is True
+    assert e['superseded_after_run_id'] == 32796308769
+    assert e['superseded_reason'] == 'aggregate_worker_remote_artifact_listing_was_limited_to_200_before_pattern_filtering'
+    assert e['execution_allowed'] is False
 
 
 def test_continuation_graph_preserves_72_6_72_6_1_information_order():
