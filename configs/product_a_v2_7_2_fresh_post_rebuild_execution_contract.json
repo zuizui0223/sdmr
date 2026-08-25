@@ -21,5 +21,7 @@
   "post_outcome_retuning_allowed": false,
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
-  "execution_allowed": true
+  "superseded_after_run_id": 32799507133,
+  "superseded_reason": "artifact_zip_302_redirect_forwarded_github_authorization_to_signed_blob_and_received_401",
+  "execution_allowed": false
 }
