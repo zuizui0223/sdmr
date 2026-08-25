@@ -7,6 +7,7 @@ import sdmr.v2_7_2_fresh_sealed_audit_recovery as recovery_module
 
 
 RECOVERY_CONTRACT = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json')
+EXTERNAL_RECOVERY = Path('configs/product_a_v2_7_2_postsealed_external_authorization_recovery_contract.json')
 EXECUTION = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-postsealed-abstention-recovery.yml')
 LAUNCHER = Path('.github/workflows/product-a-v2-7-2-postsealed-recovery-pr-launch.yml')
@@ -110,14 +111,37 @@ def test_recovery_contract_freezes_uniform_six_part_nonretuned_recovery():
     assert c['execution_identity']['execution_allowed'] is False
 
 
-def test_recovery_execution_authorization_pins_exact_frozen_identity():
+def test_external_authorization_recovery_is_predeclared_and_pre_audit():
+    c = json.loads(EXTERNAL_RECOVERY.read_text())
+    assert c['purpose'] == 'product_a_v2_7_2_postsealed_external_authorization_self_reference_recovery'
+    assert c['failed_recovery_run_id'] == 32825270429
+    assert c['failed_preflight_job_id'] == 97731752335
+    assert c['failure_stage'] == 'preflight_before_any_audit'
+    assert c['diagnosis']['audit_jobs_started'] is False
+    assert c['diagnosis']['aggregate_started'] is False
+    assert c['diagnosis']['recovery_artifacts_created'] == 0
+    assert c['diagnosis']['sealed_result_contents_used_to_design_repair'] is False
+    assert c['repair']['frozen_runtime_reads_local_execution_authorization'] is False
+    assert c['repair']['authorization_is_external_to_frozen_runtime'] is True
+    assert c['repair']['authorization_commit_and_blob_are_dispatch_inputs'] is True
+    assert c['repair']['rerun_all_6_audit_parts_uniformly'] is True
+    assert c['repair']['reuse_any_old_sealed_audit_as_recovered_decision_input'] is False
+    assert c['repair']['available_or_authorized_scientific_audit_function_changed'] is False
+    assert c['repair']['wrapper_changed'] is False
+    assert c['repair']['original_sealed_audit_module_changed'] is False
+    assert c['scientific_invariants']['post_outcome_retuning_allowed'] is False
+    assert c['execution_identity']['execution_allowed'] is False
+
+
+def test_recovery_execution_gate_is_closed_before_successor_authorization():
     e = json.loads(EXECUTION.read_text())
-    assert e['implementation_sha'] == 'f5b10bd424d5bf3e82c5124b16cd246de603a353'
-    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-postsealed-recovery-f5b10bd4'
-    assert e['workflow_blob_sha'] == '78327fcd08bf806ecd9ce5af8100c554973849a1'
-    assert e['contract_blob_sha'] == 'ee00a52cd120aafdbfcc2cde6fc4b3271bffa5ff'
-    assert e['wrapper_blob_sha'] == 'fa281aac150603fd231f00ae5a0d494e47a8b23e'
-    assert e['original_audit_blob_sha'] == '9da77e578cd9d5f523340c19eb2df844600f588a'
+    assert e['implementation_sha'] is None
+    assert e['frozen_ref'] is None
+    assert e['workflow_blob_sha'] is None
+    assert e['contract_blob_sha'] is None
+    assert e['wrapper_blob_sha'] is None
+    assert e['original_audit_blob_sha'] is None
+    assert e['external_recovery_contract_blob_sha'] is None
     assert e['source_run_id'] == 32807401949
     assert e['rerun_all_6_audits'] is True
     assert e['reuse_old_audits_for_decision'] is False
@@ -125,11 +149,20 @@ def test_recovery_execution_authorization_pins_exact_frozen_identity():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is True
+    assert e['execution_allowed'] is False
 
 
-def test_recovery_workflow_reuses_frozen_inputs_and_not_old_audits():
+def test_recovery_workflow_uses_external_authorization_and_reuses_frozen_scientific_inputs():
     text = WORKFLOW.read_text()
+    assert 'authorization_commit_sha:' in text
+    assert 'authorization_blob_sha:' in text
+    assert 'expected_runtime_sha:' in text
+    assert 'expected_frozen_ref:' in text
+    assert "auth=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json'))" not in text
+    assert "auth_meta=get(f'{api}/contents/{auth_path}?ref={auth_ref}')" in text
+    assert "base64.b64decode(auth_meta['content']).decode()" in text
+    assert "auth.get('execution_allowed') is not True" in text
+    assert "auth.get('implementation_sha') != os.environ['GITHUB_SHA']" in text
     assert 'run-id: 32637712231' in text
     assert 'run-id: 32807401949' in text
     assert 'v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}' in text
@@ -137,18 +170,21 @@ def test_recovery_workflow_reuses_frozen_inputs_and_not_old_audits():
     assert 'sdmr.v2_7_2_fresh_sealed_audit_recovery' in text
     assert 'sdmr.v2_7_2_fresh_aggregate' in text
     assert 'v272-postsealed-recovery-audit-*' in text
-    assert "old_audits_for_decision':0" in text
     assert 'product-a-v2-7-2-fresh-rank2-confirmation-decision-recovery' in text
 
 
-def test_recovery_launcher_verifies_frozen_wrapper_and_original_audit_and_is_one_shot():
+def test_recovery_launcher_passes_external_base_authorization_and_remains_one_shot():
     text = LAUNCHER.read_text()
-    assert "auth.get('execution_allowed') is not True" in text
+    assert "authorization_commit_sha=str(event['pull_request']['base']['sha'])" in text
+    assert "if json.loads(decoded) != auth:" in text
     assert "verify_blob('src/sdmr/v2_7_2_fresh_sealed_audit_recovery.py',auth['wrapper_blob_sha'])" in text
     assert "verify_blob('src/sdmr/v2_7_2_fresh_sealed_audit.py',auth['original_audit_blob_sha'])" in text
-    assert "recovery['repair'].get('rerun_all_6_audit_parts_uniformly') is not True" in text
+    assert "verify_blob('configs/product_a_v2_7_2_postsealed_external_authorization_recovery_contract.json',auth['external_recovery_contract_blob_sha'])" in text
+    assert "'authorization_commit_sha':authorization_commit_sha" in text
+    assert "'authorization_blob_sha':authorization_blob_sha" in text
+    assert "'expected_runtime_sha':auth['implementation_sha']" in text
+    assert "'expected_frozen_ref':auth['frozen_ref']" in text
     assert 'multiple exact recovery runs exist' in text
-    assert "payload={'ref':auth['frozen_ref']}" in text
     assert "'reuse_old_audits_for_decision':False" in text
     assert "'post_outcome_retuning_allowed':False" in text
     assert "'scientific_promotion_allowed':False" in text
