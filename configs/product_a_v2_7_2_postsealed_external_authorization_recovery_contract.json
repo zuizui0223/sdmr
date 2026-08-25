@@ -1,0 +1,51 @@
+{
+  "purpose": "product_a_v2_7_2_postsealed_external_authorization_self_reference_recovery",
+  "failed_recovery_run_id": 32825270429,
+  "failed_preflight_job_id": 97731752335,
+  "failure_stage": "preflight_before_any_audit",
+  "diagnosis": {
+    "failure_message": "post-sealed recovery execution gate is closed",
+    "cause": "frozen recovery runtime reread its own pre-authorization execution file, whose execution_allowed remained false by construction",
+    "audit_jobs_started": false,
+    "aggregate_started": false,
+    "recovery_artifacts_created": 0,
+    "sealed_result_contents_used_to_design_repair": false
+  },
+  "repair": {
+    "frozen_runtime_reads_local_execution_authorization": false,
+    "authorization_is_external_to_frozen_runtime": true,
+    "authorization_commit_and_blob_are_dispatch_inputs": true,
+    "runtime_sha_and_frozen_ref_are_dispatch_inputs": true,
+    "frozen_runtime_fetches_and_verifies_external_authorization_via_github_api": true,
+    "rerun_all_6_audit_parts_uniformly": true,
+    "reuse_any_old_sealed_audit_as_recovered_decision_input": false,
+    "available_or_authorized_scientific_audit_function_changed": false,
+    "unavailable_path_reads_sealed_environment": false,
+    "original_sealed_audit_module_changed": false,
+    "wrapper_changed": false,
+    "aggregate_decision_rule_changed": false
+  },
+  "scientific_invariants": {
+    "taxon_panel_changed": false,
+    "source_data_changed": false,
+    "M_changed": false,
+    "model_random_state_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "candidate_set_changed": false,
+    "thresholds_changed": false,
+    "final_models_changed": false,
+    "ecological_metrics_changed": false,
+    "process_rule_changed": false,
+    "post_outcome_retuning_allowed": false
+  },
+  "claim_boundary": {
+    "recovery_decision_itself_promotes_product_a": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "execution_allowed": false,
+    "one_shot": true
+  }
+}
