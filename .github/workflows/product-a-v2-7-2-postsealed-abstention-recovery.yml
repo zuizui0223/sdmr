@@ -1,0 +1,205 @@
+name: product-a-v2-7-2-postsealed-abstention-recovery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-2-postsealed-abstention-recovery-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Require frozen post-sealed recovery identity and source denominator
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          recovery=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json'))
+          auth=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json'))
+          if recovery.get('purpose')!='product_a_v2_7_2_postsealed_abstention_control_flow_recovery':
+              raise SystemExit('wrong post-sealed recovery contract')
+          if auth.get('purpose')!='product_a_v2_7_2_postsealed_abstention_recovery_execution_authorization':
+              raise SystemExit('wrong post-sealed execution authorization')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('post-sealed recovery execution gate is closed')
+          if auth.get('post_outcome_retuning_allowed') is not False:
+              raise SystemExit('post-outcome retuning may not be authorized')
+          if auth.get('rerun_all_6_audits') is not True or auth.get('reuse_old_audits_for_decision') is not False:
+              raise SystemExit('recovery must regenerate the six-part audit denominator')
+          if recovery['repair'].get('rerun_all_6_audit_parts_uniformly') is not True:
+              raise SystemExit('six-part uniform recovery changed')
+          if recovery['repair'].get('reuse_any_old_sealed_audit_as_recovered_decision_input') is not False:
+              raise SystemExit('old sealed audits may not enter recovered decision')
+          if recovery['diagnosis'].get('successful_audit_result_contents_used_to_design_repair') is not False:
+              raise SystemExit('recovery was outcome-tuned')
+          if recovery['repair'].get('available_or_authorized_scientific_audit_function_changed') is not False:
+              raise SystemExit('available audit scientific path changed')
+          if recovery['repair'].get('unavailable_path_reads_sealed_environment') is not False:
+              raise SystemExit('structural abstention may not read sealed evidence')
+          if os.environ['GITHUB_SHA'] != auth.get('implementation_sha'):
+              raise SystemExit('recovery implementation SHA changed')
+          if os.environ['GITHUB_REF_NAME'] != auth.get('frozen_ref'):
+              raise SystemExit('recovery frozen ref changed')
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-postsealed-recovery'}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=60) as r:
+                  return json.load(r)
+          def artifacts(run):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{run}/artifacts?per_page=100&page={page}')
+                  batch=[a for a in data.get('artifacts',[]) if not a.get('expired')]
+                  out.extend(batch)
+                  if len(data.get('artifacts',[]))<100: break
+                  page+=1
+              return out
+
+          source=int(auth['source_run_id'])
+          run=get(f'{api}/actions/runs/{source}')
+          if run.get('status')!='completed' or run.get('conclusion')!='failure':
+              raise SystemExit('expected failed sealed-stage source run')
+          names={a['name'] for a in artifacts(source)}
+          expected_pretruth={f'v272-postrebuild-pretruth-{seed}-{fraction}' for seed in (2026082201,2026082202,2026082203) for fraction in ('0.20','0.30')}
+          expected_final={f'v272-postrebuild-final-{seed}-{fraction}-taxon{taxon}' for seed in (2026082201,2026082202,2026082203) for fraction in ('0.20','0.30') for taxon in range(12)}
+          if not expected_pretruth.issubset(names) or not expected_final.issubset(names):
+              raise SystemExit('frozen pretruth/final-fit denominator incomplete')
+          if 'product-a-v2-7-2-fresh-rank2-confirmation-decision' in names:
+              raise SystemExit('source run already produced a six-part decision')
+          old_audits={n for n in names if n.startswith('v272-postrebuild-audit-')}
+          expected_old={
+              'v272-postrebuild-audit-2026082201-0.20',
+              'v272-postrebuild-audit-2026082202-0.20',
+              'v272-postrebuild-audit-2026082202-0.30',
+              'v272-postrebuild-audit-2026082203-0.20',
+          }
+          if old_audits != expected_old:
+              raise SystemExit(f'unexpected original audit artifact set: {sorted(old_audits)}')
+          print(json.dumps({'source_run':source,'pretruth':6,'final_fit':72,'old_audits_for_decision':0},indent=2))
+          PY
+
+  audit:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,cloud,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+          repository: ${{ github.repository }}
+          run-id: 32637712231
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+          repository: ${{ github.repository }}
+          run-id: 32807401949
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-postrebuild-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+          repository: ${{ github.repository }}
+          run-id: 32807401949
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Regenerate one audit part with unchanged scientific path
+        run: |
+          python -m sdmr.v2_7_2_fresh_sealed_audit_recovery \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --part-dir part \
+            --pretruth-dir pretruth \
+            --final-fit-root finals \
+            --manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['purpose']=='product_a_v2_7_2_fresh_part_sealed_audit'
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          assert c['random_seed_change_after_sealed_read'] is False
+          assert c['deterministic_successor'] is True
+          if c['available'] is not True and c['sealed_occurrence_environment_read'] is False:
+              assert c['structural_or_audit_abstention_propagated_as_unavailable'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-postsealed-recovery-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  aggregate:
+    needs: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-postsealed-recovery-audit-*
+          path: audits
+      - name: Apply unchanged six-part decision once
+        run: |
+          python -m sdmr.v2_7_2_fresh_aggregate \
+            --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
+            --audit-root audits \
+            --output-dir decision
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.load(open('decision/contract.json'))
+          recovery=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json'))
+          receipt={
+              'purpose':'product_a_v2_7_2_postsealed_abstention_recovery_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'source_run_id':int(recovery['failed_continuation_run_id']),
+              'six_audits_regenerated_uniformly':True,
+              'old_audits_used_for_decision':False,
+              'decision':c['decision'],
+              'post_outcome_retuning_allowed':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('decision/recovery_execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-rank2-confirmation-decision-recovery
+          path: decision/
+          if-no-files-found: error
+          retention-days: 90

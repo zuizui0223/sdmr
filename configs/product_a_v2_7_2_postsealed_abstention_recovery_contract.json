@@ -1,0 +1,59 @@
+{
+  "purpose": "product_a_v2_7_2_postsealed_abstention_control_flow_recovery",
+  "declared_after_sealed_stage_failure_but_before_recovery_execution": true,
+  "failed_continuation_run_id": 32807401949,
+  "failed_runtime_sha": "c12acaefaacd07dbdd3a442d913fc8af9d6b2d6d",
+  "frozen_pretruth_and_final_fit_source_run_id": 32807401949,
+  "materialization_source_run_id": 32637712231,
+  "diagnosis": {
+    "failed_audit_jobs": [97686120488, 97686120494],
+    "failed_parts": ["2026082201/0.30", "2026082203/0.30"],
+    "identical_exception": "v2.7.2 sealed audit RNG identity changed before opening evidence",
+    "exception_occurs_before_sealed_environment_extraction": true,
+    "failed_pretruth_available": false,
+    "failed_pretruth_sealed_audit_authorized": false,
+    "failed_pretruth_model_random_state": null,
+    "failed_pretruth_selection_process_numpy_seed": null,
+    "available_authorized_pretruth_requires_rng_identity_0_0": true,
+    "successful_audit_result_contents_used_to_design_repair": false
+  },
+  "repair": {
+    "available_or_authorized_scientific_audit_function_changed": false,
+    "wrapper_delegates_available_authorized_parts_to_original_audit": true,
+    "unavailable_pretruth_propagated_before_rng_guard": true,
+    "unauthorized_pretruth_propagated_before_rng_guard": true,
+    "unavailable_path_reads_sealed_environment": false,
+    "rerun_all_6_audit_parts_uniformly": true,
+    "reuse_any_old_sealed_audit_as_recovered_decision_input": false,
+    "reuse_frozen_6_pretruth_parts": true,
+    "reuse_frozen_72_final_fit_parts": true,
+    "reuse_original_6_materializations": true,
+    "aggregate_rule_changed": false
+  },
+  "scientific_invariants": {
+    "taxon_panel_changed": false,
+    "source_identity_changed": false,
+    "M_grid_changed": false,
+    "model_random_state_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "candidate_selection_changed": false,
+    "threshold_changed": false,
+    "final_models_changed": false,
+    "ecological_metrics_changed": false,
+    "process_status_changed": false,
+    "six_part_decision_rule_changed": false,
+    "post_outcome_retuning_allowed": false
+  },
+  "claim_boundary": {
+    "recovery_decision_itself_promotes_product_a": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_blob_sha": null,
+    "contract_blob_sha": null,
+    "execution_allowed": false,
+    "one_shot": true
+  }
+}
