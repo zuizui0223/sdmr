@@ -1,11 +1,11 @@
 {
   "purpose": "product_a_v2_7_3_rank3_fresh_raw_source_execution_authorization",
-  "implementation_sha": null,
-  "frozen_ref": null,
-  "workflow_blob_sha": null,
-  "source_contract_blob_sha": null,
-  "panel_blob_sha": null,
-  "presealed_feasibility_contract_blob_sha": null,
+  "implementation_sha": "a41850a2fd48bef666bd55983020cf398f6ed1ba",
+  "frozen_ref": "frozen/product-a-v2-7-3-rank3-source-a41850a2",
+  "workflow_blob_sha": "62426a20ff6070d8fd5f24fd75e91be0fad0d4bb",
+  "source_contract_blob_sha": "3825ba373cc2fb92bf1280a34d92c89a01c62fcf",
+  "panel_blob_sha": "e8b734df9571674e1b6e710b4a0f36735425a7b8",
+  "presealed_feasibility_contract_blob_sha": "58d4ff7111b88d5109d2d26943e68364c98d2133",
   "snapshot_date": "2026-08-01",
   "source_acquisition_only": true,
   "chunk_count": 16,
@@ -16,5 +16,5 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": false
+  "execution_allowed": true
 }
