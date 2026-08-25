@@ -9,6 +9,8 @@ import sdmr.v2_7_2_fresh_sealed_audit_recovery as recovery_module
 RECOVERY_CONTRACT = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json')
 EXECUTION = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-postsealed-abstention-recovery.yml')
+LAUNCHER = Path('.github/workflows/product-a-v2-7-2-postsealed-recovery-pr-launch.yml')
+TRIGGER = Path('configs/product_a_v2_7_2_postsealed_recovery_pr_trigger.txt')
 
 
 def _write_common(tmp_path, *, available, authorized, rng_state=None, numpy_seed=None):
@@ -108,15 +110,22 @@ def test_recovery_contract_freezes_uniform_six_part_nonretuned_recovery():
     assert c['execution_identity']['execution_allowed'] is False
 
 
-def test_recovery_execution_gate_is_closed_in_source():
+def test_recovery_execution_authorization_pins_exact_frozen_identity():
     e = json.loads(EXECUTION.read_text())
+    assert e['implementation_sha'] == 'f5b10bd424d5bf3e82c5124b16cd246de603a353'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-postsealed-recovery-f5b10bd4'
+    assert e['workflow_blob_sha'] == '78327fcd08bf806ecd9ce5af8100c554973849a1'
+    assert e['contract_blob_sha'] == 'ee00a52cd120aafdbfcc2cde6fc4b3271bffa5ff'
+    assert e['wrapper_blob_sha'] == 'fa281aac150603fd231f00ae5a0d494e47a8b23e'
+    assert e['original_audit_blob_sha'] == '9da77e578cd9d5f523340c19eb2df844600f588a'
     assert e['source_run_id'] == 32807401949
     assert e['rerun_all_6_audits'] is True
     assert e['reuse_old_audits_for_decision'] is False
     assert e['post_outcome_retuning_allowed'] is False
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
-    assert e['execution_allowed'] is False
+    assert e['one_shot'] is True
+    assert e['execution_allowed'] is True
 
 
 def test_recovery_workflow_reuses_frozen_inputs_and_not_old_audits():
@@ -130,3 +139,18 @@ def test_recovery_workflow_reuses_frozen_inputs_and_not_old_audits():
     assert 'v272-postsealed-recovery-audit-*' in text
     assert "old_audits_for_decision':0" in text
     assert 'product-a-v2-7-2-fresh-rank2-confirmation-decision-recovery' in text
+
+
+def test_recovery_launcher_verifies_frozen_wrapper_and_original_audit_and_is_one_shot():
+    text = LAUNCHER.read_text()
+    assert "auth.get('execution_allowed') is not True" in text
+    assert "verify_blob('src/sdmr/v2_7_2_fresh_sealed_audit_recovery.py',auth['wrapper_blob_sha'])" in text
+    assert "verify_blob('src/sdmr/v2_7_2_fresh_sealed_audit.py',auth['original_audit_blob_sha'])" in text
+    assert "recovery['repair'].get('rerun_all_6_audit_parts_uniformly') is not True" in text
+    assert 'multiple exact recovery runs exist' in text
+    assert "payload={'ref':auth['frozen_ref']}" in text
+    assert "'reuse_old_audits_for_decision':False" in text
+    assert "'post_outcome_retuning_allowed':False" in text
+    assert "'scientific_promotion_allowed':False" in text
+    assert "'product_b_unblocked':False" in text
+    assert not TRIGGER.exists()
