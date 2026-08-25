@@ -1,12 +1,12 @@
 {
   "purpose": "product_a_v2_7_2_postsealed_abstention_recovery_execution_authorization",
-  "implementation_sha": null,
-  "frozen_ref": null,
-  "workflow_blob_sha": null,
-  "contract_blob_sha": null,
-  "wrapper_blob_sha": null,
-  "original_audit_blob_sha": null,
-  "external_recovery_contract_blob_sha": null,
+  "implementation_sha": "e20ab07dd84f0908da188567498c09a5f83e711a",
+  "frozen_ref": "frozen/product-a-v2-7-2-postsealed-external-auth-e20ab07d",
+  "workflow_blob_sha": "43b389476b86528277e737d515ed079e4c23e1fb",
+  "contract_blob_sha": "ee00a52cd120aafdbfcc2cde6fc4b3271bffa5ff",
+  "wrapper_blob_sha": "fa281aac150603fd231f00ae5a0d494e47a8b23e",
+  "original_audit_blob_sha": "9da77e578cd9d5f523340c19eb2df844600f588a",
+  "external_recovery_contract_blob_sha": "714ae063ee07239d0e2575972aaa77268e768f7f",
   "source_run_id": 32807401949,
   "materialization_run_id": 32637712231,
   "rerun_all_6_audits": true,
@@ -15,5 +15,5 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": false
+  "execution_allowed": true
 }
