@@ -46,22 +46,23 @@ def test_success_receipt_records_rebuild_without_crossing_scientific_boundary():
     assert r['product_b_unblocked'] is False
 
 
-def test_execution_authorization_is_predeclared_and_closed():
+def test_execution_authorization_is_predeclared_and_pins_one_frozen_runtime():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization'
     assert e['predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit'] is True
-    for key in (
-        'implementation_sha', 'frozen_ref', 'workflow_blob_sha',
-        'continuation_contract_blob_sha', 'successful_rebuild_run_id',
-        'successful_rebuild_sha', 'successful_rebuild_ref',
-    ):
-        assert e[key] is None
+    assert e['implementation_sha'] == 'e37c1b5582a75d7685f55b5cc1d3370ef04ed63c'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-post-rebuild-continuation-e37c1b55'
+    assert e['workflow_blob_sha'] == '5993f30e32f64a64828a8ebb3bba8732b7975bfb'
+    assert e['continuation_contract_blob_sha'] == '80749a964e399d0a9576468410ea4633cb9b961f'
+    assert e['successful_rebuild_run_id'] == 32694094350
+    assert e['successful_rebuild_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert e['successful_rebuild_ref'] == 'frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d'
     assert e['requires_exact_216_rebuild_shards'] is True
     assert e['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
     assert e['post_outcome_retuning_allowed'] is False
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
-    assert e['execution_allowed'] is False
+    assert e['execution_allowed'] is True
 
 
 def test_continuation_graph_preserves_72_6_72_6_1_information_order():
@@ -131,7 +132,7 @@ def test_sealed_audit_cannot_start_before_pretruth_and_all_final_fits():
     assert 'aggregate:\n    needs: sealed-audit' in text
 
 
-def test_generic_launcher_is_fail_closed_one_shot_and_trigger_is_absent():
+def test_generic_launcher_is_one_shot_authorized_but_trigger_is_absent():
     text = LAUNCHER.read_text()
     assert 'product_a_v2_7_2_fresh_post_rebuild_pr_trigger.txt' in text
     assert "auth.get('execution_allowed') is not True" in text
