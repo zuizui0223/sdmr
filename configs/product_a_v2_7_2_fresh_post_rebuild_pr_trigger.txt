@@ -1,0 +1,10 @@
+Trigger-only PR for the redirect-safe Product-A v2.7.2 post-rebuild continuation successor.
+
+Authorized frozen runtime:
+- implementation_sha: c12acaefaacd07dbdd3a442d913fc8af9d6b2d6d
+- frozen_ref: frozen/product-a-v2-7-2-fresh-post-rebuild-redirect-c12acaef
+- source_rebuild_run_id: 32694094350
+- rerun_all_72_aggregate_workers: true
+- reuse_any_worker_from_failed_runs: false
+- scientific_promotion_allowed: false
+- product_b_unblocked: false
