@@ -1,0 +1,66 @@
+{
+  "purpose": "product_a_v2_7_3_rank3_fresh_raw_source_acquisition_contract",
+  "issue": 123,
+  "workflow_file": "product-a-v2-7-3-fresh-source-acquisition.yml",
+  "predeclared_before_any_v2_7_3_raw_source_outcome": true,
+  "design_freeze": {
+    "merge_sha": "f4bd76206d05852d7262b58a0f70906013408fc9",
+    "panel_path": "configs/product_a_v2_7_3_rank3_taxa.csv",
+    "panel_blob_sha": "e8b734df9571674e1b6e710b4a0f36735425a7b8",
+    "panel_sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+    "presealed_feasibility_contract_path": "configs/product_a_v2_7_3_presealed_feasibility_contract.json",
+    "presealed_feasibility_contract_blob_sha": "58d4ff7111b88d5109d2d26943e68364c98d2133"
+  },
+  "snapshot": {
+    "date": "2026-08-01",
+    "doi": "10.15468/dl.fs3btq",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "region": "us-east-1",
+    "same_catalog_as_v2_7_2_allowed": true,
+    "catalog_reuse_is_transport_not_focal_evidence_reuse": true,
+    "temporal_independence_claim_allowed": false
+  },
+  "rank3_panel": {
+    "path": "configs/product_a_v2_7_3_rank3_taxa.csv",
+    "sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+    "n_taxa": 12,
+    "candidate_rank": 3,
+    "preexisted_rank2_outcome": true
+  },
+  "parallel_transport": {
+    "chunk_count": 16,
+    "snapshot_shards_partitioned_exactly_once": true,
+    "chunking_changes_scientific_query": false,
+    "aggregate_requires_complete_chunk_indices": true,
+    "aggregate_requires_common_snapshot_catalog_sha256": true
+  },
+  "focal_source": {
+    "artifact_name": "product-a-v2-7-3-rank3-focal-source-2026-08-01",
+    "selection": "all_coordinate_valid_rows_for_exact_frozen_rank3_taxon_panel",
+    "thinning_at_source_acquisition": false,
+    "thinning_occurs_only_after_source_is_frozen": true,
+    "rank1_or_rank2_focal_artifact_reused": false
+  },
+  "target_group_source": {
+    "artifact_name": "product-a-v2-7-3-rank3-target-source-2026-08-01",
+    "kingdom": "Plantae",
+    "exclude_taxa_path": "configs/product_a_v2_7_3_rank3_taxa.csv",
+    "exclude_taxa_sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+    "one_per_grid_cell_degrees": 0.05,
+    "source_independent_of_focal_occurrence_geography": true,
+    "rank1_or_rank2_target_artifact_reused": false
+  },
+  "information_barrier": {
+    "CHELSA_environmental_values_read": false,
+    "candidate_model_scores_read": false,
+    "candidate_model_fitting_performed": false,
+    "niche_recovery_outcomes_read": false,
+    "rank1_or_rank2_split_rows_reused": false,
+    "rank1_or_rank2_sealed_rows_read": false,
+    "rank2_sealed_confirmation_outcomes_read": false,
+    "presealed_feasibility_evaluated_during_source_acquisition": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "next_gate": "pin exact rank3 focal/target artifact and query fingerprints, then separately freeze and authorize the pre-sealed structural-feasibility runtime"
+}
