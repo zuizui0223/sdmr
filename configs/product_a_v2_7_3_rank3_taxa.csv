@@ -1,0 +1,13 @@
+scientific_name,validation_stratum,candidate_rank,selection_basis
+Senecio vulgaris,temperate_annual_herb,3,widespread annual herb fallback selected before eligibility query
+Acer pseudoplatanus,temperate_deciduous_tree,3,widespread deciduous tree fallback selected before eligibility query
+Abies alba,boreal_temperate_conifer,3,temperate montane conifer fallback selected before eligibility query
+Calamagrostis canadensis,wetland_grass,3,wetland graminoid fallback selected before eligibility query
+Rubus idaeus,temperate_shrub,3,temperate shrub fallback selected before eligibility query
+Polypodium vulgare,fern,3,widespread fern fallback selected before eligibility query
+Encelia farinosa,arid_shrub,3,arid shrub fallback selected before eligibility query
+Laguncularia racemosa,tropical_mangrove,3,tropical mangrove fallback selected before eligibility query
+Eucalyptus globulus,southern_temperate_tree,3,southern hemisphere tree fallback selected before eligibility query
+Eucalyptus delegatensis,montane_tree,3,montane tree fallback selected before eligibility query
+Pinus banksiana,boreal_conifer,3,boreal conifer fallback selected before eligibility query
+Schoenoplectus tabernaemontani,wetland_emergent,3,widespread wetland emergent fallback selected before eligibility query
