@@ -29,20 +29,25 @@ jobs:
           auth=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_execution_contract.json'))
           cont=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json'))
           recovery=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_transport_recovery_contract.json'))
+          redirect=json.load(open('configs/product_a_v2_7_2_fresh_post_rebuild_redirect_recovery_contract.json'))
           if auth.get('purpose')!='product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization':
               raise SystemExit('wrong post-rebuild execution authorization')
           if auth.get('predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit') is not True:
               raise SystemExit('execution authorization was not predeclared before outcome')
           if auth.get('technical_successor_authorized_after_transport_failure_before_rank2_pretruth_or_sealed_audit') is not True:
               raise SystemExit('transport successor authorization boundary is missing')
+          if auth.get('technical_successor_authorized_after_redirect_failure_before_rank2_pretruth_or_sealed_audit') is not True:
+              raise SystemExit('redirect successor authorization boundary is missing')
           if auth.get('execution_allowed') is not True:
               raise SystemExit('post-rebuild continuation execution gate is closed')
           if auth.get('requires_single_workflow_dispatch_run_for_frozen_identity') is not True:
               raise SystemExit('post-rebuild continuation is not one-shot')
           if auth.get('requires_exact_216_rebuild_shards') is not True:
               raise SystemExit('216-shard denominator authorization changed')
-          if auth.get('rerun_all_72_aggregate_workers') is not True or auth.get('reuse_any_worker_from_superseded_run') is not False:
-              raise SystemExit('transport recovery must rebuild all 72 workers without reuse')
+          if auth.get('rerun_all_72_aggregate_workers') is not True or auth.get('reuse_any_worker_from_failed_runs') is not False:
+              raise SystemExit('redirect recovery must rebuild all 72 workers without reuse')
+          if [int(x) for x in auth.get('supersedes_continuation_run_ids',[])] != [32796308769,32799507133]:
+              raise SystemExit('superseded continuation run set changed')
           if auth.get('post_outcome_retuning_allowed') is not False:
               raise SystemExit('post-outcome retuning authorization changed')
           if auth.get('scientific_promotion_allowed') is not False or auth.get('product_b_unblocked') is not False:
@@ -50,17 +55,36 @@ jobs:
           if cont.get('purpose')!='product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract':
               raise SystemExit('wrong continuation contract')
           if recovery.get('purpose')!='product_a_v2_7_2_fresh_post_rebuild_paginated_artifact_transport_recovery':
-              raise SystemExit('wrong transport recovery contract')
+              raise SystemExit('wrong first transport recovery contract')
           if recovery.get('declared_before_any_rank2_pretruth_or_sealed_audit') is not True:
-              raise SystemExit('transport recovery was not declared before information barrier')
-          failed=recovery['failed_continuation']
-          if int(failed.get('workflow_run_id') or 0)!=int(auth.get('supersedes_continuation_run_id') or 0):
-              raise SystemExit('superseded continuation identity differs from recovery contract')
-          if failed.get('pretruth_started') is not False or failed.get('sealed_audit_started') is not False or failed.get('scientific_decision_produced') is not False:
-              raise SystemExit('transport recovery crossed the pretruth/sealed boundary')
-          rec=recovery['recovery']
-          if rec.get('rerun_all_72_aggregate_workers') is not True or rec.get('reuse_any_worker_from_run_32796308769') is not False:
-              raise SystemExit('recovery worker reuse rule changed')
+              raise SystemExit('first transport recovery was not declared before information barrier')
+          first_failed=recovery['failed_continuation']
+          if int(first_failed.get('workflow_run_id') or 0)!=32796308769:
+              raise SystemExit('first failed continuation identity changed')
+          if first_failed.get('pretruth_started') is not False or first_failed.get('sealed_audit_started') is not False or first_failed.get('scientific_decision_produced') is not False:
+              raise SystemExit('first transport recovery crossed the pretruth/sealed boundary')
+          first_rec=recovery['recovery']
+          if first_rec.get('rerun_all_72_aggregate_workers') is not True or first_rec.get('reuse_any_worker_from_run_32796308769') is not False:
+              raise SystemExit('first recovery worker reuse rule changed')
+          if redirect.get('purpose')!='product_a_v2_7_2_fresh_post_rebuild_cross_origin_redirect_recovery':
+              raise SystemExit('wrong redirect recovery contract')
+          if redirect.get('declared_before_any_rank2_pretruth_or_sealed_audit') is not True:
+              raise SystemExit('redirect recovery was not declared before information barrier')
+          second_failed=redirect['failed_successor']
+          if int(second_failed.get('workflow_run_id') or 0)!=32799507133:
+              raise SystemExit('second failed continuation identity changed')
+          if second_failed.get('pretruth_started') is not False or second_failed.get('sealed_audit_started') is not False or second_failed.get('scientific_decision_produced') is not False:
+              raise SystemExit('redirect recovery crossed the pretruth/sealed boundary')
+          diagnosis=redirect['diagnosis']
+          if diagnosis.get('pagination_failed') is not False or diagnosis.get('exact_three_artifacts_resolved_before_failure') is not True or diagnosis.get('signed_blob_storage_response')!=401:
+              raise SystemExit('redirect failure diagnosis changed')
+          second_rec=redirect['recovery']
+          if second_rec.get('github_authorization_header_allowed_on_signed_blob_request') is not False:
+              raise SystemExit('authorization may not be sent to signed blob storage')
+          if second_rec.get('rerun_all_72_aggregate_workers') is not True:
+              raise SystemExit('second recovery must rebuild all 72 workers')
+          if second_rec.get('reuse_any_worker_from_run_32796308769') is not False or second_rec.get('reuse_any_worker_from_run_32799507133') is not False:
+              raise SystemExit('second recovery may not reuse failed-run workers')
           src=cont['required_rebuild_source']
           if int(src.get('workflow_run_id') or 0)!=int(auth.get('successful_rebuild_run_id') or 0):
               raise SystemExit('authorized rebuild run differs from continuation source')
@@ -71,7 +95,7 @@ jobs:
           if src.get('old_partial_shards_from_run_32637712231_allowed') is not False or src.get('selective_shard_substitution_allowed') is not False:
               raise SystemExit('old partial shard reuse/selective substitution is forbidden')
 
-          required=('implementation_sha','frozen_ref','workflow_blob_sha','continuation_contract_blob_sha','transport_recovery_contract_blob_sha')
+          required=('implementation_sha','frozen_ref','workflow_blob_sha','continuation_contract_blob_sha','transport_recovery_contract_blob_sha','redirect_recovery_contract_blob_sha')
           if any(not auth.get(k) for k in required):
               raise SystemExit('frozen continuation execution identity is incomplete')
 
@@ -97,6 +121,7 @@ jobs:
           verify_blob('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-continuation.yml',auth['workflow_blob_sha'])
           verify_blob(auth['continuation_contract_path'],auth['continuation_contract_blob_sha'])
           verify_blob(auth['transport_recovery_contract_path'],auth['transport_recovery_contract_blob_sha'])
+          verify_blob(auth['redirect_recovery_contract_path'],auth['redirect_recovery_contract_blob_sha'])
 
           rebuild=request(f"{api}/actions/runs/{int(auth['successful_rebuild_run_id'])}")
           if rebuild.get('head_sha')!=auth['successful_rebuild_sha'] or rebuild.get('head_branch')!=auth['successful_rebuild_ref']:
@@ -152,9 +177,10 @@ jobs:
               'workflow_file':workflow,
               'source_rebuild_run_id':int(auth['successful_rebuild_run_id']),
               'required_rebuild_shards':216,
-              'supersedes_continuation_run_id':int(auth['supersedes_continuation_run_id']),
+              'supersedes_continuation_run_ids':[int(x) for x in auth['supersedes_continuation_run_ids']],
               'rerun_all_72_aggregate_workers':True,
-              'reuse_any_worker_from_superseded_run':False,
+              'reuse_any_worker_from_failed_runs':False,
+              'cross_origin_authorization_forwarding_allowed':False,
               'dispatched_now':dispatched,
               'run_id':int(run['id']),
               'run_number':int(run['run_number']),
