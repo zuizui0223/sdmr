@@ -133,15 +133,15 @@ def test_external_authorization_recovery_is_predeclared_and_pre_audit():
     assert c['execution_identity']['execution_allowed'] is False
 
 
-def test_recovery_execution_gate_is_closed_before_successor_authorization():
+def test_recovery_execution_authorization_pins_exact_external_auth_successor():
     e = json.loads(EXECUTION.read_text())
-    assert e['implementation_sha'] is None
-    assert e['frozen_ref'] is None
-    assert e['workflow_blob_sha'] is None
-    assert e['contract_blob_sha'] is None
-    assert e['wrapper_blob_sha'] is None
-    assert e['original_audit_blob_sha'] is None
-    assert e['external_recovery_contract_blob_sha'] is None
+    assert e['implementation_sha'] == 'e20ab07dd84f0908da188567498c09a5f83e711a'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-postsealed-external-auth-e20ab07d'
+    assert e['workflow_blob_sha'] == '43b389476b86528277e737d515ed079e4c23e1fb'
+    assert e['contract_blob_sha'] == 'ee00a52cd120aafdbfcc2cde6fc4b3271bffa5ff'
+    assert e['wrapper_blob_sha'] == 'fa281aac150603fd231f00ae5a0d494e47a8b23e'
+    assert e['original_audit_blob_sha'] == '9da77e578cd9d5f523340c19eb2df844600f588a'
+    assert e['external_recovery_contract_blob_sha'] == '714ae063ee07239d0e2575972aaa77268e768f7f'
     assert e['source_run_id'] == 32807401949
     assert e['rerun_all_6_audits'] is True
     assert e['reuse_old_audits_for_decision'] is False
@@ -149,7 +149,7 @@ def test_recovery_execution_gate_is_closed_before_successor_authorization():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is False
+    assert e['execution_allowed'] is True
 
 
 def test_recovery_workflow_uses_external_authorization_and_reuses_frozen_scientific_inputs():
