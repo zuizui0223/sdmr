@@ -15,5 +15,7 @@
   "post_outcome_retuning_allowed": false,
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
-  "execution_allowed": true
+  "superseded_after_run_id": 32796308769,
+  "superseded_reason": "aggregate_worker_remote_artifact_listing_was_limited_to_200_before_pattern_filtering",
+  "execution_allowed": false
 }
