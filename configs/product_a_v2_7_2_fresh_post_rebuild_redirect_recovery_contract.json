@@ -1,0 +1,76 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_post_rebuild_cross_origin_redirect_recovery",
+  "declared_before_any_rank2_pretruth_or_sealed_audit": true,
+  "failed_successor": {
+    "workflow_run_id": 32799507133,
+    "implementation_sha": "811427392f5d3c4fd4c70385f3479605fdce1dc1",
+    "frozen_ref": "frozen/product-a-v2-7-2-fresh-post-rebuild-transport-81142739",
+    "preflight_success": true,
+    "exact_216_rebuild_shards_verified": true,
+    "failure_stage": "aggregate_worker_direct_artifact_zip_redirect",
+    "reference_failed_job_id": 97657580457,
+    "reference_cell": "2026082201|0.30|taxon0",
+    "pretruth_started": false,
+    "sealed_audit_started": false,
+    "scientific_decision_produced": false
+  },
+  "prior_transport_failure": {
+    "workflow_run_id": 32796308769,
+    "cause": "remote actions/download-artifact pattern filtering used an incomplete 200-artifact listing",
+    "pretruth_started": false,
+    "sealed_audit_started": false,
+    "scientific_decision_produced": false
+  },
+  "diagnosis": {
+    "rebuild_artifacts_missing": false,
+    "pagination_failed": false,
+    "exact_three_artifacts_resolved_before_failure": true,
+    "github_artifact_zip_endpoint_returned_cross_origin_redirect": true,
+    "urllib_automatic_redirect_forwarded_github_authorization_header": true,
+    "signed_blob_storage_response": 401,
+    "cause": "GitHub Authorization header was retained while urllib automatically followed the artifact ZIP 302 redirect to the signed blob-storage URL"
+  },
+  "recovery": {
+    "source_rebuild_run_id": 32694094350,
+    "source_rebuild_sha": "820d760d9d852207b521a80aaf5a5ae30451950f",
+    "source_rebuild_ref": "frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d",
+    "required_rebuild_shards": 216,
+    "artifact_discovery": "GitHub REST pagination at 100 artifacts per page",
+    "artifact_download": "two-stage artifact ZIP download: authenticated GitHub API request without automatic redirect, then unauthenticated signed redirect URL request",
+    "github_authorization_header_allowed_on_signed_blob_request": false,
+    "rerun_all_72_aggregate_workers": true,
+    "reuse_any_worker_from_run_32796308769": false,
+    "reuse_any_worker_from_run_32799507133": false,
+    "only_implementation_change": "cross-origin artifact ZIP redirect handling",
+    "scientific_runtime_modules_changed": false
+  },
+  "scientific_invariants": {
+    "taxon_panel_changed": false,
+    "source_identity_changed": false,
+    "M_grid_changed": false,
+    "model_random_state_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "procedure_library_changed": false,
+    "partition_rule_changed": false,
+    "audit_space_rule_changed": false,
+    "prediction_guardrail_changed": false,
+    "ecological_recovery_metrics_changed": false,
+    "process_semantics_changed": false,
+    "six_part_decision_rule_changed": false,
+    "post_outcome_retuning_allowed": false
+  },
+  "information_boundary": {
+    "sealed_outcome_seen_before_recovery_declaration": false,
+    "pretruth_from_failed_runs_reused": false,
+    "final_fit_from_failed_runs_reused": false,
+    "sealed_audit_from_failed_runs_reused": false,
+    "product_a_promoted": false,
+    "product_b_unblocked": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "workflow_blob_sha": null,
+    "execution_allowed": false
+  }
+}
