@@ -1,0 +1,19 @@
+{
+  "purpose": "product_a_v2_7_3_presealed_structural_feasibility_execution_authorization",
+  "implementation_sha": null,
+  "frozen_ref": null,
+  "panel_blob_sha": null,
+  "feasibility_contract_blob_sha": null,
+  "source_acquisition_run_id": null,
+  "source_receipt_blob_sha": null,
+  "run_all_6_parts": true,
+  "require_full_12_taxa_x_3_M_denominator": true,
+  "open_sealed_environmental_evidence": false,
+  "model_pool_fitting_allowed": false,
+  "post_outcome_retuning_allowed": false,
+  "candidate_reselection_allowed": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false,
+  "one_shot": true,
+  "execution_allowed": false
+}
