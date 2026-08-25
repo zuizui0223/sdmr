@@ -1,0 +1,22 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_full_shard_rebuild_success_receipt",
+  "workflow_run_id": 32694094350,
+  "workflow_name": "product-a-v2-7-2-fresh-full-shard-rebuild",
+  "workflow_file": "product-a-v2-7-2-fresh-full-shard-rebuild.yml",
+  "implementation_sha": "820d760d9d852207b521a80aaf5a5ae30451950f",
+  "frozen_ref": "frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d",
+  "workflow_conclusion": "success",
+  "required_rebuild_M_shards": 216,
+  "artifact_name_prefix": "v272-rebuild-M-",
+  "terminal_expected_artifact": {
+    "name": "v272-rebuild-M-2026082203-0.30-taxon11-buffer_500km",
+    "artifact_id": 9527656492,
+    "digest": "sha256:2082a3d667113a90e9dfc19670cbda2ca5a689f1fc9f9af8c1e9627338a7393b"
+  },
+  "old_partial_shards_reused": false,
+  "selective_shard_substitution_allowed": false,
+  "sealed_outcome_opened": false,
+  "scientific_decision_produced": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false
+}
