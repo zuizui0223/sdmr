@@ -1,0 +1,5 @@
+product-a-v2.7.2 post-sealed external-authorization recovery trigger
+runtime=e20ab07dd84f0908da188567498c09a5f83e711a
+frozen_ref=frozen/product-a-v2-7-2-postsealed-external-auth-e20ab07d
+authorization_commit=27a1e4dda2978021ad0d7fdcef7ec1d231659fea
+authorization_blob=b9769cdb8e5079e39d57dd3723253739aebfa222
