@@ -4,19 +4,20 @@ from pathlib import Path
 
 CONTRACT = Path('configs/product_a_v2_7_2_fresh_post_rebuild_continuation_contract.json')
 EXECUTION = Path('configs/product_a_v2_7_2_fresh_post_rebuild_execution_contract.json')
+RECEIPT = Path('configs/product_a_v2_7_2_fresh_post_rebuild_source_receipt.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-continuation.yml')
 LAUNCHER = Path('.github/workflows/product-a-v2-7-2-fresh-post-rebuild-pr-launch.yml')
 TRIGGER = Path('configs/product_a_v2_7_2_fresh_post_rebuild_pr_trigger.txt')
 
 
-def test_post_rebuild_contract_stays_closed_until_one_exact_successful_rebuild_is_pinned():
+def test_post_rebuild_contract_pins_one_exact_successful_rebuild_but_execution_stays_closed():
     c = json.loads(CONTRACT.read_text())
     assert c['purpose'] == 'product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract'
     assert c['predeclared_before_full_rebuild_outcome_and_before_any_rank2_pretruth_or_sealed_outcome'] is True
     src = c['required_rebuild_source']
-    assert src['workflow_run_id'] is None
-    assert src['implementation_sha'] is None
-    assert src['frozen_ref'] is None
+    assert src['workflow_run_id'] == 32694094350
+    assert src['implementation_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert src['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d'
     assert src['require_workflow_conclusion_success'] is True
     assert src['require_exactly_216_rebuild_M_shards'] is True
     assert src['require_all_shards_from_one_exact_rebuild_run'] is True
@@ -24,6 +25,25 @@ def test_post_rebuild_contract_stays_closed_until_one_exact_successful_rebuild_i
     assert src['old_partial_shards_from_run_32637712231_allowed'] is False
     assert src['selective_shard_substitution_allowed'] is False
     assert c['execution_identity']['execution_allowed'] is False
+
+
+def test_success_receipt_records_rebuild_without_crossing_scientific_boundary():
+    r = json.loads(RECEIPT.read_text())
+    assert r['purpose'] == 'product_a_v2_7_2_fresh_full_shard_rebuild_success_receipt'
+    assert r['workflow_run_id'] == 32694094350
+    assert r['implementation_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert r['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d'
+    assert r['workflow_conclusion'] == 'success'
+    assert r['required_rebuild_M_shards'] == 216
+    assert r['terminal_expected_artifact']['name'] == 'v272-rebuild-M-2026082203-0.30-taxon11-buffer_500km'
+    assert r['terminal_expected_artifact']['artifact_id'] == 9527656492
+    assert r['terminal_expected_artifact']['digest'] == 'sha256:2082a3d667113a90e9dfc19670cbda2ca5a689f1fc9f9af8c1e9627338a7393b'
+    assert r['old_partial_shards_reused'] is False
+    assert r['selective_shard_substitution_allowed'] is False
+    assert r['sealed_outcome_opened'] is False
+    assert r['scientific_decision_produced'] is False
+    assert r['scientific_promotion_allowed'] is False
+    assert r['product_b_unblocked'] is False
 
 
 def test_execution_authorization_is_predeclared_and_closed():
