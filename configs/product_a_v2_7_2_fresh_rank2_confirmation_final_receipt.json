@@ -1,0 +1,43 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_rank2_confirmation_final_receipt",
+  "workflow_run_id": 32827603784,
+  "implementation_sha": "e20ab07dd84f0908da188567498c09a5f83e711a",
+  "frozen_ref": "frozen/product-a-v2-7-2-postsealed-external-auth-e20ab07d",
+  "authorization_commit_sha": "27a1e4dda2978021ad0d7fdcef7ec1d231659fea",
+  "authorization_blob_sha": "b9769cdb8e5079e39d57dd3723253739aebfa222",
+  "source_run_id": 32807401949,
+  "decision_artifact": {
+    "id": 9559443057,
+    "name": "product-a-v2-7-2-fresh-rank2-confirmation-decision-recovery",
+    "digest": "sha256:23fb5d30bc49dc39f3acc9f77ce40da5f68c993c12830ce3bd904cf26bf62f7e"
+  },
+  "decision": "empirical_confirmation_unavailable",
+  "decision_interpretation": "fresh empirical confirmation incomplete; not negative empirical evidence",
+  "n_parts": 6,
+  "n_available_parts": 4,
+  "n_unavailable_before_sealed_read": 2,
+  "n_unavailable_after_sealed_read": 0,
+  "n_ecologically_nondominated_parts": 4,
+  "n_strict_ecological_improvement_parts": 1,
+  "mean_presence_rank_delta_vs_auc": 0.009295966100212999,
+  "minimum_process_modal_fraction": 0.6666666666666666,
+  "unavailable_parts": [
+    {
+      "part_id": "seed2026082201_sealed0.30",
+      "reason": "Larix laricina:structural_partition:buffer_150km:no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"
+    },
+    {
+      "part_id": "seed2026082203_sealed0.30",
+      "reason": "Athyrium filix-femina:structural_partition:buffer_150km:no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4; Nothofagus betuloides:structural_partition:buffer_150km:no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"
+    }
+  ],
+  "six_audits_regenerated_uniformly": true,
+  "old_audits_used_for_decision": false,
+  "post_outcome_retuning_performed": false,
+  "post_outcome_candidate_reselection_performed": false,
+  "post_outcome_random_seed_change_performed": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false,
+  "retained_claim": "known_truth_support_only_with_incomplete_fresh_empirical_evidence",
+  "next_action": "retain known-truth support only and diagnose incomplete empirical evidence"
+}
