@@ -1,0 +1,21 @@
+{
+  "purpose": "product_a_v2_7_3_presealed_feasibility_design_freeze_receipt",
+  "issue": 123,
+  "predecessor_rank2_closure_merge_sha": "2b5cb01f4a65b1b230a92a982c23bee87df7de94",
+  "predecessor_final_receipt_blob_sha": "f84a89b8a7e8af9d620a4bb5062943c10750784c",
+  "candidate_registry_blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
+  "rank3_panel_sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+  "rank3_candidate_order_preexisted_rank2_outcome": true,
+  "rank2_sealed_outcome_used_to_choose_rank3_taxa": false,
+  "scientific_threshold_changed": false,
+  "partition_attempt_limit_changed": false,
+  "M_grid_changed": false,
+  "random_seed_changed": false,
+  "source_acquisition_started": false,
+  "partitioning_started": false,
+  "model_fitting_started": false,
+  "sealed_environmental_evidence_opened": false,
+  "execution_allowed": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false
+}
