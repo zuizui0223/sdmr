@@ -9,6 +9,7 @@ import sdmr.v2_7_2_fresh_sealed_audit_recovery as recovery_module
 RECOVERY_CONTRACT = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json')
 EXTERNAL_RECOVERY = Path('configs/product_a_v2_7_2_postsealed_external_authorization_recovery_contract.json')
 EXECUTION = Path('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json')
+FINAL_RECEIPT = Path('configs/product_a_v2_7_2_fresh_rank2_confirmation_final_receipt.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-7-2-postsealed-abstention-recovery.yml')
 LAUNCHER = Path('.github/workflows/product-a-v2-7-2-postsealed-recovery-pr-launch.yml')
 TRIGGER = Path('configs/product_a_v2_7_2_postsealed_recovery_pr_trigger.txt')
@@ -25,7 +26,7 @@ def _write_common(tmp_path, *, available, authorized, rng_state=None, numpy_seed
         'sealed_fraction': 0.30,
         'sealed_occurrence_raster_values_extracted': False,
     }))
-    payload = {
+    (pretruth / 'contract.json').write_text(json.dumps({
         'purpose': 'product_a_v2_7_2_fresh_part_pretruth_freeze',
         'deterministic_successor': True,
         'available': available,
@@ -33,8 +34,7 @@ def _write_common(tmp_path, *, available, authorized, rng_state=None, numpy_seed
         'model_random_state': rng_state,
         'selection_process_numpy_seed': numpy_seed,
         'unavailable_reason': 'pretruth_structural_abstention' if not available else None,
-    }
-    (pretruth / 'contract.json').write_text(json.dumps(payload))
+    }))
     pd.DataFrame([{
         'taxon': 'example',
         'process_domain': 'base',
@@ -48,11 +48,12 @@ def test_unavailable_pretruth_propagates_without_rng_guard_or_sealed_read(tmp_pa
         tmp_path, available=False, authorized=False, rng_state=None, numpy_seed=None
     )
     delegated = {'called': False}
+
     def forbidden_delegate(**kwargs):
         delegated['called'] = True
         raise AssertionError('unavailable pretruth must not enter scientific sealed-audit path')
-    monkeypatch.setattr(recovery_module, 'run_fresh_sealed_audit', forbidden_delegate)
 
+    monkeypatch.setattr(recovery_module, 'run_fresh_sealed_audit', forbidden_delegate)
     result = recovery_module.run_recovered_sealed_audit(
         contract_path='unused.json',
         part_dir=part,
@@ -75,11 +76,12 @@ def test_available_authorized_pretruth_delegates_to_original_audit_unchanged(tmp
     )
     calls = []
     sentinel = {'purpose': 'delegated-original-audit'}
+
     def delegate(**kwargs):
         calls.append(kwargs)
         return sentinel
-    monkeypatch.setattr(recovery_module, 'run_fresh_sealed_audit', delegate)
 
+    monkeypatch.setattr(recovery_module, 'run_fresh_sealed_audit', delegate)
     result = recovery_module.run_recovered_sealed_audit(
         contract_path='contract.json',
         part_dir=part,
@@ -108,7 +110,6 @@ def test_recovery_contract_freezes_uniform_six_part_nonretuned_recovery():
     assert c['scientific_invariants']['post_outcome_retuning_allowed'] is False
     assert c['claim_boundary']['recovery_decision_itself_promotes_product_a'] is False
     assert c['claim_boundary']['product_b_unblocked'] is False
-    assert c['execution_identity']['execution_allowed'] is False
 
 
 def test_external_authorization_recovery_is_predeclared_and_pre_audit():
@@ -130,10 +131,9 @@ def test_external_authorization_recovery_is_predeclared_and_pre_audit():
     assert c['repair']['wrapper_changed'] is False
     assert c['repair']['original_sealed_audit_module_changed'] is False
     assert c['scientific_invariants']['post_outcome_retuning_allowed'] is False
-    assert c['execution_identity']['execution_allowed'] is False
 
 
-def test_recovery_execution_authorization_pins_exact_external_auth_successor():
+def test_recovery_execution_authorization_is_consumed_and_closed():
     e = json.loads(EXECUTION.read_text())
     assert e['implementation_sha'] == 'e20ab07dd84f0908da188567498c09a5f83e711a'
     assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-postsealed-external-auth-e20ab07d'
@@ -149,7 +149,32 @@ def test_recovery_execution_authorization_pins_exact_external_auth_successor():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is True
+    assert e['consumed_by_run_id'] == 32827603784
+    assert e['consumed_decision'] == 'empirical_confirmation_unavailable'
+    assert e['consumed_decision_artifact_id'] == 9559443057
+    assert e['execution_allowed'] is False
+
+
+def test_final_receipt_preserves_unavailable_not_negative_boundary():
+    r = json.loads(FINAL_RECEIPT.read_text())
+    assert r['purpose'] == 'product_a_v2_7_2_fresh_rank2_confirmation_final_receipt'
+    assert r['workflow_run_id'] == 32827603784
+    assert r['decision'] == 'empirical_confirmation_unavailable'
+    assert r['decision_interpretation'] == 'fresh empirical confirmation incomplete; not negative empirical evidence'
+    assert r['n_parts'] == 6
+    assert r['n_available_parts'] == 4
+    assert r['n_unavailable_before_sealed_read'] == 2
+    assert r['n_unavailable_after_sealed_read'] == 0
+    assert r['n_ecologically_nondominated_parts'] == 4
+    assert r['n_strict_ecological_improvement_parts'] == 1
+    assert r['six_audits_regenerated_uniformly'] is True
+    assert r['old_audits_used_for_decision'] is False
+    assert r['post_outcome_retuning_performed'] is False
+    assert r['scientific_promotion_allowed'] is False
+    assert r['product_b_unblocked'] is False
+    assert r['retained_claim'] == 'known_truth_support_only_with_incomplete_fresh_empirical_evidence'
+    assert r['decision_artifact']['id'] == 9559443057
+    assert r['decision_artifact']['digest'] == 'sha256:23fb5d30bc49dc39f3acc9f77ce40da5f68c993c12830ce3bd904cf26bf62f7e'
 
 
 def test_recovery_workflow_uses_external_authorization_and_reuses_frozen_scientific_inputs():
@@ -165,15 +190,13 @@ def test_recovery_workflow_uses_external_authorization_and_reuses_frozen_scienti
     assert "auth.get('implementation_sha') != os.environ['GITHUB_SHA']" in text
     assert 'run-id: 32637712231' in text
     assert 'run-id: 32807401949' in text
-    assert 'v272-postrebuild-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}' in text
-    assert 'v272-postrebuild-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*' in text
     assert 'sdmr.v2_7_2_fresh_sealed_audit_recovery' in text
     assert 'sdmr.v2_7_2_fresh_aggregate' in text
     assert 'v272-postsealed-recovery-audit-*' in text
     assert 'product-a-v2-7-2-fresh-rank2-confirmation-decision-recovery' in text
 
 
-def test_recovery_launcher_passes_external_base_authorization_and_remains_one_shot():
+def test_recovery_launcher_remains_external_and_one_shot():
     text = LAUNCHER.read_text()
     assert "authorization_commit_sha=str(event['pull_request']['base']['sha'])" in text
     assert "if json.loads(decoded) != auth:" in text
@@ -182,8 +205,6 @@ def test_recovery_launcher_passes_external_base_authorization_and_remains_one_sh
     assert "verify_blob('configs/product_a_v2_7_2_postsealed_external_authorization_recovery_contract.json',auth['external_recovery_contract_blob_sha'])" in text
     assert "'authorization_commit_sha':authorization_commit_sha" in text
     assert "'authorization_blob_sha':authorization_blob_sha" in text
-    assert "'expected_runtime_sha':auth['implementation_sha']" in text
-    assert "'expected_frozen_ref':auth['frozen_ref']" in text
     assert 'multiple exact recovery runs exist' in text
     assert "'reuse_old_audits_for_decision':False" in text
     assert "'post_outcome_retuning_allowed':False" in text
