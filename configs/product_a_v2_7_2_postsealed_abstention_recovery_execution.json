@@ -15,5 +15,10 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": true
+  "consumed_by_run_id": 32827603784,
+  "consumed_decision": "empirical_confirmation_unavailable",
+  "consumed_decision_artifact_id": 9559443057,
+  "consumed_decision_artifact_digest": "sha256:23fb5d30bc49dc39f3acc9f77ce40da5f68c993c12830ce3bd904cf26bf62f7e",
+  "closure_reason": "one-shot recovery completed; fresh empirical confirmation remained incomplete because two pre-sealed structural partitions were unavailable",
+  "execution_allowed": false
 }
