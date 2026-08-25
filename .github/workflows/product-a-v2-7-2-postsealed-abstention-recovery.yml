@@ -2,6 +2,23 @@ name: product-a-v2-7-2-postsealed-abstention-recovery
 
 on:
   workflow_dispatch:
+    inputs:
+      authorization_commit_sha:
+        description: Exact external authorization commit SHA
+        required: true
+        type: string
+      authorization_blob_sha:
+        description: Exact authorization file blob SHA at that commit
+        required: true
+        type: string
+      expected_runtime_sha:
+        description: Exact frozen recovery runtime SHA
+        required: true
+        type: string
+      expected_frozen_ref:
+        description: Exact frozen recovery ref
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -22,37 +39,44 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[test]'
-      - name: Require frozen post-sealed recovery identity and source denominator
+      - name: Require external authorization, frozen identity, and source denominator
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTHORIZATION_COMMIT_SHA: ${{ inputs.authorization_commit_sha }}
+          AUTHORIZATION_BLOB_SHA: ${{ inputs.authorization_blob_sha }}
+          EXPECTED_RUNTIME_SHA: ${{ inputs.expected_runtime_sha }}
+          EXPECTED_FROZEN_REF: ${{ inputs.expected_frozen_ref }}
         run: |
           python - <<'PY'
-          import json, os, urllib.request
+          import base64, json, os, urllib.parse, urllib.request
+
           recovery=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_contract.json'))
-          auth=json.load(open('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json'))
+          external=json.load(open('configs/product_a_v2_7_2_postsealed_external_authorization_recovery_contract.json'))
           if recovery.get('purpose')!='product_a_v2_7_2_postsealed_abstention_control_flow_recovery':
               raise SystemExit('wrong post-sealed recovery contract')
-          if auth.get('purpose')!='product_a_v2_7_2_postsealed_abstention_recovery_execution_authorization':
-              raise SystemExit('wrong post-sealed execution authorization')
-          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
-              raise SystemExit('post-sealed recovery execution gate is closed')
-          if auth.get('post_outcome_retuning_allowed') is not False:
-              raise SystemExit('post-outcome retuning may not be authorized')
-          if auth.get('rerun_all_6_audits') is not True or auth.get('reuse_old_audits_for_decision') is not False:
-              raise SystemExit('recovery must regenerate the six-part audit denominator')
-          if recovery['repair'].get('rerun_all_6_audit_parts_uniformly') is not True:
+          if external.get('purpose')!='product_a_v2_7_2_postsealed_external_authorization_self_reference_recovery':
+              raise SystemExit('wrong external-authorization recovery contract')
+          if external['diagnosis'].get('audit_jobs_started') is not False or external['diagnosis'].get('recovery_artifacts_created') != 0:
+              raise SystemExit('self-reference recovery diagnosis changed')
+          if external['diagnosis'].get('sealed_result_contents_used_to_design_repair') is not False:
+              raise SystemExit('external-authorization repair was outcome-tuned')
+          if external['repair'].get('frozen_runtime_reads_local_execution_authorization') is not False:
+              raise SystemExit('frozen runtime may not self-authorize')
+          if external['repair'].get('authorization_is_external_to_frozen_runtime') is not True:
+              raise SystemExit('external authorization requirement changed')
+          if external['repair'].get('rerun_all_6_audit_parts_uniformly') is not True:
               raise SystemExit('six-part uniform recovery changed')
-          if recovery['repair'].get('reuse_any_old_sealed_audit_as_recovered_decision_input') is not False:
+          if external['repair'].get('reuse_any_old_sealed_audit_as_recovered_decision_input') is not False:
               raise SystemExit('old sealed audits may not enter recovered decision')
-          if recovery['diagnosis'].get('successful_audit_result_contents_used_to_design_repair') is not False:
-              raise SystemExit('recovery was outcome-tuned')
-          if recovery['repair'].get('available_or_authorized_scientific_audit_function_changed') is not False:
+          if external['repair'].get('available_or_authorized_scientific_audit_function_changed') is not False:
               raise SystemExit('available audit scientific path changed')
-          if recovery['repair'].get('unavailable_path_reads_sealed_environment') is not False:
-              raise SystemExit('structural abstention may not read sealed evidence')
-          if os.environ['GITHUB_SHA'] != auth.get('implementation_sha'):
+          if external['repair'].get('wrapper_changed') is not False or external['repair'].get('original_sealed_audit_module_changed') is not False:
+              raise SystemExit('scientific recovery modules changed')
+          if external['scientific_invariants'].get('post_outcome_retuning_allowed') is not False:
+              raise SystemExit('post-outcome retuning may not be authorized')
+          if os.environ['GITHUB_SHA'] != os.environ['EXPECTED_RUNTIME_SHA']:
               raise SystemExit('recovery implementation SHA changed')
-          if os.environ['GITHUB_REF_NAME'] != auth.get('frozen_ref'):
+          if os.environ['GITHUB_REF_NAME'] != os.environ['EXPECTED_FROZEN_REF']:
               raise SystemExit('recovery frozen ref changed')
 
           repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
@@ -69,6 +93,35 @@ jobs:
                   if len(data.get('artifacts',[]))<100: break
                   page+=1
               return out
+
+          auth_ref=urllib.parse.quote(os.environ['AUTHORIZATION_COMMIT_SHA'],safe='')
+          auth_path=urllib.parse.quote('configs/product_a_v2_7_2_postsealed_abstention_recovery_execution.json',safe='/')
+          auth_meta=get(f'{api}/contents/{auth_path}?ref={auth_ref}')
+          if auth_meta.get('sha') != os.environ['AUTHORIZATION_BLOB_SHA']:
+              raise SystemExit('external authorization blob changed')
+          auth=json.loads(base64.b64decode(auth_meta['content']).decode())
+          if auth.get('purpose')!='product_a_v2_7_2_postsealed_abstention_recovery_execution_authorization':
+              raise SystemExit('wrong external execution authorization')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('external post-sealed recovery gate is closed')
+          if auth.get('implementation_sha') != os.environ['GITHUB_SHA'] or auth.get('frozen_ref') != os.environ['GITHUB_REF_NAME']:
+              raise SystemExit('external authorization runtime identity changed')
+          if auth.get('post_outcome_retuning_allowed') is not False:
+              raise SystemExit('post-outcome retuning may not be authorized')
+          if auth.get('rerun_all_6_audits') is not True or auth.get('reuse_old_audits_for_decision') is not False:
+              raise SystemExit('recovery must regenerate the six-part audit denominator')
+          if auth.get('scientific_promotion_allowed') is not False or auth.get('product_b_unblocked') is not False:
+              raise SystemExit('external authorization crossed claim boundary')
+          if recovery['repair'].get('rerun_all_6_audit_parts_uniformly') is not True:
+              raise SystemExit('original six-part recovery changed')
+          if recovery['repair'].get('reuse_any_old_sealed_audit_as_recovered_decision_input') is not False:
+              raise SystemExit('old sealed audits may not enter recovered decision')
+          if recovery['diagnosis'].get('successful_audit_result_contents_used_to_design_repair') is not False:
+              raise SystemExit('original recovery was outcome-tuned')
+          if recovery['repair'].get('available_or_authorized_scientific_audit_function_changed') is not False:
+              raise SystemExit('available audit scientific path changed')
+          if recovery['repair'].get('unavailable_path_reads_sealed_environment') is not False:
+              raise SystemExit('structural abstention may not read sealed evidence')
 
           source=int(auth['source_run_id'])
           run=get(f'{api}/actions/runs/{source}')
@@ -90,7 +143,11 @@ jobs:
           }
           if old_audits != expected_old:
               raise SystemExit(f'unexpected original audit artifact set: {sorted(old_audits)}')
-          print(json.dumps({'source_run':source,'pretruth':6,'final_fit':72,'old_audits_for_decision':0},indent=2))
+          print(json.dumps({
+              'authorization_commit_sha':os.environ['AUTHORIZATION_COMMIT_SHA'],
+              'authorization_blob_sha':os.environ['AUTHORIZATION_BLOB_SHA'],
+              'source_run':source,'pretruth':6,'final_fit':72,'old_audits_for_decision':0
+          },indent=2))
           PY
 
   audit:
@@ -172,6 +229,9 @@ jobs:
           pattern: v272-postsealed-recovery-audit-*
           path: audits
       - name: Apply unchanged six-part decision once
+        env:
+          AUTHORIZATION_COMMIT_SHA: ${{ inputs.authorization_commit_sha }}
+          AUTHORIZATION_BLOB_SHA: ${{ inputs.authorization_blob_sha }}
         run: |
           python -m sdmr.v2_7_2_fresh_aggregate \
             --contract configs/product_a_v2_7_2_fresh_confirmation_contract.json \
@@ -187,6 +247,8 @@ jobs:
               'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
               'implementation_sha':os.environ['GITHUB_SHA'],
               'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'authorization_commit_sha':os.environ['AUTHORIZATION_COMMIT_SHA'],
+              'authorization_blob_sha':os.environ['AUTHORIZATION_BLOB_SHA'],
               'source_run_id':int(recovery['failed_continuation_run_id']),
               'six_audits_regenerated_uniformly':True,
               'old_audits_used_for_decision':False,
