@@ -1,0 +1,9 @@
+Product-A v2.7.2 paginated-transport continuation successor trigger only.
+
+Authorized frozen runtime: 811427392f5d3c4fd4c70385f3479605fdce1dc1
+Frozen ref: frozen/product-a-v2-7-2-fresh-post-rebuild-transport-81142739
+Source rebuild run: 32694094350 (exact 216/216 shards required)
+Superseded continuation run: 32796308769 (aggregate transport failure before pretruth/sealed audit)
+Recovery: rebuild all 72 aggregate workers; reuse zero workers from superseded run.
+
+This file is ephemeral and must not be merged.
