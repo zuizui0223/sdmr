@@ -1,0 +1,6 @@
+trigger: product-a-v2-7-3-rank3-fresh-source
+base_authorization_commit: 2533eacfe3b35ba25e46839f2365cc8d50764b00
+base_authorization_blob: 888b013f33901daa088a0decf953767ab8e8682d
+frozen_runtime: a41850a2fd48bef666bd55983020cf398f6ed1ba
+frozen_ref: frozen/product-a-v2-7-3-rank3-source-a41850a2
+scope: raw-source-only
