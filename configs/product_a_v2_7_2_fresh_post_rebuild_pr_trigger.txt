@@ -1,0 +1,12 @@
+Product-A v2.7.2 post-rebuild continuation one-shot trigger
+
+Authorized frozen runtime:
+e37c1b5582a75d7685f55b5cc1d3370ef04ed63c
+frozen/product-a-v2-7-2-fresh-post-rebuild-continuation-e37c1b55
+
+Authorized successful rebuild source:
+run 32694094350
+820d760d9d852207b521a80aaf5a5ae30451950f
+frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d
+
+The PR launcher must independently require the exact 216 v272-rebuild-M-* artifact set before dispatch. No post-outcome retuning, Product-A promotion, or Product-B unblocking is authorized by this trigger.
