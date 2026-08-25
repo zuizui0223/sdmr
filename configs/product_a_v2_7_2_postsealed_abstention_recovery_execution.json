@@ -1,0 +1,16 @@
+{
+  "purpose": "product_a_v2_7_2_postsealed_abstention_recovery_execution_authorization",
+  "implementation_sha": null,
+  "frozen_ref": null,
+  "workflow_blob_sha": null,
+  "contract_blob_sha": null,
+  "source_run_id": 32807401949,
+  "materialization_run_id": 32637712231,
+  "rerun_all_6_audits": true,
+  "reuse_old_audits_for_decision": false,
+  "post_outcome_retuning_allowed": false,
+  "scientific_promotion_allowed": false,
+  "product_b_unblocked": false,
+  "one_shot": true,
+  "execution_allowed": false
+}
