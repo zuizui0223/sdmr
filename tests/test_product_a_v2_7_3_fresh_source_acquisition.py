@@ -43,15 +43,15 @@ def test_rank3_source_contract_is_raw_only_and_predeclared():
         assert barrier[key] is False
 
 
-def test_source_execution_gate_is_closed_before_freeze_and_authorization():
+def test_source_execution_authorization_pins_exact_frozen_raw_source_runtime():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_3_rank3_fresh_raw_source_execution_authorization'
-    assert e['implementation_sha'] is None
-    assert e['frozen_ref'] is None
-    assert e['workflow_blob_sha'] is None
-    assert e['source_contract_blob_sha'] is None
-    assert e['panel_blob_sha'] is None
-    assert e['presealed_feasibility_contract_blob_sha'] is None
+    assert e['implementation_sha'] == 'a41850a2fd48bef666bd55983020cf398f6ed1ba'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-3-rank3-source-a41850a2'
+    assert e['workflow_blob_sha'] == '62426a20ff6070d8fd5f24fd75e91be0fad0d4bb'
+    assert e['source_contract_blob_sha'] == '3825ba373cc2fb92bf1280a34d92c89a01c62fcf'
+    assert e['panel_blob_sha'] == 'e8b734df9571674e1b6e710b4a0f36735425a7b8'
+    assert e['presealed_feasibility_contract_blob_sha'] == '58d4ff7111b88d5109d2d26943e68364c98d2133'
     assert e['source_acquisition_only'] is True
     assert e['chunk_count'] == 16
     assert e['candidate_model_fitting_allowed'] is False
@@ -61,7 +61,7 @@ def test_source_execution_gate_is_closed_before_freeze_and_authorization():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is False
+    assert e['execution_allowed'] is True
 
 
 def test_source_workflow_requires_external_authorization_and_uses_rank3_only():
