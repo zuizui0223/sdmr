@@ -120,13 +120,53 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[test,parquet]'
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: v272-rebuild-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-*
-          path: shards
-          repository: ${{ github.repository }}
-          run-id: ${{ needs.preflight.outputs.rebuild_run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download exact three rebuilt M shards through paginated API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REBUILD_RUN_ID: ${{ needs.preflight.outputs.rebuild_run_id }}
+          PART_SEED: ${{ matrix.seed }}
+          SEALED_FRACTION: ${{ matrix.sealed_fraction }}
+          TAXON_INDEX: ${{ matrix.taxon_index }}
+        run: |
+          python - <<'PY'
+          import io, json, os, zipfile
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          run_id=int(os.environ['REBUILD_RUN_ID']); seed=os.environ['PART_SEED']
+          fraction=os.environ['SEALED_FRACTION']; taxon=os.environ['TAXON_INDEX']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-paginated-worker-transport'}
+          def get_json(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r: return json.load(r)
+          arts=[]; page=1
+          while True:
+              data=get_json(f'{api}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+              batch=[a for a in data.get('artifacts',[]) if not a.get('expired')]
+              arts.extend(batch)
+              if len(data.get('artifacts',[]))<100: break
+              page+=1
+          expected=[
+              f'v272-rebuild-M-{seed}-{fraction}-taxon{taxon}-{M}'
+              for M in ('buffer_150km','buffer_300km','buffer_500km')
+          ]
+          matched=[a for a in arts if a.get('name') in expected]
+          names=[a['name'] for a in matched]
+          if len(matched)!=3 or len(set(names))!=3 or set(names)!=set(expected):
+              raise SystemExit(f'paginated transport did not resolve exact three shards: expected={expected} found={sorted(names)}')
+          by_name={a['name']:a for a in matched}
+          root=Path('shards'); root.mkdir(parents=True,exist_ok=True)
+          for name in expected:
+              artifact=by_name[name]
+              req=Request(f"{api}/actions/artifacts/{int(artifact['id'])}/zip",headers=headers)
+              with urlopen(req,timeout=120) as response:
+                  payload=response.read()
+              target=root/name; target.mkdir(parents=True,exist_ok=True)
+              with zipfile.ZipFile(io.BytesIO(payload)) as zf:
+                  zf.extractall(target)
+          print(json.dumps({'run_id':run_id,'pages_scanned':page,'downloaded':expected,'sealed_outcome_read':False},indent=2))
+          PY
       - name: Require exactly three rebuilt M shards and freeze one taxon-part worker
         run: |
           TAXON=$(python - <<'PY'
