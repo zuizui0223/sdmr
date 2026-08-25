@@ -131,7 +131,8 @@ jobs:
           python - <<'PY'
           import io, json, os, zipfile
           from pathlib import Path
-          from urllib.request import Request, urlopen
+          from urllib.parse import urlparse
+          from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
           repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
           run_id=int(os.environ['REBUILD_RUN_ID']); seed=os.environ['PART_SEED']
@@ -156,16 +157,44 @@ jobs:
           if len(matched)!=3 or len(set(names))!=3 or set(names)!=set(expected):
               raise SystemExit(f'paginated transport did not resolve exact three shards: expected={expected} found={sorted(names)}')
           by_name={a['name']:a for a in matched}
+
+          class NoRedirect(HTTPRedirectHandler):
+              def http_error_301(self, req, fp, code, msg, response_headers):
+                  return fp
+              http_error_302 = http_error_301
+              http_error_303 = http_error_301
+              http_error_307 = http_error_301
+              http_error_308 = http_error_301
+
+          no_redirect=build_opener(NoRedirect)
           root=Path('shards'); root.mkdir(parents=True,exist_ok=True)
           for name in expected:
               artifact=by_name[name]
-              req=Request(f"{api}/actions/artifacts/{int(artifact['id'])}/zip",headers=headers)
-              with urlopen(req,timeout=120) as response:
-                  payload=response.read()
+              github_zip=f"{api}/actions/artifacts/{int(artifact['id'])}/zip"
+              first_request=Request(github_zip,headers=headers)
+              with no_redirect.open(first_request,timeout=60) as first_response:
+                  status=int(first_response.getcode())
+                  if status in (301,302,303,307,308):
+                      location=first_response.headers.get('Location')
+                      if not location:
+                          raise SystemExit('artifact ZIP redirect did not include Location')
+                      parsed=urlparse(location)
+                      if parsed.scheme!='https' or not parsed.netloc:
+                          raise SystemExit('artifact ZIP redirect was not an absolute HTTPS URL')
+                      signed_headers={'User-Agent':'sdmr-v272-signed-artifact-download'}
+                      if any(k.lower()=='authorization' for k in signed_headers):
+                          raise SystemExit('authorization must never be sent to signed blob storage')
+                      signed_request=Request(location,headers=signed_headers)
+                      with urlopen(signed_request,timeout=120) as signed_response:
+                          payload=signed_response.read()
+                  elif status==200:
+                      payload=first_response.read()
+                  else:
+                      raise SystemExit(f'unexpected GitHub artifact ZIP status: {status}')
               target=root/name; target.mkdir(parents=True,exist_ok=True)
               with zipfile.ZipFile(io.BytesIO(payload)) as zf:
                   zf.extractall(target)
-          print(json.dumps({'run_id':run_id,'pages_scanned':page,'downloaded':expected,'sealed_outcome_read':False},indent=2))
+          print(json.dumps({'run_id':run_id,'pages_scanned':page,'downloaded':expected,'cross_origin_authorization_forwarded':False,'sealed_outcome_read':False},indent=2))
           PY
       - name: Require exactly three rebuilt M shards and freeze one taxon-part worker
         run: |
