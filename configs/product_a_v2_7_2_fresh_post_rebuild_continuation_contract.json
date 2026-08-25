@@ -10,9 +10,9 @@
   },
   "required_rebuild_source": {
     "workflow_file": "product-a-v2-7-2-fresh-full-shard-rebuild.yml",
-    "workflow_run_id": null,
-    "implementation_sha": null,
-    "frozen_ref": null,
+    "workflow_run_id": 32694094350,
+    "implementation_sha": "820d760d9d852207b521a80aaf5a5ae30451950f",
+    "frozen_ref": "frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d",
     "require_workflow_conclusion_success": true,
     "require_exactly_216_rebuild_M_shards": true,
     "require_all_shards_from_one_exact_rebuild_run": true,

@@ -64,14 +64,15 @@ def test_rebuild_workflow_is_shard_only_and_uses_360_min_uniform_budget():
     assert 'v2_7_2_fresh_aggregate' not in text
 
 
-def test_post_rebuild_continuation_is_frozen_closed_before_build_outcome():
+def test_post_rebuild_continuation_pins_successful_build_but_execution_remains_closed():
     c = json.loads(CONT.read_text())
     assert c['purpose'] == 'product_a_v2_7_2_fresh_post_full_shard_rebuild_continuation_contract'
     assert c['predeclared_before_full_rebuild_outcome_and_before_any_rank2_pretruth_or_sealed_outcome'] is True
     source = c['required_rebuild_source']
-    assert source['workflow_run_id'] is None
-    assert source['implementation_sha'] is None
-    assert source['frozen_ref'] is None
+    assert source['workflow_run_id'] == 32694094350
+    assert source['implementation_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert source['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-full-shard-rebuild-820d760d'
+    assert source['require_workflow_conclusion_success'] is True
     assert source['require_exactly_216_rebuild_M_shards'] is True
     assert source['require_all_shards_from_one_exact_rebuild_run'] is True
     assert source['old_partial_shards_from_run_32637712231_allowed'] is False
