@@ -109,20 +109,29 @@ def test_second_transport_failure_is_cross_origin_auth_only_and_still_presealed(
     assert r['execution_identity']['execution_allowed'] is False
 
 
-def test_superseded_paginated_transport_authorization_is_closed():
+def test_redirect_safe_successor_authorization_pins_exact_frozen_identity():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_2_fresh_post_rebuild_continuation_execution_authorization'
-    assert e['implementation_sha'] == '811427392f5d3c4fd4c70385f3479605fdce1dc1'
-    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-post-rebuild-transport-81142739'
+    assert e['predeclared_before_rebuild_outcome_and_before_rank2_pretruth_or_sealed_audit'] is True
+    assert e['technical_successor_authorized_after_transport_failure_before_rank2_pretruth_or_sealed_audit'] is True
+    assert e['technical_successor_authorized_after_redirect_failure_before_rank2_pretruth_or_sealed_audit'] is True
+    assert e['implementation_sha'] == 'c12acaefaacd07dbdd3a442d913fc8af9d6b2d6d'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-2-fresh-post-rebuild-redirect-c12acaef'
+    assert e['workflow_blob_sha'] == '9275201110ec39420a7e68d94ca3362f4f0aa04a'
+    assert e['continuation_contract_blob_sha'] == '80749a964e399d0a9576468410ea4633cb9b961f'
+    assert e['transport_recovery_contract_blob_sha'] == 'c87c0e31e5dc01a6fcdf30e4d58f13ae26b97769'
+    assert e['redirect_recovery_contract_blob_sha'] == '9b544eb227919b80f3083722861b28e9296e1877'
     assert e['successful_rebuild_run_id'] == 32694094350
-    assert e['requires_exact_216_rebuild_shards'] is True
+    assert e['successful_rebuild_sha'] == '820d760d9d852207b521a80aaf5a5ae30451950f'
+    assert e['supersedes_continuation_run_ids'] == [32796308769, 32799507133]
+    assert e['reuse_any_worker_from_failed_runs'] is False
     assert e['rerun_all_72_aggregate_workers'] is True
+    assert e['requires_exact_216_rebuild_shards'] is True
+    assert e['requires_single_workflow_dispatch_run_for_frozen_identity'] is True
     assert e['post_outcome_retuning_allowed'] is False
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
-    assert e['superseded_after_run_id'] == 32799507133
-    assert e['superseded_reason'] == 'artifact_zip_302_redirect_forwarded_github_authorization_to_signed_blob_and_received_401'
-    assert e['execution_allowed'] is False
+    assert e['execution_allowed'] is True
 
 
 def test_continuation_graph_preserves_72_6_72_6_1_information_order():
@@ -185,15 +194,21 @@ def test_sealed_audit_cannot_start_before_pretruth_and_all_final_fits():
     assert 'aggregate:\n    needs: sealed-audit' in text
 
 
-def test_generic_launcher_is_closed_until_redirect_safe_successor_is_frozen():
+def test_generic_launcher_verifies_both_recoveries_and_remains_one_shot():
     text = LAUNCHER.read_text()
-    e = json.loads(EXECUTION.read_text())
-    assert e['execution_allowed'] is False
     assert "auth.get('execution_allowed') is not True" in text
+    assert "auth.get('rerun_all_72_aggregate_workers') is not True" in text
+    assert "auth.get('reuse_any_worker_from_failed_runs') is not False" in text
+    assert "redirect.get('purpose')!='product_a_v2_7_2_fresh_post_rebuild_cross_origin_redirect_recovery'" in text
+    assert "diagnosis.get('signed_blob_storage_response')!=401" in text
+    assert "second_rec.get('github_authorization_header_allowed_on_signed_blob_request') is not False" in text
+    assert "verify_blob(auth['redirect_recovery_contract_path'],auth['redirect_recovery_contract_blob_sha'])" in text
     assert "len(names)!=216" in text
     assert "set(names)!=expected" in text
     assert 'multiple exact post-rebuild continuation runs exist' in text
     assert "payload={'ref':auth['frozen_ref']}" in text
+    assert "'reuse_any_worker_from_failed_runs':False" in text
+    assert "'cross_origin_authorization_forwarding_allowed':False" in text
     assert "'scientific_promotion_allowed':False" in text
     assert "'product_b_unblocked':False" in text
     assert not TRIGGER.exists()
