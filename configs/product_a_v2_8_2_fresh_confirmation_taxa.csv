@@ -1,0 +1,13 @@
+scientific_name,validation_stratum,candidate_rank,n_occurrences,n_unique_0_05_degree_cells
+Ericameria nauseosa,arid_shrub,1,29212,8688
+Abies balsamea,boreal_conifer,1,36633,9893
+Pseudotsuga menziesii,boreal_temperate_conifer,1,154534,31626
+Asplenium trichomanes,fern,1,408441,60986
+Picea engelmannii,montane_tree,1,5188,2149
+Eucalyptus obliqua,southern_temperate_tree,1,41458,4233
+Poa annua,temperate_annual_herb,1,899050,110117
+Acer platanoides,temperate_deciduous_tree,1,1002453,78767
+Sambucus nigra,temperate_shrub,1,1083431,81056
+Rhizophora mucronata,tropical_mangrove,1,2632,993
+Sagittaria latifolia,wetland_emergent,1,21239,10439
+Agrostis stolonifera,wetland_grass,1,952753,86129
