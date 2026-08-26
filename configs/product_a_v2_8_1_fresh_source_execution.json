@@ -1,0 +1,21 @@
+{
+  "candidate_model_fitting_allowed": false,
+  "chunk_count": 16,
+  "environmental_values_allowed": false,
+  "execution_allowed": false,
+  "frozen_ref": null,
+  "implementation_sha": null,
+  "one_shot": true,
+  "panel_blob_sha": null,
+  "product_b_unblocked": false,
+  "purpose": "product_a_v2_8_1_fresh_raw_source_execution_authorization",
+  "scientific_confirmation_allowed": false,
+  "scientific_promotion_allowed": false,
+  "sealed_ecological_outcomes_allowed": false,
+  "sealed_fraction_retuning_allowed": false,
+  "selected_global_sealed_fraction": 0.25,
+  "selection_result_blob_sha": null,
+  "source_acquisition_only": true,
+  "source_contract_blob_sha": null,
+  "workflow_blob_sha": null
+}
