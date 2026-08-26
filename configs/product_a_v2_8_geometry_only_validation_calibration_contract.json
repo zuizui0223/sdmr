@@ -1,5 +1,6 @@
 {
   "purpose": "product_a_v2_8_geometry_only_validation_design_calibration",
+  "issue": 133,
   "predeclared_before_v2_8_geometry_calibration_execution": true,
   "motivation": {
     "v2_7_2_rank2_decision": "empirical_confirmation_unavailable",
