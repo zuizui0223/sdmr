@@ -1,0 +1,243 @@
+name: product-a-v2-7-3-presealed-feasibility
+
+on:
+  workflow_dispatch:
+    inputs:
+      authorization_commit_sha:
+        required: true
+        type: string
+      authorization_blob_sha:
+        required: true
+        type: string
+      expected_runtime_sha:
+        required: true
+        type: string
+      expected_frozen_ref:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-3-presealed-feasibility-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify external authorization, frozen source, and pre-sealed-only scope
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTH_COMMIT: ${{ inputs.authorization_commit_sha }}
+          AUTH_BLOB: ${{ inputs.authorization_blob_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_runtime_sha }}
+          EXPECTED_REF: ${{ inputs.expected_frozen_ref }}
+        run: |
+          python - <<'PY'
+          import base64, json, os, urllib.parse, urllib.request
+          from pathlib import Path
+
+          if os.environ['GITHUB_SHA'] != os.environ['EXPECTED_SHA']:
+              raise SystemExit('v2.7.3 feasibility runtime SHA mismatch')
+          if os.environ['GITHUB_REF_NAME'] != os.environ['EXPECTED_REF']:
+              raise SystemExit('v2.7.3 feasibility frozen ref mismatch')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v273-presealed-feasibility',
+          }
+          def get(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  return json.loads(r.read())
+          auth_path='configs/product_a_v2_7_3_presealed_feasibility_execution.json'
+          quoted=urllib.parse.quote(auth_path,safe='/')
+          meta=get(f"{api}/contents/{quoted}?ref={urllib.parse.quote(os.environ['AUTH_COMMIT'],safe='')}")
+          if meta.get('sha') != os.environ['AUTH_BLOB']:
+              raise SystemExit('external v2.7.3 feasibility authorization blob mismatch')
+          auth=json.loads(base64.b64decode(meta['content']).decode())
+          if auth.get('purpose')!='product_a_v2_7_3_presealed_structural_feasibility_execution_authorization':
+              raise SystemExit('wrong v2.7.3 feasibility authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.7.3 feasibility authorization is closed or not one-shot')
+          if auth.get('implementation_sha')!=os.environ['EXPECTED_SHA'] or auth.get('frozen_ref')!=os.environ['EXPECTED_REF']:
+              raise SystemExit('v2.7.3 feasibility authorization runtime identity mismatch')
+          for key in ('open_sealed_environmental_evidence','model_pool_fitting_allowed','rank2_sealed_confirmation_outcomes_allowed','scientific_runtime_execution_allowed','post_outcome_retuning_allowed','candidate_reselection_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.7.3 feasibility authorization crossed scope: {key}')
+          if auth.get('run_all_6_parts') is not True or auth.get('require_full_12_taxa_x_3_M_denominator') is not True:
+              raise SystemExit('v2.7.3 feasibility denominator changed')
+
+          pin=json.load(open('configs/product_a_v2_7_3_fresh_source_pin.json'))
+          if int(pin.get('workflow_run_id',-1))!=32858840773 or pin.get('workflow_conclusion')!='success':
+              raise SystemExit('v2.7.3 source pin run identity changed')
+          barrier=pin['information_barrier']
+          for key in ('environmental_values_read','candidate_model_fitting_performed','presealed_feasibility_executed','rank2_sealed_confirmation_outcomes_read','scientific_promotion_allowed','product_b_unblocked'):
+              if barrier.get(key) is not False:
+                  raise SystemExit(f'v2.7.3 source pin crossed barrier: {key}')
+          run=get(f"{api}/actions/runs/{pin['workflow_run_id']}")
+          if run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit('v2.7.3 source run is not successful')
+          if run.get('head_sha')!=pin['execution_sha'] or run.get('head_branch')!=pin['execution_ref']:
+              raise SystemExit('v2.7.3 source run frozen identity mismatch')
+          artifacts=[]; page=1
+          while True:
+              payload=get(f"{api}/actions/runs/{pin['workflow_run_id']}/artifacts?per_page=100&page={page}")
+              batch=payload.get('artifacts',[]); artifacts.extend(batch)
+              if len(batch)<100: break
+              page+=1
+          by_name={str(a['name']):a for a in artifacts}
+          for section in ('focal','target_group'):
+              expected=pin[section]
+              a=by_name.get(expected['artifact_name'])
+              if not a or int(a['id'])!=int(expected['artifact_id']) or str(a.get('digest'))!=expected['artifact_digest']:
+                  raise SystemExit(f'v2.7.3 pinned {section} artifact identity mismatch')
+          receipt=pin['source_receipt_artifact']
+          a=by_name.get(receipt['name'])
+          if not a or int(a['id'])!=int(receipt['id']) or str(a.get('digest'))!=receipt['digest']:
+              raise SystemExit('v2.7.3 source receipt artifact identity mismatch')
+          design=json.load(open('configs/product_a_v2_7_3_presealed_feasibility_contract.json'))
+          gate=design['presealed_admission_gate']
+          if gate['runs_before_model_pool_fitting'] is not True or gate['runs_before_sealed_raster_extraction'] is not True:
+              raise SystemExit('v2.7.3 presealed control order changed')
+          print('v2.7.3 external authorization/source/presealed preflight passed')
+          PY
+
+  raw-source:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact pinned rank-3 focal and target artifacts only
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p raw/focal_bundle raw/target_bundle
+          RUN_ID=$(python - <<'PY'
+          import json
+          print(json.load(open('configs/product_a_v2_7_3_fresh_source_pin.json'))['workflow_run_id'])
+          PY
+          )
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name product-a-v2-7-3-rank3-focal-source-2026-08-01 --dir raw/focal_bundle
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name product-a-v2-7-3-rank3-target-source-2026-08-01 --dir raw/target_bundle
+          cp raw/focal_bundle/focal.parquet raw/focal.parquet
+          cp raw/target_bundle/target_group.parquet raw/target_group.parquet
+      - name: Verify exact source bytes before feasibility transport
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          pin=json.load(open('configs/product_a_v2_7_3_fresh_source_pin.json'))
+          for path,expected in (
+              ('raw/focal.parquet',pin['focal']['file_sha256']),
+              ('raw/target_group.parquet',pin['target_group']['file_sha256']),
+          ):
+              actual=hashlib.sha256(open(path,'rb').read()).hexdigest()
+              if actual!=expected: raise SystemExit(f'v2.7.3 source byte mismatch: {path}')
+          print('exact rank-3 source bytes verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v273-presealed-raw-source-pair
+          path: |
+            raw/focal.parquet
+            raw/target_group.parquet
+          retention-days: 30
+          compression-level: 1
+
+  part:
+    needs: raw-source
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v273-presealed-raw-source-pair
+          path: raw
+      - name: Evaluate one pre-sealed structural-feasibility part without environmental evidence
+        run: |
+          python -m sdmr.v2_7_3_presealed_feasibility part \
+            --design configs/product_a_v2_7_3_presealed_feasibility_contract.json \
+            --source-pin configs/product_a_v2_7_3_fresh_source_pin.json \
+            --focal raw/focal.parquet \
+            --target raw/target_group.parquet \
+            --taxa configs/product_a_v2_7_3_rank3_taxa.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --seed ${{ matrix.seed }} \
+            --sealed-fraction ${{ matrix.sealed_fraction }} \
+            --output-dir part
+          python - <<'PY'
+          import json
+          c=json.load(open('part/contract.json'))
+          assert c['purpose']=='product_a_v2_7_3_presealed_feasibility_part'
+          assert c['n_taxa']==12
+          assert c['M_specs']==['buffer_150km','buffer_300km','buffer_500km']
+          for key in ('environmental_values_read','sealed_environmental_values_read','candidate_model_fitting_performed','candidate_scores_read','rank2_sealed_confirmation_outcomes_read','scientific_model_execution_allowed'):
+              assert c[key] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v273-presealed-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part/
+          retention-days: 90
+          compression-level: 1
+
+  aggregate:
+    needs: part
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v273-presealed-part-*
+          path: parts
+      - name: Apply frozen six-part pre-sealed admission rule only
+        run: |
+          python -m sdmr.v2_7_3_presealed_feasibility aggregate \
+            --parts-root parts \
+            --output-dir decision
+          python - <<'PY'
+          import json
+          d=json.load(open('decision/decision.json'))
+          assert d['purpose']=='product_a_v2_7_3_presealed_feasibility_decision'
+          assert d['decision'] in ('presealed_admitted','presealed_unavailable')
+          assert d['n_parts']==6
+          assert d['scientific_model_execution_allowed'] is False
+          assert d['separate_scientific_runtime_authorization_required_if_admitted'] is True
+          assert d['scientific_promotion_allowed'] is False
+          assert d['product_b_unblocked'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-3-presealed-feasibility-decision
+          path: decision/
+          retention-days: 90
