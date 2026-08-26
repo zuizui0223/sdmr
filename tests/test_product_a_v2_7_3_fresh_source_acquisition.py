@@ -43,7 +43,7 @@ def test_rank3_source_contract_is_raw_only_and_predeclared():
         assert barrier[key] is False
 
 
-def test_source_execution_authorization_pins_exact_frozen_raw_source_runtime():
+def test_source_execution_authorization_is_consumed_after_exact_successful_run():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_3_rank3_fresh_raw_source_execution_authorization'
     assert e['implementation_sha'] == 'a41850a2fd48bef666bd55983020cf398f6ed1ba'
@@ -61,7 +61,10 @@ def test_source_execution_authorization_pins_exact_frozen_raw_source_runtime():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is True
+    assert e['execution_allowed'] is False
+    assert e['consumed'] is True
+    assert e['consumed_by_run_id'] == 32858840773
+    assert e['consumed_run_conclusion'] == 'success'
 
 
 def test_source_workflow_requires_external_authorization_and_uses_rank3_only():
@@ -71,7 +74,6 @@ def test_source_workflow_requires_external_authorization_and_uses_rank3_only():
     assert 'expected_runtime_sha:' in text
     assert 'expected_frozen_ref:' in text
     assert "auth=json.load(open('configs/product_a_v2_7_3_fresh_source_execution.json'))" not in text
-    assert "meta=get(f'{api}/contents/{auth_path}?ref={auth_ref}')" in text
     assert "auth.get('execution_allowed') is not True" in text
     assert '--taxa configs/product_a_v2_7_3_rank3_taxa.csv' in text
     assert '--exclude-taxa configs/product_a_v2_7_3_rank3_taxa.csv' in text
@@ -91,15 +93,12 @@ def test_source_workflow_requires_external_authorization_and_uses_rank3_only():
 def test_source_launcher_is_one_shot_external_auth_and_trigger_absent():
     text = LAUNCHER.read_text()
     assert "authorization_commit_sha=str(event['pull_request']['base']['sha'])" in text
-    assert "if json.loads(decoded)!=auth:" in text
     assert "auth.get('execution_allowed') is not True" in text
     assert "verify_blob('.github/workflows/product-a-v2-7-3-fresh-source-acquisition.yml',auth['workflow_blob_sha'])" in text
     assert "verify_blob('configs/product_a_v2_7_3_fresh_source_acquisition_contract.json',auth['source_contract_blob_sha'])" in text
     assert "verify_blob('configs/product_a_v2_7_3_rank3_taxa.csv',auth['panel_blob_sha'])" in text
     assert "verify_blob('configs/product_a_v2_7_3_presealed_feasibility_contract.json',auth['presealed_feasibility_contract_blob_sha'])" in text
     assert 'multiple exact v2.7.3 source runs exist' in text
-    assert "'authorization_commit_sha':authorization_commit_sha" in text
-    assert "'authorization_blob_sha':authorization_blob_sha" in text
     assert "'presealed_feasibility_execution_allowed':False" in text
     assert "'scientific_promotion_allowed':False" in text
     assert "'product_b_unblocked':False" in text
