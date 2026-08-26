@@ -1,0 +1,212 @@
+name: product-a-v2-8-2-fresh-source-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_8_2_fresh_source_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: product-a-v2-8-2-fresh-source-pr-launch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one externally authorized frozen v2.8.2 raw-source run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import time
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          api = f'https://api.github.com/repos/{repo}'
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'sdmr-v282-fresh-source-launcher',
+          }
+
+          authorization_commit_sha = '4de98f6340d6324f8a7e1440a1387c20abc48a3c'
+          authorization_blob_sha = '16fa44899977792baa1b1b527d0cef3a62c61956'
+          expected_runtime_sha = '1baa9f48250ffb5544f2af6706f6166cbce02381'
+          expected_frozen_ref = 'frozen/product-a-v2-8-2-fresh-source-1baa9f48'
+          expected_panel_sha256 = '835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1'
+          workflow = 'product-a-v2-8-2-fresh-source-acquisition.yml'
+
+          def request(url, *, method='GET', payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  raw = response.read()
+                  return json.loads(raw) if raw else None
+
+          auth_path = 'configs/product_a_v2_8_2_fresh_source_execution.json'
+          quoted = urllib.parse.quote(auth_path, safe='/')
+          meta = request(
+              f"{api}/contents/{quoted}?ref="
+              f"{urllib.parse.quote(authorization_commit_sha, safe='')}"
+          )
+          if str(meta.get('sha')) != authorization_blob_sha:
+              raise SystemExit('v2.8.2 source authorization blob mismatch')
+          auth = json.loads(base64.b64decode(meta['content']).decode())
+          local = json.load(open(auth_path))
+          if local != auth:
+              raise SystemExit('trigger head does not contain the exact authorized v2.8.2 source config')
+          if auth.get('purpose') != 'product_a_v2_8_2_fresh_raw_source_execution_authorization':
+              raise SystemExit('wrong v2.8.2 source authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.8.2 source execution is not authorized one-shot')
+          if auth.get('implementation_sha') != expected_runtime_sha:
+              raise SystemExit('v2.8.2 source implementation SHA changed')
+          if auth.get('frozen_ref') != expected_frozen_ref:
+              raise SystemExit('v2.8.2 source frozen ref changed')
+          if auth.get('selected_panel_sha256') != expected_panel_sha256:
+              raise SystemExit('v2.8.2 selected panel fingerprint changed')
+          if float(auth.get('selected_global_sealed_fraction', -1)) != 0.25:
+              raise SystemExit('calibrated global sealed fraction changed')
+          for key in (
+              'environmental_values_allowed',
+              'candidate_model_fitting_allowed',
+              'candidate_scores_allowed',
+              'sealed_ecological_outcomes_allowed',
+              'scientific_confirmation_allowed',
+              'scientific_promotion_allowed',
+              'product_b_unblocked',
+          ):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.8.2 source launcher crossed scope: {key}')
+
+          def verify_blob(path, expected):
+              quoted_path = urllib.parse.quote(path, safe='/')
+              payload = request(
+                  f"{api}/contents/{quoted_path}?ref="
+                  f"{urllib.parse.quote(expected_frozen_ref, safe='')}"
+              )
+              if str(payload.get('sha')) != str(expected):
+                  raise SystemExit(f'frozen v2.8.2 source blob changed: {path}')
+
+          verify_blob(
+              '.github/workflows/product-a-v2-8-2-fresh-source-acquisition.yml',
+              auth['workflow_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_v2_8_2_fresh_source_acquisition_contract.json',
+              auth['contract_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_v2_8_2_fresh_confirmation_taxa.csv',
+              auth['panel_blob_sha'],
+          )
+          verify_blob(
+              'src/sdmr/fresh_focal_parallel.py',
+              auth['focal_module_blob_sha'],
+          )
+          verify_blob(
+              'src/sdmr/target_footprint_parallel_cli.py',
+              auth['target_parallel_module_blob_sha'],
+          )
+          verify_blob(
+              'src/sdmr/target_footprint_cli.py',
+              auth['target_core_module_blob_sha'],
+          )
+
+          def matches():
+              payload = request(
+                  f"{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100"
+              )
+              return [
+                  run for run in payload.get('workflow_runs', [])
+                  if str(run.get('head_sha')) == expected_runtime_sha
+                  and str(run.get('head_branch')) == expected_frozen_ref
+                  and str(run.get('event')) == 'workflow_dispatch'
+              ]
+
+          runs = matches()
+          dispatched = False
+          if len(runs) > 1:
+              raise SystemExit(f'multiple exact v2.8.2 source runs exist: {len(runs)}')
+          if not runs:
+              request(
+                  f"{api}/actions/workflows/{workflow}/dispatches",
+                  method='POST',
+                  payload={
+                      'ref': expected_frozen_ref,
+                      'inputs': {
+                          'authorization_commit_sha': authorization_commit_sha,
+                          'authorization_blob_sha': authorization_blob_sha,
+                          'expected_runtime_sha': expected_runtime_sha,
+                          'expected_frozen_ref': expected_frozen_ref,
+                      },
+                  },
+              )
+              dispatched = True
+              for _ in range(24):
+                  time.sleep(5)
+                  runs = matches()
+                  if runs:
+                      break
+          if len(runs) != 1:
+              raise SystemExit(f'expected exactly one exact v2.8.2 source run, found {len(runs)}')
+
+          run = runs[0]
+          receipt = {
+              'purpose': 'product_a_v2_8_2_fresh_source_launch_receipt',
+              'pull_request': int(event['pull_request']['number']),
+              'authorization_commit_sha': authorization_commit_sha,
+              'authorization_blob_sha': authorization_blob_sha,
+              'implementation_sha': expected_runtime_sha,
+              'frozen_ref': expected_frozen_ref,
+              'selected_panel_sha256': expected_panel_sha256,
+              'selected_global_sealed_fraction': 0.25,
+              'workflow_blob_sha': auth['workflow_blob_sha'],
+              'contract_blob_sha': auth['contract_blob_sha'],
+              'panel_blob_sha': auth['panel_blob_sha'],
+              'focal_module_blob_sha': auth['focal_module_blob_sha'],
+              'target_parallel_module_blob_sha': auth['target_parallel_module_blob_sha'],
+              'target_core_module_blob_sha': auth['target_core_module_blob_sha'],
+              'environmental_values_allowed': False,
+              'candidate_model_fitting_allowed': False,
+              'candidate_scores_allowed': False,
+              'sealed_ecological_outcomes_allowed': False,
+              'scientific_confirmation_allowed': False,
+              'scientific_promotion_allowed': False,
+              'product_b_unblocked': False,
+              'dispatched_now': dispatched,
+              'run_id': int(run['id']),
+              'run_number': int(run['run_number']),
+              'status': str(run['status']),
+              'conclusion': run.get('conclusion'),
+              'html_url': str(run['html_url']),
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(receipt, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-8-2-fresh-source-launch-receipt
+          path: launch/receipt.json
+          if-no-files-found: error
+          retention-days: 90
