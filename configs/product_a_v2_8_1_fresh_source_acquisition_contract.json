@@ -1,0 +1,76 @@
+{
+  "eligibility_freeze": {
+    "artifact_digest": "sha256:9a97889c0b69048df8142f2e59d4d860682670f13e2781440520c03fa8401dab",
+    "artifact_id": 9613925063,
+    "artifact_name": "product-a-v2-8-1-fresh-taxon-eligibility",
+    "frozen_ref": "frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09",
+    "run_id": 32988143625,
+    "selected_panel_path": "configs/product_a_v2_8_1_fresh_confirmation_taxa.csv",
+    "selected_panel_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "selection_result_path": "configs/product_a_v2_8_1_fresh_taxon_panel_selection_result.json",
+    "selection_result_sha256": "6498ec563b6079f404d411d5ff5424e5151e2cf0fcfa964fd4ea1f4099c35faa",
+    "workflow_sha": "2e501f090de9160627c912bbf8273e5a32500a2d"
+  },
+  "focal_source": {
+    "artifact_name": "product-a-v2-8-1-fresh-focal-source-2026-08-01",
+    "old_focal_artifact_reused": false,
+    "selection": "all_coordinate_valid_rows_for_exact_frozen_12_taxon_panel",
+    "thinning_at_source_acquisition": false,
+    "thinning_occurs_later_before_outer_split": true
+  },
+  "fresh_taxon_panel": {
+    "candidate_rank_fixed_to": 1,
+    "eligibility_rule": "raw_occurrences>=80_and_unique_0_05_degree_cells>=50",
+    "independence_axis": "taxon_holdout_not_temporal",
+    "n_taxa": 12,
+    "n_validation_strata": 12,
+    "path": "configs/product_a_v2_8_1_fresh_confirmation_taxa.csv",
+    "post_count_reselection_allowed": false,
+    "sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1"
+  },
+  "future_confirmation_geometry": {
+    "retuning_allowed": false,
+    "scientific_confirmation_executed_during_source_acquisition": false,
+    "selected_global_sealed_fraction": 0.25
+  },
+  "information_barrier": {
+    "CHELSA_environmental_values_read": false,
+    "candidate_model_fitting_performed": false,
+    "candidate_model_scores_read": false,
+    "niche_recovery_outcomes_read": false,
+    "product_b_unblocked": false,
+    "scientific_confirmation_allowed": false,
+    "scientific_promotion_allowed": false,
+    "sealed_confirmation_outcomes_created_or_read": false
+  },
+  "issue": 149,
+  "next_gate": "after_successful_raw_source_acquisition_pin_exact_run_artifact_file_query_and_catalog_fingerprints_before_separately_staging_and_freezing_v2_8_scientific_confirmation_runtime",
+  "parallel_transport": {
+    "aggregate_requires_common_snapshot_catalog_sha256": true,
+    "aggregate_requires_complete_chunk_indices": true,
+    "chunk_count": 16,
+    "chunking_changes_scientific_query": false,
+    "snapshot_shards_partitioned_exactly_once": true
+  },
+  "predeclared_after_eligibility_before_any_fresh_source_outcome": true,
+  "purpose": "product_a_v2_8_1_fresh_taxon_raw_source_acquisition_contract",
+  "snapshot": {
+    "catalog_reuse_is_transport_only": true,
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "date": "2026-08-01",
+    "doi": "10.15468/dl.fs3btq",
+    "region": "us-east-1",
+    "same_catalog_as_eligibility_allowed": true,
+    "temporal_independence_claim_allowed": false
+  },
+  "target_group_source": {
+    "artifact_name": "product-a-v2-8-1-fresh-target-source-2026-08-01",
+    "exclude_taxa_count": 12,
+    "exclude_taxa_path": "configs/product_a_v2_8_1_fresh_confirmation_taxa.csv",
+    "exclude_taxa_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "kingdom": "Plantae",
+    "old_target_artifact_reused": false,
+    "one_per_grid_cell_degrees": 0.05,
+    "source_independent_of_focal_occurrence_geography": true
+  }
+}
