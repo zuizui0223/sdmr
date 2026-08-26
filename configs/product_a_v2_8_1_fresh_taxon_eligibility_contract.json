@@ -1,0 +1,76 @@
+{
+  "candidate_pool_path": "configs/product_a_v2_8_1_fresh_taxon_candidates.csv",
+  "eligibility_inputs_allowed": [
+    "candidate_scientific_name",
+    "validation_stratum",
+    "candidate_rank",
+    "raw_occurrence_row_count",
+    "unique_0_05_degree_cell_count",
+    "taxonomic_identity_provenance"
+  ],
+  "eligibility_inputs_forbidden": [
+    "CHELSA_environmental_values",
+    "candidate_model_scores",
+    "AUC",
+    "CBI",
+    "OR10",
+    "AICc",
+    "niche_recovery_metrics",
+    "process_knockout_outcomes",
+    "sealed_confirmation_outcomes"
+  ],
+  "excluded_focal_registries": [
+    "configs/product_a_pilot_taxa_v1.csv",
+    "configs/product_a_v2_7_1_fresh_taxon_candidates.csv"
+  ],
+  "freshness_basis": "new_taxa_disjoint_from_pilot_12_and_all_36_geometry_calibration_taxa",
+  "future_confirmation_design": {
+    "fraction_is_taxon_specific": false,
+    "global_sealed_fraction": 0.25,
+    "scientific_contract_to_inherit": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "scientific_runtime_must_be_frozen_separately": true
+  },
+  "geometry_calibration_receipt": {
+    "decision": "geometry_calibration_fraction_selected",
+    "decision_artifact_digest": "sha256:a08c9f40d89b65ccf7357289b7e89bda7e6844cc6c2014edaeafb14c368c63d6",
+    "decision_artifact_id": 9609352973,
+    "decision_artifact_name": "product-a-v2-8-geometry-calibration-decision",
+    "frozen_ref": "frozen/product-a-v2-8-geometry-calibration-32d5b67f",
+    "implementation_sha": "32d5b67f7b18634830191df52ef56128589f5d82",
+    "retuning_allowed": false,
+    "selected_global_sealed_fraction": 0.25,
+    "workflow_run_id": 32943026025
+  },
+  "historical_snapshot": {
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "role": "availability_only_for_predeclared_new_taxon_candidates",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "temporal_independence_claim_allowed": false
+  },
+  "information_barrier": {
+    "candidate_model_fitting_allowed": false,
+    "candidate_scores_read": false,
+    "environmental_values_read": false,
+    "product_b_unblocked": false,
+    "scientific_confirmation_execution_allowed": false,
+    "scientific_promotion_allowed": false,
+    "sealed_confirmation_outcomes_read": false,
+    "selected_panel_may_only_become_confirmation_evidence_after_separate_source_and_decision_gate": true
+  },
+  "purpose": "product_a_v2_8_1_fresh_taxon_panel_eligibility_contract",
+  "selection_rule": {
+    "if_no_candidate_is_eligible": "panel_unavailable_fail_closed",
+    "post_eligibility_candidate_reordering_allowed": false,
+    "required_candidates_per_stratum": 3,
+    "required_strata": 12,
+    "select_exactly_one_taxon_per_stratum": true,
+    "threshold_relaxation_after_counts_are_seen_allowed": false,
+    "within_stratum_rule": "lowest_predeclared_candidate_rank_meeting_both_eligibility_thresholds"
+  },
+  "thresholds": {
+    "minimum_occurrences": 80,
+    "minimum_unique_0_05_degree_cells": 50
+  },
+  "tracks_issue": 141
+}

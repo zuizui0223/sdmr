@@ -1,0 +1,37 @@
+scientific_name,validation_stratum,candidate_rank,selection_basis
+Poa annua,temperate_annual_herb,1,widespread annual herb analog fixed before eligibility query
+Veronica persica,temperate_annual_herb,2,widespread annual herb fallback fixed before eligibility query
+Lamium purpureum,temperate_annual_herb,3,widespread annual herb fallback fixed before eligibility query
+Acer platanoides,temperate_deciduous_tree,1,widespread deciduous tree analog fixed before eligibility query
+Alnus glutinosa,temperate_deciduous_tree,2,widespread deciduous tree fallback fixed before eligibility query
+Betula pubescens,temperate_deciduous_tree,3,widespread deciduous tree fallback fixed before eligibility query
+Pseudotsuga menziesii,boreal_temperate_conifer,1,cold-temperate conifer analog fixed before eligibility query
+Picea sitchensis,boreal_temperate_conifer,2,temperate conifer fallback fixed before eligibility query
+Thuja occidentalis,boreal_temperate_conifer,3,cold-temperate conifer fallback fixed before eligibility query
+Agrostis stolonifera,wetland_grass,1,widespread wetland graminoid analog fixed before eligibility query
+Alopecurus geniculatus,wetland_grass,2,wetland graminoid fallback fixed before eligibility query
+Carex rostrata,wetland_grass,3,wetland graminoid fallback fixed before eligibility query
+Sambucus nigra,temperate_shrub,1,widespread temperate shrub analog fixed before eligibility query
+Corylus avellana,temperate_shrub,2,temperate shrub fallback fixed before eligibility query
+Rosa canina,temperate_shrub,3,temperate shrub fallback fixed before eligibility query
+Asplenium trichomanes,fern,1,widespread fern analog fixed before eligibility query
+Matteuccia struthiopteris,fern,2,temperate fern fallback fixed before eligibility query
+Polystichum acrostichoides,fern,3,temperate fern fallback fixed before eligibility query
+Ericameria nauseosa,arid_shrub,1,widespread arid shrub analog fixed before eligibility query
+Ephedra viridis,arid_shrub,2,arid shrub fallback fixed before eligibility query
+Atriplex polycarpa,arid_shrub,3,arid shrub fallback fixed before eligibility query
+Rhizophora mucronata,tropical_mangrove,1,widespread Indo-Pacific mangrove analog fixed before eligibility query
+Rhizophora apiculata,tropical_mangrove,2,Indo-Pacific mangrove fallback fixed before eligibility query
+Bruguiera gymnorhiza,tropical_mangrove,3,Indo-Pacific mangrove fallback fixed before eligibility query
+Eucalyptus obliqua,southern_temperate_tree,1,southern temperate tree analog fixed before eligibility query
+Eucalyptus regnans,southern_temperate_tree,2,southern temperate tree fallback fixed before eligibility query
+Nothofagus dombeyi,southern_temperate_tree,3,southern temperate tree fallback fixed before eligibility query
+Picea engelmannii,montane_tree,1,montane conifer tree analog fixed before eligibility query
+Abies concolor,montane_tree,2,montane tree fallback fixed before eligibility query
+Pinus contorta,montane_tree,3,montane tree fallback fixed before eligibility query
+Abies balsamea,boreal_conifer,1,boreal conifer analog fixed before eligibility query
+Pinus resinosa,boreal_conifer,2,boreal conifer fallback fixed before eligibility query
+Picea rubens,boreal_conifer,3,cold-region conifer fallback fixed before eligibility query
+Sagittaria latifolia,wetland_emergent,1,widespread wetland emergent analog fixed before eligibility query
+Pontederia cordata,wetland_emergent,2,wetland emergent fallback fixed before eligibility query
+Schoenoplectus acutus,wetland_emergent,3,wetland emergent fallback fixed before eligibility query

@@ -1,0 +1,22 @@
+{
+  "candidate_model_fitting_allowed": false,
+  "candidate_registry_blob_sha": null,
+  "candidate_scores_allowed": false,
+  "consumed_registry_blob_sha": null,
+  "eligibility_contract_blob_sha": null,
+  "environmental_values_allowed": false,
+  "execution_allowed": false,
+  "frozen_ref": null,
+  "implementation_sha": null,
+  "module_blob_sha": null,
+  "one_shot": true,
+  "pilot_registry_blob_sha": null,
+  "product_b_unblocked": false,
+  "purpose": "product_a_v2_8_1_fresh_taxon_eligibility_execution_authorization",
+  "scientific_confirmation_allowed": false,
+  "scientific_promotion_allowed": false,
+  "sealed_ecological_outcomes_allowed": false,
+  "selected_global_sealed_fraction": 0.25,
+  "tracks_issue": 141,
+  "workflow_blob_sha": null
+}
