@@ -1,0 +1,13 @@
+Product-A v2.8.1 fresh-taxon eligibility one-shot trigger
+
+authorization_commit_sha=9b540d904cd18361f2388cae5eebabc065e27df7
+authorization_blob_sha=97af4a67c37578645d6e859a5864ea4981dade47
+implementation_sha=2e501f090de9160627c912bbf8273e5a32500a2d
+frozen_ref=frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09
+selected_global_sealed_fraction=0.25
+candidate_registry_blob_sha=38d888d189320a09a48a590e287fa81966e2fc4f
+eligibility_contract_blob_sha=eb3a8accc56b5eecda63c35a6decf6dd11752f1f
+
+This trigger authorizes no environmental values, model fitting, candidate scores,
+sealed ecological outcomes, scientific confirmation, Product-A promotion, or
+Product-B unblocking. It exists only to activate the separately merged launcher.
