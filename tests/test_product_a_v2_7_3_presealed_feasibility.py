@@ -10,6 +10,7 @@ RANK2 = Path('configs/product_a_v2_7_2_fresh_confirmation_taxa.csv')
 RANK3 = Path('configs/product_a_v2_7_3_rank3_taxa.csv')
 CONTRACT = Path('configs/product_a_v2_7_3_presealed_feasibility_contract.json')
 EXECUTION = Path('configs/product_a_v2_7_3_presealed_feasibility_execution.json')
+RECEIPT = Path('configs/product_a_v2_7_3_presealed_feasibility_final_receipt.json')
 
 
 def test_rank3_panel_is_exact_preexisting_rank3_registry_cohort():
@@ -120,7 +121,7 @@ def test_scientific_runtime_and_claim_boundary_remain_frozen():
     assert c['claim_boundary']['product_b_unblocked'] is False
 
 
-def test_v273_execution_authorizes_exact_frozen_presealed_runtime_only():
+def test_v273_execution_is_consumed_and_closed_after_presealed_unavailable():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_3_presealed_structural_feasibility_execution_authorization'
     assert e['implementation_sha'] == '0b0ab3fa00e04fb86f2db83963c6b1f051f24cf3'
@@ -143,4 +144,19 @@ def test_v273_execution_authorizes_exact_frozen_presealed_runtime_only():
     assert e['scientific_promotion_allowed'] is False
     assert e['product_b_unblocked'] is False
     assert e['one_shot'] is True
-    assert e['execution_allowed'] is True
+    assert e['execution_allowed'] is False
+    assert e['consumed_by_run_id'] == 32925557219
+    assert e['consumed_run_conclusion'] == 'success'
+    assert e['consumed_decision'] == 'presealed_unavailable'
+    assert e['consumed_decision_artifact_id'] == 9592334790
+
+    receipt = json.loads(RECEIPT.read_text())
+    assert receipt['decision'] == 'presealed_unavailable'
+    assert receipt['n_parts'] == 6
+    assert receipt['n_available_parts'] == 4
+    assert receipt['information_barrier']['environmental_values_read'] is False
+    assert receipt['information_barrier']['candidate_model_fitting_performed'] is False
+    assert receipt['interpretation']['negative_ecological_or_model_evidence'] is False
+    assert receipt['interpretation']['scientific_model_execution_allowed'] is False
+    assert receipt['interpretation']['scientific_promotion_allowed'] is False
+    assert receipt['interpretation']['product_b_unblocked'] is False
