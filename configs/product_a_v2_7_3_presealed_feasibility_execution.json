@@ -1,13 +1,13 @@
 {
   "purpose": "product_a_v2_7_3_presealed_structural_feasibility_execution_authorization",
-  "implementation_sha": null,
-  "frozen_ref": null,
-  "workflow_blob_sha": null,
-  "module_blob_sha": null,
-  "panel_blob_sha": null,
-  "feasibility_contract_blob_sha": null,
-  "source_pin_blob_sha": null,
-  "evidence_partition_blob_sha": null,
+  "implementation_sha": "0b0ab3fa00e04fb86f2db83963c6b1f051f24cf3",
+  "frozen_ref": "frozen/product-a-v2-7-3-presealed-0b0ab3fa",
+  "workflow_blob_sha": "672677d9262a907f584011ad30c8b5e3ed2bd914",
+  "module_blob_sha": "cbe3d23e5a06d35167c4a5ff68d50a2ba4581c8d",
+  "panel_blob_sha": "e8b734df9571674e1b6e710b4a0f36735425a7b8",
+  "feasibility_contract_blob_sha": "58d4ff7111b88d5109d2d26943e68364c98d2133",
+  "source_pin_blob_sha": "a04bc7c5c9a34f4ce6c381f255631c2168720d0a",
+  "evidence_partition_blob_sha": "2109221ee796bee39093c0f9388d63761a62f4af",
   "source_acquisition_run_id": 32858840773,
   "run_all_6_parts": true,
   "require_full_12_taxa_x_3_M_denominator": true,
@@ -20,5 +20,5 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": false
+  "execution_allowed": true
 }
