@@ -1,0 +1,55 @@
+{
+  "purpose": "product_a_v2_8_geometry_calibration_raw_source_pin",
+  "issue": 133,
+  "workflow_run_id": 32936391197,
+  "workflow_conclusion": "success",
+  "execution_sha": "e33a883ff0829b2c6b621b77ac295151de647a58",
+  "execution_ref": "frozen/product-a-v2-8-geometry-source-e33a883f",
+  "authorization_commit_sha": "8f426f0aa46ec648bf4b9332779b09fbb1f46133",
+  "authorization_blob_sha": "230a670ba913e7bc1af5de141fca2ef1bdd604c1",
+  "launch_receipt_artifact": {
+    "workflow_run_id": 32936383805,
+    "id": 9594967251,
+    "name": "product-a-v2-8-geometry-calibration-source-launch-receipt",
+    "digest": "sha256:81b6010c80c0c8ecff113e859c0426c2853a109c4b5d20c38206851bdbb0b497",
+    "receipt_sha256": "8af76ddde8af39020599e8697df36bc92c54638bdd9e826e5018ca79c76af1c0"
+  },
+  "source_receipt_artifact": {
+    "id": 9595593544,
+    "name": "product-a-v2-8-geometry-calibration-raw-source-receipt",
+    "digest": "sha256:852ee32958bd1081ac1ff03d363c6d552918314252d22dcd8f87380f7fe7a856",
+    "receipt_sha256": "a08e9fea20042b38d7726140a77b051910d9771cea9fb52b3b93e8660153821c"
+  },
+  "snapshot_date": "2026-08-01",
+  "snapshot_doi": "10.15468/dl.fs3btq",
+  "snapshot_shard_catalog_sha256": "47300bbeb7d7b10711e685cff20d7574737c3440228e9b0247efac40a3d0ca84",
+  "calibration_corpus_sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00",
+  "focal": {
+    "artifact_id": 9595572912,
+    "artifact_name": "product-a-v2-8-geometry-calibration-focal-source-2026-08-01",
+    "artifact_digest": "sha256:fedcc444a272416360a4f5c46e844b32f3bf167599dfb4834c07613c413a1292",
+    "file_sha256": "6633106cce2098860a0825de56b59eb42f52782b8167332bb0578c3d760e396d",
+    "query_sha256": "8da64e8453a13a4ea50f189a43ad5d5b17a51b795bb43a6a98b1afa800fffa2d",
+    "n_taxa": 36
+  },
+  "target_group": {
+    "artifact_id": 9595280581,
+    "artifact_name": "product-a-v2-8-geometry-calibration-target-source-2026-08-01",
+    "artifact_digest": "sha256:9f4741c536293b4caaf39586d26aa94b0c4610ba9b3af7113a2408a33146e2ba",
+    "file_sha256": "4825fa34e7a006ffd45f588a979973b8ba8e1b237f05577495509e2021f4e491",
+    "query_sha256": "36884dfdfbd66480bcff92a82255a9c7c816ee11ed00609b1c7a37795eb6532d",
+    "excluded_taxa_sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00",
+    "one_per_grid_cell_degrees": 0.05
+  },
+  "information_barrier": {
+    "environmental_values_read": false,
+    "candidate_model_fitting_performed": false,
+    "geometry_calibration_executed": false,
+    "sealed_ecological_outcomes_read": false,
+    "scientific_confirmation_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "ready_for_geometry_calibration": true,
+  "ready_for_scientific_confirmation": false
+}

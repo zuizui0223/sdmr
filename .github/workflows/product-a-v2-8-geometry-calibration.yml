@@ -1,0 +1,292 @@
+name: product-a-v2-8-geometry-calibration
+
+on:
+  workflow_dispatch:
+    inputs:
+      authorization_commit_sha:
+        required: true
+        type: string
+      authorization_blob_sha:
+        required: true
+        type: string
+      expected_runtime_sha:
+        required: true
+        type: string
+      expected_frozen_ref:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-8-geometry-calibration-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify external authorization, pinned source, and geometry-only scope
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTH_COMMIT: ${{ inputs.authorization_commit_sha }}
+          AUTH_BLOB: ${{ inputs.authorization_blob_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_runtime_sha }}
+          EXPECTED_REF: ${{ inputs.expected_frozen_ref }}
+        run: |
+          python - <<'PY'
+          import base64, json, os, urllib.parse, urllib.request
+
+          if os.environ['GITHUB_SHA'] != os.environ['EXPECTED_SHA']:
+              raise SystemExit('v2.8 geometry calibration runtime SHA mismatch')
+          if os.environ['GITHUB_REF_NAME'] != os.environ['EXPECTED_REF']:
+              raise SystemExit('v2.8 geometry calibration frozen ref mismatch')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v28-geometry-calibration',
+          }
+          def get(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=60) as response:
+                  return json.loads(response.read())
+          def verify_blob(path,expected):
+              quoted=urllib.parse.quote(path,safe='/')
+              payload=get(f"{api}/contents/{quoted}?ref={urllib.parse.quote(os.environ['EXPECTED_REF'],safe='')}")
+              if payload.get('sha')!=expected:
+                  raise SystemExit(f'frozen v2.8 geometry calibration blob changed: {path}')
+
+          auth_path='configs/product_a_v2_8_geometry_only_validation_calibration_execution.json'
+          quoted=urllib.parse.quote(auth_path,safe='/')
+          meta=get(f"{api}/contents/{quoted}?ref={urllib.parse.quote(os.environ['AUTH_COMMIT'],safe='')}")
+          if meta.get('sha') != os.environ['AUTH_BLOB']:
+              raise SystemExit('external v2.8 geometry calibration authorization blob mismatch')
+          auth=json.loads(base64.b64decode(meta['content']).decode())
+          if auth.get('purpose')!='product_a_v2_8_geometry_only_validation_calibration_execution_authorization':
+              raise SystemExit('wrong v2.8 geometry calibration authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.8 geometry calibration authorization is closed or not one-shot')
+          if auth.get('implementation_sha')!=os.environ['EXPECTED_SHA'] or auth.get('frozen_ref')!=os.environ['EXPECTED_REF']:
+              raise SystemExit('v2.8 geometry calibration authorization runtime identity mismatch')
+          if auth.get('geometry_only') is not True or auth.get('run_all_30_parts') is not True:
+              raise SystemExit('v2.8 geometry calibration scope or part denominator changed')
+          if auth.get('require_full_36_taxa_x_5_seed_per_fraction_denominator') is not True:
+              raise SystemExit('v2.8 geometry calibration cell denominator changed')
+          for key in ('environmental_values_allowed','candidate_model_fitting_allowed','sealed_ecological_outcomes_allowed','scientific_confirmation_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.8 geometry calibration authorization crossed scope: {key}')
+
+          verify_blob('.github/workflows/product-a-v2-8-geometry-calibration.yml',auth['workflow_blob_sha'])
+          verify_blob('src/sdmr/v2_8_geometry_calibration.py',auth['module_blob_sha'])
+          verify_blob('configs/product_a_v2_8_geometry_only_validation_calibration_contract.json',auth['contract_blob_sha'])
+          verify_blob('configs/product_a_v2_8_geometry_calibration_source_pin.json',auth['source_pin_blob_sha'])
+          verify_blob('configs/product_a_v2_7_1_fresh_taxon_candidates.csv',auth['candidate_registry_blob_sha'])
+          verify_blob('configs/product_a_buffer_specs_v1.csv',auth['grid_blob_sha'])
+          verify_blob('src/sdmr/v2_7_1_evidence_balanced_partition.py',auth['evidence_partition_blob_sha'])
+          verify_blob('configs/product_a_v2_7_1_fresh_taxon_eligibility_contract.json',auth['eligibility_contract_blob_sha'])
+
+          pin=json.load(open('configs/product_a_v2_8_geometry_calibration_source_pin.json'))
+          if pin.get('purpose')!='product_a_v2_8_geometry_calibration_raw_source_pin':
+              raise SystemExit('wrong v2.8 geometry source pin purpose')
+          if int(pin.get('workflow_run_id',-1))!=int(auth['source_acquisition_run_id']):
+              raise SystemExit('v2.8 geometry source run changed')
+          if pin.get('workflow_conclusion')!='success' or pin.get('ready_for_geometry_calibration') is not True:
+              raise SystemExit('v2.8 geometry source is not pinned successful for calibration')
+          if pin.get('ready_for_scientific_confirmation') is not False:
+              raise SystemExit('v2.8 geometry source pin crossed scientific boundary')
+          for key in ('environmental_values_read','candidate_model_fitting_performed','geometry_calibration_executed','sealed_ecological_outcomes_read','scientific_confirmation_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if pin['information_barrier'].get(key) is not False:
+                  raise SystemExit(f'v2.8 geometry source pin crossed barrier: {key}')
+          run=get(f"{api}/actions/runs/{pin['workflow_run_id']}")
+          if run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit('v2.8 geometry source run is not successful')
+          if run.get('head_sha')!=pin['execution_sha'] or run.get('head_branch')!=pin['execution_ref']:
+              raise SystemExit('v2.8 geometry source run frozen identity mismatch')
+          artifacts=[]; page=1
+          while True:
+              payload=get(f"{api}/actions/runs/{pin['workflow_run_id']}/artifacts?per_page=100&page={page}")
+              batch=payload.get('artifacts',[]); artifacts.extend(batch)
+              if len(batch)<100: break
+              page+=1
+          by_name={str(artifact['name']):artifact for artifact in artifacts}
+          for section in ('focal','target_group'):
+              expected=pin[section]
+              artifact=by_name.get(expected['artifact_name'])
+              if not artifact or int(artifact['id'])!=int(expected['artifact_id']) or str(artifact.get('digest'))!=expected['artifact_digest']:
+                  raise SystemExit(f'v2.8 pinned {section} artifact identity mismatch')
+          receipt=pin['source_receipt_artifact']
+          artifact=by_name.get(receipt['name'])
+          if not artifact or int(artifact['id'])!=int(receipt['id']) or str(artifact.get('digest'))!=receipt['digest']:
+              raise SystemExit('v2.8 pinned source receipt artifact identity mismatch')
+          print('v2.8 geometry-only external authorization and source preflight passed')
+          PY
+
+  raw-source:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - name: Download exact pinned 36-taxon focal and excluding-target artifacts only
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p raw/focal_bundle raw/target_bundle
+          RUN_ID=$(python - <<'PY'
+          import json
+          print(json.load(open('configs/product_a_v2_8_geometry_calibration_source_pin.json'))['workflow_run_id'])
+          PY
+          )
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name product-a-v2-8-geometry-calibration-focal-source-2026-08-01 --dir raw/focal_bundle
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name product-a-v2-8-geometry-calibration-target-source-2026-08-01 --dir raw/target_bundle
+          cp raw/focal_bundle/focal.parquet raw/focal.parquet
+          cp raw/target_bundle/target_group.parquet raw/target_group.parquet
+      - name: Verify exact geometry-source bytes
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          pin=json.load(open('configs/product_a_v2_8_geometry_calibration_source_pin.json'))
+          for path,expected in (
+              ('raw/focal.parquet',pin['focal']['file_sha256']),
+              ('raw/target_group.parquet',pin['target_group']['file_sha256']),
+          ):
+              actual=hashlib.sha256(open(path,'rb').read()).hexdigest()
+              if actual!=expected:
+                  raise SystemExit(f'v2.8 geometry source byte mismatch: {path}')
+          print('exact v2.8 geometry source bytes verified')
+          PY
+      - name: Build one pre-split geometry transport for all calibration parts
+        run: |
+          python -m sdmr.v2_8_geometry_calibration transport \
+            --source-pin configs/product_a_v2_8_geometry_calibration_source_pin.json \
+            --raw-focal raw/focal.parquet \
+            --raw-target raw/target_group.parquet \
+            --taxa configs/product_a_v2_7_1_fresh_taxon_candidates.csv \
+            --output-dir transport
+          python - <<'PY'
+          import json
+          transport=json.load(open('transport/transport.json'))
+          if transport['purpose']!='product_a_v2_8_geometry_calibration_transport':
+              raise SystemExit('wrong v2.8 geometry transport purpose')
+          if transport['n_focal_taxa']!=36 or transport['focal_thinning_before_outer_split'] is not True:
+              raise SystemExit('v2.8 geometry transport denominator or order changed')
+          if transport['outer_split_executed'] is not False or transport['M_membership_executed'] is not False:
+              raise SystemExit('v2.8 geometry transport crossed pre-split boundary')
+          for key in ('environmental_values_read','CHELSA_values_read','candidate_model_fitting_performed','candidate_scores_read','sealed_ecological_outcomes_read','scientific_confirmation_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if transport[key] is not False:
+                  raise SystemExit(f'v2.8 geometry transport crossed barrier: {key}')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v28-geometry-calibration-transport
+          path: transport/
+          retention-days: 30
+          compression-level: 1
+
+  part:
+    needs: raw-source
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203, 2026082204, 2026082205]
+        sealed_fraction: ['0.10', '0.15', '0.20', '0.25', '0.30', '0.35']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: v28-geometry-calibration-transport
+          path: transport
+      - name: Evaluate one frozen geometry-only calibration part
+        run: |
+          python -m sdmr.v2_8_geometry_calibration part \
+            --design configs/product_a_v2_8_geometry_only_validation_calibration_contract.json \
+            --source-pin configs/product_a_v2_8_geometry_calibration_source_pin.json \
+            --transport-manifest transport/transport.json \
+            --focal transport/focal_geometry.parquet \
+            --target transport/target_geometry.parquet \
+            --taxa configs/product_a_v2_7_1_fresh_taxon_candidates.csv \
+            --grid configs/product_a_buffer_specs_v1.csv \
+            --seed ${{ matrix.seed }} \
+            --sealed-fraction ${{ matrix.sealed_fraction }} \
+            --output-dir part
+          python - <<'PY'
+          import json
+          contract=json.load(open('part/contract.json'))
+          if contract['purpose']!='product_a_v2_8_geometry_calibration_part' or contract['n_taxa']!=36:
+              raise SystemExit('v2.8 geometry calibration part denominator changed')
+          if contract['M_specs']!=['buffer_150km','buffer_300km','buffer_500km']:
+              raise SystemExit('v2.8 geometry calibration M grid changed')
+          for key in ('environmental_values_read','CHELSA_values_read','candidate_model_fitting_performed','candidate_scores_read','sealed_ecological_outcomes_read','scientific_confirmation_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if contract[key] is not False:
+                  raise SystemExit(f'v2.8 geometry calibration part crossed barrier: {key}')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v28-geometry-calibration-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part/
+          retention-days: 90
+          compression-level: 1
+
+  aggregate:
+    needs: part
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v28-geometry-calibration-part-*
+          path: parts
+      - name: Apply the frozen global Wilson-bound selection rule
+        run: |
+          python -m sdmr.v2_8_geometry_calibration aggregate \
+            --design configs/product_a_v2_8_geometry_only_validation_calibration_contract.json \
+            --taxa configs/product_a_v2_7_1_fresh_taxon_candidates.csv \
+            --parts-root parts \
+            --output-dir decision
+          python - <<'PY'
+          import json
+          decision=json.load(open('decision/decision.json'))
+          if decision['purpose']!='product_a_v2_8_geometry_calibration_decision':
+              raise SystemExit('wrong v2.8 geometry calibration decision purpose')
+          if decision['decision'] not in ('geometry_calibration_fraction_selected','geometry_calibration_no_fraction_qualifies'):
+              raise SystemExit('unexpected v2.8 geometry calibration decision')
+          if decision['n_taxon_seed_cells_per_fraction']!=180:
+              raise SystemExit('v2.8 geometry calibration denominator changed')
+          for key in ('geometry_calibration_result_is_ecological_support','environmental_values_read','CHELSA_values_read','candidate_model_fitting_performed','candidate_scores_read','sealed_ecological_outcomes_read','scientific_confirmation_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if decision[key] is not False:
+                  raise SystemExit(f'v2.8 geometry calibration decision crossed barrier: {key}')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-8-geometry-calibration-decision
+          path: decision/
+          retention-days: 90
