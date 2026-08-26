@@ -1,0 +1,6 @@
+Trigger exactly one externally authorized Product-A v2.8 geometry-only validation calibration.
+
+Base authorization commit: 6dbf80c545dff94c97125d241cee3beb20584922
+Authorization blob: 936080986ebea866ca268e4f3666269518f67aeb
+Frozen runtime: 32d5b67f7b18634830191df52ef56128589f5d82
+Frozen ref: frozen/product-a-v2-8-geometry-calibration-32d5b67f
