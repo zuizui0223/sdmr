@@ -120,19 +120,24 @@ def test_scientific_runtime_and_claim_boundary_remain_frozen():
     assert c['claim_boundary']['product_b_unblocked'] is False
 
 
-def test_v273_execution_gate_is_closed_before_source_acquisition():
+def test_v273_execution_gate_is_closed_after_source_pin_before_feasibility_freeze():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_3_presealed_structural_feasibility_execution_authorization'
     assert e['implementation_sha'] is None
     assert e['frozen_ref'] is None
+    assert e['workflow_blob_sha'] is None
+    assert e['module_blob_sha'] is None
     assert e['panel_blob_sha'] is None
     assert e['feasibility_contract_blob_sha'] is None
-    assert e['source_acquisition_run_id'] is None
-    assert e['source_receipt_blob_sha'] is None
+    assert e['source_pin_blob_sha'] is None
+    assert e['evidence_partition_blob_sha'] is None
+    assert e['source_acquisition_run_id'] == 32858840773
     assert e['run_all_6_parts'] is True
     assert e['require_full_12_taxa_x_3_M_denominator'] is True
     assert e['open_sealed_environmental_evidence'] is False
     assert e['model_pool_fitting_allowed'] is False
+    assert e['rank2_sealed_confirmation_outcomes_allowed'] is False
+    assert e['scientific_runtime_execution_allowed'] is False
     assert e['post_outcome_retuning_allowed'] is False
     assert e['candidate_reselection_allowed'] is False
     assert e['scientific_promotion_allowed'] is False

@@ -16,5 +16,8 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": true
+  "execution_allowed": false,
+  "consumed": true,
+  "consumed_by_run_id": 32858840773,
+  "consumed_run_conclusion": "success"
 }

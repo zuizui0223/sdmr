@@ -1,0 +1,44 @@
+{
+  "purpose": "product_a_v2_7_3_rank3_fresh_raw_source_pin",
+  "issue": 123,
+  "workflow_run_id": 32858840773,
+  "workflow_conclusion": "success",
+  "execution_sha": "a41850a2fd48bef666bd55983020cf398f6ed1ba",
+  "execution_ref": "frozen/product-a-v2-7-3-rank3-source-a41850a2",
+  "authorization_commit_sha": "2533eacfe3b35ba25e46839f2365cc8d50764b00",
+  "authorization_blob_sha": "888b013f33901daa088a0decf953767ab8e8682d",
+  "snapshot_date": "2026-08-01",
+  "snapshot_doi": "10.15468/dl.fs3btq",
+  "rank3_taxon_panel_sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+  "source_receipt_artifact": {
+    "id": 9568216635,
+    "name": "product-a-v2-7-3-rank3-fresh-raw-source-receipt",
+    "digest": "sha256:f32d413650d82f2b0694aebd17fa66f9859f13d3ea7f41d706830a6f4f523f75"
+  },
+  "focal": {
+    "artifact_id": 9568207639,
+    "artifact_name": "product-a-v2-7-3-rank3-focal-source-2026-08-01",
+    "artifact_digest": "sha256:28c02a8348712c9338c6b147f60b3c48808cf7a5eb9d75d08937b00cf621399c",
+    "file_sha256": "2339a4b9326711be8bec0a412e83a3888033b86ba4d27dc35a9eb4ed7b3e1ada",
+    "query_sha256": "50b9a82d68202a8c69ac77094f441a03ac0e0e0b36a18e17563c8a36ec6150e6"
+  },
+  "target_group": {
+    "artifact_id": 9567849055,
+    "artifact_name": "product-a-v2-7-3-rank3-target-source-2026-08-01",
+    "artifact_digest": "sha256:bd4a394c4be1b1d6ffec07e0932c97a161015b54eb0e1e56cdda088db0f8579c",
+    "file_sha256": "665051395d156c3a7263eb57512af5e87eb625d595c08ebf5a4d66a22825aa9f",
+    "query_sha256": "c1c9f94d8f880e4b0eb165955cc8209ba73a022450b0fc408805e25c14cbb50a",
+    "excluded_taxa_sha256": "0466ecf70aae33b950dc7061861f4279d869933b725c9517c4188fbaa64534c3",
+    "one_per_grid_cell_degrees": 0.05
+  },
+  "information_barrier": {
+    "environmental_values_read": false,
+    "candidate_model_fitting_performed": false,
+    "presealed_feasibility_executed": false,
+    "rank2_sealed_confirmation_outcomes_read": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "ready_for_presealed_feasibility": true,
+  "ready_for_scientific_model_fitting": false
+}
