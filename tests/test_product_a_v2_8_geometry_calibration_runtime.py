@@ -104,6 +104,7 @@ def test_wilson_rule_boundary_is_applied_to_all_180_taxon_seed_cells():
 
 
 def test_column_pruned_transport_preserves_default_geometry_admission(tmp_path):
+    pytest.importorskip("pyarrow")
     raw = pd.DataFrame(
         {
             "gbifid": ["3", "2", "1", "4", "5", "6"],
