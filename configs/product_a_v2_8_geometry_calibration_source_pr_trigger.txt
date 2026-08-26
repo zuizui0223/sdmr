@@ -1,0 +1,6 @@
+Trigger exactly one externally authorized Product-A v2.8 geometry-only calibration raw-source acquisition.
+
+Base authorization commit: 8f426f0aa46ec648bf4b9332779b09fbb1f46133
+Authorization blob: 230a670ba913e7bc1af5de141fca2ef1bdd604c1
+Frozen runtime: e33a883ff0829b2c6b621b77ac295151de647a58
+Frozen ref: frozen/product-a-v2-8-geometry-source-e33a883f
