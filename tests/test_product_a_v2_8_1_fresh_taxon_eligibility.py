@@ -20,6 +20,18 @@ EXECUTION = ROOT / "configs/product_a_v2_8_1_fresh_taxon_eligibility_execution.j
 WORKFLOW = ROOT / ".github/workflows/product-a-v2-8-1-fresh-taxon-eligibility.yml"
 
 
+EXPECTED_AUTHORIZED_IDENTITY = {
+    "implementation_sha": "2e501f090de9160627c912bbf8273e5a32500a2d",
+    "frozen_ref": "frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09",
+    "workflow_blob_sha": "9dcc6e679c14308a1a81e1104650f0164981f710",
+    "module_blob_sha": "4d8fdaa9429086ae8d7827fc385de610aaaca257",
+    "candidate_registry_blob_sha": "38d888d189320a09a48a590e287fa81966e2fc4f",
+    "eligibility_contract_blob_sha": "eb3a8accc56b5eecda63c35a6decf6dd11752f1f",
+    "pilot_registry_blob_sha": "56effb13d132b60e261a9b69aefd2a980840f468",
+    "consumed_registry_blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
+}
+
+
 def test_candidate_registry_is_closed_before_count_query():
     candidates = pd.read_csv(CANDIDATES)
     assert len(candidates) == 36
@@ -99,14 +111,20 @@ def test_selection_is_lowest_predeclared_eligible_rank_and_fails_closed():
     assert len(selected2) == 11
 
 
-def test_execution_is_closed_until_post_merge_frozen_sha_authorization():
+def test_execution_is_closed_or_exactly_post_merge_authorized():
     execution = json.loads(EXECUTION.read_text())
     assert execution["purpose"] == "product_a_v2_8_1_fresh_taxon_eligibility_execution_authorization"
-    assert execution["execution_allowed"] is False
     assert execution["one_shot"] is True
-    assert execution["implementation_sha"] is None
-    assert execution["frozen_ref"] is None
     assert execution["selected_global_sealed_fraction"] == 0.25
+
+    if execution["execution_allowed"] is True:
+        for key, expected in EXPECTED_AUTHORIZED_IDENTITY.items():
+            assert execution[key] == expected
+    else:
+        assert execution["execution_allowed"] is False
+        for key in EXPECTED_AUTHORIZED_IDENTITY:
+            assert execution[key] is None
+
     for key in (
         "environmental_values_allowed",
         "candidate_model_fitting_allowed",
