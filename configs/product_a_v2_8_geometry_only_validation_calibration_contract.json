@@ -1,0 +1,93 @@
+{
+  "purpose": "product_a_v2_8_geometry_only_validation_design_calibration",
+  "issue": 133,
+  "predeclared_before_v2_8_geometry_calibration_execution": true,
+  "motivation": {
+    "v2_7_2_rank2_decision": "empirical_confirmation_unavailable",
+    "v2_7_3_rank3_decision": "presealed_unavailable",
+    "interpretation": "repeated denominator feasibility failure before ecological outcome evidence, not adverse ecological or model evidence",
+    "rescue_of_v2_7_2_or_v2_7_3_allowed": false
+  },
+  "calibration_corpus": {
+    "path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+    "blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
+    "n_taxa": 36,
+    "n_validation_strata": 12,
+    "candidate_ranks": [1, 2, 3],
+    "role": "geometry_only_protocol_calibration",
+    "future_scientific_confirmation_reuse_allowed": false
+  },
+  "frozen_inputs_allowed": [
+    "taxon_identity",
+    "occurrence_coordinates",
+    "target_group_coordinates",
+    "M_membership",
+    "row_counts",
+    "spatial_microblock_identity",
+    "fold_assignment_feasibility"
+  ],
+  "forbidden_inputs": [
+    "environmental_raster_values",
+    "CHELSA_values",
+    "auc",
+    "presence_rank",
+    "continuous_boyce_or_cbi",
+    "or10",
+    "aicc",
+    "niche_overlap_schoener_d_pc12",
+    "centroid_distance",
+    "breadth_log_sd_error",
+    "quantile_profile_error",
+    "candidate_scores",
+    "selected_predictors",
+    "fitted_coefficients",
+    "process_knockout_outcomes",
+    "sealed_ecological_outcomes"
+  ],
+  "inherited_partition": {
+    "M_km": [150, 300, 500],
+    "M_is_sensitivity_not_optimization": true,
+    "outer_folds": 4,
+    "spatial_microblocks": 12,
+    "assignment_attempts": 32,
+    "minimum_evaluation_occurrences_per_fold": 2,
+    "minimum_evaluation_background_rows_per_M_fold": 5,
+    "minimum_training_background_rows_per_M_fold": 5,
+    "partition_algorithm_changed": false,
+    "row_count_thresholds_changed": false,
+    "assignment_attempts_changed": false
+  },
+  "calibration_axis": {
+    "sealed_fraction_grid": [0.10, 0.15, 0.20, 0.25, 0.30, 0.35],
+    "split_seeds": [2026082201, 2026082202, 2026082203, 2026082204, 2026082205],
+    "sealed_fraction_is_validation_design_parameter_not_scientific_tuning_target": true,
+    "candidate_or_threshold_adaptation_within_a_fraction": false
+  },
+  "primary_estimand": {
+    "name": "structural_feasibility_rate",
+    "unit": "taxon_x_seed",
+    "definition": "fraction of taxon x seed cells with one shared four-fold assignment structurally supporting all three fixed M backgrounds",
+    "report_by_fraction": true,
+    "report_by_stratum": true,
+    "report_failure_taxa": true
+  },
+  "selection_rule_for_future_confirmation": {
+    "rule": "choose_the_largest_predeclared_fraction_whose_geometry_only_calibration_lower_95pct_wilson_bound_is_at_least_0.95",
+    "tie_break": "larger_fraction",
+    "if_none_pass": "do_not_launch_fresh_scientific_confirmation_and_redesign_validation_protocol_in_a_separate_methodological_stage",
+    "future_fraction_fixed_globally_not_per_taxon": true,
+    "future_fraction_selected_before_future_confirmation_taxa_or_ecological_outcomes": true
+  },
+  "claim_boundary": {
+    "scientific_confirmation_performed": false,
+    "product_a_promoted": false,
+    "product_b_unblocked": false,
+    "geometry_calibration_result_is_ecological_support": false,
+    "post_outcome_rescue_of_consumed_rank1_rank2_rank3_taxa": false
+  },
+  "execution_identity": {
+    "implementation_sha": null,
+    "frozen_ref": null,
+    "execution_allowed": false
+  }
+}
