@@ -7,6 +7,7 @@ frozen_ref=frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09
 selected_global_sealed_fraction=0.25
 candidate_registry_blob_sha=38d888d189320a09a48a590e287fa81966e2fc4f
 eligibility_contract_blob_sha=eb3a8accc56b5eecda63c35a6decf6dd11752f1f
+synchronize_retry=1
 
 This trigger authorizes no environmental values, model fitting, candidate scores,
 sealed ecological outcomes, scientific confirmation, Product-A promotion, or
