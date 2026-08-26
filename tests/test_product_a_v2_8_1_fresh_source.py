@@ -28,6 +28,7 @@ def test_v281_selection_result_pins_exact_available_12_taxon_panel():
     assert result['repository_panel']['sha256'] == panel_sha
     assert result['repository_panel']['byte_for_byte_identical_to_eligibility_artifact_selected_fresh_taxa_csv'] is True
     assert len(panel) == 12 and panel['validation_stratum'].nunique() == 12
+    assert panel['scientific_name'].tolist() == result['selected_taxa']
     assert set(panel['candidate_rank'].astype(int)) == {1}
     assert (panel['n_occurrences'].astype(int) >= 80).all()
     assert (panel['n_unique_0_05_degree_cells'].astype(int) >= 50).all()
