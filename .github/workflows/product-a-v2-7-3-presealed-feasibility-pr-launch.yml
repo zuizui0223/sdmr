@@ -1,0 +1,134 @@
+name: product-a-v2-7-3-presealed-feasibility-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_7_3_presealed_feasibility_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one externally authorized frozen v2.7.3 pre-sealed feasibility run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, json, os, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          event=json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          authorization_commit_sha=str(event['pull_request']['base']['sha'])
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={
+              'Authorization':f'Bearer {token}',
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+              'User-Agent':'sdmr-v273-presealed-launcher',
+          }
+          def request(url,*,method='GET',payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  raw=r.read(); return json.loads(raw) if raw else None
+
+          auth_path='configs/product_a_v2_7_3_presealed_feasibility_execution.json'
+          quoted=urllib.parse.quote(auth_path,safe='/')
+          meta=request(f"{api}/contents/{quoted}?ref={urllib.parse.quote(authorization_commit_sha,safe='')}")
+          authorization_blob_sha=str(meta.get('sha'))
+          auth=json.loads(base64.b64decode(meta['content']).decode())
+          local=json.load(open(auth_path))
+          if local!=auth:
+              raise SystemExit('trigger head does not contain exact base v2.7.3 feasibility authorization')
+          if auth.get('purpose')!='product_a_v2_7_3_presealed_structural_feasibility_execution_authorization':
+              raise SystemExit('wrong v2.7.3 feasibility authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.7.3 feasibility execution is not authorized one-shot')
+          if int(auth.get('source_acquisition_run_id',-1))!=32858840773:
+              raise SystemExit('v2.7.3 feasibility source run changed')
+          if auth.get('run_all_6_parts') is not True or auth.get('require_full_12_taxa_x_3_M_denominator') is not True:
+              raise SystemExit('v2.7.3 feasibility denominator changed')
+          for key in ('open_sealed_environmental_evidence','model_pool_fitting_allowed','rank2_sealed_confirmation_outcomes_allowed','scientific_runtime_execution_allowed','post_outcome_retuning_allowed','candidate_reselection_allowed','scientific_promotion_allowed','product_b_unblocked'):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.7.3 feasibility launcher crossed scope: {key}')
+
+          def verify_blob(path,expected):
+              p=urllib.parse.quote(path,safe='/'); ref=urllib.parse.quote(auth['frozen_ref'],safe='')
+              payload=request(f'{api}/contents/{p}?ref={ref}')
+              if payload.get('sha')!=expected:
+                  raise SystemExit(f'frozen v2.7.3 feasibility blob changed: {path}')
+          verify_blob('.github/workflows/product-a-v2-7-3-presealed-feasibility.yml',auth['workflow_blob_sha'])
+          verify_blob('src/sdmr/v2_7_3_presealed_feasibility.py',auth['module_blob_sha'])
+          verify_blob('configs/product_a_v2_7_3_presealed_feasibility_contract.json',auth['feasibility_contract_blob_sha'])
+          verify_blob('configs/product_a_v2_7_3_fresh_source_pin.json',auth['source_pin_blob_sha'])
+          verify_blob('configs/product_a_v2_7_3_rank3_taxa.csv',auth['panel_blob_sha'])
+          verify_blob('src/sdmr/v2_7_1_evidence_balanced_partition.py',auth['evidence_partition_blob_sha'])
+
+          workflow='product-a-v2-7-3-presealed-feasibility.yml'
+          def matches():
+              p=request(f"{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100")
+              return [r for r in p.get('workflow_runs',[]) if str(r.get('head_sha'))==auth['implementation_sha'] and str(r.get('head_branch'))==auth['frozen_ref'] and str(r.get('event'))=='workflow_dispatch']
+          runs=matches(); dispatched=False
+          if len(runs)>1:
+              raise SystemExit(f'multiple exact v2.7.3 feasibility runs exist: {len(runs)}')
+          if not runs:
+              request(
+                  f"{api}/actions/workflows/{workflow}/dispatches",
+                  method='POST',
+                  payload={
+                      'ref':auth['frozen_ref'],
+                      'inputs':{
+                          'authorization_commit_sha':authorization_commit_sha,
+                          'authorization_blob_sha':authorization_blob_sha,
+                          'expected_runtime_sha':auth['implementation_sha'],
+                          'expected_frozen_ref':auth['frozen_ref'],
+                      },
+                  },
+              )
+              dispatched=True
+              for _ in range(24):
+                  time.sleep(5); runs=matches()
+                  if runs: break
+          if len(runs)!=1:
+              raise SystemExit(f'expected one exact v2.7.3 feasibility run, found {len(runs)}')
+          run=runs[0]
+          receipt={
+              'purpose':'product_a_v2_7_3_presealed_feasibility_launch_receipt',
+              'pull_request':int(event['pull_request']['number']),
+              'authorization_commit_sha':authorization_commit_sha,
+              'authorization_blob_sha':authorization_blob_sha,
+              'implementation_sha':auth['implementation_sha'],
+              'frozen_ref':auth['frozen_ref'],
+              'source_run_id':int(auth['source_acquisition_run_id']),
+              'run_all_6_parts':True,
+              'full_12_taxa_x_3_M_denominator_required':True,
+              'environmental_values_allowed':False,
+              'candidate_model_fitting_allowed':False,
+              'scientific_runtime_execution_allowed':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'dispatched_now':dispatched,
+              'run_id':int(run['id']),
+              'run_number':int(run['run_number']),
+              'status':str(run['status']),
+              'conclusion':run.get('conclusion'),
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-3-presealed-feasibility-launch-receipt
+          path: launch/receipt.json
+          retention-days: 90
