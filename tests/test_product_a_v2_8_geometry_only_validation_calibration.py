@@ -13,6 +13,7 @@ def test_v28_calibration_uses_all_36_consumed_taxa_only_as_geometry_corpus():
     c = json.loads(CONTRACT.read_text())
     r = pd.read_csv(REGISTRY)
     assert c['purpose'] == 'product_a_v2_8_geometry_only_validation_design_calibration'
+    assert c['issue'] == 133
     assert c['predeclared_before_v2_8_geometry_calibration_execution'] is True
     assert len(r) == 36
     assert r['validation_stratum'].nunique() == 12
