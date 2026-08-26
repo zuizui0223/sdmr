@@ -1,0 +1,72 @@
+{
+  "artifact_files": {
+    "availability_counts_sha256": "f6d9ea77d86599368a58bd73bd9b3596421c646ff25d565319e3e43d7c57757e",
+    "availability_query_contract_sha256": "6223ef42de56f5fdc5e69db6ad833f443fe634f74bbde987679d3b2b68d45d6a",
+    "candidate_eligibility_sha256": "6933d420f00a69f5882ca5f446195711f25f7afc49598ff3451b1beb00c525a2",
+    "selected_panel_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "selection_contract_sha256": "002c2d7b81d54ed72edde7d830f9fca31be42acaadd3105440f9aee47c4ba517"
+  },
+  "candidate_pool": {
+    "n_candidates": 36,
+    "n_validation_strata": 12,
+    "path": "configs/product_a_v2_8_1_fresh_taxon_candidates.csv",
+    "sha256": "d68c13e2c947c6694dc48b59f0af23adae0684210d9eae3ab0e1d6c0cdc57402"
+  },
+  "eligibility_artifact": {
+    "artifact_digest": "sha256:9a97889c0b69048df8142f2e59d4d860682670f13e2781440520c03fa8401dab",
+    "artifact_id": 9613925063,
+    "artifact_name": "product-a-v2-8-1-fresh-taxon-eligibility"
+  },
+  "eligibility_frozen_ref": "frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09",
+  "eligibility_run_id": 32988143625,
+  "eligibility_source_head_sha": "2e501f090de9160627c912bbf8273e5a32500a2d",
+  "eligibility_thresholds": {
+    "min_raw_occurrences": 80,
+    "min_unique_0_05_degree_cells": 50
+  },
+  "historical_snapshot": {
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "role": "availability_screening_and_fresh_raw_source_transport_only",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq"
+  },
+  "next_gate": "stage_and_freeze_raw_focal_and_exact_12_taxon_excluding_target_source_acquisition_then_require_separate_one_shot_source_execution_authorization",
+  "product_b_unblocked": false,
+  "purpose": "product_a_v2_8_1_fresh_taxon_panel_selection_result",
+  "repository_panel": {
+    "byte_for_byte_identical_to_eligibility_artifact_selected_fresh_taxa_csv": true,
+    "n_taxa": 12,
+    "n_validation_strata": 12,
+    "path": "configs/product_a_v2_8_1_fresh_confirmation_taxa.csv",
+    "sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1"
+  },
+  "scientific_confirmation_allowed": false,
+  "scientific_promotion_allowed": false,
+  "sealed_fraction_retuning_allowed": false,
+  "selected_global_sealed_fraction_for_future_confirmation": 0.25,
+  "selected_taxa": [
+    "Ericameria nauseosa",
+    "Abies balsamea",
+    "Pseudotsuga menziesii",
+    "Asplenium trichomanes",
+    "Picea engelmannii",
+    "Eucalyptus obliqua",
+    "Poa annua",
+    "Acer platanoides",
+    "Sambucus nigra",
+    "Rhizophora mucronata",
+    "Sagittaria latifolia",
+    "Agrostis stolonifera"
+  ],
+  "selection_information_barrier": {
+    "candidate_model_fitting_performed": false,
+    "candidate_model_scores_used": false,
+    "environmental_values_used": false,
+    "niche_recovery_outcomes_used": false,
+    "post_count_candidate_reordering": false,
+    "post_count_threshold_relaxation": false,
+    "sealed_confirmation_outcomes_used": false
+  },
+  "status": "available",
+  "unavailable_strata": []
+}
