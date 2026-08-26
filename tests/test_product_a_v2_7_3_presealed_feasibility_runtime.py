@@ -35,13 +35,17 @@ def test_exact_rank3_source_is_pinned_before_feasibility():
         assert value is False
 
 
-def test_presealed_execution_gate_is_closed_before_runtime_freeze():
+def test_presealed_execution_authorizes_exact_frozen_runtime_only():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_7_3_presealed_structural_feasibility_execution_authorization'
-    assert e['implementation_sha'] is None
-    assert e['frozen_ref'] is None
-    assert e['workflow_blob_sha'] is None
-    assert e['module_blob_sha'] is None
+    assert e['implementation_sha'] == '0b0ab3fa00e04fb86f2db83963c6b1f051f24cf3'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-7-3-presealed-0b0ab3fa'
+    assert e['workflow_blob_sha'] == '672677d9262a907f584011ad30c8b5e3ed2bd914'
+    assert e['module_blob_sha'] == 'cbe3d23e5a06d35167c4a5ff68d50a2ba4581c8d'
+    assert e['feasibility_contract_blob_sha'] == '58d4ff7111b88d5109d2d26943e68364c98d2133'
+    assert e['source_pin_blob_sha'] == 'a04bc7c5c9a34f4ce6c381f255631c2168720d0a'
+    assert e['panel_blob_sha'] == 'e8b734df9571674e1b6e710b4a0f36735425a7b8'
+    assert e['evidence_partition_blob_sha'] == '2109221ee796bee39093c0f9388d63761a62f4af'
     assert e['source_acquisition_run_id'] == 32858840773
     assert e['run_all_6_parts'] is True
     assert e['require_full_12_taxa_x_3_M_denominator'] is True
@@ -49,10 +53,11 @@ def test_presealed_execution_gate_is_closed_before_runtime_freeze():
         'open_sealed_environmental_evidence', 'model_pool_fitting_allowed',
         'rank2_sealed_confirmation_outcomes_allowed', 'scientific_runtime_execution_allowed',
         'post_outcome_retuning_allowed', 'candidate_reselection_allowed',
-        'scientific_promotion_allowed', 'product_b_unblocked', 'execution_allowed',
+        'scientific_promotion_allowed', 'product_b_unblocked',
     ):
         assert e[key] is False
     assert e['one_shot'] is True
+    assert e['execution_allowed'] is True
 
 
 def test_presealed_module_and_workflow_exclude_scientific_outcome_inputs():
