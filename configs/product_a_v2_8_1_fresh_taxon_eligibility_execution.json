@@ -1,16 +1,16 @@
 {
   "candidate_model_fitting_allowed": false,
-  "candidate_registry_blob_sha": null,
+  "candidate_registry_blob_sha": "38d888d189320a09a48a590e287fa81966e2fc4f",
   "candidate_scores_allowed": false,
-  "consumed_registry_blob_sha": null,
-  "eligibility_contract_blob_sha": null,
+  "consumed_registry_blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
+  "eligibility_contract_blob_sha": "eb3a8accc56b5eecda63c35a6decf6dd11752f1f",
   "environmental_values_allowed": false,
-  "execution_allowed": false,
-  "frozen_ref": null,
-  "implementation_sha": null,
-  "module_blob_sha": null,
+  "execution_allowed": true,
+  "frozen_ref": "frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09",
+  "implementation_sha": "2e501f090de9160627c912bbf8273e5a32500a2d",
+  "module_blob_sha": "4d8fdaa9429086ae8d7827fc385de610aaaca257",
   "one_shot": true,
-  "pilot_registry_blob_sha": null,
+  "pilot_registry_blob_sha": "56effb13d132b60e261a9b69aefd2a980840f468",
   "product_b_unblocked": false,
   "purpose": "product_a_v2_8_1_fresh_taxon_eligibility_execution_authorization",
   "scientific_confirmation_allowed": false,
@@ -18,5 +18,5 @@
   "sealed_ecological_outcomes_allowed": false,
   "selected_global_sealed_fraction": 0.25,
   "tracks_issue": 141,
-  "workflow_blob_sha": null
+  "workflow_blob_sha": "9dcc6e679c14308a1a81e1104650f0164981f710"
 }
