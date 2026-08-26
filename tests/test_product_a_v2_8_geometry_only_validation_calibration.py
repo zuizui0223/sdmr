@@ -64,7 +64,7 @@ def test_v28_fraction_is_validation_design_axis_and_future_rule_is_global():
     assert rule['if_none_pass'].startswith('do_not_launch_fresh_scientific_confirmation')
 
 
-def test_v28_claim_and_execution_gates_are_closed():
+def test_v28_claim_gates_stay_closed_under_one_shot_geometry_execution():
     c = json.loads(CONTRACT.read_text())
     assert c['claim_boundary']['scientific_confirmation_performed'] is False
     assert c['claim_boundary']['product_a_promoted'] is False
@@ -73,6 +73,7 @@ def test_v28_claim_and_execution_gates_are_closed():
     assert c['claim_boundary']['post_outcome_rescue_of_consumed_rank1_rank2_rank3_taxa'] is False
     e = json.loads(EXECUTION.read_text())
     assert e['geometry_only'] is True
-    for key in ('environmental_values_allowed', 'candidate_model_fitting_allowed', 'sealed_ecological_outcomes_allowed', 'scientific_confirmation_allowed', 'scientific_promotion_allowed', 'product_b_unblocked', 'execution_allowed'):
+    for key in ('environmental_values_allowed', 'candidate_model_fitting_allowed', 'sealed_ecological_outcomes_allowed', 'scientific_confirmation_allowed', 'scientific_promotion_allowed', 'product_b_unblocked'):
         assert e[key] is False
     assert e['one_shot'] is True
+    assert e['execution_allowed'] is True
