@@ -1,0 +1,6 @@
+trigger-only Product-A v2.7.3 pre-sealed feasibility dispatch
+base authorization commit: 7bf58154e9d425c3effc0c42c4068255d248aec2
+frozen runtime: 0b0ab3fa00e04fb86f2db83963c6b1f051f24cf3
+scope: pre-sealed structural feasibility only
+scientific model fitting: forbidden
+Product-A promotion/Product-B unblock: forbidden
