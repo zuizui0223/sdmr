@@ -1,0 +1,46 @@
+{
+  "purpose": "product_a_v2_7_3_presealed_feasibility_final_receipt",
+  "issue": 123,
+  "workflow_run_id": 32925557219,
+  "workflow_conclusion": "success",
+  "implementation_sha": "0b0ab3fa00e04fb86f2db83963c6b1f051f24cf3",
+  "frozen_ref": "frozen/product-a-v2-7-3-presealed-0b0ab3fa",
+  "source_acquisition_run_id": 32858840773,
+  "decision_artifact": {
+    "name": "product-a-v2-7-3-presealed-feasibility-decision",
+    "id": 9592334790,
+    "digest": "sha256:f60588596705ca75466a6b9b172b575d4a4d55e766b02d5452bf043d7ed1a21b"
+  },
+  "decision": "presealed_unavailable",
+  "n_parts": 6,
+  "n_available_parts": 4,
+  "parts": [
+    {"seed": 2026082201, "sealed_fraction": 0.20, "available": true, "n_feasible_taxa": 12},
+    {"seed": 2026082201, "sealed_fraction": 0.30, "available": true, "n_feasible_taxa": 12},
+    {"seed": 2026082202, "sealed_fraction": 0.20, "available": true, "n_feasible_taxa": 12},
+    {"seed": 2026082202, "sealed_fraction": 0.30, "available": false, "n_feasible_taxa": 9,
+      "structurally_infeasible_taxa": ["Abies alba", "Polypodium vulgare", "Eucalyptus delegatensis"],
+      "failure_rule": "no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"},
+    {"seed": 2026082203, "sealed_fraction": 0.20, "available": true, "n_feasible_taxa": 12},
+    {"seed": 2026082203, "sealed_fraction": 0.30, "available": false, "n_feasible_taxa": 10,
+      "structurally_infeasible_taxa": ["Laguncularia racemosa", "Eucalyptus globulus"],
+      "failure_rule": "no evidence-balanced spatial assignment satisfies the frozen row-count support constraints after 32 attempts; best_supported_folds=3/4"}
+  ],
+  "information_barrier": {
+    "environmental_values_read": false,
+    "sealed_environmental_values_read": false,
+    "candidate_model_fitting_performed": false,
+    "candidate_scores_read": false,
+    "rank2_sealed_confirmation_outcomes_read": false
+  },
+  "interpretation": {
+    "negative_ecological_or_model_evidence": false,
+    "presealed_denominator_feasibility_failure": true,
+    "threshold_or_attempt_relaxation_allowed": false,
+    "taxon_replacement_allowed": false,
+    "post_outcome_retuning_allowed": false,
+    "scientific_model_execution_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  }
+}
