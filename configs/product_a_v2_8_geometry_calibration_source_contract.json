@@ -1,0 +1,61 @@
+{
+  "purpose": "product_a_v2_8_geometry_calibration_raw_source_acquisition_contract",
+  "issue": 133,
+  "predeclared_before_any_v2_8_geometry_source_outcome": true,
+  "design_freeze": {
+    "merge_sha": "c2d0b50dcd2ed88889491f23c1018f4d0c957a60",
+    "contract_path": "configs/product_a_v2_8_geometry_only_validation_calibration_contract.json",
+    "contract_blob_sha": "6c3b74da06ac225ff6ef153761fd334ec1eb9d1c",
+    "candidate_registry_path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+    "candidate_registry_blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
+    "candidate_registry_sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00"
+  },
+  "snapshot": {
+    "date": "2026-08-01",
+    "doi": "10.15468/dl.fs3btq",
+    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "region": "us-east-1",
+    "same_catalog_as_v2_7_x_allowed": true,
+    "catalog_reuse_is_transport_only": true,
+    "temporal_independence_claim_allowed": false
+  },
+  "calibration_corpus": {
+    "n_taxa": 36,
+    "n_validation_strata": 12,
+    "candidate_ranks": [1, 2, 3],
+    "future_scientific_confirmation_reuse_allowed": false
+  },
+  "parallel_transport": {
+    "chunk_count": 16,
+    "snapshot_shards_partitioned_exactly_once": true,
+    "aggregate_requires_complete_chunk_indices": true,
+    "aggregate_requires_common_snapshot_catalog_sha256": true
+  },
+  "focal_source": {
+    "artifact_name": "product-a-v2-8-geometry-calibration-focal-source-2026-08-01",
+    "selection": "all_coordinate_valid_rows_for_exact_36_taxon_geometry_calibration_corpus",
+    "thinning_at_source_acquisition": false
+  },
+  "target_group_source": {
+    "artifact_name": "product-a-v2-8-geometry-calibration-target-source-2026-08-01",
+    "kingdom": "Plantae",
+    "exclude_taxa_path": "configs/product_a_v2_7_1_fresh_taxon_candidates.csv",
+    "exclude_taxa_sha256": "1a565dce34dedf773ec7a3f4ff54586d715ad128df562ced70c074ae2e558b00",
+    "exclude_taxa_count": 36,
+    "one_per_grid_cell_degrees": 0.05,
+    "source_independent_of_focal_occurrence_geography": true
+  },
+  "information_barrier": {
+    "environmental_values_read": false,
+    "CHELSA_values_read": false,
+    "candidate_model_fitting_performed": false,
+    "candidate_scores_read": false,
+    "niche_recovery_outcomes_read": false,
+    "sealed_ecological_outcomes_read": false,
+    "geometry_calibration_executed_during_source_acquisition": false,
+    "scientific_confirmation_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "next_gate": "pin exact 36-taxon focal and 36-excluding target file/query/artifact fingerprints before separately freezing geometry-only calibration runtime"
+}
