@@ -223,15 +223,17 @@ def test_aggregate_rejects_incomplete_part_denominator(tmp_path):
         )
 
 
-def test_runtime_is_staged_closed_and_excludes_scientific_inputs():
+def test_runtime_pins_exact_frozen_geometry_only_calibration():
     execution = json.loads(EXECUTION.read_text())
     assert execution["purpose"] == (
         "product_a_v2_8_geometry_only_validation_calibration_execution_authorization"
     )
     assert execution["geometry_only"] is True
-    assert execution["execution_allowed"] is False
-    assert execution["implementation_sha"] is None
-    assert execution["frozen_ref"] is None
+    assert execution["execution_allowed"] is True
+    assert execution["implementation_sha"] == "32d5b67f7b18634830191df52ef56128589f5d82"
+    assert execution["frozen_ref"] == (
+        "frozen/product-a-v2-8-geometry-calibration-32d5b67f"
+    )
     assert execution["workflow_blob_sha"] == "87c13da7821e532fad812b65175454fed513451d"
     assert execution["module_blob_sha"] == "e235f49740aaa330d543c992919309b0a7566086"
     assert execution["contract_blob_sha"] == "6c3b74da06ac225ff6ef153761fd334ec1eb9d1c"
@@ -243,6 +245,7 @@ def test_runtime_is_staged_closed_and_excludes_scientific_inputs():
     assert execution["source_acquisition_run_id"] == 32936391197
     assert execution["run_all_30_parts"] is True
     assert execution["require_full_36_taxa_x_5_seed_per_fraction_denominator"] is True
+    assert execution["one_shot"] is True
     for key in (
         "environmental_values_allowed",
         "candidate_model_fitting_allowed",

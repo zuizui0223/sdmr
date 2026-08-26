@@ -1,7 +1,7 @@
 {
   "purpose": "product_a_v2_8_geometry_only_validation_calibration_execution_authorization",
-  "implementation_sha": null,
-  "frozen_ref": null,
+  "implementation_sha": "32d5b67f7b18634830191df52ef56128589f5d82",
+  "frozen_ref": "frozen/product-a-v2-8-geometry-calibration-32d5b67f",
   "workflow_blob_sha": "87c13da7821e532fad812b65175454fed513451d",
   "module_blob_sha": "e235f49740aaa330d543c992919309b0a7566086",
   "contract_blob_sha": "6c3b74da06ac225ff6ef153761fd334ec1eb9d1c",
@@ -21,5 +21,5 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": false
+  "execution_allowed": true
 }
