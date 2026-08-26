@@ -1,9 +1,9 @@
 {
   "purpose": "product_a_v2_8_geometry_calibration_raw_source_execution_authorization",
-  "implementation_sha": null,
-  "frozen_ref": null,
-  "workflow_blob_sha": null,
-  "source_contract_blob_sha": null,
+  "implementation_sha": "e33a883ff0829b2c6b621b77ac295151de647a58",
+  "frozen_ref": "frozen/product-a-v2-8-geometry-source-e33a883f",
+  "workflow_blob_sha": "ee221fa4efefd581def497b5fbc3becf936ea7e2",
+  "source_contract_blob_sha": "d11b11567afa8899db53361365268d847cdf7108",
   "design_contract_blob_sha": "6c3b74da06ac225ff6ef153761fd334ec1eb9d1c",
   "candidate_registry_blob_sha": "ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0",
   "source_acquisition_only": true,
@@ -16,5 +16,5 @@
   "scientific_promotion_allowed": false,
   "product_b_unblocked": false,
   "one_shot": true,
-  "execution_allowed": false
+  "execution_allowed": true
 }

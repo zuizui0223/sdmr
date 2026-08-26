@@ -35,16 +35,21 @@ def test_v28_geometry_source_contract_is_exact_36_taxon_raw_only():
         assert value is False
 
 
-def test_v28_geometry_source_execution_is_closed():
+def test_v28_geometry_source_execution_pins_exact_frozen_runtime():
     e = json.loads(EXECUTION.read_text())
     assert e['purpose'] == 'product_a_v2_8_geometry_calibration_raw_source_execution_authorization'
-    assert e['implementation_sha'] is None
-    assert e['frozen_ref'] is None
+    assert e['implementation_sha'] == 'e33a883ff0829b2c6b621b77ac295151de647a58'
+    assert e['frozen_ref'] == 'frozen/product-a-v2-8-geometry-source-e33a883f'
+    assert e['workflow_blob_sha'] == 'ee221fa4efefd581def497b5fbc3becf936ea7e2'
+    assert e['source_contract_blob_sha'] == 'd11b11567afa8899db53361365268d847cdf7108'
+    assert e['design_contract_blob_sha'] == '6c3b74da06ac225ff6ef153761fd334ec1eb9d1c'
+    assert e['candidate_registry_blob_sha'] == 'ee43c9731eb8ad3673d2fa9271e0c3a8503bd0e0'
     assert e['source_acquisition_only'] is True
     assert e['chunk_count'] == 16
-    for key in ('geometry_calibration_execution_allowed', 'environmental_values_allowed', 'candidate_model_fitting_allowed', 'sealed_ecological_outcomes_allowed', 'scientific_confirmation_allowed', 'scientific_promotion_allowed', 'product_b_unblocked', 'execution_allowed'):
+    for key in ('geometry_calibration_execution_allowed', 'environmental_values_allowed', 'candidate_model_fitting_allowed', 'sealed_ecological_outcomes_allowed', 'scientific_confirmation_allowed', 'scientific_promotion_allowed', 'product_b_unblocked'):
         assert e[key] is False
     assert e['one_shot'] is True
+    assert e['execution_allowed'] is True
 
 
 def test_v28_geometry_source_workflow_stays_raw_only():
