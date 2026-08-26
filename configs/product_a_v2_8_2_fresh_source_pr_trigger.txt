@@ -1,0 +1,6 @@
+purpose=product_a_v2_8_2_fresh_source_launch_trigger
+launcher_merge_sha=b2d41b879b584be00722aaa1408a9fafbb7d1cce
+authorization_commit_sha=4de98f6340d6324f8a7e1440a1387c20abc48a3c
+expected_runtime_sha=1baa9f48250ffb5544f2af6706f6166cbce02381
+frozen_ref=frozen/product-a-v2-8-2-fresh-source-1baa9f48
+scope=raw-source-only
