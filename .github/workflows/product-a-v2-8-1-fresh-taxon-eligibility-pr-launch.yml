@@ -1,0 +1,204 @@
+name: product-a-v2-8-1-fresh-taxon-eligibility-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_8_1_fresh_taxon_eligibility_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: product-a-v2-8-1-fresh-taxon-eligibility-pr-launch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one externally authorized frozen v2.8.1 eligibility screen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import time
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          api = f'https://api.github.com/repos/{repo}'
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'sdmr-v281-fresh-eligibility-launcher',
+          }
+
+          authorization_commit_sha = '9b540d904cd18361f2388cae5eebabc065e27df7'
+          authorization_blob_sha = '97af4a67c37578645d6e859a5864ea4981dade47'
+          expected_runtime_sha = '2e501f090de9160627c912bbf8273e5a32500a2d'
+          expected_frozen_ref = 'frozen/product-a-v2-8-1-fresh-taxon-eligibility-2e501f09'
+          workflow = 'product-a-v2-8-1-fresh-taxon-eligibility.yml'
+
+          def request(url, *, method='GET', payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  raw = response.read()
+                  return json.loads(raw) if raw else None
+
+          auth_path = 'configs/product_a_v2_8_1_fresh_taxon_eligibility_execution.json'
+          quoted = urllib.parse.quote(auth_path, safe='/')
+          meta = request(
+              f"{api}/contents/{quoted}?ref="
+              f"{urllib.parse.quote(authorization_commit_sha, safe='')}"
+          )
+          if str(meta.get('sha')) != authorization_blob_sha:
+              raise SystemExit('v2.8.1 eligibility authorization blob mismatch')
+          auth = json.loads(base64.b64decode(meta['content']).decode())
+          local = json.load(open(auth_path))
+          if local != auth:
+              raise SystemExit('trigger head does not contain the exact authorized v2.8.1 eligibility config')
+          if auth.get('purpose') != 'product_a_v2_8_1_fresh_taxon_eligibility_execution_authorization':
+              raise SystemExit('wrong v2.8.1 eligibility authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.8.1 eligibility execution is not authorized one-shot')
+          if auth.get('implementation_sha') != expected_runtime_sha:
+              raise SystemExit('v2.8.1 eligibility implementation SHA changed')
+          if auth.get('frozen_ref') != expected_frozen_ref:
+              raise SystemExit('v2.8.1 eligibility frozen ref changed')
+          if float(auth.get('selected_global_sealed_fraction', -1)) != 0.25:
+              raise SystemExit('calibrated global sealed fraction changed')
+          for key in (
+              'environmental_values_allowed',
+              'candidate_model_fitting_allowed',
+              'candidate_scores_allowed',
+              'sealed_ecological_outcomes_allowed',
+              'scientific_confirmation_allowed',
+              'scientific_promotion_allowed',
+              'product_b_unblocked',
+          ):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.8.1 eligibility launcher crossed scope: {key}')
+
+          def verify_blob(path, expected):
+              quoted_path = urllib.parse.quote(path, safe='/')
+              payload = request(
+                  f"{api}/contents/{quoted_path}?ref="
+                  f"{urllib.parse.quote(expected_frozen_ref, safe='')}"
+              )
+              if str(payload.get('sha')) != str(expected):
+                  raise SystemExit(f'frozen v2.8.1 eligibility blob changed: {path}')
+
+          verify_blob(
+              '.github/workflows/product-a-v2-8-1-fresh-taxon-eligibility.yml',
+              auth['workflow_blob_sha'],
+          )
+          verify_blob(
+              'src/sdmr/v2_8_1_fresh_taxon_eligibility.py',
+              auth['module_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_v2_8_1_fresh_taxon_candidates.csv',
+              auth['candidate_registry_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_v2_8_1_fresh_taxon_eligibility_contract.json',
+              auth['eligibility_contract_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_pilot_taxa_v1.csv',
+              auth['pilot_registry_blob_sha'],
+          )
+          verify_blob(
+              'configs/product_a_v2_7_1_fresh_taxon_candidates.csv',
+              auth['consumed_registry_blob_sha'],
+          )
+
+          def matches():
+              payload = request(
+                  f"{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100"
+              )
+              return [
+                  run for run in payload.get('workflow_runs', [])
+                  if str(run.get('head_sha')) == expected_runtime_sha
+                  and str(run.get('head_branch')) == expected_frozen_ref
+                  and str(run.get('event')) == 'workflow_dispatch'
+              ]
+
+          runs = matches()
+          dispatched = False
+          if len(runs) > 1:
+              raise SystemExit(f'multiple exact v2.8.1 eligibility runs exist: {len(runs)}')
+          if not runs:
+              request(
+                  f"{api}/actions/workflows/{workflow}/dispatches",
+                  method='POST',
+                  payload={
+                      'ref': expected_frozen_ref,
+                      'inputs': {
+                          'authorization_commit_sha': authorization_commit_sha,
+                          'authorization_blob_sha': authorization_blob_sha,
+                          'expected_runtime_sha': expected_runtime_sha,
+                          'expected_frozen_ref': expected_frozen_ref,
+                      },
+                  },
+              )
+              dispatched = True
+              for _ in range(24):
+                  time.sleep(5)
+                  runs = matches()
+                  if runs:
+                      break
+          if len(runs) != 1:
+              raise SystemExit(f'expected exactly one exact v2.8.1 eligibility run, found {len(runs)}')
+
+          run = runs[0]
+          receipt = {
+              'purpose': 'product_a_v2_8_1_fresh_taxon_eligibility_launch_receipt',
+              'pull_request': int(event['pull_request']['number']),
+              'authorization_commit_sha': authorization_commit_sha,
+              'authorization_blob_sha': authorization_blob_sha,
+              'implementation_sha': expected_runtime_sha,
+              'frozen_ref': expected_frozen_ref,
+              'selected_global_sealed_fraction': 0.25,
+              'candidate_registry_blob_sha': auth['candidate_registry_blob_sha'],
+              'eligibility_contract_blob_sha': auth['eligibility_contract_blob_sha'],
+              'environmental_values_allowed': False,
+              'candidate_model_fitting_allowed': False,
+              'candidate_scores_allowed': False,
+              'sealed_ecological_outcomes_allowed': False,
+              'scientific_confirmation_allowed': False,
+              'scientific_promotion_allowed': False,
+              'product_b_unblocked': False,
+              'dispatched_now': dispatched,
+              'run_id': int(run['id']),
+              'run_number': int(run['run_number']),
+              'status': str(run['status']),
+              'conclusion': run.get('conclusion'),
+              'html_url': str(run['html_url']),
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(receipt, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-8-1-fresh-taxon-eligibility-launch-receipt
+          path: launch/receipt.json
+          if-no-files-found: error
+          retention-days: 90
