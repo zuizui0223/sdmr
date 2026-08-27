@@ -1,0 +1,8 @@
+Product-A v2.8.3 scientific trigger receipt marker
+runtime_sha=8095dd814f2c20babe2865f5a5a0835dde047727
+frozen_ref=frozen/product-a-v2-8-3-fresh-confirmation-8095dd81
+authorization_commit=4011d40754871a6067756a034b6827a28926bad4
+authorization_blob=bef669dd35f1708fe6c8ea292a8afbca67e04792
+selected_global_sealed_fraction=0.25
+scientific_promotion_allowed=false
+product_b_unblocked=false
