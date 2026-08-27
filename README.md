@@ -9,6 +9,34 @@ The project has two linked scientific products:
 
 The starting problem is that correlation/VIF filtering can remove an ecologically informative raster before testing whether it improves genuinely independent prediction. SDMR therefore treats **out-of-sample predictive information** as the main admission criterion and keeps VIF as a comparison baseline.
 
+## Current scientific status — 2026-08-27
+
+SDMR now has two explicitly separate validation lanes. They must not be collapsed into one claim.
+
+### Known-truth lane
+
+The known-truth programme has established that the architecture can recover the frozen ecological target under controlled truth while preserving abstention when the contract cannot be completed.
+
+- **v2.4:** terminal `exclusion_certificate_unavailable`. This is a contract-respecting abstention, not a biological or model-performance failure: discovery-only calibration did not supply every response key required by the frozen validation contract.
+- **v2.6:** terminal `v2_6_supported` under the predeclared known-truth coverage/process-safety criteria. Possible-process recall was 1.0 and false-required processes were 0, while possible-process precision remained broad at 0.467; the supported claim therefore does not imply narrow process identification.
+- **v2.7.2:** deterministic known-truth successor supported on 60 unused cases. Independent process replicates had maximum floating drift 0.0; robust-selector coverage was 1.0; stable-process-core precision/recall/F1 were 0.9889/0.9833/0.9833.
+
+Known-truth support is necessary implementation/scientific evidence, but it is **not empirical Product-A promotion**.
+
+### Empirical lane
+
+The empirical lane is separately frozen against the 2026-08-01 public-data snapshot and successor source receipts. Earlier fresh empirical attempts correctly returned unavailable/presealed-unavailable states when complete frozen evidence could not be assembled; those states are not reclassified as adverse ecological results.
+
+The current successor is **Product-A v2.8.3**. Its design fixes the globally calibrated sealed fraction at `0.25`, uses three predeclared seeds, requires coordinate-only structural transportability before environmental/model stages, and fails closed to `empirical_confirmation_unavailable` if the full denominator is not auditable. The one-shot scientific confirmation run is currently executing from the frozen runtime; no Product-A promotion result is claimed here until that run reaches its frozen terminal decision.
+
+### Product-B block
+
+**Product B remains blocked until Product A obtains a supported fresh empirical confirmation under a prospectively frozen full-denominator design, followed by a separate explicit Product-A promotion / Product-B-unblock decision.**
+
+Known-truth support alone, a partial empirical subset, or a structural-availability success cannot unblock Product B.
+
+See the frozen result records in `docs/` and `evidence/` for exact runs, artifacts, digests, opened-evidence boundaries and terminal decisions.
+
 ## Core information barrier
 
 Within each species, occurrence evidence is assigned two roles:
@@ -16,13 +44,13 @@ Within each species, occurrence evidence is assigned two roles:
 - **model pool** — available for fitting, predictor selection, candidate-universe comparison, regularization/complexity tuning, inner spatial CV, and stopping decisions;
 - **sealed answer-check pool** — unavailable to all choices above and opened only after a candidate protocol has been frozen.
 
-There is **no scientifically privileged 50/50 split**. The sealed fraction is configurable and should itself be sensitivity-tested. When both pools come from one GBIF-like dataset, whole spatial blocks are withheld rather than random nearby records. Independent later surveys or external occurrence sources can provide an even stronger final test.
+There is **no scientifically privileged 50/50 split**. The sealed fraction is configurable during design/calibration and must be frozen before a confirmation outcome is opened. When both pools come from one GBIF-like dataset, whole spatial blocks are withheld rather than random nearby records. Independent later surveys or external occurrence sources can provide an even stronger final test.
 
 A GBIF presence is positive occurrence evidence, not calibrated probability = 1, and an unrecorded location is not a verified absence. The primary current score, `presence_rank`, asks whether sealed presences receive higher relative-suitability scores than defensible background/reference locations. A Boyce-style metric is secondary.
 
 ## Product A — implemented
 
-Product A now compares **three nested environmental candidate universes** when the standard CHELSA manifest is used:
+Product A compares **three nested environmental candidate universes** when the standard CHELSA manifest is used:
 
 1. **BIOCLIM19** — the conventional BIO1–BIO19 climate set;
 2. **CHELSA-bioclim** — BIOCLIM19 plus directly distributed freeze/thaw, growing-degree-day, growing-season, snow, and productivity variables;
@@ -61,7 +89,7 @@ Driver evidence is summarized at three levels:
 
 A candidate process core is discovered using discovery taxa only and then frozen before testing on unseen plant taxa. Repeated taxon splits quantify core stability and transfer. Same-size random process-core nulls are evaluated on the **same sealed spatial blocks** as the discovered core/full comparison. Conditionality can also be summarized by declared strata such as family, growth form, or biome with equal species weighting.
 
-Valid empirical outcomes are a small global core, global + conditional cores, or no useful universal core.
+Valid empirical outcomes are a small global core, global + conditional cores, or no useful universal core. Product B does not begin merely because this scaffold exists; its explicit unblock gate above must first be satisfied.
 
 ## CHELSA candidate universe and provenance
 
@@ -95,7 +123,7 @@ The repository includes:
 - target-group background construction inside the declared `M`;
 - CHELSA COG resolution/extraction and provenance.
 
-The search API is deliberately not the route for deciding Product-A method performance. Real method comparison starts from a **versioned GBIF bulk download**.
+The search API is deliberately not the route for deciding Product-A method performance. Real method comparison starts from a **versioned GBIF bulk download or another prospectively frozen source receipt**.
 
 ## One-command real Product-A pilot
 
@@ -117,9 +145,9 @@ sdmr-pilot \
   --output-dir results/product_a_pilot
 ```
 
-With the standard manifest, `--run-method` now tunes **candidate universe × method strategy** on discovery taxa and freezes both in `method_choice.txt`. A deliberately small `--only` diagnostic subset that cannot define the nested standard universes safely falls back to a frozen custom universe.
+With the standard manifest, `--run-method` tunes **candidate universe × method strategy** on discovery taxa and freezes both in `method_choice.txt`. A deliberately small `--only` diagnostic subset that cannot define the nested standard universes safely falls back to a frozen custom universe.
 
-The numeric thresholds above are **example run parameters, not universal biological defaults**. Product A should repeat defensible quality gates, `M` constructions, background settings, holdout fractions, and seeds to test whether the winning method is stable.
+The numeric thresholds above are **example run parameters, not universal biological defaults**. Product A successor confirmations use their own versioned contracts; they must not inherit or change these example parameters implicitly.
 
 For method comparison, a broader target-group download is required by default. `--allow-pilot-target-group` exists only for explicitly diagnostic sensitivity runs where the focal pilot taxa themselves are used as the sampling-effort pool.
 
@@ -158,19 +186,19 @@ The `universality` mode repeats discovery/validation taxon splits for process-co
 
 ## Validation status
 
-GitHub Actions runs the core suite on Python 3.10–3.13 plus a Python 3.12 `rasterio` job. The suite covers sealed information barriers, candidate-universe comparison, method baselines/tuning, GBIF and raster provenance, CHELSA resolution, correlated-variable substitution, Product-A-to-Product-B strategy/universe inheritance, unseen-taxon process-core transfer, heterogeneity summaries, and the bulk-download Product-A pilot preparation path.
+GitHub Actions runs the core suite on Python 3.10–3.13 plus a Python 3.12 `rasterio` job. The suite covers sealed information barriers, candidate-universe comparison, method baselines/tuning, GBIF and raster provenance, CHELSA resolution, correlated-variable substitution, Product-A-to-Product-B strategy/universe inheritance, unseen-taxon process-core transfer, heterogeneity summaries, bulk-download preparation, frozen contract identity and one-shot execution gates.
 
 ## Current empirical boundary
 
-The architecture is now **real-data execution ready**, but the biological result has not yet been established. No claim is made yet that the predictive approach beats VIF on real plants, that the expanded CHELSA universe beats BIOCLIM19, or that a universal plant niche core exists.
+The repository is **past architecture-only readiness**. Product A has supported known-truth results, but empirical promotion remains unresolved until the currently frozen empirical confirmation reaches its terminal decision.
 
-The remaining empirical sequence is:
+Therefore the current claim boundary is:
 
-1. obtain/fingerprint a real focal plant GBIF bulk download and a broad plant target-group download;
-2. run the moderate Product-A pilot across multiple predeclared data specifications;
-3. establish which **candidate universe × strategy** wins robustly on unseen taxa and freeze its claim boundary;
-4. define a separate, broad Product-B plant sampling frame;
-5. run repeated process-core discovery/validation and conditionality analyses;
-6. use independent later/external occurrences where available as the strongest final answer check.
+- supported: the deterministic Product-A architecture and its known-truth recovery/safety claims under the frozen v2.6/v2.7.2 contracts;
+- not yet supported: general empirical Product-A promotion on fresh plant data;
+- blocked: Product B and any universal-driver/process-core biological claim;
+- preserved as valid outcomes: `unavailable`, `presealed_unavailable`, structural non-estimability and other fail-closed states when the predeclared evidence denominator cannot be completed.
 
-See [`docs/method.md`](docs/method.md), [`docs/research_program.md`](docs/research_program.md), and [`docs/data_pipeline.md`](docs/data_pipeline.md).
+Historical frozen results remain authoritative under the code/contracts that produced them. Successor execution-discipline refactors must not be used to recompute, revalidate or silently reinterpret those results.
+
+See [`docs/method.md`](docs/method.md), [`docs/research_program.md`](docs/research_program.md), [`docs/data_pipeline.md`](docs/data_pipeline.md), and the versioned Product-A result documents under [`docs/`](docs/).
