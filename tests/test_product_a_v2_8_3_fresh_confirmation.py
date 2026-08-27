@@ -16,13 +16,41 @@ EXECUTION = Path('configs/product_a_v2_8_3_scientific_execution.json')
 SOURCE_RECEIPT = Path('configs/product_a_v2_8_2_fresh_raw_source_receipt.json')
 WORKFLOW = Path('.github/workflows/product-a-v2-8-3-fresh-confirmation.yml')
 
+EXPECTED_RUNTIME_SHA = '8095dd814f2c20babe2865f5a5a0835dde047727'
+EXPECTED_FROZEN_REF = 'frozen/product-a-v2-8-3-fresh-confirmation-8095dd81'
+EXPECTED_SOURCE_RECEIPT_BLOB = 'ed4d90a84db354e06a4a214f6a3a184c7e36ea7f'
+EXPECTED_PANEL_SHA256 = '835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1'
+EXPECTED_FROZEN_BLOBS = {
+    '.github/workflows/product-a-v2-8-3-fresh-confirmation.yml': '19b51b7596a79bf5618b0cf3fd41c5aa86709bd0',
+    'configs/product_a_v2_8_3_fresh_confirmation_contract.json': '1928de6d8f1289117415047c7a8d1ee894ca6bbe',
+    'configs/product_a_v2_8_3_scientific_execution.json': 'd79268b5ed2be4308e14217f09edcc9f67f0bc57',
+    'configs/product_a_v2_8_2_fresh_raw_source_receipt.json': 'ed4d90a84db354e06a4a214f6a3a184c7e36ea7f',
+    'configs/product_a_v2_8_2_fresh_confirmation_taxa.csv': '5c00886724405edeb13dae4f029ec19573ad180f',
+    'configs/product_a_empirical_process_registry_v1.csv': '469a1ced27ff47fe6b731c26cc3b9b0f4a56d58a',
+    'configs/product_a_buffer_specs_v1.csv': '608ce63f4007406e2873e25267a1234933f0487e',
+    'configs/chelsa_v2_1_plant_candidates.csv': 'fd680b076df1fba2ce8c3c5c6a64ae151885c0fa',
+    'src/sdmr/v2_8_3_fresh_contract.py': 'fc98f7171e02cd89a34124b537f090e341dd6ed3',
+    'src/sdmr/v2_8_3_fresh_runtime.py': '363ab04de48b6ea7c7339c57449bb4695e4e0f05',
+    'src/sdmr/v2_8_3_presealed_transport.py': 'fecdd061b293973bd2e4ac4c9caddc80fcd943e7',
+    'src/sdmr/v2_8_3_fresh_aggregate.py': 'af0e6a9218495e4410b66a61b79db0e29f8d2a1c',
+    'src/sdmr/v2_7_2_deterministic_procedure_library.py': 'e8739f14d750e1533c34d417e84969bbbd9a8b35',
+    'src/sdmr/v2_7_2_fresh_contract.py': '72e46e863ac97b1af939300a9fdd3f5c66f4459c',
+    'src/sdmr/v2_7_2_fresh_materialize.py': 'acfd3868e1cfd51467e961c31c4c6a4bd9e2391c',
+    'src/sdmr/v2_7_2_fresh_model_pool_shard.py': '25c5375fbc06b018575bf12b9f71615d6767af2f',
+    'src/sdmr/v2_7_2_fresh_model_pool_shard_aggregate.py': '889940a08d49be3ed3d3fbd59d081fa6ff1584e9',
+    'src/sdmr/v2_7_2_fresh_pretruth.py': '8005bb080ee6106fca54917504bd4ccad820afa8',
+    'src/sdmr/v2_7_2_fresh_final_fit.py': 'ab19eb6e21f06603557ed86c5b443814a9064b42',
+    'src/sdmr/v2_7_2_fresh_sealed_audit.py': '9da77e578cd9d5f523340c19eb2df844600f588a',
+    'src/sdmr/v2_7_3_presealed_feasibility.py': 'cbe3d23e5a06d35167c4a5ff68d50a2ba4581c8d',
+}
+
 
 def test_v283_contract_is_predeclared_single_fraction_deterministic_and_fail_closed():
     c = load_v2_8_3_fresh_confirmation_contract(CONTRACT)
     load_v2_8_3_source_receipt(SOURCE_RECEIPT)
     assert c['tracks_issue'] == 158
-    assert c['source_receipt']['blob_sha'] == 'ed4d90a84db354e06a4a214f6a3a184c7e36ea7f'
-    assert c['fresh_taxon_panel']['sha256'] == '835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1'
+    assert c['source_receipt']['blob_sha'] == EXPECTED_SOURCE_RECEIPT_BLOB
+    assert c['fresh_taxon_panel']['sha256'] == EXPECTED_PANEL_SHA256
     assert c['fixed_design']['sealed_fractions'] == [0.25]
     assert c['fixed_design']['split_seeds'] == list(EXPECTED_SEEDS)
     assert c['fixed_design']['n_confirmation_parts'] == 3
@@ -36,28 +64,47 @@ def test_v283_contract_is_predeclared_single_fraction_deterministic_and_fail_clo
     assert c['product_b_unblocked'] is False
 
 
-def test_v283_stage_execution_authorization_is_closed_and_unpinned_until_merge():
+def test_v283_execution_authorization_is_closed_or_exact_frozen_one_shot():
     a = json.loads(EXECUTION.read_text())
     assert a['purpose'] == 'product_a_v2_8_3_fresh_scientific_execution_authorization'
-    assert a['execution_allowed'] is False
     assert a['one_shot'] is True
-    assert a['implementation_sha'] is None and a['frozen_ref'] is None
-    assert a['frozen_blobs'] == {}
-    for key in (
+    assert a['source_receipt_blob_sha'] == EXPECTED_SOURCE_RECEIPT_BLOB
+    assert a['selected_panel_sha256'] == EXPECTED_PANEL_SHA256
+    assert a['selected_global_sealed_fraction'] == 0.25
+    assert tuple(a['split_seeds']) == EXPECTED_SEEDS
+
+    phase_keys = (
         'structural_transport_allowed',
         'environmental_values_allowed_after_structural_admission',
         'candidate_model_fitting_allowed_after_structural_admission',
         'candidate_scores_allowed_only_inside_frozen_model_pool_procedure',
         'sealed_ecological_outcomes_allowed_after_pretruth_and_final_fit',
         'scientific_confirmation_allowed',
+    )
+    permanently_false = (
         'post_outcome_candidate_reselection_allowed',
         'post_outcome_threshold_tuning_allowed',
         'post_outcome_random_seed_change_allowed',
         'post_outcome_fraction_change_allowed',
         'scientific_promotion_allowed',
         'product_b_unblocked',
-    ):
+    )
+    for key in permanently_false:
         assert a[key] is False
+
+    if a['execution_allowed'] is False:
+        assert a['implementation_sha'] is None
+        assert a['frozen_ref'] is None
+        assert a['frozen_blobs'] == {}
+        for key in phase_keys:
+            assert a[key] is False
+    else:
+        assert a['execution_allowed'] is True
+        assert a['implementation_sha'] == EXPECTED_RUNTIME_SHA
+        assert a['frozen_ref'] == EXPECTED_FROZEN_REF
+        assert a['frozen_blobs'] == EXPECTED_FROZEN_BLOBS
+        for key in phase_keys:
+            assert a[key] is True
 
 
 def test_v283_workflow_freezes_structural_gate_before_any_environmental_model_stage():
