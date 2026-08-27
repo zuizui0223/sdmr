@@ -1,0 +1,231 @@
+name: product-a-v2-8-3-fresh-confirmation-pr-launch
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'configs/product_a_v2_8_3_scientific_pr_trigger.txt'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: product-a-v2-8-3-fresh-confirmation-pr-launch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch exactly one externally authorized frozen v2.8.3 scientific run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import time
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          api = f'https://api.github.com/repos/{repo}'
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'sdmr-v283-fresh-scientific-launcher',
+          }
+
+          authorization_commit_sha = '4011d40754871a6067756a034b6827a28926bad4'
+          authorization_blob_sha = 'bef669dd35f1708fe6c8ea292a8afbca67e04792'
+          expected_runtime_sha = '8095dd814f2c20babe2865f5a5a0835dde047727'
+          expected_frozen_ref = 'frozen/product-a-v2-8-3-fresh-confirmation-8095dd81'
+          expected_panel_sha256 = '835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1'
+          expected_source_receipt_blob = 'ed4d90a84db354e06a4a214f6a3a184c7e36ea7f'
+          expected_seeds = (2026082201, 2026082202, 2026082203)
+          workflow = 'product-a-v2-8-3-fresh-confirmation.yml'
+
+          def request(url, *, method='GET', payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  raw = response.read()
+                  return json.loads(raw) if raw else None
+
+          auth_path = 'configs/product_a_v2_8_3_scientific_execution.json'
+          quoted = urllib.parse.quote(auth_path, safe='/')
+          meta = request(
+              f"{api}/contents/{quoted}?ref="
+              f"{urllib.parse.quote(authorization_commit_sha, safe='')}"
+          )
+          if str(meta.get('sha')) != authorization_blob_sha:
+              raise SystemExit('v2.8.3 scientific authorization blob mismatch')
+          auth = json.loads(base64.b64decode(meta['content']).decode())
+          local = json.load(open(auth_path))
+          if local != auth:
+              raise SystemExit('trigger head does not contain the exact authorized v2.8.3 config')
+          if auth.get('purpose') != 'product_a_v2_8_3_fresh_scientific_execution_authorization':
+              raise SystemExit('wrong v2.8.3 scientific authorization purpose')
+          if auth.get('execution_allowed') is not True or auth.get('one_shot') is not True:
+              raise SystemExit('v2.8.3 scientific execution is not authorized one-shot')
+          if auth.get('implementation_sha') != expected_runtime_sha:
+              raise SystemExit('v2.8.3 scientific implementation SHA changed')
+          if auth.get('frozen_ref') != expected_frozen_ref:
+              raise SystemExit('v2.8.3 scientific frozen ref changed')
+          if auth.get('selected_panel_sha256') != expected_panel_sha256:
+              raise SystemExit('v2.8.3 selected panel fingerprint changed')
+          if auth.get('source_receipt_blob_sha') != expected_source_receipt_blob:
+              raise SystemExit('v2.8.3 source receipt blob changed')
+          if float(auth.get('selected_global_sealed_fraction', -1)) != 0.25:
+              raise SystemExit('v2.8.3 global sealed fraction changed')
+          if tuple(int(x) for x in auth.get('split_seeds', ())) != expected_seeds:
+              raise SystemExit('v2.8.3 split seeds changed')
+
+          for key in (
+              'structural_transport_allowed',
+              'environmental_values_allowed_after_structural_admission',
+              'candidate_model_fitting_allowed_after_structural_admission',
+              'candidate_scores_allowed_only_inside_frozen_model_pool_procedure',
+              'sealed_ecological_outcomes_allowed_after_pretruth_and_final_fit',
+              'scientific_confirmation_allowed',
+          ):
+              if auth.get(key) is not True:
+                  raise SystemExit(f'v2.8.3 required frozen scientific phase is closed: {key}')
+          for key in (
+              'post_outcome_candidate_reselection_allowed',
+              'post_outcome_threshold_tuning_allowed',
+              'post_outcome_random_seed_change_allowed',
+              'post_outcome_fraction_change_allowed',
+              'scientific_promotion_allowed',
+              'product_b_unblocked',
+          ):
+              if auth.get(key) is not False:
+                  raise SystemExit(f'v2.8.3 launcher crossed immutable boundary: {key}')
+
+          frozen = auth.get('frozen_blobs', {})
+          required_paths = (
+              '.github/workflows/product-a-v2-8-3-fresh-confirmation.yml',
+              'configs/product_a_v2_8_3_fresh_confirmation_contract.json',
+              'configs/product_a_v2_8_3_scientific_execution.json',
+              'configs/product_a_v2_8_2_fresh_raw_source_receipt.json',
+              'configs/product_a_v2_8_2_fresh_confirmation_taxa.csv',
+              'configs/product_a_empirical_process_registry_v1.csv',
+              'configs/product_a_buffer_specs_v1.csv',
+              'configs/chelsa_v2_1_plant_candidates.csv',
+              'src/sdmr/v2_8_3_fresh_contract.py',
+              'src/sdmr/v2_8_3_fresh_runtime.py',
+              'src/sdmr/v2_8_3_presealed_transport.py',
+              'src/sdmr/v2_8_3_fresh_aggregate.py',
+              'src/sdmr/v2_7_2_deterministic_procedure_library.py',
+              'src/sdmr/v2_7_2_fresh_contract.py',
+              'src/sdmr/v2_7_2_fresh_materialize.py',
+              'src/sdmr/v2_7_2_fresh_model_pool_shard.py',
+              'src/sdmr/v2_7_2_fresh_model_pool_shard_aggregate.py',
+              'src/sdmr/v2_7_2_fresh_pretruth.py',
+              'src/sdmr/v2_7_2_fresh_final_fit.py',
+              'src/sdmr/v2_7_2_fresh_sealed_audit.py',
+              'src/sdmr/v2_7_3_presealed_feasibility.py',
+          )
+          if set(frozen) != set(required_paths):
+              raise SystemExit('v2.8.3 frozen blob path set incomplete or expanded')
+          for path in required_paths:
+              q = urllib.parse.quote(path, safe='/')
+              payload = request(
+                  f"{api}/contents/{q}?ref="
+                  f"{urllib.parse.quote(expected_frozen_ref, safe='')}"
+              )
+              if str(payload.get('sha')) != str(frozen[path]):
+                  raise SystemExit(f'frozen v2.8.3 scientific blob changed: {path}')
+
+          def matches():
+              payload = request(
+                  f"{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100"
+              )
+              return [
+                  run for run in payload.get('workflow_runs', [])
+                  if str(run.get('head_sha')) == expected_runtime_sha
+                  and str(run.get('head_branch')) == expected_frozen_ref
+                  and str(run.get('event')) == 'workflow_dispatch'
+              ]
+
+          runs = matches()
+          dispatched = False
+          if len(runs) > 1:
+              raise SystemExit(f'multiple exact v2.8.3 scientific runs exist: {len(runs)}')
+          if not runs:
+              request(
+                  f"{api}/actions/workflows/{workflow}/dispatches",
+                  method='POST',
+                  payload={
+                      'ref': expected_frozen_ref,
+                      'inputs': {
+                          'authorization_commit_sha': authorization_commit_sha,
+                          'authorization_blob_sha': authorization_blob_sha,
+                          'expected_runtime_sha': expected_runtime_sha,
+                          'expected_frozen_ref': expected_frozen_ref,
+                      },
+                  },
+              )
+              dispatched = True
+              for _ in range(24):
+                  time.sleep(5)
+                  runs = matches()
+                  if runs:
+                      break
+          if len(runs) != 1:
+              raise SystemExit(f'expected exactly one exact v2.8.3 scientific run, found {len(runs)}')
+
+          run = runs[0]
+          receipt = {
+              'purpose': 'product_a_v2_8_3_fresh_scientific_launch_receipt',
+              'pull_request': int(event['pull_request']['number']),
+              'authorization_commit_sha': authorization_commit_sha,
+              'authorization_blob_sha': authorization_blob_sha,
+              'implementation_sha': expected_runtime_sha,
+              'frozen_ref': expected_frozen_ref,
+              'source_receipt_blob_sha': expected_source_receipt_blob,
+              'selected_panel_sha256': expected_panel_sha256,
+              'selected_global_sealed_fraction': 0.25,
+              'split_seeds': list(expected_seeds),
+              'frozen_blobs': frozen,
+              'structural_transport_allowed': True,
+              'environmental_values_allowed_after_structural_admission': True,
+              'candidate_model_fitting_allowed_after_structural_admission': True,
+              'candidate_scores_allowed_only_inside_frozen_model_pool_procedure': True,
+              'sealed_ecological_outcomes_allowed_after_pretruth_and_final_fit': True,
+              'scientific_confirmation_allowed': True,
+              'post_outcome_candidate_reselection_allowed': False,
+              'post_outcome_threshold_tuning_allowed': False,
+              'post_outcome_random_seed_change_allowed': False,
+              'post_outcome_fraction_change_allowed': False,
+              'scientific_promotion_allowed': False,
+              'product_b_unblocked': False,
+              'dispatched_now': dispatched,
+              'run_id': int(run['id']),
+              'run_number': int(run['run_number']),
+              'status': str(run['status']),
+              'conclusion': run.get('conclusion'),
+              'html_url': str(run['html_url']),
+          }
+          Path('launch').mkdir()
+          Path('launch/receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(receipt, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-8-3-fresh-scientific-launch-receipt
+          path: launch/receipt.json
+          if-no-files-found: error
+          retention-days: 90
