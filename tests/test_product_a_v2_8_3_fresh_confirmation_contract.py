@@ -129,8 +129,6 @@ def test_v283_design_binds_exact_source_panel_and_inherited_semantics_fail_close
     assert c['structural_transportability']['taxon_M_or_seed_replacement_after_structural_result_allowed'] is False
     assert c['structural_transportability']['incomplete_part_partial_repair_allowed'] is False
 
-    assert all(value is False for value in c['execution_boundary'].values() if isinstance(value, bool) and value is not c['execution_boundary']['separate_external_one_shot_authorization_required']) is False
-    # Explicitly inspect the closed gate rather than relying on truthiness tricks.
     boundary = c['execution_boundary']
     assert boundary['runtime_implementation_sha'] is None
     assert boundary['runtime_frozen_ref'] is None
