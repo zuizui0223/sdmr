@@ -1,257 +1,220 @@
 {
-  "purpose": "product_a_v2_8_3_fresh_taxon_holdout_empirical_confirmation_contract",
+  "purpose": "product_a_v2_8_3_single_fraction_fresh_confirmation_contract",
   "tracks_issue": 158,
-  "resolves_methodology_issue": 132,
-  "predeclared_before_any_v2_8_3_environmental_model_or_sealed_outcome": true,
-  "source_receipt": {
-    "path": "configs/product_a_v2_8_2_fresh_raw_source_receipt.json",
-    "merged_at_sha": "641b0cce93f5349fc00577bdd12312f327f854c5",
-    "blob_sha": "ed4d90a84db354e06a4a214f6a3a184c7e36ea7f",
+  "predeclared_before_any_v2_8_3_structural_or_environmental_outcome": true,
+  "upstream_geometry_calibration": {
+    "issue": 133,
+    "workflow_run_id": 32943026025,
+    "implementation_sha": "32d5b67f7b18634830191df52ef56128589f5d82",
+    "frozen_ref": "frozen/product-a-v2-8-geometry-calibration-32d5b67f",
+    "decision_artifact_name": "product-a-v2-8-geometry-calibration-decision",
+    "decision_artifact_id": 9609352973,
+    "decision_artifact_digest": "sha256:a08c9f40d89b65ccf7357289b7e89bda7e6844cc6c2014edaeafb14c368c63d6",
+    "decision": "geometry_calibration_fraction_selected",
+    "selected_global_sealed_fraction": 0.25,
+    "fraction_retuning_allowed": false,
+    "geometry_result_is_ecological_support": false
+  },
+  "upstream_fresh_source": {
+    "receipt_path": "configs/product_a_v2_8_2_fresh_raw_source_receipt.json",
+    "receipt_blob_sha": "ed4d90a84db354e06a4a214f6a3a184c7e36ea7f",
+    "receipt_merge_sha": "641b0cce93f5349fc00577bdd12312f327f854c5",
     "workflow_run_id": 33006988136,
-    "workflow_conclusion": "success"
-  },
-  "predecessor_rule_continuity": {
-    "scientific_predecessor_contract": "configs/product_a_v2_7_2_fresh_confirmation_contract.json",
-    "scientific_predecessor_contract_blob_sha": "04ec0d9519b8ea5ed7720f04cffb79ec0cdf4291",
-    "v2_7_1_scientific_meaning_inherited": true,
-    "v2_7_2_deterministic_correction_inherited": true,
-    "scientific_thresholds_retuned_from_outcomes": false,
-    "M_grid_changed": false,
-    "partition_rule_changed": false,
-    "audit_space_rule_changed": false,
-    "procedure_strategies_changed": false,
-    "model_hyperparameters_changed": false,
-    "process_domains_changed": false,
-    "sealed_recovery_metrics_changed": false,
-    "only_design_changes": [
-      "wholly_fresh_predeclared_v2_8_2_taxon_panel_and_raw_source",
-      "single_geometry_calibrated_global_outer_sealed_fraction_0_25",
-      "mechanical_three_part_denominator_translation_predeclared_in_issue_158",
-      "separate_pre_environment_structural_transportability_estimand"
-    ]
-  },
-  "empirical_target": {
-    "claim": "realized_environmental_niche_recovery_and_stability",
-    "metrics": [
-      "niche_overlap_schoener_d_pc12",
-      "centroid_distance",
-      "breadth_log_sd_error",
-      "quantile_profile_error"
-    ],
-    "descriptive_only": ["sealed_pc12_envelope_coverage90"],
-    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
-    "prediction_comparator": "model_pool_only_auc_selected_representative",
-    "representative_selection": "model_pool_only_niche_recovery_pareto_minimax_within_complete_prediction_adequate_set",
-    "recovery_metrics_must_remain_separate": true,
-    "weighted_super_score_allowed": false,
-    "fundamental_niche_truth_claim_allowed": false
+    "workflow_conclusion": "success",
+    "focal_file_sha256": "4366258f2495604a0c9a5058aeb0111a751493b538ba436760f8555182d32fc5",
+    "focal_query_sha256": "40f25b5bafff11f5471b389778e29d29f7be02a4e76cd335cfdcee637517dc7e",
+    "target_file_sha256": "9e8fb2827919e86d450cb5870093cef2adc752bee22a15540406265747d20bf6",
+    "target_query_sha256": "b2261d66b156189bf9fd949046ad4f5b0a10697c584efe2ba009ca2d5dc8fdf7",
+    "snapshot_shard_catalog_sha256": "47300bbeb7d7b10711e685cff20d7574737c3440228e9b0247efac40a3d0ca84"
   },
   "fresh_taxon_panel": {
     "path": "configs/product_a_v2_8_2_fresh_confirmation_taxa.csv",
+    "blob_sha": "5c00886724405edeb13dae4f029ec19573ad180f",
     "sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
-    "require_all_12_taxa": true,
-    "require_all_12_validation_strata": true,
-    "predeclared_candidate_rank": 1,
-    "post_source_taxon_reselection_allowed": false
+    "n_taxa": 12,
+    "n_validation_strata": 12,
+    "selected_candidate_rank": 1,
+    "post_selection_replacement_allowed": false,
+    "independence_axis": "taxon_holdout_not_temporal",
+    "temporal_independence_claim_allowed": false
   },
-  "independence_axis": "taxon_holdout_not_temporal",
-  "temporal_independence_claim_allowed": false,
+  "inherited_scientific_semantics": {
+    "v2_7_1_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "v2_7_1_contract_blob_sha": "8b7c2680d2999e61c8672934724988bf0e217fe1",
+    "v2_7_1_contract_sha256": "32ed21aedb87bd796324d569b696b97fc58ddbec2ccd848723006f0ea7b1ba5b",
+    "v2_7_2_deterministic_contract_path": "configs/product_a_v2_7_2_deterministic_successor_contract.json",
+    "v2_7_2_deterministic_contract_blob_sha": "c251b19c21e199894be3c93d8b36e3d2329a9777",
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "solver": "liblinear",
+    "all_other_model_hyperparameters_changed": false,
+    "procedure_strategies_changed": false,
+    "candidate_predictor_universe_changed": false,
+    "prediction_adequacy_changed": false,
+    "ecological_recovery_metrics_changed": false,
+    "weighted_super_score_allowed": false
+  },
   "fixed_design": {
     "M_km": [150, 300, 500],
+    "M_is_sensitivity_not_optimization": true,
     "split_seeds": [2026082201, 2026082202, 2026082203],
     "sealed_fractions": [0.25],
     "n_confirmation_parts": 3,
+    "outer_folds": 4,
+    "spatial_microblocks": 12,
+    "assignment_attempts": 32,
+    "assignment_seed_formula": "part_seed + taxon_index*100 + 271",
+    "minimum_evaluation_occurrences_per_fold": 2,
+    "minimum_evaluation_background_rows_per_M_fold": 5,
+    "minimum_training_background_rows_per_M_fold": 5,
+    "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
+    "process_registry_blob_sha": "469a1ced27ff47fe6b731c26cc3b9b0f4a56d58a",
+    "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
+    "process_domains": ["thermal", "water", "seasonality_phenology", "energy_productivity", "snow", "wind"],
+    "procedure_library": {
+      "inner_folds": 3,
+      "outer_folds": 4,
+      "max_predictors": 8,
+      "strategies": ["all", "vif", "predictive_forward", "niche_forward"],
+      "model_specs": [
+        {"C": 0.1, "degree": 1, "penalty": "l2"},
+        {"C": 1.0, "degree": 2, "penalty": "l2"}
+      ],
+      "vif_threshold": 5.0,
+      "predictive_min_gain": 0.0,
+      "observation_predictors": []
+    },
     "prediction_adequacy": {
       "chance_auc": 0.5,
       "minimum_auc_margin": 0.01,
       "auc_sem_multiplier": 1.0,
       "complete_outer_fold_evidence_required": true
     },
-    "procedure_library": {
-      "strategies": ["all", "vif", "predictive_forward", "niche_forward"],
-      "model_specs": [
-        {"C": 0.1, "degree": 1, "penalty": "l2"},
-        {"C": 1.0, "degree": 2, "penalty": "l2"}
-      ],
-      "model_random_state": 0,
-      "selection_process_numpy_seed": 0,
-      "inner_folds": 3,
-      "outer_folds": 4,
-      "max_predictors": 8,
-      "vif_threshold": 5.0,
-      "predictive_min_gain": 0.0,
-      "observation_predictors": []
-    },
-    "process_domains": [
-      "thermal",
-      "water",
-      "seasonality_phenology",
-      "energy_productivity",
-      "snow",
-      "wind"
-    ],
-    "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
-    "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d"
+    "partition_aware_audit_space": {
+      "minimum_predictor_coverage": 0.95,
+      "minimum_joint_coverage": 0.8,
+      "minimum_processes": 4,
+      "minimum_complete_fit_background_rows_per_M_fold": 5,
+      "minimum_complete_evaluation_background_rows_per_M_fold": 5,
+      "minimum_complete_heldout_occurrence_rows_per_M_fold": 2,
+      "candidate_scores_used": false,
+      "sealed_rows_used": false,
+      "thresholds_unchanged_from_v2_7_development": true
+    }
   },
-  "raw_source_design": {
-    "snapshot_date": "2026-08-01",
-    "snapshot_doi": "10.15468/dl.fs3btq",
-    "citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
-    "focal_file_sha256": "4366258f2495604a0c9a5058aeb0111a751493b538ba436760f8555182d32fc5",
-    "focal_query_sha256": "40f25b5bafff11f5471b389778e29d29f7be02a4e76cd335cfdcee637517dc7e",
-    "target_file_sha256": "9e8fb2827919e86d450cb5870093cef2adc752bee22a15540406265747d20bf6",
-    "target_query_sha256": "b2261d66b156189bf9fd949046ad4f5b0a10697c584efe2ba009ca2d5dc8fdf7",
-    "focal_taxa_excluded_from_target_group_before_split": true,
-    "target_group_one_per_grid_cell_degrees": 0.05,
-    "source_independent_of_focal_occurrence_geography": true,
-    "old_v2_7_focal_target_split_or_sealed_artifacts_allowed": false
+  "empirical_target": {
+    "claim": "realized_environmental_niche_recovery_and_stability",
+    "fundamental_niche_truth_claim_allowed": false,
+    "ordinary_prediction_metrics_are_guardrails_not_tuning_target": true,
+    "prediction_comparator": "model_pool_only_auc_selected_representative",
+    "representative_selection": "model_pool_only_niche_recovery_pareto_minimax_within_complete_prediction_adequate_set",
+    "recovery_metrics": [
+      "niche_overlap_schoener_d_pc12",
+      "centroid_distance",
+      "breadth_log_sd_error",
+      "quantile_profile_error"
+    ],
+    "recovery_metrics_must_remain_separate": true,
+    "weighted_super_score_allowed": false
+  },
+  "single_fraction_denominator_translation": {
+    "predecessor_parts": 6,
+    "predecessor_basis": "3_fixed_split_seeds_x_2_sealed_fractions",
+    "successor_parts": 3,
+    "successor_basis": "same_3_fixed_split_seeds_x_single_frozen_fraction_0_25",
+    "duplicate_0_25_parts_allowed": false,
+    "new_post_calibration_split_seeds_allowed": false,
+    "ecological_nondomination_predecessor_minimum_parts": 4,
+    "ecological_nondomination_successor_minimum_parts": 2,
+    "strict_improvement_predecessor_minimum_parts": 3,
+    "strict_improvement_successor_minimum_parts": 2,
+    "translation_rule": "ceil(predecessor_required_fraction_times_3); strict_improvement_3_of_6 maps conservatively to 2_of_3"
   },
   "structural_transportability": {
-    "estimand": "pre_environment_structural_auditability_of_fixed_panel_under_inherited_partition_rule",
-    "runs_before_any_CHELSA_or_environmental_value_read": true,
-    "runs_before_candidate_model_fitting": true,
-    "runs_before_candidate_score_read": true,
-    "runs_before_sealed_ecological_outcome_read": true,
-    "inputs_allowed": [
-      "raw_occurrence_identity",
-      "raw_target_identity",
-      "longitude_latitude",
-      "fixed_outer_split_role",
+    "evaluated_before_any_CHELSA_or_environmental_value_for_v2_8_3": true,
+    "uses_only": [
+      "raw_occurrence_and_target_identity",
+      "coordinates",
       "fixed_M_membership",
-      "microblock_identity",
+      "spatial_microblocks",
       "fold_assignment",
       "row_counts"
     ],
-    "n_expected_taxon_M_part_cells": 108,
-    "n_taxa": 12,
-    "n_M": 3,
-    "n_parts": 3,
-    "part_structurally_auditable_if_all_12_taxa_x_all_3_M_joint_support_is_feasible": true,
-    "primary_full_denominator_requires_all_3_parts_structurally_auditable": true,
-    "conditional_ecology_allowed_only_for_complete_structurally_auditable_parts": true,
-    "taxon_seed_M_source_or_threshold_replacement_after_structural_result_allowed": false,
-    "incomplete_part_partial_repair_allowed": false,
-    "structural_support_is_ecological_support": false
-  },
-  "evidence_balanced_partition": {
-    "outer_folds": 4,
-    "spatial_microblocks": 12,
-    "assignment_attempts": 32,
-    "assignment_seed_formula": "part_seed + taxon_index*100 + 271",
-    "microblock_constructor": "KMeans_on_model_pool_occurrence_unit_sphere_coordinates",
-    "fold_assignment": "StratifiedGroupKFold_over_presence_and_all_M_background_resource_types",
-    "shared_occurrence_fold_assignment_across_all_M": true,
-    "microblock_atomicity_preserved": true,
-    "minimum_evaluation_occurrences_per_fold": 2,
-    "minimum_evaluation_background_rows_per_M_fold": 5,
-    "minimum_training_background_rows_per_M_fold": 5,
-    "choose_feasible_assignment_by": "minimum_max_then_mean_normalized_row_count_imbalance",
-    "abstain_if_no_feasible_assignment": true,
-    "sealed_rows_used_for_partition_assignment": false,
-    "environmental_values_used_for_partition_assignment": false,
-    "candidate_scores_used_for_partition_assignment": false,
-    "process_knockout_outcomes_used_for_partition_assignment": false
-  },
-  "partition_aware_audit_space": {
-    "minimum_predictor_coverage": 0.95,
-    "minimum_joint_coverage": 0.8,
-    "minimum_processes": 4,
-    "minimum_complete_fit_background_rows_per_M_fold": 5,
-    "minimum_complete_evaluation_background_rows_per_M_fold": 5,
-    "minimum_complete_heldout_occurrence_rows_per_M_fold": 2,
-    "sealed_rows_used": false,
-    "candidate_scores_used": false,
-    "thresholds_unchanged_from_v2_7_2": true
-  },
-  "information_barrier": {
-    "focal_thinning_before_outer_split": true,
-    "outer_sealed_before_M": true,
-    "M_built_from_model_pool_only": true,
-    "M_grid_as_sensitivity_not_optimized": true,
-    "sealed_occurrences_used_for_M": false,
-    "sealed_occurrences_used_for_partition_assignment": false,
-    "sealed_occurrences_used_for_candidate_selection": false,
-    "sealed_occurrences_first_opened_for_final_empirical_audit": true,
-    "structural_gate_uses_environmental_values": false,
-    "structural_gate_uses_candidate_scores": false,
-    "source_stage_environmental_or_model_evidence_reused": false
+    "partition_algorithm": "inherited_v2_7_1_evidence_balanced_shared_four_fold_assignment",
+    "partition_module_path": "src/sdmr/v2_7_1_evidence_balanced_partition.py",
+    "partition_module_blob_sha": "2109221ee796bee39093c0f9388d63761a62f4af",
+    "n_taxon_M_part_cells": 108,
+    "n_cells_per_part": 36,
+    "part_structurally_auditable_rule": "all_12_taxa_x_all_3_M_share_a_complete_inherited_four_fold_assignment",
+    "environmental_extraction_allowed_only_for_structurally_auditable_complete_parts": true,
+    "taxon_M_or_seed_replacement_after_structural_result_allowed": false,
+    "incomplete_part_partial_repair_allowed": false
   },
   "decision_rule": {
-    "states": [
-      "empirical_confirmation_supported",
-      "empirical_confirmation_not_supported",
-      "empirical_confirmation_unavailable"
-    ],
-    "all_12_taxa_required_in_every_complete_part": true,
-    "all_3_M_specs_required_in_every_complete_part": true,
-    "all_3_parts_required_for_primary_decision": true,
-    "structural_or_scientific_abstention_makes_primary_decision_unavailable_not_pass": true,
+    "states": ["empirical_confirmation_supported", "empirical_confirmation_not_supported", "empirical_confirmation_unavailable"],
+    "all_3_parts_required_for_primary_full_denominator_decision": true,
+    "all_12_taxa_required_in_every_part": true,
+    "all_3_M_specs_required_in_every_part": true,
+    "fewer_than_3_structurally_auditable_parts_primary_state": "empirical_confirmation_unavailable",
+    "zero_structurally_auditable_parts_opens_environmental_or_sealed_evidence": false,
+    "complete_structurally_auditable_parts_may_be_evaluated_conditionally": true,
     "prediction_guardrail": {
-      "mean_presence_rank_deficit_vs_auc_comparator_min": -0.01,
-      "changed_from_predecessor": false
+      "mean_presence_rank_deficit_vs_auc_comparator_min": -0.01
     },
     "ecological_noninferiority": {
-      "rule": "v2_8_3_representative_not_pareto_dominated_by_auc_representative_on_four_recovery_metrics",
+      "rule": "representative_not_pareto_dominated_by_auc_representative_on_four_recovery_metrics",
       "minimum_parts": 2,
-      "strict_improvement_minimum_parts": 2,
-      "minimum_parts_derivation": "ceil((4/6)*3)=2",
-      "strict_improvement_minimum_parts_derivation": "ceil((3/6)*3)=2"
+      "strict_improvement_minimum_parts": 2
     },
     "process_reproducibility": {
-      "required_for_every_taxon_domain": true,
       "modal_status_fraction_min": 0.6666666666666666,
+      "required_for_every_taxon_domain": true,
       "missing_status_is_unavailable_not_consensus": true
     },
-    "conditional_ecology": {
-      "report_for_complete_structurally_auditable_parts_even_if_primary_is_unavailable": true,
-      "cannot_override_primary_full_denominator_state": true
-    },
-    "partial_identification": {
-      "applies_when_structural_parts_are_unavailable_and_no_additional_poststructural_evidence_is_missing": true,
-      "binary_indicator_lower_bound": "observed_supporting_complete_parts/3",
-      "binary_indicator_upper_bound": "(observed_supporting_complete_parts+structurally_unavailable_parts)/3",
-      "bounds_are_descriptive_only": true,
-      "bounds_cannot_promote_Product_A_or_unblock_Product_B": true
-    },
+    "structural_or_audit_abstention_makes_part_unavailable_not_pass": true,
     "post_outcome_candidate_reselection_allowed": false,
     "post_outcome_threshold_tuning_allowed": false,
-    "post_outcome_random_seed_change_allowed": false,
-    "post_outcome_fraction_change_allowed": false,
+    "random_seed_changes_after_outcome_allowed": false,
     "scientific_promotion_allowed_by_this_decision": false,
     "product_b_remains_blocked_until_separate_promotion_decision": true
   },
+  "partial_identification": {
+    "applies_when_any_of_3_parts_structurally_unavailable": true,
+    "binary_part_support_lower_bound": "observed_supporting_complete_parts / 3",
+    "binary_part_support_upper_bound": "(observed_supporting_complete_parts + structurally_unavailable_parts) / 3",
+    "bounds_are_descriptive_only": true,
+    "bounds_can_override_primary_unavailable_state": false,
+    "missing_prediction_or_process_evidence_imputed_favorable": false
+  },
+  "information_barrier": {
+    "structural_admission_uses_environmental_values": false,
+    "structural_admission_uses_candidate_scores": false,
+    "structural_admission_uses_process_outcomes": false,
+    "sealed_occurrences_used_for_M": false,
+    "sealed_occurrences_used_for_candidate_selection": false,
+    "sealed_occurrences_used_for_partition_assignment": false,
+    "outer_sealed_before_M": true,
+    "M_built_from_model_pool_only": true,
+    "sealed_occurrences_first_opened_for_final_empirical_audit": true,
+    "candidate_or_threshold_retuning_after_sealed_read": false
+  },
   "generalization_boundary": {
-    "fixed_panel_taxon_holdout_confirmation_only": true,
-    "snapshot_date": "2026-08-01",
+    "taxon_holdout_confirmation_only": true,
     "temporal_independence_claim_allowed": false,
     "fundamental_niche_truth_claim_allowed": false,
     "automatic_all_plant_taxa_generalization_allowed": false,
-    "if_structural_coverage_incomplete_conditional_results_apply_only_to_predeclared_complete_parts": true
+    "conditional_ecological_results_generalize_only_to_predeclared_structurally_auditable_complete_parts_when_coverage_incomplete": true
   },
-  "frozen_core_paths_to_pin_after_stage_merge": [
-    "src/sdmr/v2_7_2_deterministic_procedure_library.py",
-    "src/sdmr/v2_7_2_fresh_materialize.py",
-    "src/sdmr/v2_7_2_fresh_model_pool_shard.py",
-    "src/sdmr/v2_7_2_fresh_model_pool_shard_aggregate.py",
-    "src/sdmr/v2_7_2_fresh_pretruth.py",
-    "src/sdmr/v2_7_2_fresh_final_fit.py",
-    "src/sdmr/v2_7_2_fresh_sealed_audit.py",
-    "src/sdmr/v2_7_3_presealed_feasibility.py"
-  ],
-  "execution_order": [
-    "verify_external_one_shot_authorization_and_all_frozen_blob_identities",
-    "download_and_verify_exact_v2_8_2_raw_source_pair",
-    "run_three_coordinate_only_structural_parts_at_fraction_0_25",
-    "freeze_108_cell_structural_coverage_before_any_environmental_read",
-    "admit_only_complete_structurally_auditable_parts",
-    "extract_model_pool_CHELSA_and_run_deterministic_v2_7_2_scientific_core_for_admitted_parts",
-    "freeze_pretruth_representatives_and_process_statuses_before_sealed_environment_read",
-    "serialize_final_models_before_sealed_environment_read",
-    "open_sealed_environment_once_for_admitted_complete_parts",
-    "apply_predeclared_three_part_primary_conditional_and_partial_identification_decision"
-  ],
-  "stage_execution_allowed": false,
-  "separate_external_one_shot_authorization_required": true,
-  "scientific_promotion_run": false,
-  "product_b_unblocked": false
+  "execution_boundary": {
+    "runtime_implementation_sha": null,
+    "runtime_frozen_ref": null,
+    "execution_allowed": false,
+    "structural_query_allowed_before_separate_runtime_freeze_and_authorization": false,
+    "environmental_extraction_allowed_before_separate_runtime_freeze_and_authorization": false,
+    "model_fitting_allowed_before_separate_runtime_freeze_and_authorization": false,
+    "sealed_ecological_read_allowed_before_separate_runtime_freeze_and_authorization": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "separate_external_one_shot_authorization_required": true
+  }
 }
