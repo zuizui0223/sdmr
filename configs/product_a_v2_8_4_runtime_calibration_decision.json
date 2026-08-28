@@ -1,0 +1,21 @@
+{
+  "calibration_ceiling_cells": [],
+  "calibration_id": "product-a-v2-8-4-poa-annua-seed2026082201-runtime-only-v1",
+  "cell_count": 21,
+  "completed_cell_count": 21,
+  "decision_digest": "1e9585c0c1a948c31df94bcc291bff94ad60594f580056d4f1211963aba29193",
+  "engineering_failure_cells": [],
+  "environment_consistent_across_all_cells": true,
+  "environment_digests": [
+    "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb"
+  ],
+  "observed_max_wall_elapsed_seconds": 5637.0,
+  "product_b_unblocked": false,
+  "proposal_requires_separate_environment_and_timeout_freeze": true,
+  "proposed_scientific_group_timeout_minutes": 225,
+  "purpose": "product_a_v2_8_4_runtime_calibration_decision",
+  "scientific_promotion_allowed": false,
+  "sealed_ecological_outcomes_read": false,
+  "status": "calibration_complete_timeout_proposal_ready_for_separate_freeze",
+  "telemetry_used_for_scientific_selection": false
+}
