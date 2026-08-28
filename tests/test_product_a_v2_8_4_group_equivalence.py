@@ -26,24 +26,6 @@ def _materialization(tmp_path: Path) -> Path:
         'sealed_occurrence_raster_values_extracted': False,
         'sealed_background_raster_values_extracted': False,
     })
-    occurrence = pd.DataFrame({
-        'species': ['Taxon testii', 'Taxon testii'],
-        'longitude': [140.0, 141.0],
-        'latitude': [38.0, 39.0],
-        'bio1': [1.0, 2.0],
-        'bio12': [3.0, 4.0],
-    })
-    occurrence.to_parquet(part / 'model_occurrences.parquet', index=False)
-    for M in runtime.M_NAMES:
-        d = part / 'M' / M
-        d.mkdir(parents=True)
-        pd.DataFrame({
-            'species': ['Taxon testii', 'Taxon testii'],
-            'longitude': [139.0, 142.0],
-            'latitude': [37.0, 40.0],
-            'bio1': [0.0, 3.0],
-            'bio12': [2.0, 5.0],
-        }).to_parquet(d / 'model_background.parquet', index=False)
     return part
 
 
@@ -81,6 +63,31 @@ def test_base_and_process_knockout_pass_exact_frozen_predictor_sets_to_same_benc
     pre = _precompute(tmp_path)
     calls = []
 
+    occurrence = pd.DataFrame({
+        'species': ['Taxon testii', 'Taxon testii'],
+        'longitude': [140.0, 141.0],
+        'latitude': [38.0, 39.0],
+        'bio1': [1.0, 2.0],
+        'bio12': [3.0, 4.0],
+    })
+    background = pd.DataFrame({
+        'species': ['Taxon testii', 'Taxon testii'],
+        'longitude': [139.0, 142.0],
+        'latitude': [37.0, 40.0],
+        'bio1': [0.0, 3.0],
+        'bio12': [2.0, 5.0],
+    })
+
+    # This is a core semantic-equivalence test, not a parquet integration test.
+    # Keep it runnable in the repository's core `.[test]` CI without pyarrow.
+    def fake_read_parquet(path):
+        path = Path(path)
+        if path.name == 'model_occurrences.parquet':
+            return occurrence.copy()
+        if path.name == 'model_background.parquet':
+            return background.copy()
+        raise AssertionError(f'unexpected parquet path: {path}')
+
     def fake_benchmark(**kwargs):
         calls.append({
             'ecological_predictors': tuple(kwargs['ecological_predictors']),
@@ -100,6 +107,7 @@ def test_base_and_process_knockout_pass_exact_frozen_predictor_sets_to_same_benc
             selection_trace=pd.DataFrame([{'step': 0, 'winner': 'bio1'}]),
         )
 
+    monkeypatch.setattr(runtime.pd, 'read_parquet', fake_read_parquet)
     monkeypatch.setattr(runtime, 'benchmark_recovery_procedures', fake_benchmark)
 
     base_out = tmp_path / 'base'
