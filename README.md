@@ -9,7 +9,7 @@ The project has two linked scientific products:
 
 The starting problem is that correlation/VIF filtering can remove an ecologically informative raster before testing whether it improves genuinely independent prediction. SDMR therefore treats **out-of-sample predictive information** as the main admission criterion and keeps VIF as a comparison baseline.
 
-## Current scientific status — 2026-08-27
+## Current scientific status — 2026-08-28
 
 SDMR now has two explicitly separate validation lanes. They must not be collapsed into one claim.
 
@@ -27,7 +27,9 @@ Known-truth support is necessary implementation/scientific evidence, but it is *
 
 The empirical lane is separately frozen against the 2026-08-01 public-data snapshot and successor source receipts. Earlier fresh empirical attempts correctly returned unavailable/presealed-unavailable states when complete frozen evidence could not be assembled; those states are not reclassified as adverse ecological results.
 
-The current successor is **Product-A v2.8.3**. Its design fixes the globally calibrated sealed fraction at `0.25`, uses three predeclared seeds, requires coordinate-only structural transportability before environmental/model stages, and fails closed to `empirical_confirmation_unavailable` if the full denominator is not auditable. The one-shot scientific confirmation run is currently executing from the frozen runtime; no Product-A promotion result is claimed here until that run reaches its frozen terminal decision.
+Product-A v2.8.3 fixed the globally calibrated sealed fraction at `0.25`, used three predeclared seeds, required coordinate-only structural transportability before environmental/model stages, and failed closed if the full denominator could not be audited. Its authoritative run `33036252432` ended `cancelled` during presealed model-pool computation. It never reached aggregate, pretruth/final-model freeze, sealed ecological evidence, or a scientific terminal decision. This is a technical execution terminal, not a favorable, null or adverse ecological result.
+
+The **Product-A v2.8.4** successor is runtime-only. Its truth-blind calibration run `33140419810` completed all 21 frozen runtime cells and proposed a 225-minute group-command timeout. The environment, dependency lock, timeout, source artifacts, checkpoint/retry identity and receipt barrier are now frozen in `configs/product_a_v2_8_4_environment_timeout_freeze.json`; sealed evidence remained unopened and no scientific promotion occurred. Scientific execution is still unauthorized until a separate presealed-workflow and receipt-barrier implementation passes review.
 
 ### Product-B block
 
@@ -190,7 +192,7 @@ GitHub Actions runs the core suite on Python 3.10–3.13 plus a Python 3.12 `ras
 
 ## Current empirical boundary
 
-The repository is **past architecture-only readiness**. Product A has supported known-truth results, but empirical promotion remains unresolved until the currently frozen empirical confirmation reaches its terminal decision.
+The repository is **past architecture-only readiness**. Product A has supported known-truth results, but empirical promotion remains unresolved. v2.8.3 ended technically before sealed evidence, and v2.8.4 has completed only its truth-blind calibration and separate environment/timeout freeze.
 
 Therefore the current claim boundary is:
 
@@ -200,5 +202,7 @@ Therefore the current claim boundary is:
 - preserved as valid outcomes: `unavailable`, `presealed_unavailable`, structural non-estimability and other fail-closed states when the predeclared evidence denominator cannot be completed.
 
 Historical frozen results remain authoritative under the code/contracts that produced them. Successor execution-discipline refactors must not be used to recompute, revalidate or silently reinterpret those results.
+
+**Development hard stop:** after one valid fresh empirical Product-A terminal decision under the unchanged full-denominator design and a separate explicit promotion/non-promotion decision, stop Product-A development and close its manuscript without waiting for Product B. Do not change taxa, M, seeds, sealed fraction, thresholds, candidate library, predictor universe, denominator or provider to seek a more favorable result.
 
 See [`docs/method.md`](docs/method.md), [`docs/research_program.md`](docs/research_program.md), [`docs/data_pipeline.md`](docs/data_pipeline.md), and the versioned Product-A result documents under [`docs/`](docs/).
