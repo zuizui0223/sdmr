@@ -166,4 +166,8 @@ def test_base_and_process_knockout_pass_exact_frozen_predictor_sets_to_same_benc
     assert water['operational_attempt_ordinal'] == 1
     assert base['sealed_occurrence_environment_read'] is False
     assert water['sealed_occurrence_environment_read'] is False
-    assert json.loads((water_out / 'telemetry.json').read_text())['scientific_selection_input'] is False
+    telemetry = json.loads((water_out / 'telemetry.json').read_text())
+    assert telemetry['scientific_selection_input'] is False
+    assert set(json.loads(RUNTIME_DESIGN.read_text())['telemetry']['minimum_fields']).issubset(telemetry)
+    assert telemetry['checkpoint_digest']
+    assert telemetry['fit_count'] == len(pd.read_csv(water_out / 'fold_metrics.csv'))

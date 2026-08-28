@@ -1,0 +1,145 @@
+{
+  "purpose": "product_a_v2_8_4_runtime_calibration_v1",
+  "calibration_id": "product-a-v2-8-4-poa-annua-seed2026082201-runtime-only-v1",
+  "tracks_issue": 170,
+  "runtime_only": true,
+  "scientific_semantics_inherited_without_change": true,
+  "source_materialization": {
+    "repository": "zuizui0223/sdmr",
+    "workflow_run_id": 33036252432,
+    "workflow_run_status_at_contract_freeze": "in_progress",
+    "artifact_name": "v283-fresh-part-2026082201",
+    "artifact_id": 9634639012,
+    "artifact_digest": "sha256:8c73ff8e3b031b682fe79c65e2330fb4a533bf48fcfadfc82825f3a9ce440831",
+    "artifact_size_bytes": 50065926,
+    "part_seed": 2026082201,
+    "artifact_is_already_uploaded_immutable_logical_unit": true,
+    "artifact_contains_model_pool_only": true,
+    "sealed_occurrence_environment_values_present": false
+  },
+  "workload_selection": {
+    "taxon": "Poa annua",
+    "taxon_index": 6,
+    "selection_reason": "the v2.8.3 operational run exceeded its frozen 240-minute boundary for all three M shards for this taxon in seed 2026082201 and again exposed a timeout in seed 2026082203; no completed biological score or sealed outcome was used",
+    "uses_only_operational_timeout_evidence": true,
+    "uses_scientific_outcomes": false,
+    "uses_sealed_outcomes": false,
+    "species_switching_allowed_after_calibration": false
+  },
+  "workload": {
+    "calibration_execution_id": "product-a-v2-8-4-runtime-calibration-only-v1",
+    "runtime_implementation_path": "src/sdmr/v2_8_4_presealed_runtime.py",
+    "runtime_implementation_sha256": "4c6e243335740446cb519c0d9d1303b5227e556418295a76d4ce2be80297056a",
+    "calibration_module_path": "src/sdmr/v2_8_4_runtime_calibration.py",
+    "calibration_module_sha256": "5bf59dedd0e94fd0f47579333a6f5bbe16d99fadff013a41fb83085cc5c5c877",
+    "workflow_path": ".github/workflows/product-a-v2-8-4-runtime-calibration.yml",
+    "workflow_sha256": "d85858b042f6b5bf7cdc0a88b742ca26fb97e0927c90fecd005cba1c89955238",
+    "runtime_design_path": "configs/product_a_v2_8_4_runtime_successor_contract.json",
+    "runtime_design_sha256": "fae54d75b58721a5fd10a413a3bac797a2da6d71158c7c3f2b8ee0eb31c1f984",
+    "scientific_contract_path": "configs/product_a_v2_8_3_fresh_confirmation_contract.json",
+    "scientific_contract_sha256": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed",
+    "process_registry_path": "configs/product_a_empirical_process_registry_v1.csv",
+    "process_registry_sha256": "08f9a68c7854f4df40c2ec89bf287556be34b78186d3c53f9b72f11b790df95d",
+    "taxon_registry_path": "configs/product_a_v2_8_2_fresh_confirmation_taxa.csv",
+    "taxon_registry_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "part_seed": 2026082201,
+    "taxon": "Poa annua",
+    "taxon_index": 6,
+    "shared_taxon_part_precompute": true,
+    "M": [
+      "buffer_150km",
+      "buffer_300km",
+      "buffer_500km"
+    ],
+    "evaluation_groups": [
+      "base",
+      "thermal",
+      "water",
+      "seasonality_phenology",
+      "energy_productivity",
+      "snow",
+      "wind"
+    ],
+    "cell_count": 21,
+    "command_timeout_minutes": 240,
+    "group_job_timeout_minutes": 300,
+    "model_pool_metrics_may_be_uploaded": false,
+    "selection_trace_may_be_uploaded": false,
+    "only_truth_blind_receipts_may_be_uploaded": true
+  },
+  "runtime_environment": {
+    "python_patch": "3.12.11",
+    "direct_dependencies": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "pyarrow": "21.0.0",
+      "pytest": "8.4.2",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    },
+    "github_actions": {
+      "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+      "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+      "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+      "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+    },
+    "environment_receipt_required_per_cell": true,
+    "dependency_lock_with_hashes_frozen_for_scientific_execution": false,
+    "separate_final_environment_freeze_required": true
+  },
+  "telemetry": {
+    "truth_blind": true,
+    "required_fields": [
+      "logical_shard_id",
+      "phase",
+      "procedure",
+      "outer_fold",
+      "inner_step",
+      "candidate_count",
+      "fit_count",
+      "elapsed_seconds",
+      "checkpoint_digest"
+    ],
+    "may_be_used_for_runtime_timeout_freeze": true,
+    "may_be_used_for_scientific_selection": false
+  },
+  "timeout_freeze_rule": {
+    "apply_only_if_all_21_cells_complete_below_calibration_ceiling": true,
+    "elapsed_multiplier": 2.0,
+    "runner_overhead_minutes": 30,
+    "round_up_minutes": 15,
+    "minimum_group_timeout_minutes": 60,
+    "maximum_group_timeout_minutes": 240,
+    "proposal_requires_separate_review_and_freeze": true,
+    "post_scientific_launch_extension_allowed": false
+  },
+  "information_barrier": {
+    "download_exact_presealed_materialization_only": true,
+    "sealed_artifact_downloaded": false,
+    "sealed_ecological_outcomes_read": false,
+    "fold_metrics_uploaded": false,
+    "selection_trace_uploaded": false,
+    "telemetry_used_for_scientific_selection": false,
+    "candidate_library_changed": false,
+    "candidate_predictor_universe_changed": false,
+    "taxa_changed": false,
+    "M_changed": false,
+    "seeds_changed": false,
+    "fraction_changed": false,
+    "thresholds_changed": false,
+    "decision_rule_changed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "execution_boundary": {
+    "runtime_calibration_allowed": true,
+    "scientific_presealed_execution_allowed": false,
+    "sealed_execution_allowed": false,
+    "workflow_dispatch_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "calibration_result_authorizes_scientific_execution": false,
+    "separate_environment_and_timeout_freeze_required": true,
+    "separate_external_scientific_authorization_required": true
+  }
+}

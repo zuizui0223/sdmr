@@ -55,6 +55,44 @@ def _sha256(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _write_group_telemetry(
+    out: Path, *, logical_id: str, evaluation_group: str,
+    fitting_performed: bool, start: float, metrics: pd.DataFrame,
+) -> dict[str, object]:
+    """Write truth-blind checkpoint telemetry without changing scientific work."""
+    checkpoint_files = {
+        name: _sha256(out / name)
+        for name in ("fold_metrics.csv", "selection_trace.csv", "worker_status.csv")
+    }
+    checkpoint_digest = hashlib.sha256(
+        json.dumps(checkpoint_files, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    candidate_count = (
+        int(metrics["candidate"].astype(str).nunique())
+        if not metrics.empty and "candidate" in metrics.columns
+        else 0
+    )
+    telemetry = {
+        "logical_shard_id": logical_id,
+        "phase": "deterministic_model_pool_group",
+        "procedure": "frozen_deterministic_procedure_library",
+        "outer_fold": "all",
+        "inner_step": "all",
+        "evaluation_group": str(evaluation_group),
+        "candidate_count": candidate_count,
+        "fit_count": int(len(metrics)),
+        "candidate_model_fitting_performed": bool(fitting_performed),
+        "elapsed_seconds": float(time.monotonic() - start),
+        "checkpoint_files_sha256": checkpoint_files,
+        "checkpoint_digest": checkpoint_digest,
+        "scientific_selection_input": False,
+    }
+    (out / "telemetry.json").write_text(
+        json.dumps(telemetry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return telemetry
+
+
 def _logical_shard_id(
     *, scientific_execution_id: str, part_seed: int, taxon_index: int,
     M_name: str | None = None, evaluation_group: str | None = None,
@@ -397,7 +435,8 @@ def evaluate_group(
     start = time.monotonic()
 
     if pre.get("available") is not True:
-        pd.DataFrame().to_csv(out / "fold_metrics.csv", index=False)
+        metrics = pd.DataFrame()
+        metrics.to_csv(out / "fold_metrics.csv", index=False)
         pd.DataFrame().to_csv(out / "selection_trace.csv", index=False)
         pd.DataFrame([{
             "taxon": taxon,
@@ -426,6 +465,14 @@ def evaluate_group(
         }
         (out / "contract.json").write_text(
             json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        _write_group_telemetry(
+            out,
+            logical_id=logical_id,
+            evaluation_group=evaluation_group,
+            fitting_performed=False,
+            start=start,
+            metrics=metrics,
         )
         return result
 
@@ -551,17 +598,13 @@ def evaluate_group(
     metrics.to_csv(out / "fold_metrics.csv", index=False)
     trace.to_csv(out / "selection_trace.csv", index=False)
     pd.DataFrame([status]).to_csv(out / "worker_status.csv", index=False)
-    elapsed = float(time.monotonic() - start)
-    telemetry = {
-        "logical_shard_id": logical_id,
-        "phase": "deterministic_model_pool_group",
-        "evaluation_group": str(evaluation_group),
-        "candidate_model_fitting_performed": bool(fitting_performed),
-        "elapsed_seconds": elapsed,
-        "scientific_selection_input": False,
-    }
-    (out / "telemetry.json").write_text(
-        json.dumps(telemetry, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    _write_group_telemetry(
+        out,
+        logical_id=logical_id,
+        evaluation_group=evaluation_group,
+        fitting_performed=fitting_performed,
+        start=start,
+        metrics=metrics,
     )
 
     result = {
