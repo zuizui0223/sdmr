@@ -1,0 +1,81 @@
+name: Product-A v2.8.4 authorized presealed part
+
+on:
+  workflow_dispatch:
+    inputs:
+      part_seed:
+        description: Frozen part seed to execute once
+        required: true
+        type: choice
+        options:
+          - '2026082201'
+          - '2026082202'
+          - '2026082203'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  authorization-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      authorization_digest: ${{ steps.freeze.outputs.authorization_digest }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - id: freeze
+        name: Verify separate presealed-only authorization
+        env:
+          PART_SEED: ${{ inputs.part_seed }}
+          CURRENT_REF: ${{ github.ref }}
+          CURRENT_EVENT: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+
+          path=Path('configs/product_a_v2_8_4_presealed_execution_authorization.json')
+          auth=json.loads(path.read_text(encoding='utf-8'))
+          if os.environ['CURRENT_REF']!='refs/heads/main' or os.environ['CURRENT_EVENT']!='workflow_dispatch':
+              raise SystemExit('Product-A v2.8.4 scientific presealed execution is main/manual only')
+          if int(os.environ['PART_SEED']) not in auth['authorized_part_seeds']:
+              raise SystemExit('Product-A v2.8.4 part seed is not authorized')
+          boundary=auth['execution_boundary']
+          for key in ('presealed_workflow_implemented_and_reviewed','presealed_execution_allowed','workflow_dispatch_allowed'):
+              if boundary.get(key) is not True:
+                  raise SystemExit(f'Product-A v2.8.4 presealed authorization closed: {key}')
+          for key in ('sealed_execution_allowed','sealed_ecological_outcomes_read','scientific_promotion_allowed','product_b_unblocked'):
+              if boundary.get(key) is not False:
+                  raise SystemExit(f'Product-A v2.8.4 authorization crossed boundary: {key}')
+          implementation=auth['implementation_identity']
+          ref=implementation['runtime_ref']
+          for relative, expected in implementation['newline_canonical_sha256'].items():
+              data=subprocess.check_output(['git','show',f'{ref}:{relative}']).replace(b'\r\n',b'\n')
+              if hashlib.sha256(data).hexdigest()!=expected:
+                  raise SystemExit(f'Product-A v2.8.4 reviewed implementation changed: {relative}')
+          caller=Path('.github/workflows/product-a-v2-8-4-presealed-authorized.yml')
+          caller_sha=hashlib.sha256(caller.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
+          if caller_sha!=auth['authorized_caller_workflow_sha256']:
+              raise SystemExit('Product-A v2.8.4 authorized caller workflow changed')
+          embedded=auth.pop('authorization_receipt_digest')
+          canonical=json.dumps(auth,sort_keys=True,separators=(',',':')).encode()
+          observed=hashlib.sha256(canonical).hexdigest()
+          if observed!=embedded:
+              raise SystemExit('Product-A v2.8.4 authorization receipt digest changed')
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
+              handle.write(f'authorization_digest={embedded}\n')
+          PY
+
+  presealed-part:
+    needs: authorization-preflight
+    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-presealed-part-reusable.yml@b4c8e05ef75f1e65edc3603aad3040cf427a7d30
+    with:
+      part_seed: ${{ fromJSON(inputs.part_seed) }}
+      scientific_execution_id: product-a-v2-8-4-fresh-confirmation-v1
+      runtime_ref: b4c8e05ef75f1e65edc3603aad3040cf427a7d30
+      reusable_workflow_sha256: 91f350edb722f163a2112cc765a20f3abd3f13e73aba1fdd8d0b0270f834a82b
+      authorization_receipt_digest: ${{ needs.authorization-preflight.outputs.authorization_digest }}
+    secrets: inherit
