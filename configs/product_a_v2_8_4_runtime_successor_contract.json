@@ -1,0 +1,187 @@
+{
+  "purpose": "product_a_v2_8_4_runtime_only_successor_design",
+  "tracks_issue": 170,
+  "predecessor_scientific_issue": 158,
+  "predecessor_design_contract": {
+    "path": "configs/product_a_v2_8_3_fresh_confirmation_contract.json",
+    "blob_sha": "1928de6d8f1289117415047c7a8d1ee894ca6bbe",
+    "scientific_semantics_inherited_without_change": true
+  },
+  "motivation": {
+    "runtime_only": true,
+    "scientific_outcome_reinterpretation": false,
+    "triggered_by_operational_timeout_or_orchestration_evidence_only": true,
+    "known_v2_8_3_operational_failure_classes": [
+      "deterministic_model_pool_logical_shard_exceeded_frozen_240_minute_job_boundary",
+      "github_actions_selective_rerun_attempt_materialization_or_state_lag"
+    ]
+  },
+  "scientific_invariants": {
+    "source_receipt_blob_sha": "ed4d90a84db354e06a4a214f6a3a184c7e36ea7f",
+    "source_workflow_run_id": 33006988136,
+    "fresh_taxon_panel_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "sealed_fraction": 0.25,
+    "split_seeds": [2026082201, 2026082202, 2026082203],
+    "M_km": [150, 300, 500],
+    "M_is_sensitivity_not_optimization": true,
+    "n_confirmation_parts": 3,
+    "all_12_taxa_required_in_every_part": true,
+    "all_3_M_specs_required_in_every_part": true,
+    "outer_folds": 4,
+    "spatial_microblocks": 12,
+    "assignment_attempts": 32,
+    "assignment_seed_formula": "part_seed + taxon_index*100 + 271",
+    "procedure_strategies": ["all", "vif", "predictive_forward", "niche_forward"],
+    "model_specs": [
+      {"C": 0.1, "degree": 1, "penalty": "l2"},
+      {"C": 1.0, "degree": 2, "penalty": "l2"}
+    ],
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "inner_folds": 3,
+    "max_predictors": 8,
+    "vif_threshold": 5.0,
+    "predictive_min_gain": 0.0,
+    "process_domains": ["thermal", "water", "seasonality_phenology", "energy_productivity", "snow", "wind"],
+    "prediction_guardrail_mean_presence_rank_delta_vs_auc_min": -0.01,
+    "ecological_nondomination_minimum_parts": 2,
+    "strict_ecological_improvement_minimum_parts": 2,
+    "process_modal_status_fraction_min": 0.6666666666666666,
+    "primary_denominator": 3,
+    "candidate_predictor_universe_changed": false,
+    "candidate_library_changed": false,
+    "thresholds_changed": false,
+    "taxa_changed": false,
+    "M_changed": false,
+    "seeds_changed": false,
+    "fraction_changed": false,
+    "denominator_changed": false,
+    "decision_rule_changed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "information_barrier": {
+    "structural_gate_precedes_environment": true,
+    "only_structurally_admitted_parts_may_read_environment": true,
+    "model_pool_and_pretruth_are_presealed": true,
+    "final_models_frozen_before_sealed_read": true,
+    "sealed_occurrences_first_opened_in_separate_sealed_workflow": true,
+    "candidate_or_threshold_retuning_after_sealed_read": false,
+    "technical_retry_may_never_open_sealed_evidence": true
+  },
+  "runtime_architecture": {
+    "scientific_execution_identity_separate_from_operational_attempt_identity": true,
+    "presealed_and_sealed_workflows_must_be_separate": true,
+    "presealed_receipt_is_required_input_to_sealed_workflow": true,
+    "presealed_receipt_must_pin_runtime_sha_ref_workflow_blob_environment_digest_and_artifact_digests": true,
+    "shared_taxon_part_precompute_before_M_evaluation": true,
+    "shared_precompute_includes": [
+      "model_pool_predictor_admissibility_across_all_three_M",
+      "shared_evidence_balanced_partition_across_all_three_M",
+      "partition_aware_audit_space"
+    ],
+    "M_specific_scientific_scores_remain_separate": true,
+    "truth_blind_checkpoint_restart_allowed": true,
+    "logical_shard_retry_is_operational_not_scientific_replication": true,
+    "logical_shard_identity_fields": [
+      "scientific_execution_id",
+      "part_seed",
+      "taxon_index",
+      "M",
+      "evaluation_group"
+    ],
+    "operational_attempt_identity_fields": [
+      "github_run_id",
+      "github_run_attempt",
+      "github_job_id",
+      "attempt_ordinal"
+    ],
+    "successful_logical_work_must_not_be_recomputed_after_checkpoint_validation": true,
+    "partial_checkpoint_may_be_reused_only_when_input_and_runtime_digests_match": true,
+    "checkpoint_or_telemetry_content_may_not_change_selection": true
+  },
+  "deterministic_execution_optimizations_allowed": {
+    "reuse_M_shared_precompute": true,
+    "memoize_exact_duplicate_fit_keys": true,
+    "parallelize_independent_candidate_evaluations": true,
+    "parallelize_independent_process_knockout_groups": true,
+    "stable_sort_before_any_tie_break_or_reduction": true,
+    "fit_cache_key_must_include": [
+      "scientific_execution_id",
+      "part_seed",
+      "taxon_index",
+      "M",
+      "outer_fold",
+      "inner_fold",
+      "model_spec",
+      "predictor_tuple",
+      "training_row_identity_digest",
+      "background_row_identity_digest"
+    ],
+    "approximation_allowed": false,
+    "early_stopping_rule_change_allowed": false,
+    "candidate_pruning_for_speed_allowed": false
+  },
+  "telemetry": {
+    "required": true,
+    "truth_blind": true,
+    "minimum_fields": [
+      "logical_shard_id",
+      "phase",
+      "procedure",
+      "outer_fold",
+      "inner_step",
+      "candidate_count",
+      "fit_count",
+      "elapsed_seconds",
+      "checkpoint_digest"
+    ],
+    "telemetry_may_be_used_for_future_runtime_calibration": true,
+    "telemetry_may_be_used_for_scientific_selection": false
+  },
+  "runtime_environment": {
+    "fully_locked_before_scientific_authorization": true,
+    "python_patch_version_must_be_pinned": true,
+    "dependency_lock_with_hashes_required": true,
+    "container_or_runner_environment_digest_required": true,
+    "github_action_revisions_must_be_pinned_by_commit_sha": true,
+    "minimum_required_dependency_identities": [
+      "numpy",
+      "pandas",
+      "scipy",
+      "scikit-learn",
+      "pyarrow"
+    ]
+  },
+  "timeout_policy": {
+    "timeout_is_runtime_not_scientific_parameter": true,
+    "runtime_calibration_must_precede_scientific_authorization": true,
+    "calibration_may_use_unsealed_or_synthetic_runtime_workloads_only": true,
+    "calibration_may_not_use_sealed_ecological_outcomes": true,
+    "scientific_execution_timeout_must_be_frozen_before_launch": true,
+    "post_launch_timeout_extension_allowed": false,
+    "post_outcome_timeout_retuning_allowed": false
+  },
+  "retry_policy": {
+    "technical_retry_allowed_only_presealed": true,
+    "retry_requires_exact_scientific_and_runtime_identity_match": true,
+    "retry_may_not_change_taxa_M_candidates_seeds_fraction_thresholds_or_denominator": true,
+    "retry_may_not_broadly_repeat_successful_logical_shards": true,
+    "sealed_workflow_is_one_shot_after_receipt_validation": true,
+    "sealed_workflow_retry_after_any_sealed_read_requires_separate_explicit_contract": true
+  },
+  "execution_boundary": {
+    "design_only": true,
+    "runtime_implementation_sha": null,
+    "runtime_frozen_ref": null,
+    "presealed_execution_allowed": false,
+    "sealed_execution_allowed": false,
+    "workflow_dispatch_allowed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "separate_runtime_implementation_review_required": true,
+    "separate_environment_freeze_required": true,
+    "separate_timeout_calibration_required": true,
+    "separate_external_authorization_required": true
+  }
+}
