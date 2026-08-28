@@ -1,0 +1,97 @@
+{
+  "purpose": "product_a_v2_8_4_presealed_execution_authorization",
+  "status": "presealed_execution_authorized_sealed_execution_forbidden",
+  "tracks_issue": 170,
+  "authorization_date": "2026-08-28",
+  "authorization_basis": {
+    "source": "explicit_user_request_to_complete_only_the_engineering_needed_for_a_fresh_Product_A_terminal_decision",
+    "condition": "all_runtime_environment_timeout_checkpoint_retry_and_receipt_boundaries_must_be_frozen_before_execution",
+    "journal_target_did_not_select_scientific_parameters": true,
+    "no_additional_favorable_dataset_hunting": true
+  },
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "authorized_part_seeds": [
+    2026082201,
+    2026082202,
+    2026082203
+  ],
+  "implementation_identity": {
+    "runtime_ref": "b4c8e05ef75f1e65edc3603aad3040cf427a7d30",
+    "pull_request": 176,
+    "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
+    "newline_canonical_sha256": {
+      ".github/workflows/product-a-v2-8-4-presealed-part-reusable.yml": "91f350edb722f163a2112cc765a20f3abd3f13e73aba1fdd8d0b0270f834a82b",
+      "src/sdmr/v2_8_4_presealed_receipt.py": "573fe0e434ad9326725d5acdab3f945aadebaaba6652af9a150e9966f9b2898f",
+      "src/sdmr/v2_8_4_presealed_runtime.py": "4c6e243335740446cb519c0d9d1303b5227e556418295a76d4ce2be80297056a",
+      "configs/product_a_v2_8_4_environment_timeout_freeze.json": "72c70558928a35b2b3bdd3091b434bb8eb6884d27f15873fbb6c76899796e4b9",
+      "configs/product_a_v2_8_4_runtime_successor_contract.json": "fae54d75b58721a5fd10a413a3bac797a2da6d71158c7c3f2b8ee0eb31c1f984",
+      "configs/product_a_v2_8_3_fresh_confirmation_contract.json": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed"
+    }
+  },
+  "authorized_caller_workflow_path": ".github/workflows/product-a-v2-8-4-presealed-authorized.yml",
+  "authorized_caller_workflow_sha256": "e7075bd265aa538dac6eb900cec8442dc9ac5db174481518160f52402198020b",
+  "runtime_environment": {
+    "python_patch": "3.12.11",
+    "dependency_lock_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
+    "environment_digest": "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb",
+    "scientific_group_command_timeout_minutes": 225,
+    "group_job_timeout_minutes": 255,
+    "post_launch_timeout_extension_allowed": false,
+    "environment_or_timeout_mismatch_is_technical_STOP": true,
+    "technical_STOP_is_scientific_negative": false
+  },
+  "scientific_invariants": {
+    "taxa_changed": false,
+    "M_changed": false,
+    "seeds_changed": false,
+    "sealed_fraction_changed": false,
+    "thresholds_changed": false,
+    "candidate_library_changed": false,
+    "candidate_predictor_universe_changed": false,
+    "denominator_changed": false,
+    "decision_rule_changed": false,
+    "taxon_panel_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "sealed_fraction": 0.25,
+    "M_km": [
+      150,
+      300,
+      500
+    ],
+    "primary_denominator": 3
+  },
+  "dispatch_and_retry_policy": {
+    "one_workflow_run_per_part_seed": true,
+    "all_three_presealed_part_receipts_required": true,
+    "maximum_concurrent_part_runs": 3,
+    "logical_groups_per_part": 252,
+    "successful_logical_group_recomputation_allowed": false,
+    "selective_failed_job_retry_allowed_presealed_only": true,
+    "broad_rerun_after_partial_success_allowed": false,
+    "retry_requires_same_scientific_execution_id_runtime_ref_workflow_environment_source_and_logical_shard_identity": true,
+    "technical_failure_may_not_change_taxa_M_seeds_fraction_thresholds_candidates_or_denominator": true
+  },
+  "receipt_barrier": {
+    "each_part_receipt_must_pin_runtime_ref_workflow_authorization_environment_dependency_source_and_output_artifact_digests": true,
+    "each_part_receipt_requires_12_taxa_x_3_M_x_7_groups": true,
+    "sealed_workflow_may_not_exist_until_three_valid_presealed_part_receipts_are_separately_reviewed": true,
+    "sealed_occurrence_evidence_may_not_be_opened_by_presealed_workflows": true,
+    "sealed_retry_after_any_read_requires_new_explicit_contract": true
+  },
+  "execution_boundary": {
+    "presealed_workflow_implemented_and_reviewed": true,
+    "presealed_execution_allowed": true,
+    "workflow_dispatch_allowed": true,
+    "sealed_workflow_implemented_and_reviewed": false,
+    "sealed_execution_allowed": false,
+    "sealed_ecological_outcomes_read": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "next_gate": "obtain_and_review_three_complete_presealed_part_receipts_then_separately_freeze_one_shot_sealed_workflow"
+  },
+  "publication_stop_rule": {
+    "technical_STOP_is_not_favorable_null_or_adverse": true,
+    "after_valid_Product_A_terminal_and_separate_promotion_or_nonpromotion_decision_stop_development_and_close_manuscript": true,
+    "Product_B_must_not_delay_Product_A_manuscript": true
+  },
+  "authorization_receipt_digest": "4469449b66f6f66ef54d7ab46cbc77bd2dd8df7781309b9bed61c29df267197e"
+}
