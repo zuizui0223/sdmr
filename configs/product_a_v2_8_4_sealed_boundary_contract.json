@@ -1,0 +1,149 @@
+{
+  "purpose": "product_a_v2_8_4_one_shot_sealed_boundary_design",
+  "tracks_issue": 170,
+  "predecessor_scientific_issue": 158,
+  "design_date": "2026-08-29",
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "predecessor_scientific_contract": {
+    "path": "configs/product_a_v2_8_3_fresh_confirmation_contract.json",
+    "blob_sha": "1928de6d8f1289117415047c7a8d1ee894ca6bbe",
+    "scientific_semantics_inherited_without_change": true
+  },
+  "presealed_implementation_identity": {
+    "authorized_caller_head_sha": "362ced9bdfa3a45f87bc8f91f5c1efe20c6f53f7",
+    "runtime_ref": "b4c8e05ef75f1e65edc3603aad3040cf427a7d30",
+    "reusable_workflow_newline_canonical_sha256": "91f350edb722f163a2112cc765a20f3abd3f13e73aba1fdd8d0b0270f834a82b",
+    "presealed_authorization_receipt_digest": "4469449b66f6f66ef54d7ab46cbc77bd2dd8df7781309b9bed61c29df267197e",
+    "environment_digest": "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb",
+    "dependency_lock_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745"
+  },
+  "presealed_receipts": [
+    {
+      "part_seed": 2026082201,
+      "workflow_run_id": 33155966119,
+      "workflow_run_attempt": 2,
+      "artifact_id": 9711004502,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082201",
+      "artifact_digest": "sha256:133387acb824887de1f77a0889698b0905d31b689b1d119e501bc873a4b5c044",
+      "artifact_size_bytes": 17973,
+      "receipt_digest": "9f6924552193af5ea4ee92e5cf6d653238a5e4dcb3cc2f7d5a46ef300b887b03"
+    },
+    {
+      "part_seed": 2026082202,
+      "workflow_run_id": 33155969410,
+      "workflow_run_attempt": 1,
+      "artifact_id": 9686345424,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082202",
+      "artifact_digest": "sha256:32ff694fbe05a098338e985e3490e516f884573552889edec2fb246233944fcf",
+      "artifact_size_bytes": 17968,
+      "receipt_digest": "842f8cb42b4ffe315792f5dac22e96e4f3b2faa16b62cd06eb056d5fe7514978"
+    },
+    {
+      "part_seed": 2026082203,
+      "workflow_run_id": 33155971954,
+      "workflow_run_attempt": 1,
+      "artifact_id": 9686776074,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082203",
+      "artifact_digest": "sha256:2c0f9aed5204abc59b83e6eac9302403c7d9e42cbcd41a80f7f5db8bed0fce7a",
+      "artifact_size_bytes": 17935,
+      "receipt_digest": "bbb714de74e72e2f94f96fd6cf364ac49c3640657689c96c66bb59c860fbfdf1"
+    }
+  ],
+  "structural_aggregate_receipt": {
+    "workflow_run_id": 33036252432,
+    "artifact_id": 9632955345,
+    "artifact_name": "product-a-v2-8-3-structural-transportability",
+    "artifact_digest": "sha256:352500d3fb29aa2437cba2ed23a3b82619362316718ad30dc10b058523a7dc2e",
+    "all_108_cells_structurally_feasible": true,
+    "all_3_parts_structurally_auditable": true
+  },
+  "sealed_source_identity": {
+    "source_receipt_blob_sha": "ed4d90a84db354e06a4a214f6a3a184c7e36ea7f",
+    "source_workflow_run_id": 33006988136,
+    "fresh_taxon_panel_sha256": "835059c9ca4328253ea306f7b4027615007d558f6999a1049677d8903ce4a3c1",
+    "chelsa_manifest_path": "configs/chelsa_v2_1_plant_candidates.csv",
+    "chelsa_manifest_blob_sha": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
+  },
+  "scientific_invariants": {
+    "sealed_fraction": 0.25,
+    "split_seeds": [2026082201, 2026082202, 2026082203],
+    "M_km": [150, 300, 500],
+    "M_is_sensitivity_not_optimization": true,
+    "all_12_taxa_required_in_every_part": true,
+    "all_3_M_specs_required_in_every_part": true,
+    "model_random_state": 0,
+    "selection_process_numpy_seed": 0,
+    "primary_denominator": 3,
+    "prediction_guardrail_mean_presence_rank_delta_vs_auc_min": -0.01,
+    "ecological_nondomination_minimum_parts": 2,
+    "strict_ecological_improvement_minimum_parts": 2,
+    "process_modal_status_fraction_min": 0.6666666666666666,
+    "candidate_predictor_universe_changed": false,
+    "candidate_library_changed": false,
+    "thresholds_changed": false,
+    "taxa_changed": false,
+    "M_changed": false,
+    "seeds_changed": false,
+    "fraction_changed": false,
+    "denominator_changed": false,
+    "decision_rule_changed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "receipt_preflight": {
+    "must_complete_before_any_sealed_source_artifact_is_opened": true,
+    "requires_exact_three_outer_artifact_ids_names_sizes_and_sha256_digests": true,
+    "requires_exact_three_inner_receipt_digests": true,
+    "requires_same_scientific_execution_id": true,
+    "requires_same_runtime_ref_reusable_workflow_environment_dependency_and_authorization_digests": true,
+    "requires_each_full_denominator_12_taxa_x_3_M_x_7_groups": true,
+    "requires_each_receipt_sealed_ecological_outcomes_read_false": true,
+    "requires_each_receipt_scientific_promotion_allowed_false": true,
+    "requires_each_receipt_product_b_unblocked_false": true,
+    "produces_truth_blind_sealed_input_gate_only": true
+  },
+  "sealed_execution_topology": {
+    "separate_from_presealed_workflows": true,
+    "one_part_audit_per_seed": true,
+    "sealed_part_jobs_may_run_in_parallel_after_receipt_preflight": true,
+    "each_part_uses_only_its_receipt_pinned_model_pool_pretruth_and_12_final_model_artifacts": true,
+    "environment_identity_must_match_before_downloading_or_reading_sealed_source_artifacts": true,
+    "first_authoritative_sealed_environment_read_occurs_inside_inherited_v2_7_2_sealed_audit_core": true,
+    "inherited_v2_8_3_scientific_adapter_and_decision_semantics_only": true,
+    "three_finalized_part_audits_required_before_fixed_denominator_aggregate": true,
+    "aggregate_uses_inherited_v2_8_3_decision_frame_without_threshold_changes": true,
+    "sealed_outcomes_may_not_select_candidates_thresholds_seeds_fraction_or_M": true
+  },
+  "retry_policy": {
+    "pre_read_environment_or_artifact_transport_failure_is_technical_STOP": true,
+    "pre_read_exact_retry_allowed_only_if_sealed_environment_read_is_provably_false": true,
+    "maximum_pre_read_attempts_per_part": 2,
+    "retry_requires_same_contract_receipts_runtime_environment_source_and_part_identity": true,
+    "retry_after_any_sealed_environment_read_allowed": false,
+    "retry_after_any_sealed_environment_read_requires_new_explicit_contract": true,
+    "broad_rerun_of_successful_sealed_part_allowed": false,
+    "scientific_null_negative_or_unavailable_outcome_retry_allowed": false
+  },
+  "decision_boundary": {
+    "primary_full_denominator_decision_states": [
+      "empirical_confirmation_supported",
+      "empirical_confirmation_not_supported",
+      "empirical_confirmation_unavailable"
+    ],
+    "conditional_results_can_override_primary_decision": false,
+    "partial_identification_bounds_descriptive_only": true,
+    "scientific_promotion_separate_from_confirmation": true,
+    "product_b_unblocking_separate_from_confirmation": true
+  },
+  "execution_boundary": {
+    "design_only": true,
+    "sealed_workflow_implemented_and_reviewed": false,
+    "sealed_execution_authorization_exists": false,
+    "sealed_execution_allowed": false,
+    "workflow_dispatch_allowed": false,
+    "sealed_ecological_outcomes_read": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "next_gate": "implement_and_review_non_dispatchable_sealed_workflow_then_freeze_its_blobs_and_obtain_separate_explicit_one_shot_authorization"
+  }
+}
