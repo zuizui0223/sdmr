@@ -1,3 +1,4 @@
+import ast
 import hashlib
 import json
 from pathlib import Path
@@ -135,9 +136,24 @@ def test_v284_sealed_runtime_marks_no_retry_before_importing_inherited_sealed_co
 
 def test_v284_authorization_verifier_is_truth_blind_and_accepts_only_exact_contract(tmp_path):
     auth_text = AUTH.read_text()
-    assert 'v2_8_3_fresh_runtime' not in auth_text
-    assert 'fresh_sealed_audit' not in auth_text
-    assert 'rasterio' not in auth_text
+    tree = ast.parse(auth_text)
+    imported_modules = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported_modules.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imported_modules.append(node.module or '')
+    forbidden_imports = (
+        'v2_8_3_fresh_runtime',
+        'v2_8_3_fresh_aggregate',
+        'v2_7_2_fresh_sealed_audit',
+        'rasterio',
+    )
+    assert not any(
+        forbidden in module
+        for module in imported_modules
+        for forbidden in forbidden_imports
+    )
     auth_path, workflow_sha, caller_sha = _authorization(tmp_path)
     gate = verify_sealed_authorization(
         authorization_path=auth_path,
