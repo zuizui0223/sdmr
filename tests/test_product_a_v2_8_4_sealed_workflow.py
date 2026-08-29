@@ -14,6 +14,7 @@ WORKFLOW = Path('.github/workflows/product-a-v2-8-4-sealed-reusable.yml')
 BOUNDARY = Path('configs/product_a_v2_8_4_sealed_boundary_contract.json')
 RUNTIME = Path('src/sdmr/v2_8_4_sealed_runtime.py')
 AUTH = Path('src/sdmr/v2_8_4_sealed_authorization.py')
+FROZEN_REF = 'refs/heads/frozen/product-a-v2-8-4-sealed-v1'
 
 
 def _canonical(payload):
@@ -38,6 +39,7 @@ def _authorization(tmp_path: Path) -> tuple[Path, str, str]:
         'tracks_issue': 170,
         'scientific_execution_id': 'product-a-v2-8-4-fresh-confirmation-v1',
         'one_shot': True,
+        'authorized_ref': FROZEN_REF,
         'implementation_identity': {
             'runtime_ref': 'implementation-ref-test',
             'sealed_reusable_workflow_sha256': workflow_sha,
@@ -147,10 +149,11 @@ def test_v284_authorization_verifier_is_truth_blind_and_accepts_only_exact_contr
         caller_workflow_sha256=caller_sha,
         authorization_commit_sha='authorization-commit-test',
         current_sha='authorization-commit-test',
-        current_ref='refs/heads/main',
+        current_ref=FROZEN_REF,
         current_event='workflow_dispatch',
         output_path=tmp_path / 'gate.json',
     )
+    assert gate['authorized_ref'] == FROZEN_REF
     assert gate['one_shot_sealed_execution_authorized'] is True
     assert gate['retry_after_sealed_read_entered_allowed'] is False
     assert gate['sealed_ecological_outcomes_read'] is False
@@ -158,7 +161,7 @@ def test_v284_authorization_verifier_is_truth_blind_and_accepts_only_exact_contr
     assert gate['product_b_unblocked'] is False
 
 
-def test_v284_authorization_verifier_rejects_promotion_or_commit_drift(tmp_path):
+def test_v284_authorization_verifier_rejects_promotion_commit_or_ref_drift(tmp_path):
     auth_path, workflow_sha, caller_sha = _authorization(tmp_path)
     payload = json.loads(auth_path.read_text())
     payload['scientific_invariants']['scientific_promotion_allowed'] = True
@@ -177,13 +180,13 @@ def test_v284_authorization_verifier_rejects_promotion_or_commit_drift(tmp_path)
             caller_workflow_sha256=caller_sha,
             authorization_commit_sha='authorization-commit-test',
             current_sha='authorization-commit-test',
-            current_ref='refs/heads/main',
+            current_ref=FROZEN_REF,
             current_event='workflow_dispatch',
             output_path=tmp_path / 'bad-gate.json',
         )
 
     auth_path, workflow_sha, caller_sha = _authorization(tmp_path / 'second')
-    with pytest.raises(ValueError, match='exact merge commit'):
+    with pytest.raises(ValueError, match='exact authorization commit'):
         verify_sealed_authorization(
             authorization_path=auth_path,
             boundary_path=BOUNDARY,
@@ -194,7 +197,24 @@ def test_v284_authorization_verifier_rejects_promotion_or_commit_drift(tmp_path)
             caller_workflow_sha256=caller_sha,
             authorization_commit_sha='authorization-commit-test',
             current_sha='different-commit',
-            current_ref='refs/heads/main',
+            current_ref=FROZEN_REF,
             current_event='workflow_dispatch',
             output_path=tmp_path / 'bad-commit-gate.json',
+        )
+
+    auth_path, workflow_sha, caller_sha = _authorization(tmp_path / 'third')
+    with pytest.raises(ValueError, match='exact frozen'):
+        verify_sealed_authorization(
+            authorization_path=auth_path,
+            boundary_path=BOUNDARY,
+            implementation_root='.',
+            authorization_root=auth_path.parents[1],
+            implementation_ref='implementation-ref-test',
+            reusable_workflow_sha256=workflow_sha,
+            caller_workflow_sha256=caller_sha,
+            authorization_commit_sha='authorization-commit-test',
+            current_sha='authorization-commit-test',
+            current_ref='refs/heads/main',
+            current_event='workflow_dispatch',
+            output_path=tmp_path / 'bad-ref-gate.json',
         )
