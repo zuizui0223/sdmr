@@ -71,10 +71,13 @@ def verify_sealed_authorization(
         raise ValueError("sealed authorization scientific execution identity changed")
     if auth.get("one_shot") is not True:
         raise ValueError("sealed authorization is not one-shot")
-    if current_ref != "refs/heads/main" or current_event != "workflow_dispatch":
-        raise ValueError("sealed execution must originate from a manual main dispatch")
+    authorized_ref = str(auth.get("authorized_ref", ""))
+    if authorized_ref != "refs/heads/frozen/product-a-v2-8-4-sealed-v1":
+        raise ValueError("sealed authorization frozen ref changed")
+    if current_ref != authorized_ref or current_event != "workflow_dispatch":
+        raise ValueError("sealed execution must originate from the exact frozen manual-dispatch ref")
     if authorization_commit_sha != current_sha:
-        raise ValueError("sealed authorization must execute from its exact merge commit")
+        raise ValueError("sealed authorization must execute from its exact authorization commit")
 
     embedded = str(auth.get("authorization_receipt_digest", ""))
     body = dict(auth)
@@ -201,6 +204,7 @@ def verify_sealed_authorization(
     result = {
         "purpose": AUTH_GATE_PURPOSE,
         "scientific_execution_id": EXPECTED_EXECUTION_ID,
+        "authorized_ref": authorized_ref,
         "authorization_commit_sha": authorization_commit_sha,
         "authorization_receipt_digest": embedded,
         "implementation_ref": implementation_ref,
