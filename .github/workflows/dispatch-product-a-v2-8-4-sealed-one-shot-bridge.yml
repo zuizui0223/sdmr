@@ -1,0 +1,151 @@
+name: Dispatch authorized Product-A v2.8.4 sealed one-shot bridge
+
+on:
+  push:
+    branches:
+      - ops/dispatch-v284-sealed-one-shot
+    paths:
+      - .github/workflows/dispatch-product-a-v2-8-4-sealed-one-shot-bridge.yml
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: dispatch-product-a-v2-8-4-sealed-one-shot-bridge
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.repository == 'zuizui0223/sdmr' && github.ref == 'refs/heads/ops/dispatch-v284-sealed-one-shot'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Verify frozen target and create exactly one workflow_dispatch event
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_WORKFLOW: product-a-v2-8-4-sealed-authorized.yml
+          TARGET_PATH: .github/workflows/product-a-v2-8-4-sealed-authorized.yml
+          TARGET_REF: frozen/product-a-v2-8-4-sealed-v1
+          TARGET_SHA: ba12f96be48545819a72fc714f083cd5c00520ad
+          TARGET_CALLER_SHA256: 36e7828ccf179ccdea64255065467b76213f0cca192302b4a61923251bb2ae90
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ['GH_TOKEN']
+          repo = os.environ['REPOSITORY']
+          workflow = os.environ['TARGET_WORKFLOW']
+          workflow_path = os.environ['TARGET_PATH']
+          target_ref = os.environ['TARGET_REF']
+          target_sha = os.environ['TARGET_SHA']
+          caller_sha = os.environ['TARGET_CALLER_SHA256']
+          api = f'https://api.github.com/repos/{repo}'
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'sdmr-v284-one-shot-dispatch-bridge',
+          }
+
+          def request_json(url, *, method='GET', payload=None):
+              data = None if payload is None else json.dumps(payload).encode('utf-8')
+              req = urllib.request.Request(url, data=data, method=method, headers=headers)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      raw = response.read()
+                      parsed = json.loads(raw) if raw else None
+                      return int(response.status), parsed
+              except urllib.error.HTTPError as exc:
+                  body = exc.read().decode('utf-8', errors='replace')
+                  raise RuntimeError(f'GitHub API {method} {url} failed: {exc.code} {body}') from exc
+
+          # Verify the frozen ref still points at the reviewed authorization merge.
+          ref_url = f"{api}/git/ref/heads/{urllib.parse.quote(target_ref, safe='/')}"
+          _, ref_payload = request_json(ref_url)
+          observed_sha = str((ref_payload.get('object') or {}).get('sha', ''))
+          if observed_sha != target_sha:
+              raise SystemExit(f'frozen target ref changed: expected={target_sha} observed={observed_sha}')
+
+          # Verify the exact authorized caller bytes on the frozen ref.
+          content_url = (
+              f"{api}/contents/{workflow_path}"
+              f"?ref={urllib.parse.quote(target_ref, safe='')}"
+          )
+          _, content_payload = request_json(content_url)
+          raw = base64.b64decode(content_payload['content'])
+          observed_caller_sha = hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest()
+          if observed_caller_sha != caller_sha:
+              raise SystemExit(
+                  f'authorized caller hash changed: expected={caller_sha} observed={observed_caller_sha}'
+              )
+
+          workflow_segment = urllib.parse.quote(workflow, safe='')
+          runs_url = f'{api}/actions/workflows/{workflow_segment}/runs?event=workflow_dispatch&per_page=100'
+          _, before = request_json(runs_url)
+          before_runs = list(before.get('workflow_runs', []))
+          if int(before.get('total_count', -1)) != 0 or before_runs:
+              ids = [int(row['id']) for row in before_runs]
+              raise SystemExit(f'one-shot target already has workflow_dispatch runs: {ids}')
+
+          dispatch_url = f'{api}/actions/workflows/{workflow_segment}/dispatches'
+          status, dispatch_response = request_json(
+              dispatch_url,
+              method='POST',
+              payload={'ref': target_ref},
+          )
+          if status not in (200, 204):
+              raise SystemExit(f'unexpected workflow dispatch status: {status}')
+          returned_id = None
+          if isinstance(dispatch_response, dict) and dispatch_response.get('workflow_run_id') is not None:
+              returned_id = int(dispatch_response['workflow_run_id'])
+
+          observed = None
+          for _ in range(60):
+              _, after = request_json(runs_url)
+              rows = list(after.get('workflow_runs', []))
+              if int(after.get('total_count', -1)) == 1 and len(rows) == 1:
+                  observed = rows[0]
+                  break
+              if int(after.get('total_count', -1)) > 1 or len(rows) > 1:
+                  ids = [int(row['id']) for row in rows]
+                  raise SystemExit(f'one-shot invariant violated after dispatch: {ids}')
+              time.sleep(2)
+          if observed is None:
+              raise SystemExit('authorized workflow_dispatch did not materialize within 120 seconds')
+
+          run_id = int(observed['id'])
+          checks = {
+              'event': 'workflow_dispatch',
+              'head_branch': target_ref,
+              'head_sha': target_sha,
+              'path': workflow_path,
+          }
+          for key, expected in checks.items():
+              if observed.get(key) != expected:
+                  raise SystemExit(
+                      f'dispatched run identity mismatch for {key}: expected={expected!r} observed={observed.get(key)!r}'
+                  )
+          if returned_id is not None and returned_id != run_id:
+              raise SystemExit(f'dispatch response/run-list ID mismatch: {returned_id} vs {run_id}')
+
+          print(f'V284_SEALED_ONE_SHOT_RUN_ID={run_id}')
+          print(f'V284_SEALED_ONE_SHOT_RUN_URL={observed["html_url"]}')
+          summary = os.environ.get('GITHUB_STEP_SUMMARY')
+          if summary:
+              with open(summary, 'a', encoding='utf-8') as handle:
+                  handle.write('## Product-A v2.8.4 sealed one-shot dispatched\n\n')
+                  handle.write(f'- run ID: `{run_id}`\n')
+                  handle.write(f'- frozen ref: `{target_ref}`\n')
+                  handle.write(f'- frozen SHA: `{target_sha}`\n')
+                  handle.write('- target workflow_dispatch count after dispatch: `1`\n')
+          PY
