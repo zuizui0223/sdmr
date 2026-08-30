@@ -1,0 +1,106 @@
+name: Watch Product-A v2.8.4 sealed recovery 1 terminal
+
+on:
+  push:
+    branches:
+      - ops/watch-v284-sealed-recovery-1-terminal
+    paths:
+      - .github/workflows/watch-product-a-v2-8-4-sealed-recovery-1-terminal.yml
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Track the unique second dispatch to terminal audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv,io,json,os,time,urllib.request,zipfile
+          repo=os.environ['REPOSITORY'];token=os.environ['GH_TOKEN'];api=f'https://api.github.com/repos/{repo}'
+          H={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v284-terminal'}
+          prior=33309627503;issue=170;branch='frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1';science='product-a-v2-8-4-fresh-confirmation-v1'
+          def q(url,method='GET',payload=None,raw=False):
+              data=None if payload is None else json.dumps(payload).encode();r=urllib.request.Request(url,data=data,headers=H,method=method)
+              with urllib.request.urlopen(r,timeout=60) as x:
+                  b=x.read();return b if raw else ({} if not b else json.loads(b))
+          def note(s):q(f'{api}/issues/{issue}/comments','POST',{'body':s})
+          def jobs(rid):
+              out=[];p=1
+              while True:
+                  z=q(f'{api}/actions/runs/{rid}/jobs?filter=all&per_page=100&page={p}').get('jobs',[]);out+=z
+                  if len(z)<100:return out
+                  p+=1
+          def arts(rid):
+              out=[];p=1
+              while True:
+                  z=q(f'{api}/actions/runs/{rid}/artifacts?per_page=100&page={p}').get('artifacts',[]);out+=z
+                  if len(z)<100:return out
+                  p+=1
+          runsurl=f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100'
+          run=None
+          for _ in range(160):
+              d=q(runsurl);m={int(x['id']):x for x in d.get('workflow_runs',[])};new=set(m)-{prior}
+              if int(d.get('total_count',-1))==2 and len(new)==1:run=m[next(iter(new))];break
+              if int(d.get('total_count',-1))>2:raise SystemExit(f'third dispatch detected {sorted(m)}')
+              time.sleep(15)
+          if run is None:
+              note('### Product-A v2.8.4 terminal watcher found no exact second dispatch\n\nNo sealed read, retry, or scientific interpretation was performed by this watcher.')
+              raise SystemExit('recovery run absent')
+          rid=int(run['id'])
+          if run.get('head_branch')!=branch or run.get('event')!='workflow_dispatch':raise SystemExit('run identity drift')
+          note(f'### Product-A v2.8.4 terminal watcher attached\n\nExact run `{rid}` on `{branch}` is now monitored to a terminal artifact. No third dispatch will be submitted.')
+          terminal=None
+          for _ in range(345):
+              terminal=q(f'{api}/actions/runs/{rid}')
+              if terminal.get('status')=='completed':break
+              time.sleep(60)
+          else:
+              note(f'### Product-A v2.8.4 watcher window expired\n\nRun `{rid}` is still nonterminal. No retry or scientific interpretation was made.')
+              raise SystemExit('watch timeout')
+          aa=arts(rid);jj=jobs(rid);ta=[a for a in aa if a.get('name')=='product-a-v2-8-4-terminal-decision']
+          if terminal.get('conclusion')=='success' and len(ta)==1:
+              a=ta[0];blob=q(a['archive_download_url'],raw=True);contracts=[];decision={};bounds=[]
+              with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                  for n in z.namelist():
+                      if n.endswith('.json'):
+                          try:
+                              p=json.loads(z.read(n))
+                              if p.get('v2_8_4_stage')=='terminal_scientific_decision':contracts.append(p)
+                          except Exception:pass
+                      elif n.endswith('decision.csv'):decision=next(csv.DictReader(io.StringIO(z.read(n).decode())))
+                      elif n.endswith('partial_identification_bounds.csv'):bounds=list(csv.DictReader(io.StringIO(z.read(n).decode())))
+              if len(contracts)!=1:raise SystemExit('terminal contract denominator drift')
+              c=contracts[0]
+              if c.get('scientific_execution_id')!=science:raise SystemExit('science identity drift')
+              fixed={'model_random_state':0,'selection_process_numpy_seed':0,'selected_global_sealed_fraction':0.25,'n_parts':3,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+              for k,v in fixed.items():
+                  if c.get(k)!=v:raise SystemExit(f'invariant drift {k}')
+              s={'run_id':rid,'run_attempt':terminal.get('run_attempt'),'head_sha':terminal.get('head_sha'),'artifact_id':int(a['id']),'artifact_name':a['name'],'artifact_digest':a.get('digest'),'artifact_size_bytes':a.get('size_in_bytes'),'decision':c.get('decision'),'n_structurally_auditable_parts':c.get('n_structurally_auditable_parts'),'n_conditional_ecological_parts_available':c.get('n_conditional_ecological_parts_available'),'prediction_guardrail':decision.get('prediction_guardrail'),'ecological_support':decision.get('ecological_support'),'process_reproducibility_support':decision.get('process_reproducibility_support'),'n_ecologically_nondominated_parts':decision.get('n_ecologically_nondominated_parts'),'n_strict_ecological_improvement_parts':decision.get('n_strict_ecological_improvement_parts'),'mean_presence_rank_delta_vs_auc':decision.get('mean_presence_rank_delta_vs_auc'),'minimum_process_modal_fraction':decision.get('minimum_process_modal_fraction'),'partial_identification_bounds':bounds,'model_random_state':0,'selection_process_numpy_seed':0,'sealed_fraction':0.25,'primary_denominator':3,'no_post_outcome_retuning':True,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+              note('### Product-A v2.8.4 terminal scientific decision\n\nThe exact frozen recovery produced one valid immutable decision artifact. Promotion remains false and Product B remains blocked.\n\n```json\n'+json.dumps(s,indent=2,sort_keys=True)+'\n```')
+              q(f'{api}/issues/{issue}','PATCH',{'state':'closed','state_reason':'completed'});print(json.dumps(s,sort_keys=True));raise SystemExit(0)
+          states=[]
+          for a in aa:
+              if 'sealed-state' not in str(a.get('name','')):continue
+              try:
+                  blob=q(a['archive_download_url'],raw=True)
+                  with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                      for n in z.namelist():
+                          if n.endswith('.json'):
+                              p=json.loads(z.read(n))
+                              if p.get('purpose')=='product_a_v2_8_4_sealed_read_state':states.append({'artifact_id':int(a['id']),'artifact_name':a.get('name'),'artifact_digest':a.get('digest'),**p})
+              except Exception as e:states.append({'artifact_id':int(a['id']),'artifact_name':a.get('name'),'error':repr(e)})
+          entered=any(x.get('sealed_read_entered') is True for x in states)
+          f={'run_id':rid,'run_attempt':terminal.get('run_attempt'),'conclusion':terminal.get('conclusion'),'head_sha':terminal.get('head_sha'),'jobs':[{'id':int(j['id']),'name':j.get('name'),'conclusion':j.get('conclusion'),'started_at':j.get('started_at'),'completed_at':j.get('completed_at')} for j in jj],'artifacts':[{'id':int(a['id']),'name':a.get('name'),'digest':a.get('digest'),'size_in_bytes':a.get('size_in_bytes')} for a in aa],'sealed_read_states':states,'any_sealed_read_entered':entered,'scientific_decision_reached':False,'automatic_retry_submitted':False,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+          rule='At least one part entered the sealed-read boundary; no retry is permitted without a new explicit contract.' if entered else 'The run ended before a valid terminal artifact; no broad or automatic retry was submitted.'
+          note(f'### Product-A v2.8.4 sealed recovery technical terminal state\n\nExact run `{rid}` ended without a valid scientific decision. {rule}\n\n```json\n'+json.dumps(f,indent=2,sort_keys=True)+'\n```')
+          raise SystemExit('terminal decision absent')
+          PY
