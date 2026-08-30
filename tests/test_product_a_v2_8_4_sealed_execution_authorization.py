@@ -187,9 +187,9 @@ def test_v284_recovery_caller_is_parameterless_and_live_checks_prior_failure():
         '99252247966',
         "'total_count',-1)) == 2",
         "'total_count',-1)) > 2",
-        "'/artifacts?per_page=100'",
-        "prior_sealed_read_entered",
-        "prior_sealed_ecological_outcomes_read",
+        'artifacts?per_page=100',
+        'prior_sealed_read_entered',
+        'prior_sealed_ecological_outcomes_read',
     ):
         assert identity in text
     assert (
