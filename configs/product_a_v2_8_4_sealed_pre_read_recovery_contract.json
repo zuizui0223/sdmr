@@ -1,0 +1,81 @@
+{
+  "allowed_recovery_change": {
+    "authorization_remains_before_dependency_install": true,
+    "authorization_remains_before_receipt_download": true,
+    "authorization_remains_before_sealed_source_access": true,
+    "invoke_authorization_file_directly": true,
+    "load_truth_blind_boundary_module_by_file_path": true,
+    "maximum_total_workflow_dispatch_runs_for_this_recovery": 2,
+    "new_operational_attempt_number": 2,
+    "prior_failed_run_must_be_pinned": true,
+    "scope": "stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change"
+  },
+  "contract_digest": "d683f5272db25e337cafd53d41eee901cdea8fefece44bfa4e33a7564a53259c",
+  "design_date": "2026-08-30",
+  "execution_boundary": {
+    "design_only": true,
+    "product_b_unblocked": false,
+    "recovery_authorization_exists": false,
+    "recovery_dispatch_allowed": false,
+    "recovery_implementation_reviewed": false,
+    "scientific_promotion_allowed": false,
+    "sealed_ecological_outcomes_read": false
+  },
+  "prior_operational_attempt": {
+    "aggregate_decision_conclusion": "skipped",
+    "aggregate_decision_job_id": 99252247966,
+    "caller_authorization_preflight_conclusion": "success",
+    "caller_authorization_preflight_job_id": 99252220557,
+    "failed_reusable_preflight_conclusion": "failure",
+    "failed_reusable_preflight_job_id": 99252233545,
+    "failure_fingerprint": "ModuleNotFoundError: No module named 'pandas'",
+    "failure_stage": "authorization-and-receipt-preflight",
+    "head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
+    "head_sha": "ba12f96be48545819a72fc714f083cd5c00520ad",
+    "presealed_receipt_downloaded": false,
+    "run_artifact_count": 0,
+    "sealed_ecological_outcomes_read": false,
+    "sealed_part_conclusion": "skipped",
+    "sealed_part_job_id": 99252247454,
+    "sealed_read_entered": false,
+    "sealed_read_state_created": false,
+    "sealed_source_accessed": false,
+    "scientific_decision_exists": false,
+    "workflow_path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml",
+    "workflow_run_attempt": 1,
+    "workflow_run_id": 33309627503
+  },
+  "purpose": "product_a_v2_8_4_sealed_pre_read_recovery_design",
+  "required_next_gate": {
+    "caller_must_require_exact_total_dispatch_count_two_with_current_as_second": true,
+    "caller_must_verify_prior_run_and_jobs_live_before_reusable_call": true,
+    "new_frozen_ref_required": true,
+    "separate_implementation_merge_required": true,
+    "separate_recovery_authorization_merge_required": true,
+    "third_dispatch_forbidden": true
+  },
+  "root_cause": {
+    "class": "truth_blind_authorization_bootstrap_import_order",
+    "description": "python3 -m sdmr.v2_8_4_sealed_authorization executed sdmr.__init__ before the hash-locked environment was installed, causing an unsealed missing-pandas import failure",
+    "scientific_failure": false,
+    "sealed_evidence_failure": false
+  },
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "scientific_invariants": {
+    "M_changed": false,
+    "RNG_identities_changed": false,
+    "candidates_changed": false,
+    "decision_rule_changed": false,
+    "denominator_changed": false,
+    "fraction_changed": false,
+    "presealed_receipts_changed": false,
+    "product_b_unblocked": false,
+    "scientific_promotion_allowed": false,
+    "sealed_audit_core_changed": false,
+    "seeds_changed": false,
+    "source_artifacts_changed": false,
+    "taxa_changed": false,
+    "thresholds_changed": false
+  },
+  "tracks_issue": 170
+}
