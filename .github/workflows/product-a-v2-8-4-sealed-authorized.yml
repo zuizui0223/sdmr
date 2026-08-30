@@ -33,7 +33,6 @@ jobs:
           CURRENT_EVENT: ${{ github.event_name }}
           CURRENT_SHA: ${{ github.sha }}
           CURRENT_RUN_ID: ${{ github.run_id }}
-          GITHUB_OUTPUT_PATH: ${{ github.output }}
         run: |
           python - <<'PY'
           import hashlib, json, os, subprocess, urllib.request
