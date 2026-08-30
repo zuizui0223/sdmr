@@ -1,0 +1,98 @@
+name: Product-A v2.8.4 authorized sealed one-shot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-8-4-authorized-sealed-one-shot
+  cancel-in-progress: false
+
+jobs:
+  authorization-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      authorization_digest: ${{ steps.freeze.outputs.authorization_digest }}
+      caller_sha256: ${{ steps.freeze.outputs.caller_sha256 }}
+      reusable_sha256: ${{ steps.freeze.outputs.reusable_sha256 }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - id: freeze
+        name: Verify frozen one-shot authorization before calling sealed workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          CURRENT_REF: ${{ github.ref }}
+          CURRENT_EVENT: ${{ github.event_name }}
+          CURRENT_SHA: ${{ github.sha }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, subprocess, urllib.request
+          from pathlib import Path
+
+          expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1'
+          implementation_ref='2690c169adc2d9261a13b4c801c8a02006fc7cca'
+          workflow_path='.github/workflows/product-a-v2-8-4-sealed-reusable.yml'
+          caller_path=Path('.github/workflows/product-a-v2-8-4-sealed-authorized.yml')
+          auth_path=Path('configs/product_a_v2_8_4_sealed_execution_authorization.json')
+          if os.environ['CURRENT_REF'] != expected_ref or os.environ['CURRENT_EVENT'] != 'workflow_dispatch':
+              raise SystemExit('Product-A v2.8.4 sealed execution is frozen-ref/manual-dispatch only')
+          actual=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          if actual != os.environ['CURRENT_SHA']:
+              raise SystemExit('Product-A v2.8.4 caller checkout identity changed')
+          auth=json.loads(auth_path.read_text(encoding='utf-8'))
+          if auth.get('authorized_ref') != expected_ref or auth.get('one_shot') is not True:
+              raise SystemExit('Product-A v2.8.4 sealed authorization ref/one-shot identity changed')
+          if auth.get('implementation_identity',{}).get('runtime_ref') != implementation_ref:
+              raise SystemExit('Product-A v2.8.4 sealed implementation ref changed')
+          embedded=auth.pop('authorization_receipt_digest')
+          canonical=json.dumps(auth,sort_keys=True,separators=(',',':')).encode()
+          if hashlib.sha256(canonical).hexdigest() != embedded:
+              raise SystemExit('Product-A v2.8.4 sealed authorization digest changed')
+          caller_sha=hashlib.sha256(caller_path.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
+          if caller_sha != auth['authorized_caller']['newline_canonical_sha256']:
+              raise SystemExit('Product-A v2.8.4 authorized caller workflow changed')
+          reusable=subprocess.check_output(['git','show',f'{implementation_ref}:{workflow_path}']).replace(b'\r\n',b'\n')
+          reusable_sha=hashlib.sha256(reusable).hexdigest()
+          if reusable_sha != auth['implementation_identity']['sealed_reusable_workflow_sha256']:
+              raise SystemExit('Product-A v2.8.4 sealed reusable workflow changed')
+
+          headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json'}
+          url=f"https://api.github.com/repos/{os.environ['REPOSITORY']}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100"
+          with urllib.request.urlopen(urllib.request.Request(url,headers=headers)) as response:
+              runs=json.load(response)
+          observed=[int(row['id']) for row in runs.get('workflow_runs',[])]
+          if int(runs.get('total_count',-1)) != 1 or observed != [int(os.environ['CURRENT_RUN_ID'])]:
+              raise SystemExit(f'Product-A v2.8.4 one-shot dispatch count changed: total={runs.get("total_count")} ids={observed}')
+
+          execution=auth['execution_boundary']
+          for key in ('sealed_workflow_implemented_and_reviewed','sealed_execution_authorization_exists','sealed_execution_allowed','workflow_dispatch_allowed'):
+              if execution.get(key) is not True:
+                  raise SystemExit(f'Product-A v2.8.4 sealed authorization closed: {key}')
+          for key in ('sealed_ecological_outcomes_read','scientific_promotion_allowed','product_b_unblocked'):
+              if execution.get(key) is not False:
+                  raise SystemExit(f'Product-A v2.8.4 sealed authorization crossed boundary: {key}')
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
+              handle.write(f'authorization_digest={embedded}\n')
+              handle.write(f'caller_sha256={caller_sha}\n')
+              handle.write(f'reusable_sha256={reusable_sha}\n')
+          PY
+
+  sealed:
+    needs: authorization-preflight
+    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@2690c169adc2d9261a13b4c801c8a02006fc7cca
+    with:
+      implementation_ref: 2690c169adc2d9261a13b4c801c8a02006fc7cca
+      reusable_workflow_sha256: ${{ needs.authorization-preflight.outputs.reusable_sha256 }}
+      authorization_commit_sha: ${{ github.sha }}
+      caller_workflow_sha256: ${{ needs.authorization-preflight.outputs.caller_sha256 }}
+      sealed_authorization_receipt_digest: ${{ needs.authorization-preflight.outputs.authorization_digest }}
+    secrets: inherit
