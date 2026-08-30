@@ -1,0 +1,128 @@
+name: Finalize dispatch Product-A v2.8.4 sealed recovery 1 final2
+
+on:
+  push:
+    branches:
+      - ops/finalize-dispatch-v284-recovery-1-final2
+    paths:
+      - .github/workflows/finalize-dispatch-product-a-v2-8-4-sealed-recovery-1-final2.yml
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Merge exact green authorization, freeze attempt 2, and dispatch at most once
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, hashlib, json, os, time, urllib.error, urllib.parse, urllib.request
+
+          repo=os.environ['REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          H={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v284-recovery-final2'}
+          issue=170; prior_id=33309627503; prior_sha='ba12f96be48545819a72fc714f083cd5c00520ad'; prior_branch='frozen/product-a-v2-8-4-sealed-v1'
+          recovery_branch='frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'; recovery_ref='refs/heads/'+recovery_branch
+          caller='.github/workflows/product-a-v2-8-4-sealed-authorized.yml'; authfile='configs/product_a_v2_8_4_sealed_execution_authorization.json'
+          generator='.github/workflows/generate-product-a-v2-8-4-sealed-pre-read-recovery-authorization.yml'
+          checks_required={'core-py3.10','core-py3.11','core-py3.12','core-py3.13','geo-rasterio-py3.12','diagnostic-real-data'}
+          allowed={caller,authfile,'tests/test_product_a_v2_8_4_sealed_pre_read_recovery_authorization.py','tests/test_product_a_v2_8_4_sealed_pre_read_recovery_pr_gate.py','docs/audit/product_a_v2_8_4_sealed_pre_read_recovery_authorization_review.md','docs/audit/product_a_v2_8_4_sealed_pre_read_recovery_final_ci.md','docs/audit/product_a_v2_8_4_sealed_pre_read_recovery_final_ci_2.md'}
+
+          def q(url,method='GET',payload=None,allow404=False):
+              data=None if payload is None else json.dumps(payload).encode(); r=urllib.request.Request(url,data=data,headers=H,method=method)
+              try:
+                  with urllib.request.urlopen(r,timeout=60) as x:
+                      b=x.read(); return {} if not b else json.loads(b)
+              except urllib.error.HTTPError as e:
+                  if allow404 and e.code==404:return None
+                  raise RuntimeError(f'{method} {url} -> {e.code}: {e.read().decode(errors="replace")}')
+          def comment(s):q(f'{api}/issues/{issue}/comments','POST',{'body':s})
+          def blob(path,ref,allow404=False):
+              row=q(f'{api}/contents/{urllib.parse.quote(path,safe="/")}?ref={urllib.parse.quote(ref,safe="")}',allow404=allow404)
+              return None if row is None else base64.b64decode(row['content']).replace(b'\r\n',b'\n')
+          def files(n):
+              out=[];p=1
+              while True:
+                  c=q(f'{api}/pulls/{n}/files?per_page=100&page={p}');out+=c
+                  if len(c)<100:return out
+                  p+=1
+          def checkmap(sha):
+              return {r['name']:(r['status'],r.get('conclusion')) for r in q(f'{api}/commits/{sha}/check-runs?per_page=100').get('check_runs',[]) if r['name'] in checks_required}
+
+          impl=q(f'{api}/pulls/181')
+          if impl.get('merged_at') is None:raise RuntimeError('PR181 not merged')
+          impl_sha=impl['merge_commit_sha']
+          design=json.loads(blob('configs/product_a_v2_8_4_sealed_pre_read_recovery_contract.json',impl_sha))
+          if design.get('contract_digest')!='d683f5272db25e337cafd53d41eee901cdea8fefece44bfa4e33a7564a53259c':raise RuntimeError('design drift')
+
+          pr=q(f'{api}/pulls/182')
+          if pr.get('merged_at') is None:
+              if pr.get('state')!='open':raise RuntimeError('PR182 not open')
+              head=pr['head']['sha']; names={r['filename'] for r in files(182)}
+              if names!=allowed:raise RuntimeError(f'PR182 surface drift: {sorted(names)}')
+              if blob(generator,head,True) is not None:raise RuntimeError('generator remains')
+              a=json.loads(blob(authfile,head)); c=blob(caller,head)
+              d=a.pop('authorization_receipt_digest')
+              if hashlib.sha256(json.dumps(a,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=d:raise RuntimeError('auth digest drift')
+              a['authorization_receipt_digest']=d
+              if a.get('purpose')!='product_a_v2_8_4_one_shot_sealed_execution_authorization' or a.get('scientific_execution_id')!='product-a-v2-8-4-fresh-confirmation-v1':raise RuntimeError('auth identity drift')
+              if a.get('one_shot') is not True or int(a.get('operational_attempt',-1))!=2 or a.get('authorized_ref')!=recovery_ref:raise RuntimeError('attempt/ref drift')
+              if a.get('implementation_identity',{}).get('runtime_ref')!=impl_sha:raise RuntimeError('implementation drift')
+              if a.get('authorized_caller',{}).get('newline_canonical_sha256')!=hashlib.sha256(c).hexdigest():raise RuntimeError('caller digest drift')
+              rec=json.dumps(a.get('pre_read_recovery',{}),sort_keys=True)
+              for token0 in ('33309627503','99252220557','99252233545','99252247454','99252247966',"ModuleNotFoundError: No module named 'pandas'"):
+                  if token0 not in rec:raise RuntimeError(f'missing recovery pin {token0}')
+              inv=a.get('scientific_invariants',{})
+              for k in ('candidate_predictor_universe_changed','candidate_library_changed','thresholds_changed','taxa_changed','M_changed','seeds_changed','fraction_changed','denominator_changed','decision_rule_changed','scientific_promotion_allowed','product_b_unblocked'):
+                  if inv.get(k) is not False:raise RuntimeError(f'scientific drift {k}')
+              for _ in range(100):
+                  seen=checkmap(head)
+                  if set(seen)==checks_required and all(v==('completed','success') for v in seen.values()):break
+                  if any(s=='completed' and c0 not in ('success','skipped') for s,c0 in seen.values()):raise RuntimeError(f'CI failed {seen}')
+                  time.sleep(15)
+              else:raise RuntimeError(f'CI timeout {seen}')
+              m=q(f'{api}/pulls/182/merge','PUT',{'sha':head,'merge_method':'merge','commit_title':'Authorize exact Product-A v2.8.4 sealed pre-read recovery','commit_message':'Verifier-backed operational attempt 2 only; scientific semantics unchanged.'})
+              if m.get('merged') is not True:raise RuntimeError(f'merge rejected {m}')
+              auth_sha=m['sha']
+          else:
+              auth_sha=pr['merge_commit_sha'];a=json.loads(blob(authfile,auth_sha))
+              if int(a.get('operational_attempt',-1))!=2 or a.get('authorized_ref')!=recovery_ref or a.get('implementation_identity',{}).get('runtime_ref')!=impl_sha:raise RuntimeError('merged PR182 wrong')
+
+          runsurl=f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100'
+          runs=q(runsurl); rows=runs.get('workflow_runs',[]); ids={int(r['id']) for r in rows}
+          if int(runs.get('total_count',-1))>2:raise RuntimeError(f'third dispatch exists {ids}')
+          if int(runs.get('total_count',-1))==2:
+              new=ids-{prior_id}
+              if len(new)!=1:raise RuntimeError(f'run ambiguity {ids}')
+              rid=next(iter(new));comment(f'### Product-A v2.8.4 exact recovery already dispatched\n\nRun `{rid}` is the unique second dispatch. No new dispatch was submitted by finalizer 2. Implementation `{impl_sha}`, authorization `{auth_sha}`.');print(rid);raise SystemExit(0)
+          if int(runs.get('total_count',-1))!=1 or ids!={prior_id}:raise RuntimeError(f'prior set drift {ids}')
+          prior=rows[0]
+          if prior.get('status')!='completed' or prior.get('conclusion')!='failure' or prior.get('head_sha')!=prior_sha or prior.get('head_branch')!=prior_branch:raise RuntimeError('prior run drift')
+          j={int(r['id']):r.get('conclusion') for r in q(f'{api}/actions/runs/{prior_id}/jobs?filter=all&per_page=100').get('jobs',[])};ex={99252220557:'success',99252233545:'failure',99252247454:'skipped',99252247966:'skipped'}
+          if {k:j.get(k) for k in ex}!=ex:raise RuntimeError('prior job drift')
+          if int(q(f'{api}/actions/runs/{prior_id}/artifacts?per_page=100').get('total_count',-1))!=0:raise RuntimeError('prior artifacts drift')
+
+          refurl=f'{api}/git/refs/heads/{urllib.parse.quote(recovery_branch,safe="/")}';r=q(refurl,allow404=True)
+          if r is None:q(f'{api}/git/refs','POST',{'ref':recovery_ref,'sha':auth_sha})
+          elif r.get('object',{}).get('sha')!=auth_sha:q(refurl,'PATCH',{'sha':auth_sha,'force':True})
+          if q(refurl).get('object',{}).get('sha')!=auth_sha:raise RuntimeError('ref freeze failed')
+          fa=json.loads(blob(authfile,recovery_branch));fc=blob(caller,recovery_branch);fd=fa.pop('authorization_receipt_digest')
+          if hashlib.sha256(json.dumps(fa,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=fd or fa.get('authorized_caller',{}).get('newline_canonical_sha256')!=hashlib.sha256(fc).hexdigest():raise RuntimeError('frozen auth/caller drift')
+
+          q(f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/dispatches','POST',{'ref':recovery_branch})
+          rr=None
+          for _ in range(50):
+              time.sleep(3);af=q(runsurl);bm={int(x['id']):x for x in af.get('workflow_runs',[])};new=set(bm)-{prior_id}
+              if int(af.get('total_count',-1))==2 and len(new)==1:rr=bm[next(iter(new))];break
+          if rr is None:raise RuntimeError('second dispatch absent')
+          if rr.get('head_sha')!=auth_sha or rr.get('head_branch')!=recovery_branch:raise RuntimeError('recovery head/ref drift')
+          rid=int(rr['id']);comment(f'### Product-A v2.8.4 exact sealed recovery dispatched\n\n- exact run: `{rid}`\n- implementation merge: `{impl_sha}`\n- authorization merge: `{auth_sha}`\n- frozen ref: `{recovery_branch}`\n- operational attempt: `2`\n\nThis is the only authorized recovery after the pinned pre-read failure. A third dispatch is forbidden. Promotion remains false and Product B remains blocked.');print(json.dumps({'run_id':rid,'implementation':impl_sha,'authorization':auth_sha},sort_keys=True))
+          PY
