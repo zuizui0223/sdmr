@@ -1,0 +1,146 @@
+name: Finalize dispatch Product-A v2.8.4 sealed recovery 1 final
+
+on:
+  push:
+    branches:
+      - ops/finalize-dispatch-v284-recovery-1-final
+    paths:
+      - .github/workflows/finalize-dispatch-product-a-v2-8-4-sealed-recovery-1-final.yml
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Verify final review, merge authorization, freeze ref, dispatch only if still absent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import base64, hashlib, json, os, time, urllib.error, urllib.parse, urllib.request
+
+          repo=os.environ['REPOSITORY']; token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v284-recovery-final'}
+          issue=170; impl_pr_no=181; auth_pr_no=182; prior_run_id=33309627503
+          prior_sha='ba12f96be48545819a72fc714f083cd5c00520ad'
+          prior_branch='frozen/product-a-v2-8-4-sealed-v1'
+          recovery_branch='frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'
+          recovery_ref='refs/heads/'+recovery_branch
+          caller_path='.github/workflows/product-a-v2-8-4-sealed-authorized.yml'
+          auth_path='configs/product_a_v2_8_4_sealed_execution_authorization.json'
+          generator_path='.github/workflows/generate-product-a-v2-8-4-sealed-pre-read-recovery-authorization.yml'
+          required_checks={'core-py3.10','core-py3.11','core-py3.12','core-py3.13','geo-rasterio-py3.12','diagnostic-real-data'}
+          allowed={caller_path,auth_path,'tests/test_product_a_v2_8_4_sealed_pre_read_recovery_authorization.py','tests/test_product_a_v2_8_4_sealed_pre_read_recovery_pr_gate.py','docs/audit/product_a_v2_8_4_sealed_pre_read_recovery_authorization_review.md','docs/audit/product_a_v2_8_4_sealed_pre_read_recovery_final_ci.md'}
+
+          def req(url,method='GET',payload=None,allow404=False):
+              data=None if payload is None else json.dumps(payload).encode()
+              r=urllib.request.Request(url,data=data,headers=headers,method=method)
+              try:
+                  with urllib.request.urlopen(r,timeout=60) as x:
+                      b=x.read(); return {} if not b else json.loads(b)
+              except urllib.error.HTTPError as e:
+                  if allow404 and e.code==404: return None
+                  raise RuntimeError(f'{method} {url}: {e.code} {e.read().decode(errors="replace")}')
+          def comment(body): req(f'{api}/issues/{issue}/comments','POST',{'body':body})
+          def content(path,ref,allow404=False):
+              row=req(f'{api}/contents/{urllib.parse.quote(path,safe="/")}?ref={urllib.parse.quote(ref,safe="")}',allow404=allow404)
+              return None if row is None else base64.b64decode(row['content']).replace(b'\r\n',b'\n')
+          def prfiles(n):
+              out=[]; p=1
+              while True:
+                  chunk=req(f'{api}/pulls/{n}/files?per_page=100&page={p}'); out+=chunk
+                  if len(chunk)<100:return out
+                  p+=1
+          def checks(sha):
+              rows=req(f'{api}/commits/{sha}/check-runs?per_page=100').get('check_runs',[])
+              return {r['name']:(r['status'],r.get('conclusion')) for r in rows if r['name'] in required_checks}
+
+          impl=req(f'{api}/pulls/{impl_pr_no}')
+          if impl.get('merged_at') is None: raise RuntimeError('PR #181 not merged')
+          impl_sha=impl['merge_commit_sha']
+          design=json.loads(content('configs/product_a_v2_8_4_sealed_pre_read_recovery_contract.json',impl_sha))
+          if design.get('contract_digest')!='d683f5272db25e337cafd53d41eee901cdea8fefece44bfa4e33a7564a53259c': raise RuntimeError('recovery design digest drift')
+
+          authpr=req(f'{api}/pulls/{auth_pr_no}')
+          if authpr.get('merged_at') is None:
+              if authpr.get('state')!='open': raise RuntimeError('PR #182 not open/merged')
+              head=authpr['head']['sha']
+              filenames={r['filename'] for r in prfiles(auth_pr_no)}
+              if filenames!=allowed: raise RuntimeError(f'PR #182 file surface drift: {sorted(filenames)}')
+              if content(generator_path,head,True) is not None: raise RuntimeError('temporary generator remains')
+              auth=json.loads(content(auth_path,head)); caller=content(caller_path,head)
+              digest=auth.pop('authorization_receipt_digest')
+              if hashlib.sha256(json.dumps(auth,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=digest: raise RuntimeError('auth digest drift')
+              auth['authorization_receipt_digest']=digest
+              if auth.get('scientific_execution_id')!='product-a-v2-8-4-fresh-confirmation-v1': raise RuntimeError('science identity drift')
+              if auth.get('one_shot') is not True or int(auth.get('operational_attempt',-1))!=2: raise RuntimeError('not attempt2')
+              if auth.get('authorized_ref')!=recovery_ref: raise RuntimeError('recovery ref drift')
+              if auth.get('implementation_identity',{}).get('runtime_ref')!=impl_sha: raise RuntimeError('implementation pin drift')
+              if auth.get('authorized_caller',{}).get('newline_canonical_sha256')!=hashlib.sha256(caller).hexdigest(): raise RuntimeError('caller hash drift')
+              rec=auth.get('pre_read_recovery',{})
+              exact={'prior_workflow_run_id':prior_run_id,'prior_workflow_run_attempt':1,'prior_head_sha':prior_sha,'prior_head_ref':'refs/heads/'+prior_branch,'prior_caller_authorization_preflight_job_id':99252220557,'prior_failed_reusable_preflight_job_id':99252233545,'prior_sealed_part_job_id':99252247454,'prior_aggregate_decision_job_id':99252247966,'prior_run_artifact_count':0,'prior_failure_fingerprint':"ModuleNotFoundError: No module named 'pandas'",'prior_presealed_receipt_downloaded':False,'prior_sealed_source_accessed':False,'prior_sealed_read_state_created':False,'prior_sealed_read_entered':False,'prior_sealed_ecological_outcomes_read':False,'prior_scientific_decision_exists':False}
+              for k,v in exact.items():
+                  if rec.get(k)!=v: raise RuntimeError(f'recovery pin drift {k}: {rec.get(k)!r}')
+              inv=auth.get('scientific_invariants',{})
+              for k in ('candidate_predictor_universe_changed','candidate_library_changed','thresholds_changed','taxa_changed','M_changed','seeds_changed','fraction_changed','denominator_changed','decision_rule_changed','scientific_promotion_allowed','product_b_unblocked'):
+                  if inv.get(k) is not False: raise RuntimeError(f'scientific boundary drift {k}')
+              for _ in range(80):
+                  seen=checks(head)
+                  if set(seen)==required_checks and all(v==('completed','success') for v in seen.values()): break
+                  if any(s=='completed' and c not in ('success','skipped') for s,c in seen.values()): raise RuntimeError(f'PR #182 CI failure: {seen}')
+                  time.sleep(15)
+              else: raise RuntimeError(f'PR #182 CI did not become green: {seen}')
+              merge=req(f'{api}/pulls/{auth_pr_no}/merge','PUT',{'sha':head,'merge_method':'merge','commit_title':'Authorize exact Product-A v2.8.4 sealed pre-read recovery','commit_message':'Operational attempt 2 after a pinned pre-read failure; scientific semantics unchanged.'})
+              if merge.get('merged') is not True: raise RuntimeError(f'PR #182 merge failed: {merge}')
+              auth_sha=merge['sha']
+          else:
+              auth_sha=authpr['merge_commit_sha']
+              auth=json.loads(content(auth_path,auth_sha))
+              if int(auth.get('operational_attempt',-1))!=2 or auth.get('authorized_ref')!=recovery_ref or auth.get('implementation_identity',{}).get('runtime_ref')!=impl_sha: raise RuntimeError('merged PR #182 is not exact recovery auth')
+
+          runs_url=f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100'
+          runs=req(runs_url); ids={int(r['id']) for r in runs.get('workflow_runs',[])}
+          if int(runs.get('total_count',-1))>2: raise RuntimeError(f'third dispatch exists: {ids}')
+          if int(runs.get('total_count',-1))==2:
+              new=ids-{prior_run_id}
+              if len(new)!=1: raise RuntimeError(f'exact recovery run ambiguous: {ids}')
+              rid=next(iter(new)); comment(f'### Product-A v2.8.4 exact recovery already active\n\nRun `{rid}` is the unique second dispatch. No further dispatch was submitted. Implementation `{impl_sha}`, authorization `{auth_sha}`.'); print(rid); raise SystemExit(0)
+          if int(runs.get('total_count',-1))!=1 or ids!={prior_run_id}: raise RuntimeError(f'prior dispatch set drift: {ids}')
+
+          prior=runs['workflow_runs'][0]
+          if prior.get('status')!='completed' or prior.get('conclusion')!='failure' or prior.get('head_sha')!=prior_sha or prior.get('head_branch')!=prior_branch: raise RuntimeError('prior run identity drift')
+          jobs=req(f'{api}/actions/runs/{prior_run_id}/jobs?filter=all&per_page=100').get('jobs',[]); by={int(r['id']):r.get('conclusion') for r in jobs}
+          exp={99252220557:'success',99252233545:'failure',99252247454:'skipped',99252247966:'skipped'}
+          if {k:by.get(k) for k in exp}!=exp: raise RuntimeError('prior job state drift')
+          if int(req(f'{api}/actions/runs/{prior_run_id}/artifacts?per_page=100').get('total_count',-1))!=0: raise RuntimeError('prior artifacts appeared')
+
+          refurl=f'{api}/git/refs/heads/{urllib.parse.quote(recovery_branch,safe="/")}'
+          current=req(refurl,allow404=True)
+          if current is None:req(f'{api}/git/refs','POST',{'ref':recovery_ref,'sha':auth_sha})
+          elif current.get('object',{}).get('sha')!=auth_sha:req(refurl,'PATCH',{'sha':auth_sha,'force':True})
+          if req(refurl).get('object',{}).get('sha')!=auth_sha: raise RuntimeError('frozen ref update failed')
+          fa=json.loads(content(auth_path,recovery_branch)); fc=content(caller_path,recovery_branch)
+          fd=fa.pop('authorization_receipt_digest')
+          if hashlib.sha256(json.dumps(fa,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=fd: raise RuntimeError('frozen auth digest drift')
+          if fa.get('authorized_caller',{}).get('newline_canonical_sha256')!=hashlib.sha256(fc).hexdigest(): raise RuntimeError('frozen caller drift')
+
+          req(f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/dispatches','POST',{'ref':recovery_branch})
+          recovery=None
+          for _ in range(40):
+              time.sleep(3); after=req(runs_url); m={int(r['id']):r for r in after.get('workflow_runs',[])}; new=set(m)-{prior_run_id}
+              if int(after.get('total_count',-1))==2 and len(new)==1: recovery=m[next(iter(new))]; break
+          if recovery is None: raise RuntimeError('second dispatch did not materialize')
+          if recovery.get('head_sha')!=auth_sha or recovery.get('head_branch')!=recovery_branch: raise RuntimeError('recovery run head/ref drift')
+          rid=int(recovery['id'])
+          comment(f'### Product-A v2.8.4 exact sealed recovery dispatched\n\n- run: `{rid}`\n- implementation merge: `{impl_sha}`\n- authorization merge: `{auth_sha}`\n- frozen ref: `{recovery_branch}`\n- operational attempt: `2`\n\nThis is the only authorized recovery after run `{prior_run_id}` failed before sealed access. A third dispatch is forbidden. Scientific promotion remains false and Product B remains blocked.')
+          print(json.dumps({'run_id':rid,'implementation':impl_sha,'authorization':auth_sha},sort_keys=True))
+          PY
