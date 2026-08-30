@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - id: freeze
-        name: Verify frozen one-shot authorization before calling sealed workflow
+        name: Verify frozen pre-read recovery authorization before calling sealed workflow
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
@@ -34,52 +34,166 @@ jobs:
           CURRENT_SHA: ${{ github.sha }}
           CURRENT_RUN_ID: ${{ github.run_id }}
         run: |
+          set -euo pipefail
           python - <<'PY'
-          import hashlib, json, os, subprocess, urllib.request
+          import hashlib
+          import json
+          import os
+          import subprocess
+          import time
+          import urllib.request
           from pathlib import Path
 
-          expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1'
-          implementation_ref='2690c169adc2d9261a13b4c801c8a02006fc7cca'
+          expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'
+          implementation_ref='6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad'
+          prior_run_id=33309627503
+          prior_sha='ba12f96be48545819a72fc714f083cd5c00520ad'
+          prior_ref='frozen/product-a-v2-8-4-sealed-v1'
           workflow_path='.github/workflows/product-a-v2-8-4-sealed-reusable.yml'
-          caller_path=Path('.github/workflows/product-a-v2-8-4-sealed-authorized.yml')
+          caller_workflow_path='.github/workflows/product-a-v2-8-4-sealed-authorized.yml'
+          caller_path=Path(caller_workflow_path)
           auth_path=Path('configs/product_a_v2_8_4_sealed_execution_authorization.json')
+
           if os.environ['CURRENT_REF'] != expected_ref or os.environ['CURRENT_EVENT'] != 'workflow_dispatch':
-              raise SystemExit('Product-A v2.8.4 sealed execution is frozen-ref/manual-dispatch only')
+              raise SystemExit('Product-A v2.8.4 sealed recovery is frozen-ref/manual-dispatch only')
           actual=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
           if actual != os.environ['CURRENT_SHA']:
-              raise SystemExit('Product-A v2.8.4 caller checkout identity changed')
+              raise SystemExit('Product-A v2.8.4 recovery caller checkout identity changed')
+
           auth=json.loads(auth_path.read_text(encoding='utf-8'))
           if auth.get('authorized_ref') != expected_ref or auth.get('one_shot') is not True:
-              raise SystemExit('Product-A v2.8.4 sealed authorization ref/one-shot identity changed')
+              raise SystemExit('Product-A v2.8.4 recovery authorization ref/one-shot identity changed')
+          if int(auth.get('operational_attempt',-1)) != 2:
+              raise SystemExit('Product-A v2.8.4 recovery operational attempt changed')
+          recovery=auth.get('pre_read_recovery',{})
+          if recovery.get('authorized') is not True or int(recovery.get('prior_workflow_run_id',-1)) != prior_run_id:
+              raise SystemExit('Product-A v2.8.4 prior pre-read failure identity changed')
+          if recovery.get('prior_sealed_read_entered') is not False or recovery.get('prior_sealed_ecological_outcomes_read') is not False:
+              raise SystemExit('Product-A v2.8.4 recovery cannot follow a sealed read')
           if auth.get('implementation_identity',{}).get('runtime_ref') != implementation_ref:
-              raise SystemExit('Product-A v2.8.4 sealed implementation ref changed')
+              raise SystemExit('Product-A v2.8.4 recovery implementation ref changed')
+
           embedded=auth.pop('authorization_receipt_digest')
           canonical=json.dumps(auth,sort_keys=True,separators=(',',':')).encode()
           if hashlib.sha256(canonical).hexdigest() != embedded:
-              raise SystemExit('Product-A v2.8.4 sealed authorization digest changed')
+              raise SystemExit('Product-A v2.8.4 recovery authorization digest changed')
           caller_sha=hashlib.sha256(caller_path.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
           if caller_sha != auth['authorized_caller']['newline_canonical_sha256']:
-              raise SystemExit('Product-A v2.8.4 authorized caller workflow changed')
+              raise SystemExit('Product-A v2.8.4 recovery caller workflow changed')
           reusable=subprocess.check_output(['git','show',f'{implementation_ref}:{workflow_path}']).replace(b'\r\n',b'\n')
           reusable_sha=hashlib.sha256(reusable).hexdigest()
           if reusable_sha != auth['implementation_identity']['sealed_reusable_workflow_sha256']:
-              raise SystemExit('Product-A v2.8.4 sealed reusable workflow changed')
+              raise SystemExit('Product-A v2.8.4 recovery reusable workflow changed')
 
-          headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json'}
-          url=f"https://api.github.com/repos/{os.environ['REPOSITORY']}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100"
-          with urllib.request.urlopen(urllib.request.Request(url,headers=headers)) as response:
-              runs=json.load(response)
-          observed=[int(row['id']) for row in runs.get('workflow_runs',[])]
-          if int(runs.get('total_count',-1)) != 1 or observed != [int(os.environ['CURRENT_RUN_ID'])]:
-              raise SystemExit(f'Product-A v2.8.4 one-shot dispatch count changed: total={runs.get("total_count")} ids={observed}')
+          headers={
+              'Authorization':f"Bearer {os.environ['GH_TOKEN']}",
+              'Accept':'application/vnd.github+json',
+              'X-GitHub-Api-Version':'2022-11-28',
+          }
+          api=f"https://api.github.com/repos/{os.environ['REPOSITORY']}"
+
+          def get_json(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as response:
+                  return json.load(response)
+
+          runs_url=(
+              f'{api}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs'
+              '?event=workflow_dispatch&per_page=100'
+          )
+          runs=None
+          for _ in range(30):
+              candidate=get_json(runs_url)
+              rows=list(candidate.get('workflow_runs',[]))
+              ids={int(row['id']) for row in rows}
+              expected_ids={prior_run_id,int(os.environ['CURRENT_RUN_ID'])}
+              if int(candidate.get('total_count',-1)) == 2 and len(rows) == 2 and ids == expected_ids:
+                  runs=candidate
+                  break
+              if int(candidate.get('total_count',-1)) > 2 or len(rows) > 2:
+                  raise SystemExit(f'Product-A v2.8.4 sealed dispatch count exceeded recovery boundary: {sorted(ids)}')
+              time.sleep(2)
+          if runs is None:
+              raise SystemExit('Product-A v2.8.4 exact two-run recovery identity did not materialize')
+
+          by_id={int(row['id']):row for row in runs['workflow_runs']}
+          prior=by_id[prior_run_id]
+          current=by_id[int(os.environ['CURRENT_RUN_ID'])]
+          prior_expected={
+              'event':'workflow_dispatch',
+              'status':'completed',
+              'conclusion':'failure',
+              'head_branch':prior_ref,
+              'head_sha':prior_sha,
+              'path':caller_workflow_path,
+              'run_attempt':1,
+              'run_number':1,
+          }
+          current_expected={
+              'event':'workflow_dispatch',
+              'head_branch':expected_ref.removeprefix('refs/heads/'),
+              'head_sha':os.environ['CURRENT_SHA'],
+              'path':caller_workflow_path,
+              'run_attempt':1,
+              'run_number':2,
+          }
+          for key,value in prior_expected.items():
+              if prior.get(key) != value:
+                  raise SystemExit(f'Product-A v2.8.4 prior run identity changed: {key}')
+          for key,value in current_expected.items():
+              if current.get(key) != value:
+                  raise SystemExit(f'Product-A v2.8.4 recovery run identity changed: {key}')
+
+          jobs=get_json(f'{api}/actions/runs/{prior_run_id}/jobs?per_page=100')
+          job_by_id={int(row['id']):row for row in jobs.get('jobs',[])}
+          expected_jobs={
+              99252220557:('authorization-preflight','success'),
+              99252233545:('sealed / authorization-and-receipt-preflight','failure'),
+              99252247454:('sealed / sealed-part','skipped'),
+              99252247966:('sealed / aggregate-decision','skipped'),
+          }
+          if int(jobs.get('total_count',-1)) != 4 or set(job_by_id) != set(expected_jobs):
+              raise SystemExit(f'Product-A v2.8.4 prior job denominator changed: {sorted(job_by_id)}')
+          for job_id,(name,conclusion) in expected_jobs.items():
+              row=job_by_id[job_id]
+              if row.get('name') != name or row.get('conclusion') != conclusion:
+                  raise SystemExit(f'Product-A v2.8.4 prior job identity changed: {job_id}')
+
+          failed=job_by_id[99252233545]
+          steps={str(step.get('name')):str(step.get('conclusion')) for step in failed.get('steps',[])}
+          if steps.get('Verify separate one-shot authorization before any sealed source access') != 'failure':
+              raise SystemExit('Product-A v2.8.4 prior failure step changed')
+          for name in (
+              'Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065',
+              'Install exact scientific environment',
+              'Fail closed on runner-environment drift before any sealed source access',
+              'Validate all three reviewed receipt artifacts and build truth-blind input gate',
+          ):
+              if steps.get(name) != 'skipped':
+                  raise SystemExit(f'Product-A v2.8.4 prior pre-read ordering changed: {name}')
+
+          artifacts=get_json(f'{api}/actions/runs/{prior_run_id}/artifacts?per_page=100')
+          if int(artifacts.get('total_count',-1)) != 0 or artifacts.get('artifacts'):
+              raise SystemExit('Product-A v2.8.4 prior failed run unexpectedly has artifacts')
+
+          policy=auth.get('one_shot_dispatch_policy',{})
+          expected_policy={
+              'exact_workflow_dispatch_run_count_after_recovery_dispatch':2,
+              'prior_pre_read_failure_run_is_exactly_pinned':True,
+              'current_recovery_run_must_be_the_only_second_dispatch':True,
+              'no_third_workflow_dispatch_run_allowed':True,
+              'failed_job_retry_within_recovery_run_retains_run_identity':True,
+          }
+          if policy != expected_policy:
+              raise SystemExit('Product-A v2.8.4 recovery dispatch policy changed')
 
           execution=auth['execution_boundary']
           for key in ('sealed_workflow_implemented_and_reviewed','sealed_execution_authorization_exists','sealed_execution_allowed','workflow_dispatch_allowed'):
               if execution.get(key) is not True:
-                  raise SystemExit(f'Product-A v2.8.4 sealed authorization closed: {key}')
+                  raise SystemExit(f'Product-A v2.8.4 sealed recovery authorization closed: {key}')
           for key in ('sealed_ecological_outcomes_read','scientific_promotion_allowed','product_b_unblocked'):
               if execution.get(key) is not False:
-                  raise SystemExit(f'Product-A v2.8.4 sealed authorization crossed boundary: {key}')
+                  raise SystemExit(f'Product-A v2.8.4 sealed recovery crossed boundary: {key}')
+
           with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
               handle.write(f'authorization_digest={embedded}\n')
               handle.write(f'caller_sha256={caller_sha}\n')
@@ -88,9 +202,9 @@ jobs:
 
   sealed:
     needs: authorization-preflight
-    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@2690c169adc2d9261a13b4c801c8a02006fc7cca
+    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad
     with:
-      implementation_ref: 2690c169adc2d9261a13b4c801c8a02006fc7cca
+      implementation_ref: 6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad
       reusable_workflow_sha256: ${{ needs.authorization-preflight.outputs.reusable_sha256 }}
       authorization_commit_sha: ${{ github.sha }}
       caller_workflow_sha256: ${{ needs.authorization-preflight.outputs.caller_sha256 }}
