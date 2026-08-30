@@ -1,0 +1,408 @@
+name: Repair Product-A v2.8.4 recovery authorization generation
+
+on:
+  push:
+    branches:
+      - ops/repair-v284-recovery-auth-generator
+    paths:
+      - .github/workflows/repair-product-a-v2-8-4-sealed-recovery-authorization-generator.yml
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: auth/product-a-v2-8-4-sealed-pre-read-recovery-1-generator
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+
+      - name: Install truth-blind test dependencies
+        run: python -m pip install -e '.[test]'
+
+      - name: Regenerate exact recovery authorization and caller
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import importlib.util
+          import inspect
+          import json
+          import os
+          import shutil
+          import subprocess
+          import tempfile
+          import textwrap
+          import urllib.request
+          from pathlib import Path
+
+          ROOT = Path('.')
+          headers = {
+              'Authorization': f"Bearer {os.environ['GH_TOKEN']}",
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          }
+          pr_url = f"https://api.github.com/repos/{os.environ['REPOSITORY']}/pulls/181"
+          with urllib.request.urlopen(urllib.request.Request(pr_url, headers=headers)) as response:
+              implementation_pr = json.load(response)
+          if implementation_pr.get('merged_at') is None or not implementation_pr.get('merge_commit_sha'):
+              raise SystemExit('Product-A v2.8.4 recovery implementation PR #181 is not merged')
+          IMPLEMENTATION_REF = implementation_pr['merge_commit_sha']
+          RECOVERY_REF = 'refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'
+          INITIAL_REF = 'refs/heads/frozen/product-a-v2-8-4-sealed-v1'
+          INITIAL_AUTH_SHA = 'ba12f96be48545819a72fc714f083cd5c00520ad'
+          PRIOR_RUN_ID = 33309627503
+          CALLER_REL = '.github/workflows/product-a-v2-8-4-sealed-authorized.yml'
+          AUTH_REL = 'configs/product_a_v2_8_4_sealed_execution_authorization.json'
+          BOUNDARY_REL = 'configs/product_a_v2_8_4_sealed_boundary_contract.json'
+          RECOVERY_REL = 'configs/product_a_v2_8_4_sealed_pre_read_recovery_contract.json'
+          REUSABLE_REL = '.github/workflows/product-a-v2-8-4-sealed-reusable.yml'
+          GENERATOR_REL = '.github/workflows/generate-product-a-v2-8-4-sealed-pre-read-recovery-authorization.yml'
+
+          def canonical_sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+
+          def git_blob(relative: str) -> bytes:
+              return subprocess.check_output(['git', 'show', f'{IMPLEMENTATION_REF}:{relative}']).replace(b'\r\n', b'\n')
+
+          def git_sha(relative: str) -> str:
+              return hashlib.sha256(git_blob(relative)).hexdigest()
+
+          recovery_design = json.loads(git_blob(RECOVERY_REL))
+          if recovery_design.get('contract_digest') != 'd683f5272db25e337cafd53d41eee901cdea8fefece44bfa4e33a7564a53259c':
+              raise SystemExit('reviewed pre-read recovery design digest changed')
+
+          caller = textwrap.dedent(f'''\
+          name: Product-A v2.8.4 authorized sealed pre-read recovery 1
+
+          on:
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+            actions: read
+
+          concurrency:
+            group: product-a-v2-8-4-authorized-sealed-one-shot
+            cancel-in-progress: false
+
+          jobs:
+            authorization-preflight:
+              runs-on: ubuntu-24.04
+              timeout-minutes: 20
+              outputs:
+                authorization_digest: ${{{{ steps.freeze.outputs.authorization_digest }}}}
+                caller_sha256: ${{{{ steps.freeze.outputs.caller_sha256 }}}}
+                reusable_sha256: ${{{{ steps.freeze.outputs.reusable_sha256 }}}}
+              steps:
+                - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+                  with:
+                    fetch-depth: 0
+
+                - id: freeze
+                  name: Verify exact pre-read recovery before calling sealed workflow
+                  env:
+                    GH_TOKEN: ${{{{ secrets.GITHUB_TOKEN }}}}
+                    REPOSITORY: ${{{{ github.repository }}}}
+                    CURRENT_REF: ${{{{ github.ref }}}}
+                    CURRENT_EVENT: ${{{{ github.event_name }}}}
+                    CURRENT_SHA: ${{{{ github.sha }}}}
+                    CURRENT_RUN_ID: ${{{{ github.run_id }}}}
+                  run: |
+                    python - <<'PYRECOVERY'
+                    import hashlib, json, os, subprocess, urllib.request
+                    from pathlib import Path
+
+                    expected_ref={RECOVERY_REF!r}
+                    initial_ref={INITIAL_REF!r}
+                    implementation_ref={IMPLEMENTATION_REF!r}
+                    initial_auth_sha={INITIAL_AUTH_SHA!r}
+                    prior_run_id={PRIOR_RUN_ID}
+                    workflow_path={REUSABLE_REL!r}
+                    caller_path=Path({CALLER_REL!r})
+                    auth_path=Path({AUTH_REL!r})
+
+                    if os.environ['CURRENT_REF'] != expected_ref or os.environ['CURRENT_EVENT'] != 'workflow_dispatch':
+                        raise SystemExit('Product-A v2.8.4 recovery is exact-frozen-ref/manual-dispatch only')
+                    actual=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+                    if actual != os.environ['CURRENT_SHA']:
+                        raise SystemExit('Product-A v2.8.4 recovery caller checkout identity changed')
+                    auth=json.loads(auth_path.read_text(encoding='utf-8'))
+                    if auth.get('authorized_ref') != expected_ref or auth.get('one_shot') is not True:
+                        raise SystemExit('Product-A v2.8.4 recovery authorization ref/one-shot identity changed')
+                    if int(auth.get('operational_attempt',-1)) != 2:
+                        raise SystemExit('Product-A v2.8.4 recovery operational attempt changed')
+                    if auth.get('implementation_identity',{{}}).get('runtime_ref') != implementation_ref:
+                        raise SystemExit('Product-A v2.8.4 recovery implementation ref changed')
+                    embedded=auth.pop('authorization_receipt_digest')
+                    canonical=json.dumps(auth,sort_keys=True,separators=(',',':')).encode()
+                    if hashlib.sha256(canonical).hexdigest() != embedded:
+                        raise SystemExit('Product-A v2.8.4 recovery authorization digest changed')
+                    caller_sha=hashlib.sha256(caller_path.read_bytes().replace(b'\r\n',b'\n')).hexdigest()
+                    if caller_sha != auth['authorized_caller']['newline_canonical_sha256']:
+                        raise SystemExit('Product-A v2.8.4 recovery caller workflow changed')
+                    reusable=subprocess.check_output(['git','show',f'{{implementation_ref}}:{{workflow_path}}']).replace(b'\r\n',b'\n')
+                    reusable_sha=hashlib.sha256(reusable).hexdigest()
+                    if reusable_sha != auth['implementation_identity']['sealed_reusable_workflow_sha256']:
+                        raise SystemExit('Product-A v2.8.4 recovery reusable workflow changed')
+
+                    headers={{'Authorization':f"Bearer {{os.environ['GH_TOKEN']}}",'Accept':'application/vnd.github+json'}}
+                    base=f"https://api.github.com/repos/{{os.environ['REPOSITORY']}}"
+                    runs_url=f"{{base}}/actions/workflows/product-a-v2-8-4-sealed-authorized.yml/runs?event=workflow_dispatch&per_page=100"
+                    with urllib.request.urlopen(urllib.request.Request(runs_url,headers=headers)) as response:
+                        runs=json.load(response)
+                    rows=runs.get('workflow_runs',[])
+                    by_id={{int(row['id']):row for row in rows}}
+                    current_run_id=int(os.environ['CURRENT_RUN_ID'])
+                    if int(runs.get('total_count',-1)) != 2 or set(by_id) != {{prior_run_id,current_run_id}}:
+                        raise SystemExit(f'Product-A v2.8.4 recovery dispatch count changed: total={{runs.get("total_count")}} ids={{sorted(by_id)}}')
+                    prior=by_id[prior_run_id]
+                    if not (
+                        prior.get('status') == 'completed'
+                        and prior.get('conclusion') == 'failure'
+                        and int(prior.get('run_attempt',-1)) == 1
+                        and prior.get('head_sha') == initial_auth_sha
+                        and prior.get('head_branch') == initial_ref.removeprefix('refs/heads/')
+                    ):
+                        raise SystemExit('Product-A v2.8.4 prior pre-read failure run identity changed')
+                    current=by_id[current_run_id]
+                    if current.get('head_sha') != os.environ['CURRENT_SHA'] or current.get('head_branch') != expected_ref.removeprefix('refs/heads/'):
+                        raise SystemExit('Product-A v2.8.4 current recovery run identity changed')
+
+                    jobs_url=f"{{base}}/actions/runs/{{prior_run_id}}/jobs?filter=all&per_page=100"
+                    with urllib.request.urlopen(urllib.request.Request(jobs_url,headers=headers)) as response:
+                        jobs=json.load(response)
+                    job_by_id={{int(row['id']):row for row in jobs.get('jobs',[])}}
+                    expected_jobs={{99252220557:'success',99252233545:'failure',99252247454:'skipped',99252247966:'skipped'}}
+                    if {{job_id:job_by_id.get(job_id,{{}}).get('conclusion') for job_id in expected_jobs}} != expected_jobs:
+                        raise SystemExit('Product-A v2.8.4 prior failure job conclusions changed')
+                    artifacts_url=f"{{base}}/actions/runs/{{prior_run_id}}/artifacts?per_page=100"
+                    with urllib.request.urlopen(urllib.request.Request(artifacts_url,headers=headers)) as response:
+                        artifacts=json.load(response)
+                    if int(artifacts.get('total_count',-1)) != 0:
+                        raise SystemExit('Product-A v2.8.4 prior pre-read failure unexpectedly has artifacts')
+                    recovery=auth.get('pre_read_recovery',{{}})
+                    if int(recovery.get('prior_workflow_run_id',-1)) != prior_run_id:
+                        raise SystemExit('Product-A v2.8.4 recovery prior-run pin changed')
+                    execution=auth['execution_boundary']
+                    for key in ('sealed_workflow_implemented_and_reviewed','sealed_execution_authorization_exists','sealed_execution_allowed','workflow_dispatch_allowed'):
+                        if execution.get(key) is not True:
+                            raise SystemExit(f'Product-A v2.8.4 recovery authorization closed: {{key}}')
+                    for key in ('sealed_ecological_outcomes_read','scientific_promotion_allowed','product_b_unblocked'):
+                        if execution.get(key) is not False:
+                            raise SystemExit(f'Product-A v2.8.4 recovery crossed boundary: {{key}}')
+                    with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as handle:
+                        handle.write(f'authorization_digest={{embedded}}\n')
+                        handle.write(f'caller_sha256={{caller_sha}}\n')
+                        handle.write(f'reusable_sha256={{reusable_sha}}\n')
+                    PYRECOVERY
+
+            sealed:
+              needs: authorization-preflight
+              uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@{IMPLEMENTATION_REF}
+              with:
+                implementation_ref: {IMPLEMENTATION_REF}
+                reusable_workflow_sha256: ${{{{ needs.authorization-preflight.outputs.reusable_sha256 }}}}
+                authorization_commit_sha: ${{{{ github.sha }}}}
+                caller_workflow_sha256: ${{{{ needs.authorization-preflight.outputs.caller_sha256 }}}}
+                sealed_authorization_receipt_digest: ${{{{ needs.authorization-preflight.outputs.authorization_digest }}}}
+              secrets: inherit
+          ''')
+          caller_path = ROOT / CALLER_REL
+          caller_path.parent.mkdir(parents=True, exist_ok=True)
+          caller_path.write_text(caller, encoding='utf-8')
+          caller_sha = canonical_sha(caller_path)
+
+          test_path = ROOT / 'tests/test_product_a_v2_8_4_sealed_workflow.py'
+          spec = importlib.util.spec_from_file_location('v284_recovery_tests', test_path)
+          test_module = importlib.util.module_from_spec(spec)
+          assert spec.loader is not None
+          spec.loader.exec_module(test_module)
+          temp_root = Path(tempfile.mkdtemp(prefix='v284-auth-template-'))
+          payload = None
+          for name, fn in vars(test_module).items():
+              if not callable(fn) or not name.startswith('_authorization'):
+                  continue
+              signature = inspect.signature(fn)
+              candidate_kwargs = {}
+              for key in signature.parameters:
+                  if key == 'operational_attempt':
+                      candidate_kwargs[key] = 2
+                  elif key in {'recovery', 'pre_read_recovery'}:
+                      candidate_kwargs[key] = True
+              work = temp_root / name
+              work.mkdir(parents=True, exist_ok=True)
+              try:
+                  fn(work, **candidate_kwargs)
+              except Exception:
+                  pass
+              for path in work.rglob('product_a_v2_8_4_sealed_execution_authorization.json'):
+                  candidate = json.loads(path.read_text(encoding='utf-8'))
+                  if int(candidate.get('operational_attempt',1)) == 2 or candidate.get('authorized_ref') == RECOVERY_REF:
+                      payload = candidate
+                      break
+              if payload is not None:
+                  break
+          shutil.rmtree(temp_root, ignore_errors=True)
+          if payload is None:
+              raise SystemExit('reviewed recovery authorization schema helper was not found')
+
+          auth_module_path = ROOT / 'src/sdmr/v2_8_4_sealed_authorization.py'
+          auth_spec = importlib.util.spec_from_file_location('v284_sealed_authorization_direct', auth_module_path)
+          auth_module = importlib.util.module_from_spec(auth_spec)
+          assert auth_spec.loader is not None
+          auth_spec.loader.exec_module(auth_module)
+          required_paths = tuple(auth_module.REQUIRED_IMPLEMENTATION_PATHS)
+          boundary = json.loads(git_blob(BOUNDARY_REL))
+          payload['purpose'] = 'product_a_v2_8_4_one_shot_sealed_execution_authorization'
+          payload['tracks_issue'] = 170
+          payload['scientific_execution_id'] = 'product-a-v2-8-4-fresh-confirmation-v1'
+          payload['one_shot'] = True
+          payload['operational_attempt'] = 2
+          payload['authorized_ref'] = RECOVERY_REF
+          payload['implementation_identity'] = {
+              'runtime_ref': IMPLEMENTATION_REF,
+              'sealed_reusable_workflow_sha256': git_sha(REUSABLE_REL),
+              'newline_canonical_sha256': {path: git_sha(path) for path in required_paths},
+          }
+          payload['authorized_caller'] = {'path': CALLER_REL, 'newline_canonical_sha256': caller_sha}
+          payload['presealed_receipts'] = boundary['presealed_receipts']
+          recovery_block = payload.get('pre_read_recovery')
+          if not isinstance(recovery_block, dict):
+              raise SystemExit('reviewed attempt-2 payload lacks pre_read_recovery block')
+          design_sha = git_sha(RECOVERY_REL)
+          for key in list(recovery_block):
+              lower = key.lower()
+              if 'recovery' in lower and 'contract' in lower and ('sha256' in lower or 'digest' in lower):
+                  recovery_block[key] = design_sha
+              elif 'recovery' in lower and 'contract' in lower and 'path' in lower:
+                  recovery_block[key] = RECOVERY_REL
+          payload['pre_read_recovery'] = recovery_block
+          payload.pop('authorization_receipt_digest', None)
+          payload['authorization_receipt_digest'] = hashlib.sha256(
+              json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()
+          ).hexdigest()
+          auth_path = ROOT / AUTH_REL
+          auth_path.parent.mkdir(parents=True, exist_ok=True)
+          auth_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          gate_path = ROOT / '.tmp-v284-recovery-authorization-gate.json'
+          auth_module.verify_sealed_authorization(
+              authorization_path=auth_path,
+              boundary_path=ROOT / BOUNDARY_REL,
+              implementation_root=ROOT,
+              authorization_root=ROOT,
+              implementation_ref=IMPLEMENTATION_REF,
+              reusable_workflow_sha256=git_sha(REUSABLE_REL),
+              caller_workflow_sha256=caller_sha,
+              authorization_commit_sha='recovery-authorization-commit-test',
+              current_sha='recovery-authorization-commit-test',
+              current_ref=RECOVERY_REF,
+              current_event='workflow_dispatch',
+              output_path=gate_path,
+          )
+          gate_path.unlink(missing_ok=True)
+
+          static_test = textwrap.dedent(f'''\
+          import hashlib
+          import json
+          from pathlib import Path
+
+          from sdmr.v2_8_4_sealed_authorization import REQUIRED_IMPLEMENTATION_PATHS, verify_sealed_authorization
+
+          IMPLEMENTATION_REF = {IMPLEMENTATION_REF!r}
+          RECOVERY_REF = {RECOVERY_REF!r}
+          CALLER = Path({CALLER_REL!r})
+          AUTH = Path({AUTH_REL!r})
+          BOUNDARY = Path({BOUNDARY_REL!r})
+
+          def _sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes().replace(b'\\r\\n', b'\\n')).hexdigest()
+
+          def test_static_v284_pre_read_recovery_authorization_is_exact(tmp_path):
+              payload = json.loads(AUTH.read_text(encoding='utf-8'))
+              embedded = payload.pop('authorization_receipt_digest')
+              assert embedded == hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+              payload['authorization_receipt_digest'] = embedded
+              assert payload['operational_attempt'] == 2
+              assert payload['authorized_ref'] == RECOVERY_REF
+              assert payload['implementation_identity']['runtime_ref'] == IMPLEMENTATION_REF
+              assert payload['authorized_caller']['newline_canonical_sha256'] == _sha(CALLER)
+              assert set(payload['implementation_identity']['newline_canonical_sha256']) == set(REQUIRED_IMPLEMENTATION_PATHS)
+              for relative in REQUIRED_IMPLEMENTATION_PATHS:
+                  assert payload['implementation_identity']['newline_canonical_sha256'][relative] == _sha(Path(relative))
+              gate = verify_sealed_authorization(
+                  authorization_path=AUTH,
+                  boundary_path=BOUNDARY,
+                  implementation_root='.',
+                  authorization_root='.',
+                  implementation_ref=IMPLEMENTATION_REF,
+                  reusable_workflow_sha256=payload['implementation_identity']['sealed_reusable_workflow_sha256'],
+                  caller_workflow_sha256=_sha(CALLER),
+                  authorization_commit_sha='recovery-auth-test',
+                  current_sha='recovery-auth-test',
+                  current_ref=RECOVERY_REF,
+                  current_event='workflow_dispatch',
+                  output_path=tmp_path / 'gate.json',
+              )
+              assert gate['operational_attempt'] == 2
+              assert gate['authorized_ref'] == RECOVERY_REF
+              assert gate['sealed_ecological_outcomes_read'] is False
+              assert gate['scientific_promotion_allowed'] is False
+              assert gate['product_b_unblocked'] is False
+
+          def test_recovery_caller_is_second_dispatch_only_and_pins_prior_failure():
+              text = CALLER.read_text(encoding='utf-8')
+              assert 'workflow_dispatch:' in text
+              assert RECOVERY_REF in text
+              assert str({PRIOR_RUN_ID}) in text
+              assert {INITIAL_AUTH_SHA!r} in text
+              assert "total_count',-1)) != 2" in text
+              assert '99252233545' in text and "99252247454:'skipped'" in text
+              assert f'@{{IMPLEMENTATION_REF}}' in text
+              assert 'scientific_promotion_allowed' in text
+              assert 'product_b_unblocked' in text
+          ''')
+          final_test = ROOT / 'tests/test_product_a_v2_8_4_sealed_pre_read_recovery_authorization.py'
+          final_test.write_text(static_test, encoding='utf-8')
+
+          generator = ROOT / GENERATOR_REL
+          generator.unlink(missing_ok=True)
+          print(json.dumps({
+              'implementation_ref': IMPLEMENTATION_REF,
+              'caller_sha256': caller_sha,
+              'authorization_receipt_digest': payload['authorization_receipt_digest'],
+              'recovery_design_sha256': design_sha,
+          }, sort_keys=True))
+          PY
+
+          python -m pytest -q \
+            tests/test_product_a_v2_8_4_sealed_workflow.py \
+            tests/test_product_a_v2_8_4_sealed_pre_read_recovery_authorization.py \
+            tests/test_product_a_v2_8_4_sealed_pre_read_recovery_pr_gate.py
+
+      - name: Commit repaired generated files
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Recovery authorization is already fully generated.'
+            exit 0
+          fi
+          git commit -m 'Finalize exact Product-A v2.8.4 pre-read recovery authorization'
+          git push origin HEAD:auth/product-a-v2-8-4-sealed-pre-read-recovery-1-generator
