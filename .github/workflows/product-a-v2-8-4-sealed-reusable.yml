@@ -58,7 +58,6 @@ jobs:
 
       - name: Verify separate one-shot authorization before any sealed source access
         env:
-          PYTHONPATH: src
           IMPLEMENTATION_REF: ${{ inputs.implementation_ref }}
           WORKFLOW_SHA256: ${{ inputs.reusable_workflow_sha256 }}
           CALLER_SHA256: ${{ inputs.caller_workflow_sha256 }}
@@ -70,7 +69,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p preflight
-          python3 -m sdmr.v2_8_4_sealed_authorization \
+          python3 src/sdmr/v2_8_4_sealed_authorization.py \
             --authorization authorization-checkout/configs/product_a_v2_8_4_sealed_execution_authorization.json \
             --boundary "$BOUNDARY" \
             --implementation-root . \
