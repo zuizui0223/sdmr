@@ -1,0 +1,135 @@
+{
+  "authorization_basis": {
+    "journal_target_did_not_select_scientific_parameters": true,
+    "no_additional_favorable_dataset_hunting": true,
+    "no_sealed_ecological_outcome_was_read_before_authorization": true,
+    "source": "explicit_user_instruction_to_proceed_through_the_separately_reviewed_Product_A_v2_8_4_terminal_scientific_confirmation_path"
+  },
+  "authorization_date": "2026-08-30",
+  "authorization_receipt_digest": "23ffd9e3991a1a7a77614c03c47b2edde8142ef34c40c9d0b03c011a803e63c5",
+  "authorized_caller": {
+    "newline_canonical_sha256": "36e7828ccf179ccdea64255065467b76213f0cca192302b4a61923251bb2ae90",
+    "path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml"
+  },
+  "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
+  "execution_boundary": {
+    "product_b_unblocked": false,
+    "scientific_promotion_allowed": false,
+    "sealed_ecological_outcomes_read": false,
+    "sealed_execution_allowed": true,
+    "sealed_execution_authorization_exists": true,
+    "sealed_workflow_implemented_and_reviewed": true,
+    "workflow_dispatch_allowed": true
+  },
+  "implementation_identity": {
+    "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
+    "newline_canonical_sha256": {
+      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "7972404f2f5bc23e7e6fc854c2a476fe05609665db8562b865e5680937da0acb",
+      "configs/product_a_v2_8_3_fresh_confirmation_contract.json": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed",
+      "configs/product_a_v2_8_4_environment_timeout_freeze.json": "72c70558928a35b2b3bdd3091b434bb8eb6884d27f15873fbb6c76899796e4b9",
+      "configs/product_a_v2_8_4_scientific_requirements.lock": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
+      "configs/product_a_v2_8_4_sealed_boundary_contract.json": "14edba7c0efce71980f6f97baebe3e6ea171b6fdda8eb1dce030684b42c3b5d3",
+      "src/sdmr/v2_7_2_fresh_sealed_audit.py": "95682fcf391c8e420e9c2508b5d9316ea7185b5f0691ba6a1b130d20d27a5e83",
+      "src/sdmr/v2_8_3_fresh_aggregate.py": "c630576111249ade3928642d75cdd9807555992a7cd518ca25ecf1a7f4a844f9",
+      "src/sdmr/v2_8_3_fresh_runtime.py": "237c27867de2e034c200abd261dd31a5c87c3edc5a0f82a5ff441baad0087ed8",
+      "src/sdmr/v2_8_4_sealed_authorization.py": "0d3c9cc42a650c7dc42d40b2461780ca3e9cd62e7dd037539d9e5533b61eda8c",
+      "src/sdmr/v2_8_4_sealed_boundary.py": "5ee3294b0d290727174bddf3bb34b4363559f03344c18f0a6fcbc64a3f3b1a06",
+      "src/sdmr/v2_8_4_sealed_runtime.py": "74a712ef41f8c5a947f25b0c5b6e3beea49739649387420bc918688a311e1294"
+    },
+    "pull_request": 179,
+    "runtime_ref": "2690c169adc2d9261a13b4c801c8a02006fc7cca",
+    "sealed_reusable_workflow_sha256": "7972404f2f5bc23e7e6fc854c2a476fe05609665db8562b865e5680937da0acb"
+  },
+  "one_shot": true,
+  "one_shot_dispatch_policy": {
+    "exactly_one_workflow_dispatch_run_allowed": true,
+    "failed_job_retry_within_same_run_retains_run_identity": true,
+    "second_workflow_dispatch_run_must_fail_before_reusable_call": true
+  },
+  "presealed_receipts": [
+    {
+      "artifact_digest": "sha256:133387acb824887de1f77a0889698b0905d31b689b1d119e501bc873a4b5c044",
+      "artifact_id": 9711004502,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082201",
+      "artifact_size_bytes": 17973,
+      "part_seed": 2026082201,
+      "receipt_digest": "9f6924552193af5ea4ee92e5cf6d653238a5e4dcb3cc2f7d5a46ef300b887b03",
+      "workflow_run_attempt": 2,
+      "workflow_run_id": 33155966119
+    },
+    {
+      "artifact_digest": "sha256:32ff694fbe05a098338e985e3490e516f884573552889edec2fb246233944fcf",
+      "artifact_id": 9686345424,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082202",
+      "artifact_size_bytes": 17968,
+      "part_seed": 2026082202,
+      "receipt_digest": "842f8cb42b4ffe315792f5dac22e96e4f3b2faa16b62cd06eb056d5fe7514978",
+      "workflow_run_attempt": 1,
+      "workflow_run_id": 33155969410
+    },
+    {
+      "artifact_digest": "sha256:2c0f9aed5204abc59b83e6eac9302403c7d9e42cbcd41a80f7f5db8bed0fce7a",
+      "artifact_id": 9686776074,
+      "artifact_name": "product-a-v2-8-4-presealed-receipt-2026082203",
+      "artifact_size_bytes": 17935,
+      "part_seed": 2026082203,
+      "receipt_digest": "bbb714de74e72e2f94f96fd6cf364ac49c3640657689c96c66bb59c860fbfdf1",
+      "workflow_run_attempt": 1,
+      "workflow_run_id": 33155971954
+    }
+  ],
+  "publication_boundary": {
+    "product_b_must_remain_blocked_during_this_execution": true,
+    "product_b_unblocking_is_separate_from_confirmation": true,
+    "promotion_must_remain_false_during_this_execution": true,
+    "scientific_promotion_is_separate_from_confirmation": true
+  },
+  "purpose": "product_a_v2_8_4_one_shot_sealed_execution_authorization",
+  "retry_policy": {
+    "broad_rerun_of_successful_sealed_part_allowed": false,
+    "maximum_pre_read_attempts_per_part": 2,
+    "pre_read_exact_retry_allowed_only_if_sealed_read_entered_false": true,
+    "retry_after_sealed_read_entered_allowed": false,
+    "retry_requires_same_run_id_scientific_execution_receipts_implementation_environment_source_and_part_identity": true,
+    "scientific_null_negative_or_unavailable_outcome_retry_allowed": false
+  },
+  "runtime_environment": {
+    "dependency_lock_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
+    "environment_digest": "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb",
+    "must_match_before_sealed_source_access": true,
+    "python_patch": "3.12.11"
+  },
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "scientific_invariants": {
+    "M_changed": false,
+    "M_km": [
+      150,
+      300,
+      500
+    ],
+    "candidate_library_changed": false,
+    "candidate_predictor_universe_changed": false,
+    "decision_rule_changed": false,
+    "denominator_changed": false,
+    "ecological_nondomination_minimum_parts": 2,
+    "fraction_changed": false,
+    "model_random_state": 0,
+    "prediction_guardrail_mean_presence_rank_delta_vs_auc_min": -0.01,
+    "primary_denominator": 3,
+    "process_modal_status_fraction_min": 0.6666666666666666,
+    "product_b_unblocked": false,
+    "scientific_promotion_allowed": false,
+    "sealed_fraction": 0.25,
+    "seeds_changed": false,
+    "selection_process_numpy_seed": 0,
+    "split_seeds": [
+      2026082201,
+      2026082202,
+      2026082203
+    ],
+    "strict_ecological_improvement_minimum_parts": 2,
+    "taxa_changed": false,
+    "thresholds_changed": false
+  },
+  "tracks_issue": 170
+}
