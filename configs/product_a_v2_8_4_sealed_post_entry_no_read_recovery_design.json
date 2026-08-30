@@ -1,0 +1,142 @@
+{
+  "allowed_recovery_change": {
+    "add_hash_locked_geo_extension_only": true,
+    "fourth_workflow_dispatch_forbidden": true,
+    "geo_extension_must_retain_core_versions": true,
+    "geo_lock_calibration_may_not_access_scientific_source_or_receipts": true,
+    "geo_lock_calibration_must_be_truth_blind": true,
+    "maximum_total_workflow_dispatch_runs_after_recovery": 3,
+    "new_frozen_ref_required": true,
+    "new_operational_attempt_number": 3,
+    "rasterio_import_and_version_check_must_precede_sealed_read_entry": true,
+    "rasterio_import_and_version_check_must_precede_source_artifact_download": true,
+    "rasterio_import_check_may_not_open_any_raster": true,
+    "separate_implementation_merge_required": true,
+    "separate_recovery_authorization_merge_required": true
+  },
+  "contract_digest": "734bb7b6b3ea2c9b52a7df0c0762d139939d517aaa3310c1f58df484f4b651bf",
+  "design_date": "2026-08-30",
+  "execution_boundary": {
+    "design_only": true,
+    "geo_runtime_freeze_exists": false,
+    "product_b_unblocked": false,
+    "recovery_authorization_exists": false,
+    "recovery_dispatch_allowed": false,
+    "recovery_implementation_reviewed": false,
+    "scientific_decision_exists": false,
+    "scientific_promotion_allowed": false,
+    "sealed_ecological_outcomes_read": false,
+    "truth_blind_geo_lock_calibration_allowed": true
+  },
+  "prior_operational_attempt": {
+    "aggregate_job": {
+      "conclusion": "skipped",
+      "job_id": 99257003805
+    },
+    "authorization_receipt_digest": "6d60e52b6ffdd8e020d1a124248520759e03d5f1e939d27dd486f980270185b8",
+    "common_state_proof": {
+      "environment_receipt_file_sha256": "ed5dce37c0292a1e1a64feff0affbb602a95ad03e5b9dfb710ff8b051505e031",
+      "pre_read_validation_complete": true,
+      "retry_without_new_explicit_contract_allowed": false,
+      "sealed_audit_completed": false,
+      "sealed_audit_contract_exists": false,
+      "sealed_environment_read": false,
+      "sealed_read_entered": true,
+      "technical_return_code": 1,
+      "technical_return_code_file_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "terminal_scientific_decision_exists": false
+    },
+    "failure_fingerprint": {
+      "exception": "ModuleNotFoundError: No module named 'rasterio'",
+      "failure_before_environmental_value_extraction": true,
+      "failure_before_raster_dataset_open": true,
+      "first_failing_function": "sdmr.data.raster.extract_raster_values",
+      "same_fingerprint_all_three_parts": true,
+      "wrapped_exception": "ImportError: Raster extraction requires rasterio; install sdmr[geo]."
+    },
+    "head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1",
+    "head_sha": "586700d531fb815fa452e3a8ca31f4c97e070443",
+    "implementation_ref": "6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad",
+    "operational_attempt": 2,
+    "part_failures": [
+      {
+        "conclusion": "failure",
+        "job_id": 99256889933,
+        "part_input_manifest_file_sha256": "40e0cdc5d447c3b43ded11a05eb9c056b2ba9b01901fbe29f14b693e30a3a5a6",
+        "part_seed": 2026082201,
+        "sealed_read_state_file_sha256": "96eaea9e7e59b3b8d6fc8ed47e20f31f85ba9726d945ffabc67dea547a28476b",
+        "state_artifact_digest": "sha256:dc40265b995c8f698cfd43d8a6ce195ae931493df4b1c4dd741da2bd21cdca61",
+        "state_artifact_id": 9732079692,
+        "state_artifact_name": "product-a-v2-8-4-sealed-state-2026082201"
+      },
+      {
+        "conclusion": "failure",
+        "job_id": 99256889980,
+        "part_input_manifest_file_sha256": "8fc4c9d628cf7507289ba45e64558434db24546a59107f1992d6d257352a3cea",
+        "part_seed": 2026082202,
+        "sealed_read_state_file_sha256": "91588236deee67cbd50f30ee077b93412aa145468f55e820437575dc8ba8bc03",
+        "state_artifact_digest": "sha256:faa997c032c86feaf6f99c112e27224ca612609d3200a81e8c7beb13845eae7b",
+        "state_artifact_id": 9732079619,
+        "state_artifact_name": "product-a-v2-8-4-sealed-state-2026082202"
+      },
+      {
+        "conclusion": "failure",
+        "job_id": 99256889947,
+        "part_input_manifest_file_sha256": "d578566b22146e9d353ab5fd6b940f51fa003cf30f0599620775698d8bddb6e9",
+        "part_seed": 2026082203,
+        "sealed_read_state_file_sha256": "3643c703c6bd276b74c432ec55d9ea7b09f073d56b3e1808c66df8a8df54f83b",
+        "state_artifact_digest": "sha256:b4e8a95abf3457deb2a3eec30ead9ab94cda2d6dfe45c049fc1bca6b14a1a6b7",
+        "state_artifact_id": 9732081137,
+        "state_artifact_name": "product-a-v2-8-4-sealed-state-2026082203"
+      }
+    ],
+    "preflight_job": {
+      "artifact_digest": "sha256:7518179ecca4d562a08c844bbc27917796cb173b078fcb49b646c973c592977d",
+      "artifact_id": 9732069061,
+      "artifact_name": "product-a-v2-8-4-sealed-preflight",
+      "conclusion": "success",
+      "job_id": 99256808858
+    },
+    "truth_blind_gate_digest": "4119b4957fba408e680feb3461490e00716cbb83f4c0b0c3d7d6cb8ba6464133",
+    "workflow_path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml",
+    "workflow_run_attempt": 1,
+    "workflow_run_id": 33311324330,
+    "workflow_run_number": 2
+  },
+  "purpose": "product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design",
+  "recovery_class": "post_entry_marker_but_pre_environment_value_read",
+  "recovery_interpretation": {
+    "broad_rerun_allowed": false,
+    "conservative_entry_marker_was_crossed": true,
+    "immutable_state_and_logs_prove_no_environmental_value_read": true,
+    "new_explicit_contract_required": true,
+    "prior_scientific_evidence_reused_or_reinterpreted": false,
+    "recovery_is_not_post_outcome_retuning": true,
+    "same_run_retry_allowed": false,
+    "scientific_outcome_was_not_observed": true,
+    "source_artifact_was_downloaded_but_no_raster_dataset_was_opened": true
+  },
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "scientific_invariants": {
+    "M_changed": false,
+    "assignment_attempts_changed": false,
+    "candidates_changed": false,
+    "decision_rule_changed": false,
+    "denominator_changed": false,
+    "folds_changed": false,
+    "fraction_changed": false,
+    "model_random_state_changed": false,
+    "panel_changed": false,
+    "predictors_changed": false,
+    "presealed_receipts_changed": false,
+    "product_b_unblocked": false,
+    "scientific_promotion_allowed": false,
+    "sealed_audit_core_changed": false,
+    "seeds_changed": false,
+    "selection_process_numpy_seed_changed": false,
+    "source_changed": false,
+    "taxa_changed": false,
+    "thresholds_changed": false
+  },
+  "tracks_issue": 170
+}
