@@ -3,15 +3,16 @@
     "journal_target_did_not_select_scientific_parameters": true,
     "no_additional_favorable_dataset_hunting": true,
     "no_sealed_ecological_outcome_was_read_before_authorization": true,
-    "source": "explicit_user_instruction_to_proceed_through_the_separately_reviewed_Product_A_v2_8_4_terminal_scientific_confirmation_path"
+    "prior_attempt_pre_read_failure_verified": true,
+    "source": "explicit_user_instruction_to_continue_the_reviewed_pre_read_recovery_and_complete_the_same_Product_A_v2_8_4_scientific_execution"
   },
   "authorization_date": "2026-08-30",
-  "authorization_receipt_digest": "23ffd9e3991a1a7a77614c03c47b2edde8142ef34c40c9d0b03c011a803e63c5",
+  "authorization_receipt_digest": "6d60e52b6ffdd8e020d1a124248520759e03d5f1e939d27dd486f980270185b8",
   "authorized_caller": {
-    "newline_canonical_sha256": "36e7828ccf179ccdea64255065467b76213f0cca192302b4a61923251bb2ae90",
+    "newline_canonical_sha256": "308f49bc23027bb1fcb4bd4d5fab3f1deb2b9f52ada509737ca81f853799be95",
     "path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml"
   },
-  "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
+  "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1",
   "execution_boundary": {
     "product_b_unblocked": false,
     "scientific_promotion_allowed": false,
@@ -24,7 +25,7 @@
   "implementation_identity": {
     "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
     "newline_canonical_sha256": {
-      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "7972404f2f5bc23e7e6fc854c2a476fe05609665db8562b865e5680937da0acb",
+      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "70a41190cba4af74264e6eabbe33f8c643b4af208bc7270d4ef42c86e1a7b88b",
       "configs/product_a_v2_8_3_fresh_confirmation_contract.json": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed",
       "configs/product_a_v2_8_4_environment_timeout_freeze.json": "72c70558928a35b2b3bdd3091b434bb8eb6884d27f15873fbb6c76899796e4b9",
       "configs/product_a_v2_8_4_scientific_requirements.lock": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
@@ -32,19 +33,47 @@
       "src/sdmr/v2_7_2_fresh_sealed_audit.py": "95682fcf391c8e420e9c2508b5d9316ea7185b5f0691ba6a1b130d20d27a5e83",
       "src/sdmr/v2_8_3_fresh_aggregate.py": "c630576111249ade3928642d75cdd9807555992a7cd518ca25ecf1a7f4a844f9",
       "src/sdmr/v2_8_3_fresh_runtime.py": "237c27867de2e034c200abd261dd31a5c87c3edc5a0f82a5ff441baad0087ed8",
-      "src/sdmr/v2_8_4_sealed_authorization.py": "0d3c9cc42a650c7dc42d40b2461780ca3e9cd62e7dd037539d9e5533b61eda8c",
+      "src/sdmr/v2_8_4_sealed_authorization.py": "75540656d04b8f2708c62cea8082c1531f029636fb802e2dbd955dca897ba687",
       "src/sdmr/v2_8_4_sealed_boundary.py": "5ee3294b0d290727174bddf3bb34b4363559f03344c18f0a6fcbc64a3f3b1a06",
       "src/sdmr/v2_8_4_sealed_runtime.py": "74a712ef41f8c5a947f25b0c5b6e3beea49739649387420bc918688a311e1294"
     },
-    "pull_request": 179,
-    "runtime_ref": "2690c169adc2d9261a13b4c801c8a02006fc7cca",
-    "sealed_reusable_workflow_sha256": "7972404f2f5bc23e7e6fc854c2a476fe05609665db8562b865e5680937da0acb"
+    "pull_request": 181,
+    "runtime_ref": "6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad",
+    "sealed_reusable_workflow_sha256": "70a41190cba4af74264e6eabbe33f8c643b4af208bc7270d4ef42c86e1a7b88b"
   },
   "one_shot": true,
   "one_shot_dispatch_policy": {
-    "exactly_one_workflow_dispatch_run_allowed": true,
-    "failed_job_retry_within_same_run_retains_run_identity": true,
-    "second_workflow_dispatch_run_must_fail_before_reusable_call": true
+    "current_recovery_run_must_be_the_only_second_dispatch": true,
+    "exact_workflow_dispatch_run_count_after_recovery_dispatch": 2,
+    "failed_job_retry_within_recovery_run_retains_run_identity": true,
+    "no_third_workflow_dispatch_run_allowed": true,
+    "prior_pre_read_failure_run_is_exactly_pinned": true
+  },
+  "operational_attempt": 2,
+  "pre_read_recovery": {
+    "additional_scientific_attempt_created": false,
+    "authorized": true,
+    "only_prior_pre_read_failure_is_superseded": true,
+    "prior_aggregate_decision_job_id": 99252247966,
+    "prior_caller_preflight_job_id": 99252220557,
+    "prior_failed_reusable_preflight_job_id": 99252233545,
+    "prior_failure_before_environment_setup": true,
+    "prior_failure_fingerprint": "ModuleNotFoundError: No module named 'pandas'",
+    "prior_failure_stage": "authorization-and-receipt-preflight",
+    "prior_head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
+    "prior_head_sha": "ba12f96be48545819a72fc714f083cd5c00520ad",
+    "prior_presealed_receipt_downloaded": false,
+    "prior_run_conclusion": "failure",
+    "prior_scientific_decision_exists": false,
+    "prior_scientific_evidence_reused_or_reinterpreted": false,
+    "prior_sealed_ecological_outcomes_read": false,
+    "prior_sealed_part_job_id": 99252247454,
+    "prior_sealed_read_entered": false,
+    "prior_sealed_source_accessed": false,
+    "prior_workflow_run_attempt": 1,
+    "prior_workflow_run_id": 33309627503,
+    "recovery_change_scope": "stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change",
+    "recovery_design_contract_sha256": "eea13cebc7bc9c3d6199522cd8de435a1c814625e92feda51496499e4ebeff9f"
   },
   "presealed_receipts": [
     {
