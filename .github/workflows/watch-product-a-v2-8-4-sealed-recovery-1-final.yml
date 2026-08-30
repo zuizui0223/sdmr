@@ -1,0 +1,143 @@
+name: Watch Product-A v2.8.4 sealed recovery 1 final
+
+on:
+  push:
+    branches:
+      - ops/watch-v284-sealed-recovery-1-final
+    paths:
+      - .github/workflows/watch-product-a-v2-8-4-sealed-recovery-1-final.yml
+
+permissions:
+  contents: read
+  actions: write
+  issues: write
+
+concurrency:
+  group: watch-product-a-v2-8-4-sealed-recovery-1-final
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Monitor exact second dispatch and audit terminal result
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import csv, io, json, os, re, time, urllib.error, urllib.request, zipfile
+
+          repo=os.environ['REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v284-recovery-terminal-watch'}
+          issue=170; prior_run_id=33309627503
+          expected_branch='frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'
+          expected_science='product-a-v2-8-4-fresh-confirmation-v1'
+          workflow='product-a-v2-8-4-sealed-authorized.yml'
+
+          def req(url,method='GET',payload=None,raw=False):
+              data=None if payload is None else json.dumps(payload).encode()
+              r=urllib.request.Request(url,data=data,headers=headers,method=method)
+              with urllib.request.urlopen(r,timeout=60) as x:
+                  b=x.read(); return b if raw else ({} if not b else json.loads(b))
+          def comment(body): req(f'{api}/issues/{issue}/comments','POST',{'body':body})
+          def jobs(run_id):
+              out=[]; page=1
+              while True:
+                  chunk=req(f'{api}/actions/runs/{run_id}/jobs?filter=all&per_page=100&page={page}').get('jobs',[]); out+=chunk
+                  if len(chunk)<100:return out
+                  page+=1
+          def artifacts(run_id):
+              out=[]; page=1
+              while True:
+                  chunk=req(f'{api}/actions/runs/{run_id}/artifacts?per_page=100&page={page}').get('artifacts',[]); out+=chunk
+                  if len(chunk)<100:return out
+                  page+=1
+          def download(row): return req(row['archive_download_url'],raw=True)
+          def jsons(blob):
+              out=[]
+              with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                  for name in z.namelist():
+                      if name.endswith('.json'):
+                          try:out.append((name,json.loads(z.read(name))))
+                          except Exception:pass
+              return out
+          def state_rows(rows):
+              out=[]
+              for a in rows:
+                  if 'sealed-state' not in str(a.get('name','')):continue
+                  try:
+                      for name,p in jsons(download(a)):
+                          if p.get('purpose')=='product_a_v2_8_4_sealed_read_state':out.append({'artifact_id':int(a['id']),'artifact_name':a.get('name'),'artifact_digest':a.get('digest'),'path':name,**p})
+                  except Exception as e:out.append({'artifact_id':int(a['id']),'artifact_name':a.get('name'),'error':repr(e)})
+              return out
+
+          runs_url=f'{api}/actions/workflows/{workflow}/runs?event=workflow_dispatch&per_page=100'
+          run=None
+          for _ in range(80):
+              data=req(runs_url); by={int(r['id']):r for r in data.get('workflow_runs',[])}; new=set(by)-{prior_run_id}
+              if int(data.get('total_count',-1))==2 and len(new)==1:
+                  run=by[next(iter(new))]; break
+              if int(data.get('total_count',-1))>2:raise SystemExit(f'third dispatch detected: {sorted(by)}')
+              time.sleep(15)
+          if run is None:
+              comment('### Product-A v2.8.4 recovery watcher could not find the exact second dispatch\n\nNo sealed read or retry was performed by this watcher. The recovery controller/authorization state requires inspection.')
+              raise SystemExit('second dispatch not found')
+          run_id=int(run['id'])
+          if run.get('head_branch')!=expected_branch or run.get('event')!='workflow_dispatch':raise SystemExit('recovery run identity drift')
+          comment(f'### Product-A v2.8.4 terminal watcher attached\n\nTracking exact recovery run `{run_id}` on `{expected_branch}` only. A third dispatch is forbidden. Promotion remains false and Product B remains blocked.')
+
+          exact_retry_used=False
+          while True:
+              terminal=None
+              for _ in range(340):
+                  terminal=req(f'{api}/actions/runs/{run_id}')
+                  if terminal.get('status')=='completed':break
+                  time.sleep(60)
+              else:
+                  comment(f'### Product-A v2.8.4 watcher timeout\n\nExact run `{run_id}` remained nonterminal. No retry or scientific interpretation was made.')
+                  raise SystemExit('watch timeout')
+
+              js=jobs(run_id); arts=artifacts(run_id); states=state_rows(arts)
+              terminal_art=[a for a in arts if a.get('name')=='product-a-v2-8-4-terminal-decision']
+              if terminal.get('conclusion')=='success' and len(terminal_art)==1:
+                  a=terminal_art[0]; blob=download(a); contracts=[p for _,p in jsons(blob) if p.get('v2_8_4_stage')=='terminal_scientific_decision']
+                  if len(contracts)!=1:raise SystemExit('terminal artifact contract denominator changed')
+                  c=contracts[0]
+                  if c.get('scientific_execution_id')!=expected_science:raise SystemExit('terminal science identity drift')
+                  exact={'model_random_state':0,'selection_process_numpy_seed':0,'selected_global_sealed_fraction':0.25,'n_parts':3,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+                  for k,v in exact.items():
+                      if c.get(k)!=v:raise SystemExit(f'terminal invariant drift: {k}')
+                  decision={}; bounds=[]
+                  with zipfile.ZipFile(io.BytesIO(blob)) as z:
+                      for name in z.namelist():
+                          if name.endswith('decision.csv'):decision=next(csv.DictReader(io.StringIO(z.read(name).decode())))
+                          elif name.endswith('partial_identification_bounds.csv'):bounds=list(csv.DictReader(io.StringIO(z.read(name).decode())))
+                  summary={'run_id':run_id,'run_attempt':int(terminal.get('run_attempt',1)),'head_sha':terminal.get('head_sha'),'artifact_id':int(a['id']),'artifact_name':a['name'],'artifact_digest':a.get('digest'),'artifact_size_bytes':int(a.get('size_in_bytes',0)),'decision':c.get('decision'),'n_structurally_auditable_parts':c.get('n_structurally_auditable_parts'),'n_conditional_ecological_parts_available':c.get('n_conditional_ecological_parts_available'),'prediction_guardrail':decision.get('prediction_guardrail'),'ecological_support':decision.get('ecological_support'),'process_reproducibility_support':decision.get('process_reproducibility_support'),'n_ecologically_nondominated_parts':decision.get('n_ecologically_nondominated_parts'),'n_strict_ecological_improvement_parts':decision.get('n_strict_ecological_improvement_parts'),'mean_presence_rank_delta_vs_auc':decision.get('mean_presence_rank_delta_vs_auc'),'minimum_process_modal_fraction':decision.get('minimum_process_modal_fraction'),'partial_identification_bounds':bounds,'model_random_state':0,'selection_process_numpy_seed':0,'sealed_fraction':0.25,'primary_denominator':3,'no_post_outcome_retuning':True,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+                  comment('### Product-A v2.8.4 terminal scientific decision\n\nThe exact frozen recovery completed and produced one immutable terminal decision artifact. Promotion remains false and Product B remains blocked.\n\n```json\n'+json.dumps(summary,indent=2,sort_keys=True)+'\n```')
+                  req(f'{api}/issues/{issue}','PATCH',{'state':'closed','state_reason':'completed'})
+                  print(json.dumps(summary,sort_keys=True)); raise SystemExit(0)
+
+              failed=[j for j in js if j.get('conclusion') in {'failure','cancelled','timed_out','startup_failure','stale','action_required'}]
+              any_entered=any(s.get('sealed_read_entered') is True for s in states)
+              audit_artifacts=[a for a in arts if 'sealed-audit' in str(a.get('name',''))]
+              safe_job=None
+              if not exact_retry_used and int(terminal.get('run_attempt',1))==1 and not any_entered and not audit_artifacts and len(failed)==1:
+                  candidate=failed[0]; name=str(candidate.get('name',''))
+                  if 'authorization-preflight' in name or 'authorization-and-receipt-preflight' in name or 'sealed-part' in name:
+                      safe_job=candidate
+              if safe_job is not None:
+                  exact_retry_used=True
+                  comment(f'### Product-A v2.8.4 exact pre-read job retry\n\nRun `{run_id}` ended with exactly one technical failed job `{safe_job.get("name")}` / `{safe_job.get("id")}`. No sealed-read state or sealed-audit artifact exists, so the authorization-permitted single exact failed-job retry is being used. No successful job, scientific parameter, or source identity is changed.')
+                  req(f'{api}/actions/jobs/{int(safe_job["id"])}/rerun','POST')
+                  time.sleep(30); continue
+
+              failure={'run_id':run_id,'run_attempt':terminal.get('run_attempt'),'conclusion':terminal.get('conclusion'),'head_sha':terminal.get('head_sha'),'jobs':[{'id':int(j['id']),'name':j.get('name'),'conclusion':j.get('conclusion'),'started_at':j.get('started_at'),'completed_at':j.get('completed_at')} for j in js],'artifacts':[{'id':int(a['id']),'name':a.get('name'),'digest':a.get('digest'),'size_in_bytes':a.get('size_in_bytes')} for a in arts],'sealed_read_states':states,'any_sealed_read_entered':any_entered,'scientific_decision_reached':False,'exact_pre_read_retry_used':exact_retry_used,'automatic_retry_submitted':False,'scientific_promotion_allowed':False,'product_b_unblocked':False}
+              rule='At least one part entered the sealed-read boundary, so no retry is permitted without a new explicit contract.' if any_entered else 'No further exact pre-read retry is authorized under the current attempt boundary.'
+              comment(f'### Product-A v2.8.4 sealed recovery technical terminal state\n\nExact run `{run_id}` ended without a valid terminal scientific decision. {rule}\n\n```json\n'+json.dumps(failure,indent=2,sort_keys=True)+'\n```')
+              raise SystemExit('no terminal scientific decision')
+          PY
