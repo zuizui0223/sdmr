@@ -2,15 +2,23 @@ import hashlib
 import json
 from pathlib import Path
 
+from sdmr.v2_8_4_sealed_authorization import (
+    RECOVERY_AUTHORIZED_REF,
+    RECOVERY_DESIGN_PATH,
+    REQUIRED_IMPLEMENTATION_PATHS,
+    verify_sealed_authorization,
+)
+
 
 AUTH = Path('configs/product_a_v2_8_4_sealed_execution_authorization.json')
 BOUNDARY = Path('configs/product_a_v2_8_4_sealed_boundary_contract.json')
 CALLER = Path('.github/workflows/product-a-v2-8-4-sealed-authorized.yml')
-WORKFLOW = Path('.github/workflows/product-a-v2-8-4-sealed-reusable.yml')
-AUTH_VERIFIER = Path('src/sdmr/v2_8_4_sealed_authorization.py')
-RECOVERY = Path('configs/product_a_v2_8_4_sealed_pre_read_recovery_contract.json')
-IMPLEMENTATION_REF = '2690c169adc2d9261a13b4c801c8a02006fc7cca'
-FROZEN_REF = 'refs/heads/frozen/product-a-v2-8-4-sealed-v1'
+RECOVERY = Path(RECOVERY_DESIGN_PATH)
+IMPLEMENTATION_REF = '6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad'
+AUTH_DIGEST = '6d60e52b6ffdd8e020d1a124248520759e03d5f1e939d27dd486f980270185b8'
+CALLER_SHA = '308f49bc23027bb1fcb4bd4d5fab3f1deb2b9f52ada509737ca81f853799be95'
+WORKFLOW_SHA = '70a41190cba4af74264e6eabbe33f8c643b4af208bc7270d4ef42c86e1a7b88b'
+RECOVERY_DESIGN_SHA = 'eea13cebc7bc9c3d6199522cd8de435a1c814625e92feda51496499e4ebeff9f'
 
 
 def _canonical(payload):
@@ -21,32 +29,93 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
 
 
-def test_v284_initial_sealed_authorization_remains_historically_exact():
+def test_v284_recovery_authorization_receipt_is_self_consistent_and_exact(tmp_path):
     auth = json.loads(AUTH.read_text())
     embedded = auth['authorization_receipt_digest']
     body = dict(auth)
     body.pop('authorization_receipt_digest')
     assert hashlib.sha256(_canonical(body)).hexdigest() == embedded
-    assert embedded == '23ffd9e3991a1a7a77614c03c47b2edde8142ef34c40c9d0b03c011a803e63c5'
+    assert embedded == AUTH_DIGEST
     assert auth['purpose'] == 'product_a_v2_8_4_one_shot_sealed_execution_authorization'
     assert auth['scientific_execution_id'] == 'product-a-v2-8-4-fresh-confirmation-v1'
     assert auth['one_shot'] is True
-    assert int(auth.get('operational_attempt', 1)) == 1
-    assert auth['authorized_ref'] == FROZEN_REF
+    assert auth['operational_attempt'] == 2
+    assert auth['authorized_ref'] == RECOVERY_AUTHORIZED_REF
     assert auth['implementation_identity']['runtime_ref'] == IMPLEMENTATION_REF
-    assert _sha(CALLER) == auth['authorized_caller']['newline_canonical_sha256']
-    assert auth['implementation_identity']['sealed_reusable_workflow_sha256'] == (
-        '7972404f2f5bc23e7e6fc854c2a476fe05609665db8562b865e5680937da0acb'
+    assert auth['implementation_identity']['sealed_reusable_workflow_sha256'] == WORKFLOW_SHA
+    assert auth['authorized_caller']['newline_canonical_sha256'] == CALLER_SHA
+    assert _sha(CALLER) == CALLER_SHA
+    assert _sha(RECOVERY) == RECOVERY_DESIGN_SHA
+
+    implementation_hashes = auth['implementation_identity']['newline_canonical_sha256']
+    assert set(implementation_hashes) == set(REQUIRED_IMPLEMENTATION_PATHS)
+    for relative in REQUIRED_IMPLEMENTATION_PATHS:
+        assert _sha(Path(relative)) == implementation_hashes[relative]
+
+    gate = verify_sealed_authorization(
+        authorization_path=AUTH,
+        boundary_path=BOUNDARY,
+        implementation_root='.',
+        authorization_root='.',
+        implementation_ref=IMPLEMENTATION_REF,
+        reusable_workflow_sha256=WORKFLOW_SHA,
+        caller_workflow_sha256=CALLER_SHA,
+        authorization_commit_sha='recovery-authorization-commit-test',
+        current_sha='recovery-authorization-commit-test',
+        current_ref=RECOVERY_AUTHORIZED_REF,
+        current_event='workflow_dispatch',
+        output_path=tmp_path / 'authorization_gate.json',
     )
+    assert gate['authorization_receipt_digest'] == AUTH_DIGEST
+    assert gate['operational_attempt'] == 2
+    assert gate['recovery_of_pre_read_run_id'] == 33309627503
+    assert gate['one_shot_sealed_execution_authorized'] is True
+    assert gate['pre_read_exact_retry_maximum_attempts_per_part'] == 2
+    assert gate['retry_after_sealed_read_entered_allowed'] is False
+    assert gate['sealed_ecological_outcomes_read'] is False
+    assert gate['scientific_promotion_allowed'] is False
+    assert gate['product_b_unblocked'] is False
 
-    # The recovery implementation must not be silently accepted by the old
-    # authorization.  A new reviewed receipt has to pin both changed files.
-    pins = auth['implementation_identity']['newline_canonical_sha256']
-    assert _sha(WORKFLOW) != pins[str(WORKFLOW)]
-    assert _sha(AUTH_VERIFIER) != pins[str(AUTH_VERIFIER)]
+
+def test_v284_recovery_authorization_pins_exact_prior_pre_read_failure():
+    auth = json.loads(AUTH.read_text())
+    recovery = auth['pre_read_recovery']
+    expected = {
+        'prior_workflow_run_id': 33309627503,
+        'prior_workflow_run_attempt': 1,
+        'prior_head_sha': 'ba12f96be48545819a72fc714f083cd5c00520ad',
+        'prior_head_ref': 'refs/heads/frozen/product-a-v2-8-4-sealed-v1',
+        'prior_caller_preflight_job_id': 99252220557,
+        'prior_failed_reusable_preflight_job_id': 99252233545,
+        'prior_sealed_part_job_id': 99252247454,
+        'prior_aggregate_decision_job_id': 99252247966,
+        'prior_run_conclusion': 'failure',
+        'prior_failure_stage': 'authorization-and-receipt-preflight',
+        'prior_failure_fingerprint': "ModuleNotFoundError: No module named 'pandas'",
+        'prior_failure_before_environment_setup': True,
+        'prior_presealed_receipt_downloaded': False,
+        'prior_sealed_source_accessed': False,
+        'prior_sealed_read_entered': False,
+        'prior_sealed_ecological_outcomes_read': False,
+        'prior_scientific_decision_exists': False,
+    }
+    for key, value in expected.items():
+        assert recovery[key] == value
+    assert recovery['authorized'] is True
+    assert recovery['only_prior_pre_read_failure_is_superseded'] is True
+    assert recovery['prior_scientific_evidence_reused_or_reinterpreted'] is False
+    assert recovery['additional_scientific_attempt_created'] is False
+    assert recovery['recovery_change_scope'] == (
+        'stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change'
+    )
+    assert recovery['recovery_design_contract_sha256'] == RECOVERY_DESIGN_SHA
+    assert auth['authorization_basis']['prior_attempt_pre_read_failure_verified'] is True
+    assert auth['authorization_basis'][
+        'no_sealed_ecological_outcome_was_read_before_authorization'
+    ] is True
 
 
-def test_v284_initial_sealed_authorization_receipts_equal_reviewed_boundary():
+def test_v284_recovery_authorization_receipts_equal_reviewed_boundary():
     auth = json.loads(AUTH.read_text())
     boundary = json.loads(BOUNDARY.read_text())
     assert auth['presealed_receipts'] == boundary['presealed_receipts']
@@ -58,7 +127,7 @@ def test_v284_initial_sealed_authorization_receipts_equal_reviewed_boundary():
     ]
 
 
-def test_v284_initial_sealed_authorization_science_boundaries_are_unchanged():
+def test_v284_recovery_science_and_promotion_boundaries_are_unchanged():
     auth = json.loads(AUTH.read_text())
     inv = auth['scientific_invariants']
     assert inv['sealed_fraction'] == 0.25
@@ -91,69 +160,58 @@ def test_v284_initial_sealed_authorization_science_boundaries_are_unchanged():
     assert auth['execution_boundary']['product_b_unblocked'] is False
 
 
-def test_v284_initial_sealed_authorized_caller_is_parameterless_frozen_ref_one_shot():
+def test_v284_recovery_dispatch_policy_is_exactly_second_and_terminal():
+    auth = json.loads(AUTH.read_text())
+    assert auth['one_shot_dispatch_policy'] == {
+        'current_recovery_run_must_be_the_only_second_dispatch': True,
+        'exact_workflow_dispatch_run_count_after_recovery_dispatch': 2,
+        'failed_job_retry_within_recovery_run_retains_run_identity': True,
+        'no_third_workflow_dispatch_run_allowed': True,
+        'prior_pre_read_failure_run_is_exactly_pinned': True,
+    }
+
+
+def test_v284_recovery_caller_is_parameterless_and_live_checks_prior_failure():
     text = CALLER.read_text()
     assert 'on:\n  workflow_dispatch:' in text
     assert 'inputs:' not in text
-    assert "expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1'" in text
-    assert "implementation_ref='2690c169adc2d9261a13b4c801c8a02006fc7cca'" in text
-    assert 'total_count' in text and 'CURRENT_RUN_ID' in text
-    assert "observed != [int(os.environ['CURRENT_RUN_ID'])]" in text
+    assert (
+        "expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1'"
+    ) in text
+    assert "implementation_ref='6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad'" in text
+    for identity in (
+        'prior_run_id=33309627503',
+        '99252220557',
+        '99252233545',
+        '99252247454',
+        '99252247966',
+        "'total_count',-1)) == 2",
+        "'total_count',-1)) > 2",
+        "'/artifacts?per_page=100'",
+        "prior_sealed_read_entered",
+        "prior_sealed_ecological_outcomes_read",
+    ):
+        assert identity in text
     assert (
         'uses: zuizui0223/sdmr/.github/workflows/'
         'product-a-v2-8-4-sealed-reusable.yml@'
-        '2690c169adc2d9261a13b4c801c8a02006fc7cca'
+        '6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad'
     ) in text
     assert 'scientific_promotion_allowed' in text
     assert 'product_b_unblocked' in text
 
 
-def test_v284_pre_read_recovery_design_is_truth_blind_and_exact():
+def test_v284_recovery_design_remains_truth_blind_and_design_only():
     recovery = json.loads(RECOVERY.read_text())
     embedded = recovery['contract_digest']
     body = dict(recovery)
     body.pop('contract_digest')
     assert hashlib.sha256(_canonical(body)).hexdigest() == embedded
-    assert recovery['purpose'] == 'product_a_v2_8_4_sealed_pre_read_recovery_design'
     assert recovery['scientific_execution_id'] == (
         'product-a-v2-8-4-fresh-confirmation-v1'
     )
-    prior = recovery['prior_operational_attempt']
-    assert prior['workflow_run_id'] == 33309627503
-    assert prior['workflow_run_attempt'] == 1
-    assert prior['caller_authorization_preflight_job_id'] == 99252220557
-    assert prior['failed_reusable_preflight_job_id'] == 99252233545
-    assert prior['sealed_part_job_id'] == 99252247454
-    assert prior['aggregate_decision_job_id'] == 99252247966
-    assert prior['failure_fingerprint'] == (
-        "ModuleNotFoundError: No module named 'pandas'"
-    )
-    assert prior['presealed_receipt_downloaded'] is False
-    assert prior['sealed_source_accessed'] is False
-    assert prior['sealed_read_state_created'] is False
-    assert prior['sealed_read_entered'] is False
-    assert prior['sealed_ecological_outcomes_read'] is False
-    assert prior['scientific_decision_exists'] is False
-    assert prior['run_artifact_count'] == 0
-
-    allowed = recovery['allowed_recovery_change']
-    assert allowed['scope'] == (
-        'stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change'
-    )
-    assert allowed['authorization_remains_before_dependency_install'] is True
-    assert allowed['authorization_remains_before_receipt_download'] is True
-    assert allowed['authorization_remains_before_sealed_source_access'] is True
-    assert allowed['maximum_total_workflow_dispatch_runs_for_this_recovery'] == 2
-    assert allowed['new_operational_attempt_number'] == 2
-
     boundary = recovery['execution_boundary']
     assert boundary['design_only'] is True
-    assert boundary['recovery_implementation_reviewed'] is False
-    assert boundary['recovery_authorization_exists'] is False
-    assert boundary['recovery_dispatch_allowed'] is False
     assert boundary['sealed_ecological_outcomes_read'] is False
     assert boundary['scientific_promotion_allowed'] is False
     assert boundary['product_b_unblocked'] is False
-
-    for key, value in recovery['scientific_invariants'].items():
-        assert value is False, key
