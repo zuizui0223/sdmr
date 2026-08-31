@@ -1,6 +1,6 @@
 # SDMR publication decision ladder
 
-Status checked: 2026-08-28.
+Status checked: 2026-08-31.
 
 This document is a **submission-strategy boundary only**. It does not alter Product-A scientific contracts, frozen taxon/source identities, sealed fractions, split seeds, M sensitivity, thresholds, denominator rules, unavailable/STOP semantics, or the Product-B block.
 
@@ -19,9 +19,9 @@ Known-truth Product-A evidence is supported under the frozen known-truth lane, b
 
 Fresh empirical Product-A v2.8.3 passed raw-source and structural transport stages and reached presealed model-pool computation, where some deterministic shards encountered the frozen runtime boundary before sealed ecological evidence. These cancellations are technical/execution states, not favorable/null/adverse ecological results.
 
-The v2.8.4 successor is runtime-only engineering. It must preserve the exact scientific semantics and may not be used to retune the scientific object.
+The runtime-only v2.8.4 successor preserved the exact scientific semantics and completed the frozen full denominator. Its terminal decision is `empirical_confirmation_not_supported`: prediction guardrail passed, ecological nondomination held in 3/3 parts, strict ecological improvement held in 0/3, and mean presence-rank delta versus AUC was 0.0. This is a scientific non-support result, not a technical STOP.
 
-Product B remains blocked until a supported fresh empirical Product-A confirmation and a separate explicit promotion/unblock decision.
+The separate Product-A decision is `not_promoted`. Product B remains blocked.
 
 # Product A publication ladder
 
@@ -97,7 +97,13 @@ Once Product A has:
 
 stop expanding Product-A methodology unless the terminal result exposes a specific falsified assumption that must be resolved scientifically.
 
-If supported, prepare the Product-A manuscript immediately. Product B can proceed separately after explicit unblock.
+If supported, prepare the Product-A manuscript immediately. If not promoted, retain the complete non-support result and close the manuscript through Route B or C without further dataset hunting. Product B can proceed only after explicit unblock.
+
+## Applied v2.8.4 route — 2026-08-31
+
+The highest-challenge Route A trigger is not met because fresh empirical support and strict ecological improvement were not established. Route B, **Methods in Ecology and Evolution**, is the primary target because the complete full-denominator non-support result sharply bounds when the prospectively sealed procedure does not improve independent ecological recovery. **Ecological Informatics** is the immediate fallback if editorial fit is judged primarily on computational SDM benchmarking, information barriers, provenance and uncertainty.
+
+This route is final for the consumed endpoint. Journal prestige cannot authorize another taxon, seed, M, threshold, fraction, candidate library, denominator, cohort or provider.
 
 # Product B publication ladder
 
