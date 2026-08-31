@@ -1,0 +1,108 @@
+{
+  "purpose": "product_a_v2_8_4_terminal_scientific_decision_receipt",
+  "recorded_date": "2026-08-31",
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "authoritative_run": {
+    "workflow_run_id": 33364164527,
+    "workflow_run_attempt": 1,
+    "workflow_run_conclusion": "success",
+    "head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-no-value-read-recovery-1",
+    "head_sha": "1496a6c63b19bf7711511a864ccb448fc123c963",
+    "authorization_preflight_job_id": 99401287346,
+    "receipt_preflight_job_id": 99401310355,
+    "sealed_part_job_ids": {
+      "2026082201": 99401464490,
+      "2026082202": 99401464527,
+      "2026082203": 99401464478
+    },
+    "aggregate_decision_job_id": 99422033684,
+    "authorization_receipt_digest": "95e389f279fd2982409a4dfb02975d88340563328bcd064ef1325b55c9609e09"
+  },
+  "run_artifacts": [
+    {
+      "artifact_id": 9747698898,
+      "artifact_name": "product-a-v2-8-4-sealed-preflight",
+      "artifact_size_bytes": 2989,
+      "artifact_digest": "sha256:978217d21564062054757c2f4c3e2bc72db5e2f6d8fd756efc94ec647f8fb56a"
+    },
+    {
+      "artifact_id": 9750048481,
+      "artifact_name": "product-a-v2-8-4-finalized-part-2026082201",
+      "artifact_size_bytes": 9761,
+      "artifact_digest": "sha256:56938514d0be4080652514d3900cee2caffea8bd223a3a3bb6cc703abb4e84eb"
+    },
+    {
+      "artifact_id": 9750047982,
+      "artifact_name": "product-a-v2-8-4-sealed-state-2026082201",
+      "artifact_size_bytes": 15336,
+      "artifact_digest": "sha256:d132e457ae669b9bd4af50a990ff2eafd4f82237328b077596b7f19a92a62b1b"
+    },
+    {
+      "artifact_id": 9749405054,
+      "artifact_name": "product-a-v2-8-4-finalized-part-2026082202",
+      "artifact_size_bytes": 9685,
+      "artifact_digest": "sha256:fc5fc6bc9fafc0049d4013e6b9cc1a46c8de61b77a51f3e06d31bbbbcc8672a2"
+    },
+    {
+      "artifact_id": 9749404799,
+      "artifact_name": "product-a-v2-8-4-sealed-state-2026082202",
+      "artifact_size_bytes": 15248,
+      "artifact_digest": "sha256:381c6aaa8de2c73f40e56f2ab642f173aeefa0de7fbb416ae44c0480161cc18b"
+    },
+    {
+      "artifact_id": 9749815263,
+      "artifact_name": "product-a-v2-8-4-finalized-part-2026082203",
+      "artifact_size_bytes": 9839,
+      "artifact_digest": "sha256:2ee21a65f2f7415b785b5b2768c8e5fd61ada01400e45c7898fcd8dab78225af"
+    },
+    {
+      "artifact_id": 9749814855,
+      "artifact_name": "product-a-v2-8-4-sealed-state-2026082203",
+      "artifact_size_bytes": 15419,
+      "artifact_digest": "sha256:02a66c0dd10c0c666da4434ffabba777af05ea9144b085dfac838cf10b91d639"
+    },
+    {
+      "artifact_id": 9750071472,
+      "artifact_name": "product-a-v2-8-4-terminal-decision",
+      "artifact_size_bytes": 3422,
+      "artifact_digest": "sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f"
+    }
+  ],
+  "terminal_artifact_files": {
+    "contract.json": "052eb7d1e77cdb35b433a6fc3a24b72690f8ca7d3d642616ee41b8539369065b",
+    "decision.csv": "b04fc138297fa613158e86ac32c2b8625c167b96ead4c130fab9bf4739ebefef",
+    "part_summary.csv": "3e6464d9e68417a8169565385b9ee7bc380471c37b06e28069bce0462f55401c",
+    "partial_identification_bounds.csv": "3b90769696b438fe7e8246ead659d29a816b23f33a5d585392e217a27f84b9cf",
+    "process_status.csv": "ddfe6242f2f056c557f3b98bd4d4c776df949ca53cc3e7705d62d18b198090ac",
+    "structural_part_summary.csv": "c80502e158c5687fa8cd5ea45ba3b016f554cef11369401846b718637b34daf4"
+  },
+  "terminal_scientific_decision": {
+    "decision": "empirical_confirmation_not_supported",
+    "scientific_terminal_reached": true,
+    "technical_stop_or_unavailable": false,
+    "all_3_structural_parts_auditable": true,
+    "all_primary_scientific_evidence_available": true,
+    "primary_denominator": 3,
+    "structurally_unavailable_parts": 0,
+    "poststructural_scientifically_unavailable_parts": 0,
+    "conditional_ecological_parts_available": 3,
+    "prediction_guardrail": true,
+    "ecological_support": false,
+    "process_reproducibility_support": true,
+    "ecologically_nondominated_parts": 3,
+    "strict_ecological_improvement_parts": 0,
+    "mean_presence_rank_delta_vs_auc": 0.0,
+    "minimum_process_modal_fraction": 1.0,
+    "conditional_results_can_override_primary_decision": false
+  },
+  "interpretation_boundary": {
+    "known_truth_lane_remains_supported": true,
+    "fresh_empirical_product_a_confirmation_supported": false,
+    "scientific_promotion_allowed_in_terminal_artifact": false,
+    "separate_promotion_or_nonpromotion_decision_recorded": false,
+    "product_b_unblocked": false,
+    "post_outcome_retuning_or_candidate_reselection_allowed": false,
+    "fourth_workflow_dispatch_allowed": false,
+    "terminal_outcome_may_be_reinterpreted_as_technical_failure": false
+  }
+}
