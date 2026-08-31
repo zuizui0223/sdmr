@@ -1,5 +1,6 @@
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 from sdmr.v2_8_4_sealed_authorization import (
@@ -29,6 +30,17 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest()
 
 
+def _historical_implementation_root(tmp_path: Path) -> Path:
+    root = tmp_path / 'historical-implementation'
+    for relative in (*REQUIRED_IMPLEMENTATION_PATHS, RECOVERY_DESIGN_PATH):
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(
+            subprocess.check_output(['git', 'show', f'{IMPLEMENTATION_REF}:{relative}'])
+        )
+    return root
+
+
 def test_v284_recovery_authorization_receipt_is_self_consistent_and_exact(tmp_path):
     auth = json.loads(AUTH.read_text())
     embedded = auth['authorization_receipt_digest']
@@ -49,13 +61,14 @@ def test_v284_recovery_authorization_receipt_is_self_consistent_and_exact(tmp_pa
 
     implementation_hashes = auth['implementation_identity']['newline_canonical_sha256']
     assert set(implementation_hashes) == set(REQUIRED_IMPLEMENTATION_PATHS)
+    implementation_root = _historical_implementation_root(tmp_path)
     for relative in REQUIRED_IMPLEMENTATION_PATHS:
-        assert _sha(Path(relative)) == implementation_hashes[relative]
+        assert _sha(implementation_root / relative) == implementation_hashes[relative]
 
     gate = verify_sealed_authorization(
         authorization_path=AUTH,
         boundary_path=BOUNDARY,
-        implementation_root='.',
+        implementation_root=implementation_root,
         authorization_root='.',
         implementation_ref=IMPLEMENTATION_REF,
         reusable_workflow_sha256=WORKFLOW_SHA,

@@ -35,6 +35,7 @@ concurrency:
 env:
   BOUNDARY: configs/product_a_v2_8_4_sealed_boundary_contract.json
   FREEZE: configs/product_a_v2_8_4_environment_timeout_freeze.json
+  GEO_FREEZE: configs/product_a_v2_8_4_geo_runtime_freeze.json
   SCIENTIFIC_CONTRACT: configs/product_a_v2_8_3_fresh_confirmation_contract.json
   TAXON_REGISTRY: configs/product_a_v2_8_2_fresh_confirmation_taxa.csv
   CHELSA_MANIFEST: configs/chelsa_v2_1_plant_candidates.csv
@@ -189,11 +190,11 @@ jobs:
         with:
           python-version: '3.12.11'
           cache: pip
-          cache-dependency-path: configs/product_a_v2_8_4_scientific_requirements.lock
+          cache-dependency-path: configs/product_a_v2_8_4_geo_requirements.lock
 
-      - name: Install exact scientific environment
+      - name: Install exact scientific core plus frozen geo extension
         run: |
-          python -m pip install --disable-pip-version-check --require-hashes -r configs/product_a_v2_8_4_scientific_requirements.lock
+          python -m pip install --disable-pip-version-check --require-hashes -r configs/product_a_v2_8_4_geo_requirements.lock
           python -m pip install --disable-pip-version-check --no-deps -e .
 
       - name: Fail closed on this part runner before downloading sealed-source artifacts
@@ -202,6 +203,12 @@ jobs:
           python -m sdmr.v2_8_4_presealed_receipt environment \
             --freeze "$FREEZE" \
             --output technical-state/environment_receipt.json
+
+      - name: Verify exact geo runtime without opening a raster before any input artifact download
+        run: |
+          python -m sdmr.v2_8_4_geo_runtime \
+            --freeze "$GEO_FREEZE" \
+            --output technical-state/geo_environment_receipt.json
 
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
@@ -294,6 +301,8 @@ jobs:
             --gate preflight/truth_blind_input_gate.json \
             --receipt receipt/presealed_part_receipt.json \
             --environment-receipt technical-state/environment_receipt.json \
+            --geo-environment-receipt technical-state/geo_environment_receipt.json \
+            --geo-freeze "$GEO_FREEZE" \
             --scientific-contract "$SCIENTIFIC_CONTRACT" \
             --part-dir source/part \
             --pretruth-dir pretruth \
