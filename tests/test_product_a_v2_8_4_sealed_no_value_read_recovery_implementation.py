@@ -17,7 +17,7 @@ def _digest(path: Path) -> str:
 
 def test_recovery_implementation_pins_the_exact_reviewed_runtime_surface():
     implementation = _load(IMPLEMENTATION)
-    assert implementation['implementation_commit'] == 'd255b61e727e6a54842f07b5fa35d79a5372ca09'
+    assert implementation['implementation_commit'] == '965fab670a7119e8f77ddb4281f3be23bbf816f8'
     assert implementation['scientific_execution_id'] == 'product-a-v2-8-4-fresh-confirmation-v1'
     for relative, identity in implementation['implementation_identity']['files'].items():
         assert _digest(ROOT / relative) == identity['newline_canonical_sha256']
