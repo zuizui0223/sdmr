@@ -68,7 +68,7 @@ def test_calibration_workflow_cannot_access_science_or_open_a_raster():
     for key in (
         'scientific_source_access_allowed',
         'presealed_receipt_access_allowed',
-        'github_artifact_access_allowed',
+        'github_input_artifact_access_allowed',
         'raster_dataset_open_allowed',
         'environmental_value_extraction_allowed',
         'sealed_read_entry_allowed',

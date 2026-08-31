@@ -20,7 +20,7 @@
     "package_metadata_and_wheels_only": true,
     "scientific_source_access_allowed": false,
     "presealed_receipt_access_allowed": false,
-    "github_artifact_access_allowed": false,
+    "github_input_artifact_access_allowed": false,
     "raster_dataset_open_allowed": false,
     "environmental_value_extraction_allowed": false,
     "sealed_read_entry_allowed": false,

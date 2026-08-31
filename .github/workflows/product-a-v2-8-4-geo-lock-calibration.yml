@@ -119,7 +119,7 @@ jobs:
               'geo_requirements_lock_sha256': digest(contract['environment']['geo_requirements_lock']['path']),
               'scientific_source_accessed': False,
               'presealed_receipts_accessed': False,
-              'github_artifacts_accessed': False,
+              'github_input_artifacts_accessed': False,
               'rasterio_imported': True,
               'raster_dataset_opened': False,
               'environmental_values_read': False,
