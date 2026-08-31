@@ -5,23 +5,23 @@
   "runtime_only": true,
   "scientific_semantics_inherited_without_change": true,
   "calibration_evidence": {
-    "head_sha": "a66b87eff2106dc6ac431b596b23e7b6e680748f",
-    "workflow_run_id": 33359343821,
+    "head_sha": "050b08b12806352faf9fc4b13166fa8d520c576b",
+    "workflow_run_id": 33359562108,
     "workflow_run_attempt": 1,
     "workflow_run_conclusion": "success",
     "artifact_name": "product-a-v2-8-4-truth-blind-geo-lock-calibration",
-    "artifact_id": 9746173100,
-    "artifact_digest": "sha256:11333eeaf228b595d14cabd8e921234f11abafd801a4c3ec010ab647086241fe",
-    "artifact_size_bytes": 726,
-    "receipt_file_sha256": "2a039458d89b3bc42b1b6141856be9e76bcc0f6aa8718b083b7750c06f20c572",
+    "artifact_id": 9746245575,
+    "artifact_digest": "sha256:bfbee09b9424d6c87f68246b7b093c6223e2fd6f750e726997c27c45167dfcf5",
+    "artifact_size_bytes": 731,
+    "receipt_file_sha256": "26f90145250d5402172ab60ec5ab79eca08b737710549aa6fc428194136675c8",
     "receipt": {
       "environmental_values_read": false,
       "geo_requirements_input_sha256": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5",
       "geo_requirements_lock_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef",
-      "github_artifacts_accessed": false,
+      "github_input_artifacts_accessed": false,
       "github_run_attempt": 1,
-      "github_run_id": 33359343821,
-      "github_sha": "a66b87eff2106dc6ac431b596b23e7b6e680748f",
+      "github_run_id": 33359562108,
+      "github_sha": "050b08b12806352faf9fc4b13166fa8d520c576b",
       "package_versions": {
         "numpy": "2.3.5",
         "pandas": "2.2.3",
@@ -38,7 +38,7 @@
       "python_version": "3.12.11",
       "raster_dataset_opened": false,
       "rasterio_imported": true,
-      "receipt_digest": "95979850a091559c3a7382e2aa3b130d60977efa76784667b5decb48e82eff1f",
+      "receipt_digest": "6c08f526f954c40b178e63196f4976c36d12b1d54cabb234e6bf7e1935e922ad",
       "runner_os": "Linux",
       "scientific_outcome_read": false,
       "scientific_promotion_allowed": false,
@@ -52,13 +52,13 @@
     "python_patch": "3.12.11",
     "calibration_workflow": {
       "path": ".github/workflows/product-a-v2-8-4-geo-lock-calibration.yml",
-      "blob_sha": "26850b0adfccc269cbb86e6ad54dce6de2979543",
-      "newline_canonical_sha256": "7823dd5cb46b8ff6db5c0294a4f7f701901af57f0d643378df72fca345219a1c"
+      "blob_sha": "2578cf8aff0405054f60b8273457188493675241",
+      "newline_canonical_sha256": "17d8268bd38a5c929d100651867bfd5b4a2e7b9e31beda978851dfe9e58c23ec"
     },
     "calibration_contract": {
       "path": "configs/product_a_v2_8_4_geo_lock_calibration_contract.json",
-      "blob_sha": "f8fbccb30a0a624f1b6e519300ccea148426d8af",
-      "newline_canonical_sha256": "9034a8dadfc65fa69d4eb10b2614744e5e64cf6eee859b5e80e575cb510f24f3"
+      "blob_sha": "774302945dc6a042fb292fb1854aba9a7fe1539b",
+      "newline_canonical_sha256": "5e44e58207f8798b18644b92fa947f6736e86736e3d0c4fdb1483fe55c299b5d"
     },
     "geo_requirements_input": {
       "path": "configs/product_a_v2_8_4_geo_requirements.in",

@@ -22,12 +22,12 @@ def test_successful_truth_blind_geo_receipt_is_immutable_and_self_consistent():
     embedded = receipt.pop('receipt_digest')
     canonical = json.dumps(receipt, sort_keys=True, separators=(',', ':')).encode()
 
-    assert evidence['workflow_run_id'] == receipt['github_run_id'] == 33359343821
+    assert evidence['workflow_run_id'] == receipt['github_run_id'] == 33359562108
     assert evidence['workflow_run_attempt'] == receipt['github_run_attempt'] == 1
-    assert evidence['head_sha'] == receipt['github_sha'] == 'a66b87eff2106dc6ac431b596b23e7b6e680748f'
+    assert evidence['head_sha'] == receipt['github_sha'] == '050b08b12806352faf9fc4b13166fa8d520c576b'
     assert evidence['workflow_run_conclusion'] == 'success'
-    assert evidence['artifact_id'] == 9746173100
-    assert evidence['artifact_digest'] == 'sha256:11333eeaf228b595d14cabd8e921234f11abafd801a4c3ec010ab647086241fe'
+    assert evidence['artifact_id'] == 9746245575
+    assert evidence['artifact_digest'] == 'sha256:bfbee09b9424d6c87f68246b7b093c6223e2fd6f750e726997c27c45167dfcf5'
     assert hashlib.sha256(canonical).hexdigest() == embedded
     assert receipt['status'] == 'geo_lock_import_calibration_complete'
     assert receipt['rasterio_imported'] is True
@@ -55,7 +55,7 @@ def test_geo_freeze_contains_no_scientific_observation_or_execution_authority():
     for key in (
         'scientific_source_accessed',
         'presealed_receipts_accessed',
-        'github_artifacts_accessed',
+        'github_input_artifacts_accessed',
         'raster_dataset_opened',
         'environmental_values_read',
         'sealed_read_entered',
