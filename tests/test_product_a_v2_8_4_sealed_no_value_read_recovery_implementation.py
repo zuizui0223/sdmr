@@ -49,3 +49,17 @@ def test_recovery_implementation_is_non_dispatchable_and_non_scientific():
     assert all(
         value is False for value in implementation['scientific_invariants'].values()
     )
+
+
+def test_every_reusable_job_forbids_same_run_retry():
+    workflow = (
+        ROOT / '.github' / 'workflows' / 'product-a-v2-8-4-sealed-reusable.yml'
+    ).read_text(encoding='utf-8')
+    guard = 'if: ${{ github.run_attempt == 1 }}'
+    for job in (
+        'authorization-and-receipt-preflight',
+        'sealed-part',
+        'aggregate-decision',
+    ):
+        assert f'  {job}:\n    {guard}' in workflow
+    assert workflow.count(guard) == 3
