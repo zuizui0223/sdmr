@@ -1,0 +1,56 @@
+{
+  "purpose": "product_a_v2_8_4_separate_promotion_or_nonpromotion_decision",
+  "decision_date": "2026-08-31",
+  "decision_status": "complete",
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "source_terminal_record": {
+    "path": "configs/product_a_v2_8_4_terminal_decision_receipt.json",
+    "repository_ref": "a6b68302ac7435f3626082508c3d00e7b241679c",
+    "git_blob_sha": "678568bf0b002e62f645068c726fa36d6c2ffc34",
+    "newline_canonical_sha256": "b310308a4a2409939547f67355897dd1aa23df43484ca2b4abf68c9b3a178f72",
+    "workflow_run_id": 33364164527,
+    "terminal_artifact_id": 9750071472,
+    "terminal_artifact_digest": "sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f",
+    "terminal_scientific_decision": "empirical_confirmation_not_supported"
+  },
+  "frozen_criteria_assessment": {
+    "valid_fresh_empirical_terminal_decision": true,
+    "full_primary_denominator_complete": true,
+    "primary_denominator": 3,
+    "technical_stop_or_unavailable": false,
+    "prediction_guardrail": true,
+    "ecological_support": false,
+    "process_reproducibility_support": true,
+    "ecologically_nondominated_parts": 3,
+    "strict_ecological_improvement_parts": 0,
+    "mean_presence_rank_delta_vs_auc": 0.0,
+    "conditional_results_can_override_primary_decision": false
+  },
+  "separate_decision": {
+    "product_a_promotion_decision": "not_promoted",
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "known_truth_support_preserved": true,
+    "fresh_empirical_advantage_supported": false,
+    "reason": "the_preregistered_primary_ecological_support_rule_failed_under_complete_3_of_3_evidence",
+    "terminal_non_support_may_be_reinterpreted_as_technical_failure": false
+  },
+  "publication_route": {
+    "highest_challenge_nee_or_ecology_letters_triggered": false,
+    "primary_target": "Methods in Ecology and Evolution",
+    "primary_route_basis": "complete_full_denominator_non_support_sharply_bounds_when_the_procedure_does_not_improve_independent_ecological_recovery",
+    "immediate_fallback": "Ecological Informatics",
+    "fallback_basis": "computational_sdm_benchmarking_information_barrier_provenance_and_uncertainty",
+    "product_b_route_exists": false,
+    "journal_target_may_trigger_additional_favorable_dataset_hunting": false
+  },
+  "development_hard_stop": {
+    "valid_product_a_terminal_condition_met": true,
+    "separate_promotion_or_nonpromotion_condition_met": true,
+    "product_a_scientific_development_closed": true,
+    "additional_product_a_experiment_allowed": false,
+    "consumed_endpoint_rerun_retune_rescue_or_replacement_allowed": false,
+    "taxon_seed_M_fraction_threshold_candidate_provider_or_denominator_change_allowed": false,
+    "next_action": "close_and_submit_product_a_manuscript_without_waiting_for_product_b"
+  }
+}

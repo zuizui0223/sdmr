@@ -31,11 +31,11 @@ Product-A v2.8.3 fixed the globally calibrated sealed fraction at `0.25`, used t
 
 The **Product-A v2.8.4** successor changed runtime only. Its truth-blind calibration run `33140419810` completed all 21 frozen runtime cells, after which the exact environment, dependency locks, timeouts, checkpoint/retry identity and receipt barrier were frozen without changing the scientific semantics.
 
-The third and final authorized sealed dispatch, run `33364164527` attempt 1 at frozen commit `1496a6c63b19bf7711511a864ccb448fc123c963`, completed the receipt barrier, all three seed parts and the unchanged full-denominator aggregate. The terminal artifact `9750071472` (`sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f`) returned `empirical_confirmation_not_supported`. This is a valid scientific non-support result, not a technical STOP: all 3/3 parts, 12 taxa per part and 150/300/500 km M specifications were auditable and available. The prediction guardrail passed and ecological nondomination held in 3/3 parts, but strict ecological improvement held in 0/3 and mean presence-rank delta versus AUC was 0.0. A separate explicit promotion/non-promotion decision is still required; until then scientific promotion is false and Product B remains blocked.
+The third and final authorized sealed dispatch, run `33364164527` attempt 1 at frozen commit `1496a6c63b19bf7711511a864ccb448fc123c963`, completed the receipt barrier, all three seed parts and the unchanged full-denominator aggregate. The terminal artifact `9750071472` (`sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f`) returned `empirical_confirmation_not_supported`. This is a valid scientific non-support result, not a technical STOP: all 3/3 parts, 12 taxa per part and 150/300/500 km M specifications were auditable and available. The prediction guardrail passed and ecological nondomination held in 3/3 parts, but strict ecological improvement held in 0/3 and mean presence-rank delta versus AUC was 0.0. The separate decision is now fixed as `not_promoted`; Product B remains blocked.
 
 ### Product-B block
 
-**Product B remains blocked.** The frozen fresh empirical confirmation ended `empirical_confirmation_not_supported`, and no separate Product-A promotion / Product-B-unblock decision has authorized Product B.
+**Product B remains blocked.** The frozen fresh empirical confirmation ended `empirical_confirmation_not_supported`, and the separate Product-A decision is `not_promoted` with `product_b_unblocked = false`.
 
 Known-truth support alone, a partial empirical subset, or a structural-availability success cannot unblock Product B.
 
@@ -194,7 +194,7 @@ GitHub Actions runs the core suite on Python 3.10–3.13 plus a Python 3.12 `ras
 
 ## Current empirical boundary
 
-The repository is **past architecture-only readiness**. Product A has supported known-truth results and a valid full-denominator fresh empirical terminal decision. The v2.8.4 endpoint is `empirical_confirmation_not_supported`; empirical promotion remains false, and the separate non-promotion/promotion record is the only remaining scientific-control gate before manuscript closure.
+The repository is **past architecture-only readiness**. Product A has supported known-truth results and a valid full-denominator fresh empirical terminal decision. The v2.8.4 endpoint is `empirical_confirmation_not_supported`, and the separate decision is `not_promoted`. Product-A scientific development is closed; proceed to manuscript submission without waiting for Product B.
 
 Therefore the current claim boundary is:
 
@@ -207,6 +207,6 @@ Historical frozen results remain authoritative under the code/contracts that pro
 
 **Development hard stop:** after one valid fresh empirical Product-A terminal decision under the unchanged full-denominator design and a separate explicit promotion/non-promotion decision, stop Product-A development and close its manuscript without waiting for Product B. Do not change taxa, M, seeds, sealed fraction, thresholds, candidate library, predictor universe, denominator or provider to seek a more favorable result.
 
-The first hard-stop condition is now met. Do not start another Product-A experiment; record the separate decision and close the manuscript.
+Both hard-stop conditions are now met. Do not start another Product-A experiment. Only manuscript rendering, journal formatting, copyediting and submission work remain.
 
 See [`docs/method.md`](docs/method.md), [`docs/research_program.md`](docs/research_program.md), [`docs/data_pipeline.md`](docs/data_pipeline.md), and the versioned Product-A result documents under [`docs/`](docs/).
