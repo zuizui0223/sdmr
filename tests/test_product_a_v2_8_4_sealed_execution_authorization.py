@@ -15,10 +15,10 @@ AUTH = Path('configs/product_a_v2_8_4_sealed_execution_authorization.json')
 BOUNDARY = Path('configs/product_a_v2_8_4_sealed_boundary_contract.json')
 CALLER = Path('.github/workflows/product-a-v2-8-4-sealed-authorized.yml')
 DESIGN = Path(NO_VALUE_READ_RECOVERY_DESIGN_PATH)
-IMPLEMENTATION_REF = 'a12816a774f23e86ae52902cef6e2e47c61bd852'
-AUTH_DIGEST = '23409c0f6cd015b8468bc2d99e626a7b0abe2b4ef0053c6e40bff072fa52e239'
-CALLER_SHA = '9d36954aaed0ad700428fa6e78ff0cc39f76de75fdbb2f66fd6b6f60e3c494c6'
-WORKFLOW_SHA = 'cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8'
+IMPLEMENTATION_REF = 'fc6db09380aad41db88d6adba44fec51c129e109'
+AUTH_DIGEST = '95e389f279fd2982409a4dfb02975d88340563328bcd064ef1325b55c9609e09'
+CALLER_SHA = '395a419a9adb6e57e45b2b14bfee923101afb6fa81e0ebc239ee48b9f661ad18'
+WORKFLOW_SHA = '2da271d5116319c323ee5b9851a908b752164c479ecea937ff529abe9c59822b'
 DESIGN_SHA = '682b610f8b426f3af1e31719124439511a8175618bbf7990f33085a920b92abf'
 GEO_FREEZE_SHA = 'eb2b61f424d51b77f74d8e974748686405380c3c9a6885896e389c82b3c23370'
 
@@ -267,6 +267,7 @@ def test_v284_final_recovery_caller_is_parameterless_and_live_checks_all_receipt
         "'total_count',-1)) > 3",
         "CURRENT_RUN_ATTEMPT: ${{ github.run_attempt }}",
         "os.environ['CURRENT_RUN_ATTEMPT'] != '1'",
+        "if: ${{ github.run_attempt == 1 }}",
         'artifacts?per_page=100',
         'prior_sealed_environment_read',
         'prior_terminal_scientific_decision_exists',

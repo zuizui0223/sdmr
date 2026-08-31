@@ -8,9 +8,9 @@
     "truth_blind_geo_runtime_freeze_verified": true
   },
   "authorization_date": "2026-08-31",
-  "authorization_receipt_digest": "23409c0f6cd015b8468bc2d99e626a7b0abe2b4ef0053c6e40bff072fa52e239",
+  "authorization_receipt_digest": "95e389f279fd2982409a4dfb02975d88340563328bcd064ef1325b55c9609e09",
   "authorized_caller": {
-    "newline_canonical_sha256": "9d36954aaed0ad700428fa6e78ff0cc39f76de75fdbb2f66fd6b6f60e3c494c6",
+    "newline_canonical_sha256": "395a419a9adb6e57e45b2b14bfee923101afb6fa81e0ebc239ee48b9f661ad18",
     "path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml"
   },
   "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-no-value-read-recovery-1",
@@ -35,7 +35,7 @@
   "implementation_identity": {
     "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
     "newline_canonical_sha256": {
-      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8",
+      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "2da271d5116319c323ee5b9851a908b752164c479ecea937ff529abe9c59822b",
       "configs/product_a_v2_8_3_fresh_confirmation_contract.json": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed",
       "configs/product_a_v2_8_4_environment_timeout_freeze.json": "72c70558928a35b2b3bdd3091b434bb8eb6884d27f15873fbb6c76899796e4b9",
       "configs/product_a_v2_8_4_geo_requirements.in": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5",
@@ -52,9 +52,9 @@
       "src/sdmr/v2_8_4_sealed_boundary.py": "5ee3294b0d290727174bddf3bb34b4363559f03344c18f0a6fcbc64a3f3b1a06",
       "src/sdmr/v2_8_4_sealed_runtime.py": "9d23ad8c358dea47b24a9c72161e8b57da92269650d631eeccd0b5cb03b23a6c"
     },
-    "pull_request": 185,
-    "runtime_ref": "a12816a774f23e86ae52902cef6e2e47c61bd852",
-    "sealed_reusable_workflow_sha256": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8"
+    "pull_request": 187,
+    "runtime_ref": "fc6db09380aad41db88d6adba44fec51c129e109",
+    "sealed_reusable_workflow_sha256": "2da271d5116319c323ee5b9851a908b752164c479ecea937ff529abe9c59822b"
   },
   "one_shot": true,
   "one_shot_dispatch_policy": {

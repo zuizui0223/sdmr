@@ -46,7 +46,7 @@ jobs:
           from pathlib import Path
 
           expected_ref='refs/heads/frozen/product-a-v2-8-4-sealed-v1-no-value-read-recovery-1'
-          implementation_ref='a12816a774f23e86ae52902cef6e2e47c61bd852'
+          implementation_ref='fc6db09380aad41db88d6adba44fec51c129e109'
           first_run_id=33309627503
           second_run_id=33311324330
           first_sha='ba12f96be48545819a72fc714f083cd5c00520ad'
@@ -244,10 +244,11 @@ jobs:
           PY
 
   sealed:
+    if: ${{ github.run_attempt == 1 }}
     needs: authorization-preflight
-    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@a12816a774f23e86ae52902cef6e2e47c61bd852
+    uses: zuizui0223/sdmr/.github/workflows/product-a-v2-8-4-sealed-reusable.yml@fc6db09380aad41db88d6adba44fec51c129e109
     with:
-      implementation_ref: a12816a774f23e86ae52902cef6e2e47c61bd852
+      implementation_ref: fc6db09380aad41db88d6adba44fec51c129e109
       reusable_workflow_sha256: ${{ needs.authorization-preflight.outputs.reusable_sha256 }}
       authorization_commit_sha: ${{ github.sha }}
       caller_workflow_sha256: ${{ needs.authorization-preflight.outputs.caller_sha256 }}
