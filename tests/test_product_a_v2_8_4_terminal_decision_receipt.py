@@ -17,27 +17,72 @@ def test_v284_terminal_receipt_pins_the_complete_scientific_non_support_result()
     assert run['workflow_run_attempt'] == 1
     assert run['workflow_run_conclusion'] == 'success'
     assert run['head_sha'] == '1496a6c63b19bf7711511a864ccb448fc123c963'
+    assert run['authorization_preflight_job_id'] == 99401287346
+    assert run['receipt_preflight_job_id'] == 99401310355
+    assert run['sealed_part_job_ids'] == {
+        '2026082201': 99401464490,
+        '2026082202': 99401464527,
+        '2026082203': 99401464478,
+    }
     assert run['aggregate_decision_job_id'] == 99422033684
 
-    assert len(receipt['run_artifacts']) == 8
-    terminal_artifact = next(
-        artifact
+    artifact_pins = {
+        artifact['artifact_name']: (
+            artifact['artifact_id'],
+            artifact['artifact_size_bytes'],
+            artifact['artifact_digest'],
+        )
         for artifact in receipt['run_artifacts']
-        if artifact['artifact_name'] == 'product-a-v2-8-4-terminal-decision'
-    )
-    assert terminal_artifact == {
-        'artifact_id': 9750071472,
-        'artifact_name': 'product-a-v2-8-4-terminal-decision',
-        'artifact_size_bytes': 3422,
-        'artifact_digest': 'sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f',
     }
-    assert set(receipt['terminal_artifact_files']) == {
-        'contract.json',
-        'decision.csv',
-        'part_summary.csv',
-        'partial_identification_bounds.csv',
-        'process_status.csv',
-        'structural_part_summary.csv',
+    assert artifact_pins == {
+        'product-a-v2-8-4-sealed-preflight': (
+            9747698898,
+            2989,
+            'sha256:978217d21564062054757c2f4c3e2bc72db5e2f6d8fd756efc94ec647f8fb56a',
+        ),
+        'product-a-v2-8-4-finalized-part-2026082201': (
+            9750048481,
+            9761,
+            'sha256:56938514d0be4080652514d3900cee2caffea8bd223a3a3bb6cc703abb4e84eb',
+        ),
+        'product-a-v2-8-4-sealed-state-2026082201': (
+            9750047982,
+            15336,
+            'sha256:d132e457ae669b9bd4af50a990ff2eafd4f82237328b077596b7f19a92a62b1b',
+        ),
+        'product-a-v2-8-4-finalized-part-2026082202': (
+            9749405054,
+            9685,
+            'sha256:fc5fc6bc9fafc0049d4013e6b9cc1a46c8de61b77a51f3e06d31bbbbcc8672a2',
+        ),
+        'product-a-v2-8-4-sealed-state-2026082202': (
+            9749404799,
+            15248,
+            'sha256:381c6aaa8de2c73f40e56f2ab642f173aeefa0de7fbb416ae44c0480161cc18b',
+        ),
+        'product-a-v2-8-4-finalized-part-2026082203': (
+            9749815263,
+            9839,
+            'sha256:2ee21a65f2f7415b785b5b2768c8e5fd61ada01400e45c7898fcd8dab78225af',
+        ),
+        'product-a-v2-8-4-sealed-state-2026082203': (
+            9749814855,
+            15419,
+            'sha256:02a66c0dd10c0c666da4434ffabba777af05ea9144b085dfac838cf10b91d639',
+        ),
+        'product-a-v2-8-4-terminal-decision': (
+            9750071472,
+            3422,
+            'sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f',
+        ),
+    }
+    assert receipt['terminal_artifact_files'] == {
+        'contract.json': '052eb7d1e77cdb35b433a6fc3a24b72690f8ca7d3d642616ee41b8539369065b',
+        'decision.csv': 'b04fc138297fa613158e86ac32c2b8625c167b96ead4c130fab9bf4739ebefef',
+        'part_summary.csv': '3e6464d9e68417a8169565385b9ee7bc380471c37b06e28069bce0462f55401c',
+        'partial_identification_bounds.csv': '3b90769696b438fe7e8246ead659d29a816b23f33a5d585392e217a27f84b9cf',
+        'process_status.csv': 'ddfe6242f2f056c557f3b98bd4d4c776df949ca53cc3e7705d62d18b198090ac',
+        'structural_part_summary.csv': 'c80502e158c5687fa8cd5ea45ba3b016f554cef11369401846b718637b34daf4',
     }
 
     assert terminal['decision'] == 'empirical_confirmation_not_supported'
