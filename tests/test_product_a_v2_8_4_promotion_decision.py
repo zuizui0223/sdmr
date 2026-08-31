@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 
@@ -24,7 +25,12 @@ def test_separate_nonpromotion_decision_uses_only_the_fixed_terminal_record():
     assert source['path'] == TERMINAL.as_posix()
     assert source['repository_ref'] == 'a6b68302ac7435f3626082508c3d00e7b241679c'
     assert source['git_blob_sha'] == '678568bf0b002e62f645068c726fa36d6c2ffc34'
-    assert source['newline_canonical_sha256'] == _sha(TERMINAL)
+    assert subprocess.check_output(
+        ['git', 'hash-object', '--path', TERMINAL.as_posix(), TERMINAL.as_posix()],
+        text=True,
+    ).strip() == '678568bf0b002e62f645068c726fa36d6c2ffc34'
+    assert _sha(TERMINAL) == 'b310308a4a2409939547f67355897dd1aa23df43484ca2b4abf68c9b3a178f72'
+    assert source['newline_canonical_sha256'] == 'b310308a4a2409939547f67355897dd1aa23df43484ca2b4abf68c9b3a178f72'
     assert source['workflow_run_id'] == terminal['authoritative_run']['workflow_run_id'] == 33364164527
     assert source['terminal_artifact_id'] == 9750071472
     assert source['terminal_scientific_decision'] == terminal['terminal_scientific_decision']['decision']
@@ -69,14 +75,76 @@ def test_publication_route_and_development_hard_stop_are_fail_closed():
 
 def test_manuscript_evidence_and_claim_ceiling_are_complete():
     with EVIDENCE.open(newline='', encoding='utf-8') as handle:
-        rows = list(csv.DictReader(handle))
-    assert len(rows) == 9
-    by_unit = {row['evidence_unit']: row for row in rows}
-    assert len(by_unit) == len(rows)
-    assert by_unit['empirical_v2_8_3']['status'] == 'technical_execution_terminal'
-    assert by_unit['empirical_v2_8_4']['status'] == 'empirical_confirmation_not_supported'
-    assert by_unit['product_a_promotion']['status'] == 'not_promoted'
-    assert by_unit['product_b']['status'] == 'blocked'
+        reader = csv.DictReader(handle)
+        assert reader.fieldnames == [
+            'evidence_unit', 'status', 'scientific_role', 'authoritative_source', 'claim_use'
+        ]
+        rows = list(reader)
+    assert rows == [
+        {
+            'evidence_unit': 'known_truth_v2_6',
+            'status': 'supported',
+            'scientific_role': 'known_truth_recovery_and_process_safety',
+            'authoritative_source': 'docs/product_a_v2_6_fresh_validation_result_2026-08-19.md',
+            'claim_use': 'supports_architecture_not_empirical_promotion',
+        },
+        {
+            'evidence_unit': 'known_truth_v2_7_2',
+            'status': 'supported',
+            'scientific_role': 'deterministic_known_truth_recovery',
+            'authoritative_source': 'docs/product_a_v2_7_2_known_truth_result_2026-08-23.md',
+            'claim_use': 'supports_implementation_and_known_truth_claims_only',
+        },
+        {
+            'evidence_unit': 'empirical_v2_8_3',
+            'status': 'technical_execution_terminal',
+            'scientific_role': 'presealed_runtime_cancellation',
+            'authoritative_source': 'run_33036252432',
+            'claim_use': 'provenance_only_not_scientific_negative',
+        },
+        {
+            'evidence_unit': 'empirical_v2_8_4',
+            'status': 'empirical_confirmation_not_supported',
+            'scientific_role': 'full_denominator_fresh_terminal',
+            'authoritative_source': 'run_33364164527_artifact_9750071472',
+            'claim_use': 'primary_fresh_scientific_result',
+        },
+        {
+            'evidence_unit': 'prediction_guardrail',
+            'status': 'supported',
+            'scientific_role': 'presence_rank_guardrail',
+            'authoritative_source': 'run_33364164527_artifact_9750071472',
+            'claim_use': 'conditional_component_of_terminal_result',
+        },
+        {
+            'evidence_unit': 'ecological_support',
+            'status': 'not_supported',
+            'scientific_role': 'strict_ecological_improvement_rule',
+            'authoritative_source': 'run_33364164527_artifact_9750071472',
+            'claim_use': 'blocks_product_a_promotion',
+        },
+        {
+            'evidence_unit': 'process_reproducibility',
+            'status': 'supported',
+            'scientific_role': 'process_status_modal_reproducibility',
+            'authoritative_source': 'run_33364164527_artifact_9750071472',
+            'claim_use': 'conditional_and_cannot_override_primary',
+        },
+        {
+            'evidence_unit': 'product_a_promotion',
+            'status': 'not_promoted',
+            'scientific_role': 'separate_promotion_decision',
+            'authoritative_source': 'configs/product_a_v2_8_4_promotion_decision.json',
+            'claim_use': 'closes_product_a_scientific_development',
+        },
+        {
+            'evidence_unit': 'product_b',
+            'status': 'blocked',
+            'scientific_role': 'separate_paper_entry_gate',
+            'authoritative_source': 'configs/product_a_v2_8_4_promotion_decision.json',
+            'claim_use': 'no_product_b_analysis_or_claim',
+        },
+    ]
 
     text = MANUSCRIPT.read_text()
     assert 'scientific scope closed / proceed to submission assembly' in text
