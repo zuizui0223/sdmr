@@ -1,0 +1,81 @@
+{
+  "purpose": "product_a_v2_8_4_sealed_no_value_read_recovery_implementation",
+  "implementation_date": "2026-08-31",
+  "tracks_issue": 170,
+  "implementation_commit": "d255b61e727e6a54842f07b5fa35d79a5372ca09",
+  "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
+  "recovery_design": {
+    "path": "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json",
+    "newline_canonical_sha256": "682b610f8b426f3af1e31719124439511a8175618bbf7990f33085a920b92abf",
+    "contract_digest": "a8ad67627b05c498e7b3c8569c33b23f664fb7cf2cfcbbdeaeb136abfae12877"
+  },
+  "geo_runtime_freeze": {
+    "path": "configs/product_a_v2_8_4_geo_runtime_freeze.json",
+    "newline_canonical_sha256": "eb2b61f424d51b77f74d8e974748686405380c3c9a6885896e389c82b3c23370",
+    "calibration_workflow_run_id": 33359562108,
+    "calibration_artifact_id": 9746245575,
+    "calibration_artifact_digest": "sha256:bfbee09b9424d6c87f68246b7b093c6223e2fd6f750e726997c27c45167dfcf5",
+    "geo_requirements_lock_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef"
+  },
+  "implementation_identity": {
+    "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
+    "files": {
+      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": {
+        "blob_sha": "665f6deec591fa95337556ea4fa19e2ce1a0d6a4",
+        "newline_canonical_sha256": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8"
+      },
+      "src/sdmr/v2_8_4_geo_runtime.py": {
+        "blob_sha": "24db8f4d5b8c64c419c67159871e8d541b02b0c8",
+        "newline_canonical_sha256": "335b7c21a40851ee3d3cd769e8bca27c7da2f082697cec1df53303d0e1d4a82e"
+      },
+      "src/sdmr/v2_8_4_sealed_authorization.py": {
+        "blob_sha": "69c0d9b49759d84ecddcf52ddd56aa04e9c88d40",
+        "newline_canonical_sha256": "2009c27afa2c101484ed3c937bad7856ee0123ba6dd93b35890550364f66a248"
+      },
+      "src/sdmr/v2_8_4_sealed_runtime.py": {
+        "blob_sha": "6ddc1ba31159f524e632db55faf32d4ccf46fe3e",
+        "newline_canonical_sha256": "9d23ad8c358dea47b24a9c72161e8b57da92269650d631eeccd0b5cb03b23a6c"
+      },
+      "configs/product_a_v2_8_4_geo_requirements.in": {
+        "newline_canonical_sha256": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5"
+      },
+      "configs/product_a_v2_8_4_geo_requirements.lock": {
+        "newline_canonical_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef"
+      }
+    }
+  },
+  "implemented_guards": {
+    "sealed_part_uses_hash_locked_geo_environment": true,
+    "core_versions_retained_exactly": true,
+    "rasterio_import_and_version_check_before_any_input_artifact_download": true,
+    "rasterio_import_check_opens_no_raster": true,
+    "geo_receipt_validated_before_sealed_read_entry": true,
+    "geo_receipt_digest_written_to_sealed_state": true,
+    "attempt_3_exact_ref_supported_by_truth_blind_verifier": true,
+    "attempt_3_must_be_exactly_third_total_dispatch": true,
+    "fourth_dispatch_forbidden": true,
+    "same_run_job_retry_for_attempt_3_forbidden": true
+  },
+  "scientific_invariants": {
+    "scientific_contract_changed": false,
+    "taxon_panel_changed": false,
+    "sealed_fraction_changed": false,
+    "split_seeds_changed": false,
+    "M_changed": false,
+    "thresholds_changed": false,
+    "denominator_changed": false,
+    "model_or_procedure_library_changed": false,
+    "source_or_receipt_identity_changed": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false
+  },
+  "execution_boundary": {
+    "implementation_complete_for_review": true,
+    "recovery_authorization_exists": false,
+    "recovery_dispatch_allowed": false,
+    "scientific_outcome_exists": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "next_gate": "merge_this_implementation_then_create_and_merge_a_separate_exact_attempt_3_authorization_and_frozen_caller"
+  }
+}

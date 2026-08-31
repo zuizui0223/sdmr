@@ -17,6 +17,7 @@ from types import SimpleNamespace
 from typing import Iterable, Mapping
 
 from .v2_8_4_presealed_receipt import ENVIRONMENT_RECEIPT_PURPOSE
+from .v2_8_4_geo_runtime import validate_geo_environment_receipt
 from .v2_8_4_sealed_boundary import (
     EXPECTED_SEEDS,
     build_truth_blind_input_gate,
@@ -112,6 +113,22 @@ def _environment(boundary: Mapping[str, object], environment_receipt_path: str |
         if receipt.get(key) is not False:
             raise ValueError(f"v2.8.4 environment receipt crossed boundary: {key}")
     return receipt
+
+
+def _geo_environment(
+    geo_environment_receipt_path: str | Path, geo_freeze_path: str | Path
+) -> dict:
+    freeze = _load(geo_freeze_path)
+    if freeze.get("purpose") != "product_a_v2_8_4_geo_runtime_freeze":
+        raise ValueError("v2.8.4 sealed runtime received wrong geo runtime freeze")
+    boundary = freeze["execution_boundary"]
+    if boundary.get("geo_runtime_freeze_complete") is not True:
+        raise ValueError("v2.8.4 sealed geo runtime is not frozen")
+    if boundary.get("sealed_recovery_dispatch_authorized") is not False:
+        raise ValueError("v2.8.4 geo freeze unexpectedly authorizes dispatch")
+    return validate_geo_environment_receipt(
+        _load(geo_environment_receipt_path), freeze=freeze
+    )
 
 
 def input_gate(
@@ -243,6 +260,7 @@ def _assert_pre_read_inputs(
 def sealed_audit(
     *, boundary_path: str | Path, gate_path: str | Path, receipt_path: str | Path,
     environment_receipt_path: str | Path, scientific_contract_path: str | Path,
+    geo_environment_receipt_path: str | Path, geo_freeze_path: str | Path,
     part_dir: str | Path, pretruth_dir: str | Path, final_fit_root: str | Path,
     manifest_path: str | Path, part_seed: int, sealed_authorization_receipt_digest: str,
     state_path: str | Path, output_dir: str | Path,
@@ -251,6 +269,9 @@ def sealed_audit(
     gate = _gate(boundary, gate_path)
     receipt = _receipt(boundary, receipt_path, part_seed)
     _environment(boundary, environment_receipt_path)
+    geo_environment = _geo_environment(
+        geo_environment_receipt_path, geo_freeze_path
+    )
     if len(sealed_authorization_receipt_digest) != 64 or any(
         char not in "0123456789abcdef" for char in sealed_authorization_receipt_digest
     ):
@@ -267,6 +288,7 @@ def sealed_audit(
         "part_seed": int(part_seed),
         "truth_blind_gate_digest": gate["gate_digest"],
         "presealed_receipt_digest": receipt["receipt_digest"],
+        "geo_environment_receipt_digest": geo_environment["receipt_digest"],
         "sealed_authorization_receipt_digest": sealed_authorization_receipt_digest,
         "pre_read_validation_complete": True,
         "sealed_read_entered": False,
@@ -313,6 +335,7 @@ def sealed_audit(
         "part_seed": int(part_seed),
         "presealed_receipt_digest": receipt["receipt_digest"],
         "truth_blind_gate_digest": gate["gate_digest"],
+        "geo_environment_receipt_digest": geo_environment["receipt_digest"],
         "sealed_authorization_receipt_digest": sealed_authorization_receipt_digest,
         "scientific_promotion_allowed": False,
         "product_b_unblocked": False,
@@ -437,6 +460,8 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--gate", required=True)
     p.add_argument("--receipt", required=True)
     p.add_argument("--environment-receipt", required=True)
+    p.add_argument("--geo-environment-receipt", required=True)
+    p.add_argument("--geo-freeze", required=True)
     p.add_argument("--scientific-contract", required=True)
     p.add_argument("--part-dir", required=True)
     p.add_argument("--pretruth-dir", required=True)
@@ -449,6 +474,8 @@ def _parser() -> argparse.ArgumentParser:
     p.set_defaults(func=lambda a: sealed_audit(
         boundary_path=a.boundary, gate_path=a.gate, receipt_path=a.receipt,
         environment_receipt_path=a.environment_receipt,
+        geo_environment_receipt_path=a.geo_environment_receipt,
+        geo_freeze_path=a.geo_freeze,
         scientific_contract_path=a.scientific_contract, part_dir=a.part_dir,
         pretruth_dir=a.pretruth_dir, final_fit_root=a.final_fit_root,
         manifest_path=a.manifest, part_seed=a.part_seed,

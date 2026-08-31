@@ -2,6 +2,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from sdmr.v2_8_4_sealed_authorization import (
     RECOVERY_AUTHORIZED_REF,
     RECOVERY_DESIGN_PATH,
@@ -49,32 +51,21 @@ def test_v284_recovery_authorization_receipt_is_self_consistent_and_exact(tmp_pa
 
     implementation_hashes = auth['implementation_identity']['newline_canonical_sha256']
     assert set(implementation_hashes) == set(REQUIRED_IMPLEMENTATION_PATHS)
-    for relative in REQUIRED_IMPLEMENTATION_PATHS:
-        assert _sha(Path(relative)) == implementation_hashes[relative]
-
-    gate = verify_sealed_authorization(
-        authorization_path=AUTH,
-        boundary_path=BOUNDARY,
-        implementation_root='.',
-        authorization_root='.',
-        implementation_ref=IMPLEMENTATION_REF,
-        reusable_workflow_sha256=WORKFLOW_SHA,
-        caller_workflow_sha256=CALLER_SHA,
-        authorization_commit_sha='recovery-authorization-commit-test',
-        current_sha='recovery-authorization-commit-test',
-        current_ref=RECOVERY_AUTHORIZED_REF,
-        current_event='workflow_dispatch',
-        output_path=tmp_path / 'authorization_gate.json',
-    )
-    assert gate['authorization_receipt_digest'] == AUTH_DIGEST
-    assert gate['operational_attempt'] == 2
-    assert gate['recovery_of_pre_read_run_id'] == 33309627503
-    assert gate['one_shot_sealed_execution_authorized'] is True
-    assert gate['pre_read_exact_retry_maximum_attempts_per_part'] == 2
-    assert gate['retry_after_sealed_read_entered_allowed'] is False
-    assert gate['sealed_ecological_outcomes_read'] is False
-    assert gate['scientific_promotion_allowed'] is False
-    assert gate['product_b_unblocked'] is False
+    with pytest.raises(ValueError, match='sealed implementation identity changed'):
+        verify_sealed_authorization(
+            authorization_path=AUTH,
+            boundary_path=BOUNDARY,
+            implementation_root='.',
+            authorization_root='.',
+            implementation_ref=IMPLEMENTATION_REF,
+            reusable_workflow_sha256=WORKFLOW_SHA,
+            caller_workflow_sha256=CALLER_SHA,
+            authorization_commit_sha='recovery-authorization-commit-test',
+            current_sha='recovery-authorization-commit-test',
+            current_ref=RECOVERY_AUTHORIZED_REF,
+            current_event='workflow_dispatch',
+            output_path=tmp_path / 'authorization_gate.json',
+        )
 
 
 def test_v284_recovery_authorization_pins_exact_prior_pre_read_failure():

@@ -2,7 +2,7 @@
 
 This module is intentionally truth-blind. It validates only repository identities,
 presealed receipt pins, execution-boundary flags, and an explicitly pinned
-pre-read recovery record. It never imports the sealed audit, raster extraction,
+recovery record. It never imports the sealed audit, raster extraction,
 model scoring, or ecological decision code.
 
 The file can be executed directly before the scientific dependency environment
@@ -45,9 +45,16 @@ INITIAL_AUTHORIZED_REF = "refs/heads/frozen/product-a-v2-8-4-sealed-v1"
 RECOVERY_AUTHORIZED_REF = (
     "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1"
 )
+NO_VALUE_READ_RECOVERY_AUTHORIZED_REF = (
+    "refs/heads/frozen/product-a-v2-8-4-sealed-v1-no-value-read-recovery-1"
+)
 RECOVERY_DESIGN_PATH = (
     "configs/product_a_v2_8_4_sealed_pre_read_recovery_contract.json"
 )
+NO_VALUE_READ_RECOVERY_DESIGN_PATH = (
+    "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json"
+)
+GEO_RUNTIME_FREEZE_PATH = "configs/product_a_v2_8_4_geo_runtime_freeze.json"
 PRIOR_PRE_READ_FAILURE = {
     "prior_workflow_run_id": 33309627503,
     "prior_workflow_run_attempt": 1,
@@ -79,6 +86,13 @@ REQUIRED_IMPLEMENTATION_PATHS = (
     "src/sdmr/v2_8_3_fresh_runtime.py",
     "src/sdmr/v2_8_3_fresh_aggregate.py",
     "src/sdmr/v2_7_2_fresh_sealed_audit.py",
+)
+NO_VALUE_READ_RECOVERY_IMPLEMENTATION_PATHS = (
+    "src/sdmr/v2_8_4_geo_runtime.py",
+    "configs/product_a_v2_8_4_geo_runtime_freeze.json",
+    "configs/product_a_v2_8_4_geo_requirements.in",
+    "configs/product_a_v2_8_4_geo_requirements.lock",
+    "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json",
 )
 
 
@@ -127,43 +141,121 @@ def _verify_operational_attempt(
                 raise ValueError(f"initial sealed one-shot policy changed: {key}")
         return attempt, authorized_ref, None
 
-    if attempt != 2 or authorized_ref != RECOVERY_AUTHORIZED_REF:
-        raise ValueError("sealed operational attempt/ref is not an authorized recovery")
-    recovery = auth.get("pre_read_recovery", {})
-    if not isinstance(recovery, Mapping) or recovery.get("authorized") is not True:
-        raise ValueError("sealed pre-read recovery is not explicitly authorized")
-    for key, expected in PRIOR_PRE_READ_FAILURE.items():
-        if recovery.get(key) != expected:
-            raise ValueError(f"sealed pre-read recovery identity changed: {key}")
-    if recovery.get("recovery_change_scope") != (
-        "stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change"
-    ):
-        raise ValueError("sealed pre-read recovery scope changed")
-    if recovery.get("only_prior_pre_read_failure_is_superseded") is not True:
-        raise ValueError("sealed pre-read recovery supersession rule changed")
-    if recovery.get("prior_scientific_evidence_reused_or_reinterpreted") is not False:
-        raise ValueError("sealed pre-read recovery reinterprets prior evidence")
-    if recovery.get("additional_scientific_attempt_created") is not False:
-        raise ValueError("sealed pre-read recovery changed scientific attempt identity")
+    if attempt == 2 and authorized_ref == RECOVERY_AUTHORIZED_REF:
+        recovery = auth.get("pre_read_recovery", {})
+        if not isinstance(recovery, Mapping) or recovery.get("authorized") is not True:
+            raise ValueError("sealed pre-read recovery is not explicitly authorized")
+        for key, expected in PRIOR_PRE_READ_FAILURE.items():
+            if recovery.get(key) != expected:
+                raise ValueError(f"sealed pre-read recovery identity changed: {key}")
+        if recovery.get("recovery_change_scope") != (
+            "stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change"
+        ):
+            raise ValueError("sealed pre-read recovery scope changed")
+        if recovery.get("only_prior_pre_read_failure_is_superseded") is not True:
+            raise ValueError("sealed pre-read recovery supersession rule changed")
+        if recovery.get("prior_scientific_evidence_reused_or_reinterpreted") is not False:
+            raise ValueError("sealed pre-read recovery reinterprets prior evidence")
+        if recovery.get("additional_scientific_attempt_created") is not False:
+            raise ValueError("sealed pre-read recovery changed scientific attempt identity")
 
+        design_sha = str(recovery.get("recovery_design_contract_sha256", ""))
+        design_path = Path(implementation_root) / RECOVERY_DESIGN_PATH
+        if len(design_sha) != 64 or not design_path.is_file():
+            raise ValueError("sealed pre-read recovery design pin is missing")
+        if _canonical_file_sha256(design_path) != design_sha:
+            raise ValueError("sealed pre-read recovery design contract changed")
+
+        expected_policy = {
+            "exact_workflow_dispatch_run_count_after_recovery_dispatch": 2,
+            "prior_pre_read_failure_run_is_exactly_pinned": True,
+            "current_recovery_run_must_be_the_only_second_dispatch": True,
+            "no_third_workflow_dispatch_run_allowed": True,
+            "failed_job_retry_within_recovery_run_retains_run_identity": True,
+        }
+        for key, value in expected_policy.items():
+            if policy.get(key) != value:
+                raise ValueError(f"sealed recovery one-shot policy changed: {key}")
+        return attempt, authorized_ref, int(PRIOR_PRE_READ_FAILURE["prior_workflow_run_id"])
+
+    if attempt != 3 or authorized_ref != NO_VALUE_READ_RECOVERY_AUTHORIZED_REF:
+        raise ValueError("sealed operational attempt/ref is not an authorized recovery")
+    recovery = auth.get("post_entry_no_value_read_recovery", {})
+    if not isinstance(recovery, Mapping) or recovery.get("authorized") is not True:
+        raise ValueError("sealed no-value-read recovery is not explicitly authorized")
+    expected_recovery = {
+        "prior_workflow_run_id": 33311324330,
+        "prior_workflow_run_attempt": 1,
+        "prior_head_sha": "586700d531fb815fa452e3a8ca31f4c97e070443",
+        "prior_head_ref": RECOVERY_AUTHORIZED_REF,
+        "prior_run_conclusion": "failure",
+        "prior_failure_fingerprint": "ModuleNotFoundError: No module named 'rasterio'",
+        "prior_sealed_read_entered": True,
+        "prior_sealed_environment_read": False,
+        "prior_sealed_audit_completed": False,
+        "prior_terminal_scientific_decision_exists": False,
+        "prior_scientific_evidence_reused_or_reinterpreted": False,
+        "additional_scientific_attempt_created": False,
+        "recovery_change_scope": (
+            "hash_locked_geo_extension_and_rasterio_import_gate_only"
+        ),
+    }
+    for key, expected in expected_recovery.items():
+        if recovery.get(key) != expected:
+            raise ValueError(f"sealed no-value-read recovery identity changed: {key}")
+
+    root = Path(implementation_root)
+    design_path = root / NO_VALUE_READ_RECOVERY_DESIGN_PATH
     design_sha = str(recovery.get("recovery_design_contract_sha256", ""))
-    design_path = Path(implementation_root) / RECOVERY_DESIGN_PATH
-    if len(design_sha) != 64 or not design_path.is_file():
-        raise ValueError("sealed pre-read recovery design pin is missing")
     if _canonical_file_sha256(design_path) != design_sha:
-        raise ValueError("sealed pre-read recovery design contract changed")
+        raise ValueError("sealed no-value-read recovery design changed")
+    design = _load(design_path)
+    if design.get("contract_digest") != recovery.get("recovery_design_contract_digest"):
+        raise ValueError("sealed no-value-read recovery design digest changed")
+    prior = design.get("prior_operational_attempt", {})
+    proof = prior.get("common_state_proof", {})
+    if int(prior.get("workflow_run_id", -1)) != 33311324330:
+        raise ValueError("sealed no-value-read prior run changed")
+    if proof.get("sealed_read_entered") is not True:
+        raise ValueError("sealed no-value-read recovery lacks conservative entry proof")
+    for key in (
+        "sealed_environment_read",
+        "sealed_audit_completed",
+        "terminal_scientific_decision_exists",
+    ):
+        if proof.get(key) is not False:
+            raise ValueError(f"sealed no-value-read prior proof changed: {key}")
+    if design.get("recovery_class") != "post_entry_marker_but_pre_environment_value_read":
+        raise ValueError("sealed no-value-read recovery class changed")
+
+    freeze_path = root / GEO_RUNTIME_FREEZE_PATH
+    freeze_sha = str(recovery.get("geo_runtime_freeze_sha256", ""))
+    if _canonical_file_sha256(freeze_path) != freeze_sha:
+        raise ValueError("sealed no-value-read geo runtime freeze changed")
+    freeze = _load(freeze_path)
+    if freeze["execution_boundary"].get("geo_runtime_freeze_complete") is not True:
+        raise ValueError("sealed no-value-read geo runtime is not frozen")
+    if freeze["execution_boundary"].get("sealed_recovery_dispatch_authorized") is not False:
+        raise ValueError("geo runtime freeze unexpectedly authorizes sealed recovery")
+    if freeze["calibration_evidence"].get("artifact_id") != recovery.get(
+        "geo_calibration_artifact_id"
+    ):
+        raise ValueError("sealed no-value-read geo calibration artifact changed")
+    if freeze["calibration_evidence"].get("artifact_digest") != recovery.get(
+        "geo_calibration_artifact_digest"
+    ):
+        raise ValueError("sealed no-value-read geo calibration digest changed")
 
     expected_policy = {
-        "exact_workflow_dispatch_run_count_after_recovery_dispatch": 2,
-        "prior_pre_read_failure_run_is_exactly_pinned": True,
-        "current_recovery_run_must_be_the_only_second_dispatch": True,
-        "no_third_workflow_dispatch_run_allowed": True,
-        "failed_job_retry_within_recovery_run_retains_run_identity": True,
+        "exact_workflow_dispatch_run_count_after_recovery_dispatch": 3,
+        "both_prior_failure_runs_are_exactly_pinned": True,
+        "current_recovery_run_must_be_the_only_third_dispatch": True,
+        "fourth_workflow_dispatch_run_forbidden": True,
+        "failed_job_retry_within_recovery_run_allowed": False,
     }
-    for key, value in expected_policy.items():
-        if policy.get(key) != value:
-            raise ValueError(f"sealed recovery one-shot policy changed: {key}")
-    return attempt, authorized_ref, int(PRIOR_PRE_READ_FAILURE["prior_workflow_run_id"])
+    if dict(policy) != expected_policy:
+        raise ValueError("sealed no-value-read recovery one-shot policy changed")
+    return attempt, authorized_ref, 33311324330
 
 
 def verify_sealed_authorization(
@@ -206,6 +298,11 @@ def verify_sealed_authorization(
         raise ValueError("sealed authorization basis lacks pre-authorization blindness")
     if attempt == 2 and basis.get("prior_attempt_pre_read_failure_verified") is not True:
         raise ValueError("sealed recovery basis does not verify the prior pre-read failure")
+    if attempt == 3:
+        if basis.get("prior_attempt_no_value_read_failure_verified") is not True:
+            raise ValueError("sealed recovery basis does not verify the no-value-read failure")
+        if basis.get("truth_blind_geo_runtime_freeze_verified") is not True:
+            raise ValueError("sealed recovery basis lacks the geo runtime freeze")
 
     embedded = str(auth.get("authorization_receipt_digest", ""))
     body = dict(auth)
@@ -220,12 +317,15 @@ def verify_sealed_authorization(
     if implementation.get("sealed_reusable_workflow_sha256") != reusable_workflow_sha256:
         raise ValueError("sealed authorization reusable workflow hash changed")
     hashes = implementation.get("newline_canonical_sha256", {})
-    if set(REQUIRED_IMPLEMENTATION_PATHS) - set(hashes):
+    required_paths = REQUIRED_IMPLEMENTATION_PATHS
+    if attempt == 3:
+        required_paths += NO_VALUE_READ_RECOVERY_IMPLEMENTATION_PATHS
+    if set(required_paths) - set(hashes):
         raise ValueError(
             "sealed authorization does not pin the complete required implementation surface"
         )
     root = Path(implementation_root)
-    for relative in REQUIRED_IMPLEMENTATION_PATHS:
+    for relative in required_paths:
         path = root / relative
         if not path.is_file() or _canonical_file_sha256(path) != hashes[relative]:
             raise ValueError(f"sealed implementation identity changed: {relative}")
@@ -324,15 +424,29 @@ def verify_sealed_authorization(
             raise ValueError(f"sealed authorization crossed outcome/promotion boundary: {key}")
 
     retry = auth.get("retry_policy", {})
-    if retry.get("pre_read_exact_retry_allowed_only_if_sealed_read_entered_false") is not True:
-        raise ValueError("sealed authorization retry rule changed")
-    if int(retry.get("maximum_pre_read_attempts_per_part", -1)) != 2:
-        raise ValueError("sealed authorization pre-read retry count changed")
-    for key in (
-        "retry_after_sealed_read_entered_allowed",
-        "broad_rerun_of_successful_sealed_part_allowed",
-        "scientific_null_negative_or_unavailable_outcome_retry_allowed",
-    ):
+    if attempt in (1, 2):
+        if retry.get("pre_read_exact_retry_allowed_only_if_sealed_read_entered_false") is not True:
+            raise ValueError("sealed authorization retry rule changed")
+        if int(retry.get("maximum_pre_read_attempts_per_part", -1)) != 2:
+            raise ValueError("sealed authorization pre-read retry count changed")
+        forbidden_retry = (
+            "retry_after_sealed_read_entered_allowed",
+            "broad_rerun_of_successful_sealed_part_allowed",
+            "scientific_null_negative_or_unavailable_outcome_retry_allowed",
+        )
+    else:
+        expected_retry = {
+            "new_explicit_contract_required_after_prior_sealed_read_entry": True,
+            "current_recovery_is_final_workflow_dispatch": True,
+            "same_run_job_retry_allowed": False,
+            "fourth_workflow_dispatch_allowed": False,
+            "broad_rerun_of_successful_sealed_part_allowed": False,
+            "scientific_null_negative_or_unavailable_outcome_retry_allowed": False,
+        }
+        if dict(retry) != expected_retry:
+            raise ValueError("sealed no-value-read recovery retry policy changed")
+        forbidden_retry = ()
+    for key in forbidden_retry:
         if retry.get(key) is not False:
             raise ValueError(f"sealed authorization retry boundary changed: {key}")
 
@@ -348,7 +462,8 @@ def verify_sealed_authorization(
         "sealed_reusable_workflow_sha256": reusable_workflow_sha256,
         "authorized_caller_workflow_sha256": caller_workflow_sha256,
         "one_shot_sealed_execution_authorized": True,
-        "pre_read_exact_retry_maximum_attempts_per_part": 2,
+        "pre_read_exact_retry_maximum_attempts_per_part": 2 if attempt in (1, 2) else None,
+        "current_recovery_is_final_workflow_dispatch": attempt == 3,
         "retry_after_sealed_read_entered_allowed": False,
         "sealed_ecological_outcomes_read": False,
         "scientific_promotion_allowed": False,
