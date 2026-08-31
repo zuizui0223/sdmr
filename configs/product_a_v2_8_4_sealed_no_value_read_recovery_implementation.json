@@ -2,7 +2,7 @@
   "purpose": "product_a_v2_8_4_sealed_no_value_read_recovery_implementation",
   "implementation_date": "2026-08-31",
   "tracks_issue": 170,
-  "implementation_commit": "d255b61e727e6a54842f07b5fa35d79a5372ca09",
+  "implementation_commit": "965fab670a7119e8f77ddb4281f3be23bbf816f8",
   "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
   "recovery_design": {
     "path": "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json",
@@ -21,8 +21,8 @@
     "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
     "files": {
       ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": {
-        "blob_sha": "665f6deec591fa95337556ea4fa19e2ce1a0d6a4",
-        "newline_canonical_sha256": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8"
+        "blob_sha": "5a8f0841149e2f3a0fb7fa51bc7ffe6f683f61b4",
+        "newline_canonical_sha256": "2da271d5116319c323ee5b9851a908b752164c479ecea937ff529abe9c59822b"
       },
       "src/sdmr/v2_8_4_geo_runtime.py": {
         "blob_sha": "24db8f4d5b8c64c419c67159871e8d541b02b0c8",
@@ -54,7 +54,8 @@
     "attempt_3_exact_ref_supported_by_truth_blind_verifier": true,
     "attempt_3_must_be_exactly_third_total_dispatch": true,
     "fourth_dispatch_forbidden": true,
-    "same_run_job_retry_for_attempt_3_forbidden": true
+    "same_run_job_retry_for_attempt_3_forbidden": true,
+    "same_run_retry_guard_applied_to_every_reusable_job": true
   },
   "scientific_invariants": {
     "scientific_contract_changed": false,

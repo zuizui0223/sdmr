@@ -217,7 +217,11 @@ def test_v284_sealed_workflow_is_non_dispatchable_and_ordered_fail_closed():
     assert 'max-parallel: 3' in text
     for seed in ('2026082201', '2026082202', '2026082203'):
         assert seed in text
-    assert 'aggregate-decision:\n    needs: sealed-part' in text
+    assert (
+        'aggregate-decision:\n'
+        '    if: ${{ github.run_attempt == 1 }}\n'
+        '    needs: sealed-part'
+    ) in text
     assert 'product-a-v2-8-4-terminal-decision' in text
 
 

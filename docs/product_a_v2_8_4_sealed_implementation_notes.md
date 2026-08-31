@@ -17,3 +17,5 @@ The second sealed workflow dispatch reached the conservative `sealed_read_entere
 The final recovery implementation adds only the truth-blind, hash-locked geospatial environment frozen from run `33359562108`. Each sealed-part runner must install that lock and import/version-check `rasterio` before downloading any input artifact. The resulting geo receipt is validated again before the sealed-read marker and its digest is written into the sealed state.
 
 This implementation does not authorize execution. A separate frozen authorization must prove that the next run is exactly the third total workflow dispatch, must forbid a fourth dispatch and any same-run job retry, and must retain every scientific identity and receipt. Product B and scientific promotion remain blocked.
+
+The no-retry boundary is enforced inside the reusable workflow as well as in the future caller: authorization preflight, every sealed-part job and aggregate decision all require `github.run_attempt == 1`. GitHub failed-job or specific-job reruns therefore cannot reopen a sealed job under the same workflow-run identity.
