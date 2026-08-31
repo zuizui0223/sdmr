@@ -3,16 +3,26 @@
     "journal_target_did_not_select_scientific_parameters": true,
     "no_additional_favorable_dataset_hunting": true,
     "no_sealed_ecological_outcome_was_read_before_authorization": true,
-    "prior_attempt_pre_read_failure_verified": true,
-    "source": "explicit_user_instruction_to_continue_the_reviewed_pre_read_recovery_and_complete_the_same_Product_A_v2_8_4_scientific_execution"
+    "prior_attempt_no_value_read_failure_verified": true,
+    "source": "explicit_user_instruction_to_complete_only_the_reviewed_Product_A_v2_8_4_runtime_recovery_without_changing_scientific_identity",
+    "truth_blind_geo_runtime_freeze_verified": true
   },
-  "authorization_date": "2026-08-30",
-  "authorization_receipt_digest": "6d60e52b6ffdd8e020d1a124248520759e03d5f1e939d27dd486f980270185b8",
+  "authorization_date": "2026-08-31",
+  "authorization_receipt_digest": "23409c0f6cd015b8468bc2d99e626a7b0abe2b4ef0053c6e40bff072fa52e239",
   "authorized_caller": {
-    "newline_canonical_sha256": "308f49bc23027bb1fcb4bd4d5fab3f1deb2b9f52ada509737ca81f853799be95",
+    "newline_canonical_sha256": "9d36954aaed0ad700428fa6e78ff0cc39f76de75fdbb2f66fd6b6f60e3c494c6",
     "path": ".github/workflows/product-a-v2-8-4-sealed-authorized.yml"
   },
-  "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1",
+  "authorized_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-no-value-read-recovery-1",
+  "checkpoint_and_retry_identity": {
+    "attempt_3_is_final_workflow_dispatch": true,
+    "fourth_workflow_dispatch_allowed": false,
+    "geo_environment_receipt_digest_is_written_before_inherited_runtime": true,
+    "same_run_job_retry_allowed": false,
+    "sealed_read_entry_is_a_conservative_pre_import_marker": true,
+    "state_artifact_required_on_part_failure": true,
+    "successful_or_failed_prior_part_work_may_not_be_reused_as_scientific_evidence": true
+  },
   "execution_boundary": {
     "product_b_unblocked": false,
     "scientific_promotion_allowed": false,
@@ -25,55 +35,90 @@
   "implementation_identity": {
     "hash_contract": "sha256_after_CRLF_to_LF_newline_canonicalization",
     "newline_canonical_sha256": {
-      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "70a41190cba4af74264e6eabbe33f8c643b4af208bc7270d4ef42c86e1a7b88b",
+      ".github/workflows/product-a-v2-8-4-sealed-reusable.yml": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8",
       "configs/product_a_v2_8_3_fresh_confirmation_contract.json": "4d20467f09e4920708d89f6e59ff1b8a3a8f55aebd9ed227ca215bf85a8992ed",
       "configs/product_a_v2_8_4_environment_timeout_freeze.json": "72c70558928a35b2b3bdd3091b434bb8eb6884d27f15873fbb6c76899796e4b9",
+      "configs/product_a_v2_8_4_geo_requirements.in": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5",
+      "configs/product_a_v2_8_4_geo_requirements.lock": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef",
+      "configs/product_a_v2_8_4_geo_runtime_freeze.json": "eb2b61f424d51b77f74d8e974748686405380c3c9a6885896e389c82b3c23370",
       "configs/product_a_v2_8_4_scientific_requirements.lock": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
       "configs/product_a_v2_8_4_sealed_boundary_contract.json": "14edba7c0efce71980f6f97baebe3e6ea171b6fdda8eb1dce030684b42c3b5d3",
+      "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json": "682b610f8b426f3af1e31719124439511a8175618bbf7990f33085a920b92abf",
       "src/sdmr/v2_7_2_fresh_sealed_audit.py": "95682fcf391c8e420e9c2508b5d9316ea7185b5f0691ba6a1b130d20d27a5e83",
       "src/sdmr/v2_8_3_fresh_aggregate.py": "c630576111249ade3928642d75cdd9807555992a7cd518ca25ecf1a7f4a844f9",
       "src/sdmr/v2_8_3_fresh_runtime.py": "237c27867de2e034c200abd261dd31a5c87c3edc5a0f82a5ff441baad0087ed8",
-      "src/sdmr/v2_8_4_sealed_authorization.py": "75540656d04b8f2708c62cea8082c1531f029636fb802e2dbd955dca897ba687",
+      "src/sdmr/v2_8_4_geo_runtime.py": "335b7c21a40851ee3d3cd769e8bca27c7da2f082697cec1df53303d0e1d4a82e",
+      "src/sdmr/v2_8_4_sealed_authorization.py": "2009c27afa2c101484ed3c937bad7856ee0123ba6dd93b35890550364f66a248",
       "src/sdmr/v2_8_4_sealed_boundary.py": "5ee3294b0d290727174bddf3bb34b4363559f03344c18f0a6fcbc64a3f3b1a06",
-      "src/sdmr/v2_8_4_sealed_runtime.py": "74a712ef41f8c5a947f25b0c5b6e3beea49739649387420bc918688a311e1294"
+      "src/sdmr/v2_8_4_sealed_runtime.py": "9d23ad8c358dea47b24a9c72161e8b57da92269650d631eeccd0b5cb03b23a6c"
     },
-    "pull_request": 181,
-    "runtime_ref": "6c075e1ebc13713c15ceaffd94fd4c4e61eb75ad",
-    "sealed_reusable_workflow_sha256": "70a41190cba4af74264e6eabbe33f8c643b4af208bc7270d4ef42c86e1a7b88b"
+    "pull_request": 185,
+    "runtime_ref": "a12816a774f23e86ae52902cef6e2e47c61bd852",
+    "sealed_reusable_workflow_sha256": "cdc2a662c41ef22b3079007a69f73dc9195592cf2f2a9c385a79c653d32341d8"
   },
   "one_shot": true,
   "one_shot_dispatch_policy": {
-    "current_recovery_run_must_be_the_only_second_dispatch": true,
-    "exact_workflow_dispatch_run_count_after_recovery_dispatch": 2,
-    "failed_job_retry_within_recovery_run_retains_run_identity": true,
-    "no_third_workflow_dispatch_run_allowed": true,
-    "prior_pre_read_failure_run_is_exactly_pinned": true
+    "both_prior_failure_runs_are_exactly_pinned": true,
+    "current_recovery_run_must_be_the_only_third_dispatch": true,
+    "exact_workflow_dispatch_run_count_after_recovery_dispatch": 3,
+    "failed_job_retry_within_recovery_run_allowed": false,
+    "fourth_workflow_dispatch_run_forbidden": true
   },
-  "operational_attempt": 2,
-  "pre_read_recovery": {
+  "operational_attempt": 3,
+  "post_entry_no_value_read_recovery": {
     "additional_scientific_attempt_created": false,
     "authorized": true,
-    "only_prior_pre_read_failure_is_superseded": true,
-    "prior_aggregate_decision_job_id": 99252247966,
-    "prior_caller_preflight_job_id": 99252220557,
-    "prior_failed_reusable_preflight_job_id": 99252233545,
-    "prior_failure_before_environment_setup": true,
-    "prior_failure_fingerprint": "ModuleNotFoundError: No module named 'pandas'",
-    "prior_failure_stage": "authorization-and-receipt-preflight",
-    "prior_head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
-    "prior_head_sha": "ba12f96be48545819a72fc714f083cd5c00520ad",
-    "prior_presealed_receipt_downloaded": false,
+    "geo_calibration_artifact_digest": "sha256:bfbee09b9424d6c87f68246b7b093c6223e2fd6f750e726997c27c45167dfcf5",
+    "geo_calibration_artifact_id": 9746245575,
+    "geo_calibration_receipt_digest": "6c08f526f954c40b178e63196f4976c36d12b1d54cabb234e6bf7e1935e922ad",
+    "geo_runtime_freeze_sha256": "eb2b61f424d51b77f74d8e974748686405380c3c9a6885896e389c82b3c23370",
+    "prior_aggregate_decision_job_id": 99257003805,
+    "prior_authorization_preflight_job_id": 99256796636,
+    "prior_authorization_receipt_digest": "6d60e52b6ffdd8e020d1a124248520759e03d5f1e939d27dd486f980270185b8",
+    "prior_exact_input_artifact_count_per_part": 15,
+    "prior_failure_fingerprint": "ModuleNotFoundError: No module named 'rasterio'",
+    "prior_head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1",
+    "prior_head_sha": "586700d531fb815fa452e3a8ca31f4c97e070443",
+    "prior_preflight_artifact_digest": "sha256:7518179ecca4d562a08c844bbc27917796cb173b078fcb49b646c973c592977d",
+    "prior_preflight_artifact_id": 9732069061,
+    "prior_preflight_job_id": 99256808858,
+    "prior_raster_dataset_opened": false,
     "prior_run_conclusion": "failure",
-    "prior_scientific_decision_exists": false,
     "prior_scientific_evidence_reused_or_reinterpreted": false,
-    "prior_sealed_ecological_outcomes_read": false,
-    "prior_sealed_part_job_id": 99252247454,
-    "prior_sealed_read_entered": false,
-    "prior_sealed_source_accessed": false,
+    "prior_sealed_audit_completed": false,
+    "prior_sealed_environment_read": false,
+    "prior_sealed_read_entered": true,
+    "prior_source_artifact_downloaded": true,
+    "prior_state_artifacts": [
+      {
+        "artifact_digest": "sha256:dc40265b995c8f698cfd43d8a6ce195ae931493df4b1c4dd741da2bd21cdca61",
+        "artifact_id": 9732079692,
+        "job_id": 99256889933,
+        "part_seed": 2026082201,
+        "sealed_read_state_file_sha256": "96eaea9e7e59b3b8d6fc8ed47e20f31f85ba9726d945ffabc67dea547a28476b"
+      },
+      {
+        "artifact_digest": "sha256:faa997c032c86feaf6f99c112e27224ca612609d3200a81e8c7beb13845eae7b",
+        "artifact_id": 9732079619,
+        "job_id": 99256889980,
+        "part_seed": 2026082202,
+        "sealed_read_state_file_sha256": "91588236deee67cbd50f30ee077b93412aa145468f55e820437575dc8ba8bc03"
+      },
+      {
+        "artifact_digest": "sha256:b4e8a95abf3457deb2a3eec30ead9ab94cda2d6dfe45c049fc1bca6b14a1a6b7",
+        "artifact_id": 9732081137,
+        "job_id": 99256889947,
+        "part_seed": 2026082203,
+        "sealed_read_state_file_sha256": "3643c703c6bd276b74c432ec55d9ea7b09f073d56b3e1808c66df8a8df54f83b"
+      }
+    ],
+    "prior_terminal_scientific_decision_exists": false,
+    "prior_truth_blind_gate_digest": "4119b4957fba408e680feb3461490e00716cbb83f4c0b0c3d7d6cb8ba6464133",
     "prior_workflow_run_attempt": 1,
-    "prior_workflow_run_id": 33309627503,
-    "recovery_change_scope": "stdlib_only_authorization_bootstrap_without_scientific_or_sealed_access_change",
-    "recovery_design_contract_sha256": "eea13cebc7bc9c3d6199522cd8de435a1c814625e92feda51496499e4ebeff9f"
+    "prior_workflow_run_id": 33311324330,
+    "recovery_change_scope": "hash_locked_geo_extension_and_rasterio_import_gate_only",
+    "recovery_design_contract_digest": "a8ad67627b05c498e7b3c8569c33b23f664fb7cf2cfcbbdeaeb136abfae12877",
+    "recovery_design_contract_sha256": "682b610f8b426f3af1e31719124439511a8175618bbf7990f33085a920b92abf"
   },
   "presealed_receipts": [
     {
@@ -107,6 +152,30 @@
       "workflow_run_id": 33155971954
     }
   ],
+  "prior_dispatches": [
+    {
+      "head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1",
+      "head_sha": "ba12f96be48545819a72fc714f083cd5c00520ad",
+      "interpretation": "technical_pre_read_failure_not_scientific_negative",
+      "operational_attempt": 1,
+      "run_attempt": 1,
+      "run_conclusion": "failure",
+      "run_id": 33309627503,
+      "run_number": 1,
+      "sealed_ecological_outcomes_read": false
+    },
+    {
+      "head_ref": "refs/heads/frozen/product-a-v2-8-4-sealed-v1-pre-read-recovery-1",
+      "head_sha": "586700d531fb815fa452e3a8ca31f4c97e070443",
+      "interpretation": "technical_post_entry_no_value_read_failure_not_scientific_negative",
+      "operational_attempt": 2,
+      "run_attempt": 1,
+      "run_conclusion": "failure",
+      "run_id": 33311324330,
+      "run_number": 2,
+      "sealed_ecological_outcomes_read": false
+    }
+  ],
   "publication_boundary": {
     "product_b_must_remain_blocked_during_this_execution": true,
     "product_b_unblocking_is_separate_from_confirmation": true,
@@ -114,19 +183,38 @@
     "scientific_promotion_is_separate_from_confirmation": true
   },
   "purpose": "product_a_v2_8_4_one_shot_sealed_execution_authorization",
+  "receipt_barrier": {
+    "exact_input_artifact_count_per_part": 15,
+    "presealed_receipt_count": 3,
+    "presealed_receipts_must_equal_boundary_contract": true,
+    "rasterio_import_and_version_receipt_must_precede_any_input_artifact_download": true,
+    "rasterio_import_receipt_must_open_no_raster": true,
+    "truth_blind_input_gate_must_precede_sealed_source_download": true
+  },
   "retry_policy": {
     "broad_rerun_of_successful_sealed_part_allowed": false,
-    "maximum_pre_read_attempts_per_part": 2,
-    "pre_read_exact_retry_allowed_only_if_sealed_read_entered_false": true,
-    "retry_after_sealed_read_entered_allowed": false,
-    "retry_requires_same_run_id_scientific_execution_receipts_implementation_environment_source_and_part_identity": true,
+    "current_recovery_is_final_workflow_dispatch": true,
+    "fourth_workflow_dispatch_allowed": false,
+    "new_explicit_contract_required_after_prior_sealed_read_entry": true,
+    "same_run_job_retry_allowed": false,
     "scientific_null_negative_or_unavailable_outcome_retry_allowed": false
   },
   "runtime_environment": {
-    "dependency_lock_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
-    "environment_digest": "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb",
-    "must_match_before_sealed_source_access": true,
-    "python_patch": "3.12.11"
+    "core_environment_digest": "a7f740e3bf8fd52d33be76384b04419012b59b7a1e190b29c4520113c9c468fb",
+    "core_lock_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745",
+    "geo_lock_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef",
+    "geo_runtime_receipt_must_match_before_any_input_artifact_download": true,
+    "package_versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "pyarrow": "21.0.0",
+      "pytest": "8.4.2",
+      "rasterio": "1.5.1",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    },
+    "python_patch": "3.12.11",
+    "runner": "ubuntu-24.04"
   },
   "scientific_execution_id": "product-a-v2-8-4-fresh-confirmation-v1",
   "scientific_invariants": {
@@ -159,6 +247,13 @@
     "strict_ecological_improvement_minimum_parts": 2,
     "taxa_changed": false,
     "thresholds_changed": false
+  },
+  "timeout_policy": {
+    "aggregate_decision_job_timeout_minutes": 30,
+    "authorization_and_receipt_preflight_timeout_minutes": 30,
+    "post_launch_timeout_extension_allowed": false,
+    "post_outcome_timeout_retuning_allowed": false,
+    "sealed_part_job_timeout_minutes": 180
   },
   "tracks_issue": 170
 }
