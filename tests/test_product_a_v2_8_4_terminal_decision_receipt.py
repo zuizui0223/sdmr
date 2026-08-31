@@ -34,6 +34,7 @@ def test_v284_terminal_receipt_pins_the_complete_scientific_non_support_result()
         )
         for artifact in receipt['run_artifacts']
     }
+    assert len(receipt['run_artifacts']) == len(artifact_pins) == 8
     assert artifact_pins == {
         'product-a-v2-8-4-sealed-preflight': (
             9747698898,
