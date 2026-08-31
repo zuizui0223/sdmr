@@ -1,0 +1,91 @@
+{
+  "purpose": "product_a_v2_8_4_truth_blind_geo_lock_calibration",
+  "contract_version": 1,
+  "calibration_date": "2026-08-31",
+  "tracks_issue": 170,
+  "predecessor_recovery_design": {
+    "main_merge_commit": "2591e9bf9871ba31e1dbad6c7c9369a31c133558",
+    "path": "configs/product_a_v2_8_4_sealed_post_entry_no_value_read_recovery_design.json",
+    "newline_canonical_sha256": "682b610f8b426f3af1e31719124439511a8175618bbf7990f33085a920b92abf",
+    "contract_digest": "a8ad67627b05c498e7b3c8569c33b23f664fb7cf2cfcbbdeaeb136abfae12877"
+  },
+  "trigger_boundary": {
+    "event": "push",
+    "branch": "design/product-a-v2-8-4-geo-lock-calibration",
+    "one_calibration_job": true,
+    "workflow_dispatch_allowed": false
+  },
+  "calibration_scope": {
+    "truth_blind": true,
+    "package_metadata_and_wheels_only": true,
+    "scientific_source_access_allowed": false,
+    "presealed_receipt_access_allowed": false,
+    "github_artifact_access_allowed": false,
+    "raster_dataset_open_allowed": false,
+    "environmental_value_extraction_allowed": false,
+    "sealed_read_entry_allowed": false,
+    "scientific_outcome_read_allowed": false,
+    "scientific_telemetry_allowed": false
+  },
+  "environment": {
+    "runner": "ubuntu-24.04",
+    "python_patch": "3.12.11",
+    "lock_resolution_python_minor": "3.12",
+    "lock_generator": "uv 0.12.7",
+    "scientific_requirements_input": {
+      "path": "configs/product_a_v2_8_4_scientific_requirements.in",
+      "newline_canonical_sha256": "003863a2eb66d8522b4eb8c6a13b8e4bf121faac99f4da3ea030e3075596df6f"
+    },
+    "scientific_requirements_lock": {
+      "path": "configs/product_a_v2_8_4_scientific_requirements.lock",
+      "newline_canonical_sha256": "1f65195c57abbc702e6ed1d4430429e449c279bc8cd017b05d3206aef2da4745"
+    },
+    "geo_requirements_input": {
+      "path": "configs/product_a_v2_8_4_geo_requirements.in",
+      "newline_canonical_sha256": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5"
+    },
+    "geo_requirements_lock": {
+      "path": "configs/product_a_v2_8_4_geo_requirements.lock",
+      "newline_canonical_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef"
+    },
+    "retained_core_versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "pyarrow": "21.0.0",
+      "pytest": "8.4.2",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    },
+    "added_geo_versions": {
+      "rasterio": "1.5.1"
+    }
+  },
+  "success_condition": {
+    "hash_checked_install_succeeds": true,
+    "all_retained_core_versions_match": true,
+    "rasterio_import_succeeds": true,
+    "rasterio_version_matches": true,
+    "raster_open_count": 0,
+    "receipt_artifact_required": true
+  },
+  "scientific_invariants": {
+    "scientific_contract_changed": false,
+    "taxon_panel_changed": false,
+    "sealed_fraction_changed": false,
+    "split_seeds_changed": false,
+    "M_changed": false,
+    "thresholds_changed": false,
+    "denominator_changed": false,
+    "model_or_procedure_library_changed": false,
+    "source_or_receipt_identity_changed": false,
+    "product_b_unblocked": false
+  },
+  "execution_boundary": {
+    "geo_lock_calibration_authorized": true,
+    "sealed_recovery_implementation_authorized": false,
+    "sealed_recovery_dispatch_authorized": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "next_gate": "freeze_the_successful_truth_blind_geo_lock_receipt_then_merge_a_separate_reviewed_recovery_implementation"
+  }
+}

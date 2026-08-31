@@ -1,0 +1,2 @@
+-r product_a_v2_8_4_scientific_requirements.in
+rasterio==1.5.1
