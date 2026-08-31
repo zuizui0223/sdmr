@@ -1,0 +1,103 @@
+{
+  "purpose": "product_a_v2_8_4_geo_runtime_freeze",
+  "freeze_date": "2026-08-31",
+  "tracks_issue": 170,
+  "runtime_only": true,
+  "scientific_semantics_inherited_without_change": true,
+  "calibration_evidence": {
+    "head_sha": "050b08b12806352faf9fc4b13166fa8d520c576b",
+    "workflow_run_id": 33359562108,
+    "workflow_run_attempt": 1,
+    "workflow_run_conclusion": "success",
+    "artifact_name": "product-a-v2-8-4-truth-blind-geo-lock-calibration",
+    "artifact_id": 9746245575,
+    "artifact_digest": "sha256:bfbee09b9424d6c87f68246b7b093c6223e2fd6f750e726997c27c45167dfcf5",
+    "artifact_size_bytes": 731,
+    "receipt_file_sha256": "26f90145250d5402172ab60ec5ab79eca08b737710549aa6fc428194136675c8",
+    "receipt": {
+      "environmental_values_read": false,
+      "geo_requirements_input_sha256": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5",
+      "geo_requirements_lock_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef",
+      "github_input_artifacts_accessed": false,
+      "github_run_attempt": 1,
+      "github_run_id": 33359562108,
+      "github_sha": "050b08b12806352faf9fc4b13166fa8d520c576b",
+      "package_versions": {
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pyarrow": "21.0.0",
+        "pytest": "8.4.2",
+        "rasterio": "1.5.1",
+        "scikit-learn": "1.8.0",
+        "scipy": "1.17.0"
+      },
+      "presealed_receipts_accessed": false,
+      "product_b_unblocked": false,
+      "purpose": "product_a_v2_8_4_truth_blind_geo_lock_calibration_receipt",
+      "python_executable_version": "3.12.11",
+      "python_version": "3.12.11",
+      "raster_dataset_opened": false,
+      "rasterio_imported": true,
+      "receipt_digest": "6c08f526f954c40b178e63196f4976c36d12b1d54cabb234e6bf7e1935e922ad",
+      "runner_os": "Linux",
+      "scientific_outcome_read": false,
+      "scientific_promotion_allowed": false,
+      "scientific_source_accessed": false,
+      "sealed_read_entered": false,
+      "status": "geo_lock_import_calibration_complete"
+    }
+  },
+  "frozen_runtime_identity": {
+    "runner": "ubuntu-24.04",
+    "python_patch": "3.12.11",
+    "calibration_workflow": {
+      "path": ".github/workflows/product-a-v2-8-4-geo-lock-calibration.yml",
+      "blob_sha": "2578cf8aff0405054f60b8273457188493675241",
+      "newline_canonical_sha256": "17d8268bd38a5c929d100651867bfd5b4a2e7b9e31beda978851dfe9e58c23ec"
+    },
+    "calibration_contract": {
+      "path": "configs/product_a_v2_8_4_geo_lock_calibration_contract.json",
+      "blob_sha": "774302945dc6a042fb292fb1854aba9a7fe1539b",
+      "newline_canonical_sha256": "5e44e58207f8798b18644b92fa947f6736e86736e3d0c4fdb1483fe55c299b5d"
+    },
+    "geo_requirements_input": {
+      "path": "configs/product_a_v2_8_4_geo_requirements.in",
+      "newline_canonical_sha256": "d3803704c91942e28c79c24f53c8f075c841b858556b8ce533db3dc1eff42ac5"
+    },
+    "geo_requirements_lock": {
+      "path": "configs/product_a_v2_8_4_geo_requirements.lock",
+      "blob_sha": "6d454b751b4eb39e0a87832a9095d236d167e46f",
+      "newline_canonical_sha256": "7171172058fbd73c99c1894b5931f59b6a012fd322901ee0a3f4c8e4b15121ef"
+    },
+    "package_versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.2.3",
+      "pyarrow": "21.0.0",
+      "pytest": "8.4.2",
+      "rasterio": "1.5.1",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.17.0"
+    }
+  },
+  "scientific_invariants": {
+    "scientific_contract_changed": false,
+    "taxon_panel_changed": false,
+    "sealed_fraction_changed": false,
+    "split_seeds_changed": false,
+    "M_changed": false,
+    "thresholds_changed": false,
+    "denominator_changed": false,
+    "model_or_procedure_library_changed": false,
+    "source_or_receipt_identity_changed": false,
+    "product_b_unblocked": false
+  },
+  "execution_boundary": {
+    "geo_runtime_freeze_complete": true,
+    "sealed_recovery_implementation_reviewed": false,
+    "sealed_recovery_dispatch_authorized": false,
+    "scientific_outcome_exists": false,
+    "scientific_promotion_allowed": false,
+    "product_b_unblocked": false,
+    "next_gate": "merge_a_separate_recovery_implementation_that_imports_and_version_checks_rasterio_before_source_download_and_before_sealed_read_entry"
+  }
+}
