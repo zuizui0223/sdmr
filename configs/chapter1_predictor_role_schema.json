@@ -1,0 +1,56 @@
+{
+  "program_id": "niche-to-survey-four-chapter-v1",
+  "chapter_number": 1,
+  "repository": "zuizui0223/sdmr",
+  "purpose": "future_hierarchy_aware_niche_driver_interpretation_schema",
+  "current_product_a_result_reopened": false,
+  "current_product_a_retuned": false,
+  "product_b_unblocked": false,
+  "selection_order": [
+    "process_domain",
+    "representation_within_supported_process",
+    "sealed_answer_check"
+  ],
+  "representation_levels": [
+    {
+      "level": 1,
+      "id": "geophysical_template",
+      "examples": ["elevation", "slope", "aspect", "roughness", "topographic_position", "geology", "soil"]
+    },
+    {
+      "level": 2,
+      "id": "direct_environmental_field",
+      "examples": ["temperature", "precipitation", "moisture", "radiation", "humidity", "wind"]
+    },
+    {
+      "level": 3,
+      "id": "integrated_biological_exposure",
+      "examples": ["growing_degree_days", "vpd", "pet", "water_balance", "snow", "growing_season", "productivity"]
+    },
+    {
+      "level": 4,
+      "id": "composite_summary_representation",
+      "examples": ["bioclim", "climate_pc", "composite_index"]
+    }
+  ],
+  "predictor_roles": [
+    "spatial_geometry",
+    "substrate",
+    "direct_environment",
+    "derived_exposure",
+    "proxy",
+    "composite_summary"
+  ],
+  "information_barrier": {
+    "model_pool_may_select_processes": true,
+    "model_pool_may_select_representations": true,
+    "sealed_occurrences_may_influence_selection": false,
+    "background_is_biological_answer_key": false
+  },
+  "interpretation_rules": {
+    "selected_raster_equals_causal_driver": false,
+    "proxy_can_be_predictively_useful_without_mechanistic_claim": true,
+    "process_support_and_representation_choice_should_be_reported_separately": true,
+    "representation_level_is_not_biological_importance_rank": true
+  }
+}
