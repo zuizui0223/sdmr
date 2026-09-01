@@ -1,0 +1,22 @@
+{
+  "program_id": "niche-to-survey-four-chapter-v1",
+  "chapter_number": 1,
+  "repository": "zuizui0223/sdmr",
+  "chapter_title": "Environmental niche-driver selection",
+  "core_question": "Which environmental dimensions most defensibly define an interpretable realized environmental niche?",
+  "primary_output": "Frozen interpretable predictor/process set and realized-niche representation",
+  "occurrence_roles": {
+    "model_pool": "available for fitting and environmental-variable/model-choice decisions",
+    "sealed_answer_check_pool": "unavailable to those choices and opened only after the representation is frozen"
+  },
+  "background_is_biological_answer_key": false,
+  "prediction_metrics_are_primary_scientific_target": false,
+  "current_product_a_scientific_development_closed": true,
+  "product_b_unblocked": false,
+  "chapter_order": [
+    "1:sdmr:environmental_niche_driver_selection",
+    "2:odsp:multidimensional_niche_geometry",
+    "3:eog:distributional_worlds_and_reachability",
+    "4:acsp:survey_action"
+  ]
+}
