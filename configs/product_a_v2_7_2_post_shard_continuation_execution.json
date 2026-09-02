@@ -1,0 +1,21 @@
+{
+  "purpose": "product_a_v2_7_2_post_shard_continuation_execution",
+  "execution_allowed": false,
+  "frozen_ref": null,
+  "sha_resolution_policy": "resolve_frozen_ref_tip_at_dispatch",
+  "repository_stored_self_referential_sha_allowed": false,
+  "workflow_file": "product-a-v2-7-2-post-shard-continuation.yml",
+  "random_state": 271,
+  "shard_build_run_id": null,
+  "shard_build_receipt_artifact_id": null,
+  "shard_build_receipt_artifact_digest": null,
+  "required_M_shard_artifact_prefix": "v272-fresh-M-",
+  "required_M_shard_artifact_count": 216,
+  "promotion_source_contract": "configs/product_a_v2_7_2_fresh_promotion_contract.json",
+  "promotion_source_fields_pinned_before_dispatch": false,
+  "one_shot_required": true,
+  "selective_worker_repair_allowed": false,
+  "sealed_environment_read_allowed_before_pretruth_and_final_fit": false,
+  "scientific_promotion_allowed_by_this_workflow": false,
+  "product_b_unblocked": false
+}

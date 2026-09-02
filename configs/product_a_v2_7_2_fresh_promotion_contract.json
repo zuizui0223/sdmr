@@ -1,0 +1,80 @@
+{
+  "purpose": "product_a_v2_7_2_fresh_promotion_preoutcome_contract",
+  "contract_frozen_before_v2_7_2_fresh_sealed_outcome": true,
+  "new_postoutcome_scientific_thresholds": false,
+  "scientific_rule_source": {
+    "confirmation_contract_path": "configs/product_a_v2_7_1_fresh_confirmation_contract.json",
+    "confirmation_contract_git_blob_sha": "8b7c2680d2999e61c8672934724988bf0e217fe1",
+    "decision_rule_changed": false,
+    "prediction_guardrail_changed": false,
+    "ecological_support_rule_changed": false,
+    "process_reproducibility_rule_changed": false
+  },
+  "deterministic_execution_repair": {
+    "contract_path": "configs/product_a_v2_7_2_deterministic_execution_contract.json",
+    "random_state": 271,
+    "execution_only_change": true,
+    "selected_from_scientific_outcome": false,
+    "requires_uniform_rerun_of_all_model_pool_cells": true,
+    "old_model_pool_worker_outputs_allowed": false
+  },
+  "inherited_known_truth_source": {
+    "run_id": 32251711573,
+    "head_sha": "715f62ef453636e0e60a4a04d3fa71fdbfdf57a9",
+    "artifact_id": 9364873176,
+    "artifact_digest": "sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba",
+    "artifact_name": "product-a-v2-6-fresh-validation-decision",
+    "required_decision": "v2_6_supported",
+    "role": "predecessor_scientific_method_support_not_fresh_validation_of_execution_seed"
+  },
+  "fresh_taxon_holdout_source": {
+    "required_decision": "empirical_confirmation_supported",
+    "expected_purpose": "product_a_v2_7_1_fresh_taxon_holdout_empirical_confirmation_decision",
+    "source_must_be_v2_7_2_deterministic_continuation": true,
+    "repository_execution_identity_must_be_frozen_before_dispatch": true,
+    "runtime_source_identity_receipt_must_be_created_before_sealed_audit": true,
+    "runtime_source_identity_receipt_must_pin": [
+      "workflow_run_id",
+      "implementation_sha",
+      "frozen_ref",
+      "decision_artifact_name",
+      "random_state"
+    ],
+    "runtime_source_identity_may_not_depend_on_scientific_metric_or_decision_value": true,
+    "decision_artifact_name": "product-a-v2-7-2-fresh-taxon-holdout-confirmation-decision",
+    "independence_axis": "taxon_holdout_not_temporal"
+  },
+  "promotion_rule": {
+    "logic": "inherited_known_truth_supported_and_v2_7_2_fresh_taxon_holdout_supported",
+    "requires_inherited_known_truth_support": true,
+    "requires_all_6_fresh_parts_available": true,
+    "requires_fresh_prediction_guardrail": true,
+    "requires_fresh_ecological_support": true,
+    "requires_fresh_process_reproducibility_support": true,
+    "requires_no_post_sealed_retuning": true,
+    "requires_no_post_outcome_candidate_reselection": true,
+    "requires_all_information_barriers": true,
+    "adds_no_new_metric_threshold": true
+  },
+  "state_mapping": {
+    "empirical_confirmation_supported": "product_a_v2_7_2_eligible_for_separate_promotion_execution",
+    "empirical_confirmation_not_supported": "product_a_v2_7_2_not_promoted",
+    "empirical_confirmation_unavailable": "product_a_v2_7_2_not_promoted"
+  },
+  "failure_semantics": {
+    "empirical_not_supported": "retain_negative_fresh_evidence_do_not_promote_and_do_not_retune",
+    "empirical_unavailable": "retain_unavailability_do_not_promote_and_require_new_predeclared_evidence_for_any_retry",
+    "threshold_relaxation_after_outcome_forbidden": true,
+    "candidate_reselection_after_outcome_forbidden": true,
+    "random_state_reselection_after_outcome_forbidden": true
+  },
+  "claim_boundary": {
+    "target": "realized_environmental_niche_recovery_and_stability",
+    "fundamental_niche_claim_allowed": false,
+    "temporal_independence_claim_allowed": false,
+    "causal_physiological_driver_claim_allowed": false,
+    "universal_process_claim_allowed": false,
+    "automatic_product_b_unblock": false,
+    "separate_product_b_unblock_gate_required": true
+  }
+}
