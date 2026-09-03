@@ -4,7 +4,7 @@ This table maps the frozen v1→v2.8.4 evidence sequence onto manuscript Results
 
 | Evidence generation | Frozen outcome / observation | Positive contribution retained | Limitation / boundary | Main-text role |
 |---|---|---|---|---|
-| Product-A v1 | one full protocol selected under sealed spatial and unseen-taxon barriers; promotion separately gated | establishes leakage-resistant evidence architecture, M sensitivity and prospective non-promotion semantics | still assumes ecological inference can be reduced to one winning protocol | Methods foundation / Result 1 |
+| Product-A v1 | one full protocol was the predeclared scientific output target under sealed spatial and unseen-taxon barriers; promotion was separately gated | establishes leakage-resistant evidence architecture, M sensitivity and prospective non-promotion semantics | still assumes ecological inference can be reduced to one winning protocol | Methods foundation / Result 1 |
 | v2.1 | `differentiated_not_supported`; ecological and AUC selection often converge | shows that changing the objective does not guarantee an empirically distinct ecological estimator | no stable evidence that a single ecological winner is better | Result 1 |
 | v2.2 | single-winner ecological selector rejected | demonstrates that stable response-surface recovery can coexist with wrong process attribution | surface stability is insufficient for process truth | Result 1 |
 | v2.3 | `identified_set_not_supported`; Pareto certificate sharper but loses truth coverage and can assert false necessity | exposes anti-conservative interpretation of retained-model agreement and between-model spread | set sharpening was unsafe | Result 2 |
