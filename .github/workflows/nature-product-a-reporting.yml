@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'scripts/build_nature_product_a_figures.py'
+      - 'scripts/check_nature_manuscript_format.py'
       - 'docs/product_a_nature_**'
+      - 'source_data/nature_**'
       - '.github/workflows/nature-product-a-reporting.yml'
   workflow_dispatch:
 
@@ -29,6 +31,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+
+      - name: Check Nature Article format and frozen headline claims
+        run: python scripts/check_nature_manuscript_format.py
 
       - name: Install reporting dependencies
         run: python -m pip install numpy pandas matplotlib
@@ -77,6 +82,8 @@ jobs:
           assert len(f4) == 108
           assert f4['candidate_identical'].all()
           assert f4['selected_predictors_identical'].all()
+          assert f4['ecological_candidate'].nunique() == 1
+          assert f4['ecological_candidate'].iat[0] == 'all|logit_l2_C0.1_degree1_rs0'
           print(f3.to_string(index=False))
           print(f4[['seed','taxon','M','ecological_candidate']].head().to_string(index=False))
           PY
