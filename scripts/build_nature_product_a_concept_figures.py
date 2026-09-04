@@ -88,38 +88,40 @@ def render_fig1(output_dir: Path) -> None:
         fontsize=9,
     )
 
-    # Panel b: Product-A identification logic.
+    # Panel b: protected, set-valued identification logic.
     ax = axes[1]
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
     ax.text(-0.04, 1.00, "b", transform=ax.transAxes, fontweight="bold", fontsize=13, va="top")
-    box(ax, (0.03, 0.78), 0.22, 0.11, "Occurrence\npool")
-    box(ax, (0.33, 0.78), 0.22, 0.11, "Model\npool")
-    box(ax, (0.67, 0.78), 0.25, 0.11, "Sealed\nanswer-check")
-    arrow(ax, (0.25, 0.835), (0.33, 0.835))
-    arrow(ax, (0.25, 0.815), (0.67, 0.815))
-    ax.text(0.48, 0.73, "split before tuning", ha="center", fontsize=8)
 
-    box(ax, (0.18, 0.54), 0.25, 0.11, "Prediction-adequate\nalternatives")
-    arrow(ax, (0.44, 0.78), (0.32, 0.65))
-    box(ax, (0.58, 0.54), 0.27, 0.11, "Ecological recovery\n+ sensitivity")
-    arrow(ax, (0.79, 0.78), (0.72, 0.65))
+    box(ax, (0.39, 0.83), 0.22, 0.10, "Occurrence\npool")
+    ax.text(0.50, 0.78, "split before tuning", ha="center", fontsize=8)
 
-    box(ax, (0.32, 0.32), 0.38, 0.12, "Exclude declared process information\nCan an adequate certificate survive?")
-    arrow(ax, (0.31, 0.54), (0.43, 0.44))
-    arrow(ax, (0.71, 0.54), (0.59, 0.44))
+    box(ax, (0.10, 0.64), 0.24, 0.10, "Model\npool")
+    box(ax, (0.66, 0.64), 0.24, 0.10, "Sealed\nanswer-check")
+    arrow(ax, (0.46, 0.83), (0.25, 0.74))
+    arrow(ax, (0.54, 0.83), (0.78, 0.74))
+
+    box(ax, (0.08, 0.45), 0.28, 0.10, "Prediction-adequate\nalternatives")
+    box(ax, (0.64, 0.45), 0.28, 0.10, "Ecological recovery\n+ sensitivity")
+    arrow(ax, (0.22, 0.64), (0.22, 0.55))
+    arrow(ax, (0.78, 0.64), (0.78, 0.55))
+
+    box(ax, (0.31, 0.26), 0.38, 0.11, "Exclude declared process information\nCan an adequate certificate survive?")
+    arrow(ax, (0.22, 0.45), (0.42, 0.37))
+    arrow(ax, (0.78, 0.45), (0.58, 0.37))
 
     labels = ["required", "possible / substitutable", "contested", "unresolved"]
     xs = [0.02, 0.27, 0.56, 0.78]
     widths = [0.20, 0.26, 0.20, 0.19]
     for x, w, label in zip(xs, widths, labels):
-        box(ax, (x, 0.09), w, 0.10, label, fontsize=8.3)
-        arrow(ax, (0.51, 0.32), (x + w / 2, 0.19), linewidth=0.8)
+        box(ax, (x, 0.07), w, 0.09, label, fontsize=8.3)
+        arrow(ax, (0.50, 0.26), (x + w / 2, 0.16), linewidth=0.8)
     ax.text(
         0.50,
-        0.01,
-        "Output is set-valued when the evidence does not identify one ecological explanation",
+        0.005,
+        "Set-valued output retains substitutable and unresolved ecological explanations",
         ha="center",
         va="bottom",
         fontsize=8.5,
