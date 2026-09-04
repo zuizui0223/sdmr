@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/build_nature_product_a_figures.py'
+      - 'scripts/build_nature_product_a_concept_figures.py'
       - 'scripts/check_nature_manuscript_format.py'
       - 'docs/product_a_nature_**'
       - 'source_data/nature_**'
@@ -38,6 +39,13 @@ jobs:
       - name: Install reporting dependencies
         run: python -m pip install numpy pandas matplotlib
 
+      - name: Build conceptual/falsification figures from frozen reporting inputs
+        run: |
+          mkdir -p nature_reporting
+          python scripts/build_nature_product_a_concept_figures.py \
+            --v23-source source_data/nature_fig2_v23.csv \
+            --output-dir nature_reporting
+
       - name: Download pinned frozen reporting artifacts
         shell: bash
         run: |
@@ -58,7 +66,7 @@ jobs:
           download_artifact "$V284_PART2_ARTIFACT_ID" v284p2.zip frozen/v284/part2
           download_artifact "$V284_PART3_ARTIFACT_ID" v284p3.zip frozen/v284/part3
 
-      - name: Build source data and figures with frozen assertions
+      - name: Build controlled-truth and empirical figures with frozen assertions
         run: |
           python scripts/build_nature_product_a_figures.py \
             --v272-dir frozen/v272 \
@@ -69,18 +77,25 @@ jobs:
 
       - name: Verify expected products
         run: |
-          test -s nature_reporting/nature_source_data_fig3.csv
-          test -s nature_reporting/nature_source_data_fig4.csv
-          test -s nature_reporting/nature_source_data_fig4_parts.csv
+          test -s nature_reporting/nature_fig1_identification_logic.png
+          test -s nature_reporting/nature_fig1_identification_logic.pdf
+          test -s nature_reporting/nature_fig2_false_necessity.png
+          test -s nature_reporting/nature_fig2_false_necessity.pdf
           test -s nature_reporting/nature_fig3_known_truth.png
           test -s nature_reporting/nature_fig3_known_truth.pdf
           test -s nature_reporting/nature_fig4_empirical_identity.png
           test -s nature_reporting/nature_fig4_empirical_identity.pdf
+          test -s nature_reporting/nature_source_data_fig2.csv
+          test -s nature_reporting/nature_source_data_fig3.csv
+          test -s nature_reporting/nature_source_data_fig4.csv
+          test -s nature_reporting/nature_source_data_fig4_parts.csv
           python - <<'PY'
           import pandas as pd
+          f2 = pd.read_csv('nature_reporting/nature_source_data_fig2.csv')
           f3 = pd.read_csv('nature_reporting/nature_source_data_fig3.csv')
           f4 = pd.read_csv('nature_reporting/nature_source_data_fig4.csv')
           parts = pd.read_csv('nature_reporting/nature_source_data_fig4_parts.csv')
+          assert len(f2) == 3
           assert len(f3) == 6
           assert len(f4) == 108
           assert len(parts) == 3
@@ -91,6 +106,7 @@ jobs:
           assert parts['nondominated'].all()
           assert not parts['strict_improvement'].any()
           assert (parts['mean_presence_rank_delta'] == 0.0).all()
+          print(f2.to_string(index=False))
           print(f3.to_string(index=False))
           print(parts.to_string(index=False))
           PY
