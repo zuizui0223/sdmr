@@ -2,68 +2,78 @@
 
 Status: **submission-validation document / no scientific endpoint change**.
 
-Purpose: verify that the v1→v2.8.4 manuscript synthesis makes only claims directly supported by frozen evidence and does not convert technical/unavailable states, known-truth recovery or the v2.8.4 empirical non-support endpoint into stronger conclusions.
+Purpose: verify that the v1→v2.8.4 manuscript makes only claims directly supported by frozen evidence and does not conflate exclusion-based necessity with consensus-first process stability.
 
 ## Claim classes
 
 | Claim | Status | Evidence basis | Required wording boundary |
 |---|---|---|---|
-| Prediction adequacy does not imply correct ecological-process identification | **supported under known truth** | v2.1–v2.2 | Do not claim that predictive metrics are useless; they remain adequacy/guardrail evidence. |
-| Stable response surfaces do not guarantee correct process attribution | **supported under known truth** | v2.2 | Restrict to the controlled designs evaluated. |
-| Agreement among retained fitted models is not sufficient evidence of biological necessity | **supported under known truth** | v2.3 | The demonstrated failure concerns necessity inferred from retained-set intersection after ecological Pareto sharpening. |
+| Prediction adequacy does not imply correct ecological-process identification | **supported under known truth** | v2.1–v2.2 | Predictive metrics remain adequacy/guardrail evidence. |
+| Stable response surfaces do not guarantee correct process attribution | **supported under known truth** | v2.2 | Restrict to controlled designs evaluated. |
+| Agreement among retained fitted models is not sufficient evidence of biological necessity | **supported under known truth** | v2.3 | Demonstrated for retained-set intersection after ecological Pareto sharpening. |
 | Between-model min–max spread is not automatically a complete uncertainty interval | **supported under known truth** | v2.3 | Do not generalize to every ensemble interval construction. |
-| Falsification-first process exclusion can protect generating-process coverage | **supported under known truth** | v2.4–v2.6 | v2.4/v2.5 include unavailable states; the first complete supported certificate is v2.6. |
-| A complete falsification-first certificate can achieve zero false-required processes and possible-process recall 1.0 | **supported under known truth** | v2.6 | Keep possible-process precision ≈0.467 and wider calibrated intervals visible. |
-| Set-valued process inference can become both safe and sharp | **supported under known truth** | v2.7.2 | State P=0.9889, R=0.9833, F1=0.9833 on 60 unused known-truth cases; do not call this empirical promotion. |
-| Observation-process correction can activate selectively rather than automatically | **supported under the evaluated known-truth families** | v2.7.2 | Activation=1.000 in the confounded family and 0.000 in all other evaluated families; do not claim universal sensitivity/specificity outside the frozen generators. |
-| Numerical/process nondeterminism can change a discrete scientific variable-selection result | **directly observed** | v2.7.1 | One of 96 compared fold rows changed selected predictors; do not claim that all SDM software is nondeterministic. |
-| Deterministic execution can exactly reproduce the frozen scientific outputs | **supported for v2.7.2** | v2.7.2 | Observed max abs/rel difference 0.0 across all compared tables; this is implementation identity, not proof of ecological truth. |
-| Structural validation availability can be diagnosed without opening environmental outcomes | **supported** | v2.7.3 | Treat presealed unavailability as geometry/evidence-support state, not ecological evidence. |
-| Technical terminal states can be separated from scientific non-support | **supported by governance/execution sequence** | v2.8.3 vs v2.8.4 | v2.8.3 is not a null or negative ecological result. |
-| The fresh empirical ecological procedure was strictly superior to AUC | **not supported** | v2.8.4 | Strict improvement 0/3; mean presence-rank delta 0.0; Product A `not_promoted`. |
-| The fresh empirical ecological procedure was empirically evaluable | **supported** | v2.8.4 | Full 3/3 denominator; all 12 taxa × 3 M per part; required sealed metrics finite. |
-| Process-status reproducibility occurred in the fresh empirical endpoint | **supported conditionally** | v2.8.4 | Minimum modal fraction 1.0, but this cannot override the failed primary ecological-support rule. |
-| Product A identifies true ecological processes in real GBIF data | **not established / not directly testable with current truth** | empirical boundary | Real occurrence data do not expose literal generating-process truth. |
-| AUC is generally optimal for SDM ecological inference | **not supported and prohibited** | v2.8.4 boundary | The empirical result is non-support for SDMR strict advantage, not universal support for AUC. |
-| VIF/correlation filtering is generally preferable | **not supported and prohibited** | closure boundary | No such claim follows from v2.8.4. |
-| Every proxy/composite channel for a process was excluded as a complete real-world proxy closure | **not yet established** | current process registry / future hierarchy | Product A validates process exclusion under the declared frozen representation system. Full proxy-closure indispensability is a prospective successor estimand. |
+| Falsification-first process exclusion can control false-required claims | **supported under known truth** | v2.4–v2.6 | v2.4/v2.5 include unavailable states; first complete supported exclusion certificate is v2.6. |
+| Complete exclusion-based certificates can achieve false-required=0 and possible-process recall=1.0 | **supported under known truth** | v2.6 | Keep possible-process precision ≈0.467 and wider calibrated intervals visible. This is a broad necessity/possibility set. |
+| Consensus-first stable process information can align strongly with generating truth | **supported under known truth** | v2.7.2 | Stable-core P=0.9889, R/F1=0.9833 across 60 unused cases. This is **not** the exclusion necessity estimator. |
+| Process-set identity can be more stable than exact fitted-model identity | **supported under known truth** | v2.7.2 | Process-set consensus 50/60 versus exact-model consensus 38/60. Do not convert stability into necessity. |
+| Observation-process correction can activate selectively rather than automatically | **supported under evaluated known-truth families** | v2.7.2 | 10/10 in confounded family; 0/50 elsewhere; no universal sensitivity/specificity claim. |
+| Numerical/process nondeterminism can change a discrete selected-predictor result | **directly observed** | v2.7.1 | One of 96 compared fold rows changed selected predictors. |
+| Deterministic execution can exactly reproduce frozen outputs | **supported for v2.7.2** | v2.7.2 | Max abs/rel difference 0.0; implementation identity is not ecological truth. |
+| Structural validation availability can be diagnosed before environmental outcomes | **supported** | v2.7.3 | Presealed unavailability is geometry/evidence-support state, not ecological evidence. |
+| Technical terminal states can be separated from scientific non-support | **supported** | v2.8.3 vs v2.8.4 | v2.8.3 is not a null/negative ecological result. |
+| Fresh empirical ecological selection was strictly superior to AUC | **not supported** | v2.8.4 | Strict improvement 0/3; mean presence-rank delta 0.0; `not_promoted`. |
+| Fresh empirical endpoint was fully evaluable | **supported** | v2.8.4 | Full 3/3 denominator; all 12 taxa × 3 M per part; sealed metrics finite. |
+| Ecological and AUC selectors instantiated the same model in the fresh endpoint | **supported reporting fact** | frozen v2.8.4 artifact audit | Candidate and selected-predictor identity 108/108; reporting audit does not alter formal endpoint. |
+| Product A identifies true ecological processes in real GBIF data | **not established** | empirical boundary | Real occurrence data do not expose literal generating-process truth. |
+| AUC is generally optimal for ecological inference | **not supported / prohibited** | v2.8.4 boundary | Non-support for SDMR strict advantage is not universal support for AUC. |
+| Every real-world proxy/composite channel was excluded | **not established** | current registry / future hierarchy | Exclusion is relative to the declared frozen representation system; full proxy closure is future work. |
 | A selected raster is a causal environmental driver | **not established** | Chapter-1 hierarchy | Keep raster, process, proxy and composite representation distinct. |
 
 ## Core claim approved for Abstract/Discussion
 
-> **Prediction success is not equivalent to niche identification. Product A reformulates occurrence-only niche inference from choosing a winning model into testing which environmental-process claims survive falsification while preserving substitutable and unresolved alternatives. This formulation achieved high process-core recovery under fresh known truth, but its strict empirical advantage over an AUC-selected role was not supported in the frozen plant endpoint.**
+> **Prediction success is not equivalent to ecological identification. Product A shows that ecological-recovery filtering can create false necessity; an exclusion-based certificate can control false-required process claims while retaining unresolved alternatives; and a separate consensus-first certificate can recover stable process information even when exact fitted models disagree. The fresh plant endpoint did not support strict empirical advantage over AUC and instead instantiated the same model under both selection objectives.**
 
-## Three-way endpoint classification
+## Mandatory estimator separation
 
-Use this classification consistently:
+Use these as separate quantities:
 
-1. `known_truth_process_identification = supported`;
-2. `fresh_empirical_strict_advantage_over_auc = not_supported / not_promoted`;
-3. `real_data_generating_process_truth_identification = not_directly_established`.
+### Exclusion necessity / possibility
 
-Do not replace item 2 with `not_tested`. The empirical superiority rule was tested and failed. Do not replace item 3 with `failed`; literal real-data process truth was not available as an answer key.
+- v2.6 false-required = 0;
+- possible-process recall = 1.0;
+- possible-process precision ≈0.467;
+- interpretation = safe but broad identified set under the frozen contract.
 
-## Proxy-closure wording check
+### Consensus-first process stability
 
-Approved:
+- v2.7.2 stable-core precision = 0.9889;
+- recall/F1 = 0.9833;
+- process-set consensus = 50/60;
+- exact-model consensus = 38/60;
+- interpretation = stable process information across canonical and robust ecological selectors.
 
-> Necessity was evaluated by process exclusion under the prospectively declared representation registry.
+**Forbidden:** comparing 0.467 and 0.9889 as successive precision values of one estimator, or calling the v2.7.2 stable core the necessary-process set.
 
-Not approved for this paper:
+## Endpoint classification
 
-> Every direct, derived, proxy and composite information channel for each real-world process was removed.
+1. `known_truth_exclusion_false_necessity_control = supported`;
+2. `known_truth_consensus_process_stability = supported`;
+3. `fresh_empirical_strict_advantage_over_auc = not_supported / not_promoted`;
+4. `real_data_generating_process_truth_identification = not_directly_established`.
 
-The latter is the appropriate target for a genuinely new hierarchy-aware prospective successor and independent evidence.
+Do not replace item 3 with `not_tested`: the empirical superiority rule was tested and failed. Do not replace item 4 with `failed`: literal empirical process truth was unavailable as an answer key.
 
 ## Submission gate
 
-The manuscript passes the scientific-claim gate only if:
+Pass only if:
 
-- all known-truth performance numbers are labelled controlled/known-truth;
+- known-truth performance numbers are explicitly attached to the correct estimator;
 - v2.6 breadth/precision limitation remains visible;
-- v2.7.1 is described as implementation falsification, not ecological failure;
-- v2.7.3 and v2.8.3 are described as structural/technical states, not ecological outcomes;
+- no text attributes P=0.9889/R=0.9833 to falsification-first exclusion;
+- no text equates `stable_process_core` with necessity;
+- v2.7.1 is implementation falsification, not ecological failure;
+- v2.7.3 and v2.8.3 remain structural/technical states;
 - v2.8.4 remains `empirical_confirmation_not_supported` and `not_promoted`;
-- no statement equates selected rasters with causal drivers;
-- no statement claims complete proxy-closure validation;
-- Product B remains blocked and outside the current paper.
+- no selected raster is called causal solely because selected;
+- no complete proxy-closure validation is claimed;
+- Product B remains blocked.
