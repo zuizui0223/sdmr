@@ -52,28 +52,34 @@ The v2.7.2 P=0.9889 / R=0.9833 values are **not** process-exclusion necessity-es
 
 ## Current-head validation
 
-Current manuscript head: `38252a8f08c41ef5b1a30d4e252f582057faad9c`
+Current manuscript head before this index-only metadata update: `ebfcd4a48c2ec20cb1a7fde223db2dba64bb363f`
 
-All submission-facing validation succeeded on this head:
+All submission-facing validation succeeded on that scientific/reporting state:
 
-- Nature Product-A reporting figures — **success** (run 33851422832).
-- Standard repository tests — **success** across Python 3.10, 3.11, 3.12, 3.13 and geo-rasterio (run 33851422834).
-- Real GBIF × CHELSA API diagnostic smoke — **success** (run 33851422957).
+- Nature Product-A reporting figures — **success** (run 33851979388).
+- Standard repository tests — **success** across Python 3.10, 3.11, 3.12, 3.13 and geo-rasterio (run 33851979406).
+- Real GBIF × CHELSA API diagnostic smoke — **success** (run 33851979385).
 
-The Nature Article QA on this reporting state records abstract 194 words and main text 2,121 words.
+The Nature Article QA records abstract 194 words and main text 2,121 words.
+
+This file update changes submission metadata only and does not alter scientific code, frozen endpoints, manuscript claims or figure source data.
 
 ## Scientific hard stop
 
 No new Product-A scientific experiment is required or permitted by this submission package. Do not rerun, retune, change taxa, candidate libraries, M values, thresholds, denominators or frozen endpoints to improve publication outcome. Product B remains separate.
 
+## Author metadata already recoverable from the repository
+
+Software/manuscript repository metadata identify the current named author as **ZHANG RUIQI** (`CITATION.cff`, `pyproject.toml`). No affiliation, corresponding-author designation, CRediT statement or funding information is recorded in the repository, so those fields must not be guessed.
+
 ## Remaining submission inputs
 
 Only external/human submission metadata remain:
 
-- final author list and order;
+- final author list and order (confirm whether ZHANG RUIQI is the sole manuscript author);
 - affiliations and corresponding author;
 - CRediT contributions;
 - funding and acknowledgements;
 - competing-interests declaration;
-- co-author approval;
+- co-author approval if applicable;
 - immutable release/permanent archive DOI for citation at submission or revision.
