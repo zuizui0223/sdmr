@@ -4,152 +4,114 @@ Status: **submission-production assessment; no new Product-A science**.
 
 ## Current recommendation
 
-**Proceed toward a first-shot Nature Ecology & Evolution Article submission.**
+**Proceed toward a first-shot Nature Ecology & Evolution Article submission.** This remains a high-risk editorial challenge, not the highest-probability route.
 
-This is a high-risk editorial challenge, not the highest-probability acceptance route. The evidence is now strong enough that the journal fit should be decided by editors rather than pre-emptively downgraded to a specialist methods journal. The manuscript must remain framed as a general ecological inference result, not an SDM software benchmark.
+## Gate 1 — Advance broader than one algorithm or taxon panel
 
-## Gate 1 — Is the central advance broader than one algorithm or taxon panel?
+**PASS with wording constraint.**
 
-**PASS, with wording constraint.**
+The central advance is an inferential decomposition, not better prediction:
 
-The central claim is not that SDMR predicts better. It is that predictive/functional model selection and process-information necessity are different inferential objects when multiple environmental representations remain adequate. The controlled-truth false-necessity result and falsification-first replacement do not depend conceptually on one MaxEnt-style algorithm.
+- predictive/functional adequacy;
+- exclusion-based process necessity;
+- consensus-first process-information stability;
+- unresolved/unavailable evidence.
 
-Constraint: do not claim that all observational ecological models share the exact empirical failure observed in the 12 plant taxa. Generality is conceptual and controlled-truth-supported; empirical scope remains bounded.
+Generality is conceptual and controlled-truth-supported; empirical scope remains bounded to the frozen plant corpus.
 
-## Gate 2 — Is there a result beyond the already known `prediction ≠ explanation` literature?
+## Gate 2 — Advance beyond `prediction ≠ explanation`
 
-**PASS.**
+**PASS.** Prior work already establishes prediction/explanation and discrimination/functional-recovery differences. Product A goes further by showing prospectively that:
 
-Direct prior art already establishes that discrimination accuracy may not recover functional environmental responses. Product A goes further in two steps:
+1. ecological-recovery Pareto sharpening can create a false necessary-process core;
+2. necessity can be challenged directly by excluding declared process information and retaining unresolved states;
+3. separately, process information can be stable across defensible ecological selectors even when exact fitted-model identity differs.
 
-1. selection on **ecological-recovery** criteria can still create a false necessary-process core;
-2. process-information necessity is then made a falsification target by excluding declared process information and retaining unresolved states when evidence is insufficient.
+These are distinct estimands. The third result is not the measured precision of the necessity estimator.
 
-This is now explicitly separated from Warren et al. (2020), ENMeval, collinearity studies and Rashomon/model-class variable-importance work in `docs/product_a_nature_reference_boundary.md`.
+## Gate 3 — Positive controlled-truth evidence
 
-## Gate 3 — Is the positive result strong enough?
+**PASS, after estimator separation.**
 
-**PASS for controlled truth.**
+### Necessity branch
 
-Frozen v2.7.2 evidence:
+v2.6 exclusion-based certificates:
 
-- 60 unused cases;
-- six preregistered niche families;
+- false-required = 0;
+- possible-process recall = 1.0;
+- possible-process precision ≈0.467;
+- complete process and boundary certificates after prospective calibration.
+
+Interpretation: false-necessity control with broad identified sets.
+
+### Stability branch
+
+v2.7.2 consensus-first certificate:
+
+- 60 unused cases across six preregistered niche families;
 - stable-core precision 0.9889;
 - recall/F1 0.9833;
-- four of six families with mean precision and recall 1.0;
-- exact-model consensus 38/60 versus process-set consensus 50/60;
-- observation correction 10/10 in confounded cases, 0/50 elsewhere;
-- exact independent-process equality for all audited discrete/floating outputs, observed max difference 0.0.
+- four of six families P=R=1.0;
+- process-set consensus 50/60 versus exact-model consensus 38/60;
+- observation correction 10/10 in confounded cases and 0/50 elsewhere;
+- exact independent-process equality, maximum audited difference 0.0.
 
-This supports `identification is possible under controlled truth`; it does not support direct empirical truth recovery.
+Interpretation: process information can be stable and truth-aligned under controlled truth even without unique exact model identity. **Do not describe these P/R values as the performance of falsification-first necessity.**
 
-## Gate 4 — Does the empirical lane add information rather than merely fail?
+## Gate 4 — Empirical lane adds information
 
-**PASS after frozen-artifact audit, but it remains the main editorial vulnerability.**
+**PASS but remains the main editorial vulnerability.**
 
-Formal endpoint:
+Formal v2.8.4 endpoint:
 
 - complete 3/3 denominator;
 - prediction guardrail passed;
 - ecological nondomination 3/3;
 - strict ecological improvement 0/3;
 - `empirical_confirmation_not_supported`;
-- separate `not_promoted`.
+- `not_promoted`.
 
-Reporting-only full-denominator audit:
+Frozen reporting audit:
 
-- ecological candidate = AUC candidate in 108/108 matched taxon × M × seed cells;
+- ecological candidate = AUC candidate in 108/108 matched cells;
 - selected predictors identical in 108/108;
-- one candidate identity across every cell: `all|logit_l2_C0.1_degree1_rs0`.
+- all cells used `all|logit_l2_C0.1_degree1_rs0`.
 
-Therefore the empirical result is not a hidden unfavorable comparison between different fitted models. It demonstrates an observational-equivalence limit: the two selection objectives did not instantiate different models on this corpus.
+This demonstrates observational equivalence of the two selection objectives on this corpus, not empirical process truth and not AUC optimality.
 
-Editorial vulnerability: there is still no empirical case in this paper where the proposed identification framework changes a biological conclusion relative to a conventional selector.
+## Gate 5 — Claim boundaries
 
-## Gate 5 — Are claim boundaries sufficiently strict for Nature-level scrutiny?
+**PASS after logic correction.** The manuscript now distinguishes:
 
-**PASS after current revision.**
+- contract-relative necessity from causal necessity;
+- exclusion necessity from consensus process stability;
+- known-truth process evaluation from empirical process truth;
+- tested empirical non-support from an uninstantiated selector-disagreement contrast;
+- declared process registry from future complete proxy closure;
+- 108 reporting cells from the n=3 primary empirical denominator.
 
-The manuscript now distinguishes:
+## Gate 6 — Article production
 
-- process-information necessity under a declared representation/evidence system from causal mechanism;
-- controlled-truth process recovery from empirical process truth;
-- formal empirical superiority `tested and not supported` from the uninstantiated empirical disagreement contrast;
-- process exclusion under the declared registry from a future complete proxy-closure test;
-- taxon × M × seed reporting rows from the three-part primary empirical denominator.
+**PASS scientifically; final metadata/archival production remains.** The Nature draft, unheaded Introduction, five topical Results, Discussion, Online Methods, four figures, ≤10 Extended Data plan, cover letter, references, Data/Code Availability and `CITATION.cff` exist. Automated format QA must be rerun after this logic correction.
 
-## Gate 6 — Is the manuscript in the journal's Article format?
+## Gate 7 — 30-second editorial argument
 
-**PARTIAL → production only.**
+1. Previous work shows prediction may not recover ecological response functions.
+2. Product A shows that even ecologically better model subsets can create false necessity.
+3. Exclusion-based falsification controls false-required process claims but can legitimately remain broad/unresolved.
+4. A **separate** consensus-first certificate shows process information can be highly stable under controlled truth even when exact models are not (P=0.9889, R=0.9833; 50/60 process-set vs 38/60 model consensus).
+5. Fresh plant data reveal another identification limit because ecological and AUC objectives collapse to the same model in 108/108 cells.
 
-Current status:
+This is the corrected Nature argument. Never say “the necessity target was recovered at 0.99 precision”.
 
-- abstract = 183 words, below the 200-word limit;
-- Nature-style Article draft exists;
-- Introduction is unheaded in the revised draft;
-- Results use topical subheadings;
-- Discussion has no topical subheadings;
-- four main figures planned, below the six-display-item limit;
-- Online Methods drafted;
-- Extended Data plan contains 10 items;
-- cover letter drafted;
-- verified literature boundary drafted;
-- Data/Code Availability drafted;
-- `CITATION.cff` added.
+## Main editorial risk
 
-Remaining: verify final main-text word count after references/figure citations are integrated and keep it ≤3,500 words.
+There is still no empirical case in this paper where the framework changes a biological conclusion relative to a conventional selector. That cannot be repaired inside closed Product A. The defense is the prospective inferential contribution and the explicit empirical observational-equivalence boundary.
 
-## Gate 7 — Can an editor understand the manuscript in 30 seconds?
+## Transfer rule
 
-**PASS if the submission package uses the current title/abstract/Fig. 1.**
+If NEE rejects mainly for breadth/priority or absent changed empirical biological conclusion, transfer the same frozen evidence to **Nature Communications**, then **Methods in Ecology and Evolution** if needed. Do not add a favorable new Product-A endpoint.
 
-Title:
+## Hard stop
 
-**Predictive success does not identify ecological necessity in species distribution models**
-
-30-second argument:
-
-1. previous work shows prediction may not recover ecological response functions;
-2. we show even ecologically better recovered model subsets can create false necessity;
-3. necessity must therefore be tested by falsification against adequate alternatives;
-4. that target is recovered with ~0.99 precision / ~0.98 recall under fresh controlled truth;
-5. fresh plant data reveal a different identification limit because ecological and AUC objectives collapse to the same model in 108/108 cells.
-
-## Gate 8 — What would trigger a Nature Communications transfer?
-
-Transfer without new Product-A data if the Nature Ecology & Evolution rejection is primarily:
-
-- insufficient broad ecological interest;
-- too methodological/specialized;
-- absence of a changed empirical biological conclusion;
-- preference for a specialist readership despite sound evidence.
-
-Do **not** generate a favorable new taxon panel to answer those editorial objections. The correct fallback ladder remains Nature Communications → Methods in Ecology and Evolution.
-
-## Submission-production tasks still open
-
-### Required before first-shot submission
-
-1. Render and visually QA four main figures from frozen source data.
-2. Produce source-data CSVs for main and Extended Data figures.
-3. Complete the final numbered reference list and insert citations into the manuscript.
-4. Run exact word-count/format QA against the final Article file.
-5. Archive the exact submission branch/code/source-data state with a permanent DOI.
-6. Complete Nature Portfolio reporting summary and software submission checklist.
-7. Add final author affiliations, contributions, competing interests, acknowledgements and corresponding-author details.
-
-### Not required / prohibited
-
-- no v2.9;
-- no new Product-A scientific test;
-- no search for taxa that force ecological/AUC selector divergence;
-- no threshold or candidate-library change;
-- no retroactive proxy-closure empirical analysis;
-- no Product-B result inserted into this manuscript.
-
-## Editorial decision
-
-**Nature Ecology & Evolution: challenge submission justified once the seven production tasks above are complete.**
-
-The most likely desk-rejection argument is not technical weakness but insufficient empirical biological consequence. The strongest defense is not to overclaim; it is to show that the prospective sequence changes the inferential standard itself: predictive adequacy and ecological recovery are not proofs of process necessity, and even empirical comparison can become unidentified when alternative objectives select the same model.
+No v2.9, no new Product-A test, no selector-divergence search, no threshold/candidate change, no retroactive proxy-closure analysis and no Product-B result in this manuscript.
