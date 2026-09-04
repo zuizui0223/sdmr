@@ -170,35 +170,39 @@ def build_v284_source(part_dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
 def render_v272(fig3: pd.DataFrame, output_dir: Path) -> None:
     labels = [FAMILY_LABELS[s] for s in fig3["scenario"]]
     y = np.arange(len(fig3))[::-1]
+    offset = 0.09
 
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.8), constrained_layout=True)
+
     ax = axes[0]
     for yi, p, r in zip(y, fig3["stable_core_precision"], fig3["stable_core_recall"]):
-        ax.plot([p, r], [yi, yi], linewidth=1.0, alpha=0.55)
-    ax.scatter(fig3["stable_core_precision"], y, marker="o", label="Precision", zorder=3)
-    ax.scatter(fig3["stable_core_recall"], y, marker="s", label="Recall", zorder=3)
+        ax.plot([p, r], [yi, yi], linewidth=1.0, alpha=0.45)
+    ax.scatter(fig3["stable_core_precision"], y + offset, marker="o", label="Precision", zorder=3)
+    ax.scatter(fig3["stable_core_recall"], y - offset, marker="s", label="Recall", zorder=3)
     ax.set_yticks(y, labels)
-    ax.set_xlim(0.88, 1.01)
+    ax.set_ylim(-0.45, len(y) - 0.55)
+    ax.set_xlim(0.88, 1.012)
     ax.set_xlabel("Stable-process-core recovery")
     ax.legend(frameon=False, loc="lower left")
     ax.text(-0.13, 1.03, "a", transform=ax.transAxes, fontweight="bold", fontsize=13)
 
     ax = axes[1]
     for yi, proc, model in zip(y, fig3["process_set_consensus"], fig3["model_consensus"]):
-        ax.plot([model, proc], [yi, yi], linewidth=1.2, alpha=0.65)
-    ax.scatter(fig3["process_set_consensus"], y, marker="o", label="Process set", zorder=3)
-    ax.scatter(fig3["model_consensus"], y, marker="s", label="Exact model", zorder=3)
+        ax.plot([model, proc], [yi, yi], linewidth=1.0, alpha=0.45)
+    ax.scatter(fig3["process_set_consensus"], y + offset, marker="o", label="Process set", zorder=3)
+    ax.scatter(fig3["model_consensus"], y - offset, marker="s", label="Exact model", zorder=3)
     ax.set_yticks(y, [""] * len(y))
-    ax.set_xlim(0.3, 1.03)
+    ax.set_ylim(-0.45, len(y) - 0.55)
+    ax.set_xlim(0.30, 1.04)
     ax.set_xlabel("Consensus fraction")
-    ax.legend(frameon=False, loc="lower right")
+    ax.legend(frameon=False, loc="upper left", fontsize=8.5)
     ax.text(-0.10, 1.03, "b", transform=ax.transAxes, fontweight="bold", fontsize=13)
     ax.text(
         0.02,
         0.02,
-        "All cases: process 50/60; exact model 38/60\nIndependent-process max difference = 0.0",
+        "All cases: process set 50/60; exact model 38/60\nIndependent-process max difference = 0.0",
         transform=ax.transAxes,
-        fontsize=8.5,
+        fontsize=8.3,
         va="bottom",
     )
 
