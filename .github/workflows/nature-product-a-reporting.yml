@@ -71,21 +71,28 @@ jobs:
         run: |
           test -s nature_reporting/nature_source_data_fig3.csv
           test -s nature_reporting/nature_source_data_fig4.csv
-          test -s nature_reporting/nature_fig3a_family_recovery.png
-          test -s nature_reporting/nature_fig3b_consensus.png
+          test -s nature_reporting/nature_source_data_fig4_parts.csv
+          test -s nature_reporting/nature_fig3_known_truth.png
+          test -s nature_reporting/nature_fig3_known_truth.pdf
           test -s nature_reporting/nature_fig4_empirical_identity.png
+          test -s nature_reporting/nature_fig4_empirical_identity.pdf
           python - <<'PY'
           import pandas as pd
           f3 = pd.read_csv('nature_reporting/nature_source_data_fig3.csv')
           f4 = pd.read_csv('nature_reporting/nature_source_data_fig4.csv')
+          parts = pd.read_csv('nature_reporting/nature_source_data_fig4_parts.csv')
           assert len(f3) == 6
           assert len(f4) == 108
+          assert len(parts) == 3
           assert f4['candidate_identical'].all()
           assert f4['selected_predictors_identical'].all()
           assert f4['ecological_candidate'].nunique() == 1
           assert f4['ecological_candidate'].iat[0] == 'all|logit_l2_C0.1_degree1_rs0'
+          assert parts['nondominated'].all()
+          assert not parts['strict_improvement'].any()
+          assert (parts['mean_presence_rank_delta'] == 0.0).all()
           print(f3.to_string(index=False))
-          print(f4[['seed','taxon','M','ecological_candidate']].head().to_string(index=False))
+          print(parts.to_string(index=False))
           PY
 
       - uses: actions/upload-artifact@v4
