@@ -1,0 +1,4 @@
+panel,complete_interval_width,pareto_interval_width,complete_boundary_coverage,pareto_boundary_coverage,complete_false_necessary,pareto_false_necessary
+C1,0.2526,0.0556,0.3333,0.3333,2,8
+C2,0.2500,0.0963,0.2963,0.2407,0,0
+C3,0.1652,0.1464,0.2963,0.2963,0,0
