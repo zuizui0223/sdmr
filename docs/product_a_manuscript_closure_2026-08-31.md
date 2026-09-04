@@ -1,6 +1,6 @@
 # Product-A manuscript closure
 
-Status: **scientific scope closed / Nature-track manuscript production active**.
+Status: **scientific scope closed / proceed to submission assembly / Nature-track manuscript production active**.
 
 ## Submission route
 
