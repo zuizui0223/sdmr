@@ -2,101 +2,90 @@
 
 Status: **scientific endpoint closed; Nature submission-production gate**.
 
-This document separates completed scientific/reporting work from the few remaining submission inputs. It does not authorize any additional Product-A experiment.
+This document does not authorize any additional Product-A experiment.
 
-## Scientific gate — COMPLETE
+## Scientific gate — COMPLETE AFTER LOGIC AUDIT
 
-- v1→v2.8.4 evidence sequence audited and compressed into four Nature-level Results;
-- v2.8.4 remains `empirical_confirmation_not_supported`;
-- separate Product-A decision remains `not_promoted`;
-- Product B remains blocked;
-- no v2.9, no retuning, no favorable-panel search, no proxy-closure rescue;
-- known-truth headline preserved: stable-process-core P `0.9889`, R/F1 `0.9833` on 60 unused cases;
-- exact-model consensus `38/60` versus process-set consensus `50/60`;
-- fresh empirical selector identity `108/108` candidate IDs and `108/108` selected-predictor sets;
-- strict ecological improvement `0/3`; mean presence-rank delta `0.0`.
+The manuscript now uses five Nature-level Results and explicitly separates two positive process-level estimands:
 
-## Main manuscript gate — COMPLETE
+1. prediction/stability does not guarantee process truth;
+2. ecological Pareto sharpening can create false necessity;
+3. **exclusion-based necessity:** v2.6 controls false-required claims (false-required=0, possible-process recall=1.0) but leaves a broad possible-process set (precision≈0.467);
+4. **consensus-first process stability:** v2.7.2 stable process core has P=0.9889, R/F1=0.9833 across 60 unused cases, with process-set consensus 50/60 versus exact-model consensus 38/60;
+5. fresh empirical v2.8.4 remains `empirical_confirmation_not_supported` / `not_promoted`, with strict improvement 0/3 and ecological/AUC candidate+predictor identity 108/108.
+
+The v2.7.2 stable process core is not the v2.6 process-exclusion necessary set. Repository logic audit: `docs/product_a_nature_logic_consistency_audit.md`.
+
+## Main manuscript gate
 
 Primary file: `docs/product_a_nature_ecology_evolution_article_draft.md`.
 
-Automated Nature-format QA currently verifies:
+Automated Nature QA now checks:
 
-- abstract <= 200 words;
-- main text <= 3,500 words;
-- four Results headings present;
+- abstract <=200 words;
+- main text <=3,500 words;
+- five corrected Results headings;
 - Discussion has no topical subheadings;
-- frozen headline claims remain present;
-- prohibited empirical/fundamental-niche claim inflation is absent.
+- frozen headline evidence remains present;
+- explicit token that the stable core is `not a process-exclusion necessity set`;
+- no prohibited empirical/fundamental-niche overclaim;
+- no direct attribution of 0.9889/0.9833 to falsification-first exclusion.
 
-Latest verified reporting run before this checklist: abstract `187` words; main text `1,890` words; `FORMAT_QA=PASS`.
+The exact word count must be revalidated on the current head after the logic correction.
 
-## Literature-positioning gate — COMPLETE FOR FIRST SUBMISSION
+## Literature-positioning gate — COMPLETE
 
-Verified shortlist: `docs/product_a_nature_reference_shortlist.md`.
+The manuscript concedes the inherited literature on prediction versus explanation, discrimination versus functional accuracy, collinearity, variable-importance instability, spatial CV/tuning and Rashomon/model-class reasoning.
 
-The manuscript explicitly concedes inherited results:
+Novelty is now restricted to:
 
-- prediction versus explanation is not new;
-- discrimination versus functional accuracy is not new;
-- variable-importance instability under known truth is not new;
-- collinearity/substitutable predictors are not new;
-- spatial CV/tuning/reproducible evaluation are not new;
-- Rashomon/model-set reasoning is not new.
+- prospective ecological-recovery sharpening → false necessity;
+- exclusion-based necessity with protected unresolved states;
+- a separate consensus-first process-stability result that exceeds exact-model stability;
+- observation/evidence-state and deterministic-execution safeguards;
+- fresh empirical observational equivalence preserved without rescue.
 
-Product-A novelty is restricted to the prospective evidence chain from false necessity under ecological sharpening to falsification-first process-information identification, explicit unresolved states, deterministic known-truth recovery, and fresh empirical selector collapse.
+## Figure gate — COMPLETE SCIENTIFICALLY
 
-## Main-figure gate — COMPLETE SCIENTIFICALLY / FINAL VISUAL QA COMPLETE
+1. Fig.1: winner selection versus ecological-identification objects;
+2. Fig.2: ecological sharpening → false necessity → exclusion-based replacement;
+3. Fig.3: **consensus-first process stability** across six families, not necessity precision;
+4. Fig.4: empirical selector collapse and formal non-support.
 
-Four figures are generated reproducibly by `.github/workflows/nature-product-a-reporting.yml`:
-
-1. `nature_fig1_identification_logic` — winner selection versus protected ecological identification;
-2. `nature_fig2_false_necessity` — v2.3 sharpness gain, coverage loss/false necessity and transition to exclusion logic;
-3. `nature_fig3_known_truth` — six-family stable-core recovery plus process-set versus exact-model consensus;
-4. `nature_fig4_empirical_identity` — 108/108 empirical model identity and 0/3 strict-improvement endpoint.
-
-Each is emitted as 600-dpi PNG and vector PDF, with source-data CSVs. Figure 3/4 numbers are rebuilt directly from pinned frozen workflow artifacts; Figure 2 is asserted against the frozen v2.3 decision table. Figure 1 is conceptual only.
+Figure legends and Extended Data now carry the same estimator separation.
 
 ## Methods / reporting gate — COMPLETE AS DRAFT
 
-Prepared files include:
+Prepared:
 
-- Nature-style cover letter;
+- Nature cover letter;
 - Online Methods;
-- Extended Data plan;
+- Extended Data/source-data plan;
 - figure legends;
-- Reporting Summary draft;
-- software-submission checklist draft;
-- Data and Code Availability draft;
+- Reporting Summary and software checklist drafts;
+- Data/Code Availability;
 - `CITATION.cff`;
-- source-data tables for main and key Extended Data claims.
+- source-data tables;
+- corrected claim audit and logic-consistency audit.
 
-## CI gate — MUST BE GREEN BEFORE MERGE/SUBMISSION
+## CI gate — REVALIDATE CURRENT HEAD
 
-A prior standard-test run failed only because the Nature-track closure status replaced the exact frozen phrase expected by `test_product_a_v2_8_4_promotion_decision.py`. The closure has now restored the required phrase:
+Previous head was fully green across Python 3.10–3.13, geo-rasterio, Nature reporting and real-API smoke. The current head contains reporting-only logic corrections and must again finish green; no scientific failure may be waived.
 
-`scientific scope closed / proceed to submission assembly`
+## Remaining external inputs
 
-while retaining `Nature-track manuscript production active` after it.
-
-Submission gate: wait for a standard `tests` workflow on the current PR head to finish green together with the Nature reporting workflow. Do not waive a real failure.
-
-## Remaining external/human inputs
-
-These are not scientific development and cannot be inferred safely from the repository alone:
-
-1. final author list, order, affiliations and corresponding-author identity;
-2. author contributions (CRediT), funding/grant numbers, acknowledgements and competing-interest statement;
-3. final repository/archive DOI (for example a Zenodo release) and immutable submission release/tag after PR merge;
-4. journal portal metadata, suggested/opposed reviewers if requested, and declarations specific to the submission form;
-5. final co-author approval of title, claims, figures and cover letter.
+1. final author list/order/affiliations/corresponding author;
+2. CRediT, funding/grants, acknowledgements and competing interests;
+3. immutable release/archive DOI;
+4. journal portal metadata and any reviewer suggestions/declarations;
+5. co-author approval.
 
 ## Submission decision
 
-If the current PR becomes green and the external author/archive fields are supplied, the package is scientifically ready for a **Nature Ecology & Evolution Article first shot**.
+If current-head QA/CI is green and external metadata are supplied, the package is scientifically ready for a **Nature Ecology & Evolution Article first shot**.
 
-A desk rejection for editorial breadth/priority should transfer without new Product-A analysis to **Nature Communications**, then to **Methods in Ecology and Evolution** if needed.
+A breadth/priority rejection should transfer without new Product-A analysis to **Nature Communications**, then **Methods in Ecology and Evolution**.
 
 ## Hard stop
 
-Do not improve journal odds by opening a new Product-A empirical endpoint, replacing taxa, changing M, changing the candidate system, relaxing thresholds, or searching for a dataset in which the ecological and AUC selectors happen to diverge. The Nature submission must stand or fall on the existing prospective evidence record.
+No new empirical endpoint, taxon replacement, M/candidate/threshold change, selector-divergence search, retroactive proxy closure or Product-B insertion.
