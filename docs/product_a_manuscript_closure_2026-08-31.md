@@ -34,7 +34,7 @@ The full v1→v2.8.4 evidence sequence supports this bounded methodological clai
 4. deterministic set-valued inference can become both safe and sharp under controlled truth;
 5. fresh empirical occurrence data can leave different selection objectives observationally indistinguishable.
 
-This does **not** establish a universal biological driver set, a fundamental niche, demographic fitness, dispersal history or biotic interactions. It does not establish that AUC is the ecological truth criterion.
+This does **not** establish a universal biological driver set, a fundamental niche, demographic fitness, dispersal history or biotic interactions. This bounded result **does not establish that AUC is universally optimal**, nor that AUC is the ecological truth criterion.
 
 ## Strongest positive result
 
@@ -64,7 +64,7 @@ Source: `docs/product_a_v2_7_2_family_level_reporting_audit.md`.
 
 ## Fresh empirical boundary and observational equivalence
 
-The v2.8.4 full denominator completed all three seeds, all 12 taxa and all 150/300/500 km M specifications. Prediction guardrail and process-status reproducibility passed, but strict ecological improvement occurred in `0/3` parts and mean presence-rank delta versus AUC was `0.0`. The formal endpoint therefore remains `empirical_confirmation_not_supported`.
+The v2.8.4 full denominator completed all three seeds, all 12 taxa and all 150/300/500 km M specifications. Prediction guardrail and process-status reproducibility passed, but there was **strict ecological improvement in none** of the three preregistered parts (`0/3`), and mean presence-rank delta versus AUC was `0.0`. The formal endpoint therefore remains `empirical_confirmation_not_supported`.
 
 A reporting-only audit of the pinned finalized artifacts now establishes the realized selector contrast exactly:
 
@@ -133,6 +133,8 @@ The Nature-level advance is the inference principle and its prospective evidence
 
 ## Hard stop
 
-Do not create v2.9. Do not change taxa, seed, M, sealed fraction, thresholds, candidate library, predictor universe, denominator, source or provider. Do not rerun, retune, rescue or replace the consumed v2.8.4 endpoint. Do not use the current hierarchy to perform post-outcome empirical reselection. Do not unblock Product B.
+**Do not start another Product-A experiment.** Do not create v2.9. Do not change taxa, seed, M, sealed fraction, thresholds, candidate library, predictor universe, denominator, source or provider. Do not rerun, retune, rescue or replace the consumed v2.8.4 endpoint. Do not use the current hierarchy to perform post-outcome empirical reselection. Do not unblock Product B.
+
+**Submit this bounded result without waiting for Product B.**
 
 From here, all Product-A work is manuscript compression, figure production, literature positioning, provenance packaging, code/data availability and submission.
