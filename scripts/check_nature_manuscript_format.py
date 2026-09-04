@@ -16,7 +16,8 @@ MAIN_TEXT_LIMIT = 3500
 REQUIRED_RESULT_HEADINGS = (
     "Prediction and stable surfaces did not identify process truth",
     "Model-set sharpening could create false necessity",
-    "Falsification-first identification became safe and sharp",
+    "Falsification-first exclusion controlled false necessity but remained broad",
+    "Process information remained stable without unique model identity",
     "Fresh occurrence data revealed observational equivalence",
 )
 PLACEHOLDER_PATTERNS = (
@@ -34,6 +35,7 @@ FORBIDDEN_CLAIM_PATTERNS = (
     r"fundamental niche (?:was|is) recovered",
     r"causal physiological driver (?:was|is) identified",
     r"v2\.8\.4.*not[_ -]?tested",
+    r"falsification-first[^\n]{0,160}(?:0\.9889|0\.9833)",
 )
 
 
@@ -113,7 +115,6 @@ def check_article(path: Path) -> dict[str, int]:
         if re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL):
             errors.append(f"forbidden/overstated claim pattern matched: {pattern!r}")
 
-    # Frozen headline facts expected in the Article text.
     required_tokens = (
         "0.9889",
         "0.9833",
@@ -122,10 +123,11 @@ def check_article(path: Path) -> dict[str, int]:
         "108/108",
         "empirical_confirmation_not_supported",
         "not_promoted",
+        "not a process-exclusion necessity set",
     )
     for token in required_tokens:
         if token not in text:
-            errors.append(f"missing frozen headline token: {token}")
+            errors.append(f"missing frozen headline/logic token: {token}")
 
     print(f"abstract_words={abstract_n}")
     print(f"main_text_words={main_n}")
