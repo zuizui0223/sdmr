@@ -1,0 +1,88 @@
+name: Nature Product-A reporting figures
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/build_nature_product_a_figures.py'
+      - 'docs/product_a_nature_**'
+      - '.github/workflows/nature-product-a-reporting.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build-reporting-figures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      V272_ARTIFACT_ID: '9490817718'
+      V284_PART1_ARTIFACT_ID: '9750048481'
+      V284_PART2_ARTIFACT_ID: '9749405054'
+      V284_PART3_ARTIFACT_ID: '9749815263'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install reporting dependencies
+        run: python -m pip install numpy pandas matplotlib
+
+      - name: Download pinned frozen reporting artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p frozen/v272 frozen/v284/part1 frozen/v284/part2 frozen/v284/part3
+          download_artifact () {
+            local id="$1"
+            local zip="$2"
+            local dest="$3"
+            gh api \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}/zip" > "${zip}"
+            unzip -q "${zip}" -d "${dest}"
+          }
+          download_artifact "$V272_ARTIFACT_ID" v272.zip frozen/v272
+          download_artifact "$V284_PART1_ARTIFACT_ID" v284p1.zip frozen/v284/part1
+          download_artifact "$V284_PART2_ARTIFACT_ID" v284p2.zip frozen/v284/part2
+          download_artifact "$V284_PART3_ARTIFACT_ID" v284p3.zip frozen/v284/part3
+
+      - name: Build source data and figures with frozen assertions
+        run: |
+          python scripts/build_nature_product_a_figures.py \
+            --v272-dir frozen/v272 \
+            --v284-part frozen/v284/part1 \
+            --v284-part frozen/v284/part2 \
+            --v284-part frozen/v284/part3 \
+            --output-dir nature_reporting
+
+      - name: Verify expected products
+        run: |
+          test -s nature_reporting/nature_source_data_fig3.csv
+          test -s nature_reporting/nature_source_data_fig4.csv
+          test -s nature_reporting/nature_fig3a_family_recovery.png
+          test -s nature_reporting/nature_fig3b_consensus.png
+          test -s nature_reporting/nature_fig4_empirical_identity.png
+          python - <<'PY'
+          import pandas as pd
+          f3 = pd.read_csv('nature_reporting/nature_source_data_fig3.csv')
+          f4 = pd.read_csv('nature_reporting/nature_source_data_fig4.csv')
+          assert len(f3) == 6
+          assert len(f4) == 108
+          assert f4['candidate_identical'].all()
+          assert f4['selected_predictors_identical'].all()
+          print(f3.to_string(index=False))
+          print(f4[['seed','taxon','M','ecological_candidate']].head().to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nature-product-a-reporting-${{ github.sha }}
+          path: nature_reporting/
+          retention-days: 90
