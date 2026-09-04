@@ -121,3 +121,7 @@ The broad ecological claim is:
 **Ecological interpretation should not be a by-product of winner selection. In observational ecological models with correlated or substitutable environmental representations, necessity, process stability and unresolved evidence are distinct inferential objects that require distinct tests.**
 
 This claim is supported by a prospective sequence in which prediction/process attribution separated, performance-based model-set sharpening generated false necessity, exclusion-based necessity control retained truth without false-required claims, consensus-first process certificates remained accurate despite model non-uniqueness, and fresh empirical selection rules collapsed to the same realized model.
+
+## Manuscript closure rule
+
+For submission reporting, this file is the authoritative scientific logic. Older development notes may retain historical terminology, but they must not be used to merge the v2.6 exclusion-based necessity estimand with the v2.7.2 consensus-first stability estimand or to reinterpret the frozen v2.8.4 non-support/non-promotion endpoint.
