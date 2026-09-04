@@ -50,11 +50,11 @@ The v2.7.2 P=0.9889 / R=0.9833 values are **not** process-exclusion necessity-es
 - `docs/nature_source_data_fig4_parts.csv`
 - key Extended Data source-data CSVs recorded in the Extended Data plan.
 
-## Current-head validation
+## Validated scientific/reporting state
 
-Current manuscript head before this index-only metadata update: `ebfcd4a48c2ec20cb1a7fde223db2dba64bb363f`
+Validated manuscript/reporting state: `ebfcd4a48c2ec20cb1a7fde223db2dba64bb363f`
 
-All submission-facing validation succeeded on that scientific/reporting state:
+All submission-facing validation succeeded on that state:
 
 - Nature Product-A reporting figures — **success** (run 33851979388).
 - Standard repository tests — **success** across Python 3.10, 3.11, 3.12, 3.13 and geo-rasterio (run 33851979406).
@@ -62,7 +62,7 @@ All submission-facing validation succeeded on that scientific/reporting state:
 
 The Nature Article QA records abstract 194 words and main text 2,121 words.
 
-This file update changes submission metadata only and does not alter scientific code, frozen endpoints, manuscript claims or figure source data.
+Subsequent commits `027be15208bd8ee30e037e167d16a993aed50027` and this index-only update modify submission metadata/index text only; they do not alter scientific code, frozen endpoints, manuscript claims, or figure source data.
 
 ## Scientific hard stop
 
