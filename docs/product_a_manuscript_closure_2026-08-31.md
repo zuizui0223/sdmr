@@ -24,21 +24,31 @@ The Nature-track rewrite is a reporting and synthesis change only.
 
 ## Nature-level manuscript claim
 
-> **Predictive success does not identify ecological necessity. In occurrence-only species distribution models, ecological necessity must be challenged against adequate alternative explanations rather than inferred from a winning model.**
+> **Predictive success does not identify ecological necessity. In occurrence-only species distribution models, ecological identification must separate process necessity from process-information stability rather than infer both from a winning model.**
 
-The full v1→v2.8.4 evidence sequence supports this bounded methodological claim through prospective falsification:
+The full v1→v2.8.4 evidence sequence supports this bounded methodological claim:
 
 1. prediction transfer and stable response surfaces can coexist with incorrect process attribution;
 2. agreement among ecologically better retained models can create false necessary-process claims;
-3. falsification-first exclusion plus explicit unresolved/unavailable states protects generating truth;
-4. deterministic set-valued inference can become both safe and sharp under controlled truth;
+3. falsification-first process exclusion can control false-required claims but may leave broad or unresolved identified sets;
+4. a separate consensus-first certificate can recover stable process information even when exact fitted-model identity is not stable;
 5. fresh empirical occurrence data can leave different selection objectives observationally indistinguishable.
 
 This does **not** establish a universal biological driver set, a fundamental niche, demographic fitness, dispersal history or biotic interactions. This bounded result **does not establish that AUC is universally optimal**, nor that AUC is the ecological truth criterion.
 
-## Strongest positive result
+## Critical estimand separation
 
-The v2.7.2 deterministic successor evaluated 60 unused known-truth cases across six niche families in two independent processes.
+The manuscript must not merge the two positive process-level branches.
+
+### Exclusion-based necessity branch
+
+v2.4–v2.6 ask whether an adequate ecological explanation survives when the declared information assigned to one process is removed. Under adequate prospective calibration, v2.6 produced complete process and boundary certificates, zero false-required processes and possible-process recall `1.0`, but possible-process precision remained about `0.467`. This supports false-necessity control and complete true-process recall under the frozen known-truth criterion, while retaining broad uncertainty.
+
+### Consensus-first process-stability branch
+
+v2.7.2 asks a different question. Its `stable_process_core` is the intersection of process sets supported by the canonical ecological-recovery selector and the perturbation-robust ecological-recovery selector. It is not the exclusion-based necessary-process set.
+
+The deterministic successor evaluated 60 unused known-truth cases across six niche families in two independent processes:
 
 - robust ecological selector coverage: `60/60`;
 - stable-process-core precision: `0.9889`;
@@ -58,7 +68,7 @@ Family-level reporting from the frozen artifact further shows:
 | omitted-driver | 1.000 | 0.900 |
 | soft-threshold | 0.933 | 1.000 |
 
-Exact fitted-model consensus occurred in `38/60`, whereas process-set consensus occurred in `50/60`. This is direct evidence that process information can be more identifiable than exact model identity.
+Exact fitted-model consensus occurred in `38/60`, whereas process-set consensus occurred in `50/60`. This supports the claim that process information can be more stable than exact model identity. It must **not** be reported as evidence that falsification-first necessity itself achieved precision `0.9889` or recall `0.9833`.
 
 Source: `docs/product_a_v2_7_2_family_level_reporting_audit.md`.
 
@@ -66,20 +76,20 @@ Source: `docs/product_a_v2_7_2_family_level_reporting_audit.md`.
 
 The v2.8.4 full denominator completed all three seeds, all 12 taxa and all 150/300/500 km M specifications. Prediction guardrail and process-status reproducibility passed, but there was **strict ecological improvement in none** of the three preregistered parts (`0/3`), and mean presence-rank delta versus AUC was `0.0`. The formal endpoint therefore remains `empirical_confirmation_not_supported`.
 
-A reporting-only audit of the pinned finalized artifacts now establishes the realized selector contrast exactly:
+A reporting-only audit of the pinned finalized artifacts establishes the realized selector contrast exactly:
 
 - matched taxon × M × seed cells: `108`;
 - ecological versus AUC candidate identity: `108/108`;
 - ecological versus AUC selected-predictor identity: `108/108`;
 - ecological candidate ID in all 108 cells: `all|logit_l2_C0.1_degree1_rs0`.
 
-Thus the formal empirical superiority claim was tested and not supported, while the stronger empirical question of process-identification performance **when predictive and ecological selectors genuinely disagree** was not identified by this endpoint because no realized disagreement occurred.
+Thus the formal empirical superiority claim was tested and not supported, while the stronger empirical question of ecological identification when predictive and ecological selectors genuinely disagree was not identified by this endpoint because no realized disagreement occurred.
 
 Source: `docs/product_a_v2_8_4_selector_contrast_reporting_audit.md`.
 
 ## Main-text Results structure
 
-Do not write a software-version diary. Compress the history into four Nature-level results:
+Do not write a software-version diary. Use five Nature-level results:
 
 ### Result 1 — Prediction is not process identification
 
@@ -87,13 +97,17 @@ Use v1 as the protected information-boundary foundation and v2.1–v2.2 as the c
 
 ### Result 2 — Model-set agreement can create false necessity
 
-Use v2.3 as the anti-conservative counterexample, then introduce falsification-first necessity.
+Use v2.3 as the anti-conservative counterexample.
 
-### Result 3 — Falsification-first inference is safe and can be sharp
+### Result 3 — Exclusion-based necessity controls false-required claims but can remain broad
 
-Use v2.4–v2.6 to establish abstention and safety; use v2.7.1–v2.7.2 to establish determinism, sharpness and family-level recovery.
+Use v2.4–v2.6 to establish falsification-first necessity, abstention, calibration requirements and the safety–width trade-off.
 
-### Result 4 — Fresh data expose observational equivalence
+### Result 4 — Process information can be stable without unique model identity
+
+Use v2.7.1 to establish why deterministic execution matters, and v2.7.2 to report the separate consensus-first stable-process-core result and 50/60 versus 38/60 process/model consensus contrast.
+
+### Result 5 — Fresh data expose observational equivalence
 
 Use v2.7.3/v2.8.3 only as provenance for structural/technical states. Use v2.8.4 as the sole fresh scientific endpoint, including the 108/108 exact selector-collapse audit.
 
@@ -120,16 +134,16 @@ Submission strategy: `docs/product_a_nature_ecology_evolution_submission_plan.md
 
 1. **Prediction ≠ identification** — conceptual distinction plus the controlled-truth failure of prediction/stability as process proof.
 2. **Agreement ≠ necessity** — Pareto sharpening creates false certainty; process exclusion and unresolved states replace agreement-based necessity.
-3. **Safe and sharp under known truth** — six-family v2.7.2 precision/recall, process-set versus exact-model consensus, observation correction specificity and deterministic identity.
+3. **Process stability without model uniqueness** — six-family v2.7.2 consensus-first precision/recall, process-set versus exact-model consensus, observation correction specificity and deterministic identity.
 4. **Fresh observational equivalence** — 108/108 ecological–AUC candidate identity, formal `0/3` strict-improvement result, `empirical_confirmation_not_supported`, `not_promoted`.
 
-Put information-barrier details, calibration support, v2.7.1 parity failure, workflow/artifact receipts and full metric tables in Extended Data / Supplement.
+Put v2.6 exclusion performance, information-barrier details, calibration support, v2.7.1 parity failure, workflow/artifact receipts and full metric tables in Extended Data / Supplement.
 
 ## Nature editorial risk
 
 The main weakness is explicit and must not be repaired post hoc: the fresh empirical endpoint did not produce different biological conclusions from two different fitted selectors because the selectors collapsed to the same candidate. The manuscript must therefore sell **observational equivalence as an identification limit**, not invent an empirical biological divergence that does not exist.
 
-The Nature-level advance is the inference principle and its prospective evidence sequence, not a claim that SDMR empirically beat AUC.
+The Nature-level advance is the inferential decomposition—prediction, necessity, process stability and unresolved evidence—and its prospective evidence sequence, not a claim that SDMR empirically beat AUC.
 
 ## Hard stop
 
