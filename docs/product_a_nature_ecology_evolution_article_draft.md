@@ -77,9 +77,11 @@ Product A therefore changes the inferential object rather than promoting a unive
 3. Kass, J. M. et al. ENMeval 2.0: redesigned for customizable and reproducible modeling of species’ niches and distributions. *Methods Ecol. Evol.* **12**, 1602–1608 (2021). doi:10.1111/2041-210X.13628.
 4. Fisher, A., Rudin, C. & Dominici, F. All models are wrong, but many are useful: learning a variable’s importance by studying an entire class of prediction models simultaneously. *J. Mach. Learn. Res.* **20**, 1–81 (2019).
 5. Donnelly, J. et al. The Rashomon importance distribution: getting RID of unstable, single model-based variable importance. *Proc. Natl Acad. Sci. USA* **120**, e2216830120 (2023).
-6. Moudrý, V. et al. Positional uncertainty in species occurrence data alters species–environment relationships in species distribution models. *Ecography* (2023), doi:10.1111/ecog.06358.
-7. [Spatial-autocorrelation / variable-importance simulation paper, Ecography 2021, doi:10.1111/ecog.05534 — verify full author metadata before submission.]
+6. Gábor, L. et al. Species distribution models affected by positional uncertainty in species occurrences can still be ecologically interpretable. *Ecography* **2023**, e06358 (2023). doi:10.1111/ecog.06358.
+7. Harisena, N. V., Groen, T. A., Toxopeus, A. G. & Naimi, B. When is variable importance estimation in species distribution modelling affected by spatial correlation? *Ecography* **44**, 778–788 (2021). doi:10.1111/ecog.05534.
+
+Additional spatial-validation, collinearity and sampling-bias references are verified in `docs/product_a_nature_reference_boundary.md` and should be introduced where Methods/Discussion require them.
 
 ## Nature-format production notes
 
-Target final main text: <=3,500 words excluding Methods, references and legends. Introduction remains unheaded; Results use topical subheadings; Discussion has no subheadings. Keep four main figures and move provenance/version-specific details to Extended Data and Online Methods. Version numbers should disappear from the main narrative except where required to identify a frozen endpoint.
+Target final main text: <=3,500 words excluding Methods, references and legends. Introduction remains unheaded; Results use topical subheadings; Discussion has no topical subheadings. Keep four main figures and move provenance/version-specific details to Extended Data and Online Methods. Version numbers should disappear from the main narrative except where required to identify a frozen endpoint.
