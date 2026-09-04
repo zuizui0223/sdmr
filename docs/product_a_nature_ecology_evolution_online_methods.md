@@ -2,9 +2,14 @@
 
 Status: **submission-production document only; no new Product-A experiment or endpoint change**.
 
-## Study objective and inferential target
+## Study objective and inferential targets
 
-Product A evaluates whether environmental-process claims can be identified from occurrence-only species distribution models (SDMs) without equating predictive success with ecological necessity. The target is **process-information necessity under a declared representation registry**, not proof of a complete causal mechanism or fundamental niche. Prediction is treated as an adequacy layer. A process claim is tested by whether an adequate ecological certificate remains available when the declared information associated with that process is excluded under a prospectively frozen design.
+Product A evaluates environmental-process claims from occurrence-only species distribution models (SDMs) without equating predictive success with ecological necessity. The manuscript distinguishes two complementary process-level estimands.
+
+1. **Process-information necessity under a declared representation registry.** Prediction is an adequacy layer. A necessity claim is challenged by asking whether an adequate ecological certificate remains available when the declared information associated with that process is excluded under a prospectively frozen design. `required_by_frozen_evidence_contract` is contract-relative and is not a physiological, causal or fundamental-niche necessity claim.
+2. **Process-information stability across ecological selectors.** A separate consensus-first certificate asks whether canonical and perturbation-robust ecological selectors support the same ecological process information even when they choose different fitted models. Its `stable_process_core` is the intersection of the process sets supported by those selectors. It is not a process-exclusion necessity set.
+
+These estimands are complementary but are not combined into one scalar or treated as the same estimator.
 
 ## Prospective information barriers
 
@@ -38,15 +43,21 @@ Known-truth simulation supplied process and response information unavailable fro
 
 The v2.7.2 run was repeated in two independent Python processes. The pre-outcome determinism contract required exact equality of discrete scientific outputs and numeric agreement at `rtol=1e-10`, `atol=1e-10`; any discrete difference failed closed. The model `random_state` and selection-process NumPy seed were both fixed to 0. The frozen solver remained scikit-learn `liblinear`; all other model hyperparameters, candidate strategies, predictor universe, prediction-adequacy rules and ecological-recovery metrics were unchanged from the predecessor.
 
-Predeclared v2.7.2 non-regression thresholds required robust-selector coverage ≥0.95, stable-core precision ≥0.90, stable-core recall ≥0.90, stable-core F1 ≥0.90, correction activation of 1.0 in the observation-confounded family and 0.0 in all other families. Failure was allowed as a valid result and thresholds could not be changed after outcome inspection.
+Predeclared v2.7.2 non-regression thresholds required robust-selector coverage ≥0.95, stable-core precision ≥0.90, stable-core recall ≥0.90, stable-core F1 ≥0.90, correction activation of 1.0 in the observation-confounded family and 0.0 in all other families. These thresholds evaluated the **consensus-first stable process core** defined below; they were not thresholds for the process-exclusion necessity certificate. Failure was allowed as a valid result and thresholds could not be changed after outcome inspection.
 
-## From model-set agreement to falsification-first certificates
+## From model-set agreement to falsification-first necessity certificates
 
 An earlier set-valued certificate retained complete prediction-adequate candidates and then pruned to an ecological Pareto set. Necessary processes were initially defined from the intersection of retained fitted process sets and response uncertainty from their min–max spread. Known-truth validation showed that this operation could lose true process/boundary coverage and create a false necessary-process core.
 
-The successor logic therefore became falsification-first. Process status distinguished claims that were refuted as necessary, required by the frozen evidence contract, or unresolved. Lack of evidence remained unresolved rather than being converted into absence. Boundary claims were calibrated separately using discovery-only evidence; validation truth could not create missing calibration support or relax a frozen support threshold.
+The successor necessity logic therefore became falsification-first. Explicit process knockouts removed every predictor assigned to the declared process from each base procedure. A process necessity claim was refuted when a complete transferred knockout witness remained prediction-adequate under the frozen evidence contract. Missing evidence remained unresolved rather than being converted to necessity. Boundary claims were calibrated separately using discovery-only evidence; validation truth could not create missing calibration support or relax a frozen support threshold.
 
-In v2.6, after prospective calibration redundancy, all three validation panels and all nine validation taxa had complete process and boundary certificates. False-required processes were zero and minimum possible-process recall was 1.0. Possible-process precision was 0.467 in all three panels, and calibrated boundary intervals were wider than complete-adequate intervals, preserving the safety–sharpness limitation as part of the result rather than pruning it away.
+In v2.6, after prospective calibration redundancy, all three validation panels and all nine validation taxa had complete process and boundary certificates. False-required processes were zero and minimum possible-process recall was 1.0. Possible-process precision was 0.467 in all three panels, and calibrated boundary intervals were wider than complete-adequate intervals. Thus the exclusion branch demonstrated false-necessity control and complete true-process recall under the frozen known-truth criterion, while retaining a deliberately broad identified set.
+
+## Consensus-first process-stability certificate
+
+The v2.7.2 `stable_process_core` addressed a different estimand from exclusion-based necessity. For each known-truth case, a canonical ecological-recovery selector and a perturbation-robust ecological-recovery selector first chose candidates without access to hidden truth. Predictor-level representations were mapped to predeclared process groups. The stable process core was then defined as the intersection of the ecological process sets supported by the two selector choices; selector-specific processes were retained as contested/sensitivity information, and observation-process predictors were never promoted as ecological processes.
+
+Hidden generating process sets were opened only after this certificate existed. Precision, recall and F1 were then computed for the stable process core against the generating process set. Across the 60 frozen v2.7.2 cases, pooled stable-core precision was 0.9889 and recall/F1 were 0.9833. Process-set consensus occurred in 50/60 cases and exact fitted-model consensus in 38/60. These values support process-information stability across the two ecological selectors; they do **not** estimate the precision of the exclusion-based necessity certificate.
 
 ## Observation-process separation
 
@@ -83,13 +94,13 @@ Candidate ID and selected-predictor strings were exactly identical between ecolo
 
 ## Statistical reporting and replication units
 
-Known-truth family-level summaries use 10 independently seeded cases per preregistered niche family (60 total). Precision, recall and F1 are reported for the stable process core against hidden generating processes. Process-set consensus and exact-model consensus are case-level binary outcomes and are summarized as fractions within family and across all 60 cases.
+Known-truth family-level summaries use 10 independently seeded cases per preregistered niche family (60 total). Precision, recall and F1 reported for v2.7.2 refer specifically to the **consensus-first stable process core** against hidden generating processes. Process-set consensus and exact-model consensus are case-level binary outcomes and are summarized as fractions within family and across all 60 cases. Exclusion-based necessity performance is reported separately through false-required counts, possible-process recall/precision and boundary coverage from its own frozen known-truth panels.
 
 The fresh empirical primary decision unit is the preregistered seed part (n=3), each of which contains the full 12-taxon × 3-M denominator. Taxon × M × seed rows (108 matched cells) are used only for reporting the realized selector identity and metric identity; they do not replace the frozen three-part decision rule or create post hoc inferential replication.
 
 ## Software and computational environment
 
-The repository package is `sdmr` version `0.3.0.dev0`, requires Python ≥3.10 and depends on NumPy, pandas and scikit-learn; optional geospatial/cloud paths use rasterio, pyarrow and duckdb. The repository is MIT licensed and includes automated tests, frozen scientific contracts, workflow definitions, evidence receipts and reporting scripts. The Nature reporting figures are generated by `scripts/build_nature_product_a_figures.py`, which contains hard assertions for the frozen v2.7.2 pooled recovery values, 38/60 exact-model consensus, 50/60 process-set consensus, the three empirical seeds, 108 matched empirical cells and exact ecological/AUC candidate identity.
+The repository package is `sdmr` version `0.3.0.dev0`, requires Python ≥3.10 and depends on NumPy, pandas and scikit-learn; optional geospatial/cloud paths use rasterio, pyarrow and duckdb. The repository is MIT licensed and includes automated tests, frozen scientific contracts, workflow definitions, evidence receipts and reporting scripts. The Nature reporting figures are generated by `scripts/build_nature_product_a_figures.py`, which contains hard assertions for the frozen v2.7.2 pooled consensus-first recovery values, 38/60 exact-model consensus, 50/60 process-set consensus, the three empirical seeds, 108 matched empirical cells and exact ecological/AUC candidate identity.
 
 ## Reproducibility and no-rescue boundary
 
