@@ -4,6 +4,10 @@ from .aggregate import aggregate_predictor_selection, choose_common_predictors
 from .benchmark import SpeciesBenchmarkResult, TaxonSplitBenchmarkResult, benchmark_species, benchmark_taxon_split
 from .cross_taxon_process_evidence import CrossTaxonProcessEvidence, aggregate_cross_taxon_process_evidence
 from .drivers import aggregate_process_evidence, annotate_predictor_metadata, equivalence_group_process_map, validate_candidate_manifest
+from .ecological_identification_io import (
+    export_prepared_ecological_identification_study,
+    load_prepared_ecological_identification_study,
+)
 from .ecological_identification_learner import IdentificationLearnerFit, fit_ecological_identification_learner
 from .ecological_identification_workflow import (
     EcologicalIdentificationConfig,
@@ -141,8 +145,10 @@ __all__ = [
     "equivalence_group_process_map",
     "drop_group_importance",
     "drop_one_importance",
+    "export_prepared_ecological_identification_study",
     "fit_ecological_identification_learner",
     "freeze_candidate_methods",
+    "load_prepared_ecological_identification_study",
     "occurrence_feature_fingerprint",
     "occurrence_table_fingerprint",
     "prepare_ecological_identification_study",
