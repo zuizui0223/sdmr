@@ -1,0 +1,7 @@
+rule_id,process,role,predictor_exact,predictor_pattern,source_family,units_pattern
+thermal_bio1,thermal,direct,bio1,,,
+thermal_gdd,thermal,derived,,^gdd,CHELSA,
+thermal_pet,thermal,composite,pet,,,
+water_pet,water,composite,pet,,,
+water_bio12,water,direct,bio12,,,^mm$
+soil_source,soil,direct,,,SoilGrids,
