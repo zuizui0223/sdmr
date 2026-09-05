@@ -1,56 +1,154 @@
 # Product-A manuscript closure
 
-Status: **scientific scope closed / proceed to submission assembly**.
+Status: **scientific scope closed / proceed to submission assembly / Nature-track manuscript production active**.
 
-Primary target: **Methods in Ecology and Evolution**. Immediate fallback: **Ecological Informatics**. Do not collect or search for additional favorable data to alter this route.
+## Submission route
 
-## Manuscript claim
+1. **Nature Ecology & Evolution — Article**: first formal submission.
+2. **Nature Communications**: immediate Nature-family fallback/transfer if the first decision is based on breadth or editorial priority rather than scientific validity.
+3. **Methods in Ecology and Evolution**: specialist-method fallback without any favorable-data search or Product-A rerun.
 
-A prospectively sealed, full-denominator workflow can distinguish implementation safety and known-truth recovery from fresh empirical advantage. Under the frozen 12-taxon, three-seed, three-M Product-A endpoint, the ecological procedure did not strictly improve independent ecological recovery relative to AUC, even though the prediction guardrail and process-status reproducibility passed.
+Do not collect, retune or search for additional favorable Product-A evidence to alter this route.
 
-This is a bounded methodological conclusion. It does not establish that AUC is universally optimal, that correlation/VIF filtering is generally preferable, that environmental process domains are biologically unnecessary, or that fundamental niches, demographic fitness, dispersal history or biotic interactions were recovered.
+## Authoritative scientific endpoint
 
-## Evidence table
+The endpoint is unchanged:
 
-The machine-readable table is `configs/product_a_v2_8_4_manuscript_evidence_table.csv`.
+- Product-A v2.8.4: `empirical_confirmation_not_supported`;
+- separate promotion decision: `not_promoted`;
+- known-truth support: preserved;
+- Product B: blocked;
+- additional Product-A scientific experiment: forbidden.
 
-| Evidence | Status | Manuscript use |
-|---|---|---|
-| v2.6 and v2.7.2 known truth | supported | architecture, recovery and safety under controlled truth; not empirical promotion |
-| v2.8.3 authoritative execution | technical terminal before sealed evidence | execution provenance only; not a scientific negative |
-| v2.8.4 run `33364164527` | `empirical_confirmation_not_supported` | primary fresh full-denominator result |
-| prediction guardrail | passed | prediction safety component |
-| ecological support | failed: strict improvement 0/3, mean delta 0.0 | blocks Product-A promotion |
-| process reproducibility | passed: modal fraction 1.0 | conditional result; cannot override primary |
-| separate promotion decision | `not_promoted` | closes Product-A scientific development |
-| Product B | blocked | excluded from this paper and from current development |
+The Nature-track rewrite is a reporting and synthesis change only.
 
-## Methods identity to report
+## Nature-level manuscript claim
 
-- scientific execution ID `product-a-v2-8-4-fresh-confirmation-v1`;
-- sealed fraction 0.25;
-- split seeds 2026082201, 2026082202 and 2026082203;
-- M sensitivity 150, 300 and 500 km;
-- 12-taxon denominator in every part;
-- model random state 0 and selection-process NumPy seed 0;
-- prediction guardrail mean presence-rank delta threshold -0.01;
-- ecological nondomination and strict-improvement requirements evaluated over the fixed denominator;
-- terminal source run `33364164527`, attempt 1, frozen SHA `1496a6c63b19bf7711511a864ccb448fc123c963`;
-- terminal artifact `9750071472`, digest `sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f`.
+> **Predictive success does not identify ecological necessity. In occurrence-only species distribution models, ecological identification must separate process necessity from process-information stability rather than infer both from a winning model.**
 
-## Results wording
+The full v1→v2.8.4 evidence sequence supports this bounded methodological claim:
 
-All three preregistered seed parts were structurally auditable and scientifically available; each contained all 12 taxa and all 36 taxon-by-M cells. The ecological procedure satisfied the prediction guardrail and was nondominated relative to AUC in all three parts, but it achieved strict ecological improvement in none. Its sealed metric summaries were identical to the AUC role within each part, yielding mean presence-rank delta 0.0. Process-status reproducibility reached a minimum modal fraction of 1.0, but this conditional component could not override the failed primary ecological-support rule. The frozen terminal decision was `empirical_confirmation_not_supported`, followed by a separate `not_promoted` decision.
+1. prediction transfer and stable response surfaces can coexist with incorrect process attribution;
+2. agreement among ecologically better retained models can create false necessary-process claims;
+3. falsification-first process exclusion can control false-required claims but may leave broad or unresolved identified sets;
+4. a separate consensus-first certificate can recover stable process information even when exact fitted-model identity is not stable;
+5. fresh empirical occurrence data can leave different selection objectives observationally indistinguishable.
 
-## Minimum figures and tables
+This does **not** establish a universal biological driver set, a fundamental niche, demographic fitness, dispersal history or biotic interactions. This bounded result **does not establish that AUC is universally optimal**, nor that AUC is the ecological truth criterion.
 
-1. Information-boundary diagram: known-truth lane, fresh model pool, pretruth freeze, sealed audit, aggregate decision, separate promotion gate.
-2. Three-part empirical summary: presence-rank delta 0.0 for every seed, ecological nondomination 3/3, strict improvement 0/3, with the primary decision shown explicitly.
-3. Evidence funnel: known-truth supported; fresh endpoint evaluable but not supported; Product A not promoted; Product B blocked.
-4. Main evidence table from the pinned CSV, plus an availability/provenance supplement using `configs/product_a_v2_8_4_terminal_decision_receipt.json`.
+## Critical estimand separation
 
-Figure rendering, journal formatting and copyediting are submission production, not authorization for new scientific development. Every quantitative panel must be generated only from the pinned terminal artifact or its repository receipt; development subsets and technical STOP runs cannot replace it.
+The manuscript must not merge the two positive process-level branches.
+
+### Exclusion-based necessity branch
+
+v2.4–v2.6 ask whether an adequate ecological explanation survives when the declared information assigned to one process is removed. Under adequate prospective calibration, v2.6 produced complete process and boundary certificates, zero false-required processes and possible-process recall `1.0`, but possible-process precision remained about `0.467`. This supports false-necessity control and complete true-process recall under the frozen known-truth criterion, while retaining broad uncertainty.
+
+### Consensus-first process-stability branch
+
+v2.7.2 asks a different question. Its `stable_process_core` is the intersection of process sets supported by the canonical ecological-recovery selector and the perturbation-robust ecological-recovery selector. It is not the exclusion-based necessary-process set.
+
+The deterministic successor evaluated 60 unused known-truth cases across six niche families in two independent processes:
+
+- robust ecological selector coverage: `60/60`;
+- stable-process-core precision: `0.9889`;
+- stable-process-core recall: `0.9833`;
+- stable-process-core F1: `0.9833`;
+- maximum absolute and relative cross-process drift: `0.0` in every compared table;
+- observation correction activation: `10/10` in the observation-confounded family and `0/50` elsewhere.
+
+Family-level reporting from the frozen artifact further shows:
+
+| niche family | precision | recall |
+|---|---:|---:|
+| asymmetric | 1.000 | 1.000 |
+| gaussian | 1.000 | 1.000 |
+| interaction | 1.000 | 1.000 |
+| observation-confounded | 1.000 | 1.000 |
+| omitted-driver | 1.000 | 0.900 |
+| soft-threshold | 0.933 | 1.000 |
+
+Exact fitted-model consensus occurred in `38/60`, whereas process-set consensus occurred in `50/60`. This supports the claim that process information can be more stable than exact model identity. It must **not** be reported as evidence that falsification-first necessity itself achieved precision `0.9889` or recall `0.9833`.
+
+Source: `docs/product_a_v2_7_2_family_level_reporting_audit.md`.
+
+## Fresh empirical boundary and observational equivalence
+
+The v2.8.4 full denominator completed all three seeds, all 12 taxa and all 150/300/500 km M specifications. Prediction guardrail and process-status reproducibility passed, but there was **strict ecological improvement in none** of the three preregistered parts (`0/3`), and mean presence-rank delta versus AUC was `0.0`. The formal endpoint therefore remains `empirical_confirmation_not_supported`.
+
+A reporting-only audit of the pinned finalized artifacts establishes the realized selector contrast exactly:
+
+- matched taxon × M × seed cells: `108`;
+- ecological versus AUC candidate identity: `108/108`;
+- ecological versus AUC selected-predictor identity: `108/108`;
+- ecological candidate ID in all 108 cells: `all|logit_l2_C0.1_degree1_rs0`.
+
+Thus the formal empirical superiority claim was tested and not supported, while the stronger empirical question of ecological identification when predictive and ecological selectors genuinely disagree was not identified by this endpoint because no realized disagreement occurred.
+
+Source: `docs/product_a_v2_8_4_selector_contrast_reporting_audit.md`.
+
+## Main-text Results structure
+
+Do not write a software-version diary. Use five Nature-level results:
+
+### Result 1 — Prediction is not process identification
+
+Use v1 as the protected information-boundary foundation and v2.1–v2.2 as the controlled-truth demonstration that prediction/stability and process truth are separable.
+
+### Result 2 — Model-set agreement can create false necessity
+
+Use v2.3 as the anti-conservative counterexample.
+
+### Result 3 — Exclusion-based necessity controls false-required claims but can remain broad
+
+Use v2.4–v2.6 to establish falsification-first necessity, abstention, calibration requirements and the safety–width trade-off.
+
+### Result 4 — Process information can be stable without unique model identity
+
+Use v2.7.1 to establish why deterministic execution matters, and v2.7.2 to report the separate consensus-first stable-process-core result and 50/60 versus 38/60 process/model consensus contrast.
+
+### Result 5 — Fresh data expose observational equivalence
+
+Use v2.7.3/v2.8.3 only as provenance for structural/technical states. Use v2.8.4 as the sole fresh scientific endpoint, including the 108/108 exact selector-collapse audit.
+
+## Nature Ecology & Evolution production target
+
+Follow the current Article format:
+
+- abstract <= `200` words;
+- main text <= `3,500` words excluding Methods, references and legends;
+- <= `6` main display items;
+- Introduction around `500` words without a heading;
+- concise topical Results;
+- Discussion without subheadings;
+- Online Methods sufficient for replication;
+- <= `10` Extended Data items.
+
+Primary Nature draft: `docs/product_a_nature_ecology_evolution_article_draft.md`.
+
+Cover letter: `docs/product_a_nature_ecology_evolution_cover_letter.md`.
+
+Submission strategy: `docs/product_a_nature_ecology_evolution_submission_plan.md`.
+
+## Four main figures
+
+1. **Prediction ≠ identification** — conceptual distinction plus the controlled-truth failure of prediction/stability as process proof.
+2. **Agreement ≠ necessity** — Pareto sharpening creates false certainty; process exclusion and unresolved states replace agreement-based necessity.
+3. **Process stability without model uniqueness** — six-family v2.7.2 consensus-first precision/recall, process-set versus exact-model consensus, observation correction specificity and deterministic identity.
+4. **Fresh observational equivalence** — 108/108 ecological–AUC candidate identity, formal `0/3` strict-improvement result, `empirical_confirmation_not_supported`, `not_promoted`.
+
+Put v2.6 exclusion performance, information-barrier details, calibration support, v2.7.1 parity failure, workflow/artifact receipts and full metric tables in Extended Data / Supplement.
+
+## Nature editorial risk
+
+The main weakness is explicit and must not be repaired post hoc: the fresh empirical endpoint did not produce different biological conclusions from two different fitted selectors because the selectors collapsed to the same candidate. The manuscript must therefore sell **observational equivalence as an identification limit**, not invent an empirical biological divergence that does not exist.
+
+The Nature-level advance is the inferential decomposition—prediction, necessity, process stability and unresolved evidence—and its prospective evidence sequence, not a claim that SDMR empirically beat AUC.
 
 ## Hard stop
 
-Do not start another Product-A experiment. Do not change taxa, seed, M, sealed fraction, thresholds, candidate library, predictor universe, denominator, source or provider. Do not rerun, retune, rescue or replace the consumed endpoint. Submit this bounded result without waiting for Product B.
+**Do not start another Product-A experiment.** Do not create v2.9. Do not change taxa, seed, M, sealed fraction, thresholds, candidate library, predictor universe, denominator, source or provider. Do not rerun, retune, rescue or replace the consumed v2.8.4 endpoint. Do not use the current hierarchy to perform post-outcome empirical reselection. Do not unblock Product B.
+
+**Submit this bounded result without waiting for Product B.**
+
+From here, all Product-A work is manuscript compression, figure production, literature positioning, provenance packaging, code/data availability and submission.
