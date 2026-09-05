@@ -42,8 +42,12 @@
     "model_specs": [
       {"C": 0.1, "degree": 1, "penalty": "l2", "random_state": 0},
       {"C": 1.0, "degree": 1, "penalty": "l2", "random_state": 0},
-      {"C": 10.0, "degree": 1, "penalty": "l2", "random_state": 0}
+      {"C": 10.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 0.1, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 2, "penalty": "l2", "random_state": 0}
     ],
+    "model_capacity_reason": "The frozen denominator contains nonlinear Gaussian, soft-threshold and interaction generating families; linear and degree-2 response capacity is therefore frozen before any seed 4101-4120 outcome is inspected.",
     "chance_score": 0.50,
     "minimum_margin": 0.01,
     "sem_multiplier": 1.0,
