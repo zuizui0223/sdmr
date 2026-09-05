@@ -164,6 +164,7 @@ def test_invalid_rule_regex_and_rule_without_matcher_fail_closed() -> None:
 
 def test_freeze_requires_literal_boolean_review_flags() -> None:
     proposal = propose_process_information_registry(_predictors(), _rules())
+    proposal["review_required"] = proposal["review_required"].astype(object)
     proposal.loc[0, "review_required"] = None
     with pytest.raises(ValueError, match="review_required contains missing values"):
         freeze_process_registry_proposal(proposal)
