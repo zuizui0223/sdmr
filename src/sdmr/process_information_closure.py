@@ -59,6 +59,25 @@ def _unique_nonempty(values: Sequence[str], *, name: str) -> tuple[str, ...]:
     return result
 
 
+def _coerce_boolean_series(values: pd.Series, *, name: str) -> pd.Series:
+    """Parse an evidence flag without allowing missing/truthy garbage values."""
+
+    if values.isna().any():
+        raise ValueError(f"{name} must not contain missing values")
+    if pd.api.types.is_bool_dtype(values):
+        return values.astype(bool)
+
+    normalized = values.astype(str).str.strip().str.lower()
+    allowed = {"true", "false", "1", "0"}
+    invalid = sorted(set(normalized) - allowed)
+    if invalid:
+        raise ValueError(
+            f"{name} must contain only booleans or explicit 0/1 values: "
+            + ", ".join(invalid)
+        )
+    return normalized.isin({"true", "1"})
+
+
 def normalize_process_information_registry(
     registry: pd.DataFrame,
     *,
@@ -89,6 +108,8 @@ def normalize_process_information_registry(
     roles = _unique_nonempty(tuple(allowed_roles), name="allowed_roles")
     data = registry.copy()
     for column in (predictor_col, process_col, role_col):
+        if data[column].isna().any():
+            raise ValueError(f"{column} must not contain missing values")
         data[column] = data[column].astype(str).str.strip()
         if data[column].eq("").any():
             raise ValueError(f"{column} must not contain empty strings")
@@ -349,7 +370,15 @@ def classify_process_necessity(
     missing_registry = sorted(registry_required - set(knockout_registry.columns))
     if missing_registry:
         raise KeyError(f"knockout registry missing columns: {missing_registry}")
-    if knockout_registry["candidate"].astype(str).duplicated().any():
+
+    registry = knockout_registry.copy()
+    for column in ("candidate", "excluded_process", "base_candidate"):
+        if registry[column].isna().any():
+            raise ValueError(f"knockout registry {column} must not contain missing values")
+        registry[column] = registry[column].astype(str).str.strip()
+        if registry[column].eq("").any():
+            raise ValueError(f"knockout registry {column} must not contain empty strings")
+    if registry["candidate"].duplicated().any():
         raise ValueError("knockout registry candidate labels must be unique")
 
     required = {candidate_col, context_col, complete_col, adequate_col}
@@ -358,15 +387,30 @@ def classify_process_necessity(
         raise KeyError(f"necessity evidence missing columns: {missing}")
 
     data = evidence.copy()
-    data[candidate_col] = data[candidate_col].astype(str)
-    data[context_col] = data[context_col].astype(str)
-    data[complete_col] = data[complete_col].astype(bool)
-    data[adequate_col] = data[adequate_col].astype(bool)
+    for column in (candidate_col, context_col):
+        if data[column].isna().any():
+            raise ValueError(f"{column} must not contain missing values")
+        data[column] = data[column].astype(str).str.strip()
+        if data[column].eq("").any():
+            raise ValueError(f"{column} must not contain empty strings")
+    data[complete_col] = _coerce_boolean_series(data[complete_col], name=complete_col)
+    data[adequate_col] = _coerce_boolean_series(data[adequate_col], name=adequate_col)
+
+    known_candidates = set(registry["candidate"])
+    unknown_candidates = sorted(set(data[candidate_col]) - known_candidates)
+    if unknown_candidates:
+        raise ValueError(
+            "necessity evidence contains undeclared candidates: "
+            + ", ".join(unknown_candidates)
+        )
 
     expected_context_set = set(contexts)
-    registry = knockout_registry.copy()
-    registry["candidate"] = registry["candidate"].astype(str)
-    registry["excluded_process"] = registry["excluded_process"].astype(str)
+    unexpected_contexts = sorted(set(data[context_col]) - expected_context_set)
+    if unexpected_contexts:
+        raise ValueError(
+            "necessity evidence contains undeclared contexts: "
+            + ", ".join(unexpected_contexts)
+        )
 
     rows: list[dict[str, object]] = []
     for process, group in registry.groupby("excluded_process", sort=True):
