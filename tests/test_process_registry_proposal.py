@@ -164,6 +164,10 @@ def test_invalid_rule_regex_and_rule_without_matcher_fail_closed() -> None:
 
 def test_freeze_requires_literal_boolean_review_flags() -> None:
     proposal = propose_process_information_registry(_predictors(), _rules())
+    # pandas 3.0 rejects assigning None directly into a numpy-bool column, so
+    # explicitly construct the malformed external input that the freeze layer
+    # must reject rather than testing pandas' setitem semantics.
+    proposal["review_required"] = proposal["review_required"].astype(object)
     proposal.loc[0, "review_required"] = None
     with pytest.raises(ValueError, match="review_required contains missing values"):
         freeze_process_registry_proposal(proposal)
