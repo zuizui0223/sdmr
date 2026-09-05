@@ -1,9 +1,22 @@
-"""sdmr: sealed-holdout tuning and transferable predictor discovery for SDMs."""
+"""sdmr: sealed-holdout ecological identification and SDM benchmarking."""
 
 from .aggregate import aggregate_predictor_selection, choose_common_predictors
 from .benchmark import SpeciesBenchmarkResult, TaxonSplitBenchmarkResult, benchmark_species, benchmark_taxon_split
 from .cross_taxon_process_evidence import CrossTaxonProcessEvidence, aggregate_cross_taxon_process_evidence
 from .drivers import aggregate_process_evidence, annotate_predictor_metadata, equivalence_group_process_map, validate_candidate_manifest
+from .ecological_identification_io import (
+    export_prepared_ecological_identification_study,
+    load_prepared_ecological_identification_study,
+)
+from .ecological_identification_learner import IdentificationLearnerFit, fit_ecological_identification_learner
+from .ecological_identification_workflow import (
+    EcologicalIdentificationConfig,
+    EcologicalIdentificationWorkflowFit,
+    PreparedEcologicalIdentificationStudy,
+    ProcessRegistryReviewRequired,
+    prepare_ecological_identification_study,
+    quick_fit_ecological_identification,
+)
 from .ecological_inference_certificate import EcologicalInferenceCertificate, build_ecological_inference_certificate
 from .ecological_interpretation import EcologicalInterpretationBundle, build_ecological_interpretation_bundle
 from .ecological_response_profile import EcologicalResponseProfile, ecological_response_profile
@@ -69,18 +82,23 @@ __all__ = [
     "CrossTaxonProcessEvidence",
     "DataSpecificationBenchmarkResult",
     "DriverCorpusResult",
+    "EcologicalIdentificationConfig",
+    "EcologicalIdentificationWorkflowFit",
     "EcologicalInferenceCertificate",
     "EcologicalInterpretationBundle",
     "EcologicalResponseProfile",
     "EmpiricalNichePerturbation",
     "EmpiricalProductAV2Result",
     "FrozenProtocol",
+    "IdentificationLearnerFit",
     "MethodTaxonValidationResult",
     "ModelSpec",
     "PROCEDURE_STRATEGIES",
     "PredictorProcessEntry",
     "PredictorProcessRegistry",
+    "PreparedEcologicalIdentificationStudy",
     "ProcessCoreSplitResult",
+    "ProcessRegistryReviewRequired",
     "ProductAPromotionAssessment",
     "ProductAPromotionCriteria",
     "ProductAProtocolValidationResult",
@@ -127,10 +145,15 @@ __all__ = [
     "equivalence_group_process_map",
     "drop_group_importance",
     "drop_one_importance",
+    "export_prepared_ecological_identification_study",
+    "fit_ecological_identification_learner",
     "freeze_candidate_methods",
+    "load_prepared_ecological_identification_study",
     "occurrence_feature_fingerprint",
     "occurrence_table_fingerprint",
+    "prepare_ecological_identification_study",
     "presence_rank_score",
+    "quick_fit_ecological_identification",
     "select_recovery_procedure",
     "summarize_method_performance",
     "summarize_process_heterogeneity",
