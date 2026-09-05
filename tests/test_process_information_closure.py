@@ -26,6 +26,16 @@ def _registry() -> pd.DataFrame:
     )
 
 
+def _frozen(base_candidates=("glm", "gam")) -> pd.DataFrame:
+    ecological = ("bio1", "gdd5", "elevation", "pet", "bio12", "cmi", "soil_n")
+    return freeze_process_information_knockout_registry(
+        base_candidates=base_candidates,
+        ecological_predictors=ecological,
+        process_registry=_registry(),
+        process_universe=("thermal", "water", "soil"),
+    )
+
+
 def test_many_to_many_closure_includes_composite_and_proxy() -> None:
     registry = _registry()
 
@@ -109,13 +119,7 @@ def test_registry_fails_closed_for_unknown_role_and_uncovered_predictor() -> Non
 
 
 def test_necessity_states_are_refuted_required_or_unresolved() -> None:
-    ecological = ("bio1", "gdd5", "elevation", "pet", "bio12", "cmi", "soil_n")
-    frozen = freeze_process_information_knockout_registry(
-        base_candidates=("glm", "gam"),
-        ecological_predictors=ecological,
-        process_registry=_registry(),
-        process_universe=("thermal", "water", "soil"),
-    )
+    frozen = _frozen()
 
     rows = []
     for row in frozen.itertuples(index=False):
@@ -149,13 +153,7 @@ def test_necessity_states_are_refuted_required_or_unresolved() -> None:
 
 
 def test_duplicate_context_is_not_treated_as_complete_evidence() -> None:
-    ecological = ("bio1", "gdd5", "elevation", "pet", "bio12", "cmi", "soil_n")
-    frozen = freeze_process_information_knockout_registry(
-        base_candidates=("glm",),
-        ecological_predictors=ecological,
-        process_registry=_registry(),
-        process_universe=("thermal", "water", "soil"),
-    )
+    frozen = _frozen(("glm",))
     water_candidate = frozen.loc[frozen["excluded_process"] == "water", "candidate"].iloc[0]
     evidence = pd.DataFrame(
         [
@@ -170,6 +168,60 @@ def test_duplicate_context_is_not_treated_as_complete_evidence() -> None:
         expected_contexts=("a", "b"),
     ).set_index("process")
     assert result.loc["water", "status"] == "unresolved"
+
+
+def test_necessity_evidence_fails_closed_on_missing_boolean() -> None:
+    frozen = _frozen(("glm",))
+    candidate = frozen.iloc[0]["candidate"]
+    evidence = pd.DataFrame(
+        [
+            {"candidate": candidate, "context": "a", "complete": True, "adequate": None},
+        ]
+    )
+
+    with pytest.raises(ValueError, match="adequate must not contain missing values"):
+        classify_process_necessity(
+            evidence,
+            frozen,
+            expected_contexts=("a",),
+        )
+
+
+def test_necessity_evidence_rejects_undeclared_candidate_and_context() -> None:
+    frozen = _frozen(("glm",))
+    candidate = frozen.iloc[0]["candidate"]
+
+    with pytest.raises(ValueError, match="undeclared candidates"):
+        classify_process_necessity(
+            pd.DataFrame(
+                [
+                    {
+                        "candidate": "not-declared",
+                        "context": "a",
+                        "complete": True,
+                        "adequate": False,
+                    }
+                ]
+            ),
+            frozen,
+            expected_contexts=("a",),
+        )
+
+    with pytest.raises(ValueError, match="undeclared contexts"):
+        classify_process_necessity(
+            pd.DataFrame(
+                [
+                    {
+                        "candidate": candidate,
+                        "context": "unexpected",
+                        "complete": True,
+                        "adequate": False,
+                    }
+                ]
+            ),
+            frozen,
+            expected_contexts=("a",),
+        )
 
 
 def test_process_stability_is_separate_from_necessity() -> None:
