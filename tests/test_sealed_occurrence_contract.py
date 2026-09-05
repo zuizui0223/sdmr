@@ -41,6 +41,7 @@ def test_split_assigns_whole_occurrence_roles_and_is_deterministic() -> None:
     assert set(a.model_pool_ids).isdisjoint(set(a.answer_check_ids))
     assert set(a.model_pool_ids) | set(a.answer_check_ids) == set(occurrences["occurrence_id"])
     assert a.split_digest == b.split_digest
+    pd.testing.assert_frame_equal(a.assignment, b.assignment)
 
 
 def test_model_pool_filter_prevents_answer_check_leakage() -> None:
