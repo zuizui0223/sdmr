@@ -6,25 +6,68 @@ This API generalizes the ecological-identification logic without reopening any f
 
 The core distinction is:
 
-- **predictive/model learning**: fit any chosen learner on the allowed training data and retained predictors;
+- **occurrence answer-check contract**: freeze which occurrence rows belong to model learning versus final answer-check before ecological feature use;
+- **predictive/model learning**: fit any chosen learner on the allowed model-pool data and retained predictors;
 - **process necessity**: does an adequate alternative survive after every *declared* representation carrying a process is excluded?;
 - **process stability**: do independent ecological analyses support the same process information even when they select different fitted models?
 
 These are separate tasks and estimands.
 
-## 0. What is actually learned?
+## 0. Freeze prediction/model-pool versus answer-check occurrences first
+
+The original Product-A idea is now an explicit generic contract rather than an implicit caller responsibility.
+
+```python
+from sdmr.sealed_occurrence_contract import freeze_occurrence_answer_check_split
+
+split = freeze_occurrence_answer_check_split(
+    occurrences,
+    id_col="occurrence_id",
+    lon_col="longitude",
+    lat_col="latitude",
+    n_blocks=8,
+    holdout_fraction=0.20,
+    random_state=42,
+)
+
+model_pool = split.model_pool(occurrence_features)
+```
+
+The split consumes only occurrence identities and coordinates. It should be persisted **before** environmental raster extraction decisions, accessible-area (`M`) construction, background sampling, model fitting or predictor/process selection.
+
+The answer-check side is deliberately awkward to open:
+
+```python
+sealed = split.open_answer_check(
+    occurrence_features,
+    selection_receipt=frozen_selection_receipt,
+)
+```
+
+A non-empty selection receipt is required. Training code can additionally call `split.assert_model_pool_only(frame)` and fails closed if an answer-check occurrence leaks into a fitting/tuning table.
+
+Thus the intended chronology is:
+
+`all occurrences -> coordinate-only spatial role freeze -> model-pool learning -> freeze selection/process claims -> open answer-check once`
+
+The answer-check occurrences are **not** a second tuning fold. They are an outer answer key for the already-frozen procedure/process claim.
+
+## 1. What is actually learned?
 
 The process-information layer is **model-agnostic**. It does not replace GLM, GAM, MaxEnt/logistic regression, boosted trees, random forests or other ecological learners.
 
 A normal use is:
 
-1. freeze the process taxonomy, representation rules, data splits and adequacy rule before outcome inspection;
-2. fit the chosen learner on the model-pool/training data;
-3. for each process knockout, refit the same learner using only the retained predictors;
-4. evaluate each frozen route in every predeclared validation context;
-5. write a route ledger containing `candidate`, `context`, `complete` and `adequate`;
-6. classify necessity from that ledger;
-7. measure process stability separately across independently defined analyses/selectors if desired.
+1. freeze the outer occurrence answer-check split;
+2. freeze the process taxonomy, representation rules, inner data splits and adequacy rule before outcome inspection;
+3. fit the chosen learner on model-pool/training data only;
+4. for each process knockout, refit the same learner using only the retained predictors;
+5. evaluate each frozen route in every predeclared inner validation context;
+6. write a route ledger containing `candidate`, `context`, `complete` and `adequate`;
+7. classify necessity from that ledger;
+8. freeze the resulting selection/process receipt;
+9. only then open the outer answer-check occurrence rows once;
+10. measure process stability separately across independently defined analyses/selectors if desired.
 
 The learner can therefore be simple or complex. The important scientific constraint is that the **adequacy criterion and information barriers are frozen before the process claim is evaluated**.
 
@@ -32,7 +75,7 @@ For example, in an SDM the learner could be penalized logistic regression or Max
 
 Do not learn the process taxonomy from the same outcome, fitted coefficients or variable importance that will later be used to test necessity. That would make the information closure outcome-dependent.
 
-## 1. Semi-automatic classification: users do not need to label every predictor row
+## 2. Semi-automatic classification: users do not need to label every predictor row
 
 The scientifically required human input is **not** a manual label on every raster. The recommended review unit is:
 
@@ -103,7 +146,7 @@ Thus the user normally reviews **the taxonomy, the rule table, and flagged excep
 
 A future LLM/ontology classifier could be used to propose rules or labels from variable descriptions and literature, but it should remain proposal-only and must not inspect the ecological outcome used for the later necessity test.
 
-## 2. Declare a many-to-many process-information registry
+## 3. Declare a many-to-many process-information registry
 
 One predictor may carry more than one process. This is the key difference from a one-predictor/one-process alias table.
 
@@ -131,7 +174,7 @@ Allowed representation roles are:
 
 The classification is scientific metadata and should be frozen before outcome inspection.
 
-## 3. Inspect the declared closure
+## 4. Inspect the declared closure
 
 ```python
 from sdmr.process_information_closure import (
@@ -152,7 +195,7 @@ This is the auditable answer to: **what information are we claiming to remove wh
 
 It is not an automated causal-discovery step. If a real proxy is omitted from the registry, the knockout is only as complete as the declared closure.
 
-## 4. Freeze closure-aware knockout routes
+## 5. Freeze closure-aware knockout routes
 
 ```python
 from sdmr.process_information_closure import (
@@ -175,7 +218,7 @@ For the water knockout, `bio12`, `cmi` and `pet` are removed together. `recordin
 
 The output is a complete base-candidate × process registry with deterministic knockout labels. Each row tells the fitting code exactly which predictors remain for that model refit.
 
-## 5. Learn/refit each route and classify necessity
+## 6. Learn/refit each route and classify necessity
 
 The package intentionally does not force one estimator. A caller loops over the frozen route registry and fits its selected learner using `retained_ecological_predictors` for every required context.
 
@@ -208,7 +251,7 @@ Malformed evidence is not silently converted to `unresolved`. Missing boolean fl
 
 `required_by_evidence_contract` is deliberately **not** a causal, physiological or fundamental-niche necessity claim.
 
-## 6. Measure process stability separately
+## 7. Measure process stability separately
 
 ```python
 from sdmr.process_information_closure import build_process_stability_certificate
@@ -227,7 +270,7 @@ stability.contested_processes
 
 This certificate says which process information persists across independently defined analyses. It does **not** say that the stable core is necessary.
 
-## 7. SDM example
+## 8. SDM example
 
 Question:
 
@@ -237,11 +280,11 @@ Declare all direct, derived, proxy and composite water representations before ev
 
 This is stronger than asking whether `bio12` has high variable importance because the process closure can include `bio12`, aridity indices, moisture balance and mixed composites together.
 
-## 8. Phenology example
+## 9. Phenology example
 
 For flowering date, a thermal closure could include spring temperature (`direct`), GDD (`derived`), elevation (`proxy`) and a hydrothermal index (`composite`). The fitting learner might be a GAM. The same closure API tests whether thermal information is indispensable after those representations are removed together.
 
-## 9. Trait–environment example
+## 10. Trait–environment example
 
 For SLA or leaf economics, a dryness closure could combine precipitation fields, aridity/VPD derivatives, topographic moisture proxies and climate-water composites. The fitting learner could be a phylogenetic regression, mixed model or machine-learning model. Necessity and stability are then reported separately rather than inferred from one selected regression or variable-importance score.
 
