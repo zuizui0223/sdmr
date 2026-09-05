@@ -20,9 +20,39 @@ The learned object is therefore:
 
 rather than one best model.
 
+## Formal learning object
+
+Let `M` be the predeclared family of fitted model procedures, `g(m)` the inner-CV predictive adequacy statistic and `tau` the frozen adequacy threshold. The learner first estimates the admissible set
+
+`A(D_model) = {m in M : g(m; D_model) >= tau}`.
+
+It does **not** choose `argmax g(m)` from that set.
+
+For an ecological process `p`, let `C(p)` be the prospectively declared information closure (all direct, derived, proxy and composite predictors carrying information about `p`). For each admitted learner `m`, refit the same procedure after removing `C(p)` and evaluate
+
+`g(m[-C(p)]; D_model)`
+
+on the same frozen inner spatial evidence structure.
+
+Define the adequate knockout witness set
+
+`W_p = {m in A : knockout route for m and p is complete and g(m[-C(p)]) >= tau}`.
+
+Then the process estimator is set-valued:
+
+- `refuted_as_necessary` if `W_p` is non-empty;
+- `required_by_evidence_contract` if every admitted knockout route is complete and `W_p` is empty;
+- `unresolved` otherwise.
+
+The prediction estimator is an ensemble over `A`, currently the mean relative-suitability prediction across admitted learners.
+
+This is a **constraint-based set-valued learner** rather than a scalar winner-selection criterion. In particular, it does not reward a smaller process set or narrower uncertainty. That is deliberate: Product-A known-truth work showed that post-adequacy sharpening can create false necessity by removing viable alternatives.
+
 ## Relationship to conventional learners
 
-The current prototype uses the existing SDMR regularized logistic-response family (`ModelSpec`) as the base learner. The algorithmic novelty is the **set-valued falsification objective and information barrier**, not a new sigmoid or tree primitive. In future, the base learner interface can be generalized to GAM, MaxEnt, boosted trees or random forests while retaining the same outer contract.
+The current prototype uses the existing SDMR regularized logistic-response family (`ModelSpec`) as the base learner. The algorithmic novelty is the **set-valued falsification learning objective and information barrier**, not a new sigmoid or tree primitive. In future, the base learner interface can be generalized to GAM, MaxEnt, boosted trees or random forests while retaining the same outer contract.
+
+A new base estimator is not required for this to be a new learning algorithm: meta-learning, conformal prediction and ensemble methods likewise define new learned objects and decision rules on top of familiar fitting primitives. What must be validated prospectively is whether the new learned object improves ecological identification without unacceptable predictive loss.
 
 ## Occurrence answer-check philosophy
 
@@ -38,6 +68,8 @@ The outer split is frozen from occurrence IDs and coordinates only. Sealed occur
 - stopping rules.
 
 If an answer-check ID is present in a learner fit table, fitting fails closed.
+
+The answer-check is an **outer answer key**, not another CV fold. Inner CV inside `D_model` is used for learning/adequacy decisions; the outer answer-check is opened once only after `A`, all process states and a deterministic selection receipt have been frozen.
 
 ## Why this does not retrospectively strengthen Product A
 
