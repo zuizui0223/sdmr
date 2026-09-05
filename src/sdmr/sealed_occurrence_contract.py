@@ -150,6 +150,10 @@ def freeze_occurrence_answer_check_split(
     should be persisted before M/background construction or environmental raster
     extraction.  Downstream training code should use :meth:`model_pool` or call
     :meth:`assert_model_pool_only` before fitting/tuning.
+
+    The source rows are canonically sorted by occurrence identity before spatial
+    clustering so the same occurrence set, coordinates and seed produce the same
+    block/role assignment regardless of input row order.
     """
 
     required = {id_col, lon_col, lat_col}
@@ -163,6 +167,7 @@ def freeze_occurrence_answer_check_split(
         raise ValueError("occurrence identities must be non-empty")
     if source[id_col].duplicated().any():
         raise ValueError("occurrence identities must be unique before sealing")
+    source = source.sort_values(id_col, kind="mergesort").reset_index(drop=True)
 
     lon = pd.to_numeric(source[lon_col], errors="raise").to_numpy(float)
     lat = pd.to_numeric(source[lat_col], errors="raise").to_numpy(float)
