@@ -9,7 +9,8 @@ never members of an ecological process-information closure.
 A process-knockout route counts as an adequate witness only when it preserves
 both (1) ordinary held-out record prediction and (2) an observation-corrected
 ecological ranking of held-out occurrences against background. The observation
-correction gate and weights use training rows only.
+correction gate and weights use training rows only and are computed once per
+inner fold, independently of every ecological candidate/knockout route.
 """
 from __future__ import annotations
 
@@ -37,6 +38,15 @@ from .process_information_closure import (
     normalize_process_information_registry,
 )
 from .sealed_occurrence_contract import OccurrenceAnswerCheckSplit
+
+
+@dataclass(frozen=True)
+class _ObservationCorrection:
+    complete: bool
+    active: bool
+    signal_auc: float
+    weights: np.ndarray
+    effective_sample_size: float
 
 
 @dataclass(frozen=True)
@@ -157,43 +167,140 @@ def _summary(
     }
 
 
-def _route_cv(
-    presence: pd.DataFrame,
-    background: pd.DataFrame,
+def _fold_indices(
+    n_presence: int,
+    n_background: int,
     presence_groups: np.ndarray,
     background_groups: np.ndarray,
-    ecological_predictors: tuple[str, ...],
-    observation_predictors: tuple[str, ...],
-    model_spec: ModelSpec,
     *,
     n_splits: int,
-    route: str,
-    route_type: str,
-    excluded_process: str = "",
-    observation_signal_chance: float = 0.50,
-    observation_signal_margin: float = 0.01,
-    observation_signal_sem_multiplier: float = 1.0,
-    observation_weight_truncation_quantile: float = 0.99,
-    observation_weight_probability_epsilon: float = 1e-4,
-) -> pd.DataFrame:
-    model_predictors = ecological_predictors + observation_predictors
+) -> tuple[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], ...]:
     p_groups = np.asarray(presence_groups)
     b_groups = np.asarray(background_groups)
-    if len(p_groups) != len(presence) or len(b_groups) != len(background):
+    if len(p_groups) != n_presence or len(b_groups) != n_background:
         raise ValueError("group arrays must align with presence/background rows")
     groups = np.concatenate([p_groups, b_groups])
     if len(np.unique(groups)) < int(n_splits):
         raise ValueError("insufficient spatial groups for requested inner folds")
-
-    n_presence = len(presence)
-    all_idx = np.arange(n_presence + len(background))
+    all_idx = np.arange(n_presence + n_background)
     splitter = GroupKFold(n_splits=int(n_splits))
+    folds = []
+    for train_idx, test_idx in splitter.split(all_idx, groups=groups):
+        folds.append(
+            (
+                train_idx[train_idx < n_presence],
+                train_idx[train_idx >= n_presence] - n_presence,
+                test_idx[test_idx < n_presence],
+                test_idx[test_idx >= n_presence] - n_presence,
+            )
+        )
+    return tuple(folds)
+
+
+def _prepare_observation_corrections(
+    presence: pd.DataFrame,
+    background: pd.DataFrame,
+    presence_groups: np.ndarray,
+    background_groups: np.ndarray,
+    observation_predictors: tuple[str, ...],
+    folds: tuple[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], ...],
+    *,
+    observation_signal_chance: float,
+    observation_signal_margin: float,
+    observation_signal_sem_multiplier: float,
+    observation_weight_truncation_quantile: float,
+    observation_weight_probability_epsilon: float,
+) -> tuple[_ObservationCorrection, ...]:
+    corrections: list[_ObservationCorrection] = []
+    p_groups = np.asarray(presence_groups)
+    b_groups = np.asarray(background_groups)
+    nuisance_spec = ModelSpec(C=1.0, degree=1, penalty="l2", random_state=0)
+    for p_train_idx, b_train_idx, p_test_idx, _ in folds:
+        if not observation_predictors:
+            corrections.append(
+                _ObservationCorrection(
+                    complete=True,
+                    active=False,
+                    signal_auc=float(observation_signal_chance),
+                    weights=np.ones(len(p_test_idx), dtype=float),
+                    effective_sample_size=float(len(p_test_idx)),
+                )
+            )
+            continue
+        try:
+            p_train = presence.iloc[p_train_idx].reset_index(drop=True)
+            b_train = background.iloc[b_train_idx].reset_index(drop=True)
+            p_test = presence.iloc[p_test_idx].reset_index(drop=True)
+            train_group_count = len(np.unique(p_groups[p_train_idx]))
+            if train_group_count < 2:
+                raise ValueError("observation gate requires at least two training groups")
+            signal = observation_process_signal_evidence(
+                p_train,
+                b_train,
+                p_groups[p_train_idx],
+                b_groups[b_train_idx],
+                observation_predictors,
+                n_splits=min(3, train_group_count),
+                chance_auc=observation_signal_chance,
+                minimum_auc_margin=observation_signal_margin,
+                auc_sem_multiplier=observation_signal_sem_multiplier,
+                model_spec=nuisance_spec,
+            )
+            if signal.correction_active:
+                weight_result = inverse_observation_propensity_weights(
+                    p_train,
+                    b_train,
+                    p_test,
+                    observation_predictors,
+                    model_spec=nuisance_spec,
+                    truncation_quantile=observation_weight_truncation_quantile,
+                    probability_epsilon=observation_weight_probability_epsilon,
+                )
+                weights = weight_result.weights
+                ess = float(weight_result.effective_sample_size)
+            else:
+                weights = np.ones(len(p_test), dtype=float)
+                ess = float(len(p_test))
+            corrections.append(
+                _ObservationCorrection(
+                    complete=True,
+                    active=bool(signal.correction_active),
+                    signal_auc=float(signal.mean_auc),
+                    weights=weights,
+                    effective_sample_size=ess,
+                )
+            )
+        except (ValueError, KeyError, np.linalg.LinAlgError):
+            corrections.append(
+                _ObservationCorrection(
+                    complete=False,
+                    active=False,
+                    signal_auc=float("nan"),
+                    weights=np.full(len(p_test_idx), np.nan, dtype=float),
+                    effective_sample_size=float("nan"),
+                )
+            )
+    return tuple(corrections)
+
+
+def _route_cv(
+    presence: pd.DataFrame,
+    background: pd.DataFrame,
+    ecological_predictors: tuple[str, ...],
+    observation_predictors: tuple[str, ...],
+    model_spec: ModelSpec,
+    folds: tuple[tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray], ...],
+    corrections: tuple[_ObservationCorrection, ...],
+    *,
+    route: str,
+    route_type: str,
+    excluded_process: str = "",
+) -> pd.DataFrame:
+    model_predictors = ecological_predictors + observation_predictors
     rows: list[dict[str, object]] = []
-    for fold, (train_idx, test_idx) in enumerate(splitter.split(all_idx, groups=groups)):
-        p_train_idx = train_idx[train_idx < n_presence]
-        b_train_idx = train_idx[train_idx >= n_presence] - n_presence
-        p_test_idx = test_idx[test_idx < n_presence]
-        b_test_idx = test_idx[test_idx >= n_presence] - n_presence
+    for fold, ((p_train_idx, b_train_idx, p_test_idx, b_test_idx), correction) in enumerate(
+        zip(folds, corrections, strict=True)
+    ):
         row: dict[str, object] = {
             "route": route,
             "route_type": route_type,
@@ -203,11 +310,13 @@ def _route_cv(
             "complete": False,
             "presence_rank": float("nan"),
             "ecological_presence_rank": float("nan"),
-            "observation_correction_active": False,
-            "observation_signal_auc": float("nan"),
-            "observation_weight_ess": float("nan"),
+            "observation_correction_active": bool(correction.active),
+            "observation_signal_auc": float(correction.signal_auc),
+            "observation_weight_ess": float(correction.effective_sample_size),
         }
         try:
+            if not correction.complete:
+                raise ValueError("candidate-independent observation correction unavailable")
             if min(len(p_train_idx), len(b_train_idx), len(p_test_idx), len(b_test_idx)) < 2:
                 raise ValueError("fold lacks sufficient presence/background rows")
             p_train = presence.iloc[p_train_idx].reset_index(drop=True)
@@ -223,43 +332,6 @@ def _route_cv(
             p_full = score_relative_suitability(model, p_test, model_predictors)
             b_full = score_relative_suitability(model, b_test, model_predictors)
             prediction_rank = presence_rank_score(p_full, b_full)
-
-            if observation_predictors:
-                signal = observation_process_signal_evidence(
-                    p_train,
-                    b_train,
-                    p_groups[p_train_idx],
-                    b_groups[b_train_idx],
-                    observation_predictors,
-                    n_splits=min(3, len(np.unique(p_groups[p_train_idx]))),
-                    chance_auc=observation_signal_chance,
-                    minimum_auc_margin=observation_signal_margin,
-                    auc_sem_multiplier=observation_signal_sem_multiplier,
-                    model_spec=ModelSpec(C=1.0, degree=1, penalty="l2", random_state=0),
-                )
-                active = bool(signal.correction_active)
-                if active:
-                    weight_result = inverse_observation_propensity_weights(
-                        p_train,
-                        b_train,
-                        p_test,
-                        observation_predictors,
-                        model_spec=ModelSpec(C=1.0, degree=1, penalty="l2", random_state=0),
-                        truncation_quantile=observation_weight_truncation_quantile,
-                        probability_epsilon=observation_weight_probability_epsilon,
-                    )
-                    weights = weight_result.weights
-                    ess = float(weight_result.effective_sample_size)
-                else:
-                    weights = np.ones(len(p_test), dtype=float)
-                    ess = float(len(p_test))
-                signal_auc = float(signal.mean_auc)
-            else:
-                active = False
-                signal_auc = observation_signal_chance
-                weights = np.ones(len(p_test), dtype=float)
-                ess = float(len(p_test))
-
             p_ecological = score_ecological_suitability(
                 model,
                 p_test,
@@ -274,18 +346,18 @@ def _route_cv(
                 observation_predictors=observation_predictors,
                 observation_reference=b_train,
             )
-            ecological_rank = _weighted_presence_rank(p_ecological, b_ecological, weights)
+            ecological_rank = _weighted_presence_rank(
+                p_ecological,
+                b_ecological,
+                correction.weights,
+            )
             if not np.isfinite(prediction_rank) or not np.isfinite(ecological_rank):
                 raise ValueError("route produced non-finite adequacy score")
-
             row.update(
                 {
                     "complete": True,
                     "presence_rank": float(prediction_rank),
                     "ecological_presence_rank": float(ecological_rank),
-                    "observation_correction_active": active,
-                    "observation_signal_auc": signal_auc,
-                    "observation_weight_ess": ess,
                 }
             )
         except (ValueError, KeyError, np.linalg.LinAlgError):
@@ -347,37 +419,51 @@ def fit_observation_aware_identification(
         process_universe=processes,
         observation_predictors=observation,
     )
+    folds = _fold_indices(
+        len(presence),
+        len(background),
+        np.asarray(presence_groups),
+        np.asarray(background_groups),
+        n_splits=n_splits,
+    )
+    corrections = _prepare_observation_corrections(
+        presence,
+        background,
+        np.asarray(presence_groups),
+        np.asarray(background_groups),
+        observation,
+        folds,
+        observation_signal_chance=observation_signal_chance,
+        observation_signal_margin=observation_signal_margin,
+        observation_signal_sem_multiplier=observation_signal_sem_multiplier,
+        observation_weight_truncation_quantile=observation_weight_truncation_quantile,
+        observation_weight_probability_epsilon=observation_weight_probability_epsilon,
+    )
 
     evidence: list[pd.DataFrame] = []
     baseline_rows: list[dict[str, object]] = []
     for spec in specs:
-        folds = _route_cv(
+        fold_frame = _route_cv(
             presence,
             background,
-            presence_groups,
-            background_groups,
             ecological,
             observation,
             spec,
-            n_splits=n_splits,
+            folds,
+            corrections,
             route=f"baseline::{spec.label}",
             route_type="baseline",
-            observation_signal_chance=observation_signal_chance,
-            observation_signal_margin=observation_signal_margin,
-            observation_signal_sem_multiplier=observation_signal_sem_multiplier,
-            observation_weight_truncation_quantile=observation_weight_truncation_quantile,
-            observation_weight_probability_epsilon=observation_weight_probability_epsilon,
         )
-        evidence.append(folds)
+        evidence.append(fold_frame)
         pred = _summary(
-            folds,
+            fold_frame,
             "presence_rank",
             chance_score=chance_score,
             minimum_margin=minimum_margin,
             sem_multiplier=sem_multiplier,
         )
         eco = _summary(
-            folds,
+            fold_frame,
             "ecological_presence_rank",
             chance_score=chance_score,
             minimum_margin=minimum_margin,
@@ -411,34 +497,28 @@ def fit_observation_aware_identification(
         retained_ecological = tuple(
             x for x in str(route_row.retained_ecological_predictors).split(",") if x
         )
-        folds = _route_cv(
+        fold_frame = _route_cv(
             presence,
             background,
-            presence_groups,
-            background_groups,
             retained_ecological,
             observation,
             spec_by_label[label],
-            n_splits=n_splits,
+            folds,
+            corrections,
             route=str(route_row.candidate),
             route_type="process_knockout",
             excluded_process=str(route_row.excluded_process),
-            observation_signal_chance=observation_signal_chance,
-            observation_signal_margin=observation_signal_margin,
-            observation_signal_sem_multiplier=observation_signal_sem_multiplier,
-            observation_weight_truncation_quantile=observation_weight_truncation_quantile,
-            observation_weight_probability_epsilon=observation_weight_probability_epsilon,
         )
-        evidence.append(folds)
+        evidence.append(fold_frame)
         pred = _summary(
-            folds,
+            fold_frame,
             "presence_rank",
             chance_score=chance_score,
             minimum_margin=minimum_margin,
             sem_multiplier=sem_multiplier,
         )
         eco = _summary(
-            folds,
+            fold_frame,
             "ecological_presence_rank",
             chance_score=chance_score,
             minimum_margin=minimum_margin,
@@ -507,6 +587,11 @@ def fit_observation_aware_identification(
         f"chance={chance_score:.12g}",
         f"floor={chance_score + minimum_margin:.12g}",
         f"sem={sem_multiplier:.12g}",
+        "observation_corrections="
+        + ",".join(
+            f"{int(c.complete)}:{int(c.active)}:{c.signal_auc:.12g}:{c.effective_sample_size:.12g}"
+            for c in corrections
+        ),
     ]
     if occurrence_split is not None:
         receipt_parts.append("outer_split=" + occurrence_split.split_digest)
