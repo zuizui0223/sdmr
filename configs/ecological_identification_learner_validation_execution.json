@@ -1,0 +1,83 @@
+{
+  "purpose": "prospective_ecological_identification_learner_validation_execution",
+  "scientific_run_authorized": true,
+  "authorization_source": "explicit user instruction to proceed after the prospective validation contract was frozen",
+  "authorization_time_local": "2026-09-05T23:27:00+09:00",
+  "product_a_reopened": false,
+  "contract_path": "docs/ecological_identification_learner_prospective_validation.md",
+  "contract_blob_sha_at_authorization": "31c0faa27fdb4dd33ec80b93e4c245e51a754911",
+  "families": [
+    "gaussian",
+    "asymmetric",
+    "soft_threshold",
+    "interaction",
+    "omitted_driver",
+    "observation_confounded"
+  ],
+  "seeds": [4101, 4102, 4103, 4104, 4105, 4106, 4107, 4108, 4109, 4110, 4111, 4112, 4113, 4114, 4115, 4116, 4117, 4118, 4119, 4120],
+  "n_cases": 120,
+  "simulation": {
+    "n_cells": 8000,
+    "n_occurrences": 500,
+    "n_target_group": 2500,
+    "outer_n_blocks": 8,
+    "answer_check_fraction": 0.20,
+    "outer_random_state_offset": 70000,
+    "inner_n_blocks": 8,
+    "inner_n_splits": 4,
+    "inner_random_state_offset": 80000
+  },
+  "ecological_predictors": ["temperature", "water", "temp_proxy", "seasonality", "soil", "noise"],
+  "observation_predictors": ["recording_bias"],
+  "process_registry": [
+    {"predictor": "temperature", "process": "temperature", "role": "direct"},
+    {"predictor": "temp_proxy", "process": "temperature", "role": "proxy"},
+    {"predictor": "water", "process": "water", "role": "direct"},
+    {"predictor": "soil", "process": "soil", "role": "direct"},
+    {"predictor": "seasonality", "process": "seasonality", "role": "direct"},
+    {"predictor": "noise", "process": "noise", "role": "direct"}
+  ],
+  "process_universe": ["temperature", "water", "soil", "seasonality", "noise"],
+  "learner": {
+    "model_specs": [
+      {"C": 0.1, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 0.1, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 2, "penalty": "l2", "random_state": 0}
+    ],
+    "model_capacity_reason": "The frozen denominator contains nonlinear Gaussian, soft-threshold and interaction generating families; linear and degree-2 response capacity is therefore frozen before any seed 4101-4120 outcome is inspected.",
+    "chance_score": 0.50,
+    "minimum_margin": 0.01,
+    "sem_multiplier": 1.0,
+    "knockout_witness_requires_prediction_and_observation_corrected_ecological_adequacy": true,
+    "observation_signal_chance": 0.50,
+    "observation_signal_margin": 0.01,
+    "observation_signal_sem_multiplier": 1.0,
+    "observation_weight_truncation_quantile": 0.99,
+    "observation_weight_probability_epsilon": 0.0001
+  },
+  "primary_process_thresholds": {
+    "false_required_rate_max": 0.02,
+    "true_process_recall_min": 0.95,
+    "process_status_macro_f1_min": 0.90,
+    "family_true_process_recall_min": 0.85,
+    "required_claims_must_have_complete_knockout_evidence": true
+  },
+  "prediction_guardrails": {
+    "mean_sealed_presence_rank_delta_vs_canonical_min": -0.02,
+    "family_mean_delta_min": -0.05
+  },
+  "determinism": {
+    "n_independent_replicates": 2,
+    "discrete_identity_must_match": true,
+    "numeric_absolute_tolerance": 1e-12,
+    "numeric_relative_tolerance": 1e-10
+  },
+  "post_outcome_changes_allowed": false,
+  "threshold_relaxation_allowed": false,
+  "seed_replacement_allowed": false,
+  "family_replacement_allowed": false,
+  "failed_or_null_cases_must_remain_in_denominator": true
+}

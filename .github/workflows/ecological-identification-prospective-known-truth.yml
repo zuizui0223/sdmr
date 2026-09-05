@@ -1,0 +1,89 @@
+name: ecological-identification-prospective-known-truth
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - configs/ecological_identification_learner_validation_trigger.txt
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  fit-family:
+    name: fit r${{ matrix.replicate }} ${{ matrix.family }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [1, 2]
+        family:
+          - gaussian
+          - asymmetric
+          - soft_threshold
+          - interaction
+          - omitted_driver
+          - observation_confounded
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Fit frozen nontruth family denominator
+        run: |
+          python -m sdmr.prospective_identification_validation fit-family \
+            --family '${{ matrix.family }}' \
+            --replicate '${{ matrix.replicate }}' \
+            --output-dir 'out/r${{ matrix.replicate }}-${{ matrix.family }}'
+      - name: Upload nontruth family artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-identification-r${{ matrix.replicate }}-${{ matrix.family }}
+          path: out/r${{ matrix.replicate }}-${{ matrix.family }}
+          retention-days: 30
+          if-no-files-found: error
+
+  terminal-evaluator:
+    name: terminal truth evaluator
+    needs: fit-family
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Download all frozen nontruth family artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: prospective-identification-r*
+          path: inputs
+          merge-multiple: false
+      - name: Normalize intentionally empty audit CSVs
+        run: |
+          find inputs -type f -name '*.csv' -size -2c -print0 | while IFS= read -r -d '' file; do
+            printf '__empty__\n' > "$file"
+          done
+      - name: Open process truth and evaluate frozen criteria
+        run: |
+          python -m sdmr.prospective_identification_validation evaluate \
+            --input-dir inputs \
+            --output-dir decision
+          cat decision/scientific_decision.json
+      - name: Upload terminal scientific decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-identification-known-truth-decision
+          path: decision
+          retention-days: 90
+          if-no-files-found: error
