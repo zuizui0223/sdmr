@@ -1,0 +1,6 @@
+predictor,source_family,units
+bio1,CHELSA,degC
+gdd5,CHELSA,degree_days
+pet,CHELSA,mm
+bio12,CHELSA,mm
+soil_n,SoilGrids,cg/kg
