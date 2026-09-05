@@ -106,11 +106,13 @@ necessity = classify_process_necessity(
 )
 ```
 
-The three states are:
+The three scientific states are:
 
 - `refuted_as_necessary`: at least one complete process-knockout route remains adequate in every required context;
 - `required_by_evidence_contract`: every declared route is complete and none provides an adequate witness;
-- `unresolved`: route evidence is incomplete, duplicated, missing or otherwise insufficient.
+- `unresolved`: the declared routes are valid but evidence is incomplete or missing.
+
+Malformed evidence is not silently converted to `unresolved`. Missing boolean flags, undeclared candidates and undeclared contexts fail closed with an exception, while duplicate/missing required route contexts prevent that route from being treated as complete.
 
 `required_by_evidence_contract` is deliberately **not** a causal, physiological or fundamental-niche necessity claim.
 
@@ -139,7 +141,7 @@ Question:
 
 > Is water information necessary to explain the species distribution under the declared model/data system?
 
-Declare all direct, derived, proxy and composite water representations before evaluation. Knock them out together. If an adequate alternative model survives across all required spatial/data perturbations, water necessity is refuted under the contract. If all frozen water-knockout routes are complete and fail adequacy, water is required under the evidence contract. If evidence is incomplete, return `unresolved`.
+Declare all direct, derived, proxy and composite water representations before evaluation. Knock them out together. If an adequate alternative model survives across all required spatial/data perturbations, water necessity is refuted under the contract. If all frozen water-knockout routes are complete and fail adequacy, water is required under the evidence contract. If valid route evidence is incomplete, return `unresolved`.
 
 This is stronger than asking whether `bio12` has high variable importance because the process closure can include `bio12`, aridity indices, moisture balance and mixed composites together.
 
