@@ -1,0 +1,50 @@
+{
+  "source_head_sha": "f3b95c7aa5ea0f559b54dc797ec46fda141582c8",
+  "source_run_id": 34037107229,
+  "six_shard_union_matches_aggregate": true,
+  "comparison": "Exact parsed-table equality for case and process tables using pandas",
+  "shards": [
+    {
+      "family": "gaussian",
+      "artifact_id": 9990639049,
+      "archive_sha256": "9d9c697fe76d421a747410287614ac9b7c0925ba47237233bea876f02c047c26",
+      "n_cases": 10,
+      "n_process_cells": 50
+    },
+    {
+      "family": "asymmetric",
+      "artifact_id": 9990634136,
+      "archive_sha256": "8987c5a6ece532ca6aa411a93f65799c214923234e186673c5479be6607f149c",
+      "n_cases": 10,
+      "n_process_cells": 50
+    },
+    {
+      "family": "soft_threshold",
+      "artifact_id": 9990612775,
+      "archive_sha256": "87d7d1b7cc6a8684fa50e23d3a051876dfc93ae098a257fde40605a2fffb6bab",
+      "n_cases": 10,
+      "n_process_cells": 50
+    },
+    {
+      "family": "interaction",
+      "artifact_id": 9990608152,
+      "archive_sha256": "3cdcbd5e0acac796ae6ec0f267792c2877871d6f6578e043debda7422afcfbe6",
+      "n_cases": 10,
+      "n_process_cells": 50
+    },
+    {
+      "family": "omitted_driver",
+      "artifact_id": 9990606618,
+      "archive_sha256": "a795c1c6372bcdc7daa1f637ae53cada59278204e6d6fe14b1a3eef81d081d45",
+      "n_cases": 10,
+      "n_process_cells": 50
+    },
+    {
+      "family": "observation_confounded",
+      "artifact_id": 9990605119,
+      "archive_sha256": "7f89060fa2fd8653e20193dfb8750c8223b5d6a9058899d36b763318b4a3b185",
+      "n_cases": 10,
+      "n_process_cells": 50
+    }
+  ]
+}
