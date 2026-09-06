@@ -1,0 +1,85 @@
+name: density-ratio-process-challenge-v4-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/density_ratio_process_challenge.py'
+      - 'src/sdmr/density_ratio_process_challenge_development.py'
+      - 'configs/density_ratio_process_challenge_v4_development.json'
+      - 'tests/test_density_ratio_process_challenge.py'
+      - 'tests/test_density_ratio_process_challenge_v4_development_contract.py'
+      - '.github/workflows/density-ratio-process-challenge-v4-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  family:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family:
+          - gaussian
+          - asymmetric
+          - soft_threshold
+          - interaction
+          - omitted_driver
+          - observation_confounded
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify v4 development contract and fail-closed tests
+        run: pytest -q tests/test_density_ratio_process_challenge.py tests/test_density_ratio_process_challenge_v4_development_contract.py tests/test_shared_carrier_attribution.py tests/test_process_proxy_audit.py
+      - name: Run v4 development family
+        run: python -m sdmr.density_ratio_process_challenge_development --family '${{ matrix.family }}' --output-dir development
+      - name: Upload family artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: density-ratio-process-challenge-v4-${{ matrix.family }}
+          path: development/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: density-ratio-process-challenge-v4-*
+          path: inputs
+          merge-multiple: false
+      - name: Aggregate fixed v4 development denominator
+        run: python -m sdmr.density_ratio_process_challenge_development --input-dir inputs --output-dir development
+      - name: Show v4 development decision
+        run: cat development/development_decision.json
+      - name: Upload v4 development-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: density-ratio-process-challenge-v4-development-only
+          path: development/
+          retention-days: 30
+          if-no-files-found: error
