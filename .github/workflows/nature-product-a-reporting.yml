@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/build_nature_product_a_figures.py'
       - 'scripts/build_nature_product_a_concept_figures.py'
+      - 'scripts/render_nature_fig3_concrete.py'
       - 'scripts/check_v272_concrete_process_identification.py'
       - 'scripts/check_nature_manuscript_format.py'
       - 'docs/product_a_nature_**'
@@ -82,6 +83,12 @@ jobs:
             --v284-part frozen/v284/part3 \
             --output-dir nature_reporting
 
+      - name: Render clean concrete Figure 3
+        run: |
+          python scripts/render_nature_fig3_concrete.py \
+            --input-dir nature_reporting \
+            --output-dir nature_reporting
+
       - name: Verify expected products
         run: |
           test -s nature_reporting/nature_fig1_identification_logic.png
@@ -94,6 +101,8 @@ jobs:
           test -s nature_reporting/nature_fig4_empirical_identity.pdf
           test -s nature_reporting/nature_source_data_fig2.csv
           test -s nature_reporting/nature_source_data_fig3.csv
+          test -s nature_reporting/nature_source_data_fig3_model_disagreement.csv
+          test -s nature_reporting/nature_source_data_fig3_soil.csv
           test -s nature_reporting/nature_source_data_fig4.csv
           test -s nature_reporting/nature_source_data_fig4_parts.csv
           test -s nature_reporting/nature_v272_exact_process_recovery.csv
@@ -104,6 +113,8 @@ jobs:
           import pandas as pd
           f2 = pd.read_csv('nature_reporting/nature_source_data_fig2.csv')
           f3 = pd.read_csv('nature_reporting/nature_source_data_fig3.csv')
+          disagreement = pd.read_csv('nature_reporting/nature_source_data_fig3_model_disagreement.csv')
+          soil_fig = pd.read_csv('nature_reporting/nature_source_data_fig3_soil.csv')
           f4 = pd.read_csv('nature_reporting/nature_source_data_fig4.csv')
           parts = pd.read_csv('nature_reporting/nature_source_data_fig4_parts.csv')
           exact = pd.read_csv('nature_reporting/nature_v272_exact_process_recovery.csv')
@@ -111,6 +122,11 @@ jobs:
           comp = pd.read_csv('nature_reporting/nature_v272_selector_process_comparison.csv')
           assert len(f2) == 3
           assert len(f3) == 6
+          assert int(f3['stable_core_exact_n'].sum()) == 55
+          assert int(f3['auc_process_exact_n'].sum()) == 50
+          assert tuple(disagreement.iloc[0].astype(int)) == (22, 19, 16, 18)
+          assert tuple(soil_fig.iloc[0][['n','stable_n','contested_n','absent_from_both_n']].astype(int)) == (10, 7, 3, 0)
+          assert tuple(soil_fig.iloc[1][['n','stable_n','contested_n','absent_from_both_n']].astype(int)) == (50, 2, 7, 41)
           assert len(f4) == 108
           assert len(parts) == 3
           assert f4['candidate_identical'].all()
@@ -139,7 +155,8 @@ jobs:
           assert int(soil['absent_from_both_when_false_n']) == 41
           print(f2.to_string(index=False))
           print(f3.to_string(index=False))
-          print(all_row.to_string())
+          print(disagreement.to_string(index=False))
+          print(soil_fig.to_string(index=False))
           print(comp.to_string(index=False))
           print(proc.to_string(index=False))
           print(parts.to_string(index=False))
