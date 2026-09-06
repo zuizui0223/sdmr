@@ -32,6 +32,7 @@ jobs:
 
       - name: Run prospective 35-case factorial process-recovery experiment
         run: |
+          mkdir -p factorial_process_recovery
           python -m sdmr.factorial_process_recovery_experiment \
             --output-dir factorial_process_recovery \
             | tee factorial_process_recovery/stdout.txt
