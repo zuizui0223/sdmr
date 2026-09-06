@@ -1,0 +1,104 @@
+{
+  "archive_sha256": "1135dde2260a22e54d963b0cad6fd7210b98a362b983eddf2a6750e5d542b3b1",
+  "checks_passed": [
+    "archive_integrity",
+    "exact_case_and_process_denominators",
+    "strict_booleans_and_boundary_flags",
+    "receipt_format",
+    "occurrence_partition_counts",
+    "prediction_label_membership",
+    "truth_labels",
+    "route_counter_status_consistency",
+    "attribution_consistency",
+    "all_overall_and_family_metrics"
+  ],
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "member_sha256": {
+    "case_summary.csv": "130ac408f574436de3d28d98913ad53a28db587639f0e43a0b29133d0e2c1192",
+    "development_decision.json": "2beed955ad45e39a142622fc8f8715d8530f5e00f0becb1efb6eaf2b9dff6451",
+    "family_metrics.csv": "4bcd595f0faa6a8815258cc90f0f7b53575d10f2143ef2438bde036d1b73cc93",
+    "process_evaluation.csv": "40bbe9791953746e8df53074d138e8c2b89a6200b95fdb1db01d067252feff62"
+  },
+  "n_cases": 60,
+  "n_incomplete_routes": 0,
+  "n_process_cells": 300,
+  "new_simulation_or_fit_performed": false,
+  "overall_metrics": {
+    "false_process_challenge_rate": 0.0,
+    "false_process_contested_rate": 0.0,
+    "false_process_detection_rate": 0.0,
+    "false_process_unique_attribution_rate": 0.0,
+    "false_required_rate": 0.0,
+    "n_challenge_detected_false_processes": 0,
+    "n_challenge_detected_true_processes": 49,
+    "n_contested_shared": 0,
+    "n_contributory": 49,
+    "n_false_contested": 0,
+    "n_false_processes": 170,
+    "n_false_required": 0,
+    "n_replaceable": 195,
+    "n_required": 0,
+    "n_true_contested": 0,
+    "n_true_processes": 130,
+    "n_unique_false_processes": 0,
+    "n_unique_true_processes": 49,
+    "n_unresolved": 56,
+    "true_process_challenge_recall": 0.3769230769230769,
+    "true_process_contested_rate": 0.0,
+    "true_process_detection_recall": 0.3769230769230769,
+    "true_process_unique_attribution_recall": 0.3769230769230769
+  },
+  "product_a_reopened": false,
+  "purpose": "completed_v5_development_artifact_readout_audit",
+  "raw_v4_to_v5_transitions": [
+    {
+      "expected_true_process": false,
+      "n": 13,
+      "v4_status": "contributory_under_evidence_contract",
+      "v5_status": "unresolved"
+    },
+    {
+      "expected_true_process": false,
+      "n": 157,
+      "v4_status": "replaceable_under_evidence_contract",
+      "v5_status": "replaceable_under_evidence_contract"
+    },
+    {
+      "expected_true_process": true,
+      "n": 49,
+      "v4_status": "contributory_under_evidence_contract",
+      "v5_status": "contributory_under_evidence_contract"
+    },
+    {
+      "expected_true_process": true,
+      "n": 43,
+      "v4_status": "contributory_under_evidence_contract",
+      "v5_status": "unresolved"
+    },
+    {
+      "expected_true_process": true,
+      "n": 38,
+      "v4_status": "replaceable_under_evidence_contract",
+      "v5_status": "replaceable_under_evidence_contract"
+    }
+  ],
+  "scope_limit": "Artifact and summary consistency, not independent refitting or proof of no leakage. Raw route intervals and occurrence-ID manifests are not in this bundle. v4_status is pre-attribution; do not equate it with historical v4 unique attribution.",
+  "source_artifact_id": 9990648093,
+  "source_head_sha": "f3b95c7aa5ea0f559b54dc797ec46fda141582c8",
+  "source_run_id": 34037107229,
+  "truth_status_counts": {
+    "false": {
+      "contributory_under_evidence_contract": 0,
+      "replaceable_under_evidence_contract": 157,
+      "required_by_evidence_contract": 0,
+      "unresolved": 13
+    },
+    "true": {
+      "contributory_under_evidence_contract": 49,
+      "replaceable_under_evidence_contract": 38,
+      "required_by_evidence_contract": 0,
+      "unresolved": 43
+    }
+  }
+}
