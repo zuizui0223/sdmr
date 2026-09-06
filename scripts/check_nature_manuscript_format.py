@@ -116,6 +116,9 @@ def check_article(path: Path) -> dict[str, int]:
             errors.append(f"forbidden/overstated claim pattern matched: {pattern!r}")
 
     required_tokens = (
+        "55/60",
+        "19/22",
+        "Soil was the process whose truth status varied",
         "0.9889",
         "0.9833",
         "38/60",
