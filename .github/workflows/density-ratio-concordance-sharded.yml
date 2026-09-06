@@ -1,0 +1,89 @@
+name: density-ratio-v4-concordance-sharded
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/density_ratio_concordance_diagnostic.py'
+      - 'src/sdmr/density_ratio_concordance_sharded.py'
+      - 'configs/density_ratio_concordance_diagnostic.json'
+      - '.github/workflows/density-ratio-concordance-sharded.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  family:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family:
+          - gaussian
+          - asymmetric
+          - soft_threshold
+          - omitted_driver
+          - observation_confounded
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Download fixed v4 development artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: density-ratio-process-challenge-v4-development-only
+          path: v4-input
+          repository: zuizui0223/sdmr
+          run-id: 34024183605
+          github-token: ${{ github.token }}
+      - name: Run changed-cell family diagnostic
+        run: python -m sdmr.density_ratio_concordance_sharded --process-file v4-input/process_evaluation.csv --family '${{ matrix.family }}' --output-dir concordance
+      - name: Upload family diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: density-ratio-v4-concordance-${{ matrix.family }}
+          path: concordance/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: density-ratio-v4-concordance-*
+          path: inputs
+          merge-multiple: false
+      - name: Aggregate all changed cells
+        run: python -m sdmr.density_ratio_concordance_sharded --input-dir inputs --output-dir concordance
+      - name: Show concordance decision
+        run: cat concordance/concordance_decision.json
+      - name: Upload aggregate diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: density-ratio-v4-concordance-sharded-only
+          path: concordance/
+          retention-days: 30
+          if-no-files-found: error
