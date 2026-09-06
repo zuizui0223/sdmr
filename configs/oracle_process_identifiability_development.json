@@ -1,0 +1,33 @@
+{
+  "purpose": "oracle_observational_identifiability_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "product_a_reopened": false,
+  "base_science_config": "configs/ecological_identification_learner_validation_successor_v2.json",
+  "families": ["gaussian", "asymmetric", "soft_threshold", "interaction", "omitted_driver", "observation_confounded"],
+  "seeds": [13001,13002,13003,13004,13005,13006,13007,13008,13009,13010],
+  "n_cases": 60,
+  "truth_target": "complete_true_suitability_surface",
+  "occurrence_outcomes_used_by_oracle": false,
+  "learner_outputs_used_by_oracle": false,
+  "generating_process_membership_used_by_oracle": false,
+  "spatial_grouping": {
+    "n_groups": 10,
+    "random_state": 0,
+    "source": "all_environment_cell_coordinates"
+  },
+  "oracle": {
+    "n_splits": 5,
+    "relative_loss_margin": 0.02,
+    "sem_multiplier": 1.0,
+    "baseline_r2_floor": 0.80,
+    "required_r2_ceiling": 0.0,
+    "max_iter": 200,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "learning_rate": 0.08,
+    "l2_regularization": 0.001,
+    "threshold_status": "development_heuristics_not_prospectively_validated"
+  },
+  "development_seeds_must_never_be_reused_for_future_prospective_validation": true
+}
