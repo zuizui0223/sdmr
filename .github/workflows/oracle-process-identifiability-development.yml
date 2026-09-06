@@ -1,0 +1,82 @@
+name: oracle-process-identifiability-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/oracle_process_identifiability.py'
+      - 'src/sdmr/oracle_process_identifiability_development.py'
+      - 'configs/oracle_process_identifiability_development.json'
+      - 'tests/test_oracle_process_identifiability.py'
+      - 'tests/test_oracle_process_identifiability_development_contract.py'
+      - '.github/workflows/oracle-process-identifiability-development.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  family:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify oracle contract and unit tests
+        run: pytest -q tests/test_oracle_process_identifiability.py tests/test_oracle_process_identifiability_development_contract.py
+      - name: Run oracle development family
+        run: >-
+          python -m sdmr.oracle_process_identifiability_development
+          --family '${{ matrix.family }}'
+          --output-dir 'oracle-${{ matrix.family }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oracle-process-identifiability-${{ matrix.family }}
+          path: oracle-${{ matrix.family }}/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: oracle-process-identifiability-*
+          path: oracle-inputs
+          merge-multiple: false
+      - name: Aggregate fixed oracle development denominator
+        run: >-
+          python -m sdmr.oracle_process_identifiability_development
+          --input-dir oracle-inputs
+          --output-dir oracle-development
+      - name: Show oracle development decision
+        run: cat oracle-development/oracle_development_decision.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oracle-process-identifiability-development-only
+          path: oracle-development/
+          retention-days: 30
+          if-no-files-found: error
