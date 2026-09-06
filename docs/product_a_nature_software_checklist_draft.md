@@ -2,52 +2,100 @@
 
 Status: **submission-production aid; complete against the journal's current form at submission**.
 
-Newly developed software is central to the manuscript. The final submission should therefore include the Nature Portfolio software checklist.
+Newly developed software is central to the manuscript. The final submission should include the Nature Portfolio software checklist.
 
 ## Software identity
 
 - software name: `sdmr`
-- manuscript role: prospective occurrence-only SDM fitting/evaluation; exclusion-based process-necessity certificates; consensus-first process-stability certificates; observation-process correction; deterministic scientific confirmation; frozen empirical confirmation; reporting-only manuscript reconstruction
 - repository: `https://github.com/zuizui0223/sdmr`
 - license: MIT
 - package version: `0.3.0.dev0`
 - language: Python
-- supported Python: >=3.10
+- supported Python: ≥3.10
+- manuscript role: prospective occurrence-only SDM evaluation; process-specific counterfactual ecological-recovery scoring; exclusion-based process-necessity safety certificates; observation-process correction; controlled-truth validation/replication; frozen empirical confirmation; reporting reconstruction
 
-## Scientific-estimator boundary
+## Final scientific estimator
 
-The software implements two distinct process-level certificate families used in the manuscript.
+The principal positive estimator is **counterfactual process recovery**.
 
-1. **Exclusion-based necessity** (`v2.4–v2.6` lineage): explicit process knockouts test whether adequate explanations survive without declared process information. v2.6 frozen performance is reported through false-required counts, possible-process recall/precision, boundary coverage and width.
-2. **Consensus-first process stability** (`v2.7.2`): `stable_process_core` is the intersection of process sets supported by canonical and perturbation-robust ecological selectors. Its frozen P=0.9889 and R/F1=0.9833 quantify process stability against hidden truth; they are not the precision/recall of the exclusion-based necessity estimator.
+For each declared process, prediction-adequate candidates are separated into process-containing and process-excluded classes after frozen process-alias mapping. The estimator measures the normalized loss in best attainable held-out Schoener-D niche overlap when every declared representation of the process is excluded, averaged across five predeclared sampling/background perturbations.
 
-## Exact scientific implementations
+Implementation:
 
-The manuscript is not defined by the moving default branch alone. Scientific evidence is tied to frozen implementation identities.
+- `src/sdmr/counterfactual_process_recovery.py`
+- `src/sdmr/counterfactual_process_validation.py`
+- `src/sdmr/counterfactual_process_replication.py`
 
-### Exclusion-based known-truth validation
+Frozen process thresholds:
+
+- temperature `0.26539643681319824`;
+- water `0.06716709986237807`;
+- soil `0.33424158409183774`.
+
+These thresholds were calibrated from discovery seeds `4201`–`4205` and frozen before fresh validation.
+
+## Scientific estimator boundaries
+
+The repository also contains predecessor and complementary estimators. They must not be conflated.
+
+1. **Counterfactual process membership — final headline estimator.** Fresh validation recovered 30/35 complete process sets; an unchanged 70-case replication recovered 65/70.
+2. **Consensus-first stable process core — predecessor proof of concept.** It performed strongly in the earlier six-family v2.7.2 suite but fell to 22/35 in the stronger factorial discovery test. Its earlier 55/60 result is not the final headline.
+3. **Exclusion-based necessity — separate stronger estimand.** v2.6 controlled false-required claims but remained broad; it is not the source of the counterfactual 92.9% process-membership result.
+
+## Exact scientific implementations and artifacts
+
+### Factorial predecessor falsification / discovery
+
+- frozen contract: `configs/product_a_factorial_process_recovery_contract.json`
+- process sets: all seven non-empty combinations of temperature, water and soil
+- discovery seeds: `4201`–`4205`
+- denominator: 35
+- authoritative preserved artifact used for successor discovery: `9983694702`
+- predecessor exact stable-process recovery: 22/35
+
+### Fresh counterfactual validation
+
+- contract: `configs/product_a_counterfactual_process_validation_contract.json`
+- validation seeds: `4301`–`4305`
+- denominator: 35
+- workflow: `34015684015`
+- artifact: `9983844728`
+- digest: `sha256:9a53abc38c45e93eb8696f1de7af5051776881c59ec5079f45b4ecc029068554`
+- exact process-set recovery: 30/35
+
+### Independent unchanged counterfactual replication
+
+- contract: `configs/product_a_counterfactual_process_replication_contract.json`
+- replication seeds: `4401`–`4410`
+- denominator: 70
+- workflow: `34015900603`
+- artifact: `9983940439`
+- digest: `sha256:af72b78f64e5160dbc96a1147769e83a0b21b461d9b7111ca2e663e8f786d3eb`
+- exact process-set recovery: 65/70
+- AUC comparator: 56/70
+- predecessor stable core: 49/70
+
+### Earlier exclusion-based known-truth validation
 
 - v2.6 workflow run: `32251711573`
 - terminal artifact: `9364873176`
 - digest: `sha256:78cda9c4c1e8a0ddab8371bf324d214cc9b8a76d1ebd65ad562da6de5913e3ba`
 
-### Deterministic consensus-first controlled-truth result
+### Earlier deterministic v2.7.2 predecessor
 
 - implementation SHA: `9b40393dda3d03943a403d0e7875e2d616b914e7`
-- frozen ref: `frozen/product-a-v2-7-2-known-truth-9b40393d`
 - workflow run: `32629842082`
 - replicate-A artifact: `9490817718`
-- digest: `sha256:78b261f95c31d6c1df1f29aa02988abba2398bfca2765e7afdfe83d0acf74d4e`
 - terminal artifact: `9490827277`
-- terminal digest: `sha256:033b5393444f0d7365d6823d068e08778454496213f0f438188680740f846a17`
 
-### Fresh empirical endpoint
+### Fresh empirical endpoint — unchanged
 
 - scientific execution ID: `product-a-v2-8-4-fresh-confirmation-v1`
-- authoritative frozen SHA: `1496a6c63b19bf7711511a864ccb448fc123c963`
-- workflow run: `33364164527`, attempt 1
+- frozen SHA: `1496a6c63b19bf7711511a864ccb448fc123c963`
+- workflow: `33364164527`
 - terminal artifact: `9750071472`
-- terminal digest: `sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f`
+- digest: `sha256:a4243eedae221e5ffd289062e27ec949b39f35a4f7a00849a56b047a3ccb8c9f`
+- decision: `empirical_confirmation_not_supported`; `not_promoted`
 
 ## Installation
 
@@ -74,118 +122,74 @@ Repository tests are under `tests/` and configured through `pyproject.toml`.
 pytest
 ```
 
-Scientific contracts fail closed on mismatched source identities, altered invariants, invalid evidence states and deterministic parity failures. A predecessor process-dependent selected-predictor difference was retained as a failed implementation state rather than rescued by tolerance widening.
-
-## Deterministic execution
-
-The v2.7.2 scientific successor fixes:
-
-- scikit-learn model `random_state=0`;
-- selection-process NumPy seed `0`;
-- `liblinear` solver inherited from the predecessor;
-- exact discrete parity across independent processes;
-- numeric parity tolerance `rtol=1e-10`, `atol=1e-10`.
-
-Observed differences in successful v2.7.2 confirmation were 0.0 for all audited floating outputs and exact for audited discrete outputs.
+Counterfactual unit tests check frozen process aliases, candidate/process exclusion semantics, validation contracts and threshold identity. Scientific contracts fail closed when seeds, denominators, thresholds, candidate/process sets or required states differ from the pre-outcome declarations.
 
 ## Nature reporting reproduction
 
-The reporting workflow reconstructs figures/source data only from frozen scientific artifacts. It does not refit candidates or alter Product-A endpoints.
+The reporting workflow is `.github/workflows/nature-product-a-reporting.yml`.
 
-Scripts:
+Reporting scripts include:
 
 ```text
 scripts/build_nature_product_a_concept_figures.py
 scripts/build_nature_product_a_figures.py
+scripts/render_nature_fig3_counterfactual.py
 scripts/check_nature_manuscript_format.py
 ```
 
-Core artifact-based command:
+Figure 3 is now rendered from frozen counterfactual source-data tables:
 
-```bash
-python scripts/build_nature_product_a_figures.py \
-  --v272-dir frozen/v272 \
-  --v284-part frozen/v284/part1 \
-  --v284-part frozen/v284/part2 \
-  --v284-part frozen/v284/part3 \
-  --output-dir nature_reporting
+```text
+source_data/nature_fig3_counterfactual_methods.csv
+source_data/nature_fig3_counterfactual_process_summary.csv
+source_data/nature_fig3_counterfactual_process_sets.csv
 ```
 
-Current expected workflow products include:
+The workflow fails unless it reconstructs/asserts:
 
-- `nature_fig1_identification_logic.png` and `.pdf`
-- `nature_fig2_false_necessity.png` and `.pdf`
-- `nature_fig3_known_truth.png` and `.pdf`
-- `nature_fig4_empirical_identity.png` and `.pdf`
-- `nature_source_data_fig2.csv`
-- `nature_source_data_fig3.csv`
-- `nature_source_data_fig4.csv`
-- `nature_source_data_fig4_parts.csv`
+- fresh validation exact counts: counterfactual 30/35, AUC 25/35, predecessor 23/35;
+- independent replication exact counts: counterfactual 65/70, AUC 56/70, predecessor 49/70;
+- model-disagreement replication: 30 cases, counterfactual exact 27/30;
+- temperature replication TP/FN/TN/FP = 40/0/28/2;
+- water = 40/0/28/2;
+- soil = 39/1/30/0;
+- process-set exact counts: T 8, W 8, S 10, T+W 10, T+S 10, W+S 10, T+W+S 9.
 
-Figure 3 reports the **consensus-first process-stability** certificate. The reporting code asserts:
+The empirical reporting gate independently retains:
 
-- six controlled-truth families and 60 cases;
-- stable-core pooled precision `0.988888...` and recall `0.983333...`;
-- exact-model consensus `38/60`;
-- process-set consensus `50/60`.
-
-These assertions must not be interpreted as exclusion-necessity performance. The separate v2.6 exclusion result is retained in `source_data/nature_extended_v26_certificate.csv`.
-
-For the empirical endpoint, the reporting code asserts:
-
-- exactly three frozen seeds;
-- 108 matched empirical cells;
-- ecological/AUC candidate identity and selected-predictor identity in all 108 cells;
+- 108 matched taxon × M × seed cells;
+- ecological/AUC candidate and selected-predictor identity in all 108;
 - common candidate `all|logit_l2_C0.1_degree1_rs0`;
-- sealed presence-rank identity;
-- nondomination in 3/3 parts, strict improvement in 0/3 and mean presence-rank delta 0.0.
+- nondomination 3/3, strict improvement 0/3, mean presence-rank delta 0.0.
 
-The GitHub Actions reporting workflow `.github/workflows/nature-product-a-reporting.yml` has recorded successful runs and previously reproduced the four main figures, source data and manuscript format assertions from pinned evidence. The current corrected manuscript head is revalidated separately before submission.
+## Determinism and reproducibility
 
-## Input data required for reporting reproduction
+The earlier v2.7.2 successor fixed scikit-learn model `random_state=0`, selection NumPy seed `0`, and exact discrete parity; successful independent process replication had observed maximum numeric difference 0.0.
 
-### Consensus-first controlled truth
-
-Pinned v2.7.2 artifact `9490817718` contains `ecological_inference_certificates.csv` and observation summaries used for Figure 3.
-
-### Exclusion-based Extended Data
-
-The frozen v2.6 result/receipt supplies the exclusion-certificate safety/breadth values; the reporting extract is `source_data/nature_extended_v26_certificate.csv`.
-
-### Fresh empirical reporting
-
-Pinned finalized v2.8.4 artifacts:
-
-- seed `2026082201`: `9750048481`
-- seed `2026082202`: `9749405054`
-- seed `2026082203`: `9749815263`
-
-Repository reporting extracts include `source_data/nature_fig3.csv`, `source_data/nature_fig4_summary.csv`, `source_data/nature_fig4_full.csv` and Extended Data source tables. The Figure-4 full table contains 108 matched taxon × M × seed rows and is reporting-only.
+For the final counterfactual estimator, reproducibility is primarily protected through immutable process sets, seed partitions, candidate library, perturbations and process thresholds. Validation and replication are disjoint. The replication contract explicitly records `method_changes_after_validation=false`.
 
 ## Hardware / computational resources
 
-No GPU is required for the reported logistic-regression scientific core or reporting reconstruction. Scientific workflows used standard hosted CPU runners. Final hardware/runtime details should be copied only from recorded workflow metadata; do not infer unrecorded hardware specifications.
+No GPU is required for the reported logistic-regression scientific core or reporting reconstruction. Scientific workflows used standard hosted CPU runners. Final hardware/runtime details should be copied only from workflow metadata.
 
 ## User interaction / non-default settings
 
-Scientific results are driven through frozen machine-readable contracts/workflow inputs rather than interactive GUI choices. Key non-default settings—taxa, seeds, M, sealed fraction, candidate library, thresholds and RNG identities—were fixed before corresponding outcomes were opened.
+Scientific results are driven by machine-readable contracts/workflow inputs rather than interactive choices. Process combinations, discovery/validation/replication seeds, candidate library, perturbations, thresholds and empirical endpoints are frozen in repository contracts.
 
-## Documentation
-
-Primary submission documentation:
+## Primary submission documentation
 
 - `docs/product_a_nature_ecology_evolution_article_draft.md`
 - `docs/product_a_nature_ecology_evolution_online_methods.md`
-- `docs/product_a_nature_logic_consistency_audit.md`
+- `docs/product_a_final_claim_spine.md`
+- `docs/product_a_counterfactual_process_recovery_result_2026-09-06.md`
 - `docs/product_a_nature_data_code_availability.md`
 - `docs/product_a_nature_reporting_summary_draft.md`
 - `docs/product_a_nature_reference_boundary.md`
-- frozen contracts/results under `docs/`, `configs/` and `evidence/`.
 
 ## Permanent archival requirement
 
-Before submission, create a permanent DOI archive of the exact submission state including source code, manuscript/reporting scripts, small source-data tables, `CITATION.cff`, dependency metadata and reproduction instructions. Insert the resulting DOI into Code Availability. Do not invent a DOI before the archive exists.
+Before submission, create a permanent DOI archive of the exact submission state including source code, contracts, reporting scripts, source-data tables, `CITATION.cff`, dependency metadata and reproduction instructions. Insert the resulting DOI into Code Availability. Do not invent a DOI before the archive exists.
 
 ## Claim-safety boundary
 
-Software availability does not authorize scientific reruns. Product-A v2.8.4 is consumed and closed. Reporting may reconstruct figures/tables from immutable artifacts but may not change taxa, candidate library, thresholds, M, sealed fraction, seeds, denominator, source provider or process registry to seek another outcome.
+No further retuning of the consumed counterfactual validation/replication is authorized. Thresholds, seeds, process sets, candidate library and perturbations may not be changed after outcome. The new controlled-truth result identifies process membership under the declared registry; it does not establish physiological causation or complete proxy closure. The frozen v2.8.4 empirical result remains `empirical_confirmation_not_supported` / `not_promoted` and is not rescued by the new simulation result.
