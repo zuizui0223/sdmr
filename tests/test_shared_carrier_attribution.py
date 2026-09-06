@@ -33,7 +33,8 @@ def _registry():
 def _proxy():
     return pd.DataFrame(
         [
-            # Removing seasonality also removes a predictor that reconstructs water.
+            # Removing seasonality also removes a predictor that reconstructs water,
+            # and water has its own challenge signal in _summary().
             {
                 "target_process": "water",
                 "candidate_predictor": "seasonality",
@@ -66,7 +67,7 @@ def _proxy():
     )
 
 
-def test_shared_statistical_carrier_downgrades_contribution_only() -> None:
+def test_shared_statistical_carrier_requires_outcome_relevant_other_process() -> None:
     result = attribute_shared_carrier_process_summary(
         _summary(),
         _registry(),
@@ -93,9 +94,12 @@ def test_shared_statistical_carrier_downgrades_contribution_only() -> None:
     assert not bool(by_process.loc["thermal", "unique_process_evidence"])
 
 
-def test_declared_many_to_many_carrier_is_attribution_ambiguity_without_proxy_audit() -> None:
+def test_declared_many_to_many_carrier_contests_when_other_process_is_active() -> None:
     summary = pd.DataFrame(
-        [{"process": "water", "status": REQUIRED, "process_detected": True}]
+        [
+            {"process": "water", "status": REQUIRED, "process_detected": True},
+            {"process": "thermal", "status": CONTRIBUTORY, "process_detected": True},
+        ]
     )
     registry = pd.DataFrame(
         [
@@ -110,11 +114,89 @@ def test_declared_many_to_many_carrier_is_attribution_ambiguity_without_proxy_au
         predictor_universe=("pet",),
         proxy_candidate_summary=None,
     )
-    row = result.process_summary.iloc[0]
-    assert row["attribution_status"] == CONTESTED_SHARED
-    assert row["shared_carrier_predictors"] == "pet"
-    assert row["shared_with_processes"] == "thermal"
-    assert not bool(row["unique_process_evidence"])
+    water = result.process_summary.set_index("process").loc["water"]
+    assert water["attribution_status"] == CONTESTED_SHARED
+    assert water["shared_carrier_predictors"] == "pet"
+    assert water["shared_with_processes"] == "thermal"
+    assert not bool(water["unique_process_evidence"])
+
+
+def test_strong_shared_carrier_to_replaceable_process_does_not_contest_by_default() -> None:
+    summary = pd.DataFrame(
+        [
+            {"process": "water", "status": CONTRIBUTORY, "process_detected": True},
+            {"process": "seasonality", "status": REPLACEABLE, "process_detected": False},
+        ]
+    )
+    registry = pd.DataFrame(
+        [
+            {"predictor": "water", "process": "water", "role": "direct"},
+            {"predictor": "seasonality", "process": "seasonality", "role": "direct"},
+        ]
+    )
+    proxy = pd.DataFrame(
+        [
+            {
+                "target_process": "seasonality",
+                "candidate_predictor": "water",
+                "univariate_cv_r2": 0.45,
+                "abs_spearman": 0.70,
+            }
+        ]
+    )
+    result = attribute_shared_carrier_process_summary(
+        summary,
+        registry,
+        process_universe=("water", "seasonality"),
+        predictor_universe=("water", "seasonality"),
+        proxy_candidate_summary=proxy,
+    )
+    water = result.process_summary.set_index("process").loc["water"]
+    assert water["attribution_status"] == CONTRIBUTORY
+    assert bool(water["unique_process_evidence"])
+    assert water["n_qualifying_shared_carriers"] == 1
+    assert water["n_attribution_relevant_shared_carriers"] == 0
+
+    evidence = result.evidence.iloc[0]
+    assert bool(evidence["qualifies"])
+    assert not bool(evidence["other_process_challenge_signal"])
+    assert not bool(evidence["attribution_relevant"])
+
+
+def test_legacy_v31_mode_can_contest_shared_but_inactive_process() -> None:
+    summary = pd.DataFrame(
+        [
+            {"process": "water", "status": CONTRIBUTORY, "process_detected": True},
+            {"process": "seasonality", "status": REPLACEABLE, "process_detected": False},
+        ]
+    )
+    registry = pd.DataFrame(
+        [
+            {"predictor": "water", "process": "water", "role": "direct"},
+            {"predictor": "seasonality", "process": "seasonality", "role": "direct"},
+        ]
+    )
+    proxy = pd.DataFrame(
+        [
+            {
+                "target_process": "seasonality",
+                "candidate_predictor": "water",
+                "univariate_cv_r2": 0.45,
+                "abs_spearman": 0.70,
+            }
+        ]
+    )
+    result = attribute_shared_carrier_process_summary(
+        summary,
+        registry,
+        process_universe=("water", "seasonality"),
+        predictor_universe=("water", "seasonality"),
+        proxy_candidate_summary=proxy,
+        require_other_process_challenge_signal=False,
+    )
+    water = result.process_summary.set_index("process").loc["water"]
+    assert water["attribution_status"] == CONTESTED_SHARED
+    assert not bool(water["unique_process_evidence"])
 
 
 def test_attribution_layer_does_not_mutate_input_tables() -> None:
@@ -140,7 +222,10 @@ def test_attribution_layer_does_not_mutate_input_tables() -> None:
 
 def test_weak_shared_signal_does_not_create_contested_status() -> None:
     summary = pd.DataFrame(
-        [{"process": "water", "status": CONTRIBUTORY, "process_detected": True}]
+        [
+            {"process": "water", "status": CONTRIBUTORY, "process_detected": True},
+            {"process": "seasonality", "status": CONTRIBUTORY, "process_detected": True},
+        ]
     )
     registry = pd.DataFrame(
         [
@@ -167,7 +252,7 @@ def test_weak_shared_signal_does_not_create_contested_status() -> None:
         minimum_univariate_cv_r2=0.25,
         minimum_abs_spearman=0.50,
     )
-    row = result.process_summary.iloc[0]
-    assert row["attribution_status"] == CONTRIBUTORY
-    assert bool(row["unique_process_evidence"])
-    assert not bool(row["shared_information_contested"])
+    water = result.process_summary.set_index("process").loc["water"]
+    assert water["attribution_status"] == CONTRIBUTORY
+    assert bool(water["unique_process_evidence"])
+    assert not bool(water["shared_information_contested"])
