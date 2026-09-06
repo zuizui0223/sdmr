@@ -1,15 +1,16 @@
-"""Outcome-blind shared-carrier attribution for ecological process challenges.
+"""Shared-carrier attribution for ecological process challenges.
 
 The baseline-relative process challenge learner can show that removing the
 predictors declared for process P causes a material loss. That loss is not
-uniquely attributable to P, however, when one of the removed predictors also
-carries information about another declared process Q.
+uniquely attributable to P, however, when a removed predictor also carries
+information about another declared process Q *and Q itself has an outcome-level
+challenge signal in the same fitted evidence set*.
 
-This module therefore separates a *challenge signal* from *unique process
-attribution*. Shared-carrier evidence comes only from the frozen many-to-many
-process registry and/or a predictor-only :class:`ProcessProxyAudit`. Ecological
-outcomes, answer-check rows, suitability values and known truth never enter the
-proxy audit itself.
+The predictor-sharing audit remains outcome-blind: it uses only the frozen
+many-to-many registry and/or a predictor-only :class:`ProcessProxyAudit`. The
+outcome-level v3 challenge result is consulted only afterwards to decide whether
+a statistically shared process is relevant to attribution of the observed loss.
+Answer-check rows and known truth never enter this layer.
 """
 from __future__ import annotations
 
@@ -37,6 +38,7 @@ class SharedCarrierAttribution:
     proxy_audit: ProcessProxyAudit | None
     minimum_univariate_cv_r2: float
     minimum_abs_spearman: float
+    require_other_process_challenge_signal: bool
     selection_receipt: str
 
 
@@ -65,21 +67,27 @@ def attribute_shared_carrier_process_summary(
     proxy_candidate_summary: pd.DataFrame | None = None,
     minimum_univariate_cv_r2: float = 0.25,
     minimum_abs_spearman: float = 0.50,
+    require_other_process_challenge_signal: bool = True,
 ) -> SharedCarrierAttribution:
     """Downgrade non-unique challenge signals to ``contested_shared_information``.
 
-    The defaults are development heuristics, not prospectively validated
-    performance thresholds. They must be frozen before any future validation
-    denominator is run.
+    The numerical defaults are development heuristics, not prospectively
+    validated performance thresholds. They must be frozen before any future
+    validation denominator is run.
 
-    A challenged process is contested when its v3 status is ``contributory`` or
-    ``required`` and at least one predictor removed by that challenge either:
+    A challenged process P is contested when its v3 status is ``contributory``
+    or ``required`` and at least one predictor removed by that challenge either:
 
-    1. is already declared to carry another process in the many-to-many registry;
-       or
-    2. reconstructs another process anchor in the outcome-blind proxy audit with
-       CV R2 >= ``minimum_univariate_cv_r2`` or absolute Spearman >=
-       ``minimum_abs_spearman``.
+    1. is already declared to carry another process Q in the many-to-many
+       registry; or
+    2. reconstructs Q's anchor in the outcome-blind proxy audit with CV R2 >=
+       ``minimum_univariate_cv_r2`` or absolute Spearman >=
+       ``minimum_abs_spearman``;
+
+    and, by default, Q itself has a ``contributory`` or ``required`` challenge
+    signal in the same evidence set. The last condition distinguishes mere
+    predictor covariance from shared information that can plausibly explain the
+    observed challenge loss.
 
     ``replaceable`` and ``unresolved`` statuses are never upgraded or downgraded
     by this layer because they do not make a uniquely attributed contribution or
@@ -89,6 +97,8 @@ def attribute_shared_carrier_process_summary(
         raise ValueError("minimum_univariate_cv_r2 must be in [0, 1]")
     if not 0.0 <= float(minimum_abs_spearman) <= 1.0:
         raise ValueError("minimum_abs_spearman must be in [0, 1]")
+    if not isinstance(require_other_process_challenge_signal, bool):
+        raise TypeError("require_other_process_challenge_signal must be a literal boolean")
 
     required_columns = {"process", "status"}
     missing = sorted(required_columns - set(process_summary.columns))
@@ -97,17 +107,28 @@ def attribute_shared_carrier_process_summary(
 
     processes = tuple(str(x).strip() for x in process_universe)
     predictors = tuple(str(x).strip() for x in predictor_universe)
-    if not processes or len(set(processes)) != len(processes):
+    if not processes or any(not x for x in processes) or len(set(processes)) != len(processes):
         raise ValueError("process_universe must contain unique non-empty values")
-    if not predictors or len(set(predictors)) != len(predictors):
+    if not predictors or any(not x for x in predictors) or len(set(predictors)) != len(predictors):
         raise ValueError("predictor_universe must contain unique non-empty values")
 
     summary = process_summary.copy(deep=True)
-    if summary["process"].astype(str).duplicated().any():
+    summary["process"] = summary["process"].astype(str)
+    summary["status"] = summary["status"].astype(str)
+    if summary["process"].duplicated().any():
         raise ValueError("process_summary must contain one row per process")
-    unknown = sorted(set(summary["process"].astype(str)) - set(processes))
+    unknown = sorted(set(summary["process"]) - set(processes))
     if unknown:
         raise ValueError("process_summary contains undeclared processes: " + ", ".join(unknown))
+
+    challenge_signal_by_process = {
+        str(row.process): str(row.status) in {CONTRIBUTORY, REQUIRED}
+        for row in summary[["process", "status"]].itertuples(index=False)
+    }
+    # Declared processes absent from the summary have no demonstrated challenge
+    # signal and therefore cannot make shared information attribution-relevant.
+    for process in processes:
+        challenge_signal_by_process.setdefault(process, False)
 
     registry = normalize_process_information_registry(
         process_registry.copy(deep=True),
@@ -149,9 +170,6 @@ def attribute_shared_carrier_process_summary(
             )
         )
 
-        # Registry-declared many-to-many carriers are definitive attribution
-        # ambiguity: removing process P also removes a predictor explicitly
-        # declared to carry process Q.
         for predictor in removed:
             declared_processes = tuple(
                 sorted(
@@ -164,6 +182,8 @@ def attribute_shared_carrier_process_summary(
                 )
             )
             for other_process in declared_processes:
+                other_signal = bool(challenge_signal_by_process.get(other_process, False))
+                relevant = bool((not require_other_process_challenge_signal) or other_signal)
                 evidence_rows.append(
                     {
                         "challenged_process": process,
@@ -173,12 +193,11 @@ def attribute_shared_carrier_process_summary(
                         "univariate_cv_r2": float("nan"),
                         "abs_spearman": float("nan"),
                         "qualifies": True,
+                        "other_process_challenge_signal": other_signal,
+                        "attribution_relevant": relevant,
                     }
                 )
 
-        # Statistical shared-carrier evidence is outcome-blind. We look for a
-        # predictor removed by challenge P that reconstructs the declared anchor
-        # of another process Q.
         if not proxy.empty and removed:
             candidates = proxy.loc[
                 proxy["candidate_predictor"].isin(removed)
@@ -193,26 +212,46 @@ def attribute_shared_carrier_process_summary(
                     minimum_univariate_cv_r2=float(minimum_univariate_cv_r2),
                     minimum_abs_spearman=float(minimum_abs_spearman),
                 )
+                other_process = str(candidate.target_process)
+                other_signal = bool(challenge_signal_by_process.get(other_process, False))
+                relevant = bool(
+                    qualifies
+                    and ((not require_other_process_challenge_signal) or other_signal)
+                )
                 evidence_rows.append(
                     {
                         "challenged_process": process,
                         "carrier_predictor": str(candidate.candidate_predictor),
-                        "other_process": str(candidate.target_process),
+                        "other_process": other_process,
                         "evidence_source": "predictor_only_reconstruction",
                         "univariate_cv_r2": r2,
                         "abs_spearman": rho,
                         "qualifies": bool(qualifies),
+                        "other_process_challenge_signal": other_signal,
+                        "attribution_relevant": relevant,
                     }
                 )
 
         current_evidence = [x for x in evidence_rows if x["challenged_process"] == process]
         qualifying = [x for x in current_evidence if _literal_bool(x["qualifies"])]
-        shared_contested = bool(qualifying and challenge_status in {CONTRIBUTORY, REQUIRED})
+        relevant = [x for x in current_evidence if _literal_bool(x["attribution_relevant"])]
+        shared_contested = bool(relevant and challenge_status in {CONTRIBUTORY, REQUIRED})
         attribution_status = CONTESTED_SHARED if shared_contested else challenge_status
-        other_processes = sorted({str(x["other_process"]) for x in qualifying})
-        carriers = sorted({str(x["carrier_predictor"]) for x in qualifying})
-        r2_values = [float(x["univariate_cv_r2"]) for x in qualifying if np.isfinite(float(x["univariate_cv_r2"]))]
-        rho_values = [float(x["abs_spearman"]) for x in qualifying if np.isfinite(float(x["abs_spearman"]))]
+
+        qualifying_other_processes = sorted({str(x["other_process"]) for x in qualifying})
+        relevant_other_processes = sorted({str(x["other_process"]) for x in relevant})
+        qualifying_carriers = sorted({str(x["carrier_predictor"]) for x in qualifying})
+        relevant_carriers = sorted({str(x["carrier_predictor"]) for x in relevant})
+        r2_values = [
+            float(x["univariate_cv_r2"])
+            for x in relevant
+            if np.isfinite(float(x["univariate_cv_r2"]))
+        ]
+        rho_values = [
+            float(x["abs_spearman"])
+            for x in relevant
+            if np.isfinite(float(x["abs_spearman"]))
+        ]
 
         enriched = dict(row)
         enriched.update(
@@ -223,8 +262,11 @@ def attribute_shared_carrier_process_summary(
                 "shared_information_contested": shared_contested,
                 "unique_process_evidence": attribution_status in {CONTRIBUTORY, REQUIRED},
                 "n_qualifying_shared_carriers": len(qualifying),
-                "shared_carrier_predictors": ",".join(carriers),
-                "shared_with_processes": ",".join(other_processes),
+                "n_attribution_relevant_shared_carriers": len(relevant),
+                "qualifying_shared_carrier_predictors": ",".join(qualifying_carriers),
+                "qualifying_shared_with_processes": ",".join(qualifying_other_processes),
+                "shared_carrier_predictors": ",".join(relevant_carriers),
+                "shared_with_processes": ",".join(relevant_other_processes),
                 "max_shared_univariate_cv_r2": max(r2_values) if r2_values else float("nan"),
                 "max_shared_abs_spearman": max(rho_values) if rho_values else float("nan"),
             }
@@ -234,8 +276,16 @@ def attribute_shared_carrier_process_summary(
     evidence = pd.DataFrame(evidence_rows)
     if not evidence.empty:
         evidence = evidence.sort_values(
-            ["challenged_process", "qualifies", "univariate_cv_r2", "abs_spearman", "carrier_predictor", "other_process"],
-            ascending=[True, False, False, False, True, True],
+            [
+                "challenged_process",
+                "attribution_relevant",
+                "qualifies",
+                "univariate_cv_r2",
+                "abs_spearman",
+                "carrier_predictor",
+                "other_process",
+            ],
+            ascending=[True, False, False, False, False, True, True],
             kind="mergesort",
         ).reset_index(drop=True)
 
@@ -244,10 +294,11 @@ def attribute_shared_carrier_process_summary(
         [
             f"minimum_univariate_cv_r2={float(minimum_univariate_cv_r2):.12g}",
             f"minimum_abs_spearman={float(minimum_abs_spearman):.12g}",
+            f"require_other_process_challenge_signal={int(require_other_process_challenge_signal)}",
             "attribution_status=" + output[["process", "attribution_status"]].to_csv(index=False),
-            "qualifying_evidence="
+            "relevant_shared_evidence="
             + (
-                evidence.loc[evidence["qualifies"].astype(bool)].to_csv(index=False)
+                evidence.loc[evidence["attribution_relevant"].astype(bool)].to_csv(index=False)
                 if not evidence.empty
                 else ""
             ),
@@ -260,6 +311,7 @@ def attribute_shared_carrier_process_summary(
         proxy_audit=None,
         minimum_univariate_cv_r2=float(minimum_univariate_cv_r2),
         minimum_abs_spearman=float(minimum_abs_spearman),
+        require_other_process_challenge_signal=bool(require_other_process_challenge_signal),
         selection_receipt=receipt,
     )
 
@@ -274,13 +326,9 @@ def fit_shared_carrier_attribution(
     degree: int = 2,
     minimum_univariate_cv_r2: float = 0.25,
     minimum_abs_spearman: float = 0.50,
+    require_other_process_challenge_signal: bool = True,
 ) -> SharedCarrierAttribution:
-    """Run an outcome-blind proxy audit and attribute a fitted v3 challenge.
-
-    ``predictor_frame`` should normally be the background/environment predictor
-    table available before any ecological outcome is inspected. Only the
-    ecological predictor universe from ``challenge_fit`` enters the proxy audit.
-    """
+    """Run predictor-only proxy audit, then attribute a fitted v3 challenge."""
     predictors = tuple(challenge_fit.base_fit.ecological_predictors)
     processes = tuple(challenge_fit.base_fit.process_universe)
     audit = audit_process_proxy_reconstructability(
@@ -300,6 +348,7 @@ def fit_shared_carrier_attribution(
         proxy_candidate_summary=audit.candidate_summary,
         minimum_univariate_cv_r2=float(minimum_univariate_cv_r2),
         minimum_abs_spearman=float(minimum_abs_spearman),
+        require_other_process_challenge_signal=require_other_process_challenge_signal,
     )
     receipt = hashlib.sha256(
         (
@@ -313,5 +362,6 @@ def fit_shared_carrier_attribution(
         proxy_audit=audit,
         minimum_univariate_cv_r2=attributed.minimum_univariate_cv_r2,
         minimum_abs_spearman=attributed.minimum_abs_spearman,
+        require_other_process_challenge_signal=attributed.require_other_process_challenge_signal,
         selection_receipt=receipt,
     )
