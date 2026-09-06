@@ -1,0 +1,49 @@
+name: process-challenge-v3-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_challenge_learner.py'
+      - 'src/sdmr/process_challenge_development.py'
+      - 'configs/process_challenge_v3_development.json'
+      - 'tests/test_process_challenge_learner.py'
+      - 'tests/test_process_challenge_v3_development_contract.py'
+      - '.github/workflows/process-challenge-v3-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  development-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify development contract
+        run: pytest -q tests/test_process_challenge_learner.py tests/test_process_challenge_v3_development_contract.py
+      - name: Run development-only known-truth denominator
+        run: python -m sdmr.process_challenge_development --output-dir development
+      - name: Show development decision
+        run: cat development/development_decision.json
+      - name: Upload development-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: process-challenge-v3-development-only
+          path: development/
+          retention-days: 30
+          if-no-files-found: error
