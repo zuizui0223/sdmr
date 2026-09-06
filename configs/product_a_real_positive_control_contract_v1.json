@@ -33,15 +33,16 @@
   "candidate_library": {
     "model": "logistic_l2_degree1_C0.1_random_state0",
     "temperature_predictors": ["bio1", "bio10", "bio11", "gst"],
-    "water_predictors": ["bio12", "bio17", "gsp", "cmi"],
-    "neutral_predictors": ["bio4", "bio15"],
+    "water_predictors": ["bio12", "bio14", "bio17", "gsp"],
+    "neutral_predictors": ["rsds", "sfcWind"],
     "candidates": {
       "temperature_only": ["temperature", "neutral"],
       "water_only": ["water", "neutral"],
       "temperature_water": ["temperature", "water", "neutral"],
       "neutral_only": ["neutral"]
     },
-    "hidden_external_process_labels_used_for_fitting_or_selection": false
+    "hidden_external_process_labels_used_for_fitting_or_selection": false,
+    "preoutcome_proxy_closure_revision": "Removed cmi and temperature/precipitation seasonality from competing/neutral channels before any real positive-control process score was observed; focused registry now uses direct temperature, direct precipitation, radiation and wind channels."
   },
   "counterfactual_score": {
     "prediction_adequacy": "candidate mean presence_rank >= 0.51 and mean - SEM >= 0.50",
