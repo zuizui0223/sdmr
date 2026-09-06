@@ -1,0 +1,62 @@
+name: Product A counterfactual process validation
+
+on:
+  pull_request:
+    paths:
+      - 'configs/product_a_counterfactual_process_validation_contract.json'
+      - 'src/sdmr/counterfactual_process_recovery.py'
+      - 'src/sdmr/counterfactual_process_validation.py'
+      - 'tests/test_counterfactual_process_recovery.py'
+      - '.github/workflows/product-a-counterfactual-process-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify counterfactual scorer
+        run: pytest -q tests/test_counterfactual_process_recovery.py tests/test_factorial_process_recovery_experiment.py
+      - name: Run fresh 4301-4305 validation
+        run: |
+          mkdir -p counterfactual_process_validation
+          python -m sdmr.counterfactual_process_validation \
+            --output-dir counterfactual_process_validation \
+            | tee counterfactual_process_validation/stdout.txt
+      - name: Print validation tables
+        run: |
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+          root = Path('counterfactual_process_validation')
+          d = json.loads((root / 'counterfactual_validation_decision.json').read_text())
+          p = pd.read_csv(root / 'counterfactual_process_summary.csv')
+          c = pd.read_csv(root / 'counterfactual_validation_cases.csv')
+          print('SUPPORTED=', d['supported'])
+          print('counterfactual_exact=', d['counterfactual_exact_process_set_recovery'])
+          print('old_stable_exact=', d['old_stable_exact_process_set_recovery'])
+          print('auc_exact=', d['auc_exact_process_set_recovery'])
+          print('model_disagreement_n=', d['model_disagreement_n'])
+          print('counterfactual_exact_when_models_disagree=', d['counterfactual_exact_when_ecological_models_disagree'])
+          print('paired=', d['paired_exact_counts'])
+          print('\nPROCESS SUMMARY')
+          print(p.to_string(index=False))
+          print('\nCOUNTERFACTUAL ERRORS')
+          print(c.loc[~c['counterfactual_exact'].astype(bool)].to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-counterfactual-process-validation-${{ github.sha }}
+          path: counterfactual_process_validation/
+          retention-days: 90
