@@ -1,0 +1,26 @@
+{
+  "purpose": "process_identification_gap_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "product_a_reopened": false,
+  "learner_source": {
+    "workflow_run_id": 34015456711,
+    "artifact_id": 9983793398,
+    "artifact_name": "process-challenge-v3-development-only",
+    "artifact_sha256": "9bc217f2b9fd0f1b1995e76e466befa05ff7f13f62400f5bff05e537544ee1d3",
+    "process_file": "process_evaluation.csv"
+  },
+  "oracle_source": {
+    "workflow_run_id": 34022478135,
+    "artifact_id": 9986006226,
+    "artifact_name": "oracle-process-identifiability-development-only",
+    "artifact_sha256": "59caa5482bd5ae3dc695e53a7dc7dcde0ffb980d061c7d155cefe8b6ce7584bb",
+    "process_file": "oracle_process_evaluation.csv"
+  },
+  "key_columns": ["family", "seed", "process"],
+  "expected_rows": 300,
+  "expected_cases": 60,
+  "development_seeds": [13001,13002,13003,13004,13005,13006,13007,13008,13009,13010],
+  "interpretation": "gap_between_truth_surface_representation_oracle_and_occurrence_only_process_learner",
+  "future_prospective_validation_must_use_new_unused_seeds": true
+}
