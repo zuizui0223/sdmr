@@ -1,0 +1,59 @@
+name: process-identification-gap-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_identification_gap.py'
+      - 'src/sdmr/process_identification_gap_development.py'
+      - 'configs/process_identification_gap_development.json'
+      - 'tests/test_process_identification_gap.py'
+      - 'tests/test_process_identification_gap_development_contract.py'
+      - '.github/workflows/process-identification-gap-development.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify gap logic and frozen source contract
+        run: pytest -q tests/test_process_identification_gap.py tests/test_process_identification_gap_development_contract.py
+      - name: Download fixed v3.2 learner artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: process-challenge-v3-development-only
+          path: learner-input
+          repository: ${{ github.repository }}
+          run-id: '34015456711'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download fixed truth-surface oracle artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: oracle-process-identifiability-development-only
+          path: oracle-input
+          repository: ${{ github.repository }}
+          run-id: '34022478135'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Crosswalk learner against oracle
+        run: >-
+          python -m sdmr.process_identification_gap_development
+          --learner-dir learner-input
+          --oracle-dir oracle-input
+          --output-dir gap-development
+      - name: Show identification-gap decision
+        run: cat gap-development/identification_gap_decision.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-identification-gap-development-only
+          path: gap-development/
+          retention-days: 30
+          if-no-files-found: error
