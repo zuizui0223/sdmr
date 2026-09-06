@@ -1,0 +1,4 @@
+process,truth_present_n,truth_absent_n,stable_true_positive_n,stable_false_positive_n,stable_false_negative_n,stable_true_negative_n,stable_precision,stable_recall,stable_specificity,contested_true_n,contested_false_n,absent_from_both_when_true_n,absent_from_both_when_false_n
+soil,10,50,7,2,3,48,0.7777777778,0.7,0.96,3,7,0,41
+temperature,60,0,60,0,0,0,1.0,1.0,,0,0,0,0
+water,60,0,60,0,0,0,1.0,1.0,,0,0,0,0
