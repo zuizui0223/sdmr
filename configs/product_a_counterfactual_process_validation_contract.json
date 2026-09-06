@@ -1,0 +1,63 @@
+{
+  "purpose": "product_a_counterfactual_process_validation_preoutcome_contract",
+  "frozen_before_validation_outcome": true,
+  "discovery_source": {
+    "factorial_seeds": [4201, 4202, 4203, 4204, 4205],
+    "artifact_id": 9983694702,
+    "discovery_only": true,
+    "may_not_be_used_as_validation": true
+  },
+  "estimand": "process-specific counterfactual ecological-recovery loss when every candidate carrying the declared process is excluded",
+  "score": {
+    "metric": "niche_overlap_schoener_d_pc12",
+    "prediction_gate": "existing generalization AUC gate: mean >= 0.51 and mean-SEM >= 0.50",
+    "per_perturbation_score": "(best overlap among adequate process-containing candidates - best overlap among adequate process-excluded candidates) / overlap range among all adequate candidates",
+    "excluded_class_no_adequate_candidate_score": 1.0,
+    "containing_class_no_adequate_candidate_score": -1.0,
+    "case_score": "mean over five predeclared perturbations",
+    "weighted_super_score": false
+  },
+  "discovery_separation": {
+    "temperature": {"max_false": 0.25219538006511455, "min_true": 0.278597493561282, "frozen_threshold": 0.26539643681319824},
+    "water": {"max_false": 0.052498317045248225, "min_true": 0.0818358826795079, "frozen_threshold": 0.06716709986237807},
+    "soil": {"max_false": 0.2067529450797926, "min_true": 0.46173022310388284, "frozen_threshold": 0.33424158409183774}
+  },
+  "validation": {
+    "process_sets": [
+      ["temperature"],
+      ["water"],
+      ["soil"],
+      ["temperature", "water"],
+      ["temperature", "soil"],
+      ["water", "soil"],
+      ["temperature", "water", "soil"]
+    ],
+    "seeds": [4301, 4302, 4303, 4304, 4305],
+    "n_cases": 35,
+    "reuse_factorial_generator_candidate_library_and_perturbations": true
+  },
+  "primary_support_gate": {
+    "exact_process_set_recovery_min": 0.80,
+    "temperature_sensitivity_min": 0.80,
+    "temperature_specificity_min": 0.80,
+    "water_sensitivity_min": 0.80,
+    "water_specificity_min": 0.80,
+    "soil_sensitivity_min": 0.80,
+    "soil_specificity_min": 0.80,
+    "complete_denominator_required": true
+  },
+  "comparator_reporting": {
+    "auc_winner_exact_process_set_recovery": true,
+    "old_stable_core_exact_process_set_recovery": true,
+    "no_postoutcome_superiority_threshold": true
+  },
+  "governance": {
+    "no_threshold_change_after_validation": true,
+    "no_seed_drop_after_validation": true,
+    "no_process_set_drop_after_validation": true,
+    "no_candidate_or_perturbation_change_after_validation": true,
+    "validation_can_be_supported_or_not_supported": true,
+    "old_4201_4205_factorial_non_support_remains_authoritative_for_old_stable_core": true,
+    "v2_8_4_empirical_endpoint_unchanged": true
+  }
+}
