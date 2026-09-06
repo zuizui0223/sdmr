@@ -1,169 +1,225 @@
 # Product A final claim spine
 
-Status: **authoritative manuscript logic for Product A reporting; scientific endpoints unchanged**
+Status: **authoritative manuscript logic for Product A reporting after factorial falsification, fresh counterfactual validation and independent replication**
 
 ## One-sentence claim
 
-**Under controlled truth, Product A recovered complete ecological generating-process sets more often than an AUC-selected winner and corrected observation-process misattribution, while necessity and unresolved evidence remained separate inferential questions.**
+**Product A identifies environmental-process membership by measuring the ecological recovery lost when every declared representation of a process is excluded: with temperature, water and soil varied independently, the frozen estimator recovered 65/70 complete generating-process sets in an unchanged independent replication, versus 56/70 for AUC-selected winners.**
 
-## What Product A started by asking
+## What Product A now solves
 
-Product A began as a conventional SDM procedure-selection problem: choose one complete model-building procedure that transfers to sealed spatial blocks and unseen taxa. From the beginning, information barriers were protected: sealed blocks could not influence fitting or tuning, unseen taxa could not influence procedure selection, accessible-area assumptions were sensitivity conditions rather than optimized outcomes, and failure to promote a procedure was an admissible scientific result.
+Product A began as a model-selection problem: choose a complete occurrence-only SDM procedure that predicts withheld records and transfers to unseen taxa. Development showed that this was not the right ecological estimand. Prediction, response stability and model agreement can all coexist with incorrect environmental-process attribution.
 
-Known-truth development showed that the winner-selection estimand was too weak for ecological interpretation, then produced a concrete process-recovery result beyond that problem diagnosis.
+The final controlled-truth solution therefore does **not** infer a process from the identity of a winning fitted model. It asks a counterfactual question:
 
-## Result 1 — Prediction and stable response surfaces do not identify process truth
+> **How much of the best attainable held-out ecological niche recovery disappears when every declared representation of this process is forbidden, among models that remain prediction-adequate?**
 
-Controlled-truth tests showed that a procedure can recover withheld occurrence environments or produce stable response surfaces while attributing the pattern to the wrong generating environmental process.
+This turns process membership into an explicit process-specific estimand.
 
-`prediction adequacy / response stability != process identification`
+## Result 1 — Prediction and selected-model identity were insufficient
 
-Prediction remains an adequacy layer, not a proof of ecological necessity.
+Earlier controlled-truth tests established three failures.
 
-## Result 2 — Agreement among selected good models does not establish necessity
+1. Predictive transfer and stable environmental response surfaces could coexist with wrong generating-process attribution.
+2. Restricting interpretation to ecologically better-recovery models could sharpen the retained model set while losing truth coverage and creating false necessary-process claims.
+3. A consensus-first `stable_process_core` could recover process information more reliably than exact model identity in the original six-family suite, but that suite did not vary all major process identities independently.
 
-Replacing one winner with a set of ecologically adequate models did not solve the problem. Pareto pruning made the retained set sharper but could remove viable alternatives, lose truth or boundary coverage and create a false necessary-process core.
+The original v2.7.2 proof-of-concept returned exact stable process sets in **55/60** unused cases versus **50/60** for the AUC-selected fitted candidate, including **19/22** exact process sets when the two ecological selectors chose different fitted models. However, temperature and water were generating processes in all 60 cases; only soil varied in presence. The pooled v2.7.2 precision/recall values therefore could not establish general presence-versus-absence identification for all three processes.
 
-`agreement among performance-filtered models != ecological necessity`
+## Result 2 — A stronger factorial truth test falsified the predecessor
 
-The inferential error is to convert conditional agreement after model filtering into biological necessity.
+To test actual process membership rather than retention of invariant processes, the complete non-empty process-set universe was prospectively frozen as:
 
-## Branch A — Necessity is a falsification problem, but this branch did not positively discover a driver
+`{temperature}`, `{water}`, `{soil}`, `{temperature,water}`, `{temperature,soil}`, `{water,soil}`, `{temperature,water,soil}`.
 
-The v2.4–v2.6 process-exclusion branch challenges a process by prospectively excluding the declared information associated with it and asking whether an adequate ecological explanation survives. Evidence insufficiency remains unresolved rather than becoming absence.
+Discovery seeds `4201`–`4205` generated **35 cases**. Candidate library, process aliases, perturbations, simulation sizes and denominator were fixed before outcome.
 
-The complete calibrated v2.6 controlled-truth validation returned:
+The predecessor stable-core rule failed this stronger test:
 
-- possible-process recall = **1.000**;
+- exact complete process-set recovery: **22/35 = 62.9%**;
+- AUC-selected winner: **25/35 = 71.4%**;
+- exact stable truth under ecological-model disagreement: **12/20 = 60.0%**;
+- temperature sensitivity/specificity: **1.00 / 0.667**;
+- water sensitivity/specificity: **0.70 / 0.867**;
+- soil sensitivity/specificity: **1.00 / 0.867**.
+
+This non-support is retained. The earlier `55/60` result is no longer the primary process-identification headline.
+
+## Result 3 — Counterfactual ecological-recovery loss solved the tested identification problem
+
+For process `p`, Product A now compares prediction-adequate models that carry `p` with prediction-adequate models that exclude **every declared representation** of `p`.
+
+For each of five predeclared sampling/background perturbations:
+
+1. impose the existing prediction-adequacy gate: mean presence-background rank ≥0.51 and mean−SEM ≥0.50;
+2. find the best held-out Schoener-D niche overlap among adequate candidates containing `p`;
+3. find the best held-out Schoener-D niche overlap among adequate candidates excluding `p` and all aliases/proxies in the frozen registry;
+4. normalize their difference by the overlap range among adequate candidates;
+5. average the normalized gap across perturbations.
+
+For ordinary comparable perturbations:
+
+`g_pq = (best D containing p − best D excluding p) / range(D among adequate candidates)`.
+
+The score contains no hidden process truth. Hidden truth was used only in the `4201`–`4205` discovery lane to freeze one threshold per process.
+
+Frozen thresholds were:
+
+- temperature: **0.2653964368**;
+- water: **0.0671670999**;
+- soil: **0.3342415841**.
+
+No threshold, candidate, perturbation, process set or seed was changed after fresh validation was opened.
+
+## Result 4 — Fresh 35-case validation passed every predeclared gate
+
+Unused seeds `4301`–`4305` were evaluated across the same seven process sets (`n=35`). The primary gate required:
+
+- full 35/35 denominator;
+- exact process-set recovery ≥0.80;
+- sensitivity ≥0.80 for each of temperature, water and soil;
+- specificity ≥0.80 for each process.
+
+**All gates passed.**
+
+- counterfactual exact process-set recovery: **30/35 = 85.7%**;
+- predecessor stable core: **23/35 = 65.7%**;
+- AUC-selected winner: **25/35 = 71.4%**;
+- ecological fitted models disagreed in 18 cases; counterfactual process truth remained exact in **15/18 = 83.3%**.
+
+Per-process counterfactual identification:
+
+- temperature: sensitivity **1.000**, specificity **0.933**;
+- water: sensitivity **1.000**, specificity **0.800**;
+- soil: sensitivity **1.000**, specificity **0.933**.
+
+Paired exact-set counts versus AUC were 24 both exact, 6 counterfactual-only exact, 1 AUC-only exact and 4 both wrong.
+
+Authoritative validation: workflow `34015684015`, artifact `9983844728`, digest `sha256:9a53abc38c45e93eb8696f1de7af5051776881c59ec5079f45b4ecc029068554`.
+
+## Result 5 — Unchanged 70-case replication strengthened the result
+
+After the 35-case validation, the method and all thresholds were frozen unchanged. New seeds `4401`–`4410` were prospectively declared across the same seven process sets, yielding **70 independent replication cases**.
+
+**All replication support gates passed.**
+
+### Complete process-set recovery
+
+- counterfactual estimator: **65/70 = 92.9%**;
+- AUC-selected winner: **56/70 = 80.0%**;
+- predecessor stable core: **49/70 = 70.0%**.
+
+### Process-specific classification
+
+Temperature (`40` true, `30` false):
+
+- TP=40, FN=0, TN=28, FP=2;
+- sensitivity **1.000**;
+- specificity **0.933**.
+
+Water (`40` true, `30` false):
+
+- TP=40, FN=0, TN=28, FP=2;
+- sensitivity **1.000**;
+- specificity **0.933**.
+
+Soil (`40` true, `30` false):
+
+- TP=39, FN=1, TN=30, FP=0;
+- sensitivity **0.975**;
+- specificity **1.000**.
+
+### Recovery despite model ambiguity
+
+Canonical and robust ecological selectors chose different fitted candidates in **30/70** replication cases. Counterfactual process membership nevertheless exactly matched the complete generating-process set in **27/30 = 90.0%**.
+
+### Paired outcome against AUC
+
+- both exact: **51**;
+- counterfactual only exact: **14**;
+- AUC only exact: **5**;
+- both wrong: **0**.
+
+This paired result is descriptive; the preregistered replication gate concerned absolute exact-set recovery and process-specific sensitivity/specificity, not a universal superiority test against AUC.
+
+### Failure envelope
+
+Only five of 70 replication cases were not exact:
+
+- `{temperature}`: two cases falsely added water;
+- `{water}`: two cases falsely added temperature;
+- `{temperature,water,soil}`: one case missed soil.
+
+Exact recovery by process set was `{T}` 8/10, `{W}` 8/10, `{S}` 10/10, `{T,W}` 10/10, `{T,S}` 10/10, `{W,S}` 10/10 and `{T,W,S}` 9/10.
+
+Authoritative replication: workflow `34015900603`, artifact `9983940439`, digest `sha256:af72b78f64e5160dbc96a1147769e83a0b21b461d9b7111ca2e663e8f786d3eb`.
+
+## Result 6 — Observation-process separation remains a concrete mechanism result
+
+The earlier observation-confounded suite remains relevant mechanistically. Hidden ecological truth was `{temperature,water}` in all 10 cases while `recording_bias` altered record detectability.
+
+AUC selected `observer_only` in **5/10**, yielding driver-process precision, recall and F1 of **0.0** in those five cases. Product A's ecological/observation separation selected `niche_plus_observer` in **10/10** and recovered `{temperature,water}` in **10/10**.
+
+This result is not the main process-membership performance estimate after the new factorial work, but it shows why record prediction can choose the wrong explanatory object.
+
+## Result 7 — Necessity remains a separate falsification problem
+
+The v2.4–v2.6 process-exclusion certificate addresses a stronger question than process membership: whether a process is required under a frozen evidence contract.
+
+In v2.6:
+
 - false-required processes = **0**;
-- complete process and boundary certificates for all validation taxa;
-- possible-process precision approximately **0.467**;
-- `required_processes` empty in **9/9** validation taxa.
+- possible-process recall = **1.0**;
+- possible-process precision ≈ **0.467**;
+- `required_processes` was empty in **9/9** validation taxa.
 
-Interpretation: exclusion-based inference controlled false necessity, but it did **not** positively isolate a required ecological driver in these panels. This is a safety result.
+Thus v2.6 is a false-necessity safety result, not the source of the 92.9% process-membership recovery result. Counterfactual process membership and exclusion-based necessity must remain distinct estimands.
 
-## Branch B — Complete generating-process sets were recovered, including when models disagreed
+## Result 8 — Fresh empirical plant data still delimit the claim
 
-The positive process-identification result comes from the separate v2.7.1–v2.7.2 consensus-first sequence. The v2.7.2 `stable_process_core` is the intersection of process sets supported by canonical niche recovery and perturbation-robust niche recovery. It is **not** the process-exclusion necessary-process set.
-
-Across 60 unused known-truth cases from six niche families:
-
-- stable process core exactly equalled the complete hidden generating-process set in **55/60 cases (91.7%)**;
-- the AUC-selected candidate had exact driver-process recovery in **50/60 (83.3%)**;
-- canonical ecological selector process sets were exact in **52/60**;
-- robust ecological selector process sets were exact in **54/60**;
-- the two ecological selectors chose different fitted candidates in **22/60** cases;
-- within those model-disagreement cases, the stable process core still exactly matched hidden process truth in **19/22 (86.4%)**;
-- pooled stable-core precision = **0.9889** and recall/F1 = **0.9833**;
-- exact fitted-model consensus = **38/60** and process-set consensus = **50/60**;
-- independent-process numerical differences = **0.0**.
-
-This is the principal concrete result: the full hidden process set was recovered in most unused cases, including most cases in which exact model identity differed.
-
-The 55/60 versus 50/60 AUC comparison is a reporting comparison of the already frozen known-truth outcomes, not a newly preregistered global superiority endpoint. The family pattern is heterogeneous: Product A is strongest under observation confounding but is more conservative than AUC in the omitted-driver family.
-
-## Result 3 — Observation-process misattribution was corrected in a controlled test
-
-The observation-confounded family is the clearest mechanism result.
-
-Hidden ecological truth was `{temperature, water}` in all 10 cases, while `recording_bias` affected where records were observed.
-
-AUC-selected models:
-
-- `niche_plus_observer` in 5/10 → exact ecological process recovery;
-- `observer_only` in **5/10** → driver-process precision, recall and F1 all **0.0**.
-
-Product A ecological selectors:
-
-- canonical selector chose `niche_plus_observer` in **10/10**;
-- robust selector chose `niche_plus_observer` in **10/10**;
-- observation-process information was not promoted as an ecological process;
-- stable process core recovered `{temperature, water}` in **10/10**.
-
-Thus record-prediction selection attributed half of these controlled cases entirely to observation, whereas the ecological/observation separation recovered the generating ecological process set in every case. This is a concrete failure corrected, not merely a warning about prediction versus explanation.
-
-## Result 4 — Selective process identification was tested most directly for soil
-
-The frozen ecological process truth contained `temperature`, `water` and `soil`.
-
-Temperature and water were generating in **all 60 cases** and stable in all 60. They demonstrate retention of invariant truths, not presence-versus-absence discrimination.
-
-Soil truth varied:
-
-- soil truly generating: 10 cases → stable **7**, contested **3**, absent from both ecological selectors **0**;
-- soil non-generating: 50 cases → incorrectly stable **2**, contested **7**, absent from both selectors **41**.
-
-For strict stable/not-stable soil classification, precision was **7/9 = 77.8%**, recall **7/10 = 70.0%**, and specificity **48/50 = 96.0%**. The set-valued result is more informative: none of the true-soil cases vanished completely; the three missed from the stable core remained contested.
-
-All five exact stable-process-set errors were soil errors:
-
-- omitted-driver: three true-soil cases downgraded to contested;
-- soft-threshold: two false-soil cases retained as stable.
-
-This is the current controlled-truth failure envelope. The paper must not imply that many independently varying process identities were already classified at pooled ~0.99 accuracy.
-
-## Worked positive example — model disagreement but correct process recovery
-
-`asymmetric`, seed `3103`:
-
-- canonical fitted candidate: `climate_soil_quadratic`;
-- canonical processes: `{soil, temperature, water}`;
-- robust fitted candidate: `tw_quadratic`;
-- robust processes: `{temperature, water}`;
-- stable process core: `{temperature, water}`;
-- contested: `{soil}`;
-- hidden generating truth: `{temperature, water}`.
-
-The models disagree. The process certificate isolates selector-specific soil as contested and returns the complete generating process set correctly.
-
-## Result 5 — Fresh occurrence data exposed observational equivalence
-
-The final fresh empirical endpoint tested whether ecological selection instantiated an independently better empirical solution than an AUC-selected comparator behind the same prospective barriers.
-
-The formal endpoint was:
+The frozen v2.8.4 empirical endpoint remains unchanged:
 
 - prediction adequacy passed;
-- ecological nondomination passed in 3/3 parts;
-- strict ecological improvement occurred in **0/3** parts;
-- `empirical_confirmation_not_supported`;
-- separate Product-A decision = `not_promoted`.
+- ecological nondomination: 3/3 parts;
+- strict ecological improvement: **0/3**;
+- terminal decision: `empirical_confirmation_not_supported`;
+- Product A: `not_promoted`.
 
-Full-denominator artifact audit showed that ecological and AUC roles selected the same candidate and predictor set in **108/108** matched taxon × accessible-area × seed cells. All 108 selected `all|logit_l2_C0.1_degree1_rs0`.
+Ecological and AUC roles selected the same candidate and predictor set in **108/108** matched taxon × accessible-area × seed cells. Real occurrence data also lack a literal generating-process answer key.
 
-This does not show that AUC identifies ecological truth. It shows that the fresh plant endpoint provided no realized model contrast on which to test process-level empirical advantage.
+Therefore the new counterfactual result is a controlled-truth identification result. It does not retroactively turn v2.8.4 into empirical support.
 
 ## Final synthesis
 
-The concrete contribution is no longer only a warning that model selection can mislead:
+The final Product-A sequence is now:
 
-> **Under unused controlled truth, Product A recovered the complete generating-process set in 55/60 cases versus 50/60 for the AUC-selected candidate, retained exact process truth in 19/22 cases despite fitted-model disagreement, and corrected an observation-only AUC misattribution in 5/10 confounded cases.**
+`predictive winner`  
+→ falsified as ecological identifier  
+`agreement among good models`  
+→ falsified as necessity and then falsified under independently varying process truth  
+`process-specific counterfactual ecological-recovery loss`  
+→ **30/35 fresh validation exact, then 65/70 unchanged independent replication exact**.
 
-The method therefore separates four questions:
+The method separates four objects:
 
-1. **predictive adequacy** — can a model recover withheld observations?
-2. **process-set recovery** — which ecological process information survives across defensible ecological selectors?
-3. **process necessity** — does an adequate explanation survive exclusion of declared process information?
-4. **identification failure** — which claims remain contested or unresolved when evidence is insufficient or empirical selectors collapse?
+1. **predictive adequacy** — can candidate models recover withheld records?
+2. **process membership** — does excluding every declared representation of a process materially reduce attainable ecological recovery?
+3. **process necessity** — does any adequate explanation survive process exclusion under the stronger necessity contract?
+4. **unresolved / empirical non-identification** — when evidence, representation closure or realized selector contrast is insufficient, which claims must remain open?
 
-## What the paper does not claim
+## Claim boundary
 
-- It does not claim causal, physiological or fundamental-niche necessity.
-- It does not claim a preregistered universal superiority of Product A over AUC from the 55/60 versus 50/60 reporting comparison.
-- It does not claim that AUC is universally optimal.
-- It does not claim that v2.7.2 P=0.9889 / R=0.9833 is falsification-first necessity-estimator performance.
-- It does not claim broad selective validation across many independently varying process identities: soil was the only process whose truth presence varied in the frozen v2.7.2 suite.
-- It does not claim that the fresh empirical endpoint validated true generating processes.
-- It does not claim a complete real-world proxy/composite closure.
-- It does not reopen Product A or unblock Product B.
+The supported headline is:
 
-## Nature Ecology & Evolution framing
+> **Counterfactual ecological-recovery loss identified complete generating-process sets in 65/70 independent replication cases, with sensitivity 0.975–1.000 and specificity 0.933–1.000 across independently varying temperature, water and soil.**
 
-The Nature-level claim should lead with the positive controlled-truth result:
+The paper does **not** claim:
 
-**Ecological process information can be recovered beyond exact model identity, and separating ecological from observation processes can prevent a predictive winner from erasing the true environmental drivers.**
+- physiological or causal necessity;
+- recovery of a fundamental niche;
+- complete closure over every real-world proxy/composite representation;
+- direct generating-process validation in the fresh plant occurrence data;
+- universal superiority over AUC from a post hoc paired comparison;
+- that the earlier v2.7.2 `55/60` result is the final estimator's validation.
 
-Necessity, contested alternatives and empirical non-identification then define the boundary of that result rather than replacing it with a generic problem statement.
-
-## Manuscript closure rule
-
-This file is the authoritative scientific logic for submission reporting. Older development notes must not replace exact process-set recovery with a pooled-score-only story, merge the v2.6 exclusion estimand with the v2.7.2 process-recovery estimand, treat the descriptive known-truth AUC comparison as a new preregistered superiority endpoint, or reinterpret the frozen v2.8.4 non-support/non-promotion endpoint.
+The old `55/60` stable-core result is now predecessor evidence. The primary positive result is the prospectively frozen counterfactual validation and unchanged 70-case replication.
