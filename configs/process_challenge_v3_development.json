@@ -9,8 +9,17 @@
   "n_cases": 60,
   "relative_noninferiority_margin": 0.02,
   "relative_sem_multiplier": 1.0,
+  "shared_carrier_attribution": {
+    "minimum_univariate_cv_r2": 0.25,
+    "minimum_abs_spearman": 0.50,
+    "proxy_audit_n_splits": 5,
+    "proxy_audit_degree": 2,
+    "threshold_status": "post_outcome_development_heuristic_not_prospectively_validated"
+  },
   "truth_may_be_opened_after_each_case_fit": true,
   "fit_must_use_model_pool_occurrences_only": true,
+  "proxy_audit_must_use_predictors_only": true,
+  "proxy_audit_must_not_modify_registry": true,
   "answer_check_occurrences_must_not_affect_fit_or_process_status": true,
   "successor_v2_seeds_are_not_reused": true,
   "future_prospective_validation_must_use_new_unused_seeds": true
