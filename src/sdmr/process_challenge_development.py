@@ -1,8 +1,11 @@
-"""Development-only known-truth evaluator for the process challenge learner.
+"""Development-only known-truth evaluator for process challenge v3/v3.1.
 
 This module is explicitly not a prospective performance test. It uses fresh
-post-outcome development seeds to diagnose whether the v3 estimands recover
-true generating processes better than the closed v2 necessity-only learner.
+post-outcome development seeds to diagnose both the v3 challenge signal and the
+v3.1 shared-carrier attribution layer. Model fitting remains restricted to the
+model-pool occurrences; shared-carrier auditing uses predictor/background rows
+only. Generating-process truth is used only to score the resulting development
+outputs.
 """
 from __future__ import annotations
 
@@ -19,6 +22,7 @@ from .model import ModelSpec
 from .process_challenge_learner import CONTRIBUTORY, REQUIRED, fit_process_challenge_learner
 from .prospective_identification_validation import _selection_frames
 from .sealed_occurrence_contract import freeze_occurrence_answer_check_split
+from .shared_carrier_attribution import CONTESTED_SHARED, fit_shared_carrier_attribution
 from .validation import make_spatial_partition
 
 
@@ -43,6 +47,11 @@ def _load() -> tuple[dict, dict]:
         raise ValueError("v3 development seeds changed")
     if int(dev.get("n_cases", -1)) != len(KNOWN_TRUTH_FAMILIES) * len(seeds):
         raise ValueError("v3 development case denominator changed")
+    attribution = dev.get("shared_carrier_attribution", {})
+    if attribution.get("threshold_status") != (
+        "post_outcome_development_heuristic_not_prospectively_validated"
+    ):
+        raise ValueError("v3.1 attribution thresholds lost development-only status")
     return dev, base
 
 
@@ -72,26 +81,61 @@ def _truth_for_family(family: str) -> set[str]:
 
 def _metrics(frame: pd.DataFrame) -> dict[str, float | int]:
     expected = frame["expected_true_process"].astype(bool).to_numpy()
-    detected = frame["process_detected"].astype(bool).to_numpy()
-    required = frame["status"].astype(str).eq(REQUIRED).to_numpy()
+    challenge_detected = (
+        frame["challenge_signal_detected"].astype(bool).to_numpy()
+        if "challenge_signal_detected" in frame.columns
+        else frame["process_detected"].astype(bool).to_numpy()
+    )
+    unique_detected = (
+        frame["unique_process_evidence"].astype(bool).to_numpy()
+        if "unique_process_evidence" in frame.columns
+        else challenge_detected
+    )
+    attribution_status = (
+        frame["attribution_status"].astype(str)
+        if "attribution_status" in frame.columns
+        else frame["status"].astype(str)
+    )
+    required = attribution_status.eq(REQUIRED).to_numpy()
+    contested = attribution_status.eq(CONTESTED_SHARED).to_numpy()
+
     true_n = int(expected.sum())
     false_n = int((~expected).sum())
-    tp = int(np.sum(expected & detected))
-    fp = int(np.sum((~expected) & detected))
+    challenge_tp = int(np.sum(expected & challenge_detected))
+    challenge_fp = int(np.sum((~expected) & challenge_detected))
+    unique_tp = int(np.sum(expected & unique_detected))
+    unique_fp = int(np.sum((~expected) & unique_detected))
     false_required = int(np.sum((~expected) & required))
+    true_contested = int(np.sum(expected & contested))
+    false_contested = int(np.sum((~expected) & contested))
+
     return {
-        "true_process_detection_recall": float(tp / true_n) if true_n else float("nan"),
-        "false_process_detection_rate": float(fp / false_n) if false_n else float("nan"),
+        # Legacy v3 names retained for direct comparison with the first
+        # development run. They refer to the challenge signal, not v3.1 unique
+        # attribution.
+        "true_process_detection_recall": float(challenge_tp / true_n) if true_n else float("nan"),
+        "false_process_detection_rate": float(challenge_fp / false_n) if false_n else float("nan"),
+        "true_process_challenge_recall": float(challenge_tp / true_n) if true_n else float("nan"),
+        "false_process_challenge_rate": float(challenge_fp / false_n) if false_n else float("nan"),
+        "true_process_unique_attribution_recall": float(unique_tp / true_n) if true_n else float("nan"),
+        "false_process_unique_attribution_rate": float(unique_fp / false_n) if false_n else float("nan"),
         "false_required_rate": float(false_required / false_n) if false_n else float("nan"),
+        "true_process_contested_rate": float(true_contested / true_n) if true_n else float("nan"),
+        "false_process_contested_rate": float(false_contested / false_n) if false_n else float("nan"),
         "n_true_processes": true_n,
         "n_false_processes": false_n,
-        "n_detected_true_processes": tp,
-        "n_detected_false_processes": fp,
+        "n_challenge_detected_true_processes": challenge_tp,
+        "n_challenge_detected_false_processes": challenge_fp,
+        "n_unique_true_processes": unique_tp,
+        "n_unique_false_processes": unique_fp,
         "n_false_required": false_required,
-        "n_replaceable": int(frame["status"].astype(str).eq("replaceable_under_evidence_contract").sum()),
-        "n_contributory": int(frame["status"].astype(str).eq(CONTRIBUTORY).sum()),
-        "n_required": int(frame["status"].astype(str).eq(REQUIRED).sum()),
-        "n_unresolved": int(frame["status"].astype(str).eq("unresolved").sum()),
+        "n_true_contested": true_contested,
+        "n_false_contested": false_contested,
+        "n_replaceable": int(attribution_status.eq("replaceable_under_evidence_contract").sum()),
+        "n_contributory": int(attribution_status.eq(CONTRIBUTORY).sum()),
+        "n_required": int(attribution_status.eq(REQUIRED).sum()),
+        "n_contested_shared": int(contested.sum()),
+        "n_unresolved": int(attribution_status.eq("unresolved").sum()),
     }
 
 
@@ -100,6 +144,7 @@ def _fit_family(family: str, dev: dict, base: dict) -> tuple[pd.DataFrame, pd.Da
         raise ValueError(f"family is outside v3 development denominator: {family}")
     sim_cfg = base["simulation"]
     learner_cfg = base["learner"]
+    attr_cfg = dev["shared_carrier_attribution"]
     ecological_predictors = tuple(str(x) for x in base["ecological_predictors"])
     observation_predictors = tuple(str(x) for x in base["observation_predictors"])
     process_universe = tuple(str(x) for x in base["process_universe"])
@@ -160,7 +205,21 @@ def _fit_family(family: str, dev: dict, base: dict) -> tuple[pd.DataFrame, pd.Da
             occurrence_split=split,
             occurrence_id_col="occurrence_id",
         )
-        p = fit.process_summary.copy()
+
+        # v3.1 attribution uses predictor/background rows only. It receives no
+        # occurrence labels, suitability values, answer-check rows or truth.
+        attribution = fit_shared_carrier_attribution(
+            fit,
+            background.loc[:, list(ecological_predictors)],
+            registry,
+            groups=inner.background_blocks,
+            n_splits=int(attr_cfg["proxy_audit_n_splits"]),
+            degree=int(attr_cfg["proxy_audit_degree"]),
+            minimum_univariate_cv_r2=float(attr_cfg["minimum_univariate_cv_r2"]),
+            minimum_abs_spearman=float(attr_cfg["minimum_abs_spearman"]),
+        )
+
+        p = attribution.process_summary.copy()
         p.insert(0, "seed", seed)
         p.insert(0, "family", family)
         p["expected_true_process"] = p["process"].astype(str).isin(truth)
@@ -170,16 +229,19 @@ def _fit_family(family: str, dev: dict, base: dict) -> tuple[pd.DataFrame, pd.Da
                 "family": family,
                 "seed": seed,
                 "selection_receipt": fit.selection_receipt,
+                "attribution_receipt": attribution.selection_receipt,
                 "prediction_model_label": fit.prediction_model_label,
                 "n_model_pool_occurrences": len(model_presence),
                 "n_answer_check_occurrences": len(split.answer_check_ids),
                 "answer_check_used_in_fit": False,
+                "proxy_audit_used_outcome": False,
+                "proxy_audit_modified_registry": False,
             }
         )
     return pd.concat(process_rows, ignore_index=True), pd.DataFrame(case_rows)
 
 
-def _write_bundle(process: pd.DataFrame, cases: pd.DataFrame, output_dir: str | Path, *, n_cases: int) -> dict[str, object]:
+def _write_bundle(process: pd.DataFrame, cases: pd.DataFrame, output_dir: str | Path, *, n_cases: int, dev: dict) -> dict[str, object]:
     overall = _metrics(process)
     family_rows = []
     for family, group in process.groupby("family", sort=True):
@@ -187,12 +249,16 @@ def _write_bundle(process: pd.DataFrame, cases: pd.DataFrame, output_dir: str | 
         row.update(_metrics(group))
         family_rows.append(row)
     family_metrics = pd.DataFrame(family_rows)
+    attr_cfg = dev["shared_carrier_attribution"]
     decision = {
-        "purpose": "process_challenge_v3_development_decision",
+        "purpose": "process_challenge_v31_development_decision",
         "development_only": True,
         "eligible_for_prospective_performance_claim": False,
         "n_cases": int(n_cases),
-        "relative_noninferiority_margin": 0.02,
+        "relative_noninferiority_margin": float(dev["relative_noninferiority_margin"]),
+        "shared_carrier_minimum_univariate_cv_r2": float(attr_cfg["minimum_univariate_cv_r2"]),
+        "shared_carrier_minimum_abs_spearman": float(attr_cfg["minimum_abs_spearman"]),
+        "shared_carrier_threshold_status": str(attr_cfg["threshold_status"]),
         "overall_metrics": overall,
         "product_a_reopened": False,
     }
@@ -208,7 +274,7 @@ def _write_bundle(process: pd.DataFrame, cases: pd.DataFrame, output_dir: str | 
 def run_family(family: str, output_dir: str | Path) -> dict[str, object]:
     dev, base = _load()
     process, cases = _fit_family(family, dev, base)
-    decision = _write_bundle(process, cases, output_dir, n_cases=len(cases))
+    decision = _write_bundle(process, cases, output_dir, n_cases=len(cases), dev=dev)
     decision["family"] = family
     (Path(output_dir) / "development_decision.json").write_text(json.dumps(decision, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return decision
@@ -229,7 +295,11 @@ def aggregate(input_dir: str | Path, output_dir: str | Path) -> dict[str, object
         raise ValueError("development aggregate denominator changed")
     if cases["answer_check_used_in_fit"].astype(bool).any():
         raise ValueError("sealed answer-check leaked into development fit")
-    return _write_bundle(process, cases, output_dir, n_cases=int(dev["n_cases"]))
+    if cases["proxy_audit_used_outcome"].astype(bool).any():
+        raise ValueError("outcome leaked into shared-carrier proxy audit")
+    if cases["proxy_audit_modified_registry"].astype(bool).any():
+        raise ValueError("shared-carrier proxy audit modified the process registry")
+    return _write_bundle(process, cases, output_dir, n_cases=int(dev["n_cases"]), dev=dev)
 
 
 def run(output_dir: str | Path) -> dict[str, object]:
@@ -245,6 +315,7 @@ def run(output_dir: str | Path) -> dict[str, object]:
         pd.concat(case_parts, ignore_index=True),
         output_dir,
         n_cases=int(dev["n_cases"]),
+        dev=dev,
     )
 
 
