@@ -39,6 +39,15 @@ from .niche_recovery_procedure import (
     select_recovery_procedure,
 )
 from .predictor_process_registry import PredictorProcessEntry, PredictorProcessRegistry
+from .process_challenge_learner import (
+    CONTRIBUTORY,
+    REPLACEABLE,
+    REQUIRED,
+    UNRESOLVED,
+    ProcessChallengeFit,
+    fit_process_challenge_learner,
+)
+from .process_proxy_audit import ProcessProxyAudit, audit_process_proxy_reconstructability
 from .promotion import ProductAPromotionAssessment, ProductAPromotionCriteria, assess_product_a_promotion
 from .protocol import (
     ProductAProtocolValidationResult,
@@ -47,6 +56,12 @@ from .protocol import (
     validate_matched_protocol_specifications,
 )
 from .protocol_stability import RepeatedProductAProtocolResult, benchmark_repeated_product_a_protocols
+from .shared_carrier_attribution import (
+    CONTESTED_SHARED,
+    SharedCarrierAttribution,
+    attribute_shared_carrier_process_summary,
+    fit_shared_carrier_attribution,
+)
 from .specification import (
     DataSpecificationBenchmarkResult,
     benchmark_matched_data_specifications,
@@ -78,6 +93,8 @@ from .tuning import (
 )
 
 __all__ = [
+    "CONTESTED_SHARED",
+    "CONTRIBUTORY",
     "CandidateUniverse",
     "CrossTaxonProcessEvidence",
     "DataSpecificationBenchmarkResult",
@@ -97,18 +114,24 @@ __all__ = [
     "PredictorProcessEntry",
     "PredictorProcessRegistry",
     "PreparedEcologicalIdentificationStudy",
+    "ProcessChallengeFit",
     "ProcessCoreSplitResult",
+    "ProcessProxyAudit",
     "ProcessRegistryReviewRequired",
     "ProductAPromotionAssessment",
     "ProductAPromotionCriteria",
     "ProductAProtocolValidationResult",
+    "REPLACEABLE",
+    "REQUIRED",
     "RecoveryProcedure",
     "RecoveryProcedureBenchmark",
     "RepeatedProcessCoreResult",
     "RepeatedProductAProtocolResult",
+    "SharedCarrierAttribution",
     "SpeciesBenchmarkResult",
     "SpeciesMethodBenchmarkResult",
     "TaxonSplitBenchmarkResult",
+    "UNRESOLVED",
     "UniverseMethodValidationResult",
     "aggregate_cross_taxon_process_evidence",
     "aggregate_predictor_evidence",
@@ -118,6 +141,8 @@ __all__ = [
     "aggregate_process_evidence",
     "annotate_predictor_metadata",
     "assess_product_a_promotion",
+    "attribute_shared_carrier_process_summary",
+    "audit_process_proxy_reconstructability",
     "benchmark_driver_corpus_from_strategy",
     "benchmark_empirical_product_a_v2",
     "benchmark_holdout_sensitivity",
@@ -147,6 +172,8 @@ __all__ = [
     "drop_one_importance",
     "export_prepared_ecological_identification_study",
     "fit_ecological_identification_learner",
+    "fit_process_challenge_learner",
+    "fit_shared_carrier_attribution",
     "freeze_candidate_methods",
     "load_prepared_ecological_identification_study",
     "occurrence_feature_fingerprint",
