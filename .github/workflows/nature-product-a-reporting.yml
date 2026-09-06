@@ -98,6 +98,7 @@ jobs:
           test -s nature_reporting/nature_source_data_fig4_parts.csv
           test -s nature_reporting/nature_v272_exact_process_recovery.csv
           test -s nature_reporting/nature_v272_process_identification_summary.csv
+          test -s nature_reporting/nature_v272_selector_process_comparison.csv
           test -s nature_reporting/nature_v272_worked_process_examples.csv
           python - <<'PY'
           import pandas as pd
@@ -107,6 +108,7 @@ jobs:
           parts = pd.read_csv('nature_reporting/nature_source_data_fig4_parts.csv')
           exact = pd.read_csv('nature_reporting/nature_v272_exact_process_recovery.csv')
           proc = pd.read_csv('nature_reporting/nature_v272_process_identification_summary.csv')
+          comp = pd.read_csv('nature_reporting/nature_v272_selector_process_comparison.csv')
           assert len(f2) == 3
           assert len(f3) == 6
           assert len(f4) == 108
@@ -122,6 +124,12 @@ jobs:
           assert int(all_row['stable_exact_n']) == 55
           assert int(all_row['model_disagreement_n']) == 22
           assert int(all_row['stable_exact_among_model_disagreement_n']) == 19
+          comp_all = comp.loc[comp['scenario'] == 'ALL'].iloc[0]
+          assert int(comp_all['stable_core_exact_n']) == 55
+          assert int(comp_all['auc_process_exact_n']) == 50
+          obs = comp.loc[comp['scenario'] == 'observation_confounded'].iloc[0]
+          assert int(obs['stable_core_exact_n']) == 10
+          assert int(obs['auc_process_exact_n']) == 5
           soil = proc.loc[proc['process'] == 'soil'].iloc[0]
           assert int(soil['truth_present_n']) == 10
           assert int(soil['stable_true_positive_n']) == 7
@@ -132,6 +140,7 @@ jobs:
           print(f2.to_string(index=False))
           print(f3.to_string(index=False))
           print(all_row.to_string())
+          print(comp.to_string(index=False))
           print(proc.to_string(index=False))
           print(parts.to_string(index=False))
           PY
