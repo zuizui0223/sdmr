@@ -1,60 +1,88 @@
 # Product A — Nature Ecology & Evolution submission track
 
-Status: **submission-production plan; Product-A scientific hard stop remains in force**.
+Status: **submission-production plan; counterfactual process-identification science complete**.
 
 ## First Nature-family target
 
 **Nature Ecology & Evolution — Article**
 
-The manuscript is framed as an ecological-inference paper rather than a claim that SDMR is a universally better tuner. The scientific endpoint remains frozen.
+Current title:
+
+**Counterfactual niche recovery identifies environmental processes beyond model selection**
 
 ## Nature-level central claim
 
-> **Predictive success does not identify ecological necessity. Ecological identification must separate process necessity, process-information stability and unresolved evidence rather than infer them from one winning model.**
+> **Among prediction-adequate occurrence-only SDMs, environmental-process membership can be identified by the ecological niche recovery that becomes unattainable when every declared representation of that process is excluded.**
 
-`necessity` is operationally scoped to the declared representation/evidence registry; it is not complete causal or physiological necessity.
+Under independently varying temperature, water and soil truth, the frozen estimator recovered complete generating-process sets in **30/35 fresh validation cases** and **65/70 unchanged independent replication cases**.
 
-Product A supplies five linked but non-identical results:
+This is process membership under a declared representation registry, not physiological causation, fundamental-niche necessity or complete real-world proxy closure.
 
-1. prediction transfer and stable response surfaces can coexist with wrong process attribution;
-2. filtering to ecologically better models can create false necessary-process claims;
-3. **exclusion-based necessity:** process-information knockout with explicit unresolved states can control false-required claims, but the safe identified set can remain broad;
-4. **consensus-first process stability:** a separate certificate can recover stable process information even when exact fitted-model identity is not stable;
-5. fresh empirical evidence shows another identification limit: ecological and AUC selection collapsed to the same fitted candidate in all 108 matched cells.
+## Evidence spine
 
-## Two positive controlled-truth branches
+1. **Why model selection is insufficient.** Prediction and stable response surfaces can coexist with incorrect process attribution; ecological Pareto pruning can create false necessity.
+2. **Stronger falsification.** With all seven non-empty temperature/water/soil process combinations, the predecessor stable-process intersection recovered only **22/35** complete process sets, below its frozen support threshold.
+3. **Counterfactual estimator.** For each process, compare best attainable held-out Schoener-D niche overlap among prediction-adequate process-containing models versus models excluding all declared representations of that process, across five frozen perturbations.
+4. **Fresh validation.** Thresholds calibrated only on 4201–4205 were frozen before 4301–4305; exact recovery **30/35**, with every T/W/S sensitivity/specificity gate ≥0.80.
+5. **Independent replication.** Method and thresholds unchanged on 4401–4410: exact recovery **65/70**, versus AUC **56/70** and predecessor **49/70**; process truth exact **27/30** when ecological fitted models disagreed.
+6. **Necessity remains separate.** The v2.6 exclusion certificate controls false-required claims but remains broad; it is a stronger/different estimand.
+7. **Empirical boundary remains unfavorable.** v2.8.4 strict improvement **0/3**, `empirical_confirmation_not_supported`, `not_promoted`, and ecological/AUC selected the same model in **108/108** matched cells.
 
-### Exclusion-based necessity — v2.4 to v2.6
+## Main positive numerical endpoint
 
-Question: does an adequate explanation survive when the declared information assigned to a process is removed?
+Independent unchanged replication (`n=70`):
 
-Frozen v2.6 result:
+- complete process-set exact recovery: **65/70 = 92.9%**;
+- temperature: sensitivity **1.000**, specificity **0.933**;
+- water: sensitivity **1.000**, specificity **0.933**;
+- soil: sensitivity **0.975**, specificity **1.000**;
+- ecological fitted-model disagreement: 30/70; exact process membership **27/30 = 90.0%**.
 
-- complete process certificates: 9/9 validation taxa;
-- complete boundary certificates: 9/9;
-- false-required processes: 0;
-- possible-process recall: 1.0;
-- possible-process precision: approximately 0.467;
-- wider calibrated intervals retained rather than post-hoc pruning.
+Paired descriptive comparison against AUC:
 
-Interpretation: false necessity can be controlled, but evidence may only identify a broad set. `unresolved/unavailable` is a legitimate outcome.
+- both exact 51;
+- counterfactual only exact 14;
+- AUC only exact 5;
+- both wrong 0.
 
-### Consensus-first process stability — v2.7.2
+Do not convert the paired count into a post-outcome universal-superiority endpoint.
 
-Question: do canonical ecological recovery and perturbation-robust ecological recovery support the same process information even when they choose different fitted models?
+## Counterfactual score and threshold governance
 
-The `stable_process_core` is the intersection of those two selector-specific process sets. It is **not** the process-exclusion necessary set.
+Prediction adequacy remains a gate: mean presence-background rank ≥0.51 and mean−SEM ≥0.50.
 
-Across 60 unused known-truth cases from six families:
+For process `p`, calculate across each frozen perturbation:
 
-- stable-core precision = 0.9889;
-- recall/F1 = 0.9833;
-- process-set consensus = 50/60;
-- exact-model consensus = 38/60;
-- independent-process audited difference = 0.0;
-- observation correction = 10/10 in the confounded family and 0/50 elsewhere.
+`(best Schoener D among adequate p-containing candidates − best Schoener D among adequate p-excluded candidates) / D range among adequate candidates`.
 
-Interpretation: process information can be stable and accurate under controlled truth even without unique model identity. These precision/recall values must not be attributed to the exclusion-based necessity estimator.
+Process aliases are collapsed before exclusion; for example, removing temperature removes both `temperature` and `temp_proxy` in the declared registry.
+
+Discovery-only frozen thresholds:
+
+- temperature **0.2653964368**;
+- water **0.0671670999**;
+- soil **0.3342415841**.
+
+These values were frozen before fresh validation and remained unchanged in the 70-case replication.
+
+## Relationship to predecessor Product-A evidence
+
+### v2.3 — false necessity
+
+Ecological model-set sharpening can remove viable alternatives and create a false necessary-process core.
+
+### v2.6 — exclusion-based necessity safety
+
+- false-required = 0;
+- possible-process recall = 1.0;
+- possible-process precision ≈0.467;
+- `required_processes` empty in 9/9 validation taxa.
+
+This protects against unsupported necessity but is not the process-membership estimator.
+
+### v2.7.2 — predecessor proof of concept
+
+The old stable core recovered 55/60 process sets in the original suite and corrected observation-process misattribution. But temperature and water were invariant true processes, and the stronger factorial test later reduced the predecessor to 22/35. Use v2.7.2 as developmental/mechanistic evidence, not the final performance headline.
 
 ## Fresh empirical observational equivalence
 
@@ -64,76 +92,62 @@ The frozen v2.8.4 endpoint remains:
 - ecological nondomination 3/3;
 - strict ecological improvement 0/3;
 - `empirical_confirmation_not_supported`;
-- `not_promoted`.
+- `not_promoted`;
+- candidate and selected-predictor identity ecological vs AUC = **108/108**.
 
-Reporting-only audit of the completed denominator found:
+Thus real-data process truth is not directly established in this manuscript. The new controlled-truth success must not be used to rewrite this result.
 
-- candidate identity ecological vs AUC = 108/108;
-- selected-predictor identity = 108/108;
-- every matched cell used `all|logit_l2_C0.1_degree1_rs0`.
+## Prior-art / novelty boundary
 
-Thus empirical superiority was tested and not supported, while the corpus did not instantiate a selector-disagreement contrast from which process-level empirical advantage could be learned.
+Do not claim novelty for prediction versus explanation, discrimination versus functional accuracy, spatial CV/tuning, collinearity/variable-importance instability, Rashomon model uncertainty or standard presence-only sampling-bias correction.
 
-## Prior-art boundary
+Defensible novelty now centers on:
 
-Do not claim novelty for:
-
-- prediction versus explanation;
-- discrimination versus functional accuracy;
-- spatial cross-validation or tuning;
-- collinearity and variable-importance instability;
-- Rashomon/model-set uncertainty;
-- presence-only sampling-bias correction.
-
-Novelty starts at the stronger ecological-identification sequence:
-
-1. ecological-recovery Pareto sharpening itself can create false necessity;
-2. process necessity is made falsifiable by prospective process-information exclusion rather than agreement among selected models;
-3. insufficient evidence is preserved as unresolved/unavailable;
-4. process stability is evaluated separately from necessity, and can exceed exact-model stability;
-5. the empirical endpoint preserves observational equivalence and non-promotion without favorable-data rescue.
+1. showing prospectively that ecologically better model selection and even a process-intersection predecessor can fail stronger process truth;
+2. defining an operational **process-specific counterfactual ecological-recovery loss** over an adequate model class rather than reading process identity from one selected model;
+3. excluding all declared representations/aliases of a process before measuring lost niche recovery;
+4. validating process membership prospectively on unused truth and then independently replicating the unchanged estimator;
+5. preserving process membership, process necessity and unresolved empirical evidence as distinct inferential objects.
 
 ## Four main figures
 
-1. **Prediction is not identification** — winner selection versus protected ecological-identification questions.
-2. **Agreement is not necessity** — v2.3 false certainty and the exclusion-based v2.4–v2.6 replacement; v2.6 quantitative safety/breadth goes to main or Extended Data as space permits.
-3. **Process stability without model uniqueness** — v2.7.2 six-family consensus-first stable-core recovery, 50/60 versus 38/60 consensus and exact deterministic parity.
-4. **Fresh observational equivalence** — 108/108 selector identity plus formal strict-improvement 0/3 and non-promotion.
+1. **Prediction is not identification** — information barriers and inferential objects.
+2. **Selected good models can create false necessity** — v2.3 and necessity-safety response.
+3. **Counterfactual process recovery** — 30/35 validation, 65/70 replication, T/W/S sensitivity/specificity and all seven process combinations.
+4. **Fresh empirical non-identification** — 108/108 selector identity plus strict improvement 0/3.
 
 ## Editorial stress test
 
-A Nature Ecology & Evolution editor should be able to see four points immediately:
+A Nature Ecology & Evolution editor should see immediately:
 
-1. **Advance:** the work changes the inferential standard for ecological interpretation, not merely software performance.
-2. **Evidence:** false necessity, safe exclusion, stable process information and empirical selector collapse are prospectively protected rather than selected retrospectively.
-3. **Breadth:** the logic applies to observational ecological models with correlated or substitutable representations, while empirical claims remain bounded to the studied plants.
-4. **Accessibility:** the paper can be understood through prediction, alternative explanations, necessity, stability and unresolved evidence without repository/version knowledge.
+1. **Concrete method:** a defined process-level counterfactual statistic, not only an argument about interpretation.
+2. **Prospective falsification:** the predecessor fails 22/35 under stronger truth and is not rescued.
+3. **Prospective validation and replication:** 30/35 fresh and 65/70 unchanged independent replication with process-specific operating characteristics.
+4. **Ecological meaning:** the estimator asks what niche-recovery capacity disappears when a process information channel is removed.
+5. **Claim discipline:** real plant process truth remains unestablished; empirical v2.8.4 remains non-supported.
 
 ## Journal ladder
 
 1. **Nature Ecology & Evolution — Article**.
-2. **Nature Communications** if the first decision is breadth/editorial priority rather than validity.
-3. **Methods in Ecology and Evolution** as the strongest specialist-method fallback.
-
-No new Product-A evidence is authorized between submissions.
+2. **Nature Communications** if rejected mainly for empirical breadth/priority.
+3. **Methods in Ecology and Evolution** as strongest specialist-method fallback.
 
 ## Submission state
 
-Completed within the repository:
+Scientifically complete in the repository:
 
-- Nature Article draft under the corrected two-estimand logic;
-- cover letter;
+- final counterfactual result document and claim spine;
+- Nature Article and cover letter;
 - Online Methods;
-- four reproducible main figures and source data;
-- Extended Data plan and key source-data tables;
-- literature/novelty boundary;
-- Reporting Summary and software-checklist drafts;
+- 35-case validation and 70-case replication contracts/artifacts;
+- four-main-figure workflow and committed source data;
+- Extended Data plan;
+- Reporting Summary and software checklist;
 - Data/Code Availability and `CITATION.cff`;
-- fail-closed manuscript QA;
-- standard CI, Nature reporting workflow and real-API diagnostic previously green before the current wording correction.
+- fail-closed manuscript QA.
 
-Remaining external inputs are final author/order/affiliations, CRediT/funding/competing interests/co-author approval and an immutable archive DOI/release.
+Remaining external inputs after final CI/visual QA: final author/order/affiliations/corresponding author, CRediT/funding/competing interests/co-author approval and immutable archive DOI/release.
 
 ## Stop rule
 
-Do not create v2.9, change the empirical denominator, search for a taxon panel that forces ecological/AUC divergence, or retrofit a proxy closure using already opened empirical outcomes. The Nature submission must stand on the frozen prospective evidence.
+The new counterfactual estimator has already undergone discovery, fresh validation and unchanged independent replication. **Do not retune it, add favorable seeds/process subsets or modify thresholds/candidate library/perturbations.** No new Product-A scientific endpoint is needed for this manuscript unless a future reviewer explicitly requires a genuinely new prospectively contracted experiment.
