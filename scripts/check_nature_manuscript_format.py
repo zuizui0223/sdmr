@@ -1,7 +1,7 @@
 """Fail-closed reporting QA for the Nature Product-A manuscript.
 
-This utility checks manuscript presentation only. It does not read scientific
-artifacts, rerun Product A, or alter any endpoint.
+This utility checks manuscript presentation and required frozen reporting tokens.
+It does not fit models, recalibrate thresholds or alter a scientific endpoint.
 """
 
 from __future__ import annotations
@@ -10,15 +10,14 @@ import argparse
 import re
 from pathlib import Path
 
-
 ABSTRACT_LIMIT = 200
 MAIN_TEXT_LIMIT = 3500
 REQUIRED_RESULT_HEADINGS = (
-    "Prediction and stable surfaces did not identify process truth",
-    "Model-set sharpening could create false necessity",
-    "Falsification-first exclusion controlled false necessity but remained broad",
-    "Process information remained stable without unique model identity",
-    "Fresh occurrence data revealed observational equivalence",
+    "Prediction and model agreement failed as process identifiers",
+    "Factorial truth falsified the stable-process intersection",
+    "Counterfactual ecological recovery identified process membership",
+    "Independent replication recovered 65 of 70 complete process sets",
+    "Fresh occurrence data remained empirically non-identifying",
 )
 PLACEHOLDER_PATTERNS = (
     r"\bTODO\b",
@@ -35,7 +34,8 @@ FORBIDDEN_CLAIM_PATTERNS = (
     r"fundamental niche (?:was|is) recovered",
     r"causal physiological driver (?:was|is) identified",
     r"v2\.8\.4.*not[_ -]?tested",
-    r"falsification-first[^\n]{0,160}(?:0\.9889|0\.9833)",
+    r"fresh plant[^\n]{0,160}(?:validated|confirmed) (?:the )?(?:generating|true) process",
+    r"counterfactual[^\n]{0,180}(?:causal|physiological) necessity",
 )
 
 
@@ -47,9 +47,7 @@ def words(text: str) -> list[str]:
 
 
 def strip_markdown_headings(text: str) -> str:
-    return "\n".join(
-        line for line in text.splitlines() if not line.lstrip().startswith("#")
-    )
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
 
 
 def parse_article(text: str) -> tuple[str, str]:
@@ -60,19 +58,14 @@ def parse_article(text: str) -> tuple[str, str]:
     abstract, sep, remainder = after.partition("\n\n")
     if not sep or not abstract.strip():
         raise ValueError("abstract must be one non-empty paragraph immediately after heading")
-
-    reference_markers = (
-        "\n## References",
-        "\n## Nature-format production notes",
-    )
+    reference_markers = ("\n## References", "\n## Nature-format production notes")
     main = remainder
     cut = len(main)
     for ref_marker in reference_markers:
         idx = main.find(ref_marker)
         if idx >= 0:
             cut = min(cut, idx)
-    main = main[:cut]
-    return abstract.strip(), main.strip()
+    return abstract.strip(), main[:cut].strip()
 
 
 def check_article(path: Path) -> dict[str, int]:
@@ -80,8 +73,8 @@ def check_article(path: Path) -> dict[str, int]:
     abstract, main = parse_article(text)
     abstract_n = len(words(abstract))
     main_n = len(words(strip_markdown_headings(main)))
-
     errors: list[str] = []
+
     if abstract_n > ABSTRACT_LIMIT:
         errors.append(f"abstract word count {abstract_n} > {ABSTRACT_LIMIT}")
     if main_n > MAIN_TEXT_LIMIT:
@@ -101,7 +94,6 @@ def check_article(path: Path) -> dict[str, int]:
         if re.search(r"(?m)^###\s+", discussion):
             errors.append("Discussion contains a level-3 topical subheading")
 
-    # Nature-style introduction is intentionally unheaded.
     pre_results = text.split("## Results", 1)[0] if "## Results" in text else text
     if re.search(r"(?m)^##\s+Introduction\s*$", pre_results):
         errors.append("Introduction should be unheaded")
@@ -116,21 +108,23 @@ def check_article(path: Path) -> dict[str, int]:
             errors.append(f"forbidden/overstated claim pattern matched: {pattern!r}")
 
     required_tokens = (
-        "55/60",
-        "19/22",
-        "Soil was the process whose truth status varied",
-        "0.9889",
-        "0.9833",
-        "38/60",
-        "50/60",
+        "22/35",
+        "30/35",
+        "65/70",
+        "56/70",
+        "49/70",
+        "27/30",
+        "0.265396",
+        "0.067167",
+        "0.334242",
         "108/108",
         "empirical_confirmation_not_supported",
         "not_promoted",
-        "not a process-exclusion necessity set",
+        "process membership",
     )
     for token in required_tokens:
         if token not in text:
-            errors.append(f"missing frozen headline/logic token: {token}")
+            errors.append(f"missing frozen counterfactual/empirical token: {token}")
 
     print(f"abstract_words={abstract_n}")
     print(f"main_text_words={main_n}")
@@ -169,13 +163,7 @@ def main() -> None:
         default=Path("docs/product_a_nature_ecology_evolution_article_draft.md"),
     )
     p.add_argument("--check-metadata", action="store_true")
-    p.add_argument(
-        "--metadata-file",
-        action="append",
-        type=Path,
-        default=[],
-        help="Files such as cover letter / author metadata to scan for placeholders.",
-    )
+    p.add_argument("--metadata-file", action="append", type=Path, default=[])
     args = p.parse_args()
     check_article(args.article)
     if args.check_metadata:
