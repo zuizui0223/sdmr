@@ -88,7 +88,6 @@ def main() -> None:
     )
     ax.text(-0.14, 1.10, "a", transform=ax.transAxes, fontweight="bold", fontsize=13)
 
-    # Keep the largest family-level contrast explicit without covering data.
     ax.annotate(
         "AUC selected observation-only models in 5/10",
         xy=(0.50, y[-1] - offset),
@@ -109,7 +108,12 @@ def main() -> None:
     ax.set_xticks(x, ["Soil true\n(n=10)", "Soil false\n(n=50)"])
     ax.set_ylim(0, 1.06)
     ax.set_ylabel("Fraction of cases")
-    ax.legend(frameon=False, fontsize=8.2, loc="center right")
+    ax.legend(
+        frameon=False,
+        fontsize=8.2,
+        loc="center left",
+        bbox_to_anchor=(1.01, 0.5),
+    )
     ax.set_title(
         "Only soil varied in process truth;\n"
         "temperature and water were true and stable in 60/60",
@@ -119,7 +123,6 @@ def main() -> None:
     )
     ax.text(-0.11, 1.10, "b", transform=ax.transAxes, fontweight="bold", fontsize=13)
 
-    # Count labels are placed inside their corresponding stacked segments.
     ax.text(0, stable[0] / 2, "7", ha="center", va="center", fontsize=9)
     ax.text(0, stable[0] + contested[0] / 2, "3", ha="center", va="center", fontsize=9)
     ax.text(1, max(stable[1] / 2, 0.025), "2", ha="center", va="center", fontsize=9)
