@@ -71,16 +71,63 @@ The new false seasonality challenge signals also altered shared-carrier attribut
 
 This explains why raw challenge recall improved while unique-attribution recall slightly declined.
 
+## Fixed concordance diagnostic
+
+The 15 changed cells were then diagnosed without changing any margin or process status rule.
+
+- Workflow: `density-ratio-v4-concordance-diagnostic`
+- Run: `34026164932`
+- Aggregate artifact: `9987194174`
+- Artifact digest: `sha256:ccb093daa2c3d16bec26681320b585e936bbae34b2e4eb540e4339607618db7c`
+- Selection: all and only the 15 cells where `v4_changed_from_v3 == true`
+- Refit: same burned cases, same v4 configuration, all matched model/process routes
+
+A simple directional-concordance rescue was **not supported**:
+
+- among the 6 true changed cells, only `1/6` had rank loss in the same negative direction for all density-rejected v3 witness routes;
+- among the 9 false changed cells, `4/9` had that all-route rank-direction agreement;
+- using an `any-route` rule gives `1/6` true versus `5/9` false.
+
+Thus requiring rank and density to point in the same direction would preferentially discard the true additions rather than the false ones.
+
+### More important: v4 confused uncertainty with positive loss evidence
+
+For each density-rejected v3 witness route, define the symmetric development uncertainty band as
+
+`mean_delta ± 1 × SEM`.
+
+A route would actively demonstrate loss beyond the frozen `0.01`-nat margin only if its **upper** band were below `-0.01`.
+
+That did not happen for the v4 additions:
+
+- `14/15` changed process cells had **zero** density-rejected witness routes with established inferiority beyond `0.01` nats;
+- the remaining true-water cell (`omitted_driver`, seed `13010`) had only `1/3` such routes, so a viable route remained indeterminate rather than refuted.
+
+In other words, the added v4 `contributory` calls were generated because non-inferiority was *not established*, not because inferiority was established.
+
+This is a logical state error, not a threshold-calibration problem:
+
+`failure to establish non-inferiority != evidence of meaningful inferiority`.
+
+It directly conflicts with SDMR's abstention principle, under which incomplete or indeterminate evidence must remain unresolved rather than be promoted to a positive ecological claim.
+
 ## Decision
 
 **v4 is not promoted as an improvement over v3.2.**
 
-The proper density-ratio score recovered six additional true process challenges but introduced nine additional false challenges, mostly seasonality, and propagated several of those false challenge signals into the shared-carrier attribution layer.
+The `0.01`-nat margin will not be tuned against these outcomes. The proposed directional-concordance rule is also rejected by the fixed diagnostic.
 
-Do **not** tune the `0.01`-nat density margin against these same outcomes to rescue the method.
+The next learner must make paired relative evidence explicitly three-state:
 
-The next development question is structural rather than threshold-based:
+1. `noninferior`: the lower uncertainty bound is at or above `-margin`;
+2. `inferior`: the upper uncertainty bound is below `-margin`;
+3. `indeterminate`: the interval overlaps `-margin`.
 
-> Does a density-score challenge become reliable only when the rank evidence also shows a directionally concordant loss?
+At process level:
 
-The next diagnostic therefore inspects paired rank and density deltas for the 15 changed process cells. A successor rule, if justified, should require independent/concordant evidence rather than accepting a density-only process challenge. Any eventual performance claim requires a new unused prospective denominator after development is frozen.
+- an established non-inferior route can support `replaceable`;
+- `contributory` requires positive evidence that all otherwise viable process-free routes are meaningfully inferior;
+- any viable indeterminate route forces `unresolved` rather than `contributory`;
+- `required` remains reserved for complete process exclusion with no absolutely adequate route.
+
+This is a state-space correction, not a margin rescue. Any performance claim for that successor requires a new unused prospective denominator after development is frozen.
