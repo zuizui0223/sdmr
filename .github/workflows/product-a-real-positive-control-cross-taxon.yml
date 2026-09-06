@@ -1,0 +1,148 @@
+name: Product A real positive control cross-taxon
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/product-a-real-positive-control-cross-taxon.yml'
+      - 'configs/product_a_real_positive_control_nonplant_taxa_v1.csv'
+      - 'configs/product_a_real_positive_control_nonplant_target_groups_v1.csv'
+      - 'configs/product_a_real_positive_control_nonplant_contract_v1.json'
+      - 'configs/product_a_real_positive_control_manifest_v1.csv'
+      - 'src/sdmr/cross_taxon_target_footprint_parallel.py'
+      - 'scripts/run_real_positive_control_cross_taxon_endpoint.py'
+      - 'tests/test_real_positive_control_cross_taxon.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-chunk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install exact snapshot transport dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Verify frozen non-plant contract and tests
+        run: python -m pytest -q tests/test_real_positive_control_cross_taxon.py
+      - name: Materialize focal rows from frozen snapshot
+        run: |
+          mkdir -p source_part/focal
+          python -m sdmr.fresh_focal_parallel chunk \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --region 'us-east-1' \
+            --taxa configs/product_a_real_positive_control_nonplant_taxa_v1.csv \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 16 \
+            --output source_part/focal/partial.parquet \
+            --metadata source_part/focal/metadata.json
+      - name: Materialize class-matched target footprints from same snapshot
+        run: |
+          mkdir -p source_part/target
+          python -m sdmr.cross_taxon_target_footprint_parallel chunk \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --region 'us-east-1' \
+            --target-groups configs/product_a_real_positive_control_nonplant_target_groups_v1.csv \
+            --exclude-taxa configs/product_a_real_positive_control_nonplant_taxa_v1.csv \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 16 \
+            --grid-cell-degrees 0.05 \
+            --output source_part/target/partial.parquet \
+            --metadata source_part/target/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cross-taxon-source-chunk-${{ matrix.chunk }}-${{ github.sha }}
+          path: source_part/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate-and-endpoint:
+    needs: source-chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      SDMR_RASTER_LAYER_JOBS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install citable endpoint dependencies
+        run: python -m pip install -e '.[cloud,geo,parquet,test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cross-taxon-source-chunk-*-${{ github.sha }}
+          path: source_parts
+      - name: Separate focal and target chunk evidence
+        run: |
+          mkdir -p focal_parts target_parts
+          for d in source_parts/*; do
+            b="$(basename "$d")"
+            mkdir -p "focal_parts/$b" "target_parts/$b"
+            cp "$d/focal/"* "focal_parts/$b/"
+            cp "$d/target/"* "target_parts/$b/"
+          done
+      - name: Aggregate exact focal evidence
+        run: |
+          python -m sdmr.fresh_focal_parallel aggregate \
+            --parts-root focal_parts \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --citation-sha256 '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050' \
+            --region 'us-east-1' \
+            --taxa configs/product_a_real_positive_control_nonplant_taxa_v1.csv \
+            --output-dir focal_bundle
+      - name: Aggregate class-matched target footprints
+        run: |
+          python -m sdmr.cross_taxon_target_footprint_parallel aggregate \
+            --parts-root target_parts \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --citation-sha256 '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050' \
+            --region 'us-east-1' \
+            --target-groups configs/product_a_real_positive_control_nonplant_target_groups_v1.csv \
+            --exclude-taxa configs/product_a_real_positive_control_nonplant_taxa_v1.csv \
+            --output-dir target_bundle
+      - name: Preflight leakage-safe temperature/water registry
+        run: |
+          sdmr-chelsa \
+            --manifest configs/product_a_real_positive_control_manifest_v1.csv \
+            --output-dir cross_taxon_preflight \
+            --probe \
+            --require-probe-success
+      - name: Run truth-blind cross-taxon endpoint then open external positive labels
+        run: |
+          python scripts/run_real_positive_control_cross_taxon_endpoint.py \
+            --focal-parquet focal_bundle/focal.parquet \
+            --target-groups-parquet target_bundle/target_groups.parquet \
+            --contract configs/product_a_real_positive_control_nonplant_contract_v1.json \
+            --output-root cross_taxon_endpoint
+          cat cross_taxon_endpoint/result/real_positive_control_decision.json
+          cat cross_taxon_endpoint/result/real_positive_control_taxon_results.csv
+          cat cross_taxon_endpoint/result/real_positive_control_process_scores.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-real-positive-cross-taxon-${{ github.sha }}
+          path: |
+            focal_bundle/
+            target_bundle/
+            cross_taxon_preflight/
+            cross_taxon_endpoint/
+          retention-days: 90
+          if-no-files-found: error
