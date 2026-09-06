@@ -22,6 +22,10 @@ FAMILIES = (
     "soft_threshold",
 )
 
+CANONICAL_SELECTOR = "canonical_replicated_observation_niche_recovery"
+ROBUST_SELECTOR = "replicated_observation_perturbation_robust_niche_recovery"
+AUC_SELECTOR = "canonical_auc"
+
 
 def parse_set(value: str) -> set[str]:
     return set(ast.literal_eval(value))
@@ -35,6 +39,7 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     cert = pd.read_csv(args.v272_dir / "ecological_inference_certificates.csv")
+    truth_eval = pd.read_csv(args.v272_dir / "truth_evaluation.csv")
     required = {
         "scenario",
         "seed",
@@ -51,7 +56,9 @@ def main() -> None:
     if missing:
         raise ValueError(f"missing v2.7.2 columns: {sorted(missing)}")
     if len(cert) != 60:
-        raise ValueError(f"expected 60 cases, found {len(cert)}")
+        raise ValueError(f"expected 60 certificate cases, found {len(cert)}")
+    if len(truth_eval) != 180:
+        raise ValueError(f"expected 180 selector truth rows, found {len(truth_eval)}")
     if set(cert["scenario"]) != set(FAMILIES):
         raise ValueError("unexpected frozen niche-family set")
 
@@ -129,7 +136,8 @@ def main() -> None:
             ),
         }
     )
-    pd.DataFrame(family_rows).to_csv(
+    exact_df = pd.DataFrame(family_rows)
+    exact_df.to_csv(
         args.output_dir / "nature_v272_exact_process_recovery.csv", index=False
     )
 
@@ -190,6 +198,68 @@ def main() -> None:
         assert int(row["stable_true_positive_n"]) == 60
         assert int(row["stable_false_negative_n"]) == 0
 
+    # Controlled-truth comparison with the conventional AUC-selected role.
+    for selector in (CANONICAL_SELECTOR, ROBUST_SELECTOR, AUC_SELECTOR):
+        if len(truth_eval.loc[truth_eval["selector"] == selector]) != 60:
+            raise ValueError(f"unexpected selector count: {selector}")
+
+    selector_exact = (
+        truth_eval.assign(process_exact=truth_eval["driver_process_f1"].eq(1.0))
+        .groupby(["scenario", "selector"], as_index=False)["process_exact"]
+        .sum()
+    )
+
+    comparison_rows: list[dict[str, object]] = []
+    for family in FAMILIES:
+        stable_row = exact_df.loc[exact_df["scenario"] == family].iloc[0]
+        family_eval = selector_exact.loc[selector_exact["scenario"] == family]
+        values = dict(zip(family_eval["selector"], family_eval["process_exact"]))
+        comparison_rows.append(
+            {
+                "scenario": family,
+                "n": 10,
+                "stable_core_exact_n": int(stable_row["stable_exact_n"]),
+                "auc_process_exact_n": int(values[AUC_SELECTOR]),
+                "canonical_ecological_exact_n": int(values[CANONICAL_SELECTOR]),
+                "robust_ecological_exact_n": int(values[ROBUST_SELECTOR]),
+            }
+        )
+    comparison_rows.append(
+        {
+            "scenario": "ALL",
+            "n": 60,
+            "stable_core_exact_n": stable_exact,
+            "auc_process_exact_n": int(
+                truth_eval.loc[truth_eval["selector"] == AUC_SELECTOR, "driver_process_f1"].eq(1.0).sum()
+            ),
+            "canonical_ecological_exact_n": canonical_exact,
+            "robust_ecological_exact_n": robust_exact,
+        }
+    )
+    comparison_df = pd.DataFrame(comparison_rows)
+    comparison_df.to_csv(
+        args.output_dir / "nature_v272_selector_process_comparison.csv", index=False
+    )
+
+    overall = comparison_df.loc[comparison_df["scenario"] == "ALL"].iloc[0]
+    assert int(overall["auc_process_exact_n"]) == 50
+    assert int(overall["stable_core_exact_n"]) == 55
+
+    obs_eval = truth_eval.loc[
+        (truth_eval["scenario"] == "observation_confounded")
+        & (truth_eval["selector"] == AUC_SELECTOR)
+    ].copy()
+    assert len(obs_eval) == 10
+    assert int(obs_eval["driver_process_f1"].eq(1.0).sum()) == 5
+    assert int(obs_eval["candidate"].eq("observer_only").sum()) == 5
+    assert bool(
+        obs_eval.loc[obs_eval["candidate"] == "observer_only", "driver_process_f1"].eq(0.0).all()
+    )
+    obs_cert = cert.loc[cert["scenario"] == "observation_confounded"]
+    assert int(obs_cert["stable_exact"].sum()) == 10
+    assert bool(obs_cert["canonical_candidate"].eq("niche_plus_observer").all())
+    assert bool(obs_cert["robust_candidate"].eq("niche_plus_observer").all())
+
     worked = cert.loc[
         ((cert["scenario"] == "asymmetric") & (cert["seed"] == 3103))
         | ((cert["scenario"] == "omitted_driver") & (cert["seed"] == 3101))
@@ -215,7 +285,10 @@ def main() -> None:
         "exact stable recovery when fitted models disagree: "
         f"{stable_exact_when_model_disagrees}/{model_disagreement}"
     )
+    print("AUC-selected exact process-set recovery: 50/60")
+    print("observation-confounded: stable core 10/10 exact; AUC role 5/10 exact")
     print(process_df.to_string(index=False))
+    print(comparison_df.to_string(index=False))
 
 
 if __name__ == "__main__":
