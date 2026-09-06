@@ -1,0 +1,67 @@
+{
+  "purpose": "product_a_real_positive_control_process_membership_v1",
+  "frozen_before_sdm_outcome": true,
+  "external_truth_role": "positive_control_only_no_negative_process_truth",
+  "source": {
+    "gbif_snapshot_date": "2026-08-01",
+    "gbif_snapshot_doi": "10.15468/dl.fs3btq",
+    "gbif_citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "taxa_file": "configs/product_a_real_positive_control_taxa_v1.csv",
+    "environment_manifest": "configs/product_a_real_positive_control_manifest_v1.csv"
+  },
+  "occurrence_gate": {
+    "minimum_occurrences": 60,
+    "minimum_unique_cells": 40,
+    "cell_size_degrees": 0.05,
+    "outer_sealed_fraction": 0.20,
+    "seed": 20260906
+  },
+  "accessible_area": {
+    "grid_file": "configs/product_a_buffer_specs_v1.csv",
+    "m_as_sensitivity": true,
+    "required_specs": ["buffer_150km", "buffer_300km", "buffer_500km"],
+    "background_points_per_spec": 2000,
+    "target_group": "Plantae from same GBIF monthly snapshot; focal taxa removed before background construction"
+  },
+  "candidate_library": {
+    "model": "logistic_l2_degree1_C0.1_random_state0",
+    "temperature_predictors": ["bio1", "bio10", "bio11", "gst"],
+    "water_predictors": ["bio12", "bio17", "gsp", "cmi"],
+    "neutral_predictors": ["bio4", "bio15"],
+    "candidates": {
+      "temperature_only": ["temperature", "neutral"],
+      "water_only": ["water", "neutral"],
+      "temperature_water": ["temperature", "water", "neutral"],
+      "neutral_only": ["neutral"]
+    },
+    "hidden_external_process_labels_used_for_fitting_or_selection": false
+  },
+  "counterfactual_score": {
+    "prediction_adequacy": "candidate mean presence_rank >= 0.51 and mean - SEM >= 0.50",
+    "ecological_metric": "niche_overlap_schoener_d_pc12",
+    "per_m_score": "(best mean overlap among adequate candidates containing process - best mean overlap among adequate candidates excluding process) / overlap range among all adequate candidates",
+    "no_adequate_excluded_candidate_score": 1.0,
+    "no_adequate_containing_candidate_score": -1.0,
+    "zero_overlap_range_score": 0.0,
+    "case_score": "mean over three frozen M specifications"
+  },
+  "positive_control_recovery_rule": {
+    "expected_process_score_must_exceed_competing_process": true,
+    "expected_process_mean_score_must_be_positive": true,
+    "expected_process_positive_m_count_min": 2,
+    "primary_overall_recovery_min": 0.75,
+    "minimum_recovered_per_process_group": 1,
+    "eligible_taxa_denominator_is_frozen_four": true,
+    "unavailable_taxon_counts_as_not_recovered": true
+  },
+  "governance": {
+    "no_taxon_drop_after_outcome": true,
+    "no_external_process_label_change": true,
+    "no_predictor_group_change_after_outcome": true,
+    "no_threshold_or_recovery_rule_change_after_outcome": true,
+    "no_favorable_m_subset": true,
+    "result_may_be_supported_or_not_supported": true,
+    "soil_positive_controls_deferred_because_current_citable_empirical_registry_contains_no_soilgrids_layers": true,
+    "v2_8_4_empirical_endpoint_unchanged": true
+  }
+}
