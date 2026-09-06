@@ -21,13 +21,14 @@ def test_v3_development_denominator_is_fixed_and_not_prospective_evidence() -> N
     assert payload["future_prospective_validation_must_use_new_unused_seeds"] is True
 
 
-def test_v31_shared_carrier_thresholds_are_explicitly_development_only() -> None:
+def test_v32_shared_carrier_rules_are_explicitly_development_only() -> None:
     payload = json.loads(CONFIG.read_text(encoding="utf-8"))
     attribution = payload["shared_carrier_attribution"]
     assert attribution["minimum_univariate_cv_r2"] == 0.25
     assert attribution["minimum_abs_spearman"] == 0.50
     assert attribution["proxy_audit_n_splits"] == 5
     assert attribution["proxy_audit_degree"] == 2
+    assert attribution["require_other_process_challenge_signal"] is True
     assert attribution["threshold_status"] == (
         "post_outcome_development_heuristic_not_prospectively_validated"
     )
