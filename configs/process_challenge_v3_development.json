@@ -1,0 +1,17 @@
+{
+  "purpose": "process_challenge_v3_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "product_a_reopened": false,
+  "base_science_config": "configs/ecological_identification_learner_validation_successor_v2.json",
+  "families": ["gaussian", "asymmetric", "soft_threshold", "interaction", "omitted_driver", "observation_confounded"],
+  "seeds": [13001,13002,13003,13004,13005,13006,13007,13008,13009,13010],
+  "n_cases": 60,
+  "relative_noninferiority_margin": 0.02,
+  "relative_sem_multiplier": 1.0,
+  "truth_may_be_opened_after_each_case_fit": true,
+  "fit_must_use_model_pool_occurrences_only": true,
+  "answer_check_occurrences_must_not_affect_fit_or_process_status": true,
+  "successor_v2_seeds_are_not_reused": true,
+  "future_prospective_validation_must_use_new_unused_seeds": true
+}
