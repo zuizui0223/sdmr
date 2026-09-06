@@ -18,7 +18,12 @@ import hashlib
 import numpy as np
 import pandas as pd
 
-from .model import ModelSpec, fit_relative_suitability_model, score_ecological_suitability, score_relative_suitability
+from .model import (
+    ModelSpec,
+    fit_relative_suitability_model,
+    score_ecological_suitability,
+    score_relative_suitability,
+)
 from .observation_aware_identification import _fold_indices, _prepare_observation_corrections
 from .process_challenge_learner import (
     CONTRIBUTORY,
@@ -26,7 +31,6 @@ from .process_challenge_learner import (
     REQUIRED,
     UNRESOLVED,
     ProcessChallengeFit,
-    _paired_delta_summary,
     fit_process_challenge_learner,
 )
 from .sealed_occurrence_contract import OccurrenceAnswerCheckSplit
@@ -181,6 +185,78 @@ def _density_route_cv(
     return pd.DataFrame(rows)
 
 
+def _paired_density_delta_summary(
+    fold_evidence: pd.DataFrame,
+    *,
+    model_label: str,
+    knockout_route: str,
+    metric: str,
+    margin: float,
+    sem_multiplier: float,
+) -> dict[str, object]:
+    """Compare one model's knockout route with its own matched baseline.
+
+    Density evidence is keyed by model label, route and fold. Filtering on all
+    three dimensions prevents a route label collision from silently pairing a
+    knockout from one model with the baseline of another model.
+    """
+    baseline_route = f"baseline::{model_label}"
+    baseline = fold_evidence.loc[
+        fold_evidence["model_label"].astype(str).eq(str(model_label))
+        & fold_evidence["route"].astype(str).eq(baseline_route),
+        ["fold", "complete", metric],
+    ].rename(columns={"complete": "baseline_complete", metric: "baseline_value"})
+    knockout = fold_evidence.loc[
+        fold_evidence["model_label"].astype(str).eq(str(model_label))
+        & fold_evidence["route"].astype(str).eq(str(knockout_route)),
+        ["fold", "complete", metric],
+    ].rename(columns={"complete": "knockout_complete", metric: "knockout_value"})
+
+    if baseline["fold"].duplicated().any() or knockout["fold"].duplicated().any():
+        raise ValueError("density evidence has duplicate model-route-fold keys")
+    paired = baseline.merge(knockout, on="fold", how="inner", validate="one_to_one")
+    expected_n = max(len(baseline), len(knockout))
+    if paired.empty or len(paired) != expected_n or len(baseline) != len(knockout):
+        return {
+            "complete": False,
+            "mean_delta": float("nan"),
+            "sem_delta": float("nan"),
+            "lower_delta": float("nan"),
+            "noninferior": False,
+            "n_folds": int(len(paired)),
+        }
+    values = (
+        pd.to_numeric(paired["knockout_value"], errors="coerce")
+        - pd.to_numeric(paired["baseline_value"], errors="coerce")
+    ).to_numpy(float)
+    complete = bool(
+        paired["baseline_complete"].astype(bool).all()
+        and paired["knockout_complete"].astype(bool).all()
+        and np.isfinite(values).all()
+    )
+    finite = values[np.isfinite(values)]
+    mean = float(np.mean(finite)) if len(finite) else float("nan")
+    sem = (
+        float(np.std(finite, ddof=1) / np.sqrt(len(finite)))
+        if len(finite) >= 2
+        else (0.0 if len(finite) == 1 else float("nan"))
+    )
+    lower = mean - float(sem_multiplier) * sem if np.isfinite(mean) and np.isfinite(sem) else float("nan")
+    noninferior = bool(
+        complete
+        and np.isfinite(lower)
+        and lower >= -float(margin) - 1e-12
+    )
+    return {
+        "complete": complete,
+        "mean_delta": mean,
+        "sem_delta": sem,
+        "lower_delta": lower,
+        "noninferior": noninferior,
+        "n_folds": int(len(paired)),
+    }
+
+
 def _density_enriched_routes(
     v3_fit: ProcessChallengeFit,
     density_fold_evidence: pd.DataFrame,
@@ -190,7 +266,7 @@ def _density_enriched_routes(
 ) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for row in v3_fit.route_summary.to_dict(orient="records"):
-        full = _paired_delta_summary(
+        full = _paired_density_delta_summary(
             density_fold_evidence,
             model_label=str(row["model_label"]),
             knockout_route=str(row["route"]),
@@ -198,7 +274,7 @@ def _density_enriched_routes(
             margin=float(margin),
             sem_multiplier=float(sem_multiplier),
         )
-        eco = _paired_delta_summary(
+        eco = _paired_density_delta_summary(
             density_fold_evidence,
             model_label=str(row["model_label"]),
             knockout_route=str(row["route"]),
@@ -229,17 +305,50 @@ def _density_enriched_routes(
     return pd.DataFrame(rows)
 
 
-def _classify_processes(route_summary: pd.DataFrame, process_universe: Sequence[str]) -> pd.DataFrame:
+def _classify_processes(
+    route_summary: pd.DataFrame,
+    process_universe: Sequence[str],
+    *,
+    expected_model_labels: Sequence[str] | None = None,
+) -> pd.DataFrame:
+    required_columns = {
+        "model_label",
+        "route",
+        "excluded_process",
+        "density_complete",
+        "multicriterion_noninferior",
+        "route_adequate",
+    }
+    missing = sorted(required_columns - set(route_summary.columns))
+    if missing:
+        raise KeyError("v4 route summary missing columns: " + ", ".join(missing))
+    if route_summary.duplicated(["model_label", "excluded_process"]).any():
+        raise ValueError("v4 route summary has duplicate model-process routes")
+
+    if expected_model_labels is None:
+        expected_models = tuple(sorted(set(route_summary["model_label"].astype(str))))
+    else:
+        expected_models = tuple(str(x) for x in expected_model_labels)
+        if len(set(expected_models)) != len(expected_models):
+            raise ValueError("expected_model_labels must be unique")
+    expected_set = set(expected_models)
+
     rows = []
     for process in tuple(str(x) for x in process_universe):
         group = route_summary.loc[route_summary["excluded_process"].astype(str).eq(process)]
-        expected = int(group["model_label"].nunique()) if len(group) else 0
+        group_models = set(group["model_label"].astype(str))
+        expected = len(expected_models)
+        density_complete = bool(
+            len(group) == expected
+            and group_models == expected_set
+            and group["density_complete"].astype(bool).all()
+        )
         complete_n = int(group["density_complete"].astype(bool).sum()) if len(group) else 0
         witnesses = group.loc[group["multicriterion_noninferior"].astype(bool), "route"].astype(str).tolist()
         absolute = group.loc[group["route_adequate"].astype(bool), "route"].astype(str).tolist()
         if witnesses:
             status = REPLACEABLE
-        elif not len(group) or complete_n != expected:
+        elif not density_complete:
             status = UNRESOLVED
         elif absolute:
             status = CONTRIBUTORY
@@ -345,6 +454,9 @@ def fit_density_ratio_process_challenge(
     )
     spec_by_label = {spec.label: spec for spec in specs}
     process_models = tuple(sorted(set(v3.route_summary["model_label"].astype(str))))
+    if v3.route_summary.duplicated(["model_label", "excluded_process"]).any():
+        raise ValueError("v3 route summary has duplicate model-process routes")
+
     density_frames = []
     for label in process_models:
         density_frames.append(
@@ -361,12 +473,15 @@ def fit_density_ratio_process_challenge(
                 probability_epsilon=density_probability_epsilon,
             )
         )
-    seen_routes: set[str] = set()
+
+    seen_keys: set[tuple[str, str]] = set()
     for row in v3.route_summary.to_dict(orient="records"):
+        label = str(row["model_label"])
         route = str(row["route"])
-        if route in seen_routes:
-            continue
-        seen_routes.add(route)
+        key = (label, route)
+        if key in seen_keys:
+            raise ValueError("v3 route summary has duplicate model-route keys")
+        seen_keys.add(key)
         retained = tuple(x for x in str(row["retained_ecological_predictors"]).split(",") if x)
         density_frames.append(
             _density_route_cv(
@@ -374,7 +489,7 @@ def fit_density_ratio_process_challenge(
                 background,
                 retained,
                 observation,
-                spec_by_label[str(row["model_label"])],
+                spec_by_label[label],
                 folds,
                 corrections,
                 route=route,
@@ -384,16 +499,24 @@ def fit_density_ratio_process_challenge(
             )
         )
     density_evidence = pd.concat(density_frames, ignore_index=True)
+    if density_evidence.duplicated(["model_label", "route", "fold"]).any():
+        raise ValueError("density evidence has duplicate model-route-fold keys")
+
     routes = _density_enriched_routes(
         v3,
         density_evidence,
         margin=float(density_noninferiority_margin),
         sem_multiplier=float(density_sem_multiplier),
     )
-    process_summary = _classify_processes(routes, processes)
+    process_summary = _classify_processes(
+        routes,
+        processes,
+        expected_model_labels=process_models,
+    )
     receipt_payload = "\n".join(
         [
             "v3_receipt=" + v3.selection_receipt,
+            "process_models=" + ",".join(process_models),
             f"density_margin={float(density_noninferiority_margin):.12g}",
             f"density_sem={float(density_sem_multiplier):.12g}",
             f"density_epsilon={float(density_probability_epsilon):.12g}",
