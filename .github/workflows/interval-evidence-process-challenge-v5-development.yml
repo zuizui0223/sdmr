@@ -31,6 +31,7 @@ jobs:
       - name: Wait for required full CI matrix on this exact head
         env:
           GH_TOKEN: ${{ github.token }}
+          CHECK_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         shell: bash
         run: |
           set -euo pipefail
@@ -42,7 +43,7 @@ jobs:
             geo-rasterio-py3.12
           )
           for attempt in $(seq 1 180); do
-            checks="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100")"
+            checks="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits/${CHECK_SHA}/check-runs?per_page=100")"
             pending=0
             for name in "${required[@]}"; do
               row="$(jq -r --arg name "$name" '
@@ -63,11 +64,11 @@ jobs:
               fi
             done
             if [[ "$pending" -eq 0 ]]; then
-              echo "All required full CI checks are green on ${GITHUB_SHA}."
+              echo "All required full CI checks are green on ${CHECK_SHA}."
               break
             fi
             if [[ "$attempt" -eq 180 ]]; then
-              echo "Timed out waiting for required full CI checks on ${GITHUB_SHA}." >&2
+              echo "Timed out waiting for required full CI checks on ${CHECK_SHA}." >&2
               exit 1
             fi
             sleep 20
