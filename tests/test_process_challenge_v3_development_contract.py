@@ -21,6 +21,20 @@ def test_v3_development_denominator_is_fixed_and_not_prospective_evidence() -> N
     assert payload["future_prospective_validation_must_use_new_unused_seeds"] is True
 
 
+def test_v31_shared_carrier_thresholds_are_explicitly_development_only() -> None:
+    payload = json.loads(CONFIG.read_text(encoding="utf-8"))
+    attribution = payload["shared_carrier_attribution"]
+    assert attribution["minimum_univariate_cv_r2"] == 0.25
+    assert attribution["minimum_abs_spearman"] == 0.50
+    assert attribution["proxy_audit_n_splits"] == 5
+    assert attribution["proxy_audit_degree"] == 2
+    assert attribution["threshold_status"] == (
+        "post_outcome_development_heuristic_not_prospectively_validated"
+    )
+    assert payload["proxy_audit_must_use_predictors_only"] is True
+    assert payload["proxy_audit_must_not_modify_registry"] is True
+
+
 def test_v3_development_seeds_do_not_reuse_closed_validation_denominators() -> None:
     payload = json.loads(CONFIG.read_text(encoding="utf-8"))
     development = set(payload["seeds"])
