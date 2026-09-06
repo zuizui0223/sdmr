@@ -1,0 +1,18 @@
+{
+  "purpose": "density_ratio_v4_changed_cell_concordance_diagnostic",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "product_a_reopened": false,
+  "source": {
+    "workflow_run_id": 34024183605,
+    "artifact_id": 9986631789,
+    "artifact_name": "density-ratio-process-challenge-v4-development-only",
+    "artifact_sha256": "71934efa1f7676bce7c463c8ad95a29e994f1811db1d2c6d07ef4e15dc7c0721",
+    "process_file": "process_evaluation.csv",
+    "expected_changed_cells": 15
+  },
+  "selection_rule": "all_and_only_rows_where_v4_changed_from_v3_is_true",
+  "diagnostic_rule": "rerun_same_burned_development_case_and_export_all_matched_model_process_routes_without_threshold_changes",
+  "no_margin_retuning": true,
+  "no_status_reclassification_in_this_diagnostic": true
+}
