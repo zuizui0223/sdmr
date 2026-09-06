@@ -11,6 +11,7 @@ from sdmr.cross_taxon_target_footprint_parallel import _read_groups, _read_taxa
 ROOT = Path(__file__).resolve().parents[1]
 TAXA = ROOT / "configs/product_a_real_positive_control_nonplant_taxa_v1.csv"
 GROUPS = ROOT / "configs/product_a_real_positive_control_nonplant_target_groups_v1.csv"
+MANIFEST = ROOT / "configs/product_a_real_positive_control_nonplant_manifest_v1.csv"
 CONTRACT = ROOT / "configs/product_a_real_positive_control_nonplant_contract_v1.json"
 
 
@@ -28,6 +29,7 @@ def test_cross_taxon_positive_controls_are_frozen_and_balanced():
     assert contract["external_truth_role"] == "positive_control_only_no_negative_process_truth"
     assert _sha(TAXA) == contract["source"]["taxa_sha256"]
     assert _sha(GROUPS) == contract["source"]["target_groups_sha256"]
+    assert _sha(MANIFEST) == contract["source"]["environment_manifest_sha256"]
     assert len(taxa) == 4
     assert taxa["scientific_name"].nunique() == 4
     assert taxa["target_group"].nunique() == 4
@@ -36,6 +38,17 @@ def test_cross_taxon_positive_controls_are_frozen_and_balanced():
     assert set(groups["taxon_rank"]) == {"class"}
     assert set(groups["target_group"]) == set(taxa["target_group"])
     assert not taxa["scientific_name"].str.contains("Quercus|Silene|Plantago", regex=True).any()
+
+
+def test_cross_taxon_environment_registry_is_generic_not_plant_season_based():
+    contract = json.loads(CONTRACT.read_text())
+    manifest = pd.read_csv(MANIFEST)
+    assert len(manifest) == 10
+    assert set(manifest.loc[manifest["validation_process"].eq("temperature"), "predictor"]) == {"bio1", "bio5", "bio6", "bio7"}
+    assert set(manifest.loc[manifest["validation_process"].eq("water"), "predictor"]) == {"bio12", "bio13", "bio14", "bio17"}
+    assert set(manifest.loc[manifest["validation_process"].eq("neutral"), "predictor"]) == {"rsds", "sfcWind"}
+    assert not set(manifest["predictor"]) & {"gst", "gsp", "gsl", "gdd5", "cmi"}
+    assert contract["candidate_library"]["nonplant_generic_climate_registry"] is True
 
 
 def test_cross_taxon_source_readers_lock_four_classes_and_four_species():

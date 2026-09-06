@@ -7,8 +7,8 @@ on:
       - '.github/workflows/product-a-real-positive-control-cross-taxon.yml'
       - 'configs/product_a_real_positive_control_nonplant_taxa_v1.csv'
       - 'configs/product_a_real_positive_control_nonplant_target_groups_v1.csv'
+      - 'configs/product_a_real_positive_control_nonplant_manifest_v1.csv'
       - 'configs/product_a_real_positive_control_nonplant_contract_v1.json'
-      - 'configs/product_a_real_positive_control_manifest_v1.csv'
       - 'src/sdmr/cross_taxon_target_footprint_parallel.py'
       - 'scripts/run_real_positive_control_cross_taxon_endpoint.py'
       - 'tests/test_real_positive_control_cross_taxon.py'
@@ -34,8 +34,8 @@ jobs:
           python-version: '3.12'
           cache: pip
       - name: Install exact snapshot transport dependencies
-        run: python -m pip install -e '.[cloud,parquet]'
-      - name: Verify frozen non-plant contract and tests
+        run: python -m pip install -e '.[cloud,parquet,test]'
+      - name: Verify frozen non-plant contract and generic climate registry
         run: python -m pytest -q tests/test_real_positive_control_cross_taxon.py
       - name: Materialize focal rows from frozen snapshot
         run: |
@@ -118,10 +118,10 @@ jobs:
             --target-groups configs/product_a_real_positive_control_nonplant_target_groups_v1.csv \
             --exclude-taxa configs/product_a_real_positive_control_nonplant_taxa_v1.csv \
             --output-dir target_bundle
-      - name: Preflight leakage-safe temperature/water registry
+      - name: Preflight frozen generic non-plant climate registry
         run: |
           sdmr-chelsa \
-            --manifest configs/product_a_real_positive_control_manifest_v1.csv \
+            --manifest configs/product_a_real_positive_control_nonplant_manifest_v1.csv \
             --output-dir cross_taxon_preflight \
             --probe \
             --require-probe-success
