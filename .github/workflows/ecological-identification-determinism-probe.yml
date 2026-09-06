@@ -1,0 +1,79 @@
+name: ecological-identification-determinism-probe
+
+on:
+  pull_request:
+    paths:
+      - src/sdmr/ecological_identification_determinism_probe.py
+      - docs/ecological_identification_known_truth_run1_terminal.md
+      - .github/workflows/ecological-identification-determinism-probe.yml
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  VECLIB_MAXIMUM_THREADS: "1"
+  BLIS_NUM_THREADS: "1"
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run noncontract deterministic probe
+        run: |
+          python -m sdmr.ecological_identification_determinism_probe run \
+            --replicate '${{ matrix.replicate }}' \
+            --output-dir 'out/r${{ matrix.replicate }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ecological-identification-determinism-r${{ matrix.replicate }}
+          path: out/r${{ matrix.replicate }}
+          retention-days: 30
+          if-no-files-found: error
+
+  compare:
+    needs: probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ecological-identification-determinism-r*
+          path: inputs
+          merge-multiple: false
+      - name: Compare independent processes at frozen tolerance
+        run: |
+          python -m sdmr.ecological_identification_determinism_probe compare \
+            --first-dir inputs/ecological-identification-determinism-r1 \
+            --second-dir inputs/ecological-identification-determinism-r2 \
+            --output-dir decision
+          cat decision/determinism_probe_decision.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ecological-identification-determinism-probe-decision
+          path: decision
+          retention-days: 30
+          if-no-files-found: error
