@@ -1,0 +1,85 @@
+name: Product A real positive focal parallel
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/product-a-real-positive-focal-parallel.yml'
+      - 'configs/product_a_real_positive_control_taxa_v1.csv'
+      - 'configs/product_a_real_positive_control_contract_v1.json'
+      - 'src/sdmr/fresh_focal_parallel.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  focal-chunk:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install exact snapshot transport dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Materialize disjoint snapshot shard chunk
+        run: |
+          mkdir -p focal_part
+          python -m sdmr.fresh_focal_parallel chunk \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --region 'ap-southeast-2' \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 8 \
+            --output focal_part/partial.parquet \
+            --metadata focal_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-positive-focal-chunk-${{ matrix.chunk }}-${{ github.sha }}
+          path: focal_part/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate:
+    needs: focal-chunk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install exact snapshot transport dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: real-positive-focal-chunk-*-${{ github.sha }}
+          path: focal_parts
+      - name: Aggregate disjoint chunks without row deduplication
+        run: |
+          python -m sdmr.fresh_focal_parallel aggregate \
+            --parts-root focal_parts \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --citation-sha256 '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050' \
+            --region 'ap-southeast-2' \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --output-dir focal_bundle
+          test -s focal_bundle/focal.parquet
+          test -s focal_bundle/focal.provenance.csv
+          test -s focal_bundle/focal_source_manifest.json
+          cat focal_bundle/focal_source_manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-positive-focal-parallel-${{ github.sha }}
+          path: focal_bundle/
+          retention-days: 90
+          if-no-files-found: error
