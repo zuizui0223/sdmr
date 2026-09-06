@@ -1,0 +1,97 @@
+name: interval-evidence-process-challenge-v5-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/interval_evidence_process_challenge.py'
+      - 'src/sdmr/interval_evidence_process_challenge_development.py'
+      - 'configs/interval_evidence_process_challenge_v5_development.json'
+      - 'tests/test_interval_evidence_process_challenge.py'
+      - 'tests/test_interval_evidence_process_challenge_v5_development_contract.py'
+      - '.github/workflows/interval-evidence-process-challenge-v5-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify v5 interval-evidence contract and fail-closed boundaries
+        run: pytest -q tests/test_interval_evidence_process_challenge.py tests/test_interval_evidence_process_challenge_v5_development_contract.py tests/test_shared_carrier_attribution.py tests/test_process_proxy_audit.py
+
+  family:
+    needs: gate
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family:
+          - gaussian
+          - asymmetric
+          - soft_threshold
+          - interaction
+          - omitted_driver
+          - observation_confounded
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Run v5 development family on burned denominator
+        run: python -m sdmr.interval_evidence_process_challenge_development --family '${{ matrix.family }}' --output-dir development
+      - name: Upload family artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interval-evidence-process-challenge-v5-${{ matrix.family }}
+          path: development/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: interval-evidence-process-challenge-v5-*
+          path: inputs
+          merge-multiple: false
+      - name: Aggregate fixed v5 development denominator
+        run: python -m sdmr.interval_evidence_process_challenge_development --input-dir inputs --output-dir development
+      - name: Show v5 development decision
+        run: cat development/development_decision.json
+      - name: Upload v5 development-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interval-evidence-process-challenge-v5-development-only
+          path: development/
+          retention-days: 30
+          if-no-files-found: error
