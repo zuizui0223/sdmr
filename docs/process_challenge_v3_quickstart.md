@@ -1,4 +1,4 @@
-# Process challenge learner v3/v3.1 — development quickstart
+# Process challenge learner v3/v3.2 — development quickstart
 
 > **Status:** post-outcome method development. This API is not yet prospectively validated and must not be cited as a successful performance result.
 
@@ -7,7 +7,7 @@ The workflow separates four questions that ordinary model selection tends to con
 1. **Prediction:** which frozen model specification predicts held-out records best inside the model pool?
 2. **Contribution:** does removing all declared information for a process cause a material loss relative to the matched baseline, even if a weaker model remains above chance?
 3. **Necessity:** does every complete process-exclusion route lose absolute adequacy?
-4. **Attribution:** can the loss caused by removing process P be uniquely attributed to P, or did the removed predictors also carry information about another declared process?
+4. **Attribution:** can the loss caused by removing process P be uniquely attributed to P, or did the removed predictors also carry outcome-relevant information about another declared process?
 
 The outer answer-check occurrence set remains sealed until these choices are frozen.
 
@@ -35,14 +35,14 @@ fit = fit_process_challenge_learner(
 )
 ```
 
-The prediction output uses one canonical inner-CV winner:
+Prediction uses one canonical inner-CV winner:
 
 ```python
 fit.prediction_model_label
 prediction = fit.predict_relative_suitability(new_frame)
 ```
 
-The process challenge output is independent of that winner:
+Process challenge output is independent of that winner:
 
 ```python
 fit.process_summary[["process", "status", "process_detected"]]
@@ -59,7 +59,7 @@ Possible v3 challenge statuses are:
 
 ## 2. Audit whether the declared process closure is actually closed
 
-Semantic rules alone can miss statistical proxies. Before using an outcome to revise the process registry, audit the background predictor table only:
+Semantic rules alone can miss statistical proxies. Audit the background predictor table without using occurrence outcomes:
 
 ```python
 from sdmr import audit_process_proxy_reconstructability
@@ -75,23 +75,9 @@ audit = audit_process_proxy_reconstructability(
 )
 ```
 
-`audit.process_summary` asks how well the **remaining predictor set** can reconstruct each process's declared direct anchors after the current closure is removed.
+`audit.process_summary` asks how well the **remaining predictor set** can reconstruct each process's declared direct anchors after the current closure is removed. `audit.candidate_summary` ranks individual retained predictors that may carry the excluded process information.
 
-```python
-audit.process_summary[
-    ["process", "mean_anchor_reconstruction_cv_r2", "max_anchor_reconstruction_cv_r2"]
-]
-```
-
-`audit.candidate_summary` ranks individual retained predictors that may carry the excluded process information:
-
-```python
-audit.candidate_summary.head(20)
-```
-
-The audit deliberately has no outcome column and never modifies the registry. Every candidate row is a proposal for review, not ecological truth.
-
-The researcher can use these proposals to add scientifically defensible many-to-many links such as
+The audit deliberately has no outcome column and never modifies the registry. Every candidate row is a proposal for review, not ecological truth. Researchers may use those proposals to add scientifically defensible many-to-many links, for example:
 
 ```text
 PET -> water / composite
@@ -99,13 +85,13 @@ PET -> thermal / composite
 elevation -> thermal / proxy
 ```
 
-and freeze the registry **before** a prospective outcome is used for process inference.
+Those links must be reviewed and frozen before a future prospective outcome is used for process inference.
 
-## 3. v3.1: separate a challenge signal from unique attribution
+## 3. v3.2: separate challenge signal from unique attribution
 
-Even a correct knockout can be ambiguous. If removing process `seasonality` also removes a predictor that carries substantial `water` information, a performance loss does not uniquely demonstrate a seasonality contribution.
+A process knockout can produce a real performance loss without uniquely identifying the challenged process. Suppose removing `seasonality` also removes a predictor that carries `water` information. That sharing matters for attribution only when `water` itself also has an outcome-level v3 challenge signal in the same fitted evidence set.
 
-Run the shared-carrier layer with a background/environment table only:
+Run the shared-carrier layer using the background/environment predictor table:
 
 ```python
 from sdmr import fit_shared_carrier_attribution
@@ -119,12 +105,19 @@ attribution = fit_shared_carrier_attribution(
     degree=2,
     minimum_univariate_cv_r2=0.25,
     minimum_abs_spearman=0.50,
+    require_other_process_challenge_signal=True,
 )
 ```
 
-The two numerical defaults are **development heuristics**. They are not yet validated performance thresholds and must be frozen before any future prospective denominator.
+The numerical thresholds above are **development heuristics**, not validated performance thresholds. A future prospective study must freeze them before opening its new denominator.
 
-Inspect:
+The additional attribution status is:
+
+- `contested_shared_information`: v3 detected a `contributory` or `required` challenge signal for P, at least one predictor removed with P carries another process Q by declaration or predictor-only reconstructability, **and Q itself has a `contributory|required` challenge signal in the same case**.
+
+This two-part rule distinguishes mere predictor covariance from shared information that can plausibly explain the observed loss. v3.2 never upgrades `replaceable` to `contributory`, and `contested_shared_information` is not counted as unique process evidence.
+
+Inspect the result with:
 
 ```python
 attribution.process_summary[
@@ -141,35 +134,27 @@ attribution.process_summary[
 ]
 ```
 
-The additional v3.1 status is:
-
-- `contested_shared_information`: the v3 challenge detected a loss, but at least one predictor removed by that challenge is either already declared to carry another process or reconstructs another process anchor in the predictor-only audit.
-
-Crucially, v3.1 does **not** turn `replaceable` into `contributory`, and it does not count `contested_shared_information` as unique process evidence. It only makes an existing contribution/necessity claim more conservative when attribution is ambiguous.
-
-The evidence table is explicit:
+The evidence table keeps both stages explicit:
 
 ```python
 attribution.evidence[
-    attribution.evidence["qualifies"]
-][
     [
         "challenged_process",
         "carrier_predictor",
         "other_process",
         "evidence_source",
+        "qualifies",
+        "other_process_challenge_signal",
+        "attribution_relevant",
         "univariate_cv_r2",
         "abs_spearman",
     ]
 ]
 ```
 
-Possible evidence sources are:
+`qualifies=True` means predictor-only sharing passed the frozen shared-carrier rule. `attribution_relevant=True` additionally means the other process had a challenge signal and can therefore contest unique attribution.
 
-- `declared_many_to_many`: ambiguity was already present in the frozen registry;
-- `predictor_only_reconstruction`: the removed predictor statistically reconstructs another process anchor without using occurrence outcomes or truth.
-
-## 4. Recommended practical workflow
+## 4. Recommended workflow
 
 ```text
 occurrence ID + coordinates
@@ -222,6 +207,6 @@ The software can automate splitting, CV, fitting, knockout, proxy diagnostics, s
 - approving semantic classification rules;
 - reviewing proposed proxy/composite links;
 - deciding whether the declared process representation is scientifically defensible before freeze;
-- freezing shared-carrier thresholds before a prospective validation or empirical claim.
+- freezing challenge and shared-carrier thresholds before prospective validation or empirical claims.
 
 This division is intentional: allowing an outcome-driven algorithm to invent or revise the process closure after seeing performance would recreate the information leakage that the framework is designed to prevent.
