@@ -1,7 +1,7 @@
-scenario,n,stable_core_precision,stable_core_recall,stable_core_f1,process_set_consensus,model_consensus
-gaussian,10,1.0,1.0,1.0,0.9,0.5
-asymmetric,10,1.0,1.0,1.0,0.8,0.4
-interaction,10,1.0,1.0,1.0,0.8,0.6
-soft_threshold,10,0.9333333333333333,1.0,0.96,0.8,0.6
-omitted_driver,10,1.0,0.9,0.9400000000000001,0.7,0.7
-observation_confounded,10,1.0,1.0,1.0,1.0,1.0
+scenario,n,stable_core_exact_n,stable_core_exact_rate,auc_process_exact_n,auc_process_exact_rate,canonical_exact_n,robust_exact_n,process_set_consensus_n,model_consensus_n
+gaussian,10,10,1.0,9,0.9,10,9,9,5
+asymmetric,10,10,1.0,9,0.9,8,10,8,4
+interaction,10,10,1.0,9,0.9,8,10,8,6
+soft_threshold,10,8,0.8,8,0.8,6,8,8,6
+omitted_driver,10,7,0.7,10,1.0,10,7,7,7
+observation_confounded,10,10,1.0,5,0.5,10,10,10,10
