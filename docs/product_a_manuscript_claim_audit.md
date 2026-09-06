@@ -1,95 +1,124 @@
 # Product-A manuscript claim audit
 
-Status: **submission-validation document / no scientific endpoint change**.
+Status: **submission-validation document after factorial falsification and counterfactual replication**.
 
-Purpose: verify that the v1→v2.8.4 manuscript makes only claims directly supported by frozen evidence and does not conflate exclusion-based necessity with consensus-first process stability.
+Purpose: ensure every Nature claim is attached to the correct prospective evidence and that process membership, process necessity and empirical non-identification remain distinct.
 
 ## Claim classes
 
-| Claim | Status | Evidence basis | Required wording boundary |
+| Claim | Status | Evidence basis | Required boundary |
 |---|---|---|---|
-| Prediction adequacy does not imply correct ecological-process identification | **supported under known truth** | v2.1–v2.2 | Predictive metrics remain adequacy/guardrail evidence. |
-| Stable response surfaces do not guarantee correct process attribution | **supported under known truth** | v2.2 | Restrict to controlled designs evaluated. |
-| Agreement among retained fitted models is not sufficient evidence of biological necessity | **supported under known truth** | v2.3 | Demonstrated for retained-set intersection after ecological Pareto sharpening. |
-| Between-model min–max spread is not automatically a complete uncertainty interval | **supported under known truth** | v2.3 | Do not generalize to every ensemble interval construction. |
-| Falsification-first process exclusion can control false-required claims | **supported under known truth** | v2.4–v2.6 | v2.4/v2.5 include unavailable states; first complete supported exclusion certificate is v2.6. |
-| Complete exclusion-based certificates can achieve false-required=0 and possible-process recall=1.0 | **supported under known truth** | v2.6 | Keep possible-process precision ≈0.467, wider intervals and the fact that `required_processes` was empty in all 9 validation taxa visible. This is a safety result, not positive driver discovery. |
-| Consensus-first stable process core exactly recovers the full hidden process set in most cases | **supported under known truth** | v2.7.2 frozen artifact audit | Exact stable-core truth match 55/60 overall and 19/22 when fitted models disagree. This is the clearest positive process-identification result. |
-| Consensus-first stable process information can align strongly with generating truth | **supported under known truth** | v2.7.2 | Stable-core P=0.9889, R/F1=0.9833 across 60 unused cases. Treat these pooled means as secondary because temperature and water were true in all 60 cases. |
-| Soil supplies the selective presence-versus-absence process test in v2.7.2 | **supported reporting fact** | v2.7.2 frozen artifact audit | Soil truth present 10/60: stable 7, contested 3, absent from both 0. Soil truth absent 50/60: stable 2, contested 7, absent from both 41. Do not generalize this selective accuracy to many independently varying drivers. |
-| Process-set identity can be more stable than exact fitted-model identity | **supported under known truth** | v2.7.2 | Process-set consensus 50/60 versus exact-model consensus 38/60. Do not convert stability into necessity. |
-| Observation-process correction can activate selectively rather than automatically | **supported under evaluated known-truth families** | v2.7.2 | 10/10 in confounded family; 0/50 elsewhere; no universal sensitivity/specificity claim. |
-| Numerical/process nondeterminism can change a discrete selected-predictor result | **directly observed** | v2.7.1 | One of 96 compared fold rows changed selected predictors. |
-| Deterministic execution can exactly reproduce frozen outputs | **supported for v2.7.2** | v2.7.2 | Max abs/rel difference 0.0; implementation identity is not ecological truth. |
-| Structural validation availability can be diagnosed before environmental outcomes | **supported** | v2.7.3 | Presealed unavailability is geometry/evidence-support state, not ecological evidence. |
-| Technical terminal states can be separated from scientific non-support | **supported** | v2.8.3 vs v2.8.4 | v2.8.3 is not a null/negative ecological result. |
-| Fresh empirical ecological selection was strictly superior to AUC | **not supported** | v2.8.4 | Strict improvement 0/3; mean presence-rank delta 0.0; `not_promoted`. |
-| Fresh empirical endpoint was fully evaluable | **supported** | v2.8.4 | Full 3/3 denominator; all 12 taxa × 3 M per part; sealed metrics finite. |
-| Ecological and AUC selectors instantiated the same model in the fresh endpoint | **supported reporting fact** | frozen v2.8.4 artifact audit | Candidate and selected-predictor identity 108/108; reporting audit does not alter formal endpoint. |
-| Product A identifies true ecological processes in real GBIF data | **not established** | empirical boundary | Real occurrence data do not expose literal generating-process truth. |
-| AUC is generally optimal for ecological inference | **not supported / prohibited** | v2.8.4 boundary | Non-support for SDMR strict advantage is not universal support for AUC. |
-| Every real-world proxy/composite channel was excluded | **not established** | current registry / future hierarchy | Exclusion is relative to the declared frozen representation system; full proxy closure is future work. |
-| A selected raster is a causal environmental driver | **not established** | Chapter-1 hierarchy | Keep raster, process, proxy and composite representation distinct. |
+| Prediction adequacy does not imply correct process attribution | **supported under controlled truth** | v2.1–v2.2 | Prediction remains an adequacy layer. |
+| Ecological Pareto sharpening can create false necessity | **supported under controlled truth** | v2.3 | Do not generalize to every ensemble/set construction. |
+| Exclusion-based necessity can control false-required claims | **supported under controlled truth** | v2.4–v2.6 | v2.6 false-required=0, possible recall=1.0, precision≈0.467; `required_processes` empty 9/9. Safety result only. |
+| Earlier stable-process intersection performs strongly in original six-family suite | **supported predecessor evidence** | v2.7.2 | 55/60 exact, but T/W true in all 60; not final presence/absence validation. |
+| Stable-process predecessor generalizes to independently varying T/W/S membership | **not supported** | factorial 4201–4205 | Exact process set only 22/35; retain non-support. |
+| Counterfactual recovery score can classify process membership on unused truth | **supported** | fresh validation 4301–4305 | Exact 30/35; every T/W/S sens/spec ≥0.80. Thresholds frozen before validation. |
+| Counterfactual process membership replicates unchanged | **supported** | replication 4401–4410 | Exact 65/70; no method/threshold change after validation. |
+| Counterfactual process membership remains identifiable despite fitted-model disagreement | **supported** | replication | Ecological models disagree 30/70; exact process set 27/30. |
+| Replication temperature membership classification is strong | **supported** | replication | TP40/FN0/TN28/FP2; sens1.000/spec0.933. |
+| Replication water membership classification is strong | **supported** | replication | TP40/FN0/TN28/FP2; sens1.000/spec0.933. |
+| Replication soil membership classification is strong | **supported** | replication | TP39/FN1/TN30/FP0; sens0.975/spec1.000. |
+| Counterfactual estimator is universally superior to AUC | **not established / prohibited** | paired reporting | Same 70 cases: counterfactual65/70 vs AUC56/70; paired 14 counterfactual-only,5 AUC-only. No preregistered universal-superiority endpoint. |
+| Observation-process separation can prevent observation-only ecological misattribution | **supported in evaluated controlled family** | v2.7.2 | AUC observer_only5/10 with driver F1=0; Product A T+W10/10. Mechanism evidence, not universal rate. |
+| Fresh empirical ecological selection is strictly superior to AUC | **not supported** | v2.8.4 | strict improvement0/3; `not_promoted`. |
+| Ecological and AUC roles selected same model in fresh empirical endpoint | **supported reporting fact** | v2.8.4 audit | candidate/predictor identity108/108. |
+| Product A identifies true ecological processes in real GBIF data | **not established** | empirical boundary | Real occurrence data have no literal generating-process answer key. |
+| Counterfactual score proves physiological/causal necessity | **not established / prohibited** | claim boundary | It estimates process membership under frozen registry. |
+| Every real-world proxy/composite channel is excluded | **not established** | registry boundary | Only declared aliases/representations are excluded. |
 
 ## Core claim approved for Abstract/Discussion
 
-> **Product A does more than identify a problem: under unused controlled truth, a consensus-first process certificate exactly recovered the complete generating-process set in 55/60 cases and in 19/22 cases where the fitted models themselves disagreed. The process-exclusion branch separately controlled false necessity but did not positively require a driver in its nine validation taxa. Selective discrimination in the frozen v2.7.2 generator suite was concentrated on soil, while temperature and water were invariant true processes. Fresh empirical strict advantage over AUC remained not supported.**
+> **After a stronger factorial truth test falsified the preceding model-intersection rule (22/35 exact process sets), Product A reformulated process identification as counterfactual ecological-recovery loss under complete declared process exclusion. Thresholds calibrated on discovery-only truth generalized to 30/35 fresh validation cases and, without any method or threshold change, to 65/70 independent replication cases. Replication sensitivity was 0.975–1.000 and specificity 0.933–1.000 across independently varying temperature, water and soil; process truth remained exact in 27/30 cases despite ecological-model disagreement. Fresh plant process truth remains unestablished and the frozen empirical endpoint remains not supported/not promoted.**
 
-## Mandatory estimator separation
+## Mandatory evidence sequence
 
-### Exclusion necessity / possibility
+### 1. Predecessor falsification
 
-- v2.6 false-required = 0;
-- possible-process recall = 1.0;
-- possible-process precision ≈0.467;
-- `required_processes` empty in 9/9 validation taxa;
-- interpretation = false-necessity control with a broad identified set, not positive driver discovery.
+Factorial discovery (`4201`–`4205`, n=35):
 
-### Consensus-first process recovery
+- stable-core exact=22/35;
+- AUC exact=25/35;
+- stable exact under model disagreement=12/20;
+- T sens/spec1.00/0.667;
+- W0.70/0.867;
+- S1.00/0.867.
 
-- exact hidden process-set recovery = 55/60;
-- exact recovery when canonical and robust fitted models disagree = 19/22;
-- canonical selector exact process-set recovery = 52/60;
-- robust selector exact process-set recovery = 54/60;
-- stable-core precision = 0.9889;
-- recall/F1 = 0.9833;
-- process-set consensus = 50/60;
-- exact-model consensus = 38/60.
+Do not hide or pool this failure into later validation.
 
-### Process-specific discrimination boundary
+### 2. Counterfactual estimator definition
 
-Temperature and water were true in all 60 cases and stable in all 60; they test retention, not absence/presence discrimination.
+For each process, among candidates clearing the existing prediction gate, quantify the best held-out Schoener-D overlap lost when all declared representations of the process are excluded. Average the normalized gap across five frozen sampling/background perturbations.
 
-Soil was true in 10 cases and false in 50:
+Frozen discovery-only thresholds:
 
-- true soil: stable 7, contested 3, absent from both 0;
-- false soil: stable 2, contested 7, absent from both 41;
-- stable-soil precision = 7/9 = 77.8%; recall = 7/10 = 70%; specificity = 48/50 = 96%.
+- T 0.2653964368;
+- W 0.0671670999;
+- S 0.3342415841.
 
-**Forbidden:** describing pooled P/R as though three independently varying process presences were classified at ~0.99 accuracy.
+### 3. Fresh validation
+
+Seeds4301–4305, n=35, no discovery-seed reuse:
+
+- counterfactual exact=30/35;
+- predecessor=23/35;
+- AUC=25/35;
+- exact under model disagreement=15/18;
+- all per-process sensitivity/specificity gates pass.
+
+### 4. Independent unchanged replication
+
+Seeds4401–4410, n=70, method unchanged:
+
+- counterfactual exact=65/70;
+- AUC=56/70;
+- predecessor=49/70;
+- exact under model disagreement=27/30;
+- T 40/0/28/2;
+- W 40/0/28/2;
+- S 39/1/30/0.
+
+Exact by true set: T8/10, W8/10, S10/10, T+W10/10, T+S10/10, W+S10/10, T+W+S9/10.
+
+## Necessity / membership separation
+
+**Process membership**: counterfactual degradation of attainable ecological recovery when the process is made unavailable, classified with thresholds prospectively calibrated on discovery truth.
+
+**Process necessity**: stronger exclusion-based claim about whether any adequate explanation survives process exclusion under the necessity contract.
+
+The v2.6 necessity result is broad and has no positively required process in its nine validation taxa. Therefore:
+
+- never call 65/70 a necessity-recovery rate;
+- never call the counterfactual threshold a causal-effect threshold;
+- never merge v2.6 precision0.467 with counterfactual process classification.
+
+## AUC boundary
+
+The replication comparison (65/70 counterfactual vs56/70 AUC; paired 51 both exact,14 counterfactual-only,5 AUC-only,0 both wrong) is useful descriptive evidence. It does **not** authorize the statement “Product A is universally statistically superior to AUC,” because such a comparative hypothesis/threshold was not preregistered after the counterfactual estimator was created.
+
+The old frozen empirical superiority endpoint remains a separate result and was not supported.
 
 ## Endpoint classification
 
-1. `known_truth_exclusion_false_necessity_control = supported`;
-2. `known_truth_exact_process_set_recovery = 55/60`;
-3. `known_truth_model_disagreement_exact_process_recovery = 19/22`;
-4. `fresh_empirical_strict_advantage_over_auc = not_supported / not_promoted`;
-5. `real_data_generating_process_truth_identification = not_directly_established`.
-
-Do not replace item 4 with `not_tested`: the empirical superiority rule was tested and failed. Do not replace item 5 with `failed`: literal empirical process truth was unavailable as an answer key.
+1. `factorial_predecessor_process_membership = not_supported (22/35)`;
+2. `counterfactual_fresh_process_membership_validation = supported (30/35; all process gates pass)`;
+3. `counterfactual_unchanged_independent_replication = supported (65/70; all process gates pass)`;
+4. `known_truth_exclusion_false_necessity_control = supported but broad`;
+5. `fresh_empirical_strict_advantage_over_auc = not_supported / not_promoted`;
+6. `real_data_generating_process_truth_identification = not_directly_established`.
 
 ## Submission gate
 
 Pass only if:
 
-- the positive Results section reports exact process-set recovery, not only pooled P/R;
-- the manuscript states that selective process truth varied only for soil in the frozen v2.7.2 suite;
-- v2.6 is presented as false-necessity control, with `required_processes` empty in all nine validation taxa;
-- no text attributes P=0.9889/R=0.9833 to falsification-first exclusion;
-- no text equates `stable_process_core` with necessity;
-- v2.7.1 is implementation falsification, not ecological failure;
-- v2.7.3 and v2.8.3 remain structural/technical states;
+- 22/35 predecessor failure is visible before the successor result;
+- discovery, fresh validation and independent replication seed sets are explicit and disjoint;
+- thresholds are described as discovery-calibrated and frozen before validation;
+- 30/35 and 65/70 are attached to **process membership**, not necessity;
+- T/W/S replication sensitivity/specificity and the five-error failure envelope remain visible;
+- no text turns the descriptive AUC comparison into universal superiority;
+- v2.6 remains false-necessity safety with `required_processes` empty9/9;
 - v2.8.4 remains `empirical_confirmation_not_supported` and `not_promoted`;
-- no selected raster is called causal solely because selected;
-- no complete proxy-closure validation is claimed;
-- Product B remains blocked.
+- no selected raster/process label is called causal solely because identified;
+- no complete real-world proxy closure is claimed;
+- no post-outcome retuning or favorable process/seed subset is introduced.
