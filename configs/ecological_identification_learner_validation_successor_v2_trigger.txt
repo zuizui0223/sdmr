@@ -1,0 +1,7 @@
+purpose=trigger_prospective_ecological_identification_successor_v2
+execution=configs/ecological_identification_learner_validation_successor_v2.json
+predecessor_run=33972810926
+determinism_probe_run=34007658753
+seeds=12001-12020
+product_a_reopened=false
+post_outcome_changes_allowed=false
