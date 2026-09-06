@@ -1,0 +1,283 @@
+{
+  "archive_sha256": "1135dde2260a22e54d963b0cad6fd7210b98a362b983eddf2a6750e5d542b3b1",
+  "complete_nondominated_count_frontier": [
+    {
+      "extra_false": 0,
+      "extra_true": 37,
+      "total_false": 0,
+      "total_false_rate": 0.0,
+      "total_true": 86,
+      "total_true_recall": 0.6615384615384615
+    },
+    {
+      "extra_false": 1,
+      "extra_true": 39,
+      "total_false": 1,
+      "total_false_rate": 0.0058823529411764705,
+      "total_true": 88,
+      "total_true_recall": 0.676923076923077
+    },
+    {
+      "extra_false": 2,
+      "extra_true": 41,
+      "total_false": 2,
+      "total_false_rate": 0.011764705882352941,
+      "total_true": 90,
+      "total_true_recall": 0.6923076923076923
+    },
+    {
+      "extra_false": 9,
+      "extra_true": 43,
+      "total_false": 9,
+      "total_false_rate": 0.052941176470588235,
+      "total_true": 92,
+      "total_true_recall": 0.7076923076923077
+    }
+  ],
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "excluded_rule_inputs": [
+    "family",
+    "seed",
+    "process",
+    "expected_true_process",
+    "v3_status",
+    "v4_status",
+    "proxy/shared-carrier details",
+    "continuous scores",
+    "route labels",
+    "row order"
+  ],
+  "extra_false_floor_when_all_true_unresolved_promoted": 9,
+  "extra_true_ceiling_with_zero_extra_false": 37,
+  "false_cells_in_mixed_signatures": 9,
+  "interpretation": "In-sample oracle envelope, not a deployable or validated rule. A raw summary-only promotion does not supply the interval evidence required by the unchanged v5 contract. No promotion is performed.",
+  "mixed_signature_witnesses": [
+    {
+      "false_example": {
+        "family": "observation_confounded",
+        "process": "seasonality",
+        "seed": 13003
+      },
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 3,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 3,
+        "n_inferior_viable_routes": 0,
+        "n_noninferior_routes": 0
+      },
+      "true_example": {
+        "family": "omitted_driver",
+        "process": "temperature",
+        "seed": 13009
+      }
+    },
+    {
+      "false_example": {
+        "family": "observation_confounded",
+        "process": "seasonality",
+        "seed": 13001
+      },
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 2,
+        "n_inferior_viable_routes": 1,
+        "n_noninferior_routes": 0
+      },
+      "true_example": {
+        "family": "omitted_driver",
+        "process": "water",
+        "seed": 13010
+      }
+    },
+    {
+      "false_example": {
+        "family": "interaction",
+        "process": "seasonality",
+        "seed": 13008
+      },
+      "signature": {
+        "n_absolute_adequate_routes": 6,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 5,
+        "n_inferior_viable_routes": 1,
+        "n_noninferior_routes": 0
+      },
+      "true_example": {
+        "family": "asymmetric",
+        "process": "temperature",
+        "seed": 13009
+      }
+    }
+  ],
+  "n_cases": 60,
+  "n_distinct_attainable_count_pairs": 216,
+  "n_false_unresolved": 13,
+  "n_mixed_truth_signatures": 3,
+  "n_process_cells": 300,
+  "n_signature_subsets": 512,
+  "n_signatures": 9,
+  "n_true_unresolved": 43,
+  "n_unresolved_cells": 56,
+  "new_route_evidence_acquired": false,
+  "new_simulation_or_fit_performed": false,
+  "observed_metrics_unchanged": {
+    "false_process_challenge_rate": 0.0,
+    "false_process_contested_rate": 0.0,
+    "false_process_detection_rate": 0.0,
+    "false_process_unique_attribution_rate": 0.0,
+    "false_required_rate": 0.0,
+    "n_challenge_detected_false_processes": 0,
+    "n_challenge_detected_true_processes": 49,
+    "n_contested_shared": 0,
+    "n_contributory": 49,
+    "n_false_contested": 0,
+    "n_false_processes": 170,
+    "n_false_required": 0,
+    "n_replaceable": 195,
+    "n_required": 0,
+    "n_true_contested": 0,
+    "n_true_processes": 130,
+    "n_unique_false_processes": 0,
+    "n_unique_true_processes": 49,
+    "n_unresolved": 56,
+    "true_process_challenge_recall": 0.3769230769230769,
+    "true_process_contested_rate": 0.0,
+    "true_process_detection_recall": 0.3769230769230769,
+    "true_process_unique_attribution_recall": 0.3769230769230769
+  },
+  "original_statuses_modified": false,
+  "postprocessing_policy_selected_or_exported": false,
+  "product_a_reopened": false,
+  "purpose": "post_outcome_v5_summary_collision_information_bound",
+  "readout_audit_git_blob": "e7c8081bdb6a6be394a234018f910261d9ce9b82",
+  "rule_class": "deterministic, same decision for identical six-counter signatures; only currently unresolved cells may be promoted; decided statuses fixed",
+  "scope_limit": "A limitation of this explicit six-counter projection on this artifact, not all recorded information, process-aware rules, additional observations, future performance, or ecological identifiability. Unlike the previous nested-refinement bounds, this diagnostic acquires no new evidence.",
+  "signature_fields": [
+    "n_expected_routes",
+    "n_absolute_adequate_routes",
+    "n_noninferior_routes",
+    "n_inferior_viable_routes",
+    "n_indeterminate_viable_routes",
+    "n_incomplete_routes"
+  ],
+  "signature_groups": [
+    {
+      "false_cells": 7,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 3,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 3,
+        "n_inferior_viable_routes": 0,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 2
+    },
+    {
+      "false_cells": 0,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 3,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 2,
+        "n_inferior_viable_routes": 1,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 2
+    },
+    {
+      "false_cells": 0,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 3,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 1,
+        "n_inferior_viable_routes": 2,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 2
+    },
+    {
+      "false_cells": 1,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 5,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 3,
+        "n_inferior_viable_routes": 0,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 0
+    },
+    {
+      "false_cells": 3,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 3,
+        "n_inferior_viable_routes": 0,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 0
+    },
+    {
+      "false_cells": 1,
+      "signature": {
+        "n_absolute_adequate_routes": 3,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 2,
+        "n_inferior_viable_routes": 1,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 2
+    },
+    {
+      "false_cells": 1,
+      "signature": {
+        "n_absolute_adequate_routes": 6,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 5,
+        "n_inferior_viable_routes": 1,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 2
+    },
+    {
+      "false_cells": 0,
+      "signature": {
+        "n_absolute_adequate_routes": 6,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 3,
+        "n_inferior_viable_routes": 3,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 30
+    },
+    {
+      "false_cells": 0,
+      "signature": {
+        "n_absolute_adequate_routes": 6,
+        "n_expected_routes": 6,
+        "n_incomplete_routes": 0,
+        "n_indeterminate_viable_routes": 2,
+        "n_inferior_viable_routes": 4,
+        "n_noninferior_routes": 0
+      },
+      "true_cells": 3
+    }
+  ],
+  "source_head_sha": "f3b95c7aa5ea0f559b54dc797ec46fda141582c8",
+  "source_run_id": 34037107229,
+  "total_true_ceiling_with_zero_extra_false": 86,
+  "total_true_recall_ceiling_with_zero_extra_false": 0.6615384615384615,
+  "true_cells_in_mixed_signatures": 6
+}
