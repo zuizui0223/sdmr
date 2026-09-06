@@ -1,0 +1,42 @@
+{
+  "purpose": "product_a_counterfactual_process_replication_preoutcome_contract",
+  "frozen_before_replication_outcome": true,
+  "method_source_validation_run": 34015684015,
+  "method_source_validation_artifact": 9983844728,
+  "method_changes_after_validation": false,
+  "frozen_thresholds": {
+    "temperature": 0.26539643681319824,
+    "water": 0.06716709986237807,
+    "soil": 0.33424158409183774
+  },
+  "process_sets": [
+    ["temperature"],
+    ["water"],
+    ["soil"],
+    ["temperature", "water"],
+    ["temperature", "soil"],
+    ["water", "soil"],
+    ["temperature", "water", "soil"]
+  ],
+  "seeds": [4401, 4402, 4403, 4404, 4405, 4406, 4407, 4408, 4409, 4410],
+  "n_cases": 70,
+  "primary_support_gate": {
+    "exact_process_set_recovery_min": 0.80,
+    "temperature_sensitivity_min": 0.80,
+    "temperature_specificity_min": 0.80,
+    "water_sensitivity_min": 0.80,
+    "water_specificity_min": 0.80,
+    "soil_sensitivity_min": 0.80,
+    "soil_specificity_min": 0.80,
+    "complete_denominator_required": true
+  },
+  "governance": {
+    "no_threshold_change": true,
+    "no_seed_drop": true,
+    "no_process_set_drop": true,
+    "same_factorial_generator_candidates_perturbations": true,
+    "replication_can_be_supported_or_not_supported": true,
+    "4301_4305_validation_remains_immutable": true,
+    "v2_8_4_empirical_endpoint_unchanged": true
+  }
+}
