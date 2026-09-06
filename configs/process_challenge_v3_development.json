@@ -14,6 +14,7 @@
     "minimum_abs_spearman": 0.50,
     "proxy_audit_n_splits": 5,
     "proxy_audit_degree": 2,
+    "require_other_process_challenge_signal": true,
     "threshold_status": "post_outcome_development_heuristic_not_prospectively_validated"
   },
   "truth_may_be_opened_after_each_case_fit": true,
