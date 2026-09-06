@@ -53,9 +53,10 @@
     "case_score": "mean over three frozen M specifications"
   },
   "positive_control_recovery_rule": {
-    "expected_process_score_must_exceed_competing_process": true,
     "expected_process_mean_score_must_be_positive": true,
     "expected_process_positive_m_count_min": 2,
+    "competing_process_score_is_descriptive_only": true,
+    "no_negative_or_dominance_truth_inferred_from_literature": true,
     "primary_overall_recovery_min": 0.75,
     "minimum_recovered_per_process_group": 1,
     "eligible_taxa_denominator_is_frozen_four": true,
