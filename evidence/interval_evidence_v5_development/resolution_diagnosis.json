@@ -1,0 +1,216 @@
+{
+  "archive_sha256": "1135dde2260a22e54d963b0cad6fd7210b98a362b983eddf2a6750e5d542b3b1",
+  "bound_assumptions": [
+    "same cases, processes, expected route labels and reference comparisons",
+    "absolute adequacy and completeness remain fixed",
+    "every relative metric band is a nonempty subset of its original band",
+    "rank/density margins, SEM settings and numerical comparators remain fixed",
+    "bound concerns raw process challenge, not stability of unique attribution"
+  ],
+  "bound_is_attainability_or_future_performance_claim": false,
+  "case_true_challenge_coverage": {
+    "all": 10,
+    "none": 22,
+    "partial": 28
+  },
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "n_cases": 60,
+  "n_process_cells": 300,
+  "new_simulation_or_fit_performed": false,
+  "process_profiles": [
+    {
+      "challenge_detected": 14,
+      "challenge_rate": 0.23333333333333334,
+      "conditional_nested_refinement_challenge_upper_count": 37,
+      "conditional_nested_refinement_challenge_upper_rate": 0.6166666666666667,
+      "contributory": 14,
+      "expected_true_process": true,
+      "n_cells": 60,
+      "process": "temperature",
+      "replaceable": 23,
+      "required": 0,
+      "unresolved": 23,
+      "unresolved_all_viable_routes_indeterminate": 1,
+      "unresolved_mixed_inferior_and_indeterminate": 22
+    },
+    {
+      "challenge_detected": 32,
+      "challenge_rate": 0.5333333333333333,
+      "conditional_nested_refinement_challenge_upper_count": 52,
+      "conditional_nested_refinement_challenge_upper_rate": 0.8666666666666667,
+      "contributory": 32,
+      "expected_true_process": true,
+      "n_cells": 60,
+      "process": "water",
+      "replaceable": 8,
+      "required": 0,
+      "unresolved": 20,
+      "unresolved_all_viable_routes_indeterminate": 1,
+      "unresolved_mixed_inferior_and_indeterminate": 19
+    },
+    {
+      "challenge_detected": 3,
+      "challenge_rate": 0.3,
+      "conditional_nested_refinement_challenge_upper_count": 3,
+      "conditional_nested_refinement_challenge_upper_rate": 0.3,
+      "contributory": 3,
+      "expected_true_process": true,
+      "n_cells": 10,
+      "process": "soil",
+      "replaceable": 7,
+      "required": 0,
+      "unresolved": 0,
+      "unresolved_all_viable_routes_indeterminate": 0,
+      "unresolved_mixed_inferior_and_indeterminate": 0
+    },
+    {
+      "challenge_detected": 0,
+      "challenge_rate": 0.0,
+      "conditional_nested_refinement_challenge_upper_count": 1,
+      "conditional_nested_refinement_challenge_upper_rate": 0.02,
+      "contributory": 0,
+      "expected_true_process": false,
+      "n_cells": 50,
+      "process": "soil",
+      "replaceable": 49,
+      "required": 0,
+      "unresolved": 1,
+      "unresolved_all_viable_routes_indeterminate": 1,
+      "unresolved_mixed_inferior_and_indeterminate": 0
+    },
+    {
+      "challenge_detected": 0,
+      "challenge_rate": 0.0,
+      "conditional_nested_refinement_challenge_upper_count": 12,
+      "conditional_nested_refinement_challenge_upper_rate": 0.2,
+      "contributory": 0,
+      "expected_true_process": false,
+      "n_cells": 60,
+      "process": "seasonality",
+      "replaceable": 48,
+      "required": 0,
+      "unresolved": 12,
+      "unresolved_all_viable_routes_indeterminate": 10,
+      "unresolved_mixed_inferior_and_indeterminate": 2
+    },
+    {
+      "challenge_detected": 0,
+      "challenge_rate": 0.0,
+      "conditional_nested_refinement_challenge_upper_count": 0,
+      "conditional_nested_refinement_challenge_upper_rate": 0.0,
+      "contributory": 0,
+      "expected_true_process": false,
+      "n_cells": 60,
+      "process": "noise",
+      "replaceable": 60,
+      "required": 0,
+      "unresolved": 0,
+      "unresolved_all_viable_routes_indeterminate": 0,
+      "unresolved_mixed_inferior_and_indeterminate": 0
+    }
+  ],
+  "product_a_reopened": false,
+  "purpose": "post_outcome_v5_resolution_diagnosis",
+  "source_head_sha": "f3b95c7aa5ea0f559b54dc797ec46fda141582c8",
+  "source_run_id": 34037107229,
+  "truth_profiles": {
+    "false": {
+      "challenge_detected": 0,
+      "challenge_rate": 0.0,
+      "conditional_nested_refinement_challenge_upper_count": 13,
+      "conditional_nested_refinement_challenge_upper_rate": 0.07647058823529412,
+      "contributory": 0,
+      "n_cells": 170,
+      "replaceable": 157,
+      "required": 0,
+      "unresolved": 13,
+      "unresolved_all_viable_routes_indeterminate": 11,
+      "unresolved_mixed_inferior_and_indeterminate": 2
+    },
+    "true": {
+      "challenge_detected": 49,
+      "challenge_rate": 0.3769230769230769,
+      "conditional_nested_refinement_challenge_upper_count": 92,
+      "conditional_nested_refinement_challenge_upper_rate": 0.7076923076923077,
+      "contributory": 49,
+      "n_cells": 130,
+      "replaceable": 38,
+      "required": 0,
+      "unresolved": 43,
+      "unresolved_all_viable_routes_indeterminate": 2,
+      "unresolved_mixed_inferior_and_indeterminate": 41
+    }
+  },
+  "unavailable_from_aggregate": [
+    "which model labels supply each relative evidence state",
+    "which rank/density metric or spatial fold binds each route",
+    "actual interval endpoints or joint feasibility of interval refinements",
+    "independent refitting, receipt recomputation or leakage proof"
+  ],
+  "unresolved_route_counter_patterns": [
+    {
+      "adequate": 3,
+      "expected_true_process": false,
+      "indeterminate": 3,
+      "inferior": 0,
+      "n_cells": 11
+    },
+    {
+      "adequate": 3,
+      "expected_true_process": false,
+      "indeterminate": 2,
+      "inferior": 1,
+      "n_cells": 1
+    },
+    {
+      "adequate": 6,
+      "expected_true_process": false,
+      "indeterminate": 5,
+      "inferior": 1,
+      "n_cells": 1
+    },
+    {
+      "adequate": 3,
+      "expected_true_process": true,
+      "indeterminate": 3,
+      "inferior": 0,
+      "n_cells": 2
+    },
+    {
+      "adequate": 3,
+      "expected_true_process": true,
+      "indeterminate": 2,
+      "inferior": 1,
+      "n_cells": 4
+    },
+    {
+      "adequate": 3,
+      "expected_true_process": true,
+      "indeterminate": 1,
+      "inferior": 2,
+      "n_cells": 2
+    },
+    {
+      "adequate": 6,
+      "expected_true_process": true,
+      "indeterminate": 5,
+      "inferior": 1,
+      "n_cells": 2
+    },
+    {
+      "adequate": 6,
+      "expected_true_process": true,
+      "indeterminate": 3,
+      "inferior": 3,
+      "n_cells": 30
+    },
+    {
+      "adequate": 6,
+      "expected_true_process": true,
+      "indeterminate": 2,
+      "inferior": 4,
+      "n_cells": 3
+    }
+  ]
+}
