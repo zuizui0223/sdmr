@@ -113,12 +113,13 @@ def main() -> None:
     ax.set_ylim(-0.5, len(y) - 0.5)
     ax.set_xlabel("Exact recovery within process set")
     ax.legend(frameon=False, fontsize=8, loc="lower left")
-    ax.text(-0.13, 1.03, "c", transform=ax.transAxes, fontweight="bold", fontsize=13)
-    ax.text(
-        0.02, 0.98,
+    ax.set_title(
         "Ecological models disagreed in 30/70 cases;\nprocess truth exact in 27/30",
-        transform=ax.transAxes, va="top", fontsize=8.2,
+        loc="left",
+        fontsize=8.6,
+        pad=8,
     )
+    ax.text(-0.13, 1.03, "c", transform=ax.transAxes, fontweight="bold", fontsize=13)
 
     out_png = args.output_dir / "nature_fig3_known_truth.png"
     out_pdf = args.output_dir / "nature_fig3_known_truth.pdf"
