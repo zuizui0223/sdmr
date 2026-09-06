@@ -1,112 +1,118 @@
 # Nature Extended Data and source-data plan — Product A
 
-Status: **reporting/production plan only; scientific endpoints unchanged**.
+Status: **reporting/production plan; counterfactual validation and replication integrated**.
 
-The main text carries four inferential figures. Extended Data preserves the prospective design, exclusion-based necessity evidence, consensus-first stability evidence, computational identity and endpoint provenance.
+The main text carries four inferential figures. Extended Data preserves the prospective information barriers, the falsified predecessor, threshold development, fresh counterfactual validation, unchanged replication, exclusion-based necessity evidence and empirical non-identification.
 
 ## Main display items
 
-### Figure 1 — Prediction is not identification
+### Figure 1 — Prediction is not process identification
 
-Show predictive adequacy, environmental recovery, exclusion-based necessity and process-information stability as distinct inferential objects behind the protected model-pool/sealed information barrier.
+Show the protected occurrence-only SDM architecture and distinguish predictive adequacy, ecological niche recovery, process membership and process necessity.
 
 ### Figure 2 — Ecological sharpening can create false necessity
 
-Show complete adequate models → ecological Pareto pruning → narrower spread but lost truth coverage/false necessary core → replacement by process-information exclusion with `required`, `refuted_as_necessary` and `unresolved` states.
+Show complete adequate models → ecological Pareto pruning → narrower spread but lost truth coverage/false necessary core → falsification-first process exclusion.
 
-### Figure 3 — Process information can be stable without unique model identity
+### Figure 3 — Counterfactual ecological-recovery loss identifies process membership
 
-Source: frozen v2.7.2 artifact `9490817718` and terminal `9490827277`.
+Primary source data:
 
-This is the **consensus-first process-stability certificate**, not the process-exclusion necessity certificate.
+- `source_data/nature_fig3_counterfactual_methods.csv`;
+- `source_data/nature_fig3_counterfactual_process_summary.csv`;
+- `source_data/nature_fig3_counterfactual_process_sets.csv`.
 
 Panels:
 
-- stable-process-core precision/recall across six niche families;
-- process-set consensus versus exact-model consensus;
-- independent-process maximum audited difference = 0.0;
-- observation correction 10/10 in observation-confounded cases and 0/50 elsewhere.
+1. fresh validation (`n=35`) and unchanged independent replication (`n=70`) exact complete process-set recovery for counterfactual estimator, AUC-selected winner and predecessor stable core;
+2. replication sensitivity/specificity for temperature, water and soil;
+3. replication exact recovery across all seven true process combinations.
 
-Mandatory interpretation: pooled P=0.9889 and R/F1=0.9833 quantify the stable core shared by canonical and perturbation-robust ecological selectors. They do not quantify the exclusion-based necessary-process set.
+Mandatory headline values:
+
+- factorial predecessor falsification: stable core **22/35**;
+- fresh counterfactual validation: **30/35** versus AUC **25/35**, predecessor **23/35**;
+- unchanged replication: counterfactual **65/70**, AUC **56/70**, predecessor **49/70**;
+- ecological-model disagreement in replication: 30/70, counterfactual truth exact **27/30**;
+- temperature TP/FN/TN/FP `40/0/28/2`;
+- water `40/0/28/2`;
+- soil `39/1/30/0`.
+
+The earlier v2.7.2 `55/60` result is predecessor evidence and is not the primary Figure-3 endpoint.
 
 ### Figure 4 — Fresh empirical occurrence data reveal selector collapse
 
-Source: finalized v2.8.4 seed artifacts and terminal artifact `9750071472`.
-
-Show 108/108 candidate/predictor identity plus the formal n=3 endpoint: guardrail passed, nondominated 3/3, strict improvement 0/3, `empirical_confirmation_not_supported`, `not_promoted`.
-
-The 108 matched cells are reporting units, not replacement primary replicates.
+Show the frozen v2.8.4 108/108 ecological/AUC candidate and predictor identity plus the primary n=3 endpoint: prediction guardrail passed, nondominated 3/3, strict improvement 0/3, `empirical_confirmation_not_supported`, `not_promoted`.
 
 ## Extended Data
 
-### Extended Data Fig. 1 — Prospective information barrier
+### Extended Data Fig. 1 — Prospective information barriers
 
-GBIF/source freeze; deterministic thinning/admission; model/sealed spatial blocks; M/background from model-pool occurrences only; focal-panel exclusion from target-group source; discovery/unseen-taxon barrier; sealed opening after procedure freeze; separate promotion gate.
+Show model/sealed spatial roles, M/background construction from model-pool evidence, discovery/validation seed separation, hidden truth unavailable during selection, and post-validation freeze before independent replication.
 
 ### Extended Data Fig. 2 — Candidate space and ecological audit dimensions
 
-43-predictor manifest; `bioclim19`, `chelsa_bioclim`, `active_all`; all/VIF/predictive/ecological-recovery strategies; regularization/response complexity; M=150/300/500 km sensitivity; prediction metrics versus ecological recovery targets. AUC, Boyce/CBI, OR10 and AICc remain diagnostics/comparators, not ecological truth.
+Show empirical predictor universe and the controlled-truth factorial candidate library. AUC, Boyce/CBI, OR10 and AICc remain diagnostics/comparators. Counterfactual process scoring uses prediction adequacy followed by Schoener-D ecological-recovery loss and does not use a weighted prediction–ecology super-score.
 
-### Extended Data Fig. 3 — v2.3 anti-conservative certificate
+### Extended Data Fig. 3 — v2.3 anti-conservative retained-model certificate
 
-Quantify complete-adequate versus Pareto interval width, boundary coverage and false necessary-process counts. This supports the claim that retained-model agreement can become falsely certain.
+Quantify complete-adequate versus Pareto interval width, boundary coverage and false necessary-process counts.
 
-### Extended Data Fig. 4 — Exclusion-based necessity: calibration, abstention and safe broad sets
+### Extended Data Fig. 4 — Exclusion-based necessity remains safe but broad
 
-Show v2.4 → v2.5 → v2.6:
+Show v2.4→v2.6 calibration/availability sequence and complete v2.6 result: false-required=0, possible-process recall=1.0, possible-process precision≈0.467 and `required_processes` empty in 9/9 validation taxa. This is a necessity-safety result, not the final process-membership estimator.
 
-- v2.4 process certificates complete but boundary product only 18/21 keys per panel;
-- v2.5 calibration-support threshold retained and validation unopened;
-- v2.6 complete process/boundary certificates, false-required=0, possible-process recall=1.0;
-- boundary coverage 0.762, 0.762, 0.857 versus 0.381, 0.333, 0.381;
-- possible-process precision=0.467 and width ratios ≈3.05, 1.44, 1.35.
+### Extended Data Fig. 5 — Stronger factorial truth falsifies the predecessor
 
-This figure is the quantitative evidence for falsification-first necessity. It is intentionally separate from Figure 3.
+Seven non-empty combinations of temperature, water and soil × seeds 4201–4205 = 35 discovery cases. The previous stable-process intersection recovered **22/35**, AUC winner **25/35**, and stable exact recovery under ecological-model disagreement was **12/20**. Show the predecessor process-level sensitivity/specificity failures that motivated changing the estimand.
 
-### Extended Data Fig. 5 — Computational nondeterminism as scientific failure
+### Extended Data Fig. 6 — Discovery-only counterfactual-score separation
 
-Show the v2.7.1 one-row selected-predictor difference and historical `random_state=None`, with sealed environment unopened. The successor fixed model/selection RNG before new truth.
+Show the truth-free process-specific counterfactual score and discovery separation used to freeze thresholds:
 
-### Extended Data Fig. 6 — v2.7.2 exact determinism
+- temperature false max 0.2522, true min 0.2786 → threshold 0.265396;
+- water false max 0.0525, true min 0.0818 → threshold 0.067167;
+- soil false max 0.2068, true min 0.4617 → threshold 0.334242.
 
-Report audited tables and zero observed differences. Clarify that the ecological inference certificates are consensus-first process-stability certificates.
+Emphasize that these thresholds were frozen before seeds 4301+ were opened.
 
-### Extended Data Fig. 7 — Structural availability before ecological evidence
+### Extended Data Fig. 7 — Fresh validation
 
-Six seed/fraction conditions; four available; two 0.30 conditions unavailable after 32 spatial-assignment attempts; environmental values/candidate scores/sealed outcomes not read.
+Show complete 35-case fresh validation: counterfactual 30/35 exact, AUC 25/35, predecessor 23/35; T sens/spec 1.000/0.933, W 1.000/0.800, S 1.000/0.933; model disagreement 18 and counterfactual exact 15/18.
 
-### Extended Data Fig. 8 — Fresh empirical full denominator
+### Extended Data Fig. 8 — Independent unchanged replication
 
-Three seeds × 12 taxa × M 150/300/500 km; 36 taxon×M cells per part; full sealed metric availability; 108 matched selector-reporting cells overall.
+Show 70-case replication with no method or threshold change: counterfactual 65/70 exact, AUC 56/70, predecessor 49/70; T sens/spec 1.000/0.933, W 1.000/0.933, S 0.975/1.000; 27/30 exact under model disagreement; paired exact counts 51 both, 14 counterfactual only, 5 AUC only, 0 both wrong.
 
 ### Extended Data Fig. 9 — Empirical metric identity
 
-Matched ecological–AUC differences for presence rank, Boyce, OR10, Schoener D, centroid, breadth and quantile-profile errors; all zero because both roles instantiate the same candidate/predictor set.
+Matched ecological–AUC differences across 108 fresh plant taxon×M×seed cells; all zero because both roles instantiate the same candidate/predictor set.
 
-### Extended Data Fig. 10 — Evidence-state taxonomy and provenance
+### Extended Data Fig. 10 — Evidence-state/provenance map
 
-Keep scientific supported/not-supported, unavailable, technical STOP and not-promoted governance states distinct; link v2.6, v2.7.2 and v2.8.4 to immutable run/artifact IDs and digests.
+Link factorial predecessor non-support, discovery-only threshold freeze, supported 35-case validation, supported unchanged 70-case replication, exclusion-based necessity safety and v2.8.4 empirical non-support to immutable contracts, runs and artifact digests.
 
 ## Source Data
 
-Include:
+Main/source package must include:
 
 - Figure 2 v2.3 source table;
-- Figure 3 six-family **consensus-first** recovery/consensus table;
-- Figure 4 108 matched empirical selector rows and three-part summaries;
-- Extended Data v2.6 **exclusion-based** certificate table;
-- v2.7.2 determinism table;
-- v2.7.3 structural feasibility table.
-
-No source data may contain a post-hoc threshold, favorable taxon subset or replacement denominator.
+- Figure 3 validation/replication method table;
+- Figure 3 replication process TP/FN/TN/FP table;
+- Figure 3 seven-process-set recovery table;
+- Figure 4 108-cell selector identity and three-part endpoint summaries;
+- key v2.6 exclusion-certificate table;
+- older v2.7.2 source data only as predecessor/supporting evidence.
 
 ## Mandatory wording boundaries
 
-- `process` = declared ecological process group under frozen registry, not full causal mechanism;
-- `necessary` = necessary relative to declared evidence/representation contract;
-- v2.6 exclusion set and v2.7.2 stable core are different scientific objects;
-- P=0.9889/R=0.9833 belongs only to consensus-first stable-core recovery;
-- known-truth families are simulation structures;
-- 108 empirical cells are not independent primary decision replicates;
-- selector identity is not evidence that AUC is ecological truth;
+- `process membership` = membership under the frozen declared candidate/process registry, not physiological causation;
+- `necessary` = necessity relative to the stronger declared evidence/representation contract;
+- counterfactual membership and v2.6 necessity are distinct estimands;
+- the discovery 35 cases are not validation cases;
+- the 35 fresh validation and 70 independent replication are disjoint seed sets;
+- the replication used unchanged thresholds and method;
+- 65/70 is the primary positive identification headline; 55/60 is predecessor evidence;
+- paired AUC comparisons are descriptive, not a post-outcome universal-superiority test;
+- 108 empirical cells do not establish process truth or AUC optimality;
 - Product B remains outside this manuscript.
