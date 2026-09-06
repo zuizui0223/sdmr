@@ -10,46 +10,53 @@ Ecological, evolutionary & environmental sciences.
 
 ### Research samples and inferential units
 
-The manuscript contains controlled-truth and fresh empirical evidence, and the controlled-truth evidence itself contains two distinct process-level estimands.
+The manuscript contains controlled-truth method development, controlled-truth fresh validation/replication and a separately frozen empirical plant endpoint.
 
-**Exclusion-based necessity evidence:** the v2.4–v2.6 branch tests whether an adequate explanation survives after declared information for a process is removed. The complete v2.6 validation contains three panels and nine validation taxa. Its headline quantities are false-required process counts, possible-process recall/precision, boundary coverage and interval width. Under the frozen v2.6 criterion, false-required processes were zero and possible-process recall was 1.0 in every panel, while possible-process precision was 0.467.
+**Factorial discovery/falsification:** temperature, water and soil were varied over all seven non-empty process combinations. Seeds `4201`–`4205` produced 35 process-set cases. This lane falsified the predecessor stable-process intersection and was then used only to calibrate process-specific counterfactual thresholds.
 
-**Consensus-first process-stability evidence:** v2.7.2 contains 60 independently seeded simulation cases, formed by six preregistered niche-generating families × 10 previously unused seeds (`3101`–`3110`). Its `stable_process_core` is the intersection of process sets supported by canonical and perturbation-robust ecological selectors. Hidden generating truth is used only after that certificate exists. Stable-core precision/recall/F1 and process-set versus exact-model consensus are evaluated on these 60 cases. These quantities are not measurements of the exclusion-based necessity set.
+**Fresh counterfactual validation:** unused seeds `4301`–`4305` across the same seven process sets produced 35 independent validation cases. The primary gate required the full denominator, exact complete process-set recovery ≥0.80, and sensitivity and specificity ≥0.80 separately for temperature, water and soil.
 
-**Fresh empirical evidence:** 12 prospectively frozen plant taxa were evaluated under three split seeds (`2026082201`, `2026082202`, `2026082203`) and three accessible-area/background sensitivity conditions (150, 300 and 500 km). The preregistered primary scientific denominator is three complete seed parts; each part requires all 12 taxa × all three M conditions. The 108 taxon × M × seed matched cells are reporting units for realized ecological-versus-AUC selector identity and are not 108 independent primary decision replicates.
+**Independent replication:** after validation, the counterfactual estimator and all thresholds were frozen unchanged. Seeds `4401`–`4410` across the seven process sets produced 70 independent replication cases. Each process was true in 40 cases and false in 30. The same absolute support gates were applied.
+
+**Exclusion-based necessity evidence:** the earlier v2.4–v2.6 branch is a separate estimand. Its complete validation contains three panels and nine validation taxa. It evaluates false-required counts, possible-process recall/precision and process-boundary coverage rather than counterfactual process-membership accuracy.
+
+**Fresh empirical evidence:** 12 prospectively frozen plant taxa were evaluated under three split seeds (`2026082201`, `2026082202`, `2026082203`) and three accessible-area/background conditions (150, 300 and 500 km). The primary empirical denominator is three complete seed parts. The 108 taxon × M × seed matched cells are reporting units for realized ecological-versus-AUC selector identity, not independent primary decision replicates.
 
 ### Sample-size determination
 
-No post-outcome power calculation or adaptive sample-size change was used. Sample sizes and decision denominators were prospectively frozen.
+No post-outcome power calculation or adaptive sample-size change was used.
 
-For v2.6, calibration-support requirements and the validation panels/taxa were frozen before validation truth was opened. For deterministic v2.7.2 confirmation, the pre-outcome contract fixed six niche families, 10 unused seeds per family and 60 total cases, with non-regression thresholds frozen before seeds 3101–3110 were opened. For fresh empirical confirmation, all 12 taxa and all three M specifications were required in each of three split-seed parts. No taxon, seed, M condition or denominator was added or dropped after sealed outcome inspection.
+The factorial discovery denominator was prospectively fixed at seven process combinations × five seeds = 35 cases. The fresh validation used a disjoint five-seed set with the same seven combinations = 35 cases. After validation succeeded, the replication contract fixed ten new unused seeds × seven combinations = 70 cases before replication outcomes were opened.
+
+No seed, process set, candidate, perturbation or threshold was dropped after validation or replication outcomes. The empirical endpoint separately required all 12 taxa and all three M specifications in each of three split-seed parts.
 
 ### Data exclusions
 
-Taxa were not excluded for unfavorable outcomes. Empirical admission required prospectively defined occurrence/background sufficiency; the original contract required at least 80 admitted occurrences and 50 unique 0.05° cells per species. A taxon could be excluded only by predeclared objective data-sufficiency/background gates, with the exclusion retained in the evidence ledger.
+No controlled-truth process combination or seed was excluded for an unfavorable outcome. Robust-selector unavailability, where present, remained part of the predecessor reporting rather than causing case removal from the counterfactual denominator.
 
-Structural or technical unavailability was distinguished from scientific non-support. Presealed feasibility failures before environmental-value reads were not reclassified as ecological failures and did not alter the final denominator.
+Empirical taxa were not excluded for unfavorable outcomes. Empirical admission depended only on prospectively defined occurrence/background sufficiency. Structural or technical unavailability was distinguished from scientific non-support.
 
 ### Replication
 
-v2.7.2 used two independent computational process replicates of the same 60 prospectively frozen cases to test estimator/process identity. All audited floating and discrete outputs were exactly reproduced, with observed maximum absolute and relative differences 0.0.
+The principal process-identification replication is a genuinely unused controlled-truth replication: the counterfactual rule calibrated on `4201`–`4205`, validated on `4301`–`4305`, and was then applied **unchanged** to `4401`–`4410` (`n=70`). `method_changed_after_4301_4305_validation=false` is recorded in the replication decision.
 
-The empirical scientific decision was replicated across three prospectively frozen split-seed parts, each containing the complete 12-taxon × 3-M design.
+The empirical scientific decision was separately replicated across three prospectively frozen split-seed parts.
 
 ### Randomization
 
-Random seeds were explicitly frozen. The deterministic known-truth successor used seeds 3101–3110 for simulation, model `random_state=0`, and selection-process NumPy seed 0. The empirical endpoint used split seeds 2026082201–2026082203, model `random_state=0`, and selection-process NumPy seed 0. Random states and scientific thresholds were not changed after outcomes were inspected.
+Simulation seeds were explicitly frozen in contracts before the corresponding validation/replication outcomes. Candidate model random states were fixed. Thresholds calibrated from the discovery lane were not changed after seeds `4301+` were opened.
 
 ### Blinding / information masking
 
 The study did not use human-experiment blinding. Scientific information barriers prevented target leakage:
 
-- whole spatial blocks were assigned to model versus sealed roles before tuning;
-- sealed rows could not influence predictor/universe choice, regularization, response complexity, stopping, M/background construction, candidate choice or thresholds;
-- unseen validation taxa did not participate in discovery procedure selection;
-- hidden generating labels were not used during model/procedure selection;
-- validation truth could not create missing discovery calibration support;
-- sealed empirical outcomes could not tune candidates, thresholds, seeds, fraction, M or denominator.
+- hidden generating process labels were not inputs to model fitting or candidate selection;
+- discovery truth could calibrate counterfactual thresholds only before fresh validation;
+- validation seeds `4301`–`4305` were disjoint from discovery seeds;
+- replication seeds `4401`–`4410` were disjoint from discovery and validation;
+- thresholds, process sets, candidate library and perturbations were frozen before validation and remained unchanged for replication;
+- whole spatial blocks were separated within occurrence-model evaluation;
+- sealed empirical outcomes could not tune the consumed v2.8.4 endpoint.
 
 ## Statistics
 
@@ -57,43 +64,63 @@ The study did not use human-experiment blinding. Scientific information barriers
 
 Main text and legends report:
 
+- factorial predecessor falsification: `n=35`;
+- fresh counterfactual validation: `n=35`;
+- independent unchanged counterfactual replication: `n=70`;
+- per-process replication truth denominators: 40 process-present and 30 process-absent cases for each of temperature, water and soil;
+- replication ecological-model disagreement cases: `n=30`;
 - exclusion-based v2.6 validation: three panels, nine validation taxa;
-- consensus-first v2.7.2 controlled truth: six families, n=10 cases each, n=60 total;
-- observation correction: 10 observation-confounded and 50 other cases;
-- empirical primary denominator: n=3 seed parts;
-- empirical composition: 12 taxa × 3 M conditions in every part;
-- selector-identity audit: 108 matched taxon × M × seed cells.
+- empirical primary denominator: `n=3` seed parts;
+- empirical selector-identity audit: 108 matched taxon × M × seed cells.
 
-### Statistical tests and metrics
+### Primary outcomes
 
-The principal results are contract-based recovery/decision metrics rather than null-hypothesis significance tests.
+The counterfactual process-membership primary outcomes are:
 
-For exclusion-based necessity, outcomes include false-required counts, possible-process recall/precision, boundary coverage and interval width. For consensus-first process stability, stable-core precision, recall and F1 are calculated against literal hidden generating truth after certificate construction, and process-set/exact-model consensus are case-level binary outcomes. The two metric families refer to different estimands and are not compared as successive precision estimates of one procedure.
+1. exact equality between the complete predicted process set and hidden generating-process set;
+2. sensitivity and specificity separately for temperature, water and soil;
+3. complete denominator.
 
-Empirical confirmation uses frozen prediction-guardrail, nondomination and strict-improvement criteria across the three-part denominator. No post hoc P-value threshold or multiple-testing search was used to promote Product A.
+Fresh validation results: exact recovery **30/35 = 0.857**; temperature sensitivity/specificity **1.000/0.933**; water **1.000/0.800**; soil **1.000/0.933**.
 
-### Error bars / uncertainty
+Independent replication results: exact recovery **65/70 = 0.929**; temperature **1.000/0.933**; water **1.000/0.933**; soil **0.975/1.000**. Process truth was exact in **27/30** cases where the canonical and robust ecological fitted models disagreed.
 
-Where plotted, v2.7.2 family-level values summarize 10 independently seeded cases per family. Any added visualization interval must be described as a reporting summary and cannot create a new scientific threshold.
+The same 70 cases are descriptively compared with AUC-selected winner process sets (**56/70 exact**) and the predecessor stable core (**49/70 exact**). The paired counterfactual-versus-AUC exact counts are 51 both exact, 14 counterfactual-only exact, 5 AUC-only exact and 0 both wrong. No new post-outcome universal-superiority threshold was introduced for this paired comparison.
 
-Set-valued exclusion/process-boundary outputs are not confidence intervals unless explicitly stated. Broad possible-process sets and `unresolved` states are retained as inferential outcomes; between-model spread is not treated as a complete confidence interval.
+### Counterfactual score
+
+For each process and each of five predeclared sampling/background perturbations, prediction-adequate candidates are separated into process-containing and process-excluded classes after frozen process-alias mapping. The score is the normalized difference between the maximum held-out Schoener-D niche overlap attainable in these two classes. Case score is the arithmetic mean across perturbations.
+
+Frozen process thresholds were calibrated only on discovery truth and fixed before validation:
+
+- temperature `0.26539643681319824`;
+- water `0.06716709986237807`;
+- soil `0.33424158409183774`.
+
+### Statistical tests and uncertainty
+
+The principal scientific decisions use prospectively frozen absolute recovery gates rather than null-hypothesis P-value thresholds. Descriptive proportions and optional Wilson intervals may be reported, but these do not replace the frozen gates.
+
+For exclusion-based necessity, outcomes remain false-required counts, possible-process recall/precision and boundary coverage. These are not merged with counterfactual process-membership accuracy.
+
+Empirical confirmation retains its frozen prediction-guardrail, nondomination and strict-improvement criteria across the three-part denominator. No post hoc P-value threshold was used to promote Product A.
 
 ## Software and algorithms
 
 - package: `sdmr` version `0.3.0.dev0`;
-- language: Python >=3.10;
+- language: Python ≥3.10;
 - main libraries: NumPy, pandas, scikit-learn;
-- optional: rasterio, pyarrow, duckdb;
-- deterministic successor solver: scikit-learn `liblinear`;
-- model random state: 0 in v2.7.2 and final empirical successor;
-- selection NumPy seed: 0;
+- optional geospatial dependencies: rasterio, pyarrow, duckdb;
+- counterfactual scorer: `src/sdmr/counterfactual_process_recovery.py`;
+- fresh validation: `src/sdmr/counterfactual_process_validation.py`;
+- independent replication: `src/sdmr/counterfactual_process_replication.py`;
 - license: MIT.
 
 Newly developed software is central to the claims; a software-submission checklist accompanies the manuscript package.
 
 ## Data collection / sources
 
-Empirical occurrence evidence was tied to the GBIF monthly snapshot dated 2026-08-01, DOI `10.15468/dl.fs3btq`, download key `0020258-260721160103020`. Environmental predictor identities are frozen in the repository manifest and workflow receipts. Target-group background comes from Plantae records in the same occurrence snapshot and is treated as an observation/reference frame, not biological absence.
+Empirical occurrence evidence was tied to the GBIF monthly snapshot dated 2026-08-01, DOI `10.15468/dl.fs3btq`, download key `0020258-260721160103020`. Environmental predictor identities are frozen in the repository manifest and workflow receipts. Target-group background is treated as an observation/reference frame, not biological absence.
 
 ## Ethics
 
@@ -105,11 +132,12 @@ Use `docs/product_a_nature_data_code_availability.md`. Before submission, replac
 
 ## Outcome-neutral safeguards
 
-- non-promotion was permitted prospectively;
-- thresholds were not relaxed after adverse or unavailable outcomes;
-- unavailable, technical STOP, scientific non-support and non-promotion remain separate states;
-- v2.7.1 nondeterminism was retained as a failed predecessor and not repaired by tolerance widening;
-- v2.6 broad exclusion uncertainty was retained rather than post-hoc sharpened;
-- v2.7.2 stable-core P/R is not relabelled as necessity performance;
+- the factorial predecessor result **22/35** remains an explicit scientific non-support;
+- discovery cases are not counted as validation cases;
+- validation and replication use disjoint unused seed sets;
+- counterfactual thresholds were frozen before fresh validation and not changed afterward;
+- no seed, process-set, candidate or perturbation was dropped after outcome;
+- the unchanged 70-case replication is reported independently from the 35-case validation;
+- exclusion-based necessity and counterfactual process membership remain distinct estimands;
 - v2.8.4 `empirical_confirmation_not_supported` and `not_promoted` remain authoritative;
-- no v2.9 or favorable-panel search is authorized.
+- new controlled-truth success does not convert the empirical endpoint into process-truth confirmation.
