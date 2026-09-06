@@ -2,13 +2,13 @@
 
 Reporting utility only: no Product-A scientific experiment, selection, threshold,
 or endpoint is recomputed. The script reads already frozen v2.7.2 and v2.8.4
-artifacts, asserts the manuscript headline values, writes source data, and renders
-publication-oriented combined figures.
+artifacts, asserts manuscript results, writes source data, and renders figures.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -25,6 +25,7 @@ EXPECTED_V272_FAMILIES = (
 )
 EXPECTED_V284_CANDIDATE = "all|logit_l2_C0.1_degree1_rs0"
 EXPECTED_V284_SEEDS = (2026082201, 2026082202, 2026082203)
+AUC_SELECTOR = "canonical_auc"
 FAMILY_LABELS = {
     "gaussian": "Gaussian",
     "asymmetric": "Asymmetric",
@@ -43,11 +44,23 @@ def _parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def build_v272_source(v272_dir: Path) -> pd.DataFrame:
+def _parse_set(value: str) -> set[str]:
+    return set(ast.literal_eval(value))
+
+
+def build_v272_source(
+    v272_dir: Path,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     cert = pd.read_csv(v272_dir / "ecological_inference_certificates.csv")
+    truth_eval = pd.read_csv(v272_dir / "truth_evaluation.csv")
     required = {
         "scenario",
         "seed",
+        "stable_process_core",
+        "canonical_processes",
+        "robust_processes",
+        "contested_processes",
+        "true_processes",
         "stable_core_precision",
         "stable_core_recall",
         "stable_core_f1",
@@ -59,23 +72,55 @@ def build_v272_source(v272_dir: Path) -> pd.DataFrame:
         raise ValueError(f"v2.7.2 certificate missing columns: {sorted(missing)}")
     if set(cert["scenario"]) != set(EXPECTED_V272_FAMILIES):
         raise ValueError("v2.7.2 niche-family identity differs from frozen reporting contract")
-    if len(cert) != 60:
-        raise ValueError(f"expected 60 v2.7.2 cases, found {len(cert)}")
+    if len(cert) != 60 or len(truth_eval) != 180:
+        raise ValueError("unexpected v2.7.2 frozen row counts")
 
-    out = (
-        cert.groupby("scenario", as_index=False)
-        .agg(
-            n=("seed", "size"),
-            stable_core_precision=("stable_core_precision", "mean"),
-            stable_core_recall=("stable_core_recall", "mean"),
-            stable_core_f1=("stable_core_f1", "mean"),
-            process_set_consensus=("process_set_consensus", "mean"),
-            model_consensus=("model_consensus", "mean"),
-        )
+    for col in (
+        "stable_process_core",
+        "canonical_processes",
+        "robust_processes",
+        "contested_processes",
+        "true_processes",
+    ):
+        cert[col + "_set"] = cert[col].map(_parse_set)
+
+    cert["stable_exact"] = cert.apply(
+        lambda r: r["stable_process_core_set"] == r["true_processes_set"], axis=1
     )
-    order = {name: i for i, name in enumerate(EXPECTED_V272_FAMILIES)}
-    out["_order"] = out["scenario"].map(order)
-    out = out.sort_values("_order").drop(columns="_order").reset_index(drop=True)
+    cert["canonical_exact"] = cert.apply(
+        lambda r: r["canonical_processes_set"] == r["true_processes_set"], axis=1
+    )
+    cert["robust_exact"] = cert.apply(
+        lambda r: r["robust_processes_set"] == r["true_processes_set"], axis=1
+    )
+    cert["model_disagreement"] = ~cert["model_consensus"].astype(bool)
+
+    auc = truth_eval.loc[truth_eval["selector"] == AUC_SELECTOR].copy()
+    if len(auc) != 60:
+        raise ValueError("expected 60 frozen AUC-selector truth rows")
+    auc["auc_process_exact"] = auc["driver_process_f1"].eq(1.0)
+
+    family_rows: list[dict[str, object]] = []
+    for family in EXPECTED_V272_FAMILIES:
+        group = cert.loc[cert["scenario"] == family]
+        auc_group = auc.loc[auc["scenario"] == family]
+        if len(group) != 10 or len(auc_group) != 10:
+            raise ValueError(f"unexpected family count for {family}")
+        family_rows.append(
+            {
+                "scenario": family,
+                "n": 10,
+                "stable_core_exact_n": int(group["stable_exact"].sum()),
+                "stable_core_exact_rate": float(group["stable_exact"].mean()),
+                "auc_process_exact_n": int(auc_group["auc_process_exact"].sum()),
+                "auc_process_exact_rate": float(auc_group["auc_process_exact"].mean()),
+                "canonical_exact_n": int(group["canonical_exact"].sum()),
+                "robust_exact_n": int(group["robust_exact"].sum()),
+                "process_set_consensus_n": int(group["process_set_consensus"].sum()),
+                "model_consensus_n": int(group["model_consensus"].sum()),
+            }
+        )
+    family_df = pd.DataFrame(family_rows)
 
     pooled = cert[["stable_core_precision", "stable_core_recall", "stable_core_f1"]].mean()
     if not np.isclose(pooled["stable_core_precision"], 0.9888888888888889):
@@ -86,7 +131,65 @@ def build_v272_source(v272_dir: Path) -> pd.DataFrame:
         raise ValueError("expected exact-model consensus 38/60")
     if int(cert["process_set_consensus"].sum()) != 50:
         raise ValueError("expected process-set consensus 50/60")
-    return out
+    if int(cert["stable_exact"].sum()) != 55:
+        raise ValueError("expected exact stable process-set recovery 55/60")
+    if int(cert["canonical_exact"].sum()) != 52:
+        raise ValueError("expected canonical exact process-set recovery 52/60")
+    if int(cert["robust_exact"].sum()) != 54:
+        raise ValueError("expected robust exact process-set recovery 54/60")
+    if int(auc["auc_process_exact"].sum()) != 50:
+        raise ValueError("expected AUC-selected exact process-set recovery 50/60")
+
+    disagreement = cert.loc[cert["model_disagreement"]]
+    disagreement_df = pd.DataFrame(
+        [
+            {
+                "n_model_disagreement": len(disagreement),
+                "stable_exact_n": int(disagreement["stable_exact"].sum()),
+                "canonical_exact_n": int(disagreement["canonical_exact"].sum()),
+                "robust_exact_n": int(disagreement["robust_exact"].sum()),
+            }
+        ]
+    )
+    if tuple(disagreement_df.iloc[0].astype(int)) != (22, 19, 16, 18):
+        raise ValueError("model-disagreement process-recovery counts differ from frozen audit")
+
+    truth_soil = cert["true_processes_set"].map(lambda s: "soil" in s)
+    stable_soil = cert["stable_process_core_set"].map(lambda s: "soil" in s)
+    contested_soil = cert["contested_processes_set"].map(lambda s: "soil" in s)
+    canonical_soil = cert["canonical_processes_set"].map(lambda s: "soil" in s)
+    robust_soil = cert["robust_processes_set"].map(lambda s: "soil" in s)
+    absent_both = ~(canonical_soil | robust_soil)
+    soil_rows = []
+    for truth_value, label in ((True, "soil true"), (False, "soil false")):
+        mask = truth_soil == truth_value
+        soil_rows.append(
+            {
+                "truth_status": label,
+                "n": int(mask.sum()),
+                "stable_n": int((mask & stable_soil).sum()),
+                "contested_n": int((mask & contested_soil).sum()),
+                "absent_from_both_n": int((mask & absent_both).sum()),
+            }
+        )
+    soil_df = pd.DataFrame(soil_rows)
+    true_row = soil_df.iloc[0]
+    false_row = soil_df.iloc[1]
+    if tuple(true_row[["n", "stable_n", "contested_n", "absent_from_both_n"]].astype(int)) != (10, 7, 3, 0):
+        raise ValueError("true-soil status counts differ from frozen audit")
+    if tuple(false_row[["n", "stable_n", "contested_n", "absent_from_both_n"]].astype(int)) != (50, 2, 7, 41):
+        raise ValueError("false-soil status counts differ from frozen audit")
+
+    obs = family_df.loc[family_df["scenario"] == "observation_confounded"].iloc[0]
+    if int(obs["stable_core_exact_n"]) != 10 or int(obs["auc_process_exact_n"]) != 5:
+        raise ValueError("observation-confounded exact recovery differs from frozen audit")
+    obs_auc = auc.loc[auc["scenario"] == "observation_confounded"]
+    if int(obs_auc["candidate"].eq("observer_only").sum()) != 5:
+        raise ValueError("expected observer_only in 5/10 observation-confounded AUC cases")
+    if not bool(obs_auc.loc[obs_auc["candidate"] == "observer_only", "driver_process_f1"].eq(0.0).all()):
+        raise ValueError("observer_only cases must have driver-process F1=0")
+
+    return family_df, disagreement_df, soil_df
 
 
 def build_v284_source(part_dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -167,43 +270,77 @@ def build_v284_source(part_dirs: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame
     return cells, parts
 
 
-def render_v272(fig3: pd.DataFrame, output_dir: Path) -> None:
-    labels = [FAMILY_LABELS[s] for s in fig3["scenario"]]
-    y = np.arange(len(fig3))[::-1]
-    offset = 0.09
+def render_v272(
+    family_df: pd.DataFrame,
+    disagreement_df: pd.DataFrame,
+    soil_df: pd.DataFrame,
+    output_dir: Path,
+) -> None:
+    labels = [FAMILY_LABELS[s] for s in family_df["scenario"]]
+    y = np.arange(len(family_df))[::-1]
+    offset = 0.08
 
-    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.8), constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(10.8, 4.9), constrained_layout=True)
 
     ax = axes[0]
-    for yi, p, r in zip(y, fig3["stable_core_precision"], fig3["stable_core_recall"]):
-        ax.plot([p, r], [yi, yi], linewidth=1.0, alpha=0.45)
-    ax.scatter(fig3["stable_core_precision"], y + offset, marker="o", label="Precision", zorder=3)
-    ax.scatter(fig3["stable_core_recall"], y - offset, marker="s", label="Recall", zorder=3)
+    for yi, stable, auc in zip(
+        y, family_df["stable_core_exact_rate"], family_df["auc_process_exact_rate"]
+    ):
+        ax.plot([auc, stable], [yi, yi], linewidth=1.0, alpha=0.5)
+    ax.scatter(
+        family_df["stable_core_exact_rate"], y + offset, marker="o", label="Stable process core", zorder=3
+    )
+    ax.scatter(
+        family_df["auc_process_exact_rate"], y - offset, marker="s", label="AUC-selected candidate", zorder=3
+    )
     ax.set_yticks(y, labels)
     ax.set_ylim(-0.45, len(y) - 0.55)
-    ax.set_xlim(0.88, 1.012)
-    ax.set_xlabel("Stable-process-core recovery")
-    ax.legend(frameon=False, loc="lower left")
+    ax.set_xlim(0.40, 1.035)
+    ax.set_xlabel("Exact hidden process-set recovery")
+    ax.legend(frameon=False, loc="lower left", fontsize=8.5)
     ax.text(-0.13, 1.03, "a", transform=ax.transAxes, fontweight="bold", fontsize=13)
-
-    ax = axes[1]
-    for yi, proc, model in zip(y, fig3["process_set_consensus"], fig3["model_consensus"]):
-        ax.plot([model, proc], [yi, yi], linewidth=1.0, alpha=0.45)
-    ax.scatter(fig3["process_set_consensus"], y + offset, marker="o", label="Process set", zorder=3)
-    ax.scatter(fig3["model_consensus"], y - offset, marker="s", label="Exact model", zorder=3)
-    ax.set_yticks(y, [""] * len(y))
-    ax.set_ylim(-0.45, len(y) - 0.55)
-    ax.set_xlim(0.30, 1.04)
-    ax.set_xlabel("Consensus fraction")
-    ax.legend(frameon=False, loc="upper left", fontsize=8.5)
-    ax.text(-0.10, 1.03, "b", transform=ax.transAxes, fontweight="bold", fontsize=13)
     ax.text(
         0.02,
         0.02,
-        "All cases: process set 50/60; exact model 38/60\nIndependent-process max difference = 0.0",
+        "All cases: stable core 55/60; AUC-selected candidate 50/60\n"
+        "Fitted ecological models disagree: stable truth exact 19/22",
+        transform=ax.transAxes,
+        fontsize=8.2,
+        va="bottom",
+    )
+    ax.text(
+        0.44,
+        0.32,
+        "Observation-confounded:\nstable 10/10; AUC 5/10\n(AUC observer-only 5/10)",
         transform=ax.transAxes,
         fontsize=8.3,
         va="bottom",
+    )
+
+    ax = axes[1]
+    x = np.arange(2)
+    n = soil_df["n"].to_numpy(float)
+    stable = soil_df["stable_n"].to_numpy(float) / n
+    contested = soil_df["contested_n"].to_numpy(float) / n
+    absent = soil_df["absent_from_both_n"].to_numpy(float) / n
+    ax.bar(x, stable, label="Stable")
+    ax.bar(x, contested, bottom=stable, label="Contested")
+    ax.bar(x, absent, bottom=stable + contested, label="Absent from both")
+    ax.set_xticks(x, ["Soil true\n(n=10)", "Soil false\n(n=50)"])
+    ax.set_ylim(0, 1.06)
+    ax.set_ylabel("Fraction of cases")
+    ax.legend(frameon=False, fontsize=8.5, loc="upper right")
+    ax.text(-0.10, 1.03, "b", transform=ax.transAxes, fontweight="bold", fontsize=13)
+    ax.text(0, 0.35, "7 stable\n3 contested\n0 absent", ha="center", va="center", fontsize=8.3)
+    ax.text(1, 0.45, "2 stable\n7 contested\n41 absent", ha="center", va="center", fontsize=8.3)
+    ax.text(
+        0.02,
+        0.02,
+        "Only soil varied in process truth. Temperature and water were true and stable in 60/60.",
+        transform=ax.transAxes,
+        fontsize=8.0,
+        va="bottom",
+        wrap=True,
     )
 
     fig.savefig(output_dir / "nature_fig3_known_truth.png", dpi=600, bbox_inches="tight")
@@ -266,12 +403,16 @@ def render_v284(cells: pd.DataFrame, parts: pd.DataFrame, output_dir: Path) -> N
 def main() -> None:
     args = _parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    fig3 = build_v272_source(args.v272_dir)
+    fig3, fig3_disagreement, fig3_soil = build_v272_source(args.v272_dir)
     fig4, part_summary = build_v284_source(args.v284_part)
     fig3.to_csv(args.output_dir / "nature_source_data_fig3.csv", index=False)
+    fig3_disagreement.to_csv(
+        args.output_dir / "nature_source_data_fig3_model_disagreement.csv", index=False
+    )
+    fig3_soil.to_csv(args.output_dir / "nature_source_data_fig3_soil.csv", index=False)
     fig4.to_csv(args.output_dir / "nature_source_data_fig4.csv", index=False)
     part_summary.to_csv(args.output_dir / "nature_source_data_fig4_parts.csv", index=False)
-    render_v272(fig3, args.output_dir)
+    render_v272(fig3, fig3_disagreement, fig3_soil, args.output_dir)
     render_v284(fig4, part_summary, args.output_dir)
 
 
