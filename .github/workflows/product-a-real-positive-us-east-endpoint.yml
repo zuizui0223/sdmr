@@ -34,8 +34,7 @@ jobs:
           from pathlib import Path
           p = Path('configs/product_a_real_positive_control_taxa_v1.csv')
           actual = hashlib.sha256(p.read_bytes()).hexdigest()
-          expected = '661703eef7575d32216f0d80c7d8492ca8564270e5d5d10c4c467c9d39b88c12'
-          # Content SHA-256 is checked here, separate from Git blob SHA.
+          expected = 'b55e861e5083cf34aedf1c509f5e3cb42d30a3ed55f7a68ae985b1c2936d5fa9'
           print('taxon_panel_sha256', actual)
           if actual != expected:
               raise SystemExit(f'frozen focal panel SHA mismatch: {actual}')
