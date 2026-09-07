@@ -52,7 +52,7 @@ jobs:
           assert c['eligible_for_prospective_performance_claim'] is False
           assert c['product_a_reopened'] is False
           assert c['scientific_change']['purge_uses_occurrence_class_or_external_truth'] is False
-          assert c['relative_evidence']['v5_relative_state_rule_unchanged'] is True
+          assert c['scientific_change']['v5_relative_state_rule_unchanged'] is True
           assert c['relative_evidence']['indeterminate_forces_unresolved'] is True
           assert c['empirical_development_diagnostic']['may_not_be_reused_as_fresh_validation'] is True
           assert c['prospective_validation_requirements']['no_favorable_taxon_or_M_subset'] is True
@@ -113,11 +113,10 @@ jobs:
           assert d['truth_blind_process_scores_completed_before_labels_opened'] is True
           assert d['current_eight_labels_must_not_be_reused_as_fresh_validation'] is True
           assert len(expected) == 8
-          assert len(scores) == 16  # both T and W were computed for every taxon
+          assert len(scores) == 16
           assert set(scores['process']) == {'temperature', 'water'}
           assert len(routes) == 8 * 3 * 2 * 2
           assert not expected.loc[expected['species'].eq('Plantago alpina'), 'm_complete'].fillna(False).any()
-          # Deliberately do NOT assert a minimum number of recovered positive controls.
           print(expected.to_string(index=False))
           print(json.dumps(d, indent=2, sort_keys=True))
           PY
