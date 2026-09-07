@@ -153,16 +153,29 @@ def render(
     score = pd.to_numeric(display["mean_score_all_three_M"], errors="coerce").to_numpy(float)
 
     ax.axvline(0.0, linewidth=1.0)
-    ax.scatter(score[available & recovered], y[available & recovered], marker="o", s=48, label="Recovered")
-    ax.scatter(score[available & ~recovered], y[available & ~recovered], marker="x", s=52, label="Not recovered")
-    # Mean score is intentionally unavailable when one M is missing; plot a distinct marker at zero.
-    ax.scatter(np.zeros((~available).sum()), y[~available], marker="|", s=120, label="All-three-M mean unavailable")
+    ax.scatter(
+        score[available & recovered],
+        y[available & recovered],
+        marker="o",
+        s=48,
+        label="Recovered",
+    )
+    ax.scatter(
+        score[available & ~recovered],
+        y[available & ~recovered],
+        marker="x",
+        s=52,
+        label="Not recovered",
+    )
+    # Do not place unavailable all-three-M means at x=0: that would look like a
+    # measured zero. Their status is shown explicitly in the right-side labels.
     for yi, row in zip(y, display.itertuples(index=False)):
         proc = "T" if row.expected_process == "temperature" else "W"
-        suffix = f" [{proc}]"
         if int(row.missing_M_count) > 0:
-            suffix += f"  missing M={int(row.missing_M_count)}"
-        ax.text(1.02, yi, suffix, transform=ax.get_yaxis_transform(), va="center", fontsize=7.7)
+            suffix = f"[{proc}] mean NA ({int(row.missing_M_count)} M missing)"
+        else:
+            suffix = f"[{proc}]"
+        ax.text(1.02, yi, suffix, transform=ax.get_yaxis_transform(), va="center", fontsize=7.4)
     ax.set_yticks(y, display["species"])
     ax.set_xlabel("Mean expected-process score across all 3 M")
     ax.set_xlim(-0.62, 0.88)
@@ -177,22 +190,41 @@ def render(
         int(display.loc[display["lane"].eq("nonplant"), "recovered"].sum()),
     ]
     lane_fraction = np.array(lane_recovered, dtype=float) / 4.0
+    lane_process = ["T 2/2; W 0/2", "T 1/2; W 0/2"]
     x = np.arange(2)
     ax.bar(x, lane_fraction, width=0.55)
     ax.axhline(0.75, linestyle="--", linewidth=1.0)
     ax.set_xticks(x, lane_labels)
     ax.set_ylim(0, 1.05)
     ax.set_ylabel("Positive controls recovered")
-    for xi, n, frac in zip(x, lane_recovered, lane_fraction):
-        ax.text(xi, frac + 0.035, f"{n}/4", ha="center", fontsize=9)
-    ax.text(1.02, 0.75, "predeclared >=3/4 lane gate", transform=ax.get_yaxis_transform(), va="center", fontsize=7.7)
+    for xi, n, frac, proc_text in zip(x, lane_recovered, lane_fraction, lane_process):
+        ax.text(
+            xi,
+            frac + 0.035,
+            f"{n}/4\n{proc_text}",
+            ha="center",
+            va="bottom",
+            fontsize=8.0,
+        )
+    ax.text(
+        0.98,
+        0.765,
+        "predeclared >=3/4 lane gate",
+        transform=ax.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=7.5,
+    )
     ax.text(
         0.03,
-        0.50,
-        "Process groups:\nTemperature 3/4\nWater 0/4\n\nEvidence availability:\n24/24 pipelines completed\n21/24 with adequate candidate\n17/24 two-sided comparisons\n\nPositive-only controls:\nno specificity estimate\nInner-CV scores; outer transfer not tested",
+        0.97,
+        "Evidence: 24/24 pipelines; 21/24 adequate; 17/24 two-sided\n"
+        "Positive-only controls: specificity not estimable\n"
+        "Process scores: inner CV; outer transfer not evaluated",
         transform=ax.transAxes,
-        fontsize=8.0,
+        fontsize=7.4,
         va="top",
+        bbox={"boxstyle": "round,pad=0.28", "facecolor": "white", "alpha": 0.92, "linewidth": 0.6},
     )
     ax.text(-0.15, 1.03, "c", transform=ax.transAxes, fontweight="bold", fontsize=13)
 
