@@ -1,6 +1,6 @@
 # Nature Portfolio reporting summary — Product A draft answers
 
-Status: **submission-production aid; copy into the journal's current reporting-summary form at submission**.
+Status: **submission-production aid synchronized to controlled-truth replication and the completed frozen real positive-control audit**.
 
 ## Field
 
@@ -10,53 +10,50 @@ Ecological, evolutionary & environmental sciences.
 
 ### Research samples and inferential units
 
-The manuscript contains controlled-truth method development, controlled-truth fresh validation/replication and a separately frozen empirical plant endpoint.
+The manuscript contains four distinct evidence layers that are not pooled.
 
-**Factorial discovery/falsification:** temperature, water and soil were varied over all seven non-empty process combinations. Seeds `4201`–`4205` produced 35 process-set cases. This lane falsified the predecessor stable-process intersection and was then used only to calibrate process-specific counterfactual thresholds.
+**Factorial discovery/falsification.** Temperature, water and soil varied across all seven non-empty process combinations. Seeds `4201`–`4205` produced 35 cases. This lane falsified the predecessor stable-process intersection and was then used only to calibrate process-specific counterfactual thresholds.
 
-**Fresh counterfactual validation:** unused seeds `4301`–`4305` across the same seven process sets produced 35 independent validation cases. The primary gate required the full denominator, exact complete process-set recovery ≥0.80, and sensitivity and specificity ≥0.80 separately for temperature, water and soil.
+**Fresh controlled-truth validation.** Unused seeds `4301`–`4305` across the same seven process sets produced 35 validation cases. The primary gate required the complete denominator, exact process-set recovery >=0.80, and sensitivity and specificity >=0.80 for temperature, water and soil separately.
 
-**Independent replication:** after validation, the counterfactual estimator and all thresholds were frozen unchanged. Seeds `4401`–`4410` across the seven process sets produced 70 independent replication cases. Each process was true in 40 cases and false in 30. The same absolute support gates were applied.
+**Unchanged controlled-truth replication.** After validation, estimator and thresholds were frozen unchanged. Seeds `4401`–`4410` produced 70 independent replication cases. Each process was true in 40 cases and false in 30.
 
-**Exclusion-based necessity evidence:** the earlier v2.4–v2.6 branch is a separate estimand. Its complete validation contains three panels and nine validation taxa. It evaluates false-required counts, possible-process recall/precision and process-boundary coverage rather than counterfactual process-membership accuracy.
-
-**Fresh empirical evidence:** 12 prospectively frozen plant taxa were evaluated under three split seeds (`2026082201`, `2026082202`, `2026082203`) and three accessible-area/background conditions (150, 300 and 500 km). The primary empirical denominator is three complete seed parts. The 108 taxon × M × seed matched cells are reporting units for realized ecological-versus-AUC selector identity, not independent primary decision replicates.
+**Empirical evidence.** Two prospectively frozen real-data tests are reported separately. The earlier v2.8.4 plant endpoint used 12 taxa, three split seeds and three accessible-area conditions (150, 300 and 500 km), yielding 108 matched taxon × M × seed reporting cells. A later positive-control test used eight literature-backed taxa in two four-taxon lanes, each evaluated at 150, 300 and 500 km, yielding 24 taxon × M cells. The positive controls provide one-sided evidence that a target process should be recoverable; they are not complete generating-process truth and contain no negative labels.
 
 ### Sample-size determination
 
-No post-outcome power calculation or adaptive sample-size change was used.
+No post-outcome power calculation or adaptive favorable sample-size change was used.
 
-The factorial discovery denominator was prospectively fixed at seven process combinations × five seeds = 35 cases. The fresh validation used a disjoint five-seed set with the same seven combinations = 35 cases. After validation succeeded, the replication contract fixed ten new unused seeds × seven combinations = 70 cases before replication outcomes were opened.
+The factorial discovery denominator was prospectively fixed at seven process combinations × five seeds = 35. Fresh validation used a disjoint five-seed set = 35. Replication used ten new unused seeds × seven process sets = 70, declared before outcome.
 
-No seed, process set, candidate, perturbation or threshold was dropped after validation or replication outcomes. The empirical endpoint separately required all 12 taxa and all three M specifications in each of three split-seed parts.
+The v2.8.4 empirical endpoint required all 12 taxa and all three M conditions within each of three split-seed parts. The later real positive-control contract fixed four plant and four nonplant taxa before outcome. Each taxon required all three M scores for recovery; unavailable M values remained in the taxon/lane denominator.
 
-### Data exclusions
+### Data exclusions and missingness
 
-No controlled-truth process combination or seed was excluded for an unfavorable outcome. Robust-selector unavailability, where present, remained part of the predecessor reporting rather than causing case removal from the counterfactual denominator.
+No controlled-truth process combination or seed was excluded after unfavorable outcome.
 
-Empirical taxa were not excluded for unfavorable outcomes. Empirical admission depended only on prospectively defined occurrence/background sufficiency. Structural or technical unavailability was distinguished from scientific non-support.
+No real positive-control taxon was removed after outcome. All 24 taxon × M pipelines completed technically, but only 21/24 contained at least one prediction-adequate candidate. Missing prediction-adequate comparisons remained missing under the frozen all-three-M rule rather than being converted to an available-case result. Only 17/24 expected-process cells had two-sided adequate comparisons.
 
 ### Replication
 
-The principal process-identification replication is a genuinely unused controlled-truth replication: the counterfactual rule calibrated on `4201`–`4205`, validated on `4301`–`4305`, and was then applied **unchanged** to `4401`–`4410` (`n=70`). `method_changed_after_4301_4305_validation=false` is recorded in the replication decision.
+The principal process-identification replication is a genuinely unused controlled-truth replication: discovery `4201`–`4205`, validation `4301`–`4305`, then unchanged replication `4401`–`4410` (`n=70`).
 
-The empirical scientific decision was separately replicated across three prospectively frozen split-seed parts.
+The three v2.8.4 split seeds are repeated frozen empirical partitions, not independent biological populations. Repeated execution of a consumed real-control workflow is not treated as biological replication. The eight positive controls form one frozen validation panel split into plant and nonplant lanes; their combined 3/8 recovery is descriptive only and is not a pooled replacement endpoint.
 
 ### Randomization
 
-Simulation seeds were explicitly frozen in contracts before the corresponding validation/replication outcomes. Candidate model random states were fixed. Thresholds calibrated from the discovery lane were not changed after seeds `4301+` were opened.
+Simulation seeds and candidate random states were fixed in contracts. Thresholds calibrated from discovery were not changed after seeds `4301+` were opened. Empirical split seeds and accessible-area conditions were prospectively fixed.
 
 ### Blinding / information masking
 
-The study did not use human-experiment blinding. Scientific information barriers prevented target leakage:
+This study did not involve human-experiment blinding. Scientific information barriers were used instead:
 
-- hidden generating process labels were not inputs to model fitting or candidate selection;
-- discovery truth could calibrate counterfactual thresholds only before fresh validation;
-- validation seeds `4301`–`4305` were disjoint from discovery seeds;
-- replication seeds `4401`–`4410` were disjoint from discovery and validation;
-- thresholds, process sets, candidate library and perturbations were frozen before validation and remained unchanged for replication;
+- hidden generating-process truth was unavailable to candidate fitting/selection;
+- discovery truth could calibrate thresholds only before fresh validation;
+- validation and replication seeds were disjoint from discovery and from each other;
 - whole spatial blocks were separated within occurrence-model evaluation;
-- sealed empirical outcomes could not tune the consumed v2.8.4 endpoint.
+- v2.8.4 sealed outcomes could not tune the consumed endpoint;
+- real positive-control labels and recovery rules were frozen before the final audit and were not relaxed after non-support.
 
 ## Statistics
 
@@ -64,80 +61,86 @@ The study did not use human-experiment blinding. Scientific information barriers
 
 Main text and legends report:
 
-- factorial predecessor falsification: `n=35`;
+- predecessor factorial falsification: `n=35`;
 - fresh counterfactual validation: `n=35`;
-- independent unchanged counterfactual replication: `n=70`;
-- per-process replication truth denominators: 40 process-present and 30 process-absent cases for each of temperature, water and soil;
-- replication ecological-model disagreement cases: `n=30`;
-- exclusion-based v2.6 validation: three panels, nine validation taxa;
-- empirical primary denominator: `n=3` seed parts;
-- empirical selector-identity audit: 108 matched taxon × M × seed cells.
+- unchanged replication: `n=70`;
+- per-process replication denominators: 40 present / 30 absent for each of T/W/S;
+- ecological-model disagreement in replication: `n=30`;
+- v2.6 exclusion-based necessity validation: nine taxa;
+- v2.8.4 primary denominator: three complete seed parts; 108 matched reporting cells;
+- real positive controls: eight taxa in two lanes; 24 taxon × M pipelines; 21/24 with an adequate candidate; 17/24 two-sided expected-process comparisons.
 
-### Primary outcomes
+### Primary controlled-truth outcomes
 
-The counterfactual process-membership primary outcomes are:
+Fresh validation: exact recovery **30/35 = 0.857**; temperature sensitivity/specificity **1.000/0.933**; water **1.000/0.800**; soil **1.000/0.933**.
 
-1. exact equality between the complete predicted process set and hidden generating-process set;
-2. sensitivity and specificity separately for temperature, water and soil;
-3. complete denominator.
+Independent replication: exact recovery **65/70 = 0.929**; temperature **1.000/0.933**; water **1.000/0.933**; soil **0.975/1.000**. Process truth was exact in **27/30** cases where ecological fitted models disagreed.
 
-Fresh validation results: exact recovery **30/35 = 0.857**; temperature sensitivity/specificity **1.000/0.933**; water **1.000/0.800**; soil **1.000/0.933**.
+The same 70 cases are descriptively compared with AUC-selected winner process sets (**56/70 exact**) and the predecessor stable core (**49/70 exact**). Paired counts are 51 both exact, 14 counterfactual-only, 5 AUC-only and 0 both wrong. No universal-superiority endpoint was added post hoc.
 
-Independent replication results: exact recovery **65/70 = 0.929**; temperature **1.000/0.933**; water **1.000/0.933**; soil **0.975/1.000**. Process truth was exact in **27/30** cases where the canonical and robust ecological fitted models disagreed.
+### Real positive-control outcome
 
-The same 70 cases are descriptively compared with AUC-selected winner process sets (**56/70 exact**) and the predecessor stable core (**49/70 exact**). The paired counterfactual-versus-AUC exact counts are 51 both exact, 14 counterfactual-only exact, 5 AUC-only exact and 0 both wrong. No new post-outcome universal-superiority threshold was introduced for this paired comparison.
+The frozen taxon rule required all three M scores, mean expected-process score >0 and at least two positive M scores. Each four-taxon lane required >=3/4 recovered taxa and at least one recovery in both temperature and water groups.
+
+Observed:
+
+- plant lane: **2/4**, temperature 2/2, water 0/2;
+- nonplant lane: **1/4**, temperature 1/2, water 0/2;
+- both lane decisions: **NOT SUPPORTED**;
+- temperature overall: 3/4;
+- water overall: 0/4.
+
+The positive-only design cannot estimate specificity, a false-positive rate or complete process-identification accuracy. Combined 3/8 is not a replacement primary endpoint.
 
 ### Counterfactual score
 
-For each process and each of five predeclared sampling/background perturbations, prediction-adequate candidates are separated into process-containing and process-excluded classes after frozen process-alias mapping. The score is the normalized difference between the maximum held-out Schoener-D niche overlap attainable in these two classes. Case score is the arithmetic mean across perturbations.
-
-Frozen process thresholds were calibrated only on discovery truth and fixed before validation:
+For each process and frozen perturbation, prediction-adequate candidates are separated into process-containing and process-excluded classes after prospective alias mapping. The controlled-truth score is the normalized difference in best held-out Schoener-D niche overlap between those classes, averaged across perturbations. Frozen thresholds were calibrated only on discovery truth:
 
 - temperature `0.26539643681319824`;
 - water `0.06716709986237807`;
 - soil `0.33424158409183774`.
 
+The empirical positive-control implementation used model-pool inner spatial-CV process scores. Outer rows were separated/materialized, but no outer-sealed process-transfer evaluation was invoked for this endpoint.
+
 ### Statistical tests and uncertainty
 
-The principal scientific decisions use prospectively frozen absolute recovery gates rather than null-hypothesis P-value thresholds. Descriptive proportions and optional Wilson intervals may be reported, but these do not replace the frozen gates.
-
-For exclusion-based necessity, outcomes remain false-required counts, possible-process recall/precision and boundary coverage. These are not merged with counterfactual process-membership accuracy.
-
-Empirical confirmation retains its frozen prediction-guardrail, nondomination and strict-improvement criteria across the three-part denominator. No post hoc P-value threshold was used to promote Product A.
+Primary scientific decisions use prospectively frozen absolute recovery gates rather than post hoc P-value thresholds. Descriptive proportions or Wilson intervals do not replace those gates. The positive-control audit does not infer specificity from positive-only labels.
 
 ## Software and algorithms
 
 - package: `sdmr` version `0.3.0.dev0`;
-- language: Python ≥3.10;
+- Python >=3.10;
 - main libraries: NumPy, pandas, scikit-learn;
 - optional geospatial dependencies: rasterio, pyarrow, duckdb;
 - counterfactual scorer: `src/sdmr/counterfactual_process_recovery.py`;
 - fresh validation: `src/sdmr/counterfactual_process_validation.py`;
-- independent replication: `src/sdmr/counterfactual_process_replication.py`;
-- license: MIT.
+- replication: `src/sdmr/counterfactual_process_replication.py`;
+- real-control audit: `scripts/audit_real_positive_control_results.py`;
+- licence: MIT.
 
-Newly developed software is central to the claims; a software-submission checklist accompanies the manuscript package.
+The audit reproduces 96 stored candidate summaries from 284 fold rows, all 48 process × M scores, eight taxon outcomes and both lane decisions without refitting models or changing rules.
 
 ## Data collection / sources
 
-Empirical occurrence evidence was tied to the GBIF monthly snapshot dated 2026-08-01, DOI `10.15468/dl.fs3btq`, download key `0020258-260721160103020`. Environmental predictor identities are frozen in the repository manifest and workflow receipts. Target-group background is treated as an observation/reference frame, not biological absence.
+Empirical occurrence evidence was tied to the GBIF monthly snapshot dated 1 August 2026, DOI `10.15468/dl.fs3btq`, download key `0020258-260721160103020`. Environmental predictor identities are frozen in repository manifests. Target-group background is an observation/reference frame, not biological absence.
 
 ## Ethics
 
-No human participants, human data, vertebrate experiments or newly collected live-animal/plant experimental material are involved. The empirical lane analyses biodiversity occurrence/environmental records.
+No human participants, human data, vertebrate experiments or newly collected live-animal/plant experimental material are involved. The empirical lanes analyse biodiversity occurrence and environmental records.
 
 ## Data/Code availability
 
-Use `docs/product_a_nature_data_code_availability.md`. Before submission, replace branch-only references with a permanent archive DOI for the exact submission code/source-data state.
+Use `docs/product_a_nature_data_code_availability.md`. Before submission, replace branch-only references with a permanent archive DOI for the exact submission state.
 
 ## Outcome-neutral safeguards
 
-- the factorial predecessor result **22/35** remains an explicit scientific non-support;
-- discovery cases are not counted as validation cases;
-- validation and replication use disjoint unused seed sets;
-- counterfactual thresholds were frozen before fresh validation and not changed afterward;
-- no seed, process-set, candidate or perturbation was dropped after outcome;
-- the unchanged 70-case replication is reported independently from the 35-case validation;
-- exclusion-based necessity and counterfactual process membership remain distinct estimands;
-- v2.8.4 `empirical_confirmation_not_supported` and `not_promoted` remain authoritative;
-- new controlled-truth success does not convert the empirical endpoint into process-truth confirmation.
+- predecessor **22/35** non-support remains visible;
+- discovery cases are not counted as validation;
+- validation/replication seed sets are disjoint and thresholds were frozen before validation;
+- no controlled-truth seed/process/candidate/perturbation was dropped after outcome;
+- v2.6 necessity and counterfactual membership remain separate estimands;
+- v2.8.4 remains `empirical_confirmation_not_supported` / `not_promoted`;
+- real positive controls remain plant **2/4**, nonplant **1/4**, water **0/4** under the original all-three-M rule;
+- positive-only controls are not used to claim specificity;
+- inner-CV positive-control evidence is not described as outer spatial-transfer validation;
+- consumed real-control labels cannot become fresh validation after a successor is tuned.

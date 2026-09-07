@@ -1,124 +1,141 @@
 # Product-A manuscript claim audit
 
-Status: **submission-validation document after factorial falsification and counterfactual replication**.
+Status: **authoritative claim ceiling after factorial falsification, controlled-truth counterfactual replication and completed frozen real positive-control audit**.
 
-Purpose: ensure every Nature claim is attached to the correct prospective evidence and that process membership, process necessity and empirical non-identification remain distinct.
+Purpose: keep prediction, process membership, process necessity, empirical positive-control recovery and empirical non-identification distinct.
 
 ## Claim classes
 
 | Claim | Status | Evidence basis | Required boundary |
 |---|---|---|---|
 | Prediction adequacy does not imply correct process attribution | **supported under controlled truth** | v2.1–v2.2 | Prediction remains an adequacy layer. |
-| Ecological Pareto sharpening can create false necessity | **supported under controlled truth** | v2.3 | Do not generalize to every ensemble/set construction. |
-| Exclusion-based necessity can control false-required claims | **supported under controlled truth** | v2.4–v2.6 | v2.6 false-required=0, possible recall=1.0, precision≈0.467; `required_processes` empty 9/9. Safety result only. |
-| Earlier stable-process intersection performs strongly in original six-family suite | **supported predecessor evidence** | v2.7.2 | 55/60 exact, but T/W true in all 60; not final presence/absence validation. |
-| Stable-process predecessor generalizes to independently varying T/W/S membership | **not supported** | factorial 4201–4205 | Exact process set only 22/35; retain non-support. |
-| Counterfactual recovery score can classify process membership on unused truth | **supported** | fresh validation 4301–4305 | Exact 30/35; every T/W/S sens/spec ≥0.80. Thresholds frozen before validation. |
-| Counterfactual process membership replicates unchanged | **supported** | replication 4401–4410 | Exact 65/70; no method/threshold change after validation. |
-| Counterfactual process membership remains identifiable despite fitted-model disagreement | **supported** | replication | Ecological models disagree 30/70; exact process set 27/30. |
-| Replication temperature membership classification is strong | **supported** | replication | TP40/FN0/TN28/FP2; sens1.000/spec0.933. |
-| Replication water membership classification is strong | **supported** | replication | TP40/FN0/TN28/FP2; sens1.000/spec0.933. |
-| Replication soil membership classification is strong | **supported** | replication | TP39/FN1/TN30/FP0; sens0.975/spec1.000. |
-| Counterfactual estimator is universally superior to AUC | **not established / prohibited** | paired reporting | Same 70 cases: counterfactual65/70 vs AUC56/70; paired 14 counterfactual-only,5 AUC-only. No preregistered universal-superiority endpoint. |
-| Observation-process separation can prevent observation-only ecological misattribution | **supported in evaluated controlled family** | v2.7.2 | AUC observer_only5/10 with driver F1=0; Product A T+W10/10. Mechanism evidence, not universal rate. |
-| Fresh empirical ecological selection is strictly superior to AUC | **not supported** | v2.8.4 | strict improvement0/3; `not_promoted`. |
-| Ecological and AUC roles selected same model in fresh empirical endpoint | **supported reporting fact** | v2.8.4 audit | candidate/predictor identity108/108. |
-| Product A identifies true ecological processes in real GBIF data | **not established** | empirical boundary | Real occurrence data have no literal generating-process answer key. |
-| Counterfactual score proves physiological/causal necessity | **not established / prohibited** | claim boundary | It estimates process membership under frozen registry. |
-| Every real-world proxy/composite channel is excluded | **not established** | registry boundary | Only declared aliases/representations are excluded. |
+| Ecological model-set sharpening can create false necessity | **supported under controlled truth** | v2.3 | Do not generalize to every set construction. |
+| Exclusion-based necessity can control false-required claims | **supported but broad** | v2.4–v2.6 | false-required=0; possible recall=1.0; precision≈0.467; required set empty 9/9. |
+| v2.7.2 stable-process intersection performs strongly in its original suite | **supported predecessor evidence** | v2.7.2 | 55/60 exact, but T/W were true in all 60. |
+| Stable-process predecessor generalizes to independently varying T/W/S | **not supported** | factorial 4201–4205 | 22/35 exact; retain failure. |
+| Counterfactual recovery classifies process membership on unused controlled truth | **supported** | validation 4301–4305 | 30/35; all T/W/S sens/spec >=0.80. |
+| Counterfactual membership replicates unchanged | **supported** | replication 4401–4410 | 65/70; no method/threshold change. |
+| Membership can remain identifiable despite fitted-model disagreement | **supported under controlled truth** | replication | model disagreement 30/70; exact process set 27/30. |
+| Counterfactual estimator is universally superior to AUC | **not established / prohibited** | paired descriptive comparison | 65/70 vs 56/70; no universal-superiority endpoint. |
+| Observation-process separation can prevent observation-only misattribution | **supported in evaluated controlled family** | v2.7.2 | AUC observer_only 5/10; ecological T+W 10/10. |
+| Fresh empirical ecological selection is strictly superior to AUC | **not supported** | v2.8.4 | strict improvement 0/3; not promoted. |
+| Ecological and AUC roles selected the same model in v2.8.4 | **supported reporting fact** | v2.8.4 audit | candidate/predictor identity 108/108. |
+| Current estimator recovers frozen real positive controls generally | **not supported** | Sep. 7 positive controls | plant 2/4; nonplant 1/4; water 0/4; both lane gates fail. |
+| Positive-control audit estimates empirical specificity | **not estimable / prohibited** | positive-only label design | no negative process labels; always-positive rule would recover all controls. |
+| Positive-control audit demonstrates outer spatial-transfer process recovery | **not established / prohibited** | implementation audit | process score uses model-pool inner spatial CV; outer-sealed process evaluation not invoked. |
+| Product A identifies true ecological processes generally in real GBIF data | **not supported at present** | combined empirical boundary | controlled-truth capability does not substitute for real-data validation. |
+| Failed water controls prove water is biologically absent | **prohibited** | Quercus/Silene + missing alternatives | failure belongs to current estimator/representation system. |
+| Counterfactual score proves physiological/causal necessity | **not established / prohibited** | estimand boundary | membership under frozen registry only. |
+| Every real-world proxy/composite channel is excluded | **not established** | registry boundary | only declared representations are excluded. |
 
 ## Core claim approved for Abstract/Discussion
 
-> **After a stronger factorial truth test falsified the preceding model-intersection rule (22/35 exact process sets), Product A reformulated process identification as counterfactual ecological-recovery loss under complete declared process exclusion. Thresholds calibrated on discovery-only truth generalized to 30/35 fresh validation cases and, without any method or threshold change, to 65/70 independent replication cases. Replication sensitivity was 0.975–1.000 and specificity 0.933–1.000 across independently varying temperature, water and soil; process truth remained exact in 27/30 cases despite ecological-model disagreement. Fresh plant process truth remains unestablished and the frozen empirical endpoint remains not supported/not promoted.**
+> **After a stronger factorial truth test falsified the preceding model-intersection rule (22/35 exact), Product A reformulated process identification as counterfactual ecological-recovery loss under complete declared process exclusion. Discovery-only thresholds generalized to 30/35 fresh validation cases and, unchanged, to 65/70 independent replication cases, with T/W/S sensitivity 0.975–1.000 and specificity 0.933–1.000. Prospectively frozen real positive controls did not support general empirical process identification: plants recovered 2/4 controls, nonplants 1/4 and water 0/4; positive-only inner-CV evidence does not estimate specificity or outer-transfer performance.**
 
 ## Mandatory evidence sequence
 
 ### 1. Predecessor falsification
 
-Factorial discovery (`4201`–`4205`, n=35):
+Factorial discovery (`4201`–`4205`, n=35): stable core 22/35; AUC 25/35. Do not hide or pool this failure into later validation.
 
-- stable-core exact=22/35;
-- AUC exact=25/35;
-- stable exact under model disagreement=12/20;
-- T sens/spec1.00/0.667;
-- W0.70/0.867;
-- S1.00/0.867.
+### 2. Counterfactual definition and freeze
 
-Do not hide or pool this failure into later validation.
+Among candidates clearing the prediction gate, quantify best held-out Schoener-D recovery lost when all declared representations of process `p` are excluded; average normalized loss across five frozen perturbations.
 
-### 2. Counterfactual estimator definition
-
-For each process, among candidates clearing the existing prediction gate, quantify the best held-out Schoener-D overlap lost when all declared representations of the process are excluded. Average the normalized gap across five frozen sampling/background perturbations.
-
-Frozen discovery-only thresholds:
+Thresholds frozen from discovery only:
 
 - T 0.2653964368;
 - W 0.0671670999;
 - S 0.3342415841.
 
-### 3. Fresh validation
+### 3. Fresh controlled-truth validation
 
-Seeds4301–4305, n=35, no discovery-seed reuse:
+Seeds 4301–4305, n=35:
 
-- counterfactual exact=30/35;
-- predecessor=23/35;
-- AUC=25/35;
-- exact under model disagreement=15/18;
-- all per-process sensitivity/specificity gates pass.
+- counterfactual 30/35;
+- predecessor 23/35;
+- AUC 25/35;
+- exact under model disagreement 15/18;
+- all process gates pass.
 
 ### 4. Independent unchanged replication
 
-Seeds4401–4410, n=70, method unchanged:
+Seeds 4401–4410, n=70:
 
-- counterfactual exact=65/70;
-- AUC=56/70;
-- predecessor=49/70;
-- exact under model disagreement=27/30;
+- counterfactual 65/70;
+- AUC 56/70;
+- predecessor 49/70;
+- exact under model disagreement 27/30;
 - T 40/0/28/2;
 - W 40/0/28/2;
 - S 39/1/30/0.
 
-Exact by true set: T8/10, W8/10, S10/10, T+W10/10, T+S10/10, W+S10/10, T+W+S9/10.
+### 5. Empirical boundary
+
+v2.8.4:
+
+- `empirical_confirmation_not_supported` / `not_promoted`;
+- same candidate/predictors 108/108.
+
+Frozen real positive controls:
+
+- plant 2/4 (T 2/2, W 0/2);
+- nonplant 1/4 (T 1/2, W 0/2);
+- both original lane gates fail;
+- 24/24 pipelines completed, 21/24 with adequate candidate, 17/24 two-sided comparisons;
+- combined 3/8 is descriptive only;
+- no empirical specificity from positive-only labels;
+- inner-CV scoring is not outer spatial-transfer validation.
 
 ## Necessity / membership separation
 
-**Process membership**: counterfactual degradation of attainable ecological recovery when the process is made unavailable, classified with thresholds prospectively calibrated on discovery truth.
+**Process membership** is the counterfactual degradation of attainable ecological recovery when the declared process channel is unavailable, classified with thresholds prospectively calibrated on discovery truth.
 
-**Process necessity**: stronger exclusion-based claim about whether any adequate explanation survives process exclusion under the necessity contract.
+**Process necessity** is a stronger exclusion claim about whether any adequate explanation survives process removal. v2.6 remained broad and found no positively required process in nine validation taxa.
 
-The v2.6 necessity result is broad and has no positively required process in its nine validation taxa. Therefore:
-
-- never call 65/70 a necessity-recovery rate;
-- never call the counterfactual threshold a causal-effect threshold;
-- never merge v2.6 precision0.467 with counterfactual process classification.
+Never call 65/70 a necessity-recovery rate or a causal-effect estimate.
 
 ## AUC boundary
 
-The replication comparison (65/70 counterfactual vs56/70 AUC; paired 51 both exact,14 counterfactual-only,5 AUC-only,0 both wrong) is useful descriptive evidence. It does **not** authorize the statement “Product A is universally statistically superior to AUC,” because such a comparative hypothesis/threshold was not preregistered after the counterfactual estimator was created.
+The same-case 65/70 versus 56/70 result is useful descriptive evidence, not a preregistered universal-superiority theorem. The old empirical superiority endpoint separately failed and remains failed.
 
-The old frozen empirical superiority endpoint remains a separate result and was not supported.
+## Empirical-identification boundary
+
+The September 7 controls are stronger than “real data lack truth” because they provide an external one-sided answer key. They still do not provide complete truth. Their non-support means the current occurrence-data estimator/representation system did not meet its own prospective recovery target.
+
+Do not convert that into either extreme:
+
+- **too strong positive:** “Product A is empirically validated”;
+- **too strong negative:** “temperature/water are absent” or “the counterfactual estimand is disproven.”
+
+Observed bottlenecks include empty adequate-model classes in 3/24 cells, water-process non-recovery even in complete-M plant controls, incomplete plant fold coverage in one cell and absence of a two-sided empirical truth set.
 
 ## Endpoint classification
 
 1. `factorial_predecessor_process_membership = not_supported (22/35)`;
-2. `counterfactual_fresh_process_membership_validation = supported (30/35; all process gates pass)`;
-3. `counterfactual_unchanged_independent_replication = supported (65/70; all process gates pass)`;
-4. `known_truth_exclusion_false_necessity_control = supported but broad`;
-5. `fresh_empirical_strict_advantage_over_auc = not_supported / not_promoted`;
-6. `real_data_generating_process_truth_identification = not_directly_established`.
+2. `counterfactual_fresh_process_membership_validation = supported (30/35)`;
+3. `counterfactual_unchanged_independent_replication = supported (65/70)`;
+4. `known_truth_exclusion_false_necessity_control = supported_but_broad`;
+5. `v284_fresh_empirical_strict_advantage = not_supported / not_promoted`;
+6. `real_positive_control_plant_lane = not_supported (2/4)`;
+7. `real_positive_control_nonplant_lane = not_supported (1/4)`;
+8. `general_real_data_process_identification = not_supported_by_current_validation`.
 
 ## Submission gate
 
 Pass only if:
 
-- 22/35 predecessor failure is visible before the successor result;
-- discovery, fresh validation and independent replication seed sets are explicit and disjoint;
-- thresholds are described as discovery-calibrated and frozen before validation;
-- 30/35 and 65/70 are attached to **process membership**, not necessity;
-- T/W/S replication sensitivity/specificity and the five-error failure envelope remain visible;
-- no text turns the descriptive AUC comparison into universal superiority;
-- v2.6 remains false-necessity safety with `required_processes` empty9/9;
-- v2.8.4 remains `empirical_confirmation_not_supported` and `not_promoted`;
+- predecessor 22/35 failure precedes successor results;
+- discovery/validation/replication seeds and threshold freeze are explicit;
+- 30/35 and 65/70 are process membership, not necessity;
+- T/W/S replication operating characteristics remain visible;
+- descriptive AUC comparison is not universalized;
+- v2.6 remains false-necessity safety;
+- v2.8.4 remains not supported/not promoted;
+- plant 2/4, nonplant 1/4 and water 0/4 remain explicit;
+- positive-only controls never imply specificity;
+- inner-CV process scores never imply outer transfer;
+- missing/empty adequate classes are not converted to favorable measured effects;
 - no selected raster/process label is called causal solely because identified;
 - no complete real-world proxy closure is claimed;
-- no post-outcome retuning or favorable process/seed subset is introduced.
+- no post-outcome retuning, relaxed M rule or favorable taxon subset is introduced.

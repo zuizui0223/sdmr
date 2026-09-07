@@ -1,144 +1,77 @@
 # Product A — Nature Ecology & Evolution editorial-gate audit
 
-Status: **submission-readiness audit after completed counterfactual validation and independent replication**.
+Status: **editorial audit after controlled-truth replication and completed frozen real positive-control non-support**.
 
 ## Gate 1 — Ecological advance rather than software benchmark
 
-**PASS.**
-
-The paper now contains a concrete inferential result beyond the established `prediction != explanation` distinction:
-
-> **environmental-process membership is estimated from the ecological recovery lost when every declared representation of that process is removed from the prediction-adequate candidate class.**
-
-This estimator was not presented only on a favorable benchmark. A predecessor was first falsified by a stronger factorial truth test and the successor was then tested on disjoint validation and replication seeds.
+**PASS.** The paper offers a process-level inferential object rather than another predictive score: environmental-process membership is estimated from ecological recovery lost when every declared representation of a process is removed from the prediction-adequate candidate class.
 
 ## Gate 2 — Prospective falsification before positive result
 
-**PASS.**
+**PASS.** The predecessor stable-process intersection failed the stronger factorial ON/OFF test (**22/35 exact**, versus AUC **25/35**). That adverse result was retained and used only as discovery evidence for the counterfactual successor.
 
-The evidence sequence is unusually strong for a methodological ecology paper:
+## Gate 3 — Positive controlled-truth identification result
 
-- v2.3: ecological Pareto/model-set sharpening can create false necessity;
-- v2.6: explicit exclusion controls false-required claims but remains broad;
-- v2.7.2: consensus-first process stability is a useful predecessor proof of concept;
-- factorial T/W/S truth test: predecessor exact recovery falls to **22/35**, versus AUC **25/35**;
-- this adverse result is retained and motivates the counterfactual successor rather than being hidden or threshold-rescued.
-
-## Gate 3 — Positive process-identification result
-
-**PASS.**
-
-Discovery seeds `4201–4205` were used only to define the counterfactual process score and freeze thresholds. Fresh validation used unused seeds `4301–4305`:
-
-- counterfactual exact process-set recovery **30/35 = 85.7%**;
-- predecessor stable core **23/35 = 65.7%**;
-- AUC-selected winner **25/35 = 71.4%**;
-- exact counterfactual recovery when ecological fitted models disagreed **15/18 = 83.3%**;
-- every preregistered support gate passed.
-
-The estimator and thresholds were then left unchanged for unused seeds `4401–4410` (`n=70`). Independent replication produced:
-
-- counterfactual exact process sets **65/70 = 92.9%**;
-- AUC winner **56/70 = 80.0%**;
-- predecessor stable core **49/70 = 70.0%**;
-- exact process truth under ecological-model disagreement **27/30 = 90.0%**;
-- temperature sensitivity/specificity **1.000 / 0.933**;
-- water **1.000 / 0.933**;
-- soil **0.975 / 1.000**.
-
-This substantially resolves the previous editorial weakness that Product A only identified a problem without solving it under controlled truth.
+**PASS.** Fresh unused validation recovered **30/35** complete process sets. The estimator and thresholds were then unchanged for independent seeds `4401`–`4410`, yielding **65/70 = 92.9%**, versus AUC **56/70** and predecessor **49/70**. Process sets remained exact in **27/30** cases despite fitted-model disagreement. T/W/S replication sensitivity ranged 0.975–1.000 and specificity 0.933–1.000.
 
 ## Gate 4 — Outcome integrity
 
-**PASS.**
-
-- discovery, validation and replication seeds are disjoint;
-- thresholds were frozen before fresh validation;
-- no threshold, process-set, candidate-library or perturbation change occurred after validation;
-- the 35-case support gate was allowed to fail;
-- the 70-case replication was allowed to fail;
-- the unfavorable predecessor factorial result remains visible;
-- the unfavorable empirical v2.8.4 endpoint remains visible.
-
-Authoritative replication: workflow `34015900603`, artifact `9983940439`, digest `sha256:af72b78f64e5160dbc96a1147769e83a0b21b461d9b7111ca2e663e8f786d3eb`.
+**PASS.** Discovery, validation and replication seeds are disjoint; thresholds were frozen before validation; no controlled-truth seed/process/candidate/perturbation was dropped after outcome. The empirical endpoints were likewise allowed to fail and remain failed.
 
 ## Gate 5 — Claim boundaries
 
-**PASS if retained exactly.**
-
-Supported:
-
-- process membership under the declared candidate/process representation registry;
-- prospective counterfactual process classification under controlled truth;
-- high exact-set recovery across all seven non-empty T/W/S process combinations;
-- process identification can remain correct despite fitted-model disagreement;
-- exclusion-based necessity is a separate stronger estimand and can remain broad/unresolved.
-
-Not supported/prohibited:
-
-- physiological or causal necessity;
-- fundamental-niche identification;
-- complete closure over all possible real-world proxies/composites;
-- direct recovery of literal generating truth in GBIF data;
-- universal empirical superiority over AUC;
-- treating the descriptive 65/70 versus 56/70 comparison as a post hoc universal-superiority test.
+**PASS if retained exactly.** Supported: controlled-truth process membership under the declared representation registry. Not supported: physiological/causal necessity, fundamental-niche identification, complete real-world proxy closure, universal superiority to AUC, empirical specificity from positive-only controls, outer-transfer process recovery in the current real-control endpoint or general real-data process identification.
 
 ## Gate 6 — Empirical external validity
 
-**LIMITATION, but no longer the only positive-result bottleneck.**
+**NOT SUPPORTED by the current frozen empirical validation. This is now a central limitation, not a footnote.**
 
-The fresh plant endpoint remains:
+Two frozen real-data tests agree on the lack of empirical promotion:
 
-- full 3/3 denominator;
-- prediction guardrail passed;
-- strict ecological improvement 0/3;
-- `empirical_confirmation_not_supported`;
-- `not_promoted`;
-- ecological/AUC candidate and selected-predictor identity 108/108.
+1. v2.8.4: strict ecological improvement 0/3, `empirical_confirmation_not_supported`, `not_promoted`, same ecological/AUC candidate and predictors in **108/108** matched cells.
+2. real positive controls: plant **2/4**, nonplant **1/4**, water **0/4**; both four-taxon lane gates fail.
 
-The empirical corpus therefore cannot validate literal process membership and supplied no realized selector contrast. This is an explicit external-validity boundary, not a contradiction of the controlled-truth result.
+The second test is stronger because it supplies independent biological positive controls, but it remains one-sided. It cannot estimate specificity or complete generating-process accuracy. All 24/24 taxon × M pipelines completed, only 21/24 had an adequate candidate and only 17/24 expected-process cells had two-sided comparisons. The implemented scores are inner spatial CV, not an invoked outer-sealed transfer evaluation.
+
+Required editorial framing: **controlled-truth capability is demonstrated; general empirical process identification is not.** Do not present the real-data section as validation success.
 
 ## Gate 7 — Broad ecological relevance
 
-**PASSABLE to strong.**
+**PASSABLE, with higher editorial risk than before the positive-control audit.** The general question—what ecological recovery becomes unattainable when a process information channel is removed—extends beyond one SDM metric. But editors may judge controlled-truth evidence insufficient without biological validation. This is a genuine scope risk, not a logical contradiction.
 
-The counterfactual question is general beyond one SDM metric:
+## Gate 8 — 30-second editorial argument
 
-> if a proposed environmental process is unavailable through every declared representation, how much ecological explanatory/recovery capacity is lost among models that still meet predictive adequacy?
-
-That logic applies naturally to observational ecological models with correlated variables, proxies and multiple adequate explanations. The paper should still avoid claiming empirical validation outside the SDM test bed.
-
-## Gate 8 — Accessibility / 30-second editorial argument
-
-1. Prediction can be right while process attribution is wrong.
+1. Prediction can be correct while process attribution is wrong.
 2. Selecting only ecologically good models can create false necessity.
-3. A consensus-based predecessor looked strong, but failed a stronger factorial truth test: **22/35 exact**.
-4. We therefore estimated each process by the ecological recovery lost when all of its declared representations were removed.
-5. The estimator recovered **30/35** complete process sets in fresh validation and **65/70** in an unchanged independent replication, with T/W/S sensitivity 0.975–1.000 and specificity 0.933–1.000.
-6. Fresh plant data do not provide literal process truth and produced the same ecological/AUC model in 108/108 cells, so empirical superiority remains unclaimed.
+3. A consensus predecessor looked strong, then failed a stronger factorial test: **22/35**.
+4. We therefore measured each process by ecological recovery lost under complete declared process exclusion.
+5. The frozen estimator recovered **30/35** fresh and **65/70** unchanged replication process sets.
+6. In prospectively frozen real positive controls, however, plants recovered **2/4**, nonplants **1/4** and water **0/4**; therefore empirical generalization remains unsupported.
 
-This is the Nature-level argument.
+That is the Nature-level argument. The negative real-data result is part of the contribution because it identifies the external-validity boundary of the otherwise successful process estimand.
 
 ## Reasons to send for review
 
-- direct methodological solution, not only problem diagnosis;
-- prospective failure of a predecessor before successor development;
+- direct process-level solution after prospective falsification of a weaker estimator;
 - disjoint discovery/validation/replication evidence;
-- 92.9% complete process-set recovery in independent replication;
-- high sensitivity/specificity for three independently varying process identities;
-- 90% exact recovery even when ecological fitted models disagree;
-- explicit retention of non-support, unavailability and empirical observational equivalence;
-- reproducible frozen workflows and artifacts.
+- 92.9% exact process-set recovery in unchanged controlled-truth replication;
+- strong per-process operating characteristics under independent T/W/S truth;
+- 90% exact process recovery despite fitted-model disagreement;
+- unusually explicit retention of real-data non-support rather than post hoc rescue;
+- reproducible frozen evidence and a no-refit real-control audit.
 
-## Remaining desk-rejection risks
+## Desk-rejection risks
 
-- controlled-truth rather than experimentally known biological process truth;
-- only three declared environmental process families in the final factorial system;
-- method may still be viewed as specialist statistical ecology rather than field-wide ecology;
-- empirical plant corpus does not change a biological conclusion relative to AUC because selectors collapse.
+- strongest positive result is controlled truth rather than experimentally known biological generating truth;
+- both frozen real-data support gates are negative;
+- final factorial system contains only three declared process families;
+- candidate/representation closure is necessarily incomplete in real ecology;
+- the work may be judged specialist statistical ecology rather than field-wide ecological discovery.
 
-These are genuine scope risks, not unresolved logical contradictions.
+These risks should be stated, not solved by adding opportunistic science after the endpoint.
 
 ## Decision
 
-**Proceed with Nature Ecology & Evolution first.** The previous central weakness—strong problem framing without a direct numerical solution—has been addressed by the prospectively validated and independently replicated counterfactual estimator. No additional Product-A science should be added before submission. If rejected for breadth/priority, transfer unchanged evidence to **Nature Communications**, then **Methods in Ecology and Evolution**.
+**Nature Ecology & Evolution remains a defensible first submission, but the pitch must be “validated process estimand + prospectively demonstrated empirical identification boundary,” not “empirically validated SDM process finder.”**
+
+Do not retune Product A to rescue the Nature submission. A successor that addresses water representation, adequate-alternative availability and outer transfer is a separate prospective programme with a new frozen biological validation set. If the paper is rejected for breadth/priority, transfer the same frozen evidence to **Nature Communications**, then **Methods in Ecology and Evolution**.
