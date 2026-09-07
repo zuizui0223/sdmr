@@ -17,7 +17,7 @@ REQUIRED_RESULT_HEADINGS = (
     "Factorial truth falsified the stable-process intersection",
     "Counterfactual ecological recovery identified process membership",
     "Independent replication recovered 65 of 70 complete process sets",
-    "Fresh occurrence data remained empirically non-identifying",
+    "Frozen real positive controls did not support general empirical process recovery",
 )
 PLACEHOLDER_PATTERNS = (
     r"\bTODO\b",
@@ -36,6 +36,8 @@ FORBIDDEN_CLAIM_PATTERNS = (
     r"v2\.8\.4.*not[_ -]?tested",
     r"fresh plant[^\n]{0,160}(?:validated|confirmed) (?:the )?(?:generating|true) process",
     r"counterfactual[^\n]{0,180}(?:causal|physiological) necessity",
+    r"real positive controls?[^\n]{0,180}(?:validated|confirmed) general empirical process",
+    r"positive[- ]only controls?[^\n]{0,180}(?:specificity|false[- ]positive rate) (?:was|were|is) estimated",
 )
 
 
@@ -118,6 +120,11 @@ def check_article(path: Path) -> dict[str, int]:
         "0.067167",
         "0.334242",
         "108/108",
+        "2/4",
+        "1/4",
+        "21/24",
+        "positive controls",
+        "inner spatial cross-validation",
         "empirical_confirmation_not_supported",
         "not_promoted",
         "process membership",
