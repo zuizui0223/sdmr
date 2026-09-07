@@ -128,6 +128,7 @@ jobs:
           merge-multiple: false
       - name: Open generating-process truth only after every frozen nontruth artifact exists
         run: |
+          mkdir -p terminal
           python -m sdmr.proxy_closed_route_process_validation evaluate \
             --input-dir inputs \
             --output-dir terminal | tee terminal/stdout.txt
