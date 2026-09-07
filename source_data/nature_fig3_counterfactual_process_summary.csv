@@ -1,0 +1,10 @@
+process,truth_present_n,truth_absent_n,tp,fn,tn,fp,sensitivity,specificity,method
+temperature,40,30,40,0,28,2,1.0,0.9333333333333333,counterfactual
+water,40,30,40,0,28,2,1.0,0.9333333333333333,counterfactual
+soil,40,30,39,1,30,0,0.975,1.0,counterfactual
+temperature,40,30,40,0,24,6,1.0,0.8,old_stable_core
+water,40,30,38,2,24,6,0.95,0.8,old_stable_core
+soil,40,30,40,0,21,9,1.0,0.7,old_stable_core
+temperature,40,30,40,0,25,5,1.0,0.8333333333333334,auc_winner
+water,40,30,40,0,25,5,1.0,0.8333333333333334,auc_winner
+soil,40,30,40,0,23,7,1.0,0.7666666666666667,auc_winner

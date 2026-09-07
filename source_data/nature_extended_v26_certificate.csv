@@ -1,0 +1,4 @@
+panel,complete_adequate_boundary_coverage,v26_boundary_coverage,complete_adequate_mean_normalized_width,v26_mean_normalized_width,possible_process_recall,possible_process_precision,width_ratio
+D1,0.381,0.762,0.111,0.340,1.0,0.467,3.05
+D2,0.333,0.762,0.243,0.349,1.0,0.467,1.44
+D3,0.381,0.857,0.266,0.359,1.0,0.467,1.35

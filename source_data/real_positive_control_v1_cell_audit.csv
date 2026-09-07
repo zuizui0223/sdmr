@@ -1,0 +1,25 @@
+lane,species,expected_process,m_spec,expected_score,score_status,raw_schoener_d_gap,best_containing_candidate,best_excluded_candidate,n_adequate,pipeline_available,expected_process_comparable,boundary_code_not_measured_loss,all_candidates_three_folds
+plant,Quercus robur,water,buffer_150km,-0.5609044342847073,compared,-0.125988117265871,water_only,neutral_only,4,True,True,False,False
+plant,Quercus robur,water,buffer_300km,-0.2967101144667988,compared,-0.012100609767058401,water_only,neutral_only,4,True,True,False,True
+plant,Quercus robur,water,buffer_500km,0.027537540474586904,compared,0.0027527232814575364,water_only,neutral_only,4,True,True,False,True
+plant,Silene ciliata,water,buffer_150km,0.0057403726693607575,compared,0.0003124520845482759,temperature_water,temperature_only,4,True,True,False,True
+plant,Silene ciliata,water,buffer_300km,0.009025112189031457,compared,0.0004517678180384066,temperature_water,temperature_only,4,True,True,False,True
+plant,Silene ciliata,water,buffer_500km,-0.016876837054522874,compared,-0.0005460399561926232,temperature_water,temperature_only,3,True,True,False,True
+plant,Plantago alpina,temperature,buffer_150km,0.5861432646786846,compared,0.04484383887613197,temperature_water,water_only,4,True,True,False,True
+plant,Plantago alpina,temperature,buffer_300km,0.3616388298981939,compared,0.03578517212209406,temperature_water,water_only,4,True,True,False,True
+plant,Plantago alpina,temperature,buffer_500km,0.15112592667148683,compared,0.011482878259134799,temperature_water,water_only,4,True,True,False,True
+plant,Silene acaulis,temperature,buffer_150km,0.39853678069476456,compared,0.05319508863241362,temperature_water,water_only,4,True,True,False,True
+plant,Silene acaulis,temperature,buffer_300km,0.34816469236590153,compared,0.046726951113749526,temperature_water,water_only,4,True,True,False,True
+plant,Silene acaulis,temperature,buffer_500km,0.612689984682989,compared,0.07546671761106044,temperature_water,water_only,4,True,True,False,True
+nonplant,Bombus terrestris,temperature,buffer_150km,,no_adequate_candidate,,,,0,True,False,False,True
+nonplant,Bombus terrestris,temperature,buffer_300km,1.0,no_adequate_excluded_candidate,,temperature_only,,1,True,False,True,True
+nonplant,Bombus terrestris,temperature,buffer_500km,1.0,no_adequate_excluded_candidate,,temperature_water,,2,True,False,True,True
+nonplant,Ochotona princeps,temperature,buffer_150km,0.7582756404431544,compared,0.08568082105298591,temperature_only,water_only,4,True,True,False,True
+nonplant,Ochotona princeps,temperature,buffer_300km,1.0,compared,0.058196245958133275,temperature_water,water_only,3,True,True,False,True
+nonplant,Ochotona princeps,temperature,buffer_500km,0.6232794997336714,compared,0.08893053821621752,temperature_only,water_only,4,True,True,False,True
+nonplant,Plethodon cinereus,water,buffer_150km,-1.0,no_adequate_process_candidate,,,temperature_only,1,True,False,True,True
+nonplant,Plethodon cinereus,water,buffer_300km,-0.7743255065896758,compared,-0.0382369804571126,water_only,temperature_only,3,True,True,False,True
+nonplant,Plethodon cinereus,water,buffer_500km,,no_adequate_candidate,,,,0,True,False,False,True
+nonplant,Cepaea nemoralis,water,buffer_150km,0.8975883513613291,compared,0.01891395254849748,water_only,neutral_only,4,True,True,False,True
+nonplant,Cepaea nemoralis,water,buffer_300km,,no_adequate_candidate,,,,0,True,False,False,True
+nonplant,Cepaea nemoralis,water,buffer_500km,1.0,no_adequate_excluded_candidate,,water_only,,1,True,False,True,True

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use SDMR, please cite the archived release associated with the manuscript."
+title: "SDMR: sealed ecological identification for occurrence-only species distribution models"
+type: software
+authors:
+  - family-names: "ZHANG"
+    given-names: "RUIQI"
+repository-code: "https://github.com/zuizui0223/sdmr"
+license: MIT
+version: "0.3.0.dev0"
+date-released: "2026-09-04"
+abstract: >-
+  SDMR implements prospective information barriers, occurrence-only model
+  evaluation, known-truth ecological process recovery, falsification-first
+  process certificates, observation-process separation, deterministic
+  scientific execution and frozen empirical confirmation workflows for species
+  distribution modelling. The manuscript release preserves the completed
+  Product-A v2.8.4 endpoint and reporting-only Nature Ecology & Evolution
+  synthesis without authorizing additional Product-A experiments.
+keywords:
+  - species distribution models
+  - ecological niche models
+  - ecological identification
+  - occurrence-only data
+  - model selection
+  - falsification
+  - reproducibility

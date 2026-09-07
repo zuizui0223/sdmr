@@ -1,0 +1,119 @@
+{
+  "purpose": "product_a_real_positive_control_process_membership_v1",
+  "scope": "cross_taxon_nonplant_v1",
+  "frozen_before_sdm_outcome": true,
+  "external_truth_role": "positive_control_only_no_negative_process_truth",
+  "source": {
+    "gbif_snapshot_date": "2026-08-01",
+    "gbif_snapshot_doi": "10.15468/dl.fs3btq",
+    "gbif_citation_sha256": "022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050",
+    "gbif_snapshot_region": "us-east-1",
+    "taxa_file": "configs/product_a_real_positive_control_nonplant_taxa_v1.csv",
+    "taxa_sha256": "7669d5d2044213ec89d500c352a33e2c64a7f6f78c6903dc4629b5ee1e5696b9",
+    "target_groups_file": "configs/product_a_real_positive_control_nonplant_target_groups_v1.csv",
+    "target_groups_sha256": "ee4c6283ccb1ef72c355a9232010af1b162c0ac7187cc0e5a7a7bcee5e3c4a24",
+    "environment_manifest": "configs/product_a_real_positive_control_nonplant_manifest_v1.csv",
+    "environment_manifest_sha256": "8913efcb810ee5892a655e7ef2d2cce5011e64fb931854095ebc6ca779e08e11",
+    "target_group_sampling_mode": "same_snapshot_class_matched_one_per_0.05_degree_cell",
+    "target_group_source_independent_of_external_process_labels": true
+  },
+  "occurrence_gate": {
+    "minimum_occurrences": 60,
+    "minimum_unique_cells": 40,
+    "cell_size_degrees": 0.05,
+    "outer_sealed_fraction": 0.2,
+    "seed": 20260906
+  },
+  "accessible_area": {
+    "grid_file": "configs/product_a_buffer_specs_v1.csv",
+    "m_as_sensitivity": true,
+    "required_specs": [
+      "buffer_150km",
+      "buffer_300km",
+      "buffer_500km"
+    ],
+    "background_points_per_spec": 2000,
+    "target_group": "Each focal species uses the 0.05-degree sampling footprint of its frozen GBIF class (Insecta, Mammalia, Amphibia or Gastropoda) from the same 2026-08-01 monthly snapshot; all four focal species are excluded before background construction."
+  },
+  "candidate_library": {
+    "model": "logistic_l2_degree1_C0.1_random_state0",
+    "temperature_predictors": [
+      "bio1",
+      "bio5",
+      "bio6",
+      "bio7"
+    ],
+    "water_predictors": [
+      "bio12",
+      "bio13",
+      "bio14",
+      "bio17"
+    ],
+    "neutral_predictors": [
+      "rsds",
+      "sfcWind"
+    ],
+    "candidates": {
+      "temperature_only": [
+        "temperature",
+        "neutral"
+      ],
+      "water_only": [
+        "water",
+        "neutral"
+      ],
+      "temperature_water": [
+        "temperature",
+        "water",
+        "neutral"
+      ],
+      "neutral_only": [
+        "neutral"
+      ]
+    },
+    "hidden_external_process_labels_used_for_fitting_or_selection": false,
+    "nonplant_generic_climate_registry": true,
+    "preoutcome_registry_revision": "Replaced plant-oriented growing-season temperature/precipitation channels with generic BIOCLIM annual/extreme temperature and precipitation channels before any non-plant environmental feature or SDM process score was observed."
+  },
+  "counterfactual_score": {
+    "prediction_adequacy": "candidate mean presence_rank >= 0.51 and mean - SEM >= 0.50",
+    "ecological_metric": "niche_overlap_schoener_d_pc12",
+    "per_m_score": "(best mean overlap among adequate candidates containing process - best mean overlap among adequate candidates excluding process) / overlap range among all adequate candidates",
+    "no_adequate_excluded_candidate_score": 1.0,
+    "no_adequate_containing_candidate_score": -1.0,
+    "zero_overlap_range_score": 0.0,
+    "case_score": "mean over three frozen M specifications"
+  },
+  "positive_control_recovery_rule": {
+    "expected_process_mean_score_must_be_positive": true,
+    "expected_process_positive_m_count_min": 2,
+    "competing_process_score_is_descriptive_only": true,
+    "no_negative_or_dominance_truth_inferred_from_literature": true,
+    "primary_overall_recovery_min": 0.75,
+    "minimum_recovered_per_process_group": 1,
+    "eligible_taxa_denominator_is_frozen_four": true,
+    "unavailable_taxon_counts_as_not_recovered": true
+  },
+  "taxonomic_generality": {
+    "classes": [
+      "Insecta",
+      "Mammalia",
+      "Amphibia",
+      "Gastropoda"
+    ],
+    "one_species_per_class": true,
+    "plant_lane_result_must_not_change_taxa_or_rule": true,
+    "joint_plant_plus_nonplant_summary_is_descriptive_only_unless_predeclared_separately": true
+  },
+  "governance": {
+    "no_taxon_drop_after_outcome": true,
+    "no_external_process_label_change": true,
+    "no_target_group_change_after_outcome": true,
+    "no_predictor_group_change_after_outcome": true,
+    "no_threshold_or_recovery_rule_change_after_outcome": true,
+    "no_favorable_m_subset": true,
+    "result_may_be_supported_or_not_supported": true,
+    "plant_positive_control_endpoint_remains_separate": true,
+    "v2_8_4_empirical_endpoint_unchanged": true
+  }
+}

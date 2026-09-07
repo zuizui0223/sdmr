@@ -1,0 +1,71 @@
+name: Product A factorial process recovery
+
+on:
+  pull_request:
+    paths:
+      - 'configs/product_a_factorial_process_recovery_contract.json'
+      - 'src/sdmr/factorial_process_recovery_experiment.py'
+      - 'tests/test_factorial_process_recovery_experiment.py'
+      - '.github/workflows/product-a-factorial-process-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  factorial-process-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[test]'
+
+      - name: Verify frozen factorial unit contract
+        run: pytest -q tests/test_factorial_process_recovery_experiment.py
+
+      - name: Run prospective 35-case factorial process-recovery experiment
+        run: |
+          mkdir -p factorial_process_recovery
+          python -m sdmr.factorial_process_recovery_experiment \
+            --output-dir factorial_process_recovery \
+            | tee factorial_process_recovery/stdout.txt
+
+      - name: Print numerical result summary
+        run: |
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+
+          root = Path('factorial_process_recovery')
+          d = json.loads((root / 'factorial_decision.json').read_text())
+          cases = pd.read_csv(root / 'factorial_case_results.csv')
+          proc = pd.read_csv(root / 'factorial_process_summary.csv')
+          sets = pd.read_csv(root / 'factorial_process_set_summary.csv')
+          print('SUPPORTED=', d['supported'])
+          print('robust_selector_coverage=', d['robust_selector_coverage'])
+          print('stable_exact=', d['stable_exact_process_set_recovery'])
+          print('auc_exact=', d['auc_exact_process_set_recovery'])
+          print('delta=', d['stable_minus_auc_exact_recovery'])
+          print('model_disagreement_n=', d['model_disagreement_n'])
+          print('stable_exact_when_models_disagree=', d['stable_exact_when_models_disagree'])
+          print('\nPROCESS SUMMARY')
+          print(proc.to_string(index=False))
+          print('\nPROCESS-SET SUMMARY')
+          print(sets.to_string(index=False))
+          print('\nERROR CASES')
+          print(cases.loc[~cases['stable_exact'].astype(bool)].to_string(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-factorial-process-recovery-${{ github.sha }}
+          path: factorial_process_recovery/
+          retention-days: 90

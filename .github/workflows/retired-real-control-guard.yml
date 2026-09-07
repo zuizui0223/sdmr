@@ -1,0 +1,28 @@
+name: Guard consumed real-control executions
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    paths:
+      - '.github/workflows/retired-real-control-guard.yml'
+      - 'scripts/retired_real_control_guard.py'
+      - 'tests/test_retired_real_control_guard.py'
+
+permissions:
+  contents: read
+
+jobs:
+  cancel-duplicates:
+    if: github.event.pull_request.number == 192 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'manuscript/v1-v284-synthesis'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cancel only current-head or accidental-head PR copies of consumed v1 experiments
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/retired_real_control_guard.py

@@ -1,0 +1,8 @@
+process_set,n,counterfactual_exact_n,counterfactual_exact_rate,old_stable_exact_n,old_stable_exact_rate,auc_exact_n,auc_exact_rate
+T,10,8,0.8,6,0.6,7,0.7
+W,10,8,0.8,7,0.7,9,0.9
+S,10,10,1.0,7,0.7,6,0.6
+T+W,10,10,1.0,4,0.4,7,0.7
+T+S,10,10,1.0,7,0.7,9,0.9
+W+S,10,10,1.0,9,0.9,8,0.8
+T+W+S,10,9,0.9,9,0.9,10,1.0

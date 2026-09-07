@@ -1,0 +1,7 @@
+seed,sealed_fraction,available,n_feasible_taxa,structurally_infeasible_taxa,best_supported_folds,environmental_values_read,sealed_environmental_values_read,candidate_model_fitting_performed
+2026082201,0.20,True,12,,4/4,False,False,False
+2026082201,0.30,True,12,,4/4,False,False,False
+2026082202,0.20,True,12,,4/4,False,False,False
+2026082202,0.30,False,9,"Abies alba;Polypodium vulgare;Eucalyptus delegatensis",3/4,False,False,False
+2026082203,0.20,True,12,,4/4,False,False,False
+2026082203,0.30,False,10,"Laguncularia racemosa;Eucalyptus globulus",3/4,False,False,False

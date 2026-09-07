@@ -1,0 +1,254 @@
+name: Product A real positive controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'configs/product_a_real_positive_control_**'
+      - 'src/sdmr/real_positive_control.py'
+      - 'tests/test_real_positive_control.py'
+      - '.github/workflows/product-a-real-positive-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-real-positive-control-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  positive-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      SDMR_RASTER_LAYER_JOBS: '4'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install citable empirical dependencies
+        run: python -m pip install -e '.[cloud,geo,parquet,test]'
+
+      - name: Verify frozen positive-control contract before environmental outcome
+        run: |
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+
+          c = json.loads(Path('configs/product_a_real_positive_control_contract_v1.json').read_text())
+          assert c['purpose'] == 'product_a_real_positive_control_process_membership_v1'
+          assert c['frozen_before_sdm_outcome'] is True
+          assert c['source']['gbif_snapshot_date'] == '2026-08-01'
+          assert c['source']['gbif_snapshot_doi'] == '10.15468/dl.fs3btq'
+          assert c['source']['gbif_snapshot_region'] == 'ap-southeast-2'
+          assert int(c['source']['target_group_source_run_id']) == 31859498088
+          assert c['source']['target_group_artifact_name'] == 'product-a-v1-target-cache-parallel-2026-08-01'
+          taxa = pd.read_csv(c['source']['taxa_file'])
+          assert len(taxa) == 4
+          assert taxa['expected_process'].value_counts().to_dict() == {'water': 2, 'temperature': 2}
+          assert taxa['evidence_doi'].notna().all()
+          assert c['accessible_area']['required_specs'] == ['buffer_150km','buffer_300km','buffer_500km']
+          assert c['positive_control_recovery_rule']['eligible_taxa_denominator_is_frozen_four'] is True
+          print(taxa[['scientific_name','expected_process','evidence_doi']].to_string(index=False))
+          PY
+          pytest -q tests/test_real_positive_control.py
+
+      - name: Preflight focused CHELSA registry
+        run: |
+          sdmr-chelsa \
+            --manifest configs/product_a_real_positive_control_manifest_v1.csv \
+            --output-dir positive_control_preflight \
+            --probe \
+            --require-probe-success
+
+      - name: Materialize four focal taxa from citable GBIF snapshot
+        run: |
+          mkdir -p positive_control_input
+          sdmr-gbif-snapshot \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --region 'ap-southeast-2' \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --output positive_control_input/focal.parquet \
+            --provenance positive_control_input/focal.provenance.csv
+
+      - name: Download frozen global Plantae target-group cache
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31859498088
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v1-target-cache-parallel-2026-08-01
+          path: positive_control_target_source
+
+      - name: Verify target-group source and exclude all four focal taxa
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          import pandas as pd
+
+          c = json.loads(Path('configs/product_a_real_positive_control_contract_v1.json').read_text())
+          source = Path('positive_control_target_source/target_group.parquet')
+          def sha(path):
+              h=hashlib.sha256()
+              with Path(path).open('rb') as fh:
+                  for chunk in iter(lambda: fh.read(1024*1024), b''): h.update(chunk)
+              return h.hexdigest()
+          actual = sha(source)
+          if actual != c['source']['target_group_sha256_before_new_focal_exclusion']:
+              raise SystemExit(f'target-group SHA mismatch: {actual}')
+          target = pd.read_parquet(source)
+          taxa = pd.read_csv('configs/product_a_real_positive_control_taxa_v1.csv')['scientific_name'].astype(str)
+          name_cols = [x for x in ('species','acceptedScientificName','scientificName') if x in target.columns]
+          if not name_cols:
+              raise SystemExit('target group has no usable scientific-name column for focal exclusion')
+          remove = pd.Series(False, index=target.index)
+          removed = {}
+          for species in taxa:
+              one = pd.Series(False, index=target.index)
+              for col in name_cols:
+                  one |= target[col].fillna('').astype(str).str.strip().str.casefold().eq(species.casefold())
+              removed[species] = int(one.sum())
+              remove |= one
+          filtered = target.loc[~remove].reset_index(drop=True)
+          out = Path('positive_control_input/target_group_nonfocal.parquet')
+          filtered.to_parquet(out, index=False)
+          ledger = {
+              'source_sha256': actual,
+              'filtered_sha256': sha(out),
+              'source_rows': len(target),
+              'filtered_rows': len(filtered),
+              'removed_rows': int(remove.sum()),
+              'removed_by_taxon': removed,
+              'all_four_focal_taxa_excluded_before_M': True,
+          }
+          Path('positive_control_input/target_exclusion_ledger.json').write_text(json.dumps(ledger, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(ledger, indent=2, sort_keys=True))
+          PY
+
+      - name: Prepare sealed M/background evidence and extract focused environmental registry
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          import pandas as pd
+          from sdmr.data import OccurrenceAdmissionConfig, load_gbif_download, raster_specs_from_chelsa_manifest
+          from sdmr.pilot import prepare_product_a_pilot
+          from sdmr.pilot_grid_cli import extract_protocol_grid_rasters, read_pilot_grid
+          from sdmr.specification import occurrence_table_fingerprint
+
+          contract=json.loads(Path('configs/product_a_real_positive_control_contract_v1.json').read_text())
+          out=Path('positive_control_feature_cache'); out.mkdir(parents=True,exist_ok=True)
+          grid=read_pilot_grid(contract['accessible_area']['grid_file'])
+          grid=grid.loc[grid['name'].astype(str).isin(contract['accessible_area']['required_specs'])].reset_index(drop=True)
+          if tuple(grid['name'].astype(str)) != tuple(contract['accessible_area']['required_specs']):
+              raise SystemExit('M grid order/content differs from frozen contract')
+          taxa=pd.read_csv(contract['source']['taxa_file'])
+          focal=load_gbif_download(Path('positive_control_input/focal.parquet'),download_key='real-positive-control-focal',checklist_key='snapshot-interpreted:2026-08-01')
+          target=load_gbif_download(Path('positive_control_input/target_group_nonfocal.parquet'),download_key='real-positive-control-target',checklist_key='snapshot-interpreted:2026-08-01')
+          admission=OccurrenceAdmissionConfig()
+          prepared_by_name={}
+          ledgers=[]
+          for row in grid.itertuples(index=False):
+              prepared=prepare_product_a_pilot(
+                  focal.records,taxa,
+                  admission_config=admission,
+                  min_occurrences=int(contract['occurrence_gate']['minimum_occurrences']),
+                  min_unique_cells=int(contract['occurrence_gate']['minimum_unique_cells']),
+                  gate_cell_size_degrees=float(contract['occurrence_gate']['cell_size_degrees']),
+                  m_strategy=str(row.m_strategy),
+                  target_group_pool=target.records,
+                  bbox_buffer_degrees=float(row.bbox_buffer_degrees),
+                  occurrence_buffer_km=float(row.occurrence_buffer_km),
+                  background_points=int(row.background_points),
+                  background_cell_size_degrees=float(row.background_cell_size_degrees),
+                  random_state=int(contract['occurrence_gate']['seed']),
+                  strict_background=False,
+                  focal_thin_cell_size_degrees=float(contract['occurrence_gate']['cell_size_degrees']),
+                  outer_sealed_fraction=float(contract['occurrence_gate']['outer_sealed_fraction']),
+                  outer_n_spatial_blocks=8,
+              )
+              prepared_by_name[str(row.name)]=prepared
+              specdir=out/'specifications'/str(row.name); specdir.mkdir(parents=True,exist_ok=True)
+              prepared.species_gate.assign(m_spec=str(row.name)).to_csv(specdir/'species_gate.csv',index=False)
+              prepared.background_ledger.assign(m_spec=str(row.name)).to_csv(specdir/'background_ledger.csv',index=False)
+              prepared.background.to_csv(specdir/'background_pre_raster.csv',index=False)
+              ledgers.append(prepared.species_gate.assign(m_spec=str(row.name)))
+          first=prepared_by_name[str(grid.iloc[0]['name'])]
+          first.occurrences.to_csv(out/'pilot_occurrences_pre_raster.csv',index=False)
+          pd.concat(ledgers,ignore_index=True).to_csv(out/'species_gate_all_M.csv',index=False)
+          grid.to_csv(out/'pilot_grid_frozen.csv',index=False)
+          manifest=pd.read_csv(contract['source']['environment_manifest'])
+          layers,resolution=raster_specs_from_chelsa_manifest(manifest,include_availability=('current',),strict=True)
+          if len(layers)!=10: raise SystemExit(f'expected 10 focused layers, got {len(layers)}')
+          resolution.to_csv(out/'chelsa_resolution_ledger.csv',index=False)
+          backgrounds={name:p.background for name,p in prepared_by_name.items()}
+          featured_occ,featured_bg,provenance=extract_protocol_grid_rasters(first.occurrences,backgrounds,layers)
+          featured_occ.to_csv(out/'pilot_occurrences.csv',index=False)
+          provenance.to_csv(out/'raster_provenance_joint_protocol_grid.csv',index=False)
+          for name,frame in featured_bg.items(): frame.to_csv(out/'specifications'/name/'background.csv',index=False)
+          predictors=[str(x) for x in manifest['predictor']]
+          all_na=[p for p in predictors if p not in featured_occ or featured_occ[p].isna().all()]
+          if all_na: raise SystemExit(f'all-NA focused predictors: {all_na}')
+          def sha(path):
+              h=hashlib.sha256(); p=Path(path)
+              with p.open('rb') as fh:
+                  for chunk in iter(lambda: fh.read(1024*1024),b''): h.update(chunk)
+              return h.hexdigest()
+          feature_contract={
+              'status':'real_positive_control_prepared_feature_evidence_only',
+              'source_snapshot_date':'2026-08-01',
+              'source_snapshot_doi':'10.15468/dl.fs3btq',
+              'external_positive_labels_used_in_preparation':False,
+              'outer_sealed_before_M':True,
+              'M_grid_as_sensitivity':True,
+              'n_predictors':10,
+              'focused_manifest_sha256':sha(contract['source']['environment_manifest']),
+              'featured_occurrence_sha256':sha(out/'pilot_occurrences.csv'),
+          }
+          (out/'feature_cache_contract.json').write_text(json.dumps(feature_contract,indent=2,sort_keys=True)+'\n')
+          print(pd.concat(ledgers,ignore_index=True).to_string(index=False))
+          print(json.dumps(feature_contract,indent=2,sort_keys=True))
+          PY
+
+      - name: Run truth-blind SDM scores then open external positive-control labels
+        run: |
+          mkdir -p positive_control_result
+          python -m sdmr.real_positive_control \
+            --prepared-dir positive_control_feature_cache \
+            --manifest configs/product_a_real_positive_control_manifest_v1.csv \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --contract configs/product_a_real_positive_control_contract_v1.json \
+            --output-dir positive_control_result
+          cat positive_control_result/real_positive_control_decision.json
+          cat positive_control_result/real_positive_control_taxon_results.csv
+          cat positive_control_result/real_positive_control_process_scores.csv
+
+      - name: Record endpoint boundary
+        if: always()
+        run: |
+          mkdir -p positive_control_result
+          cat > positive_control_result/REAL_POSITIVE_CONTROL_BOUNDARY.txt <<'EOF'
+          This is a prospectively frozen real-occurrence positive-control endpoint.
+          External experiments/transplants provide positive process controls only; they do not define complete process sets or negative truth.
+          The endpoint does not alter the frozen v2.8.4 empirical decision and does not establish physiological causation or full proxy closure.
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-real-positive-control-${{ github.sha }}
+          path: |
+            positive_control_preflight/
+            positive_control_input/
+            positive_control_feature_cache/
+            positive_control_result/
+          retention-days: 90
+          if-no-files-found: error
