@@ -1,0 +1,141 @@
+name: proxy-closed-route-evidence-v6-known-truth-validation
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_information_purge.py'
+      - 'src/sdmr/proxy_closed_route_process_challenge.py'
+      - 'src/sdmr/proxy_closed_route_process_validation.py'
+      - 'configs/proxy_closed_route_process_challenge_v6_known_truth_validation.json'
+      - 'tests/test_process_information_purge.py'
+      - 'tests/test_proxy_closed_route_process_challenge.py'
+      - 'tests/test_proxy_closed_route_process_validation_contract.py'
+      - '.github/workflows/proxy-closed-route-evidence-v6-known-truth-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Wait for required full CI matrix on this exact head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECK_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(core-py3.10 core-py3.11 core-py3.12 core-py3.13 geo-rasterio-py3.12)
+          for attempt in $(seq 1 180); do
+            checks="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits/${CHECK_SHA}/check-runs?per_page=100")"
+            pending=0
+            for name in "${required[@]}"; do
+              row="$(jq -r --arg name "$name" '[.check_runs[] | select(.name == $name)] | sort_by(.started_at // .completed_at // "") | last | if . == null then "missing\t" else [.status, (.conclusion // "")] | @tsv end' <<<"$checks")"
+              status="${row%%$'\t'*}"
+              conclusion="${row#*$'\t'}"
+              if [[ "$status" == "completed" ]]; then
+                if [[ "$conclusion" != "success" ]]; then
+                  echo "required check $name completed with conclusion=$conclusion" >&2
+                  exit 1
+                fi
+              else
+                pending=1
+              fi
+            done
+            if [[ "$pending" -eq 0 ]]; then
+              echo "All required full CI checks are green on ${CHECK_SHA}."
+              break
+            fi
+            if [[ "$attempt" -eq 180 ]]; then
+              echo "Timed out waiting for required full CI checks on ${CHECK_SHA}." >&2
+              exit 1
+            fi
+            sleep 20
+          done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify frozen v6 validation contract and scientific primitives
+        run: |
+          pytest -q \
+            tests/test_proxy_closed_route_process_validation_contract.py \
+            tests/test_process_information_purge.py \
+            tests/test_proxy_closed_route_process_challenge.py \
+            tests/test_interval_evidence_process_challenge.py
+
+  family:
+    needs: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+        replicate: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Fit frozen nontruth v6 family denominator
+        run: |
+          python -m sdmr.proxy_closed_route_process_validation fit-family \
+            --family '${{ matrix.family }}' \
+            --replicate '${{ matrix.replicate }}' \
+            --output-dir validation
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proxy-closed-v6-nontruth-${{ matrix.family }}-r${{ matrix.replicate }}-${{ github.sha }}
+          path: validation/
+          retention-days: 90
+          if-no-files-found: error
+
+  terminal:
+    needs: family
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: proxy-closed-v6-nontruth-*-${{ github.sha }}
+          path: inputs
+          merge-multiple: false
+      - name: Open generating-process truth only after every frozen nontruth artifact exists
+        run: |
+          python -m sdmr.proxy_closed_route_process_validation evaluate \
+            --input-dir inputs \
+            --output-dir terminal | tee terminal/stdout.txt
+      - name: Print prospective scientific decision
+        run: cat terminal/scientific_decision.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proxy-closed-route-evidence-v6-known-truth-${{ github.sha }}
+          path: terminal/
+          retention-days: 90
+          if-no-files-found: error
