@@ -1,0 +1,69 @@
+{
+  "purpose": "proxy_closed_route_process_challenge_v6_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "product_a_reopened": false,
+  "stacked_on_v5_audit_head": "84c1bf8f69ec9731dcc40bb6da7145766aa4dd18",
+  "scientific_change": {
+    "summary": "preserve v5 three-state uncertainty while replacing declared-variable-only knockout with matched proxy-closed information-purged routes",
+    "v5_relative_state_rule_unchanged": true,
+    "v5_process_state_rule_unchanged": true,
+    "matched_route_required": true,
+    "purge_fit_source": "model_background_environment_only",
+    "purge_uses_occurrence_class_or_external_truth": false,
+    "purge_polynomial_degree": 2,
+    "purge_ridge_alpha": 1.0,
+    "purge_minimum_complete_background_rows_per_fold": 5
+  },
+  "relative_evidence": {
+    "rank_margin": 0.02,
+    "rank_sem_multiplier": 1.0,
+    "density_margin_nats": 0.01,
+    "density_sem_multiplier": 1.0,
+    "no_margin_change_from_v5": true,
+    "indeterminate_forces_unresolved": true,
+    "incomplete_purge_forces_unresolved": true
+  },
+  "empirical_development_diagnostic": {
+    "consumed_plant_artifact_id": 9989319865,
+    "consumed_nonplant_artifact_id": 9989754054,
+    "controls_are_development_only_after_outcome": true,
+    "may_not_be_reused_as_fresh_validation": true,
+    "compute_both_temperature_and_water_before_opening_expected_process_labels": true,
+    "outer_metric": "raw_matched_route_schoener_d_loss_in_original_frozen_audit_space",
+    "no_candidate_span_normalization": true
+  },
+  "future_outer_answer_check": {
+    "minimum_complete_sealed_occurrences_per_taxon": 10,
+    "minimum_distinct_sealed_spatial_blocks_per_taxon": 2,
+    "coverage_gate_frozen_before_environmental_feature_extraction": true,
+    "coverage_failure_state": "unavailable",
+    "answer_check_is_not_a_tuning_fold": true
+  },
+  "water_process_successor_registry": {
+    "rationale": "drought and water-balance controls are not adequately represented by precipitation-only channels",
+    "representations_to_review_and_freeze_before_fresh_validation": [
+      {"predictor": "bio12", "role": "direct", "mechanism": "annual_precipitation"},
+      {"predictor": "bio14", "role": "direct", "mechanism": "driest_month_precipitation"},
+      {"predictor": "bio17", "role": "direct", "mechanism": "driest_quarter_precipitation"},
+      {"predictor": "gsp", "role": "direct", "mechanism": "growing_season_precipitation"},
+      {"predictor": "vpd", "role": "derived", "mechanism": "atmospheric_dryness"},
+      {"predictor": "pet", "role": "composite", "mechanism": "potential_evapotranspiration"},
+      {"predictor": "cmi", "role": "derived", "mechanism": "climate_moisture_index"}
+    ],
+    "pet_may_belong_to_multiple_process_closures": true,
+    "registry_must_be_frozen_without_using_fresh_validation_outcomes": true
+  },
+  "model_family": {
+    "nonlinear_response_is_not_primary_rescue": true,
+    "reason": "degree-2 diagnostic did not restore Quercus or Silene-ciliata water recovery under the raw v1 exclusion",
+    "degree_1_and_2_may_be_retained_as_predeclared_robustness_contexts": true
+  },
+  "prospective_validation_requirements": {
+    "known_truth": "new unused seeds after v6 source and contract are frozen",
+    "biological": "new literature-backed taxa not used in v1/v6 development, balanced across process groups where feasible",
+    "specificity_requires_negative_or_complete_process_truth": true,
+    "current_positive_only_controls_cannot_estimate_specificity": true,
+    "no_favorable_taxon_or_M_subset": true
+  }
+}
