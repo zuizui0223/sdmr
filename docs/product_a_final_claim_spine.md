@@ -1,10 +1,10 @@
 # Product A final claim spine
 
-Status: **authoritative manuscript logic for Product A reporting after factorial falsification, fresh counterfactual validation and independent replication**
+Status: **authoritative manuscript logic after factorial falsification, fresh counterfactual validation, unchanged independent replication, and completed frozen real positive-control audit**
 
 ## One-sentence claim
 
-**Product A identifies environmental-process membership by measuring the ecological recovery lost when every declared representation of a process is excluded: with temperature, water and soil varied independently, the frozen estimator recovered 65/70 complete generating-process sets in an unchanged independent replication, versus 56/70 for AUC-selected winners.**
+**Product A identifies environmental-process membership under controlled truth by measuring the ecological recovery lost when every declared representation of a process is excluded: with temperature, water and soil varied independently, the frozen estimator recovered 65/70 complete generating-process sets in an unchanged independent replication, versus 56/70 for AUC-selected winners; prospectively frozen real positive controls did not support general empirical process identification.**
 
 ## What Product A now solves
 
@@ -14,7 +14,7 @@ The final controlled-truth solution therefore does **not** infer a process from 
 
 > **How much of the best attainable held-out ecological niche recovery disappears when every declared representation of this process is forbidden, among models that remain prediction-adequate?**
 
-This turns process membership into an explicit process-specific estimand.
+This turns process membership into an explicit process-specific estimand. The empirical audit separately tests whether the present occurrence-data implementation and representation registry can recover externally supported processes in real systems.
 
 ## Result 1 — Prediction and selected-model identity were insufficient
 
@@ -175,19 +175,26 @@ In v2.6:
 
 Thus v2.6 is a false-necessity safety result, not the source of the 92.9% process-membership recovery result. Counterfactual process membership and exclusion-based necessity must remain distinct estimands.
 
-## Result 8 — Fresh empirical plant data still delimit the claim
+## Result 8 — Frozen real positive controls did not validate general empirical process identification
 
-The frozen v2.8.4 empirical endpoint remains unchanged:
+The earlier v2.8.4 empirical endpoint remains `empirical_confirmation_not_supported` / `not_promoted`, with ecological and AUC roles selecting the same candidate and predictor set in **108/108** matched taxon × accessible-area × seed cells.
 
-- prediction adequacy passed;
-- ecological nondomination: 3/3 parts;
-- strict ecological improvement: **0/3**;
-- terminal decision: `empirical_confirmation_not_supported`;
-- Product A: `not_promoted`.
+A later prospectively frozen positive-control test supplied an actual one-sided biological answer key for eight real taxa. Its unchanged historical rule required all three 150/300/500-km M scores, expected-process mean >0, at least two positive M scores, and within each four-taxon lane at least three recovered taxa plus recovery in both temperature and water groups.
 
-Ecological and AUC roles selected the same candidate and predictor set in **108/108** matched taxon × accessible-area × seed cells. Real occurrence data also lack a literal generating-process answer key.
+The frozen outcomes were:
 
-Therefore the new counterfactual result is a controlled-truth identification result. It does not retroactively turn v2.8.4 into empirical support.
+- **plants: 2/4 recovered** — temperature 2/2, water 0/2;
+- **nonplants: 1/4 recovered** — temperature 1/2, water 0/2;
+- both lanes therefore failed the original support gates;
+- the combined **3/8** is descriptive only and is not an accuracy estimate or new pooled endpoint.
+
+This was not simply a failed execution. All **24/24 taxon × M pipelines** completed technically, but only **21/24** contained at least one prediction-adequate candidate. Bombus/150 km, Plethodon/500 km and Cepaea/300 km had empty adequate-model classes. Water also failed where all three M comparisons existed: Quercus had mean expected-process score **−0.276692**, and Silene ciliata **−0.000704**.
+
+The positive controls constrain sensitivity-like recovery only. They provide no negative labels or complete generating-process sets, so they cannot establish specificity or complete process identification; an always-positive rule would recover every positive control. The implemented endpoint also scored process recovery using **model-pool inner spatial CV**, not an invoked outer-sealed transfer evaluation. Thus it is independent literature-backed checking of inner-CV process scores, not a demonstrated outer-transfer result.
+
+The correct empirical conclusion is therefore **non-support of general real-data process identification by the current estimator/representation system**, not proof that the externally supported processes are biologically absent and not proof that the counterfactual estimand is invalid. The observed bottlenecks are adequate-alternative availability, water-process representation/recovery, incomplete requested fold support in one plant cell, and the lack of a two-sided empirical truth set.
+
+The eight external labels are now consumed. Any empirical successor learned from these outcomes requires a newly frozen biological validation set.
 
 ## Final synthesis
 
@@ -198,28 +205,33 @@ The final Product-A sequence is now:
 `agreement among good models`  
 → falsified as necessity and then falsified under independently varying process truth  
 `process-specific counterfactual ecological-recovery loss`  
-→ **30/35 fresh validation exact, then 65/70 unchanged independent replication exact**.
+→ **30/35 fresh validation exact, then 65/70 unchanged independent replication exact under controlled truth**  
+`frozen real positive controls`  
+→ **2/4 plant and 1/4 nonplant recovery; general empirical validation not supported**.
 
-The method separates four objects:
+The method separates five objects:
 
 1. **predictive adequacy** — can candidate models recover withheld records?
-2. **process membership** — does excluding every declared representation of a process materially reduce attainable ecological recovery?
+2. **process membership under controlled truth** — does excluding every declared representation of a process materially reduce attainable ecological recovery?
 3. **process necessity** — does any adequate explanation survive process exclusion under the stronger necessity contract?
-4. **unresolved / empirical non-identification** — when evidence, representation closure or realized selector contrast is insufficient, which claims must remain open?
+4. **empirical process recovery** — does the frozen occurrence-data implementation recover externally supported real processes without changing the rule after outcome?
+5. **unresolved / empirical non-identification** — when evidence, representation closure or realized adequate alternatives are insufficient, which claims must remain open?
 
 ## Claim boundary
 
 The supported headline is:
 
-> **Counterfactual ecological-recovery loss identified complete generating-process sets in 65/70 independent replication cases, with sensitivity 0.975–1.000 and specificity 0.933–1.000 across independently varying temperature, water and soil.**
+> **Counterfactual ecological-recovery loss identified complete generating-process sets in 65/70 independent controlled-truth replication cases, with sensitivity 0.975–1.000 and specificity 0.933–1.000 across independently varying temperature, water and soil. Prospectively frozen real positive controls did not support general empirical process identification with the current occurrence-data implementation.**
 
 The paper does **not** claim:
 
 - physiological or causal necessity;
 - recovery of a fundamental niche;
 - complete closure over every real-world proxy/composite representation;
-- direct generating-process validation in the fresh plant occurrence data;
+- direct generating-process validation in real occurrence data;
+- empirical specificity from positive-only controls;
+- demonstrated outer spatial-transfer process recovery in the v1 real-control endpoint;
 - universal superiority over AUC from a post hoc paired comparison;
 - that the earlier v2.7.2 `55/60` result is the final estimator's validation.
 
-The old `55/60` stable-core result is now predecessor evidence. The primary positive result is the prospectively frozen counterfactual validation and unchanged 70-case replication.
+The old `55/60` stable-core result is predecessor evidence. The primary positive result is the prospectively frozen controlled-truth counterfactual validation and unchanged 70-case replication. The empirical result is a separate, retained non-support boundary rather than an attempted rescue.
