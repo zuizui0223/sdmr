@@ -1,12 +1,12 @@
 # Product A — Nature Ecology & Evolution submission readiness
 
-Status: **scientific development complete; submission-production gate**.
+Status: **scientific evidence frozen; real positive-control non-support integrated; submission readiness PAUSED pending reporting/figure QA**.
 
 This document does not authorize additional Product-A tuning, threshold changes, favorable-seed searches or empirical rescue.
 
-## Scientific gate — COMPLETE
+## Scientific gate — COMPLETE, WITH EMPIRICAL NON-SUPPORT RETAINED
 
-The final controlled-truth identification sequence is now:
+The controlled-truth identification sequence is complete:
 
 1. earlier prediction/stability tests showed that predictive adequacy does not guarantee process truth;
 2. v2.3 showed that ecological model-set sharpening can create false necessity;
@@ -16,11 +16,12 @@ The final controlled-truth identification sequence is now:
 6. a process-specific counterfactual niche-recovery estimator was then calibrated using discovery seeds 4201–4205 only;
 7. unused validation seeds 4301–4305 passed every frozen gate: **30/35 exact complete process sets**;
 8. with estimator and thresholds unchanged, unused replication seeds 4401–4410 produced **65/70 exact process sets (92.9%)**, versus **56/70 (80.0%)** for AUC and **49/70 (70.0%)** for the predecessor stable core;
-9. the fresh empirical v2.8.4 endpoint remains `empirical_confirmation_not_supported` / `not_promoted`, with ecological/AUC candidate and predictor identity in **108/108** matched cells.
+9. the frozen v2.8.4 empirical endpoint remains `empirical_confirmation_not_supported` / `not_promoted`, with ecological/AUC candidate and predictor identity in **108/108** matched cells;
+10. both prospectively frozen real positive-control lanes also failed their original support criteria: **plants 2/4 recovered; nonplants 1/4 recovered; water 0 recovered in both lanes**.
 
-The supported new estimand is **process membership under the declared candidate/process representation registry**, inferred from ecological recovery lost when every declared representation of one process is excluded from the prediction-adequate candidate class. It is not physiological causation, fundamental-niche necessity or complete real-world proxy closure.
+The supported estimand is **process membership under the declared candidate/process representation registry in controlled truth**, inferred from ecological recovery lost when every declared representation of one process is excluded from the prediction-adequate candidate class. It is not physiological causation, fundamental-niche necessity or complete real-world proxy closure.
 
-## Replicated process-identification result
+## Replicated controlled-truth result — COMPLETE
 
 Independent replication (`n=70`, seeds 4401–4410):
 
@@ -35,7 +36,23 @@ Independent replication (`n=70`, seeds 4401–4410):
 
 Authoritative replication provenance: workflow `34015900603`, artifact `9983940439`, digest `sha256:af72b78f64e5160dbc96a1147769e83a0b21b461d9b7111ca2e663e8f786d3eb`.
 
-## Main manuscript gate — COMPLETE
+## Frozen real positive-control gate — NOT SUPPORTED
+
+The historical real-data rule requires all three M specifications, expected-process mean >0, at least two positive M scores, and within each four-taxon lane >=3/4 recovered taxa with at least one recovery in both process groups.
+
+Observed frozen outcomes:
+
+- plants: **2/4** recovered — temperature 2/2, water 0/2;
+- nonplants: **1/4** recovered — temperature 1/2, water 0/2;
+- combined 3/8 is descriptive only, not a pooled endpoint or accuracy estimate;
+- all **24/24 taxon × M pipelines** completed technically, but only **21/24** had at least one prediction-adequate candidate;
+- Quercus and Silene ciliata water controls failed despite all three M scores being available;
+- positive-only controls cannot estimate specificity or complete process-identification accuracy;
+- implemented process scoring used **model-pool inner spatial CV**, not an invoked outer-sealed transfer evaluation.
+
+This non-support is an external-validity boundary, not an empirical rescue target. The eight labels are consumed and cannot be reused as fresh validation after method changes.
+
+## Main manuscript gate — CONTENT UPDATED, QA PENDING
 
 Primary file: `docs/product_a_nature_ecology_evolution_article_draft.md`.
 
@@ -43,45 +60,50 @@ Current title:
 
 **Counterfactual niche recovery identifies environmental processes beyond model selection**
 
-Current Nature QA records:
+The September 7 positive-control outcome is now integrated into:
 
-- abstract: **197 words**;
-- main text: **2,220 words**;
-- abstract limit <=200;
-- main-text limit <=3,500;
-- required Results structure present;
-- no Discussion subheadings;
-- no prohibited causal/fundamental-niche or empirical-superiority claim;
-- required counterfactual headline tokens and unchanged v2.8.4 boundary present.
+- Abstract;
+- Results;
+- Discussion;
+- claim boundary and production notes.
 
-## Figure gate — COMPLETE
+The manuscript now states both sides of the result explicitly: **65/70 controlled-truth replication success** and **failure of both frozen real positive-control support gates**. It does not treat the latter as proof that the biological processes are absent, nor the former as empirical validation.
 
-1. Fig.1: predictive/model-selection logic versus ecological identification;
-2. Fig.2: ecological sharpening can create false necessity;
-3. Fig.3: **counterfactual process identification**, showing fresh 35-case validation, unchanged 70-case replication, process-specific sensitivity/specificity and all seven process-set results;
-4. Fig.4: fresh empirical selector collapse and formal non-support.
+Previous word-count and structural QA values are stale because the manuscript changed. Nature reporting QA must be rerun before any submission-ready claim is restored.
 
-Figure 3 was visually QA'd after moving the model-disagreement annotation away from plotted data.
+## Figure gate — REOPENED
 
-## Reporting / reproducibility gate — GREEN
+Figs. 1–3 remain aligned with the controlled-truth argument. Fig. 4 was previously scoped around the v2.8.4 empirical selector collapse and formal non-support. The new frozen positive-control result is now manuscript-critical and must be incorporated into the empirical figure or an equivalent main/supplementary presentation before the figure gate returns to COMPLETE.
 
-Current PR head validated successfully through:
+Required empirical visual content:
 
-- Nature Product-A reporting workflow: run `34018123641` — **success**;
-- standard tests: run `34018123624` — **success** on Python 3.10, 3.11, 3.12, 3.13 and geo-rasterio;
-- factorial discovery diagnostics: run `34018123657` — **success**;
-- factorial process recovery: run `34018123693` — **success**;
-- counterfactual fresh validation: run `34018123733` — **success**;
-- unchanged counterfactual replication: run `34018123678` — **success**;
-- real GBIF × CHELSA API smoke: run `34018123660` — **success**.
+1. plant lane: 2/4 recovery, temperature 2 and water 0;
+2. nonplant lane: 1/4 recovery, temperature 1 and water 0;
+3. 24/24 technical completion versus 21/24 prediction-adequate availability;
+4. explicit notation that positive-only controls do not estimate specificity;
+5. inner-CV versus outer-transfer information boundary.
 
-Nature reporting artifact: `9984569491`, digest `sha256:f7bb7a0173c459900da1874fadae34cac006d1677c58761299b22d84f314ef30`.
+## Reporting / reproducibility gate — REOPENED FOR MANUSCRIPT-ONLY QA
 
-## Literature-positioning gate — COMPLETE
+Previously successful reporting/test runs remain valid evidence for the earlier head, but they predate the September 7 manuscript integration and therefore do not certify the current head.
+
+No scientific rerun is required to update the manuscript claim. The next repository gate is reporting consistency/word-count/figure QA against the new text. The consumed empirical workflows must not be rerun merely to obtain a green badge.
+
+## Literature-positioning gate — COMPLETE IN PRINCIPLE
 
 Do not claim novelty for prediction versus explanation, functional accuracy limitations, spatial cross-validation, collinearity/variable-importance instability, Rashomon/model-set uncertainty or presence-only sampling-bias correction.
 
-The stronger contribution is now concrete: **process-specific counterfactual ecological-recovery loss was prospectively developed after a predecessor failed a factorial process-presence test, then passed a fresh validation and an unchanged independent replication.**
+The contribution remains concrete but asymmetric:
+
+- **positive:** process-specific counterfactual ecological-recovery loss was prospectively developed after a predecessor failed a factorial process-presence test, then passed fresh validation and unchanged controlled-truth replication;
+- **boundary:** prospectively frozen real positive controls did not support general empirical process identification with the current estimator/representation system.
+
+## Remaining repository work before submission-ready status
+
+1. rerun/report manuscript structural and word-count QA on the updated draft;
+2. revise Fig. 4 or equivalent empirical visualization to include the frozen positive-control outcome;
+3. rerun claim/reporting consistency checks without rerunning consumed empirical science;
+4. verify the PR head is internally consistent and CI/reporting checks are green where applicable.
 
 ## Remaining external inputs
 
@@ -93,10 +115,10 @@ The stronger contribution is now concrete: **process-specific counterfactual eco
 
 ## Submission decision
 
-The scientific/repository package is ready for a **Nature Ecology & Evolution Article first shot** once the external metadata and permanent archive are supplied.
+**Do not call the package submission-ready yet.** Scientific results are frozen, but editorial readiness is paused until the updated empirical boundary passes reporting and figure QA.
 
-A breadth/priority rejection should transfer without new Product-A science to **Nature Communications**, then **Methods in Ecology and Evolution**.
+If those gates pass without changing the frozen science, the planned first submission remains **Nature Ecology & Evolution Article**. A breadth/priority rejection can transfer without new Product-A science to **Nature Communications**, then **Methods in Ecology and Evolution**.
 
 ## Hard stop
 
-Do not alter the frozen counterfactual thresholds, process sets, validation/replication seeds, candidate library or perturbations. Do not rerun or reinterpret v2.8.4 to seek empirical promotion. Product B remains outside this manuscript.
+Do not alter the frozen counterfactual thresholds, process sets, validation/replication seeds, candidate library or perturbations. Do not reinterpret the consumed positive controls to seek promotion. Do not add taxa merely to search for favorable recovery. Product B remains outside this manuscript.
