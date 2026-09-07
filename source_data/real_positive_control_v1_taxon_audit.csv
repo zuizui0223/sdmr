@@ -1,0 +1,9 @@
+lane,species,expected_process,mean_score_all_three_M,positive_finite_M_count,missing_M_count,available,recovered,diagnosis
+plant,Quercus robur,water,-0.2766923360923064,1,0,True,False,nonpositive_expected_process_mean
+plant,Silene ciliata,water,-0.0007037840653768869,2,0,True,False,nonpositive_expected_process_mean
+plant,Plantago alpina,temperature,0.3663026737494551,3,0,True,True,recovered_positive_control
+plant,Silene acaulis,temperature,0.4531304859145517,3,0,True,True,recovered_positive_control
+nonplant,Bombus terrestris,temperature,,2,1,False,False,prediction_adequacy_incomplete_across_M
+nonplant,Ochotona princeps,temperature,0.7938517133922752,3,0,True,True,recovered_positive_control
+nonplant,Plethodon cinereus,water,,0,1,False,False,prediction_adequacy_incomplete_across_M
+nonplant,Cepaea nemoralis,water,,2,1,False,False,prediction_adequacy_incomplete_across_M
