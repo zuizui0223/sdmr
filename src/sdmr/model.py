@@ -16,6 +16,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 import inspect
+import os
 
 import numpy as np
 import pandas as pd
@@ -24,6 +25,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 from .metrics import boyce_index, continuous_boyce_index, presence_rank_score
+
+
+DETERMINISTIC_RANDOM_STATE_ENV = "SDMR_LOGISTIC_RANDOM_STATE"
 
 
 @dataclass(frozen=True)
@@ -62,6 +66,32 @@ class ModelSpec:
         return f"{base}_rs{int(self.random_state)}"
 
 
+def _execution_random_state() -> int | None:
+    """Return the optional execution-only liblinear seed.
+
+    Historical SDMR runs did not pin ``random_state``. Leaving the environment
+    variable unset preserves those runs exactly. A successor execution may set
+    ``SDMR_LOGISTIC_RANDOM_STATE`` before any model-pool fitting so independent
+    jobs use the same liblinear shuffle seed without changing model families,
+    candidate labels, ecological thresholds, or selection rules.
+    """
+
+    raw = os.environ.get(DETERMINISTIC_RANDOM_STATE_ENV)
+    if raw is None or not raw.strip():
+        return None
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError(
+            f"{DETERMINISTIC_RANDOM_STATE_ENV} must be an integer when set"
+        ) from exc
+    if value < 0 or value > 2**32 - 1:
+        raise ValueError(
+            f"{DETERMINISTIC_RANDOM_STATE_ENV} must be in [0, 2**32-1]"
+        )
+    return value
+
+
 def fit_relative_suitability_model(
     presence: pd.DataFrame,
     background: pd.DataFrame,
@@ -90,6 +120,9 @@ def fit_relative_suitability_model(
         "max_iter": 4000,
         "random_state": spec.random_state,
     }
+    random_state = _execution_random_state()
+    if random_state is not None:
+        logit_kwargs["random_state"] = random_state
     penalty_default = inspect.signature(LogisticRegression).parameters["penalty"].default
     if penalty_default == "deprecated":
         logit_kwargs["l1_ratio"] = 1.0 if spec.penalty == "l1" else 0.0

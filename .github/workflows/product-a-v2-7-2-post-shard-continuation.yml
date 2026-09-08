@@ -1,0 +1,444 @@
+name: product-a-v2-7-2-post-shard-continuation
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        required: true
+        type: string
+      expected_ref:
+        required: true
+        type: string
+      shard_build_run_id:
+        required: true
+        type: string
+      shard_build_receipt_artifact_id:
+        required: true
+        type: string
+      shard_build_receipt_artifact_digest:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: product-a-v2-7-2-post-shard-continuation-frozen
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e '.[test]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - name: Require exact continuation wrapper, deterministic build, and frozen promotion rule
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          EXPECTED_REF: ${{ inputs.expected_ref }}
+          BUILD_RUN_ID: ${{ inputs.shard_build_run_id }}
+          BUILD_RECEIPT_ID: ${{ inputs.shard_build_receipt_artifact_id }}
+          BUILD_RECEIPT_DIGEST: ${{ inputs.shard_build_receipt_artifact_digest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          repair=json.load(open('configs/product_a_v2_7_2_deterministic_execution_contract.json'))
+          exec_c=json.load(open('configs/product_a_v2_7_2_post_shard_continuation_execution.json'))
+          promotion=json.load(open('configs/product_a_v2_7_2_fresh_promotion_contract.json'))
+          if os.environ['GITHUB_SHA']!=os.environ['EXPECTED_SHA'] or os.environ['GITHUB_REF_NAME']!=os.environ['EXPECTED_REF']:
+              raise SystemExit('v2.7.2 continuation wrapper identity mismatch')
+          if repair['deterministic_execution']['random_state']!=271 or exec_c['random_state']!=271:
+              raise SystemExit('deterministic random_state changed')
+          if repair['runtime_freeze']['python_version']!='3.12.14':
+              raise SystemExit('deterministic runtime changed')
+          if repair['evidence_reuse_boundary']['reuse_any_old_model_pool_worker_output'] is not False:
+              raise SystemExit('old worker reuse became allowed')
+          if repair['evidence_reuse_boundary']['rerun_all_72_taxon_part_cells_uniformly'] is not True:
+              raise SystemExit('uniform rerun boundary changed')
+          if promotion['contract_frozen_before_v2_7_2_fresh_sealed_outcome'] is not True:
+              raise SystemExit('promotion rule was not frozen before sealed outcome')
+          if promotion['new_postoutcome_scientific_thresholds'] is not False:
+              raise SystemExit('promotion contract introduced postoutcome thresholds')
+          if promotion['fresh_taxon_holdout_source']['runtime_source_identity_may_not_depend_on_scientific_metric_or_decision_value'] is not True:
+              raise SystemExit('promotion source selection boundary changed')
+          run_id=int(os.environ['BUILD_RUN_ID']); receipt_id=int(os.environ['BUILD_RECEIPT_ID']); digest=os.environ['BUILD_RECEIPT_DIGEST']
+          if run_id<=0 or receipt_id<=0 or not digest.startswith('sha256:'):
+              raise SystemExit('deterministic shard-build identity is incomplete')
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; api=f'https://api.github.com/repos/{repo}'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'sdmr-v272-continuation'}
+          def get(url):
+              with urlopen(Request(url,headers=headers),timeout=60) as r:return json.load(r)
+          def artifacts(rid):
+              out=[]; page=1
+              while True:
+                  data=get(f'{api}/actions/runs/{rid}/artifacts?per_page=100&page={page}')
+                  batch=data.get('artifacts',[]); out.extend(batch)
+                  if len(batch)<100: break
+                  page+=1
+              return [a for a in out if not a.get('expired')]
+          run=get(f'{api}/actions/runs/{run_id}')
+          if run.get('status')!='completed' or run.get('conclusion')!='success':
+              raise SystemExit('deterministic shard-build did not complete successfully')
+          arts=artifacts(run_id)
+          shards=[a for a in arts if a.get('name','').startswith('v272-fresh-M-')]
+          if len(shards)!=216:
+              raise SystemExit(f'deterministic shard denominator changed: {len(shards)}')
+          rec=[a for a in arts if int(a['id'])==receipt_id]
+          if len(rec)!=1 or rec[0].get('name')!='product-a-v2-7-2-deterministic-presealed-shard-build-receipt' or rec[0].get('digest')!=digest:
+              raise SystemExit('deterministic shard-build receipt identity changed')
+          print(json.dumps({'continuation_wrapper_sha':os.environ['GITHUB_SHA'],'shard_build_run_id':run_id,'n_M_shards':len(shards),'random_state':271,'sealed_outcome_read':False},indent=2))
+          PY
+      - name: Verify shard-build science fingerprint and receipt content
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_RUN_ID: ${{ inputs.shard_build_run_id }}
+        run: |
+          gh run download "$BUILD_RUN_ID" --repo "$GITHUB_REPOSITORY" --name product-a-v2-7-2-deterministic-presealed-shard-build-receipt --dir build-receipt
+          python - <<'PY'
+          import importlib.metadata as md, json
+          from sdmr.execution_fingerprint import scientific_execution_fingerprint
+          r=json.load(open('build-receipt/receipt.json'))
+          assert r['purpose']=='product_a_v2_7_2_deterministic_presealed_shard_build_receipt'
+          assert r['random_state']==271
+          assert r['python_version']=='3.12.14'
+          assert r['n_expected_M_shards']==216
+          assert r['all_taxon_part_M_shards_rerun_uniformly'] is True
+          assert r['old_worker_outputs_reused'] is False
+          assert r['sealed_environment_read'] is False
+          assert r['pretruth_performed'] is False
+          assert r['scientific_decision_generated'] is False
+          assert r['product_b_unblocked'] is False
+          current=scientific_execution_fingerprint('.')
+          if r['science_fingerprint_sha256']!=current['sha256']:
+              raise SystemExit('science fingerprint changed after deterministic shard build')
+          expected={'numpy':'2.5.2','pandas':'3.0.5','scikit-learn':'1.9.0','scipy':'1.18.1','pyarrow':'25.0.1'}
+          for package,version in expected.items():
+              assert md.version(package)==version,(package,md.version(package),version)
+              assert r['runtime_versions'][package]==version,(package,r['runtime_versions'][package],version)
+          PY
+
+  promotion-source-freeze:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e . -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - name: Freeze this run as the only admissible fresh decision source before sealed audit
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from sdmr.execution_fingerprint import scientific_execution_fingerprint
+          p=json.load(open('configs/product_a_v2_7_2_fresh_promotion_contract.json'))
+          assert p['contract_frozen_before_v2_7_2_fresh_sealed_outcome'] is True
+          assert p['fresh_taxon_holdout_source']['runtime_source_identity_receipt_must_be_created_before_sealed_audit'] is True
+          science=scientific_execution_fingerprint('.')
+          receipt={
+              'purpose':'product_a_v2_7_2_fresh_promotion_source_identity',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'workflow_file':'product-a-v2-7-2-post-shard-continuation.yml',
+              'decision_artifact_name':'product-a-v2-7-2-fresh-taxon-holdout-confirmation-decision',
+              'random_state':271,
+              'python_version':'3.12.14',
+              'science_fingerprint_sha256':science['sha256'],
+              'identity_frozen_before_sealed_audit':True,
+              'source_selection_used_scientific_metric_or_decision_value':False,
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+          }
+          Path('promotion-source').mkdir()
+          Path('promotion-source/receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-promotion-source-identity
+          path: promotion-source/
+          retention-days: 90
+
+  aggregate-worker:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - name: Download exactly three deterministic M shards
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_RUN_ID: ${{ inputs.shard_build_run_id }}
+        run: |
+          gh run download "$BUILD_RUN_ID" --repo "$GITHUB_REPOSITORY" --pattern 'v272-fresh-M-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}-*' --dir shards
+      - name: Reconstruct one deterministic worker
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_model_pool_shard_aggregate --shard-root shards --taxon "$TAXON" --taxon-index ${{ matrix.taxon_index }} --part-seed ${{ matrix.seed }} --output-dir worker
+          python - <<'PY'
+          import json
+          c=json.load(open('worker/contract.json'))
+          assert c['sealed_occurrence_environment_read'] is False
+          if c.get('available'):
+              assert c['assembled_from_three_M_transport_shards'] is True
+              assert c['scientific_semantics_changed'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker/
+          retention-days: 30
+
+  pretruth-freeze:
+    needs: aggregate-worker
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: workers
+      - name: Freeze unchanged candidate representatives and process statuses
+        run: |
+          python -m sdmr.v2_7_1_fresh_pretruth --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json --worker-root workers --output-dir pretruth
+          python - <<'PY'
+          import json
+          c=json.load(open('pretruth/contract.json'))
+          assert c['n_taxa']==12
+          assert c['sealed_occurrence_environment_read'] is False
+          assert c['sealed_audit_authorized'] is bool(c['available'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth/
+          retention-days: 30
+
+  final-fit:
+    needs: pretruth-freeze
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+        taxon_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SDMR_LOGISTIC_RANDOM_STATE: '271'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e '.[test,parquet]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-worker-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: worker
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - name: Serialize deterministic representatives before sealed audit
+        run: |
+          TAXON=$(python - <<'PY'
+          import pandas as pd
+          print(pd.read_csv('configs/product_a_v2_7_1_fresh_confirmation_taxa.csv').iloc[int('${{ matrix.taxon_index }}')]['scientific_name'])
+          PY
+          )
+          python -m sdmr.v2_7_1_fresh_final_fit --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json --part-dir part --worker-dir worker --pretruth-dir pretruth --taxon "$TAXON" --taxon-index ${{ matrix.taxon_index }} --output-dir final
+          python - <<'PY'
+          import json, os
+          c=json.load(open('final/contract.json'))
+          assert os.environ['SDMR_LOGISTIC_RANDOM_STATE']=='271'
+          assert c['sealed_occurrence_environment_read'] is False
+          if c['available']:
+              assert c['final_models_serialized_before_sealed_audit'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-fresh-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon${{ matrix.taxon_index }}
+          path: final/
+          retention-days: 30
+
+  sealed-audit:
+    needs: [final-fit, promotion-source-freeze]
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [2026082201, 2026082202, 2026082203]
+        sealed_fraction: ['0.20', '0.30']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SDMR_LOGISTIC_RANDOM_STATE: '271'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: |
+          python -m pip install -e '.[test,cloud,geo,parquet]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+          python -m pip check
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-promotion-source-identity
+          path: promotion-source
+      - name: Verify promotion source identity and science fingerprint before sealed read
+        run: |
+          python - <<'PY'
+          import json, os
+          from sdmr.execution_fingerprint import scientific_execution_fingerprint
+          r=json.load(open('promotion-source/receipt.json'))
+          assert r['purpose']=='product_a_v2_7_2_fresh_promotion_source_identity'
+          assert r['workflow_run_id']==int(os.environ['GITHUB_RUN_ID'])
+          assert r['implementation_sha']==os.environ['GITHUB_SHA']
+          assert r['frozen_ref']==os.environ['GITHUB_REF_NAME']
+          assert r['random_state']==271
+          assert r['python_version']=='3.12.14'
+          assert r['identity_frozen_before_sealed_audit'] is True
+          assert r['source_selection_used_scientific_metric_or_decision_value'] is False
+          current=scientific_execution_fingerprint('.')
+          assert r['science_fingerprint_sha256']==current['sha256']
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 32552745281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: v271-fresh-part-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: part
+      - uses: actions/download-artifact@v4
+        with:
+          name: v272-fresh-pretruth-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: pretruth
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-fresh-final-${{ matrix.seed }}-${{ matrix.sealed_fraction }}-taxon*
+          path: finals
+      - name: Open sealed CHELSA once after deterministic pretruth and final models
+        run: |
+          python -m sdmr.v2_7_1_fresh_sealed_audit --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json --part-dir part --pretruth-dir pretruth --final-fit-root finals --manifest configs/chelsa_v2_1_plant_candidates.csv --output-dir audit
+          python - <<'PY'
+          import json
+          c=json.load(open('audit/contract.json'))
+          assert c['candidate_or_threshold_retuning_after_sealed_read'] is False
+          if c['available']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+          elif c['sealed_occurrence_environment_read']:
+              assert c['sealed_occurrence_first_read_after_pretruth_freeze'] is True
+              assert c['undefined_sealed_ecological_evidence_propagated_as_unavailable'] is True
+          else:
+              assert c['structural_or_audit_abstention_propagated_as_unavailable'] is True
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v272-fresh-audit-${{ matrix.seed }}-${{ matrix.sealed_fraction }}
+          path: audit/
+          retention-days: 90
+
+  decision:
+    needs: sealed-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          cache: pip
+      - run: python -m pip install -e '.[test]' -c configs/product_a_v2_7_2_runtime_constraints.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v272-fresh-audit-*
+          path: audits
+      - uses: actions/download-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-promotion-source-identity
+          path: promotion-source
+      - name: Apply unchanged frozen six-part decision
+        run: |
+          python -m sdmr.v2_7_1_fresh_aggregate --contract configs/product_a_v2_7_1_fresh_confirmation_contract.json --audit-root audits --output-dir decision
+          cat decision/decision.csv
+          cat decision/contract.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from sdmr.execution_fingerprint import scientific_execution_fingerprint
+          c=json.load(open('decision/contract.json'))
+          source=json.load(open('promotion-source/receipt.json'))
+          science=scientific_execution_fingerprint('.')
+          assert source['science_fingerprint_sha256']==science['sha256']
+          receipt={
+              'purpose':'product_a_v2_7_2_fresh_post_shard_continuation_execution_receipt',
+              'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+              'implementation_sha':os.environ['GITHUB_SHA'],
+              'frozen_ref':os.environ['GITHUB_REF_NAME'],
+              'random_state':271,
+              'python_version':'3.12.14',
+              'science_fingerprint_sha256':science['sha256'],
+              'decision':c['decision'],
+              'source_identity_frozen_before_sealed_audit':source['identity_frozen_before_sealed_audit'],
+              'scientific_promotion_allowed':False,
+              'product_b_unblocked':False,
+              'post_outcome_retuning_allowed':False,
+              'source_is_one_exact_deterministic_216_shard_build':True,
+          }
+          Path('decision/execution_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-a-v2-7-2-fresh-taxon-holdout-confirmation-decision
+          path: decision/
+          retention-days: 90
