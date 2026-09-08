@@ -20,13 +20,14 @@ For target process P:
 4. residualize retained ecological predictors only against that P-specific component;
 5. compare the resulting route against the same frozen ModelSpec baseline used by v6;
 6. audit every other declared process Q by reconstructing its original closure from the retained representation before and after the P-specific purge;
-7. require a zero-margin paired fold interval to classify Q information as `collateral_preserved`;
-8. structural overlap, measured collateral loss, incomplete evidence, or indeterminate preservation forces all P routes to the existing `indeterminate` state.
+7. measure collateral damage as absolute cross-validated loss in Q reconstruction R²;
+8. classify Q as preserved only when the upper one-SEM bound of that R² loss is <= **0.01**;
+9. structural overlap, loss above that margin, incomplete evidence, or indeterminate preservation forces all P routes to the existing `indeterminate` state.
 
 No occurrence labels, fitted SDM coefficients, external biological labels, or generating-process truth enter the purge or collateral audit.
 
 ## Threshold/governance boundary
 
-v7 does **not** relax any v6 scientific evidence threshold. The only new guard uses a zero collateral-loss margin and the inherited one-SEM convention. It is fail-closed: uncertainty reduces attribution rather than promoting it.
+v7 does **not** relax any v6 scientific evidence threshold. The new collateral non-inferiority margin is **0.01 R² (one percentage point of explained variance)** and is frozen before the consumed v7 development readout. Its numeric magnitude is inherited from the already-existing minimum model adequacy margin (`0.01`) rather than calibrated on the v6 false-positive outcomes. The one-SEM convention is also inherited. The guard remains fail-closed: uncertainty reduces attribution rather than promoting it.
 
 Seeds 15001–15010 may be reused only as a consumed development diagnostic to understand the already-open v6 failure. Any v7 performance claim requires a new frozen seed denominator after the v7 rule is finalized. Fresh empirical validation is not authorized until that future known-truth gate passes.
