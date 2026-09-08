@@ -1,0 +1,26 @@
+{
+  "purpose": "collateral_information_guard_v7_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "parent_v6_run_id": 34177021268,
+  "parent_v6_terminal_artifact_id": 10037826460,
+  "parent_v6_known_truth_supported": false,
+  "consumed_seed_denominator": [15001, 15002, 15003, 15004, 15005, 15006, 15007, 15008, 15009, 15010],
+  "consumed_seed_truth_may_be_used_only_for_development_scoring": true,
+  "fresh_empirical_validation_authorized": false,
+  "families": ["gaussian", "asymmetric", "soft_threshold", "interaction", "omitted_driver", "observation_confounded"],
+  "n_cases": 60,
+  "n_process_cells": 300,
+  "purge_strategy": "target_unique_component_given_other_declared_process_closures",
+  "collateral_guard": {
+    "margin": 0.0,
+    "sem_multiplier": 1.0,
+    "all_other_declared_process_predictors_must_be_preserved": true,
+    "structural_overlap_forces_unresolved": true,
+    "indeterminate_preservation_forces_unresolved": true,
+    "incomplete_preservation_forces_unresolved": true
+  },
+  "v6_scientific_thresholds_unchanged": true,
+  "post_outcome_threshold_relaxation_allowed": false,
+  "product_a_reopened": false
+}
