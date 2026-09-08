@@ -85,7 +85,8 @@ jobs:
           assert c['development_only'] is True
           assert c['eligible_for_prospective_performance_claim'] is False
           assert c['consumed_seed_denominator'] == list(range(15001, 15011))
-          assert c['collateral_guard']['margin'] == 0.0
+          assert c['collateral_guard']['margin'] == 0.01
+          assert c['collateral_guard']['margin_source'] == 'pre_outcome_numeric_inheritance_from_existing_minimum_model_adequacy_margin'
           assert c['fresh_empirical_validation_authorized'] is False
           assert c['post_outcome_threshold_relaxation_allowed'] is False
           PY
