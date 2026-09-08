@@ -1,0 +1,18 @@
+name: proxy-closed-route-evidence-v6-known-truth-validation-successor-v2-retired
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retired:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Preserve consumed prospective endpoint
+        run: |
+          echo 'Run 34177021268 completed the frozen v6 successor-v2 endpoint.'
+          echo 'Generating-process truth for seeds 15001-15010 was opened only after 12/12 truth-blind shards and replicate parity passed.'
+          echo 'known_truth_supported=false; these seeds are consumed and may not be rerun or retuned for a prospective validation claim.'
+          echo 'Terminal artifact: 10037826460; sha256:9f4047bfb5435da2e48244ecd0a4e4b99e078da2354254e14bb68fcf96a9ffa4.'

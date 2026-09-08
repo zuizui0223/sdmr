@@ -1,0 +1,17 @@
+name: proxy-closed-route-evidence-v6-known-truth-validation-retired-attempt1
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retired:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Preserve retired truth-unopened attempt
+        run: |
+          echo 'Run 34103111132 stopped at the determinism gate before generating-process truth was opened.'
+          echo 'Seeds 14001-14010 are retired and must not be used for a scientific validation claim.'
+          echo 'Use proxy-closed-route-evidence-v6-known-truth-validation-successor-v2 instead.'
