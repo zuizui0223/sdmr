@@ -6,9 +6,11 @@ on:
       - 'src/sdmr/environmental_decorrelation_audit.py'
       - 'src/sdmr/decorrelation_contrast_v10_development.py'
       - 'src/sdmr/separator_block_process_contrast.py'
+      - 'src/sdmr/separator_pair_decision.py'
       - 'configs/decorrelation_contrast_v10_development.json'
       - 'tests/test_environmental_decorrelation_audit.py'
       - 'tests/test_separator_block_process_contrast.py'
+      - 'tests/test_separator_pair_decision.py'
       - 'tests/test_decorrelation_contrast_v10_contract.py'
       - '.github/workflows/decorrelation-contrast-v10-development.yml'
   workflow_dispatch:
@@ -34,7 +36,7 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e . pytest
-      - run: pytest -q tests/test_environmental_decorrelation_audit.py tests/test_separator_block_process_contrast.py tests/test_decorrelation_contrast_v10_contract.py
+      - run: pytest -q tests/test_environmental_decorrelation_audit.py tests/test_separator_block_process_contrast.py tests/test_separator_pair_decision.py tests/test_decorrelation_contrast_v10_contract.py
 
   family:
     needs: gate
