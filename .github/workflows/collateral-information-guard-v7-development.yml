@@ -1,0 +1,161 @@
+name: collateral-information-guard-v7-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_specific_information_purge.py'
+      - 'src/sdmr/collateral_guard_process_challenge.py'
+      - 'src/sdmr/collateral_guard_v7_development.py'
+      - 'configs/collateral_information_guard_v7_development.json'
+      - 'tests/test_process_specific_information_purge.py'
+      - 'tests/test_collateral_guard_process_challenge.py'
+      - 'docs/collateral_information_guard_v7_development_plan.md'
+      - '.github/workflows/collateral-information-guard-v7-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Wait for required full CI matrix on this exact head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECK_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(core-py3.10 core-py3.11 core-py3.12 core-py3.13 geo-rasterio-py3.12)
+          for attempt in $(seq 1 180); do
+            checks="$(gh api --method GET "repos/${GITHUB_REPOSITORY}/commits/${CHECK_SHA}/check-runs?per_page=100")"
+            pending=0
+            for name in "${required[@]}"; do
+              row="$(jq -r --arg name "$name" '[.check_runs[] | select(.name == $name)] | sort_by(.started_at // .completed_at // "") | last | if . == null then "missing\t" else [.status, (.conclusion // "")] | @tsv end' <<<"$checks")"
+              status="${row%%$'\t'*}"
+              conclusion="${row#*$'\t'}"
+              if [[ "$status" == "completed" ]]; then
+                if [[ "$conclusion" != "success" ]]; then
+                  echo "required check $name completed with conclusion=$conclusion" >&2
+                  exit 1
+                fi
+              else
+                pending=1
+              fi
+            done
+            if [[ "$pending" -eq 0 ]]; then
+              echo "All required full CI checks are green on ${CHECK_SHA}."
+              break
+            fi
+            if [[ "$attempt" -eq 180 ]]; then
+              echo "Timed out waiting for required full CI checks on ${CHECK_SHA}." >&2
+              exit 1
+            fi
+            sleep 20
+          done
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e '.[test]'
+      - name: Verify v7 purge, collateral guard, and development boundary
+        run: |
+          pytest -q \
+            tests/test_process_specific_information_purge.py \
+            tests/test_collateral_guard_process_challenge.py \
+            tests/test_process_information_purge.py \
+            tests/test_proxy_closed_route_process_challenge.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c = json.loads(Path('configs/collateral_information_guard_v7_development.json').read_text())
+          assert c['development_only'] is True
+          assert c['eligible_for_prospective_performance_claim'] is False
+          assert c['consumed_seed_denominator'] == list(range(15001, 15011))
+          assert c['collateral_guard']['margin'] == 0.0
+          assert c['fresh_empirical_validation_authorized'] is False
+          assert c['post_outcome_threshold_relaxation_allowed'] is False
+          PY
+
+  family:
+    needs: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Fit v7 on consumed development denominator
+        run: |
+          python -m sdmr.collateral_guard_v7_development fit-family \
+            --family '${{ matrix.family }}' \
+            --output-dir development
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collateral-v7-development-${{ matrix.family }}-${{ github.sha }}
+          path: development/
+          retention-days: 90
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: collateral-v7-development-*-${{ github.sha }}
+          path: inputs
+          merge-multiple: false
+      - name: Aggregate consumed development readout
+        run: |
+          python -m sdmr.collateral_guard_v7_development aggregate \
+            --input-dir inputs \
+            --output-dir development | tee development_stdout.txt
+      - name: Verify reporting boundary only
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d = json.loads(Path('development/development_decision.json').read_text())
+          assert d['development_only'] is True
+          assert d['eligible_for_prospective_performance_claim'] is False
+          assert d['n_cases'] == 60
+          assert d['n_process_cells'] == 300
+          assert d['fresh_known_truth_validation_required_before_promotion'] is True
+          assert d['fresh_empirical_validation_authorized'] is False
+          print(json.dumps(d, indent=2, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collateral-information-guard-v7-development-${{ github.sha }}
+          path: development/
+          retention-days: 90
+          if-no-files-found: error
