@@ -1,0 +1,125 @@
+name: conditional-residual-randomization-v9-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/conditional_residual_randomization.py'
+      - 'src/sdmr/conditional_residual_randomization_process_challenge.py'
+      - 'src/sdmr/conditional_residual_randomization_v9_development.py'
+      - 'configs/conditional_residual_randomization_v9_development.json'
+      - 'tests/test_conditional_residual_randomization.py'
+      - 'tests/test_conditional_residual_randomization_process_challenge.py'
+      - '.github/workflows/conditional-residual-randomization-v9-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  VECLIB_MAXIMUM_THREADS: '1'
+  BLIS_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install test package
+        run: python -m pip install -e '.[test]'
+      - name: Verify v9 primitive, matched routes, and governance
+        run: |
+          pytest -q \
+            tests/test_conditional_residual_randomization.py \
+            tests/test_conditional_residual_randomization_process_challenge.py \
+            tests/test_conditional_shared_information_knockout.py \
+            tests/test_conditional_shared_knockout_process_challenge.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('configs/conditional_residual_randomization_v9_development.json').read_text())
+          assert c['development_only'] is True
+          assert c['eligible_for_prospective_performance_claim'] is False
+          assert c['consumed_seed_denominator'] == list(range(15001,15011))
+          assert c['randomization_seed'] == 90401
+          assert c['v5_scientific_thresholds_unchanged'] is True
+          assert c['post_outcome_threshold_relaxation_allowed'] is False
+          assert c['fresh_known_truth_validation_authorized'] is False
+          assert c['fresh_empirical_validation_authorized'] is False
+          PY
+
+  family:
+    needs: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Fit v9 on consumed denominator
+        run: |
+          python -m sdmr.conditional_residual_randomization_v9_development fit-family \
+            --family '${{ matrix.family }}' --output-dir development
+      - uses: actions/upload-artifact@v4
+        with:
+          name: residual-v9-development-${{ matrix.family }}-${{ github.sha }}
+          path: development/
+          retention-days: 90
+          if-no-files-found: error
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install package
+        run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: residual-v9-development-*-${{ github.sha }}
+          path: inputs
+          merge-multiple: false
+      - name: Aggregate consumed development readout
+        run: |
+          python -m sdmr.conditional_residual_randomization_v9_development aggregate \
+            --input-dir inputs --output-dir development | tee development_stdout.txt
+      - name: Verify reporting boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('development/development_decision.json').read_text())
+          assert d['development_only'] is True
+          assert d['eligible_for_prospective_performance_claim'] is False
+          assert d['n_cases'] == 60
+          assert d['n_process_cells'] == 300
+          assert d['fresh_known_truth_validation_required_before_promotion'] is True
+          assert d['fresh_empirical_validation_authorized'] is False
+          print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conditional-residual-randomization-v9-development-${{ github.sha }}
+          path: development/
+          retention-days: 90
+          if-no-files-found: error
