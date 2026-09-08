@@ -13,7 +13,9 @@
   "n_process_cells": 300,
   "purge_strategy": "target_unique_component_given_other_declared_process_closures",
   "collateral_guard": {
-    "margin": 0.0,
+    "metric": "absolute_cross_validated_R2_loss_for_other_declared_process_closures",
+    "margin": 0.01,
+    "margin_source": "pre_outcome_numeric_inheritance_from_existing_minimum_model_adequacy_margin",
     "sem_multiplier": 1.0,
     "all_other_declared_process_predictors_must_be_preserved": true,
     "structural_overlap_forces_unresolved": true,
