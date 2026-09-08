@@ -8,6 +8,7 @@ on:
       - 'src/sdmr/proxy_closed_route_process_validation.py'
       - 'src/sdmr/proxy_closed_route_process_validation_successor.py'
       - 'configs/proxy_closed_route_process_challenge_v6_known_truth_validation_successor_v2.json'
+      - 'docs/proxy_closed_route_process_challenge_v6_determinism_probe_result.md'
       - 'tests/test_process_information_purge.py'
       - 'tests/test_proxy_closed_route_process_challenge.py'
       - 'tests/test_proxy_closed_route_process_validation_successor_contract.py'
