@@ -1,0 +1,18 @@
+{
+  "purpose": "conditional_residual_randomization_v9_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [15001, 15002, 15003, 15004, 15005, 15006, 15007, 15008, 15009, 15010],
+  "families": ["gaussian", "asymmetric", "soft_threshold", "interaction", "omitted_driver", "observation_confounded"],
+  "randomization_degree": 2,
+  "randomization_ridge_alpha": 1.0,
+  "randomization_seed": 90401,
+  "intervention": "P_star_equals_E_P_given_Q_plus_deterministically_permuted_background_residual_vector",
+  "non_target_predictors_must_be_numerically_unchanged": true,
+  "residual_multivariate_covariance_preserved_by_vector_permutation": true,
+  "v5_scientific_thresholds_unchanged": true,
+  "post_outcome_threshold_relaxation_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false,
+  "product_a_reopened": false
+}
