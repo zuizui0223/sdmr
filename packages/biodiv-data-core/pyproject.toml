@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "biodiv-data-core"
+version = "0.1.0"
+description = "Neutral biodiversity data ingestion, QA, spatial partitioning, and provenance contracts"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "zuizui0223"}]
+license = {text = "MIT"}
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
