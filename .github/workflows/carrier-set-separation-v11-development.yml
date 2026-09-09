@@ -1,0 +1,81 @@
+name: carrier-set-separation-v11-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/carrier_set_separation_v11.py'
+      - 'src/sdmr/carrier_set_separation_v11_development.py'
+      - 'configs/carrier_set_separation_v11_development.json'
+      - 'tests/test_carrier_set_separation_v11.py'
+      - 'tests/test_carrier_set_separation_v11_aggregate.py'
+      - '.github/workflows/carrier-set-separation-v11-development.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: carrier-v11-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_carrier_set_separation_v11.py tests/test_carrier_set_separation_v11_aggregate.py tests/test_environmental_decorrelation_audit.py tests/test_separator_block_process_contrast.py tests/test_separator_pair_decision.py
+
+  family:
+    needs: gate
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - run: python -m sdmr.carrier_set_separation_v11_development fit-family --family '${{ matrix.family }}' --output-dir output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: carrier-v11-${{ matrix.family }}-${{ github.sha }}
+          path: output/
+          retention-days: 90
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: carrier-v11-*-${{ github.sha }}
+          path: inputs
+      - run: python -m sdmr.carrier_set_separation_v11_development aggregate --input-dir inputs --output-dir development | tee development_stdout.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: carrier-set-separation-v11-development-${{ github.sha }}
+          path: development/
+          retention-days: 90
