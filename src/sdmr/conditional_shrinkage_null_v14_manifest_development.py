@@ -61,13 +61,12 @@ def fit_family(family: str, output_dir: str | Path):
     cases = _filter_csv(out / "case_summary.csv", allowed)
     statuses = _filter_csv(out / "null_status.csv", allowed)
     _filter_csv(out / "null_route_summary.csv", allowed, process_col="process")
-    _filter_csv(out / "null_fold_evidence.csv", allowed, process_col="process")
+    _filter_csv(out / "null_fold_evidence.csv", allowed, process_col="excluded_process")
 
     if len(cases) != len(allowed):
         missing = allowed.merge(cases[["family", "seed", "target_process"]] if len(cases) else pd.DataFrame(columns=["family", "seed", "target_process"]), on=["family", "seed", "target_process"], how="left", indicator=True)
         raise ValueError("raw v14 runner failed to evaluate frozen manifest cells: " + missing.loc[missing["_merge"].eq("left_only")].to_csv(index=False))
 
-    # Current rerun status is diagnostic only; membership remains frozen by v9.
     drift = pd.DataFrame()
     if len(statuses):
         drift = statuses.groupby(["family", "seed", "target_process"], as_index=False).agg(
