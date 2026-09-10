@@ -163,7 +163,7 @@ def classify_functional_compensation(
     *,
     expected_model_specs: int,
     chance_score: float = 0.50,
-    minimum_margin: float = 0.05,
+    minimum_margin: float = 0.01,
     rank_margin: float = 0.02,
     density_margin: float = 0.01,
     sem_multiplier: float = 1.0,
