@@ -1,0 +1,25 @@
+{
+  "purpose": "alignment_transport_v15_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "authoritative_denominator_source": "configs/shared_candidate_manifest_v9_consumed.csv",
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "focus_v14_classes": ["conditioning_alignment_required", "mixed"],
+  "intervention": "conditional_shared_information_knockout",
+  "transport_question": "does the v8 state change survive when the P<-Q conditional map is trained on a disjoint background environment rather than the native pooled training environment",
+  "source_environment_rule": "leave-one-background-block-as-source; source block is excluded from the evaluation block and selected without occurrence outcomes",
+  "evaluation_environment_rule": "evaluate on a different held-out block using the frozen v5 four-metric evidence contract",
+  "minimum_source_complete_rows": 10,
+  "minimum_distinct_source_target_pairs": 3,
+  "decision": {
+    "transported": "all evaluable source-target pairs reproduce the v8 non-contributory transition",
+    "local_alignment_only": "no evaluable source-target pair reproduces the transition",
+    "heterogeneous": "some but not all evaluable pairs reproduce the transition",
+    "insufficient": "fewer than 3 evaluable source-target pairs"
+  },
+  "reuse_existing_v5_thresholds": true,
+  "new_scientific_thresholds_allowed": false,
+  "post_outcome_rule_changes_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
