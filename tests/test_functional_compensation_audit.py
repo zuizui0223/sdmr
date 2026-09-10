@@ -15,14 +15,15 @@ def test_enumerates_all_nonempty_other_process_coalitions():
     )
 
 
-def _evidence(rank_losses, density_losses, adequate=True):
+def _evidence(rank_losses, density_losses, coalition_ranks=None):
+    coalition_ranks = coalition_ranks or [0.70] * len(rank_losses)
     rows = []
-    for fold, (rank, density) in enumerate(zip(rank_losses, density_losses)):
+    for fold, (rank, density, coalition_rank) in enumerate(zip(rank_losses, density_losses, coalition_ranks)):
         for model in ("m1", "m2"):
             rows.append({
                 "fold": fold,
                 "complete": True,
-                "coalition_route_adequate": adequate,
+                "coalition_presence_rank": coalition_rank,
                 "conditional_rank_loss": rank,
                 "conditional_density_loss": density,
             })
@@ -33,12 +34,14 @@ def test_classifies_revealed_functional_compensation():
     result = classify_functional_compensation(
         _evidence([0.08, 0.07, 0.09, 0.08], [0.05, 0.04, 0.06, 0.05]),
         expected_model_specs=2,
+        chance_score=0.50,
+        minimum_margin=0.05,
         rank_margin=0.02,
         density_margin=0.01,
         sem_multiplier=1.0,
     )
     assert result["state"] == "functional_compensator"
-    assert result["n_folds"] == 4
+    assert result["coalition_route_adequate"] is True
 
 
 def test_does_not_promote_small_conditional_loss():
@@ -51,7 +54,10 @@ def test_does_not_promote_small_conditional_loss():
 
 def test_fails_closed_when_conditioning_route_inadequate():
     result = classify_functional_compensation(
-        _evidence([0.20, 0.20], [0.20, 0.20], adequate=False),
+        _evidence([0.20, 0.20], [0.20, 0.20], coalition_ranks=[0.51, 0.52]),
         expected_model_specs=2,
+        chance_score=0.50,
+        minimum_margin=0.05,
     )
     assert result["state"] == "incomplete"
+    assert result["coalition_route_adequate"] is False
