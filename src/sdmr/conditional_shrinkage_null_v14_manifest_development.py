@@ -33,7 +33,7 @@ def _manifest() -> pd.DataFrame:
     return frame.sort_values(["family", "seed", "target_process"]).reset_index(drop=True)
 
 
-def _filter_csv(path: Path, allowed: pd.DataFrame) -> pd.DataFrame:
+def _filter_csv(path: Path, allowed: pd.DataFrame, *, process_col: str = "target_process") -> pd.DataFrame:
     try:
         frame = pd.read_csv(path)
     except pd.errors.EmptyDataError:
@@ -41,11 +41,13 @@ def _filter_csv(path: Path, allowed: pd.DataFrame) -> pd.DataFrame:
     if frame.empty:
         frame.to_csv(path, index=False)
         return frame
-    keys = ["family", "seed", "target_process"]
-    if not set(keys).issubset(frame.columns):
+    required = {"family", "seed", process_col}
+    if not required.issubset(frame.columns):
         raise ValueError(f"diagnostic output lacks manifest keys: {path.name}")
     frame["seed"] = frame["seed"].astype(int)
-    keep = frame.merge(allowed.assign(_manifest_member=True), on=keys, how="left")
+    allowed_keys = allowed.rename(columns={"target_process": process_col})
+    keys = ["family", "seed", process_col]
+    keep = frame.merge(allowed_keys.assign(_manifest_member=True), on=keys, how="left")
     keep = keep.loc[keep["_manifest_member"].fillna(False)].drop(columns="_manifest_member")
     keep.to_csv(path, index=False)
     return keep
@@ -58,11 +60,11 @@ def fit_family(family: str, output_dir: str | Path):
     allowed = manifest.loc[manifest["family"].eq(str(family))].copy()
     cases = _filter_csv(out / "case_summary.csv", allowed)
     statuses = _filter_csv(out / "null_status.csv", allowed)
-    _filter_csv(out / "null_route_summary.csv", allowed)
-    _filter_csv(out / "null_fold_evidence.csv", allowed)
+    _filter_csv(out / "null_route_summary.csv", allowed, process_col="process")
+    _filter_csv(out / "null_fold_evidence.csv", allowed, process_col="process")
 
     if len(cases) != len(allowed):
-        missing = allowed.merge(cases[["family", "seed", "target_process"]] if len(cases) else pd.DataFrame(columns=["family","seed","target_process"]), on=["family","seed","target_process"], how="left", indicator=True)
+        missing = allowed.merge(cases[["family", "seed", "target_process"]] if len(cases) else pd.DataFrame(columns=["family", "seed", "target_process"]), on=["family", "seed", "target_process"], how="left", indicator=True)
         raise ValueError("raw v14 runner failed to evaluate frozen manifest cells: " + missing.loc[missing["_merge"].eq("left_only")].to_csv(index=False))
 
     # Current rerun status is diagnostic only; membership remains frozen by v9.
