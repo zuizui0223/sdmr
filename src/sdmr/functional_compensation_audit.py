@@ -2,7 +2,7 @@
 
 The audit asks a different question from representation/carrier reconstruction.
 For target process P and a coalition S of other processes, it compares the
-held-out recovery of an S-only hard knockout with a P+S hard knockout.  A
+held-out recovery of an S-only hard knockout with a P+S hard knockout. A
 material additional loss after adding P means that S had been functionally
 compensating for P under the fitted SDM/evidence contract.
 
@@ -24,8 +24,7 @@ from .observation_aware_identification import _prepare_observation_corrections, 
 
 EVIDENCE_COLUMNS = (
     "target_process", "coalition_processes", "coalition_size", "model_label", "fold",
-    "complete", "coalition_route_adequate",
-    "coalition_presence_rank", "target_plus_coalition_presence_rank",
+    "complete", "coalition_presence_rank", "target_plus_coalition_presence_rank",
     "conditional_rank_loss", "coalition_density_log_score",
     "target_plus_coalition_density_log_score", "conditional_density_loss",
 )
@@ -102,7 +101,6 @@ def functional_compensation_evidence(
         observation_weight_truncation_quantile=float(observation_weight_truncation_quantile),
         observation_weight_probability_epsilon=float(observation_weight_probability_epsilon),
     )
-    floor = float(chance_score) + float(minimum_margin)
     rows: list[dict[str, object]] = []
     for fold_no, ((p_train, b_train, p_test, b_test), correction) in enumerate(zip(folds, corrections, strict=True)):
         for spec in specs:
@@ -113,7 +111,6 @@ def functional_compensation_evidence(
                 "model_label": spec.label,
                 "fold": fold_no,
                 "complete": False,
-                "coalition_route_adequate": False,
                 "coalition_presence_rank": np.nan,
                 "target_plus_coalition_presence_rank": np.nan,
                 "conditional_rank_loss": np.nan,
@@ -148,7 +145,6 @@ def functional_compensation_evidence(
                     raise ValueError("non-finite compensation evidence")
                 row.update({
                     "complete": True,
-                    "coalition_route_adequate": bool(float(s_rank) >= floor - 1e-12),
                     "coalition_presence_rank": float(s_rank),
                     "target_plus_coalition_presence_rank": float(ps_rank),
                     "conditional_rank_loss": float(s_rank - ps_rank),
@@ -166,34 +162,65 @@ def classify_functional_compensation(
     evidence: pd.DataFrame,
     *,
     expected_model_specs: int,
+    chance_score: float = 0.50,
+    minimum_margin: float = 0.05,
     rank_margin: float = 0.02,
     density_margin: float = 0.01,
     sem_multiplier: float = 1.0,
 ) -> dict[str, object]:
-    """Average specs within fold; classify using folds as uncertainty units."""
+    """Average specs within fold and apply the frozen v5 adequacy logic."""
     if evidence.empty:
         return {"state": "incomplete", "n_folds": 0}
     fold_rows = []
-    for fold, group in evidence.groupby("fold", sort=True):
-        complete = group.loc[group["complete"].astype(bool) & group["coalition_route_adequate"].astype(bool)]
+    groups = tuple(evidence.groupby("fold", sort=True))
+    for fold, group in groups:
+        complete = group.loc[group["complete"].astype(bool)]
         if len(complete) != int(expected_model_specs):
-            continue
+            return {"state": "incomplete", "n_folds": 0}
         fold_rows.append((
             int(fold),
+            float(complete["coalition_presence_rank"].mean()),
             float(complete["conditional_rank_loss"].mean()),
             float(complete["conditional_density_loss"].mean()),
         ))
     if not fold_rows:
         return {"state": "incomplete", "n_folds": 0}
-    rank = np.asarray([x[1] for x in fold_rows], dtype=float)
-    density = np.asarray([x[2] for x in fold_rows], dtype=float)
+
+    coalition_rank = np.asarray([x[1] for x in fold_rows], dtype=float)
+    rank_loss = np.asarray([x[2] for x in fold_rows], dtype=float)
+    density_loss = np.asarray([x[3] for x in fold_rows], dtype=float)
+    if not all(np.isfinite(x).all() for x in (coalition_rank, rank_loss, density_loss)):
+        return {"state": "incomplete", "n_folds": len(fold_rows)}
+
     def mean_sem(x):
         return float(np.mean(x)), float(np.std(x, ddof=1) / np.sqrt(len(x))) if len(x) > 1 else 0.0
-    rmean, rsem = mean_sem(rank); dmean, dsem = mean_sem(density)
-    qualifies = (rmean - sem_multiplier * rsem > rank_margin) and (dmean - sem_multiplier * dsem > density_margin)
+
+    smean, ssem = mean_sem(coalition_rank)
+    rmean, rsem = mean_sem(rank_loss)
+    dmean, dsem = mean_sem(density_loss)
+    adequacy_floor = float(chance_score) + float(minimum_margin)
+    route_adequate = (
+        smean >= adequacy_floor - 1e-12
+        and smean - float(sem_multiplier) * ssem >= float(chance_score) - 1e-12
+    )
+    if not route_adequate:
+        return {
+            "state": "incomplete",
+            "n_folds": len(fold_rows),
+            "coalition_mean_presence_rank": smean,
+            "coalition_sem_presence_rank": ssem,
+            "coalition_route_adequate": False,
+        }
+    qualifies = (
+        rmean - float(sem_multiplier) * rsem > float(rank_margin)
+        and dmean - float(sem_multiplier) * dsem > float(density_margin)
+    )
     return {
         "state": "functional_compensator" if qualifies else "no_revealed_compensation",
         "n_folds": len(fold_rows),
+        "coalition_mean_presence_rank": smean,
+        "coalition_sem_presence_rank": ssem,
+        "coalition_route_adequate": True,
         "mean_conditional_rank_loss": rmean,
         "sem_conditional_rank_loss": rsem,
         "mean_conditional_density_loss": dmean,
