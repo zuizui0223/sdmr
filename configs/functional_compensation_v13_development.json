@@ -1,0 +1,14 @@
+{
+  "purpose": "functional_compensation_v13_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "enumerate_all_nonempty_compensator_coalitions": true,
+  "conditional_rank_margin": 0.02,
+  "conditional_density_margin": 0.01,
+  "sem_multiplier": 1.0,
+  "require_conditioning_coalition_absolute_adequacy": true,
+  "post_outcome_threshold_relaxation_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
