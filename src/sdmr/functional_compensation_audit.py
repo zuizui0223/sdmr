@@ -18,15 +18,22 @@ import numpy as np
 import pandas as pd
 
 from .density_ratio_process_challenge import balanced_density_ratio_log_score
-from .model import ModelSpec, fit_relative_suitability_model, score_ecological_suitability
+from .metrics import presence_rank_score
+from .model import (
+    ModelSpec,
+    fit_relative_suitability_model,
+    score_ecological_suitability,
+    score_relative_suitability,
+)
 from .observation_aware_identification import _prepare_observation_corrections, _weighted_presence_rank
 
 
 EVIDENCE_COLUMNS = (
     "target_process", "coalition_processes", "coalition_size", "model_label", "fold",
-    "complete", "coalition_presence_rank", "target_plus_coalition_presence_rank",
-    "conditional_rank_loss", "coalition_density_log_score",
-    "target_plus_coalition_density_log_score", "conditional_density_loss",
+    "complete", "coalition_prediction_rank", "coalition_presence_rank",
+    "target_plus_coalition_presence_rank", "conditional_rank_loss",
+    "coalition_density_log_score", "target_plus_coalition_density_log_score",
+    "conditional_density_loss",
 )
 
 
@@ -111,6 +118,7 @@ def functional_compensation_evidence(
                 "model_label": spec.label,
                 "fold": fold_no,
                 "complete": False,
+                "coalition_prediction_rank": np.nan,
                 "coalition_presence_rank": np.nan,
                 "target_plus_coalition_presence_rank": np.nan,
                 "conditional_rank_loss": np.nan,
@@ -132,6 +140,11 @@ def functional_compensation_evidence(
                 ps_pred = ps_eco + obs
                 s_model = fit_relative_suitability_model(p_tr, b_tr, s_pred, model_spec=spec)
                 ps_model = fit_relative_suitability_model(p_tr, b_tr, ps_pred, model_spec=spec)
+
+                p_s_full = score_relative_suitability(s_model, p_te, s_pred)
+                b_s_full = score_relative_suitability(s_model, b_te, s_pred)
+                s_prediction_rank = presence_rank_score(p_s_full, b_s_full)
+
                 p_s = score_ecological_suitability(s_model, p_te, s_pred, observation_predictors=obs, observation_reference=b_tr)
                 b_s = score_ecological_suitability(s_model, b_te, s_pred, observation_predictors=obs, observation_reference=b_tr)
                 p_ps = score_ecological_suitability(ps_model, p_te, ps_pred, observation_predictors=obs, observation_reference=b_tr)
@@ -140,11 +153,12 @@ def functional_compensation_evidence(
                 ps_rank = _weighted_presence_rank(p_ps, b_ps, correction.weights)
                 s_den = balanced_density_ratio_log_score(p_s, b_s, presence_weights=correction.weights, probability_epsilon=float(density_probability_epsilon))
                 ps_den = balanced_density_ratio_log_score(p_ps, b_ps, presence_weights=correction.weights, probability_epsilon=float(density_probability_epsilon))
-                values = (s_rank, ps_rank, s_den, ps_den)
+                values = (s_prediction_rank, s_rank, ps_rank, s_den, ps_den)
                 if not all(np.isfinite(float(x)) for x in values):
                     raise ValueError("non-finite compensation evidence")
                 row.update({
                     "complete": True,
+                    "coalition_prediction_rank": float(s_prediction_rank),
                     "coalition_presence_rank": float(s_rank),
                     "target_plus_coalition_presence_rank": float(ps_rank),
                     "conditional_rank_loss": float(s_rank - ps_rank),
@@ -168,17 +182,17 @@ def classify_functional_compensation(
     density_margin: float = 0.01,
     sem_multiplier: float = 1.0,
 ) -> dict[str, object]:
-    """Average specs within fold and apply the frozen v5 adequacy logic."""
+    """Average specs within fold and apply the frozen v5 route-adequacy logic."""
     if evidence.empty:
         return {"state": "incomplete", "n_folds": 0}
     fold_rows = []
-    groups = tuple(evidence.groupby("fold", sort=True))
-    for fold, group in groups:
+    for fold, group in evidence.groupby("fold", sort=True):
         complete = group.loc[group["complete"].astype(bool)]
         if len(complete) != int(expected_model_specs):
             return {"state": "incomplete", "n_folds": 0}
         fold_rows.append((
             int(fold),
+            float(complete["coalition_prediction_rank"].mean()),
             float(complete["coalition_presence_rank"].mean()),
             float(complete["conditional_rank_loss"].mean()),
             float(complete["conditional_density_loss"].mean()),
@@ -186,29 +200,30 @@ def classify_functional_compensation(
     if not fold_rows:
         return {"state": "incomplete", "n_folds": 0}
 
-    coalition_rank = np.asarray([x[1] for x in fold_rows], dtype=float)
-    rank_loss = np.asarray([x[2] for x in fold_rows], dtype=float)
-    density_loss = np.asarray([x[3] for x in fold_rows], dtype=float)
-    if not all(np.isfinite(x).all() for x in (coalition_rank, rank_loss, density_loss)):
+    prediction_rank = np.asarray([x[1] for x in fold_rows], dtype=float)
+    ecological_rank = np.asarray([x[2] for x in fold_rows], dtype=float)
+    rank_loss = np.asarray([x[3] for x in fold_rows], dtype=float)
+    density_loss = np.asarray([x[4] for x in fold_rows], dtype=float)
+    if not all(np.isfinite(x).all() for x in (prediction_rank, ecological_rank, rank_loss, density_loss)):
         return {"state": "incomplete", "n_folds": len(fold_rows)}
 
     def mean_sem(x):
         return float(np.mean(x)), float(np.std(x, ddof=1) / np.sqrt(len(x))) if len(x) > 1 else 0.0
 
-    smean, ssem = mean_sem(coalition_rank)
+    pmean, psem = mean_sem(prediction_rank)
+    emean, esem = mean_sem(ecological_rank)
     rmean, rsem = mean_sem(rank_loss)
     dmean, dsem = mean_sem(density_loss)
-    adequacy_floor = float(chance_score) + float(minimum_margin)
-    route_adequate = (
-        smean >= adequacy_floor - 1e-12
-        and smean - float(sem_multiplier) * ssem >= float(chance_score) - 1e-12
-    )
+    floor = float(chance_score) + float(minimum_margin)
+    prediction_adequate = pmean >= floor - 1e-12 and pmean - float(sem_multiplier) * psem >= float(chance_score) - 1e-12
+    ecological_adequate = emean >= floor - 1e-12 and emean - float(sem_multiplier) * esem >= float(chance_score) - 1e-12
+    route_adequate = bool(prediction_adequate and ecological_adequate)
     if not route_adequate:
         return {
             "state": "incomplete",
             "n_folds": len(fold_rows),
-            "coalition_mean_presence_rank": smean,
-            "coalition_sem_presence_rank": ssem,
+            "coalition_prediction_adequate": bool(prediction_adequate),
+            "coalition_ecological_adequate": bool(ecological_adequate),
             "coalition_route_adequate": False,
         }
     qualifies = (
@@ -218,8 +233,8 @@ def classify_functional_compensation(
     return {
         "state": "functional_compensator" if qualifies else "no_revealed_compensation",
         "n_folds": len(fold_rows),
-        "coalition_mean_presence_rank": smean,
-        "coalition_sem_presence_rank": ssem,
+        "coalition_prediction_adequate": True,
+        "coalition_ecological_adequate": True,
         "coalition_route_adequate": True,
         "mean_conditional_rank_loss": rmean,
         "sem_conditional_rank_loss": rsem,
