@@ -5,19 +5,21 @@ from sdmr.carrier_coalition_audit import audit_carrier_coalitions
 
 
 def _joint_only_frame():
-    rng = np.random.default_rng(7)
+    """Balanced interaction world: neither singleton carries P, but q1+q2 does."""
     rows = []
     blocks = []
+    levels = (-2.0, -1.0, 1.0, 2.0)
+    # Every block contains an exactly balanced Cartesian design. Therefore
+    # E[p | q1] = E[p | q2] = 0 for p=q1*q2, while a degree-2 model using
+    # q1 and q2 contains the exact interaction term.
     for block in range(4):
-        q1 = rng.normal(size=120)
-        q2 = rng.normal(size=120)
-        p = q1 * q2 + rng.normal(scale=0.03, size=120)
-        noise = rng.normal(size=120)
-        rows.extend(
-            {"p": float(a), "q1": float(b), "q2": float(c), "noise": float(d)}
-            for a, b, c, d in zip(p, q1, q2, noise)
-        )
-        blocks.extend([block] * 120)
+        for repeat in range(8):
+            for q1 in levels:
+                for q2 in levels:
+                    p = q1 * q2
+                    noise = float(((repeat + block) % 4) - 1.5)
+                    rows.append({"p": p, "q1": q1, "q2": q2, "noise": noise})
+                    blocks.append(block)
     return pd.DataFrame(rows), np.asarray(blocks)
 
 
