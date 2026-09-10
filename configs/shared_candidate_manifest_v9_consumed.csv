@@ -1,0 +1,14 @@
+family,seed,target_process
+asymmetric,15003,water
+gaussian,15001,water
+gaussian,15004,temperature
+gaussian,15007,water
+interaction,15002,seasonality
+interaction,15008,water
+observation_confounded,15004,temperature
+observation_confounded,15005,water
+omitted_driver,15003,temperature
+omitted_driver,15009,water
+soft_threshold,15002,water
+soft_threshold,15007,water
+soft_threshold,15009,water

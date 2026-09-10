@@ -1,0 +1,82 @@
+name: conditional-shrinkage-null-v14-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/conditional_shrinkage_null.py'
+      - 'src/sdmr/conditional_shrinkage_null_v14_development.py'
+      - 'src/sdmr/conditional_shrinkage_null_v14_manifest_development.py'
+      - 'configs/conditional_shrinkage_null_v14_development.json'
+      - 'configs/shared_candidate_manifest_v9_consumed.csv'
+      - 'tests/test_conditional_shrinkage_null.py'
+      - '.github/workflows/conditional-shrinkage-null-v14-development.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: conditional-shrinkage-null-v14-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_conditional_shrinkage_null.py
+
+  family:
+    needs: gate
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - run: python -m sdmr.conditional_shrinkage_null_v14_manifest_development fit-family --family '${{ matrix.family }}' --output-dir output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conditional-shrinkage-null-v14-${{ matrix.family }}-${{ github.sha }}
+          path: output/
+          retention-days: 90
+
+  aggregate:
+    needs: family
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: conditional-shrinkage-null-v14-*-${{ github.sha }}
+          path: inputs
+      - run: python -m sdmr.conditional_shrinkage_null_v14_manifest_development aggregate --input-dir inputs --output-dir development
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conditional-shrinkage-null-v14-development-${{ github.sha }}
+          path: development/
+          retention-days: 90

@@ -1,0 +1,19 @@
+{
+  "purpose": "conditional_shrinkage_null_v14_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "matched_null": "deterministic_within_frame_joint_row_permutation_of_v8_conditional_replacement_values",
+  "null_replicates": 5,
+  "null_salts": [14001,14002,14003,14004,14005],
+  "preserve_joint_target_replacement_distribution": true,
+  "preserve_presence_background_specific_marginals": true,
+  "destroy_rowwise_alignment_with_conditioning_processes": true,
+  "reuse_v8_four_metric_interval_classifier": true,
+  "shrinkage_reproduced_requires_all_null_replicates": true,
+  "conditioning_alignment_required_requires_zero_null_replicates": true,
+  "mixed_otherwise": true,
+  "post_outcome_threshold_relaxation_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
