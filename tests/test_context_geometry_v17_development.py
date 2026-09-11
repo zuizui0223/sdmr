@@ -1,6 +1,18 @@
 import pandas as pd
 
-from sdmr.context_geometry_v17_development import _evaluate
+from sdmr.context_geometry_v17_development import _evaluate, _target_manifest
+
+
+def test_target_manifest_is_frozen_v16_denominator():
+    frame = _target_manifest()
+    assert len(frame) == 72
+    assert not frame.duplicated(["family", "seed", "target_process", "target_block"]).any()
+    assert frame["context_status"].value_counts().to_dict() == {
+        "context_contributory": 39,
+        "context_unresolved": 16,
+        "context_replaceable": 14,
+        "insufficient": 3,
+    }
 
 
 def test_cell_disjoint_evaluator_returns_predictions_without_row_leakage():
