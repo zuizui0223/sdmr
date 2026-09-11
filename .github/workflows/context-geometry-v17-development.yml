@@ -6,6 +6,7 @@ on:
       - 'src/sdmr/context_geometry_v17.py'
       - 'src/sdmr/context_geometry_v17_development.py'
       - 'configs/context_geometry_v17_development.json'
+      - 'configs/context_geometry_v17_target_manifest.csv'
       - 'tests/test_context_geometry_v17.py'
       - 'tests/test_context_geometry_v17_development.py'
       - 'docs/CONTEXT_GEOMETRY_V17_DEVELOPMENT_PLAN.md'
