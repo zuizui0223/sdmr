@@ -265,13 +265,13 @@ def fit_family(family: str, output_dir: str | Path):
                 if evaluable:
                     classified=_classify_interval_processes(routes,(process,),expected_model_labels=tuple(s.label for s in specs))
                     pair_status=str(classified.iloc[0]["status"])
-                    reproduces=pair_status!=CONTRIBUTORY
+                    reproduces=pair_status != CONTRIBUTORY
                 rec={"family":family,"seed":seed,"target_process":process,"source_block":int(source),"target_block":int(target),"evaluable":bool(evaluable),"reproduces_v8_noncontributory":bool(reproduces),"pair_status":pair_status,"reason":reason}
                 pair_rows.append(rec); local_pairs.append(rec)
         local=pd.DataFrame(local_pairs)
         classification=_classify_cell(local,int(cfg["minimum_distinct_source_target_pairs"]))
         eval_n=int(local["evaluable"].astype(bool).sum()) if len(local) else 0
-        rep_n=int(local.loc[local["evaluable"].astype(bool),"reproduces_v8_noncontributory"].astype(bool).sum()) if eval_n else 0
+        rep_n=int(local.loc[local["evaluable"].astype(bool),"reproduces_v8_noncontributory"].astype(bool).sum()) if len(local) else 0
         cell_rows.append({"family":family,"seed":seed,"target_process":process,"v14_classification":str(item.v14_classification),"n_evaluable_pairs":eval_n,"n_reproduced_pairs":rep_n,"classification":classification})
 
     pairs=pd.DataFrame(pair_rows); cells=pd.DataFrame(cell_rows)
@@ -293,7 +293,18 @@ def aggregate(input_dir: str|Path, output_dir: str|Path):
         raise ValueError("v15 aggregate requires one artifact per family")
     merged={n:pd.concat([_read(p) for p in paths],ignore_index=True) for n,paths in files.items()}
     cells=merged["cell_summary.csv"]; manifest=_manifest()
-    observed=cells[["family","seed","target_process","v14_classification"]].sort_values(["family","seed","target_process"]).reset_index(drop=True)
+    observed=cells[["family","seed","target_process","v14_classification"]].copy()
+    observed["family"]=observed["family"].astype(str)
+    observed["seed"]=pd.to_numeric(observed["seed"],errors="raise").astype(int)
+    observed["target_process"]=observed["target_process"].astype(str)
+    observed["v14_classification"]=observed["v14_classification"].astype(str)
+    observed=observed.sort_values(["family","seed","target_process"]).reset_index(drop=True)
+    manifest=manifest.copy()
+    manifest["family"]=manifest["family"].astype(str)
+    manifest["seed"]=pd.to_numeric(manifest["seed"],errors="raise").astype(int)
+    manifest["target_process"]=manifest["target_process"].astype(str)
+    manifest["v14_classification"]=manifest["v14_classification"].astype(str)
+    manifest=manifest.sort_values(["family","seed","target_process"]).reset_index(drop=True)
     if not observed.equals(manifest):
         raise ValueError("v15 aggregate denominator does not equal frozen focus manifest")
     counts=cells["classification"].value_counts()
