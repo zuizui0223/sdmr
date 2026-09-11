@@ -1,0 +1,18 @@
+{
+  "purpose": "context_geometry_v17_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "frozen_focus_cells": 9,
+  "background_only_features": true,
+  "cell_disjoint_evaluation": true,
+  "supervised_classes": ["context_contributory", "context_replaceable", "context_unresolved"],
+  "exclude_from_supervised_fit": ["insufficient"],
+  "classifier": "multinomial_logistic_regression_l2",
+  "classifier_C": 1.0,
+  "max_iter": 5000,
+  "new_scientific_thresholds_allowed": false,
+  "post_outcome_feature_changes_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}

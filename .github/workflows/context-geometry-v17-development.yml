@@ -1,0 +1,66 @@
+name: context-geometry-v17-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/context_geometry_v17.py'
+      - 'src/sdmr/context_geometry_v17_development.py'
+      - 'src/sdmr/context_geometry_v17_aggregate.py'
+      - 'configs/context_geometry_v17_development.json'
+      - 'configs/context_geometry_v17_target_manifest.csv'
+      - 'tests/test_context_geometry_v17.py'
+      - 'tests/test_context_geometry_v17_development.py'
+      - 'docs/CONTEXT_GEOMETRY_V17_DEVELOPMENT_PLAN.md'
+      - '.github/workflows/context-geometry-v17-development.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: context-geometry-v17-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_context_geometry_v17.py tests/test_context_geometry_v17_development.py
+
+  evaluate:
+    needs: gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - name: Fit all consumed development families serially
+        shell: bash
+        run: |
+          set -euo pipefail
+          families=(gaussian asymmetric soft_threshold interaction omitted_driver observation_confounded)
+          for family in "${families[@]}"; do
+            python -m sdmr.context_geometry_v17_development fit-family \
+              --family "$family" \
+              --output-dir "inputs/$family"
+          done
+      - name: Aggregate cell-disjoint evaluation
+        run: python -m sdmr.context_geometry_v17_aggregate --input-dir inputs --output-dir development
+      - uses: actions/upload-artifact@v4
+        with:
+          name: context-geometry-v17-development-${{ github.sha }}
+          path: development/
+          retention-days: 90
