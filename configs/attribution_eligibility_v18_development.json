@@ -1,0 +1,18 @@
+{
+  "purpose": "attribution_eligibility_v18_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "feature_source": "context_geometry_v17_frozen_features",
+  "positive_status": "context_contributory",
+  "negative_statuses": ["context_replaceable", "context_unresolved"],
+  "excluded_statuses": ["insufficient"],
+  "cell_disjoint_evaluation": true,
+  "classifier_C": 1.0,
+  "max_iter": 5000,
+  "decision_threshold": 0.5,
+  "primary_metric": "macro_f1",
+  "baseline": "training_fold_majority_class",
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
