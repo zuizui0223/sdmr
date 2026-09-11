@@ -27,7 +27,10 @@ def _complete(frame: pd.DataFrame, columns: tuple[str, ...]) -> pd.DataFrame:
     missing = [c for c in columns if c not in frame.columns]
     if missing:
         raise KeyError(f"missing columns: {missing}")
-    vals = frame.loc[:, columns].apply(pd.to_numeric, errors="coerce")
+    # Always use list-like column selection. A singleton tuple can be treated as
+    # a scalar-like key by pandas, yielding a Series and causing downstream
+    # multi-output residual broadcasting to create an (n, n) matrix.
+    vals = frame.loc[:, list(columns)].apply(pd.to_numeric, errors="coerce")
     return vals.loc[np.isfinite(vals.to_numpy(float)).all(axis=1)].copy()
 
 
@@ -68,10 +71,10 @@ def context_geometry_features(
     if len(ref) < int(minimum_reference_rows) or len(tgt) < int(minimum_target_rows):
         return ContextGeometry(*(float("nan"),) * 5, n_reference=len(ref), n_target=len(tgt))
 
-    x_ref = ref.loc[:, conditioning_predictors].to_numpy(float)
-    x_tgt = tgt.loc[:, conditioning_predictors].to_numpy(float)
-    y_ref = ref.loc[:, process_predictors].to_numpy(float)
-    y_tgt = tgt.loc[:, process_predictors].to_numpy(float)
+    x_ref = ref.loc[:, list(conditioning_predictors)].to_numpy(float)
+    x_tgt = tgt.loc[:, list(conditioning_predictors)].to_numpy(float)
+    y_ref = ref.loc[:, list(process_predictors)].to_numpy(float)
+    y_tgt = tgt.loc[:, list(process_predictors)].to_numpy(float)
     poly = PolynomialFeatures(degree=int(degree), include_bias=True)
     z_ref = poly.fit_transform(x_ref)
     z_tgt = poly.transform(x_tgt)
@@ -79,6 +82,14 @@ def context_geometry_features(
     model.fit(z_ref, y_ref)
     pred_ref = np.asarray(model.predict(z_ref), float)
     pred_tgt = np.asarray(model.predict(z_tgt), float)
+    if pred_ref.ndim == 1:
+        pred_ref = pred_ref.reshape(-1, 1)
+    if pred_tgt.ndim == 1:
+        pred_tgt = pred_tgt.reshape(-1, 1)
+    if y_ref.ndim == 1:
+        y_ref = y_ref.reshape(-1, 1)
+    if y_tgt.ndim == 1:
+        y_tgt = y_tgt.reshape(-1, 1)
     ref_resid = y_ref - pred_ref
     tgt_resid = y_tgt - pred_tgt
 
