@@ -46,6 +46,28 @@ def test_context_geometry_is_background_only_and_finite():
     assert out.conditioning_support_shift > 0
 
 
+def test_context_geometry_supports_single_process_predictor_without_broadcasting():
+    ref, tgt = _frames()
+    out = context_geometry_features(
+        ref,
+        tgt,
+        process_predictors=("p1",),
+        conditioning_predictors=("q1", "q2"),
+        degree=2,
+        ridge_alpha=1e-3,
+    )
+    vals = [
+        out.conditional_residual_shift,
+        out.conditional_residual_scale_ratio,
+        out.conditional_target_r2,
+        out.process_support_shift,
+        out.conditioning_support_shift,
+    ]
+    assert all(np.isfinite(v) for v in vals)
+    assert out.n_reference == len(ref)
+    assert out.n_target == len(tgt)
+
+
 def test_context_geometry_fails_closed_for_small_target():
     ref, tgt = _frames()
     out = context_geometry_features(
