@@ -1,0 +1,22 @@
+{
+  "purpose": "attribution_eligibility_v19_prospective_known_truth_validation",
+  "development_only": false,
+  "fresh_seed_denominator": [16001,16002,16003,16004,16005,16006,16007,16008,16009,16010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "target_processes": ["temperature","water"],
+  "target_selection_uses_outcomes": false,
+  "classifier_config": "configs/attribution_eligibility_v19_classifier.json",
+  "decision_threshold": 0.5,
+  "success_criteria": {
+    "eligible_precision_min": 0.70,
+    "eligible_recall_min": 0.50,
+    "macro_f1_gain_over_majority_min": 0.15
+  },
+  "strong_support_precision": 0.75,
+  "truth_open_policy": {
+    "geometry_and_predictions_before_labels": true,
+    "fresh_labels_may_not_be_used_to_change_features_classifier_threshold_or_success_criteria": true,
+    "all_prediction_shards_must_complete_before_truth_open": true
+  },
+  "fresh_empirical_validation_authorized_before_terminal_decision": false
+}
