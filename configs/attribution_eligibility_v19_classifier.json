@@ -1,0 +1,51 @@
+{
+  "purpose": "attribution_eligibility_v19_frozen_classifier",
+  "source": {
+    "development_stage": "v18",
+    "consumed_seed_denominator": [15001, 15002, 15003, 15004, 15005, 15006, 15007, 15008, 15009, 15010],
+    "n_training_contexts": 69,
+    "n_positive_eligible": 39,
+    "n_negative_not_eligible": 30,
+    "v18_artifact_id": 10189371935,
+    "v18_artifact_digest": "sha256:633863987b0e384316e09be9116bc20493efe80881510bbee017952cc48ae822"
+  },
+  "feature_order": [
+    "conditional_residual_shift",
+    "conditional_residual_scale_ratio",
+    "conditional_target_r2",
+    "process_support_shift",
+    "conditioning_support_shift"
+  ],
+  "scaler_mean": [
+    0.69459521,
+    0.88699418,
+    -1.57592375,
+    0.86832713,
+    0.77850322
+  ],
+  "scaler_scale": [
+    0.42408170,
+    0.18306326,
+    1.85552650,
+    0.63891590,
+    0.35434835
+  ],
+  "logistic_coef": [
+    -0.51143518,
+    -0.13299598,
+    -0.47970842,
+    1.17215987,
+    0.45596004
+  ],
+  "logistic_intercept": 0.47157415,
+  "positive_class": "eligible",
+  "negative_class": "not_eligible",
+  "decision_threshold": 0.5,
+  "fitting_contract": {
+    "model": "StandardScaler + binary L2 logistic regression",
+    "C": 1.0,
+    "max_iter": 5000,
+    "solver": "lbfgs",
+    "feature_or_threshold_tuning_after_freeze": false
+  }
+}
