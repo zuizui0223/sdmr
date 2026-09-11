@@ -1,0 +1,10 @@
+family,seed,target_process,v14_classification
+observation_confounded,15004,temperature,mixed
+observation_confounded,15005,water,mixed
+interaction,15008,water,conditioning_alignment_required
+gaussian,15001,water,conditioning_alignment_required
+gaussian,15004,temperature,conditioning_alignment_required
+asymmetric,15003,water,conditioning_alignment_required
+soft_threshold,15002,water,conditioning_alignment_required
+soft_threshold,15007,water,conditioning_alignment_required
+soft_threshold,15009,water,conditioning_alignment_required
