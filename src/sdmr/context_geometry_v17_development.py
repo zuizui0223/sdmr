@@ -14,7 +14,6 @@ from sklearn.preprocessing import StandardScaler
 
 from .conditional_shared_knockout_v8_development import _load as _load_v8
 from .context_geometry_v17 import context_geometry_features
-from .context_indexed_attribution_v16_development import fit_family as fit_v16_family
 from .known_truth_scenarios import KNOWN_TRUTH_FAMILIES, simulate_known_truth_plant_niche
 from .process_information_closure import process_information_closure
 from .prospective_identification_validation import _selection_frames
@@ -23,6 +22,7 @@ from .validation import make_spatial_partition
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "configs" / "context_geometry_v17_development.json"
+TARGET_MANIFEST = ROOT / "configs" / "context_geometry_v17_target_manifest.csv"
 FEATURES = (
     "conditional_residual_shift",
     "conditional_residual_scale_ratio",
@@ -45,14 +45,32 @@ def _config():
     return cfg
 
 
+def _target_manifest() -> pd.DataFrame:
+    frame = pd.read_csv(TARGET_MANIFEST)
+    expected = {"family", "seed", "target_process", "target_block", "context_status"}
+    if set(frame.columns) != expected:
+        raise ValueError("unexpected v17 target manifest schema")
+    frame["seed"] = frame["seed"].astype(int)
+    frame["target_block"] = frame["target_block"].astype(int)
+    if len(frame) != 72 or frame.duplicated(["family", "seed", "target_process", "target_block"]).any():
+        raise ValueError("v17 target manifest must contain exactly 72 unique contexts")
+    expected_counts = {
+        "context_contributory": 39,
+        "context_replaceable": 14,
+        "context_unresolved": 16,
+        "insufficient": 3,
+    }
+    if frame["context_status"].value_counts().to_dict() != expected_counts:
+        raise ValueError("v17 target manifest does not match frozen v16 endpoint")
+    return frame.sort_values(["family", "seed", "target_process", "target_block"]).reset_index(drop=True)
+
+
 def fit_family(family: str, output_dir: str | Path):
     cfg = _config(); _, v6 = _load_v8()
     if family not in KNOWN_TRUTH_FAMILIES:
         raise ValueError("unknown family")
     out = Path(output_dir); out.mkdir(parents=True, exist_ok=True)
-    v16_dir = out / "v16"
-    fit_v16_family(family, v16_dir)
-    targets = pd.read_csv(v16_dir / "target_context_summary.csv")
+    targets = _target_manifest().loc[lambda x: x["family"].eq(str(family))].copy()
     if targets.empty:
         pd.DataFrame(columns=["family","seed","target_process","target_block","context_status",*FEATURES]).to_csv(out/"context_geometry.csv", index=False)
         return {"family": family, "n_contexts": 0}
@@ -132,6 +150,12 @@ def aggregate(input_dir: str | Path, output_dir: str | Path):
     frame=pd.concat(parts,ignore_index=True) if parts else pd.DataFrame()
     if len(frame) != 72:
         raise ValueError(f"v17 must preserve the frozen 72-context denominator; got {len(frame)}")
+    observed = frame[["family","seed","target_process","target_block","context_status"]].copy()
+    observed["seed"] = observed["seed"].astype(int)
+    observed["target_block"] = observed["target_block"].astype(int)
+    observed = observed.sort_values(["family","seed","target_process","target_block"]).reset_index(drop=True)
+    if not observed.equals(_target_manifest()):
+        raise ValueError("v17 generated context denominator does not equal frozen target manifest")
     pred,metrics=_evaluate(frame,cfg)
     result={"purpose":"context_geometry_v17_consumed_development_decision","development_only":True,"eligible_for_prospective_performance_claim":False,"n_contexts":72,**metrics,"fresh_known_truth_validation_authorized":False,"fresh_empirical_validation_authorized":False}
     out=Path(output_dir); out.mkdir(parents=True,exist_ok=True)
