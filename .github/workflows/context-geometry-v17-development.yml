@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/sdmr/context_geometry_v17.py'
       - 'src/sdmr/context_geometry_v17_development.py'
+      - 'src/sdmr/context_geometry_v17_aggregate.py'
       - 'configs/context_geometry_v17_development.json'
       - 'configs/context_geometry_v17_target_manifest.csv'
       - 'tests/test_context_geometry_v17.py'
@@ -57,7 +58,7 @@ jobs:
               --output-dir "inputs/$family"
           done
       - name: Aggregate cell-disjoint evaluation
-        run: python -m sdmr.context_geometry_v17_development aggregate --input-dir inputs --output-dir development
+        run: python -m sdmr.context_geometry_v17_aggregate --input-dir inputs --output-dir development
       - uses: actions/upload-artifact@v4
         with:
           name: context-geometry-v17-development-${{ github.sha }}
