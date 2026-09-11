@@ -7,10 +7,11 @@
   "target_selection_uses_outcomes": false,
   "classifier_config": "configs/attribution_eligibility_v19_classifier.json",
   "decision_threshold": 0.5,
+  "fixed_baseline_class": "eligible",
   "success_criteria": {
     "eligible_precision_min": 0.70,
     "eligible_recall_min": 0.50,
-    "macro_f1_gain_over_majority_min": 0.15
+    "macro_f1_gain_over_fixed_baseline_min": 0.15
   },
   "strong_support_precision": 0.75,
   "truth_open_policy": {
