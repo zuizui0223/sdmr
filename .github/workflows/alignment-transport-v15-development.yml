@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/sdmr/alignment_transport.py'
       - 'src/sdmr/alignment_transport_v15_development.py'
+      - 'src/sdmr/alignment_transport_v15_aggregate.py'
       - 'configs/alignment_transport_v15_development.json'
       - 'configs/alignment_transport_v15_focus_manifest.csv'
       - 'tests/test_alignment_transport.py'
@@ -74,7 +75,7 @@ jobs:
         with:
           pattern: alignment-transport-v15-*-${{ github.sha }}
           path: inputs
-      - run: python -m sdmr.alignment_transport_v15_development aggregate --input-dir inputs --output-dir development
+      - run: python -m sdmr.alignment_transport_v15_aggregate --input-dir inputs --output-dir development
       - uses: actions/upload-artifact@v4
         with:
           name: alignment-transport-v15-development-${{ github.sha }}
