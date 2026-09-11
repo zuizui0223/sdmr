@@ -1,0 +1,22 @@
+{
+  "purpose": "context_indexed_attribution_v16_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "parent": "alignment_transport_v15_consumed_endpoint",
+  "consumed_seed_denominator": [15001,15002,15003,15004,15005,15006,15007,15008,15009,15010],
+  "focus_manifest": "configs/alignment_transport_v15_focus_manifest.csv",
+  "context_unit": "held_out_target_spatial_block",
+  "source_map_unit": "distinct_background_source_block",
+  "context_status_rule": {
+    "context_replaceable": "all evaluable source maps reproduce the v8 non-contributory transition",
+    "context_contributory": "no evaluable source map reproduces the v8 non-contributory transition",
+    "context_unresolved": "some but not all evaluable source maps reproduce the transition",
+    "insufficient": "fewer than the inherited v15 minimum evaluable source maps"
+  },
+  "minimum_evaluable_source_maps": 3,
+  "source_target_variation_decomposition": "report_only_no_promotion_threshold",
+  "new_scientific_thresholds_allowed": false,
+  "post_outcome_rule_changes_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
