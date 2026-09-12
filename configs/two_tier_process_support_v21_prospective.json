@@ -1,0 +1,29 @@
+{
+  "purpose": "two_tier_process_support_v21_prospective_known_truth_validation",
+  "fresh_seed_denominator": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "true_processes": ["temperature","water"],
+  "false_processes": ["seasonality","noise"],
+  "supported_rule": "context_status_equals_context_contributory",
+  "high_confidence_supported_rule": "supported_and_frozen_v19_geometry_eligible",
+  "geometry_classifier": "frozen_v19_classifier_no_refit_threshold_0.5",
+  "activity_evidence": "frozen_v15_v16_occurrence_based_context_contributory",
+  "target_selection_uses_outcomes": false,
+  "classifier_refit_allowed": false,
+  "new_scientific_thresholds_allowed": false,
+  "post_outcome_rule_changes_allowed": false,
+  "success_criteria": {
+    "supported": {
+      "positive_process_precision_min": 0.90,
+      "true_process_positive_rate_min": 0.35,
+      "false_process_positive_rate_max": 0.05
+    },
+    "high_confidence_supported": {
+      "positive_process_precision_min": 0.95,
+      "true_process_positive_rate_min": 0.20,
+      "false_process_positive_rate_max": 0.02
+    }
+  },
+  "prospective_support_requires_both_tiers_to_pass": true,
+  "fresh_empirical_validation_authorized_before_terminal": false
+}
