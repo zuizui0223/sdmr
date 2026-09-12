@@ -1,0 +1,17 @@
+{
+  "purpose": "activity_specificity_v20_development_only",
+  "development_only": true,
+  "eligible_for_prospective_performance_claim": false,
+  "consumed_seed_denominator": [16001,16002,16003,16004,16005,16006,16007,16008,16009,16010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "true_processes": ["temperature","water"],
+  "false_processes": ["seasonality","noise"],
+  "geometry_gate": "frozen_v19_eligibility_prediction_equals_eligible",
+  "activity_gate": "existing_v16_context_status_equals_context_contributory",
+  "combined_gate": "geometry_gate_and_activity_gate",
+  "comparisons": ["geometry_only","activity_only","combined"],
+  "new_scientific_thresholds_allowed": false,
+  "post_outcome_rule_changes_allowed": false,
+  "fresh_known_truth_validation_authorized": false,
+  "fresh_empirical_validation_authorized": false
+}
