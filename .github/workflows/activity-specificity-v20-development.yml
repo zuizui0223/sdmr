@@ -32,14 +32,14 @@ jobs:
       - run: python -m pip install -e . pytest
       - run: pytest -q tests/test_activity_specificity_v20.py
 
-  fit:
+  activity:
     needs: gate
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
-        process: [temperature, water, seasonality, noise]
+        process: [seasonality, noise]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -47,16 +47,19 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e .
-      - run: python -m sdmr.activity_specificity_v20_development fit-shard --family '${{ matrix.family }}' --process '${{ matrix.process }}' --output-dir shard
+      - run: python -m sdmr.activity_specificity_v20_development activity-shard --family '${{ matrix.family }}' --process '${{ matrix.process }}' --output-dir shard
       - uses: actions/upload-artifact@v4
         with:
-          name: v20-${{ matrix.family }}-${{ matrix.process }}-${{ github.sha }}
+          name: v20-activity-${{ matrix.family }}-${{ matrix.process }}-${{ github.sha }}
           path: shard/
           retention-days: 90
 
   aggregate:
-    needs: fit
+    needs: activity
     runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -66,9 +69,16 @@ jobs:
       - run: python -m pip install -e .
       - uses: actions/download-artifact@v4
         with:
-          pattern: v20-*-${{ github.sha }}
+          pattern: v20-activity-*-${{ github.sha }}
           path: inputs
-      - run: python -m sdmr.activity_specificity_v20_development aggregate --input-dir inputs --output-dir development
+      - uses: actions/download-artifact@v4
+        with:
+          name: v19-prospective-terminal-93761478c227e5708d52e8c81d51ae47343ad12e
+          path: v19
+          github-token: ${{ github.token }}
+          repository: zuizui0223/sdmr
+          run-id: 34604615305
+      - run: python -m sdmr.activity_specificity_v20_development aggregate --input-dir inputs --v19-dir v19 --output-dir development
       - uses: actions/upload-artifact@v4
         with:
           name: activity-specificity-v20-development-${{ github.sha }}
