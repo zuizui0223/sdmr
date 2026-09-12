@@ -1,0 +1,76 @@
+name: two-tier-process-support-v21-prospective
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/two_tier_process_support_v21_prospective.py'
+      - 'configs/two_tier_process_support_v21_prospective.json'
+      - 'tests/test_two_tier_process_support_v21.py'
+      - '.github/workflows/two-tier-process-support-v21-prospective.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: two-tier-process-support-v21-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_two_tier_process_support_v21.py
+
+  fit:
+    needs: gate
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+        process: [temperature, water, seasonality, noise]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - run: python -m sdmr.two_tier_process_support_v21_prospective fit-shard --family '${{ matrix.family }}' --process '${{ matrix.process }}' --output-dir shard
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v21-${{ matrix.family }}-${{ matrix.process }}-${{ github.sha }}
+          path: shard/
+          retention-days: 90
+
+  terminal:
+    needs: fit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v21-*-${{ github.sha }}
+          path: inputs
+      - run: python -m sdmr.two_tier_process_support_v21_prospective terminal --input-dir inputs --output-dir terminal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: two-tier-process-support-v21-terminal-${{ github.sha }}
+          path: terminal/
+          retention-days: 90
