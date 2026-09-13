@@ -1,0 +1,29 @@
+{
+  "purpose": "relative_attribution_v22_development",
+  "scope": "development_only_on_consumed_v21_seeds",
+  "consumed_seed_denominator": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "processes": ["temperature","water","seasonality","noise"],
+  "candidate_context_rule": "evaluate only contexts with at least two v21 supported processes",
+  "pairwise_rule": {
+    "symmetry_required": true,
+    "description": "For each supported pair P,Q in the same context, compare P necessity conditional on Q removal against Q necessity conditional on P removal using the frozen v15/v16 evidence machinery.",
+    "rank_margin": 0.02,
+    "density_margin": 0.01,
+    "uncertainty_rule": "one_standard_error",
+    "adequacy_contract": "reuse_v5_prediction_and_ecological_adequacy"
+  },
+  "statuses": ["P_favored","Q_favored","coessential","exchangeable","unresolved"],
+  "forbidden": [
+    "seasonality_specific_penalty",
+    "process_name_specific_threshold",
+    "post_truth_threshold_tuning",
+    "fresh_empirical_claim"
+  ],
+  "primary_development_readout": [
+    "false seasonality demotion among co-supported contexts",
+    "true temperature/water retention",
+    "pairwise directional accuracy against known truth",
+    "unresolved rate"
+  ]
+}
