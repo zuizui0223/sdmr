@@ -16,7 +16,8 @@
   "pair_manifest_rule": "derive mechanically from authoritative v21 context_decisions.csv; never hand-edit pair membership",
   "pairwise_rule": {
     "symmetry_required": true,
-    "description": "For each supported pair P,Q in the same context, compare P necessity conditional on Q removal against Q necessity conditional on P removal using the frozen v15/v16 evidence machinery.",
+    "description": "Within each frozen target context, leave one non-target source block out of training at a time. Compare Q-only knockout against P+Q knockout to estimate P conditional contribution, and P-only knockout against P+Q knockout for Q. Frozen ModelSpecs are averaged within each source perturbation; source perturbations are the uncertainty units.",
+    "minimum_source_perturbations": 3,
     "rank_margin": 0.02,
     "density_margin": 0.01,
     "uncertainty_rule": "one_standard_error",
