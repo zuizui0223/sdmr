@@ -4,7 +4,16 @@
   "consumed_seed_denominator": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
   "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
   "processes": ["temperature","water","seasonality","noise"],
+  "authoritative_v21_source": {
+    "workflow_run": 34671264361,
+    "terminal_artifact": 10291023518,
+    "artifact_digest": "sha256:42b6057d950e0b5ec29d996db6d4630ff0acac06947082681d0591af3cb6ae8a",
+    "expected_context_rows": 1920,
+    "expected_contexts_with_at_least_two_supported_processes": 122,
+    "expected_unordered_supported_pairs": 152
+  },
   "candidate_context_rule": "evaluate only contexts with at least two v21 supported processes",
+  "pair_manifest_rule": "derive mechanically from authoritative v21 context_decisions.csv; never hand-edit pair membership",
   "pairwise_rule": {
     "symmetry_required": true,
     "description": "For each supported pair P,Q in the same context, compare P necessity conditional on Q removal against Q necessity conditional on P removal using the frozen v15/v16 evidence machinery.",
