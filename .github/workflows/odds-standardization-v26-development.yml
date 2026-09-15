@@ -55,12 +55,7 @@ jobs:
           gh api repos/${{ github.repository }}/actions/artifacts/10378246323/zip > manifest.zip
           unzip -q manifest.zip -d frozen
           test -f frozen/pair_manifest.csv
-          test "$(python - <<'PY'
-import pandas as pd
-x=pd.read_csv('frozen/pair_manifest.csv')
-print(len(x))
-PY
-)" = "152"
+          test "$(python -c "import pandas as pd; print(len(pd.read_csv('frozen/pair_manifest.csv')))" )" = "152"
       - name: Run frozen v26 consumed development
         run: python -m sdmr.odds_standardization_v26 --pair-manifest frozen/pair_manifest.csv --output-dir v26 --workers 3
       - name: Replay saved evidence
