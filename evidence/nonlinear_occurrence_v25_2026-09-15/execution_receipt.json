@@ -1,0 +1,13 @@
+{
+  "config_sha256": "2183983481c6ca25de7bd668c56c46a4cc409b0d8c05b663f81eea460a230fc4",
+  "dependencies": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2"
+  },
+  "fresh_validation_authorized": false,
+  "implementation_commit": "788d38d5d9a07bfd1de9baef710b0bbe0b6a8bdc",
+  "learner": "hgb_200_leaf31_min20_lr008_l2001_seed0",
+  "purpose": "nonlinear_occurrence_v25_consumed_execution",
+  "python": "3.10.11"
+}

@@ -30,10 +30,15 @@ omission rows match v23, and all 152 oracle states reproduce from saved scores.
 This establishes a gap for the occurrence learner, not intrinsic absence of
 information in the declared representation. It does not isolate the cause.
 
-Next: specify and test a nonlinear occurrence-probability learner while holding
-v23's data, splits, correction, routes, margins and classifier fixed. Retain the
-same development advancement screen. The oracle must not provide candidate
-training targets, and no fresh denominator is yet authorized.
+The v25 nonlinear occurrence comparison is complete: specific precision 5/5,
+correct mixed-pair specificity 4/43, false inclusion 1/43. The unchanged coverage
+screen failed. All 152 states replayed and all 1,064 omission rows were complete.
+
+Next: test odds-scale observation standardization with the same v25 learner and
+unchanged decision margins. Of 87 joint-contribution failures, 79 passed rank
+and failed density alone. The analytic calibration issue was recorded before
+the v25 outcome in `0858e7b`. It is a testable successor hypothesis, not grounds
+to lower the density threshold. No fresh denominator is yet authorized.
 
 ## Working hypothesis for v23
 
