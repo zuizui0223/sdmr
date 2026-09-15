@@ -155,15 +155,48 @@ def aggregate(manifest_path, output_dir):
     return result
 
 
+def verify(manifest_path, output_dir):
+    manifest = load_manifest(manifest_path)
+    out = Path(output_dir)
+    hashes, count = {}, 0
+    for family in sorted(manifest.family.unique()):
+        path = out / family / "oracle_evidence.csv"
+        frame = pd.read_csv(path)
+        if frame.source_block.eq(frame.target_block).any():
+            raise ValueError("target reused as source")
+        records = json.loads((out / family / "oracle_pairs.json").read_text(encoding="utf-8"))
+        keys = [tuple(r[k] for k in PAIR_KEY) for r in records]
+        expected = set(manifest.loc[manifest.family == family, PAIR_KEY].itertuples(index=False, name=None))
+        if len(keys) != len(set(keys)) or set(keys) != expected or set(frame[PAIR_KEY].itertuples(index=False, name=None)) != expected:
+            raise ValueError("verification denominator mismatch")
+        for row in records:
+            focus = frame
+            for key in PAIR_KEY:
+                focus = focus.loc[focus[key] == row[key]]
+            result = classify_oracle(focus)
+            if result["state"] != row["state"] or result["n_sources"] != row["n_sources"]:
+                raise ValueError("saved oracle state differs from scores")
+            count += 1
+        hashes[path.relative_to(out).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    receipt = {"purpose": "v24_saved_evidence_verification", "n_pair_states_reproduced": count,
+               "oracle_evidence_sha256": hashes, "fresh_validation_authorized": False}
+    (out / "verification_receipt.json").write_text(json.dumps(receipt, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+    return receipt
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pair-manifest", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--aggregate-only", action="store_true")
+    parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args()
     manifest = load_manifest(args.pair_manifest)
     out = Path(args.output_dir)
+    if args.verify_only:
+        print(json.dumps(verify(args.pair_manifest, args.output_dir), indent=2, sort_keys=True))
+        return
     if not args.aggregate_only:
         out.mkdir(parents=True, exist_ok=False)
         receipt = {"implementation_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),

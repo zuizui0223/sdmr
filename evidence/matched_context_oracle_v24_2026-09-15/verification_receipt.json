@@ -1,0 +1,13 @@
+{
+  "fresh_validation_authorized": false,
+  "n_pair_states_reproduced": 152,
+  "oracle_evidence_sha256": {
+    "asymmetric/oracle_evidence.csv": "1499abe8294af695ceebfaf1a29f22a21de4e3824051258edd8ecf72aa9ab04e",
+    "gaussian/oracle_evidence.csv": "27c88c73b68306435f412f9659b9b8d572434042ddcb8d3a72c9e9624dc5f822",
+    "interaction/oracle_evidence.csv": "ec1d80cf7da9ee6ff5ac4dc527b23cbef9c5c641e8f7b5a00cffff66f3dc1e76",
+    "observation_confounded/oracle_evidence.csv": "4c4dc376985ca865055a15f5a227025f73e89b7837a96c2e8a823c45d841a664",
+    "omitted_driver/oracle_evidence.csv": "50fd33735197aad6bba101446a2d3b1e8b17f5767fafa1675f7de4385ca77b7c",
+    "soft_threshold/oracle_evidence.csv": "033b29b263cf39cbcf1f8c042af564f2217b59540a91759350c1852a4092bc96"
+  },
+  "purpose": "v24_saved_evidence_verification"
+}

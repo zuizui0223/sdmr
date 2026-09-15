@@ -1,0 +1,29 @@
+{
+  "crosswalk": {
+    "a_specific": {
+      "a_specific": 1,
+      "b_specific": 1,
+      "full_inadequate": 5,
+      "joint_contribution_not_established": 29,
+      "joint_required": 3,
+      "joint_supported_attribution_uncertain": 4
+    },
+    "joint_required": {
+      "a_specific": 1,
+      "b_specific": 1,
+      "full_inadequate": 10,
+      "joint_contribution_not_established": 58,
+      "joint_required": 7,
+      "joint_supported_attribution_uncertain": 32
+    }
+  },
+  "fresh_validation_authorized": false,
+  "mixed_pairs": 43,
+  "mixed_true_specific": 43,
+  "n_pairs": 152,
+  "oracle_state_counts": {
+    "a_specific": 43,
+    "joint_required": 109
+  },
+  "purpose": "matched_context_truth_surface_diagnostic_v24"
+}
