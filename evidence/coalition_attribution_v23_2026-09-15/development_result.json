@@ -1,0 +1,31 @@
+{
+  "development_screen_passed": false,
+  "empirical_validation_authorized": false,
+  "fresh_validation_authorized": false,
+  "input_family_sha256": {
+    "asymmetric": "1c58c683520eadf7df04b4ebddbb033b5d43ac648a2f5ebd699c99a811433017",
+    "gaussian": "e7ccb1f2104aa249d299dbe8765b53d8fe515a7cf2cb37b5960b6ea688a976f7",
+    "interaction": "6b22926b96715ab1429553cab890c00225e0bf2b4c28191143cb2fa41908780f",
+    "observation_confounded": "8ef3c8318c2e063b42a0c8c053313962bf0480a795e2d5cb807d8d26ad882dff",
+    "omitted_driver": "7a0302e68c0021948284af46d09a52512b1758940aab583de26db33866c42bee",
+    "soft_threshold": "e66374a751ecc9558a064806ba0b952ff1a7d7336aa7f0ddc9e5df3205c068bd"
+  },
+  "mixed_false_inclusion": 4,
+  "mixed_false_inclusion_rate": 0.09302325581395349,
+  "mixed_pairs": 43,
+  "mixed_true_specific": 1,
+  "mixed_true_specific_rate": 0.023255813953488372,
+  "n_pairs": 152,
+  "purpose": "coalition_attribution_v23_consumed_development_result",
+  "specific_calls": 4,
+  "specific_calls_on_generating_true_process": 3,
+  "specific_precision": 0.75,
+  "state_counts": {
+    "a_specific": 2,
+    "b_specific": 2,
+    "full_inadequate": 15,
+    "joint_contribution_not_established": 87,
+    "joint_required": 10,
+    "joint_supported_attribution_uncertain": 36
+  }
+}

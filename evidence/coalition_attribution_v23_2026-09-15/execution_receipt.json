@@ -1,0 +1,11 @@
+{
+  "config_sha256": "72c30d53ff44c0d4853795bb5a813030dce65055c9f92bb6e448d33dcd9e8f64",
+  "dependencies": {
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2"
+  },
+  "implementation_commit": "511e8478cfc6d523cf35761e926f0b55af14578d",
+  "python": "3.10.11",
+  "scope": "consumed_development_only"
+}
