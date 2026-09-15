@@ -1,0 +1,72 @@
+name: odds-standardization-v26-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/odds_standardization_v26.py'
+      - 'docs/ODDS_STANDARDIZATION_V26_CONTRACT.md'
+      - 'tests/test_odds_standardization_v26.py'
+      - '.github/workflows/odds-standardization-v26-development.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: odds-standardization-v26-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONHASHSEED: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_odds_standardization_v26.py tests/test_coalition_attribution_v23.py tests/test_coalition_attribution_v23_verification.py
+
+  consumed-development:
+    needs: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - name: Download frozen v22 pair manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p frozen
+          gh api repos/${{ github.repository }}/actions/artifacts/10378246323/zip > manifest.zip
+          unzip -q manifest.zip -d frozen
+          test -f frozen/pair_manifest.csv
+          test "$(python - <<'PY'
+import pandas as pd
+x=pd.read_csv('frozen/pair_manifest.csv')
+print(len(x))
+PY
+)" = "152"
+      - name: Run frozen v26 consumed development
+        run: python -m sdmr.odds_standardization_v26 --pair-manifest frozen/pair_manifest.csv --output-dir v26 --workers 3
+      - name: Replay saved evidence
+        run: python -m sdmr.odds_standardization_v26 --pair-manifest frozen/pair_manifest.csv --output-dir v26 --verify-only
+      - uses: actions/upload-artifact@v4
+        with:
+          name: odds-standardization-v26-${{ github.sha }}
+          path: v26/
+          retention-days: 90
