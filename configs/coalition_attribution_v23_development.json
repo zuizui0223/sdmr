@@ -1,0 +1,25 @@
+{
+  "purpose": "coalition_attribution_v23_consumed_development",
+  "source_v22_run": 34921157441,
+  "pair_manifest_sha256": "f69c3d88df53f09c2fb3c385ca5945ccd797e04287fc5c188e5263c33f7c1283",
+  "expected_pairs": 152,
+  "expected_contexts": 122,
+  "seeds": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "processes": ["temperature","water","seasonality","noise"],
+  "minimum_source_perturbations": 3,
+  "rank_margin": 0.02,
+  "density_margin": 0.01,
+  "chance_score": 0.5,
+  "adequacy_margin": 0.01,
+  "uncertainty_rule": "paired_source_perturbation_mean_plus_or_minus_one_sem",
+  "full_route_adequacy_required": true,
+  "development_screen": {
+    "specific_precision_min": 0.95,
+    "mixed_true_specific_rate_min": 0.20,
+    "mixed_false_inclusion_rate_max": 0.05
+  },
+  "fresh_validation_authorized": false,
+  "empirical_validation_authorized": false,
+  "product_b_unblocked": false
+}
