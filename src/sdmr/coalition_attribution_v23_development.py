@@ -49,12 +49,13 @@ def load_manifest(path):
     return frame
 
 
-def evaluate_pair(item: dict, *, fit_model=None, model_specs=None):
+def evaluate_pair(item: dict, *, fit_model=None, model_specs=None, score_model=None):
     cfg = load_contract()
     _, v6, sim, registry, eco, obs, _, specs = _base_objects()
     if model_specs is not None:
         specs = tuple(model_specs)
     fitter = fit_relative_suitability_model if fit_model is None else fit_model
+    scorer = _score if score_model is None else score_model
     family, seed, target, a, b = (item[k] for k in PAIR_KEY)
     if family not in cfg["families"] or seed not in cfg["seeds"]:
         raise ValueError("pair outside consumed development")
@@ -98,7 +99,7 @@ def evaluate_pair(item: dict, *, fit_model=None, model_specs=None):
                     raise ValueError("insufficient observation correction or rows")
                 for route in ROUTES:
                     model = fitter(ptr, btr, predictors[route], model_spec=spec)
-                    score = _score(model, pte, bte, btr, predictors[route], tuple(obs), correction,
+                    score = scorer(model, pte, bte, btr, predictors[route], tuple(obs), correction,
                                    learner["density_probability_epsilon"])
                     row.update({f"{route}_{k}": v for k, v in score.items()})
                 if not all(np.isfinite(row[c]) for c in SCORE_COLUMNS):
