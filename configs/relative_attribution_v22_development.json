@@ -1,0 +1,39 @@
+{
+  "purpose": "relative_attribution_v22_development",
+  "scope": "development_only_on_consumed_v21_seeds",
+  "consumed_seed_denominator": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "processes": ["temperature","water","seasonality","noise"],
+  "authoritative_v21_source": {
+    "workflow_run": 34671264361,
+    "terminal_artifact": 10291023518,
+    "artifact_digest": "sha256:42b6057d950e0b5ec29d996db6d4630ff0acac06947082681d0591af3cb6ae8a",
+    "expected_context_rows": 1920,
+    "expected_contexts_with_at_least_two_supported_processes": 122,
+    "expected_unordered_supported_pairs": 152
+  },
+  "candidate_context_rule": "evaluate only contexts with at least two v21 supported processes",
+  "pair_manifest_rule": "derive mechanically from authoritative v21 context_decisions.csv; never hand-edit pair membership",
+  "pairwise_rule": {
+    "symmetry_required": true,
+    "description": "Within each frozen target context, leave one non-target source block out of training at a time. Compare Q-only knockout against P+Q knockout to estimate P conditional contribution, and P-only knockout against P+Q knockout for Q. Frozen ModelSpecs are averaged within each source perturbation; source perturbations are the uncertainty units.",
+    "minimum_source_perturbations": 3,
+    "rank_margin": 0.02,
+    "density_margin": 0.01,
+    "uncertainty_rule": "one_standard_error",
+    "adequacy_contract": "reuse_v5_prediction_and_ecological_adequacy"
+  },
+  "statuses": ["P_favored","Q_favored","coessential","exchangeable","unresolved"],
+  "forbidden": [
+    "seasonality_specific_penalty",
+    "process_name_specific_threshold",
+    "post_truth_threshold_tuning",
+    "fresh_empirical_claim"
+  ],
+  "primary_development_readout": [
+    "false seasonality demotion among co-supported contexts",
+    "true temperature/water retention",
+    "pairwise directional accuracy against known truth",
+    "unresolved rate"
+  ]
+}
