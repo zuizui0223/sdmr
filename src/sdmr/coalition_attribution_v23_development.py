@@ -49,9 +49,12 @@ def load_manifest(path):
     return frame
 
 
-def evaluate_pair(item: dict):
+def evaluate_pair(item: dict, *, fit_model=None, model_specs=None):
     cfg = load_contract()
     _, v6, sim, registry, eco, obs, _, specs = _base_objects()
+    if model_specs is not None:
+        specs = tuple(model_specs)
+    fitter = fit_relative_suitability_model if fit_model is None else fit_model
     family, seed, target, a, b = (item[k] for k in PAIR_KEY)
     if family not in cfg["families"] or seed not in cfg["seeds"]:
         raise ValueError("pair outside consumed development")
@@ -94,7 +97,7 @@ def evaluate_pair(item: dict):
                 if not correction.complete or min(len(ptr), len(btr), len(pte), len(bte)) < 2:
                     raise ValueError("insufficient observation correction or rows")
                 for route in ROUTES:
-                    model = fit_relative_suitability_model(ptr, btr, predictors[route], model_spec=spec)
+                    model = fitter(ptr, btr, predictors[route], model_spec=spec)
                     score = _score(model, pte, bte, btr, predictors[route], tuple(obs), correction,
                                    learner["density_probability_epsilon"])
                     row.update({f"{route}_{k}": v for k, v in score.items()})
@@ -133,7 +136,7 @@ def fit_family(family, manifest_path, output_dir):
     return family
 
 
-def aggregate(manifest_path, output_dir):
+def aggregate(manifest_path, output_dir, *, purpose="coalition_attribution_v23_consumed_development_result"):
     cfg = load_contract()
     manifest = load_manifest(manifest_path)
     out = Path(output_dir)
@@ -160,7 +163,7 @@ def aggregate(manifest_path, output_dir):
                       (r.state == "b_specific" and r.process_b not in true) or r.state == "joint_required"
                       for r in mixed.itertuples(index=False))
     result = {
-        "purpose": "coalition_attribution_v23_consumed_development_result",
+        "purpose": purpose,
         "n_pairs": len(actual), "state_counts": actual.state.value_counts().to_dict(),
         "specific_calls": len(specific), "specific_calls_on_generating_true_process": correct,
         "specific_precision": correct / len(specific) if len(specific) else None,

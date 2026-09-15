@@ -1,0 +1,30 @@
+{
+  "development_screen_passed": false,
+  "empirical_validation_authorized": false,
+  "fresh_validation_authorized": false,
+  "input_family_sha256": {
+    "asymmetric": "abd5b935e480430145ace0a77a7004282390b6792a594ac152662be919d994dd",
+    "gaussian": "b93b0a77573f15e1febae1fcdcdb04ac04a8d4e1677a827fd1b85ea189985d76",
+    "interaction": "7c806f71d174e9c92b0ffa4e2a189e9069b7b0e67468715f3988335263d0e2c7",
+    "observation_confounded": "87ef700157de04e0d9002e3e1c23b2f7f71c7a2b9ef1861936dad40cfa726303",
+    "omitted_driver": "ce6f42d099de81aa427331e9d9e8180ef33729943b8c8a857969c6527bccbb05",
+    "soft_threshold": "e445b1f08eefc666de3f091c502c47f9053da9564a08093924d515396eaa4076"
+  },
+  "mixed_false_inclusion": 1,
+  "mixed_false_inclusion_rate": 0.023255813953488372,
+  "mixed_pairs": 43,
+  "mixed_true_specific": 4,
+  "mixed_true_specific_rate": 0.09302325581395349,
+  "n_pairs": 152,
+  "purpose": "nonlinear_occurrence_v25_consumed_development_result",
+  "specific_calls": 5,
+  "specific_calls_on_generating_true_process": 5,
+  "specific_precision": 1.0,
+  "state_counts": {
+    "a_specific": 5,
+    "full_inadequate": 1,
+    "joint_contribution_not_established": 87,
+    "joint_required": 14,
+    "joint_supported_attribution_uncertain": 45
+  }
+}

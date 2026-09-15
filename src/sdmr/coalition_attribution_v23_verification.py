@@ -13,7 +13,7 @@ from .coalition_attribution_v23 import classify_pair
 from .coalition_attribution_v23_development import CONFIG, PAIR_KEY, load_contract, load_manifest
 
 
-def verify(manifest_path, output_dir):
+def verify(manifest_path, output_dir, *, model_labels=None):
     cfg = load_contract()
     manifest = load_manifest(manifest_path)
     out = Path(output_dir)
@@ -21,6 +21,7 @@ def verify(manifest_path, output_dir):
     if receipt["config_sha256"] != hashlib.sha256(CONFIG.read_bytes()).hexdigest():
         raise ValueError("execution config changed")
     _, _, _, _, _, _, _, specs = _base_objects()
+    labels = [s.label for s in specs] if model_labels is None else list(model_labels)
     count = 0
     hashes = {}
     for family in cfg["families"]:
@@ -41,7 +42,7 @@ def verify(manifest_path, output_dir):
             for k in PAIR_KEY:
                 group = group.loc[group[k] == row[k]]
             replay = classify_pair(
-                group, model_labels=[s.label for s in specs],
+                group, model_labels=labels,
                 minimum_sources=cfg["minimum_source_perturbations"], rank_margin=cfg["rank_margin"],
                 density_margin=cfg["density_margin"], chance=cfg["chance_score"],
                 adequacy_margin=cfg["adequacy_margin"],
