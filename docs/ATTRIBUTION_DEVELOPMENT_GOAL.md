@@ -23,14 +23,17 @@ This goal authorizes neither empirical data acquisition nor a Product A rerun.
 
 ## Current next gate
 
-The large goal remains active. Diagnose the occurrence-to-representation gap
-on the exact consumed v23 contexts before proposing another classifier.
-Earlier truth-surface oracle work (PR #200, seeds 13001–13010) showed that
-generating processes could be recovered with complete truth surfaces; v23
-therefore does not establish intrinsic non-identifiability of this simulator.
-A matched-context oracle comparison should distinguish limitations of the
-occurrence scores/model fits from limitations of the four-route estimand.
-Any such diagnostic must be separately specified and must not promote v23.
+The large goal remains active. The matched-context v24 diagnostic is complete:
+all 43 mixed pairs are correctly specific and all 109 true/true pairs are
+joint-required with privileged truth-surface targets. All 1,064 source/target
+omission rows match v23, and all 152 oracle states reproduce from saved scores.
+This establishes a gap for the occurrence learner, not intrinsic absence of
+information in the declared representation. It does not isolate the cause.
+
+Next: specify and test a nonlinear occurrence-probability learner while holding
+v23's data, splits, correction, routes, margins and classifier fixed. Retain the
+same development advancement screen. The oracle must not provide candidate
+training targets, and no fresh denominator is yet authorized.
 
 ## Working hypothesis for v23
 

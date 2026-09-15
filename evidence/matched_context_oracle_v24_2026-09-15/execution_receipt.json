@@ -1,0 +1,6 @@
+{
+  "implementation_commit": "ebaa51f6fe4f22dfeddabe571ffaac1941c683b5",
+  "pair_manifest_sha256": "f69c3d88df53f09c2fb3c385ca5945ccd797e04287fc5c188e5263c33f7c1283",
+  "scope": "consumed_privileged_truth_diagnostic",
+  "fresh_validation_authorized": false
+}
