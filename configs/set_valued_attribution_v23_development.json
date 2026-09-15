@@ -1,0 +1,38 @@
+{
+  "purpose": "set_valued_attribution_v23_development",
+  "scope": "preserve_prospectively_supported_v21_activity_calls_without_forced_pairwise_winner",
+  "source_v21": {
+    "workflow_run": 34671264361,
+    "terminal_artifact": 10291023518,
+    "artifact_digest": "sha256:42b6057d950e0b5ec29d996db6d4630ff0acac06947082681d0591af3cb6ae8a"
+  },
+  "source_v22_negative_endpoint": {
+    "workflow_run": 34921157441,
+    "aggregate_artifact": 10378537060,
+    "artifact_digest": "sha256:e1ae4ba5355634d31c22cfc0ca2f4636a2953540febe7077727ff4d26379e0e8"
+  },
+  "set_rule": {
+    "supported_set": "all processes with v21 supported=true in the same context",
+    "high_confidence_subset": "members with v21 high_confidence_supported=true",
+    "force_single_winner": false,
+    "empty_set_allowed": true,
+    "singleton_is_sharp_attribution": true,
+    "multi_member_set_is_partial_identification": true
+  },
+  "sharpening_rule": "no member may be removed from a multi-process supported set without new separating evidence not used to create the support calls",
+  "forbidden": [
+    "reuse_v22_pairwise_winner_as_default_sharpener",
+    "seasonality_specific_penalty",
+    "process_name_specific_threshold",
+    "post_truth_member_deletion",
+    "claim_unique_process_when_supported_set_has_multiple_members"
+  ],
+  "development_readout": [
+    "set_coverage_of_true_processes",
+    "singleton_precision",
+    "multi_member_set_size",
+    "false_member_burden",
+    "high_confidence_subset_coverage"
+  ],
+  "fresh_empirical_validation_authorized": false
+}
