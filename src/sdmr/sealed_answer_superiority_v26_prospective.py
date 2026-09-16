@@ -1,10 +1,12 @@
 """Fresh prospective orchestration helpers for sealed-answer superiority v26.
 
-This module keeps upstream support/set construction truth-blind.  Known-truth
-labels are not created here; they are reserved for the terminal scoring stage.
+This module keeps upstream support/set construction truth-blind. Known-truth
+labels are reserved for the terminal scoring stage after immutable receipts and
+an independent deterministic reproduction gate exist.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -16,6 +18,7 @@ from .set_valued_attribution_v23 import build_context_sets
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "configs" / "sealed_answer_superiority_v26_prospective.json"
 KEY = ["family", "seed", "target_process", "target_block"]
+CONTEXT_SET_KEY = ["family", "seed", "target_block"]
 
 
 def load_contract(path: str | Path = CONFIG) -> dict:
@@ -91,3 +94,61 @@ def build_truth_blind_v23_sets(context_decisions: pd.DataFrame) -> pd.DataFrame:
     if forbidden:
         raise RuntimeError("truth-like columns leaked into v23 context sets")
     return sets
+
+
+def _canonical_frame_bytes(frame: pd.DataFrame) -> bytes:
+    canonical = frame.copy()
+    columns = sorted(str(col) for col in canonical.columns)
+    canonical = canonical[columns]
+    if columns:
+        canonical = canonical.sort_values(columns, kind="mergesort", na_position="last").reset_index(drop=True)
+    return canonical.to_csv(index=False, lineterminator="\n", float_format="%.17g").encode("utf-8")
+
+
+def _sha256_frame(frame: pd.DataFrame) -> str:
+    return hashlib.sha256(_canonical_frame_bytes(frame)).hexdigest()
+
+
+def validate_context_set_provenance(
+    context_decisions: pd.DataFrame,
+    context_sets: pd.DataFrame,
+) -> None:
+    """Require exact identity with v23 ``build_context_sets`` output."""
+    expected = build_truth_blind_v23_sets(context_decisions)
+    expected_bytes = _canonical_frame_bytes(expected)
+    observed_bytes = _canonical_frame_bytes(context_sets)
+    if expected_bytes != observed_bytes:
+        raise ValueError("context sets must be exact output of v23 build_context_sets")
+
+
+def freeze_truth_blind_context_stage(
+    geometry_predictions: pd.DataFrame,
+    activity_contexts: pd.DataFrame,
+    output_dir: str | Path,
+) -> dict[str, object]:
+    """Write v21 decisions and v23 sets plus a truth-blind immutable receipt."""
+    decisions = assemble_truth_blind_v21_contexts(geometry_predictions, activity_contexts)
+    sets = build_truth_blind_v23_sets(decisions)
+    validate_context_set_provenance(decisions, sets)
+    for label, frame in (("context_decisions", decisions), ("context_sets", sets)):
+        forbidden = [col for col in frame.columns if "truth" in str(col).lower()]
+        if forbidden:
+            raise ValueError(f"{label} contains truth-like columns before terminal scoring")
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    decisions.to_csv(out / "context_decisions.csv", index=False)
+    sets.to_csv(out / "context_sets.csv", index=False)
+    receipt: dict[str, object] = {
+        "purpose": "sealed_answer_superiority_v26_preterminal_context_receipt",
+        "truth_opened": False,
+        "context_set_constructor": "set_valued_attribution_v23.build_context_sets",
+        "n_context_decision_rows": int(len(decisions)),
+        "n_contexts": int(len(sets)),
+        "context_decisions_sha256": _sha256_frame(decisions),
+        "context_sets_sha256": _sha256_frame(sets),
+    }
+    (out / "preterminal_context_receipt.json").write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return receipt
