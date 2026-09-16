@@ -68,6 +68,19 @@ The development advancement screen is intentionally simple and safety-first:
 
 Passing this screen does **not** establish performance and does not authorize empirical validation. It only permits a separately frozen unused-seed prospective successor. Failure records a negative development endpoint and stops before fresh seeds are spent.
 
+## Closed development result
+
+The consumed endpoint is now closed. Workflow `35085028243` completed the truth-blind refinement before opening known truth.
+
+Observed result:
+
+- removed true members: **52 / 424 (12.26%)**;
+- removed false members: **29 / 43 (67.44%)**;
+- contexts with at least one true deletion: **10.83%**;
+- development advancement screen: **FAILED**.
+
+Accordingly, `prospective_contract_freeze_authorized`, `fresh_seed_allocation_authorized`, `fresh_validation_authorized`, and `empirical_validation_authorized` all remain false. See `docs/SEALED_ANSWER_SEPARATOR_V25_RESULT.md` for failure localization and successor diagnostics.
+
 ## Hard stops
 
 - no changes to v21 support thresholds;
