@@ -1,0 +1,55 @@
+{
+  "purpose": "separating_evidence_refinement_v24_development_only",
+  "base_v23": {
+    "merge_commit": "fdcce8ca00e8cbad6df85f1af9c781c1c02acf86",
+    "source_v21_workflow_run": 34671264361,
+    "source_v21_terminal_artifact": 10291023518,
+    "v23_development_workflow_run": 35059209887,
+    "v23_development_artifact": 10431279663,
+    "v23_development_artifact_digest": "sha256:4cb7c3f17348eaaed29c416830903668e14e23107421ea813b9e3739ddbd9315"
+  },
+  "estimand": "refine_a_v23_co_supported_process_set_only_with_genuinely_new_separating_evidence",
+  "evidence_states": [
+    "exclude",
+    "compatible",
+    "indeterminate",
+    "unavailable"
+  ],
+  "authorization_requirements": {
+    "source_disjoint_from_v21_support_inputs": true,
+    "decision_rule_frozen_before_separator_outcomes": true,
+    "context_and_process_key_alignment_required": true,
+    "required_separator_roster_frozen_before_separator_outcomes": true
+  },
+  "refinement_rule": {
+    "aggregation": "unanimous_exclusion_across_all_required_qualified_separators",
+    "remove_member_only_if_every_required_separator_is_present_qualified_and_exclude": true,
+    "compatible_forces_retention": true,
+    "indeterminate_forces_retention": true,
+    "unavailable_forces_retention": true,
+    "missing_required_separator_forces_retention": true,
+    "unqualified_separator_forces_retention": true,
+    "addition_of_process_outside_v23_set_forbidden": true,
+    "empty_refined_set_allowed": true,
+    "force_single_winner": false
+  },
+  "development_readout": [
+    "mean_set_size_contraction",
+    "fraction_of_contexts_contracted",
+    "true_base_member_false_deletion_rate",
+    "false_base_member_removal_rate",
+    "context_any_true_deletion_rate",
+    "exact_truth_set_rate_after_refinement"
+  ],
+  "forbidden": [
+    "reuse_v22_pairwise_winner_as_separator",
+    "reuse_v21_support_or_high_confidence_flag_as_new_separator",
+    "process_name_specific_penalty",
+    "post_truth_member_deletion",
+    "post_outcome_separator_roster_change",
+    "post_outcome_refinement_rule_change",
+    "promote_consumed_v21_or_v23_development_as_fresh_validation"
+  ],
+  "fresh_empirical_validation_authorized": false,
+  "future_performance_claim_requires_new_unused_denominator": true
+}
