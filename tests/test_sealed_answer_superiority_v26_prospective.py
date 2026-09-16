@@ -3,12 +3,12 @@ import json
 import pandas as pd
 import pytest
 
+from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts
 from sdmr.sealed_answer_superiority_v26_prospective import (
     aggregate_truth_blind,
     assemble_context_stage_from_shards,
     assemble_truth_blind_v21_contexts,
     build_truth_blind_v23_sets,
-    compare_truth_blind_receipts,
     freeze_truth_blind_context_stage,
     load_contract,
     run_family_separator,
