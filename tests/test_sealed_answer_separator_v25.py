@@ -1,7 +1,13 @@
+import numpy as np
 import pandas as pd
 import pytest
 
-from sdmr.sealed_answer_separator_v25 import classify_sealed_answer_separator
+from sdmr.model import ModelSpec
+from sdmr.sealed_answer_separator_v25 import (
+    build_sealed_answer_fold_evidence,
+    classify_sealed_answer_separator,
+)
+from sdmr.sealed_occurrence_contract import freeze_occurrence_answer_check_split
 
 
 KEY = {
@@ -63,7 +69,6 @@ def test_clear_exclusion_harm_emits_compatible():
 
 
 def test_interval_overlap_emits_indeterminate():
-    # mean=-0.01 and nonzero SEM: interval overlaps the inherited -0.01 margin.
     row = _state(_rows({"m1": [-0.020, 0.000], "m2": [-0.002, 0.001]}))
     assert row.evidence_state == "indeterminate"
 
@@ -99,3 +104,120 @@ def test_duplicate_context_model_fold_keys_fail_closed():
     frame = pd.concat([frame, frame.iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="duplicate"):
         _state(frame)
+
+
+def _outer_frames():
+    rng = np.random.default_rng(5)
+    centers = np.array([
+        [-4.0, -2.0], [-4.0, 2.0], [-1.5, -2.0], [-1.5, 2.0],
+        [1.5, -2.0], [1.5, 2.0], [4.0, -2.0], [4.0, 2.0],
+    ])
+    occ_xy = np.vstack([c + rng.normal(0, 0.08, (10, 2)) for c in centers])
+
+    def features(xy):
+        lon = xy[:, 0]
+        lat = xy[:, 1]
+        temp = 0.7 * lat + 0.2 * lon
+        return pd.DataFrame({
+            "longitude": lon,
+            "latitude": lat,
+            "temperature": temp,
+            "temp_proxy": 0.9 * temp + 0.03 * lon,
+            "water": -0.6 * lon + 0.2 * lat,
+            "seasonality": np.sin(lon) + 0.2 * np.cos(lat),
+            "noise": 0.1 * lon - 0.05 * lat,
+        })
+
+    occurrences = features(occ_xy)
+    occurrences.insert(0, "occurrence_id", [f"occ-{i:03d}" for i in range(len(occurrences))])
+    bg_xy = rng.uniform([-4.8, -2.8], [4.8, 2.8], size=(240, 2))
+    sep_xy = rng.uniform([-4.7, -2.7], [4.7, 2.7], size=(240, 2)) + 1e-5
+    return occurrences, features(bg_xy), features(sep_xy)
+
+
+def _registry():
+    return pd.DataFrame([
+        {"predictor": "temperature", "process": "temperature", "role": "direct"},
+        {"predictor": "temp_proxy", "process": "temperature", "role": "proxy"},
+        {"predictor": "water", "process": "water", "role": "direct"},
+        {"predictor": "seasonality", "process": "seasonality", "role": "direct"},
+        {"predictor": "noise", "process": "noise", "role": "direct"},
+    ])
+
+
+def test_build_outer_evidence_excludes_full_process_closure_and_opens_only_after_receipt():
+    occurrences, background, separator_background = _outer_frames()
+    split = freeze_occurrence_answer_check_split(
+        occurrences,
+        n_blocks=8,
+        holdout_fraction=0.25,
+        random_state=19,
+    )
+    specs = (
+        ModelSpec(C=1.0, degree=1, penalty="l2", random_state=0),
+        ModelSpec(C=1.0, degree=2, penalty="l2", random_state=0),
+    )
+    evidence = build_sealed_answer_fold_evidence(
+        occurrences,
+        background,
+        separator_background,
+        occurrence_split=split,
+        family="gaussian",
+        seed=17001,
+        target_block=2,
+        target_process="temperature",
+        process_registry=_registry(),
+        ecological_predictors=("temperature", "temp_proxy", "water", "seasonality", "noise"),
+        observation_predictors=(),
+        model_specs=specs,
+        selection_receipt="v23-support-frozen",
+        outer_n_blocks=8,
+        outer_holdout_fraction=0.25,
+        outer_random_state=19,
+    )
+    assert set(evidence.model_label) == {s.label for s in specs}
+    assert evidence.prediction_frozen_before_answer_open.astype(bool).all()
+    assert evidence.sealed_answer_source_disjoint.astype(bool).all()
+    assert evidence.prediction_receipt.astype(str).str.len().min() == 64
+    assert evidence.baseline_predictors.str.contains("temperature").all()
+    assert evidence.baseline_predictors.str.contains("temp_proxy").all()
+    assert (~evidence.excluded_predictors.str.contains("temperature")).all()
+    assert (~evidence.excluded_predictors.str.contains("temp_proxy")).all()
+    assert evidence.fold.nunique() >= 2
+
+
+def test_build_outer_evidence_requires_receipt_and_disjoint_reference_rows():
+    occurrences, background, separator_background = _outer_frames()
+    split = freeze_occurrence_answer_check_split(
+        occurrences,
+        n_blocks=8,
+        holdout_fraction=0.25,
+        random_state=19,
+    )
+    kwargs = dict(
+        occurrence_split=split,
+        family="gaussian",
+        seed=17001,
+        target_block=2,
+        target_process="temperature",
+        process_registry=_registry(),
+        ecological_predictors=("temperature", "temp_proxy", "water", "seasonality", "noise"),
+        observation_predictors=(),
+        model_specs=(ModelSpec(C=1.0, degree=1, random_state=0),),
+        outer_n_blocks=8,
+        outer_holdout_fraction=0.25,
+        outer_random_state=19,
+    )
+    with pytest.raises(ValueError, match="selection_receipt"):
+        build_sealed_answer_fold_evidence(
+            occurrences, background, separator_background,
+            selection_receipt="", **kwargs,
+        )
+
+    overlapping = separator_background.copy()
+    overlapping.loc[0, ["longitude", "latitude"]] = background.loc[0, ["longitude", "latitude"]]
+    with pytest.raises(ValueError, match="source-disjoint"):
+        build_sealed_answer_fold_evidence(
+            occurrences, background, overlapping,
+            selection_receipt="frozen", **kwargs,
+        )
