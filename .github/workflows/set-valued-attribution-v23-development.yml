@@ -45,16 +45,21 @@ jobs:
           github-token: ${{ github.token }}
           repository: zuizui0223/sdmr
           run-id: 34671264361
+      - name: Normalize authoritative v21 context-decision path
+        run: |
+          SOURCE_CONTEXT="$(find v21-terminal -type f -name context_decisions.csv -print -quit)"
+          test -n "$SOURCE_CONTEXT"
+          cp "$SOURCE_CONTEXT" v21-context-decisions.csv
       - name: Build truth-blind set-valued readout
         run: >-
           python -m sdmr.set_valued_attribution_v23_development build
-          --input v21-terminal/context_decisions.csv
+          --input v21-context-decisions.csv
           --output-dir v23-output
       - name: Score frozen sets against known truth only after construction
         run: >-
           python -m sdmr.set_valued_attribution_v23_development score
           --context-sets v23-output/context_sets.csv
-          --context-decisions v21-terminal/context_decisions.csv
+          --context-decisions v21-context-decisions.csv
           --output v23-output/known_truth_set_score.json
       - name: Record immutable source provenance
         run: |
