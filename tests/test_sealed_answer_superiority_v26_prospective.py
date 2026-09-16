@@ -1,9 +1,14 @@
+import json
+
 import pandas as pd
+import pytest
 
 from sdmr.sealed_answer_superiority_v26_prospective import (
     assemble_truth_blind_v21_contexts,
     build_truth_blind_v23_sets,
+    freeze_truth_blind_context_stage,
     load_contract,
+    validate_context_set_provenance,
 )
 
 
@@ -53,7 +58,6 @@ def test_truth_blind_v21_assembly_reproduces_frozen_support_rules_without_truth_
 
 def test_truth_blind_v23_sets_preserve_all_supported_members_and_ignore_extra_truth_like_columns():
     frame = assemble_truth_blind_v21_contexts(_geometry(), _activity())
-    # A truth-like extra column must not be read by set construction.
     frame["generating_process_true"] = [False, False, True]
     sets = build_truth_blind_v23_sets(frame)
     assert len(sets) == 1
@@ -62,3 +66,32 @@ def test_truth_blind_v23_sets_preserve_all_supported_members_and_ignore_extra_tr
     assert row.high_confidence_subset == "temperature"
     assert int(row.supported_set_size) == 2
     assert "generating_process_true" not in sets.columns
+
+
+def test_context_set_provenance_rejects_tampered_sets():
+    decisions = assemble_truth_blind_v21_contexts(_geometry(), _activity())
+    sets = build_truth_blind_v23_sets(decisions)
+    validate_context_set_provenance(decisions, sets)
+
+    tampered = sets.copy()
+    tampered.loc[0, "supported_set"] = "temperature"
+    tampered.loc[0, "supported_set_size"] = 1
+    with pytest.raises(ValueError, match="build_context_sets"):
+        validate_context_set_provenance(decisions, tampered)
+
+
+def test_preterminal_context_receipt_contains_no_truth_and_pins_constructor(tmp_path):
+    receipt = freeze_truth_blind_context_stage(_geometry(), _activity(), tmp_path)
+    assert receipt["truth_opened"] is False
+    assert receipt["context_set_constructor"] == "set_valued_attribution_v23.build_context_sets"
+    assert receipt["n_contexts"] == 1
+    assert receipt["n_context_decision_rows"] == 3
+    assert len(receipt["context_decisions_sha256"]) == 64
+    assert len(receipt["context_sets_sha256"]) == 64
+
+    decisions = pd.read_csv(tmp_path / "context_decisions.csv")
+    sets = pd.read_csv(tmp_path / "context_sets.csv")
+    assert "generating_process_true" not in decisions.columns
+    assert "generating_process_true" not in sets.columns
+    saved = json.loads((tmp_path / "preterminal_context_receipt.json").read_text())
+    assert saved == receipt
