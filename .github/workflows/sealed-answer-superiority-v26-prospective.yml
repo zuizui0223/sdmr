@@ -2,6 +2,11 @@ name: sealed-answer-superiority-v26-prospective
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - development/sealed-answer-superiority-v26
+    paths:
+      - 'configs/sealed_answer_superiority_v26_execute_20260916.lock'
 
 jobs:
   gate:
