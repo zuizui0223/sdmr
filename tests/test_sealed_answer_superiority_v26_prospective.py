@@ -8,6 +8,7 @@ from sdmr.sealed_answer_superiority_v26_prospective import (
     assemble_context_stage_from_shards,
     assemble_truth_blind_v21_contexts,
     build_truth_blind_v23_sets,
+    compare_truth_blind_receipts,
     freeze_truth_blind_context_stage,
     load_contract,
     run_family_separator,
@@ -34,6 +35,21 @@ def _activity():
             {"family": "gaussian", "seed": 20001, "target_process": "noise", "target_block": 0, "context_status": "context_noncontributory"},
         ]
     )
+
+
+def _truth_blind_receipt(replicate_id="a"):
+    return {
+        "purpose": "sealed_answer_superiority_v26_truth_blind_refinement_receipt",
+        "replicate_id": replicate_id,
+        "truth_opened": False,
+        "n_contexts": 960,
+        "n_supported_members": 420,
+        "n_separator_rows": 420,
+        "context_sets_sha256": "1" * 64,
+        "separator_evidence_sha256": "2" * 64,
+        "context_refinements_sha256": "3" * 64,
+        "member_audit_sha256": "4" * 64,
+    }
 
 
 def test_v26_fresh_contract_freezes_unused_denominator_and_truth_ordering():
@@ -115,3 +131,36 @@ def test_assembly_and_aggregate_require_complete_frozen_shard_rosters(tmp_path):
         assemble_context_stage_from_shards(tmp_path / "empty_support", tmp_path / "contexts")
     with pytest.raises(ValueError, match="6"):
         aggregate_truth_blind(tmp_path / "empty_separator", tmp_path / "sets.csv", tmp_path / "final", replicate_id="a")
+
+
+def test_determinism_gate_accepts_identical_truth_blind_outputs_despite_replicate_id():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    result = compare_truth_blind_receipts(a, b)
+    assert result["deterministic_match"] is True
+    assert result["truth_open_authorized"] is True
+    assert result["replicate_ids"] == ["a", "b"]
+
+
+def test_determinism_gate_blocks_any_digest_or_denominator_mismatch():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    b["context_refinements_sha256"] = "9" * 64
+    result = compare_truth_blind_receipts(a, b)
+    assert result["deterministic_match"] is False
+    assert result["truth_open_authorized"] is False
+    assert "context_refinements_sha256" in result["mismatched_fields"]
+
+    b = _truth_blind_receipt("b")
+    b["n_supported_members"] += 1
+    result = compare_truth_blind_receipts(a, b)
+    assert result["truth_open_authorized"] is False
+    assert "n_supported_members" in result["mismatched_fields"]
+
+
+def test_determinism_gate_rejects_receipt_that_already_opened_truth():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    b["truth_opened"] = True
+    with pytest.raises(ValueError, match="truth-blind"):
+        compare_truth_blind_receipts(a, b)
