@@ -1,0 +1,67 @@
+{
+  "purpose": "sealed_answer_separator_v25_consumed_development",
+  "development_only": true,
+  "base_v23": {
+    "source_v21_workflow_run": 34671264361,
+    "source_v21_terminal_artifact": 10291023518,
+    "v23_workflow_run": 35059209887,
+    "v23_artifact": 10431279663,
+    "v23_artifact_digest": "sha256:4cb7c3f17348eaaed29c416830903668e14e23107421ea813b9e3739ddbd9315"
+  },
+  "families": [
+    "gaussian",
+    "asymmetric",
+    "soft_threshold",
+    "interaction",
+    "omitted_driver",
+    "observation_confounded"
+  ],
+  "consumed_seed_denominator": [17001,17002,17003,17004,17005,17006,17007,17008,17009,17010],
+  "process_universe": ["temperature", "water", "seasonality", "noise"],
+  "true_processes_for_development_scoring": ["temperature", "water"],
+  "false_process_controls": ["seasonality", "noise"],
+  "simulation": {
+    "n_cells": 8000,
+    "n_occurrences": 500,
+    "n_target_group": 2500,
+    "outer_n_blocks": 8,
+    "answer_check_fraction": 0.20,
+    "outer_random_state_offset": 70000,
+    "separator_background_rows": 1500,
+    "separator_background_seed_offset": 91000
+  },
+  "separator": {
+    "separator_id": "sealed_answer_process_exclusion_v25",
+    "scope": "family_seed_process_outer_transfer_applied_to_supported_contexts",
+    "outcome_source": "spatially_sealed_answer_check_occurrences_excluded_from_v21_support",
+    "reference_source": "unused_simulation_environment_rows_disjoint_from_v21_occurrences_and_background",
+    "model_fit_source": "v21_model_pool_occurrences_and_support_background_frozen_before_answer_open",
+    "process_exclusion": "remove_every_declared_predictor_in_target_process_closure",
+    "density_noninferiority_margin_nats": 0.01,
+    "sem_multiplier": 1.0,
+    "probability_epsilon": 0.000001,
+    "minimum_complete_sealed_occurrences": 10,
+    "minimum_distinct_sealed_spatial_blocks": 2,
+    "required_model_specs": [
+      {"C": 0.1, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 0.1, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 2, "penalty": "l2", "random_state": 0}
+    ]
+  },
+  "development_advancement_screen": {
+    "n_removed_true_members_max": 0,
+    "n_removed_false_members_min": 1,
+    "interpretation": "advance_only_if_consumed_development_shows_no_true_member_deletion_and_nonzero_false_member_removal"
+  },
+  "governance": {
+    "truth_may_be_opened_only_after_truth_blind_refinement_is_written": true,
+    "threshold_tuning_after_consumed_outcomes": false,
+    "separator_roster_change_after_consumed_outcomes": false,
+    "fresh_validation_authorized": false,
+    "fresh_seed_allocation_authorized": false,
+    "empirical_validation_authorized": false
+  }
+}
