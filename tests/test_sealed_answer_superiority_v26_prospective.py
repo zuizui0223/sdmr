@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -164,3 +165,17 @@ def test_determinism_gate_rejects_receipt_that_already_opened_truth():
     b["truth_opened"] = True
     with pytest.raises(ValueError, match="truth-blind"):
         compare_truth_blind_receipts(a, b)
+
+
+def test_prospective_workflow_installs_package_before_determinism_import():
+    workflow = (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "sealed-answer-superiority-v26-prospective.yml"
+    ).read_text(encoding="utf-8")
+    determinism_job = workflow.split("\n  determinism:\n", 1)[1].split("\n  terminal:\n", 1)[0]
+    install = "python -m pip install -e ."
+    module_import = "from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts"
+    assert install in determinism_job
+    assert determinism_job.index(install) < determinism_job.index(module_import)
