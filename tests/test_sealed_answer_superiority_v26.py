@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from sdmr.sealed_answer_superiority_v26 import classify_sealed_answer_superiority
+from sdmr.separating_evidence_refinement_v24 import refine_context_sets
 
 
 KEY = {
@@ -67,8 +68,6 @@ def test_nonpositive_upper_bound_is_compatible():
 
 
 def test_zero_lower_bound_is_not_exclusion():
-    # Identical positive deltas produce SEM=0.  A zero lower bound must remain
-    # indeterminate because v26 freezes a strict > 0 superiority requirement.
     row = _state(_rows({"m1": [0.000, 0.000], "m2": [0.050, 0.050]}))
     assert row.evidence_state == "indeterminate"
 
@@ -103,3 +102,27 @@ def test_duplicate_context_model_fold_keys_fail_closed():
     frame = pd.concat([frame, frame.iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="duplicate"):
         _state(frame)
+
+
+def test_classifier_output_obeys_frozen_v24_separator_schema():
+    evidence = classify_sealed_answer_superiority(
+        _rows({"m1": [0.050, 0.060], "m2": [0.050, 0.060]}),
+        required_model_labels=("m1", "m2"),
+    )
+    evidence["target_block"] = 0
+    base = pd.DataFrame(
+        [{
+            "family": "gaussian",
+            "seed": 20001,
+            "target_block": 0,
+            "supported_set": "noise",
+            "supported_set_size": 1,
+        }]
+    )
+    refinements, audit = refine_context_sets(
+        base,
+        evidence,
+        required_separator_ids=("sealed_answer_superiority_v26",),
+    )
+    assert refinements.iloc[0].removed_set == "noise"
+    assert audit.iloc[0].member_decision == "remove_unanimous_exclusion"
