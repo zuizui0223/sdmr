@@ -222,7 +222,10 @@ def score_known_truth_refinement(
     truth["seed"] = pd.to_numeric(truth["seed"], errors="raise").astype(int)
     truth["target_block"] = pd.to_numeric(truth["target_block"], errors="raise").astype(int)
     truth["target_process"] = truth["target_process"].astype(str)
-    truth["generating_process_true"] = truth["generating_process_true"].astype(bool)
+    truth["generating_process_true"] = [
+        _as_bool(value, name="generating_process_true")
+        for value in truth["generating_process_true"]
+    ]
     truth_map = {
         (str(k[0]), int(k[1]), int(k[2])): set(
             g.loc[g["generating_process_true"], "target_process"].astype(str)
