@@ -1,7 +1,7 @@
 """Development runner for v23 set-valued attribution on the consumed v21 endpoint.
 
 The build stage is deliberately truth-blind: it selects only the frozen v21 support
-columns before constructing or summarizing context sets.  Known-truth scoring is a
+columns before constructing or summarizing context sets. Known-truth scoring is a
 separate command and may only be run after the set representation has been written.
 """
 from __future__ import annotations
@@ -47,7 +47,7 @@ def _members(value: object) -> tuple[str, ...]:
 def validate_v21_denominator(frame: pd.DataFrame) -> pd.DataFrame:
     """Fail closed unless the input is exactly the consumed v21 denominator.
 
-    The returned frame contains no known-truth column.  This makes it possible to
+    The returned frame contains no known-truth column. This makes it possible to
     inspect the set geometry without giving the set builder access to truth.
     """
     missing = sorted(set(BLIND_COLUMNS) - set(frame.columns))
@@ -101,6 +101,8 @@ def summarize_context_sets(context_sets: pd.DataFrame) -> dict[str, object]:
     state_counts = Counter(context_sets["attribution_state"].astype(str))
     size_counts = Counter(int(x) for x in context_sets["supported_set_size"])
     high_size_counts = Counter(int(x) for x in context_sets["high_confidence_subset_size"])
+    pattern_counts: Counter[str] = Counter()
+    high_pattern_counts: Counter[str] = Counter()
     member_counts: Counter[str] = Counter()
     high_member_counts: Counter[str] = Counter()
     pair_counts: Counter[tuple[str, str]] = Counter()
@@ -108,6 +110,8 @@ def summarize_context_sets(context_sets: pd.DataFrame) -> dict[str, object]:
     for row in context_sets.itertuples(index=False):
         members = _members(row.supported_set)
         high = _members(row.high_confidence_subset)
+        pattern_counts["+".join(members) if members else "<empty>"] += 1
+        high_pattern_counts["+".join(high) if high else "<empty>"] += 1
         member_counts.update(members)
         high_member_counts.update(high)
         for left, right in combinations(members, 2):
@@ -129,10 +133,14 @@ def summarize_context_sets(context_sets: pd.DataFrame) -> dict[str, object]:
         "empty_context_rate": float(state_counts.get("empty", 0) / n) if n else float("nan"),
         "singleton_context_rate": float(singleton / n) if n else float("nan"),
         "multi_member_context_rate": float(multi / n) if n else float("nan"),
+        "singleton_fraction_among_nonempty": float(singleton / nonempty) if nonempty else float("nan"),
+        "multi_member_fraction_among_nonempty": float(multi / nonempty) if nonempty else float("nan"),
         "mean_supported_set_size": float(context_sets["supported_set_size"].mean()) if n else float("nan"),
         "mean_high_confidence_subset_size": float(context_sets["high_confidence_subset_size"].mean()) if n else float("nan"),
         "supported_set_size_distribution": {str(k): int(v) for k, v in sorted(size_counts.items())},
         "high_confidence_subset_size_distribution": {str(k): int(v) for k, v in sorted(high_size_counts.items())},
+        "supported_set_pattern_counts": dict(sorted(pattern_counts.items())),
+        "high_confidence_subset_pattern_counts": dict(sorted(high_pattern_counts.items())),
         "supported_member_counts": {k: int(member_counts.get(k, 0)) for k in PROCESSES},
         "high_confidence_member_counts": {k: int(high_member_counts.get(k, 0)) for k in PROCESSES},
         "co_support_pair_counts": {
@@ -181,6 +189,32 @@ def score_after_freeze(
     fp = int((selected & ~actual).sum())
     nt = int(actual.sum())
     nf = int((~actual).sum())
+
+    truth_map: dict[tuple[str, int, int], set[str]] = {}
+    for key, group in truth.groupby(["family", "seed", "target_block"], sort=True):
+        truth_map[(str(key[0]), int(key[1]), int(key[2]))] = set(
+            group.loc[group["generating_process_true"], "target_process"].astype(str)
+        )
+
+    multi_n = 0
+    multi_exact = 0
+    multi_all_true_covered = 0
+    multi_with_false = 0
+    nonempty_n = 0
+    nonempty_false_free = 0
+    for row in sets.itertuples(index=False):
+        key = (str(row.family), int(row.seed), int(row.target_block))
+        true_set = truth_map[key]
+        supported_set = set(_members(row.supported_set))
+        if supported_set:
+            nonempty_n += 1
+            nonempty_false_free += int(supported_set.issubset(true_set))
+        if len(supported_set) >= 2:
+            multi_n += 1
+            multi_exact += int(supported_set == true_set)
+            multi_all_true_covered += int(true_set.issubset(supported_set))
+            multi_with_false += int(bool(supported_set - true_set))
+
     score.update({
         "purpose": "set_valued_attribution_v23_known_truth_development_score",
         "set_construction_used_truth": False,
@@ -191,6 +225,12 @@ def score_after_freeze(
         "true_member_recall": float(tp / nt) if nt else float("nan"),
         "false_member_positive_rate": float(fp / nf) if nf else float("nan"),
         "positive_member_precision": float(tp / (tp + fp)) if (tp + fp) else float("nan"),
+        "n_nonempty_contexts": nonempty_n,
+        "nonempty_false_free_set_rate": float(nonempty_false_free / nonempty_n) if nonempty_n else float("nan"),
+        "n_multi_member_contexts": multi_n,
+        "multi_exact_truth_set_rate": float(multi_exact / multi_n) if multi_n else float("nan"),
+        "multi_all_true_processes_covered_rate": float(multi_all_true_covered / multi_n) if multi_n else float("nan"),
+        "multi_false_member_context_rate": float(multi_with_false / multi_n) if multi_n else float("nan"),
         "fresh_empirical_claim": False,
     })
     path = Path(output_json)
