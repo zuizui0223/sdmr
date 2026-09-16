@@ -4,10 +4,14 @@ import pandas as pd
 import pytest
 
 from sdmr.sealed_answer_superiority_v26_prospective import (
+    aggregate_truth_blind,
+    assemble_context_stage_from_shards,
     assemble_truth_blind_v21_contexts,
     build_truth_blind_v23_sets,
     freeze_truth_blind_context_stage,
     load_contract,
+    run_family_separator,
+    support_shard,
     validate_context_set_provenance,
 )
 
@@ -95,3 +99,19 @@ def test_preterminal_context_receipt_contains_no_truth_and_pins_constructor(tmp_
     assert "generating_process_true" not in sets.columns
     saved = json.loads((tmp_path / "preterminal_context_receipt.json").read_text())
     assert saved == receipt
+
+
+def test_scientific_shard_apis_fail_closed_before_heavy_work_on_invalid_denominator(tmp_path):
+    with pytest.raises(ValueError, match="family"):
+        support_shard("not_a_family", "temperature", tmp_path / "support")
+    with pytest.raises(ValueError, match="process"):
+        support_shard("gaussian", "not_a_process", tmp_path / "support")
+    with pytest.raises(ValueError, match="family"):
+        run_family_separator("not_a_family", tmp_path / "sets.csv", tmp_path / "separator")
+
+
+def test_assembly_and_aggregate_require_complete_frozen_shard_rosters(tmp_path):
+    with pytest.raises(ValueError, match="24"):
+        assemble_context_stage_from_shards(tmp_path / "empty_support", tmp_path / "contexts")
+    with pytest.raises(ValueError, match="6"):
+        aggregate_truth_blind(tmp_path / "empty_separator", tmp_path / "sets.csv", tmp_path / "final", replicate_id="a")
