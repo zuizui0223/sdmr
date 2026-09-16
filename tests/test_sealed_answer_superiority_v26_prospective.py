@@ -167,15 +167,26 @@ def test_determinism_gate_rejects_receipt_that_already_opened_truth():
         compare_truth_blind_receipts(a, b)
 
 
-def test_prospective_workflow_installs_package_before_determinism_import():
-    workflow = (
+def _prospective_workflow_text():
+    return (
         Path(__file__).resolve().parents[1]
         / ".github"
         / "workflows"
         / "sealed-answer-superiority-v26-prospective.yml"
     ).read_text(encoding="utf-8")
+
+
+def test_prospective_workflow_installs_package_before_determinism_import():
+    workflow = _prospective_workflow_text()
     determinism_job = workflow.split("\n  determinism:\n", 1)[1].split("\n  terminal:\n", 1)[0]
     install = "python -m pip install -e ."
     module_import = "from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts"
     assert install in determinism_job
     assert determinism_job.index(install) < determinism_job.index(module_import)
+
+
+def test_prospective_workflow_one_shot_push_trigger_is_sentinel_only():
+    workflow = _prospective_workflow_text()
+    trigger = workflow.split("\njobs:\n", 1)[0]
+    expected = """on:\n  workflow_dispatch:\n  push:\n    branches:\n      - development/sealed-answer-superiority-v26\n    paths:\n      - 'configs/sealed_answer_superiority_v26_execute_20260916.lock'\n"""
+    assert expected in trigger
