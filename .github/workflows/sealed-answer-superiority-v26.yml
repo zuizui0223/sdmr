@@ -7,9 +7,12 @@ on:
     paths:
       - 'src/sdmr/sealed_answer_superiority_v26.py'
       - 'src/sdmr/sealed_answer_superiority_v26_prospective.py'
+      - 'src/sdmr/sealed_answer_superiority_v26_determinism.py'
+      - 'src/sdmr/sealed_answer_superiority_v26_terminal.py'
       - 'configs/sealed_answer_superiority_v26_prospective.json'
       - 'tests/test_sealed_answer_superiority_v26.py'
       - 'tests/test_sealed_answer_superiority_v26_prospective.py'
+      - 'tests/test_sealed_answer_superiority_v26_terminal.py'
       - 'docs/SEALED_ANSWER_SUPERIORITY_V26_CONTRACT.md'
       - 'docs/superpowers/plans/2026-09-16-sealed-answer-superiority-v26.md'
       - '.github/workflows/sealed-answer-superiority-v26.yml'
@@ -29,3 +32,4 @@ jobs:
           pytest -q
           tests/test_sealed_answer_superiority_v26.py
           tests/test_sealed_answer_superiority_v26_prospective.py
+          tests/test_sealed_answer_superiority_v26_terminal.py
