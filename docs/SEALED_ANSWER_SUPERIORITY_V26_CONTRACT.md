@@ -77,11 +77,11 @@ The **1.96 SEM multiplier is frozen prospectively for v26**. It was motivated by
 Evidence states:
 
 - `exclude`: every required model specification is complete and has `lower_superiority_m > 0`;
-- `compatible`: complete evidence exists and at least one required model has `mean_delta_m + 1.96 * sem_delta_m <= 0`;
-- `indeterminate`: complete evidence exists but neither rule above holds;
+- `compatible`: complete evidence exists and at least one required model has `mean_delta_m + 1.96 * sem_delta_m < 0`;
+- `indeterminate`: complete evidence exists but neither rule above holds; exact zero is retained here;
 - `unavailable`: required model roster or coverage is incomplete.
 
-The zero boundary is fixed. There is no post-outcome positive margin, process-specific threshold, or family-specific threshold.
+The zero boundary is fixed and strict on both sides. There is no post-outcome positive margin, process-specific threshold, or family-specific threshold.
 
 Only `exclude` may remove a v23 member through the unchanged v24 operator.
 
