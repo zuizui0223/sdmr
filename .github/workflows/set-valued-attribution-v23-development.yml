@@ -40,7 +40,7 @@ jobs:
       - name: Download authoritative consumed v21 terminal artifact
         uses: actions/download-artifact@v4
         with:
-          name: two-tier-process-support-v21-terminal-96c317c1ab40e3c0a2619b8412f5c8021f083814
+          artifact-ids: 10291023518
           path: v21-terminal
           github-token: ${{ github.token }}
           repository: zuizui0223/sdmr
