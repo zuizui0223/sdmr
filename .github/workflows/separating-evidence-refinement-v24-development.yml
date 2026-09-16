@@ -1,0 +1,26 @@
+name: separating-evidence-refinement-v24-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/separating_evidence_refinement_v24.py'
+      - 'configs/separating_evidence_refinement_v24_development.json'
+      - 'docs/SEPARATING_EVIDENCE_REFINEMENT_V24_CONTRACT.md'
+      - 'tests/test_separating_evidence_refinement_v24.py'
+      - '.github/workflows/separating-evidence-refinement-v24-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_separating_evidence_refinement_v24.py
