@@ -1,0 +1,78 @@
+name: set-valued-attribution-v23-development
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/set_valued_attribution_v23.py'
+      - 'src/sdmr/set_valued_attribution_v23_development.py'
+      - 'configs/set_valued_attribution_v23_development.json'
+      - 'tests/test_set_valued_attribution_v23.py'
+      - 'tests/test_set_valued_attribution_v23_development.py'
+      - '.github/workflows/set-valued-attribution-v23-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: pytest -q tests/test_set_valued_attribution_v23.py tests/test_set_valued_attribution_v23_development.py
+
+  consumed-v21-readout:
+    needs: gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - name: Download authoritative consumed v21 terminal artifact
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 10291023518
+          path: v21-terminal
+          github-token: ${{ github.token }}
+          repository: zuizui0223/sdmr
+          run-id: 34671264361
+      - name: Normalize authoritative v21 context-decision path
+        run: |
+          SOURCE_CONTEXT="$(find v21-terminal -type f -name context_decisions.csv -print -quit)"
+          test -n "$SOURCE_CONTEXT"
+          cp "$SOURCE_CONTEXT" v21-context-decisions.csv
+      - name: Build truth-blind set-valued readout
+        run: >-
+          python -m sdmr.set_valued_attribution_v23_development build
+          --input v21-context-decisions.csv
+          --output-dir v23-output
+      - name: Score frozen sets against known truth only after construction
+        run: >-
+          python -m sdmr.set_valued_attribution_v23_development score
+          --context-sets v23-output/context_sets.csv
+          --context-decisions v21-context-decisions.csv
+          --output v23-output/known_truth_set_score.json
+      - name: Record immutable source provenance
+        run: |
+          cat > v23-output/SOURCE_PROVENANCE.txt <<'EOF'
+          source_v21_workflow_run=34671264361
+          source_v21_terminal_artifact=10291023518
+          source_v21_head=96c317c1ab40e3c0a2619b8412f5c8021f083814
+          source_v21_artifact_digest=sha256:42b6057d950e0b5ec29d996db6d4630ff0acac06947082681d0591af3cb6ae8a
+          source_v22_negative_workflow_run=34921157441
+          fresh_empirical_claim=false
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: set-valued-attribution-v23-consumed-v21-readout-${{ github.sha }}
+          path: v23-output/
+          retention-days: 90
