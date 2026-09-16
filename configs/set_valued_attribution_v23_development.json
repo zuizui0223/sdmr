@@ -19,6 +19,11 @@
     "singleton_is_sharp_attribution": true,
     "multi_member_set_is_partial_identification": true
   },
+  "construction_boundary": {
+    "truth_columns_used_to_construct_sets": false,
+    "extra_input_columns_ignored_by_set_builder": true,
+    "truth_free_geometry_readout_required": true
+  },
   "sharpening_rule": "no member may be removed from a multi-process supported set without new separating evidence not used to create the support calls",
   "forbidden": [
     "reuse_v22_pairwise_winner_as_default_sharpener",
@@ -27,12 +32,23 @@
     "post_truth_member_deletion",
     "claim_unique_process_when_supported_set_has_multiple_members"
   ],
-  "development_readout": [
-    "set_coverage_of_true_processes",
-    "singleton_precision",
-    "multi_member_set_size",
-    "false_member_burden",
-    "high_confidence_subset_coverage"
-  ],
+  "development_readout": {
+    "truth_free": [
+      "empty_context_count",
+      "singleton_context_count",
+      "partial_identification_context_count",
+      "singleton_rate_among_positive",
+      "partial_identification_rate_among_positive",
+      "supported_set_size_distribution",
+      "mean_supported_set_size_among_positive",
+      "maximum_supported_set_size"
+    ],
+    "known_truth_development_only": [
+      "set_coverage_of_true_processes",
+      "singleton_precision",
+      "false_member_burden",
+      "high_confidence_subset_coverage"
+    ]
+  },
   "fresh_empirical_validation_authorized": false
 }
