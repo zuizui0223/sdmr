@@ -1,6 +1,6 @@
 """Prospectively frozen sealed-answer superiority separator (v26).
 
-v26 is a successor to the failed v25 non-inferiority separator.  It consumes
+v26 is a successor to the failed v25 non-inferiority separator. It consumes
 source-disjoint sealed answer-check evidence with the same fold schema, but a
 supported process may be excluded only when removing its full information
 closure is predictively superior for every required frozen model specification.
@@ -47,10 +47,10 @@ def classify_sealed_answer_superiority(
 ) -> pd.DataFrame:
     """Classify sealed full-closure knockout superiority evidence.
 
-    ``delta`` is excluded minus baseline balanced density log score.  Exclusion
+    ``delta`` is excluded minus baseline balanced density log score. Exclusion
     requires every required model specification to have a strictly positive
-    lower ``sem_multiplier``-SEM bound.  A strictly negative upper bound in any
-    required model is compatibility evidence for retaining the process.  Exact
+    lower ``sem_multiplier``-SEM bound. A strictly negative upper bound in any
+    required model is compatibility evidence for retaining the process. Exact
     zero boundaries and overlapping intervals remain indeterminate.
     """
     required_columns = {
@@ -231,8 +231,8 @@ def classify_sealed_answer_superiority(
                 "separator_id": "sealed_answer_superiority_v26",
                 "evidence_state": state,
                 "qualified": bool(all_complete),
-                "source_disjoint_from_support_inputs": True,
-                "decision_rule_frozen_before_fresh_outcomes": True,
+                "source_disjoint_from_v21_support_inputs": True,
+                "decision_rule_frozen_before_separator_outcomes": True,
                 "sem_multiplier": float(sem_multiplier),
                 "superiority_boundary": 0.0,
                 "n_required_models": len(model_labels),
