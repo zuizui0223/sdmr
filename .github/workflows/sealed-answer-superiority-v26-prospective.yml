@@ -1,0 +1,219 @@
+name: sealed-answer-superiority-v26-prospective
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - development/sealed-answer-superiority-v26
+    paths:
+      - 'configs/sealed_answer_superiority_v26_execute_20260916.lock'
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e . pytest
+      - run: >-
+          pytest -q
+          tests/test_sealed_answer_superiority_v26.py
+          tests/test_sealed_answer_superiority_v26_prospective.py
+          tests/test_sealed_answer_superiority_v26_terminal.py
+          tests/test_separating_evidence_refinement_v24.py
+          tests/test_set_valued_attribution_v23.py
+          tests/test_two_tier_process_support_v21.py
+
+  support:
+    needs: gate
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+        process: [temperature, water, seasonality, noise]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - name: Build fresh v21-compatible support shard
+        run: >-
+          python -m sdmr.sealed_answer_superiority_v26_prospective support-shard
+          --family '${{ matrix.family }}'
+          --process '${{ matrix.process }}'
+          --output-dir support
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-support-${{ matrix.family }}-${{ matrix.process }}
+          path: support
+          if-no-files-found: error
+
+  contexts:
+    needs: support
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-support-*
+          path: support_inputs
+      - name: Assemble truth-blind v21 decisions and v23 sets
+        run: >-
+          python -m sdmr.sealed_answer_superiority_v26_prospective assemble-contexts
+          --input-dir support_inputs
+          --output-dir contexts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-contexts
+          path: contexts
+          if-no-files-found: error
+
+  separator:
+    needs: contexts
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [a, b]
+        family: [gaussian, asymmetric, soft_threshold, interaction, omitted_driver, observation_confounded]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-contexts
+          path: contexts_input
+      - name: Run source-disjoint v26 family separator
+        run: >-
+          python -m sdmr.sealed_answer_superiority_v26_prospective run-family
+          --family '${{ matrix.family }}'
+          --context-sets contexts_input/context_sets.csv
+          --output-dir separator
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-separator-${{ matrix.replicate }}-${{ matrix.family }}
+          path: separator
+          if-no-files-found: error
+
+  aggregate:
+    needs: separator
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [a, b]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-contexts
+          path: contexts_input
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v26-separator-${{ matrix.replicate }}-*
+          path: separator_inputs
+      - name: Freeze truth-blind refinement replicate
+        run: >-
+          python -m sdmr.sealed_answer_superiority_v26_prospective aggregate
+          --input-dir separator_inputs
+          --context-sets contexts_input/context_sets.csv
+          --output-dir refinement
+          --replicate-id '${{ matrix.replicate }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-refinement-${{ matrix.replicate }}
+          path: refinement
+          if-no-files-found: error
+
+  determinism:
+    needs: aggregate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-refinement-a
+          path: refinement_a
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-refinement-b
+          path: refinement_b
+      - name: Compare independent truth-blind replicates
+        run: |
+          mkdir -p determinism
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts
+
+          a = json.loads(Path('refinement_a/truth_blind_refinement_receipt.json').read_text())
+          b = json.loads(Path('refinement_b/truth_blind_refinement_receipt.json').read_text())
+          result = compare_truth_blind_receipts(a, b)
+          Path('determinism/determinism_gate.json').write_text(
+              json.dumps(result, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(result, indent=2, sort_keys=True))
+          if not result['truth_open_authorized']:
+              raise SystemExit('truth opening blocked: truth-blind replicates differ')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v26-determinism-gate
+          path: determinism
+          if-no-files-found: error
+
+  terminal:
+    needs: determinism
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-refinement-a
+          path: refinement
+      - uses: actions/download-artifact@v4
+        with:
+          name: v26-determinism-gate
+          path: determinism
+      - name: Open frozen known truth once and score prospective gate
+        run: >-
+          python -m sdmr.sealed_answer_superiority_v26_terminal
+          --refinements refinement/context_refinements.csv
+          --separator-evidence refinement/separator_evidence.csv
+          --determinism-gate determinism/determinism_gate.json
+          --output-dir terminal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-prospective-terminal
+          path: terminal
+          if-no-files-found: error
