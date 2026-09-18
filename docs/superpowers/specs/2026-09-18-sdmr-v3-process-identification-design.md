@@ -126,13 +126,13 @@ No preferred raster is selected during Stage P.
 
 ### Stage R — representation refinement
 
-Only for processes classified `contributory` or `required`, compare predeclared within-process representations using the sealed transfer criterion.
+Only for processes classified `contributory` or `required`, compare predeclared within-process representations using a frozen inner-transfer criterion computed entirely inside the model-pool data.
 
 The Stage R question is:
 
 > Which tested representation of already-supported process information transfers best to unseen occurrences?
 
-Stage R must not be used to change the Stage P process state.
+Stage R must not be used to change the Stage P process state. The selected representation or representation set is frozen before the outer answer-check is opened; the sealed answer-check is used only once for final evaluation, never for representation selection.
 
 A valid final result can therefore be:
 
@@ -337,7 +337,7 @@ Learner disagreement is not averaged away; it contributes to `unresolved` or an 
 
 The first empirical validation is plant-only and uses a completely fresh taxon cohort not used in Product-A scientific confirmation or method development.
 
-Target cohort size: development should power a final denominator of approximately 30–50 eligible taxa, subject to pre-outcome data sufficiency rules.
+Target cohort size: development/power analysis determines one exact final denominator before any focal answer-check outcomes are opened; the planning range is 30–50 eligible taxa. The exact denominator and replacement prohibition are then frozen prospectively.
 
 Taxon identity, data provider, geographic eligibility, temporal window, occurrence QC, accessible-area construction, process registry, learner panel, and outer split rules are frozen before focal answer-check outcomes are opened.
 
@@ -345,10 +345,10 @@ Consumed or insufficient taxa are not replaced after outcome access.
 
 ## 14. Fresh empirical comparators
 
-All methods receive the same:
+All methods use the same model-pool information and are evaluated on the same sealed answer-check only after their decisions are frozen:
 
 - model-pool occurrence rows;
-- answer-check occurrence rows;
+- outer answer-check occurrence rows, unavailable to fitting/selection until final evaluation;
 - accessible-area/background definitions;
 - predictor universe;
 - learner family where comparison requires matched learners;
@@ -395,13 +395,13 @@ Unresolved/unavailable states are preserved and are not converted into favorable
 
 All declared taxa contribute according to the frozen failure/evaluability rules. Failed or unavailable units are not silently dropped to improve the result.
 
-Only if EMP-A through EMP-F all pass may the new process-first method be scientifically promoted.
+Only if EMP-A through EMP-F all pass may the new process-first method be scientifically promoted. Fresh empirical evaluation is not opened unless the prospective known-truth gate KT-A through KT-F has already passed under its frozen contract.
 
 ## 16. Representation-refinement empirical endpoint
 
 Representation refinement is secondary to the Stage-P promotion claim.
 
-Within a supported process, candidate representations are compared only after the process state is frozen.
+Within a supported process, candidate representations are compared only after the process state is frozen, using model-pool-only inner transfer. The chosen representation or tied representation set is then frozen before the outer answer-check is opened.
 
 The result may identify a most-transferable tested representation, but must preserve the distinction:
 
