@@ -226,3 +226,16 @@ def test_state_engine_rejects_non_boolean_flags():
     )
     with pytest.raises(ValueError, match="boolean"):
         classify_process_state(evidence, margin=0.01, adequacy_floor=0.0)
+
+
+def test_identical_closure_abstention_also_rejects_sharp_replaceable_states():
+    import pandas as pd
+    from sdmr.process_id.states import apply_identical_closure_abstention
+
+    states = pd.DataFrame([
+        {"process": "thermal", "state": "replaceable", "closure_predictors": "pet_shared", "reason": "interval_process_challenge"},
+        {"process": "water", "state": "replaceable", "closure_predictors": "pet_shared", "reason": "interval_process_challenge"},
+    ])
+    out = apply_identical_closure_abstention(states)
+    assert set(out["state"]) == {"unresolved"}
+    assert set(out["reason"]) == {"identical_shared_carrier_closure"}
