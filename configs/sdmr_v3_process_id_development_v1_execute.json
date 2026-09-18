@@ -1,0 +1,6 @@
+{
+  "purpose": "execute_sdmr_v3_process_id_development_v1",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "config_path": "configs/sdmr_v3_process_id_development_v1.json"
+}
