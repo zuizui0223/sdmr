@@ -125,14 +125,14 @@ def apply_identical_closure_abstention(
     closure_col: str = "closure_predictors",
     reason_col: str = "reason",
 ) -> pd.DataFrame:
-    """Abstain from positive unique attribution for literally identical closures."""
+    """Abstain from any sharp process attribution for identical closures."""
 
     required = {process_col, state_col, closure_col, reason_col}
     missing = sorted(required - set(states.columns))
     if missing:
         raise KeyError(f"state table missing columns: {missing}")
     out = states.copy(deep=True)
-    positive = {"contributory", "required"}
+    sharp = {"replaceable", "contributory", "required"}
     for closure, group in out.groupby(closure_col, sort=False):
         if not str(closure).strip() or len(group) < 2:
             continue
