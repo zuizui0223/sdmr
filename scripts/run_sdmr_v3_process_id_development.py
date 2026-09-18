@@ -75,6 +75,7 @@ def main() -> None:
         occurrence_sem_multiplier=float(occurrence["sem_multiplier"]),
         occurrence_adequacy_floor=float(occurrence["adequacy_floor"]),
         logistic_C=float(occurrence["logistic_C"]),
+        occurrence_learner=str(occurrence.get("learner", "linear")),
     )
 
     outputs = {
