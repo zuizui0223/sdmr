@@ -48,7 +48,8 @@ jobs:
             tests/test_process_id_phase1_contract.py \
             tests/test_process_id_development.py \
             tests/test_process_id_development_contract.py \
-            tests/test_process_id_development_v2_contract.py
+            tests/test_process_id_development_v2_contract.py \
+            tests/test_process_id_development_v3_contract.py
       - name: Run reused-component compatibility tests
         run: |
           pytest -q \
