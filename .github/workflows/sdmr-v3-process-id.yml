@@ -46,3 +46,9 @@ jobs:
             tests/test_process_id_evidence.py \
             tests/test_process_id_known_truth_gate.py \
             tests/test_process_id_phase1_contract.py
+      - name: Run reused-component compatibility tests
+        run: |
+          pytest -q \
+            tests/test_process_information_closure.py \
+            tests/test_sealed_occurrence_contract.py \
+            tests/test_oracle_process_identifiability_development_contract.py
