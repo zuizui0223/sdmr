@@ -47,3 +47,20 @@ def test_occurrence_state_table_has_one_row_per_process():
     result = evaluate_occurrence_processes(world, n_splits=3)
     assert tuple(result.states["process"]) == world.process_universe
     assert result.states["state"].isin({"replaceable", "contributory", "required", "unresolved", "unavailable"}).all()
+
+
+def test_identical_shared_carrier_closure_abstains_in_occurrence_states():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "shared_carrier",
+        seed=205,
+        n_cells=1400,
+        n_occurrences=160,
+        n_background=520,
+    )
+    result = evaluate_occurrence_processes(world, n_splits=3)
+    pair = result.states.loc[result.states["process"].isin(["thermal", "water"])]
+    assert set(pair["state"]) == {"unresolved"}
+    assert set(pair["reason"]) == {"identical_shared_carrier_closure"}
