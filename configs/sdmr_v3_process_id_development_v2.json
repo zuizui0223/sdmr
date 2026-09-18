@@ -1,0 +1,49 @@
+{
+  "program": "sdmr-v3-process-identification-development-v2",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "development_predecessor": "sdmr-v3-process-identification-development-v1",
+  "change_reason": "align_logistic_fit_prior_with_equal_prior_balanced_log_score",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "oracle": {
+    "margin": 0.02,
+    "sem_multiplier": 1,
+    "baseline_r2_floor": 0.7,
+    "required_r2_ceiling": 0
+  },
+  "occurrence": {
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "logistic_C": 1,
+    "fit_class_weight": "balanced"
+  },
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Development v2 changes only the fit prior used by the occurrence logistic learner to match the already-declared equal-prior balanced log-score estimand. Seeds 23001-23008 were burned in v1 and remain development-only."
+}
