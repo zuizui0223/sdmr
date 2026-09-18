@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 from ..process_information_closure import process_information_closure
 from .known_truth.worlds import KnownTruthWorld
@@ -42,7 +44,7 @@ def _sem(values):
     return float("nan")
 
 
-def _fit_score(train, test, predictors, *, C):
+def _fit_score(train, test, predictors, *, C, learner="linear"):
     if not predictors:
         return float("nan")
     y_train = train["label"].to_numpy(int)
@@ -53,7 +55,10 @@ def _fit_score(train, test, predictors, *, C):
     x_test = test.loc[:, list(predictors)].apply(pd.to_numeric, errors="coerce").to_numpy(float)
     if not np.isfinite(x_train).all() or not np.isfinite(x_test).all():
         return float("nan")
-    model = LogisticRegression(
+    learner = str(learner)
+    if learner not in {"linear", "quadratic"}:
+        raise ValueError("learner must be linear or quadratic")
+    logistic = LogisticRegression(
         C=float(C),
         penalty="l2",
         solver="lbfgs",
@@ -61,6 +66,14 @@ def _fit_score(train, test, predictors, *, C):
         random_state=0,
         class_weight="balanced",
     )
+    if learner == "linear":
+        model = logistic
+    else:
+        model = make_pipeline(
+            PolynomialFeatures(degree=2, include_bias=False),
+            StandardScaler(),
+            logistic,
+        )
     model.fit(x_train, y_train)
     probability = model.predict_proba(x_test)[:, 1]
     return _balanced_log_score(y_test, probability)
@@ -74,6 +87,7 @@ def evaluate_occurrence_processes(
     adequacy_floor: float = -0.75,
     sem_multiplier: float = 1.0,
     C: float = 1.0,
+    learner: str = "linear",
 ) -> OccurrenceProcessEvaluation:
     """Fit matched full/knockout occurrence models and classify each process.
 
@@ -86,6 +100,10 @@ def evaluate_occurrence_processes(
         raise ValueError("n_splits must be >= 2")
     if float(C) <= 0 or not math.isfinite(float(C)):
         raise ValueError("C must be finite and positive")
+    learner = str(learner)
+    if learner not in {"linear", "quadratic"}:
+        raise ValueError("learner must be linear or quadratic")
+    route_label = "logistic" if learner == "linear" else "logistic_quadratic"
 
     occurrence = world.occurrences.copy()
     background = world.background.copy()
@@ -113,17 +131,17 @@ def evaluate_occurrence_processes(
     for fold, (train_idx, test_idx) in enumerate(split_indices):
         train = sample.iloc[train_idx].reset_index(drop=True)
         test = sample.iloc[test_idx].reset_index(drop=True)
-        full_score = _fit_score(train, test, full_predictors, C=C)
+        full_score = _fit_score(train, test, full_predictors, C=C, learner=learner)
         for process in world.process_universe:
             excluded = process_information_closure(world.process_registry, process)
             excluded_set = set(excluded)
             retained = tuple(p for p in full_predictors if p not in excluded_set)
-            knockout_score = _fit_score(train, test, retained, C=C)
+            knockout_score = _fit_score(train, test, retained, C=C, learner=learner)
             complete = bool(np.isfinite(full_score) and np.isfinite(knockout_score))
             rows.append({
                 "process": process,
                 "fold": int(fold),
-                "route": "logistic",
+                "route": route_label,
                 "complete": complete,
                 "full_log_score": float(full_score),
                 "knockout_log_score": float(knockout_score),
@@ -150,7 +168,7 @@ def evaluate_occurrence_processes(
 
         route_evidence = pd.DataFrame([
             {
-                "route": "logistic",
+                "route": route_label,
                 "complete": complete,
                 "full_adequate": bool(complete and full_mean >= float(adequacy_floor)),
                 "knockout_adequate": bool(complete and knockout_mean >= float(adequacy_floor)),
