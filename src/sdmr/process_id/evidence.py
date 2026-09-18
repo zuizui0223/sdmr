@@ -59,6 +59,7 @@ def _fit_score(train, test, predictors, *, C):
         solver="lbfgs",
         max_iter=1000,
         random_state=0,
+        class_weight="balanced",
     )
     model.fit(x_train, y_train)
     probability = model.predict_proba(x_test)[:, 1]
