@@ -115,3 +115,30 @@ def classify_process_state(
     if bool(complete["knockout_adequate"].any()):
         return "contributory"
     return "required"
+
+
+def apply_identical_closure_abstention(
+    states: pd.DataFrame,
+    *,
+    process_col: str = "process",
+    state_col: str = "state",
+    closure_col: str = "closure_predictors",
+    reason_col: str = "reason",
+) -> pd.DataFrame:
+    """Abstain from positive unique attribution for literally identical closures."""
+
+    required = {process_col, state_col, closure_col, reason_col}
+    missing = sorted(required - set(states.columns))
+    if missing:
+        raise KeyError(f"state table missing columns: {missing}")
+    out = states.copy(deep=True)
+    positive = {"contributory", "required"}
+    for closure, group in out.groupby(closure_col, sort=False):
+        if not str(closure).strip() or len(group) < 2:
+            continue
+        positive_idx = group.index[group[state_col].isin(positive)]
+        if len(positive_idx) < 2:
+            continue
+        out.loc[positive_idx, state_col] = "unresolved"
+        out.loc[positive_idx, reason_col] = "identical_shared_carrier_closure"
+    return out
