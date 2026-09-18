@@ -60,7 +60,7 @@ def test_identical_shared_carrier_closure_abstains_in_occurrence_states():
         n_occurrences=160,
         n_background=520,
     )
-    result = evaluate_occurrence_processes(world, n_splits=3)
+    result = evaluate_occurrence_processes(world, n_splits=3, adequacy_floor=-2.0)
     pair = result.states.loc[result.states["process"].isin(["thermal", "water"])]
     assert set(pair["state"]) == {"unresolved"}
     assert set(pair["reason"]) == {"identical_shared_carrier_closure"}
