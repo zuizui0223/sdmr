@@ -109,3 +109,21 @@ def test_development_metrics_include_required_diagnostics():
     assert set(confusion.columns) == {"target_state", "occurrence_state", "count"}
     assert {"process", "positive_recovery", "false_positive_rate"}.issubset(process_summary.columns)
     assert {"world", "exact_state_agreement"}.issubset(world_summary.columns)
+
+
+def test_development_panel_accepts_quadratic_occurrence_learner():
+    from sdmr.process_id.known_truth.development import run_development_panel
+
+    result = run_development_panel(
+        seeds=(405,),
+        worlds=("interaction",),
+        n_cells=800,
+        n_occurrences=80,
+        n_background=260,
+        n_splits=2,
+        oracle_baseline_r2_floor=0.65,
+        occurrence_adequacy_floor=-2.0,
+        occurrence_learner="quadratic",
+    )
+    assert len(result.comparison) == 6
+    assert set(result.comparison["world"]) == {"interaction"}
