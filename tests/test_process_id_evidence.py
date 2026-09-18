@@ -82,3 +82,27 @@ def test_equal_prior_score_fit_is_calibrated_under_imbalanced_null_training_samp
     })
     score = _fit_score(train, test, ("x",), C=1.0)
     assert abs(score + math.log(2.0)) < 0.01
+
+
+def test_quadratic_occurrence_learner_represents_pure_interaction_signal():
+    import numpy as np
+    import pandas as pd
+    from sdmr.process_id.evidence import _fit_score
+
+    rng = np.random.default_rng(991)
+    train = pd.DataFrame({
+        "x1": rng.normal(size=1200),
+        "x2": rng.normal(size=1200),
+    })
+    train["label"] = (train["x1"] * train["x2"] > 0).astype(int)
+
+    test = pd.DataFrame({
+        "x1": rng.normal(size=800),
+        "x2": rng.normal(size=800),
+    })
+    test["label"] = (test["x1"] * test["x2"] > 0).astype(int)
+
+    linear = _fit_score(train, test, ("x1", "x2"), C=1.0, learner="linear")
+    quadratic = _fit_score(train, test, ("x1", "x2"), C=1.0, learner="quadratic")
+
+    assert quadratic > linear + 0.20
