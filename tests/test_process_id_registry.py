@@ -75,3 +75,15 @@ def test_registry_rejects_uncovered_predictor():
             _registry(),
             predictor_universe=("temp", "pet", "precip", "bio15", "rsds", "soil_n", "ndvi", "unmapped"),
         )
+
+
+def test_registry_api_is_exported_from_process_id_namespace():
+    from sdmr.process_id import (
+        DEFAULT_PLANT_PROCESSES,
+        FrozenProcessRegistry,
+        freeze_process_registry,
+    )
+
+    assert DEFAULT_PLANT_PROCESSES[0] == "thermal"
+    assert FrozenProcessRegistry.__name__ == "FrozenProcessRegistry"
+    assert callable(freeze_process_registry)
