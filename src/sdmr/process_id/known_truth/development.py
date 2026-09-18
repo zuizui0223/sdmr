@@ -191,6 +191,7 @@ def run_development_panel(
     occurrence_sem_multiplier: float = 1.0,
     occurrence_adequacy_floor: float = -0.75,
     logistic_C: float = 1.0,
+    occurrence_learner: str = "linear",
 ) -> DevelopmentPanelResult:
     """Run the full burned development denominator deterministically."""
 
@@ -231,6 +232,7 @@ def run_development_panel(
                 adequacy_floor=float(occurrence_adequacy_floor),
                 sem_multiplier=float(occurrence_sem_multiplier),
                 C=float(logistic_C),
+                learner=str(occurrence_learner),
             ).states
             target = target.copy()
             occurrence = occurrence.copy()
