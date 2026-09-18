@@ -11,7 +11,7 @@ from sklearn.model_selection import GroupKFold
 
 from ..process_information_closure import process_information_closure
 from .known_truth.worlds import KnownTruthWorld
-from .states import classify_process_state
+from .states import apply_identical_closure_abstention, classify_process_state
 
 
 @dataclass(frozen=True)
@@ -167,10 +167,12 @@ def evaluate_occurrence_processes(
         if process in set(world.observation_unresolved_processes):
             state = "unresolved"
             reason = "observation_process_not_separable"
+        closure = process_information_closure(world.process_registry, process)
         state_rows.append({
             "process": process,
             "state": state,
             "reason": reason,
+            "closure_predictors": ",".join(closure),
             "complete": complete,
             "full_log_score": full_mean,
             "knockout_log_score": knockout_mean,
@@ -178,7 +180,8 @@ def evaluate_occurrence_processes(
             "delta_sem": delta_sem,
         })
 
+    states = apply_identical_closure_abstention(pd.DataFrame(state_rows))
     return OccurrenceProcessEvaluation(
         evidence=evidence.reset_index(drop=True),
-        states=pd.DataFrame(state_rows),
+        states=states.reset_index(drop=True),
     )
