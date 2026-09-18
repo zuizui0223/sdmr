@@ -12,6 +12,7 @@ from ...oracle_process_identifiability import (
     oracle_process_identifiability,
 )
 from ...process_information_closure import process_information_closure
+from ..states import apply_identical_closure_abstention
 from .worlds import KnownTruthWorld
 
 
@@ -34,23 +35,9 @@ def map_oracle_state(raw_state: str) -> str:
 
 
 def apply_shared_carrier_abstention(states: pd.DataFrame) -> pd.DataFrame:
-    """Prevent unique positive attribution when closures are literally identical."""
+    """Compatibility wrapper for the generic identical-closure abstention rule."""
 
-    required = {"process", "state", "oracle_raw_state", "closure_predictors", "reason"}
-    missing = sorted(required - set(states.columns))
-    if missing:
-        raise KeyError(f"oracle state table missing columns: {missing}")
-    out = states.copy(deep=True)
-    positive = {"contributory", "required"}
-    for closure, group in out.groupby("closure_predictors", sort=False):
-        if not str(closure).strip() or len(group) < 2:
-            continue
-        positive_idx = group.index[group["state"].isin(positive)]
-        if len(positive_idx) < 2:
-            continue
-        out.loc[positive_idx, "state"] = "unresolved"
-        out.loc[positive_idx, "reason"] = "identical_shared_carrier_closure"
-    return out
+    return apply_identical_closure_abstention(states)
 
 
 def evaluate_oracle_states(
