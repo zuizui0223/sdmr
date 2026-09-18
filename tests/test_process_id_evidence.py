@@ -64,3 +64,21 @@ def test_identical_shared_carrier_closure_abstains_in_occurrence_states():
     pair = result.states.loc[result.states["process"].isin(["thermal", "water"])]
     assert set(pair["state"]) == {"unresolved"}
     assert set(pair["reason"]).issubset({"interval_process_challenge", "identical_shared_carrier_closure"})
+
+
+def test_equal_prior_score_fit_is_calibrated_under_imbalanced_null_training_sample():
+    import math
+    import numpy as np
+    import pandas as pd
+    from sdmr.process_id.evidence import _fit_score
+
+    train = pd.DataFrame({
+        "x": np.zeros(780),
+        "label": np.r_[np.ones(180, dtype=int), np.zeros(600, dtype=int)],
+    })
+    test = pd.DataFrame({
+        "x": np.zeros(200),
+        "label": np.r_[np.ones(100, dtype=int), np.zeros(100, dtype=int)],
+    })
+    score = _fit_score(train, test, ("x",), C=1.0)
+    assert abs(score + math.log(2.0)) < 0.01
