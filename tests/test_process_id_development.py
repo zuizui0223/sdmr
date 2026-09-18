@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 
 
@@ -77,7 +79,14 @@ def test_development_panel_is_deterministic_for_same_seed():
     second = run_development_panel(**kwargs)
     pd.testing.assert_frame_equal(first.comparison, second.comparison)
     pd.testing.assert_frame_equal(first.world_summary, second.world_summary)
-    assert first.metrics == second.metrics
+    assert first.metrics.keys() == second.metrics.keys()
+    for key in first.metrics:
+        left = first.metrics[key]
+        right = second.metrics[key]
+        if isinstance(left, float) and math.isnan(left):
+            assert isinstance(right, float) and math.isnan(right)
+        else:
+            assert left == right
 
 
 def test_development_metrics_include_required_diagnostics():
