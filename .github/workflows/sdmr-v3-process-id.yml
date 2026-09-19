@@ -46,6 +46,7 @@ jobs:
             tests/test_process_id_evidence.py \
             tests/test_process_id_known_truth_gate.py \
             tests/test_process_id_phase1_contract.py \
+            tests/test_process_id_positive_audit.py \
             tests/test_process_id_development.py \
             tests/test_process_id_development_contract.py \
             tests/test_process_id_development_v2_contract.py \
