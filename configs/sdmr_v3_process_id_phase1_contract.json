@@ -1,0 +1,35 @@
+{
+  "program": "sdmr-v3-process-identification-phase1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "product_a_terminal_decision": "empirical_confirmation_not_supported",
+  "product_a_promotion_decision": "not_promoted",
+  "burned_development_seeds": [
+    13001,
+    13002,
+    13003,
+    13004,
+    13005,
+    13006,
+    13007,
+    13008,
+    13009,
+    13010
+  ],
+  "known_truth_worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "prospective_validation_seeds": [],
+  "prospective_known_truth_status": "not_run",
+  "fresh_empirical_open": false,
+  "design_spec": "docs/superpowers/specs/2026-09-18-sdmr-v3-process-identification-design.md",
+  "implementation_plan": "docs/superpowers/plans/2026-09-18-sdmr-v3-process-id-phase1.md",
+  "claim_boundary": "Phase 1 implements development-only process-state, world, oracle, occurrence-challenge, and gate machinery. No prospective threshold or fresh empirical claim is authorized."
+}

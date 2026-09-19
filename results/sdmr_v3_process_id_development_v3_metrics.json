@@ -1,0 +1,29 @@
+{
+  "by_process": [
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": null, "process": "productivity"},
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": null, "process": "radiation_energy"},
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": null, "process": "seasonality"},
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": null, "process": "soil_substrate"},
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": 0.0, "process": "thermal"},
+    {"false_positive_rate": 0.0, "n_cells": 64, "positive_recovery": 0.0, "process": "water"}
+  ],
+  "by_world": [
+    {"exact_state_agreement": 0.4375, "n_cells": 48, "world": "geographic_shift"},
+    {"exact_state_agreement": 0.5714285714285714, "n_cells": 48, "world": "interaction"},
+    {"exact_state_agreement": 0.7916666666666666, "n_cells": 48, "world": "null_correlated"},
+    {"exact_state_agreement": 0.9583333333333334, "n_cells": 48, "world": "observation_confounded"},
+    {"exact_state_agreement": null, "n_cells": 48, "world": "omitted_driver"},
+    {"exact_state_agreement": 0.8958333333333334, "n_cells": 48, "world": "redundant_representation"},
+    {"exact_state_agreement": 0.8333333333333334, "n_cells": 48, "world": "shared_carrier"},
+    {"exact_state_agreement": 0.8125, "n_cells": 48, "world": "unique_process"}
+  ],
+  "overall": {
+    "exact_state_agreement": 0.7606060606060606,
+    "false_positive_rate": 0.0,
+    "false_unique_attribution_rate": 0.0,
+    "n_cells": 384,
+    "overresolution_rate": 0.04,
+    "positive_recovery": 0.0,
+    "unavailable_cell_count": 54
+  }
+}

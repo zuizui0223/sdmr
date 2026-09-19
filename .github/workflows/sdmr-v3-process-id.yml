@@ -1,0 +1,59 @@
+name: sdmr-v3-process-id
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/process_id/**'
+      - 'tests/test_process_id_*.py'
+      - 'configs/sdmr_v3_process_id_phase1_contract.json'
+      - '.github/workflows/sdmr-v3-process-id.yml'
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'src/sdmr/process_id/**'
+      - 'tests/test_process_id_*.py'
+      - 'configs/sdmr_v3_process_id_phase1_contract.json'
+      - '.github/workflows/sdmr-v3-process-id.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-process-id-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Compile package
+        run: python -m compileall -q src
+      - name: Run SDMR v3 Phase-1 tests
+        run: |
+          pytest -q \
+            tests/test_process_id_states.py \
+            tests/test_process_id_registry.py \
+            tests/test_process_id_known_truth_worlds.py \
+            tests/test_process_id_oracle.py \
+            tests/test_process_id_evidence.py \
+            tests/test_process_id_known_truth_gate.py \
+            tests/test_process_id_phase1_contract.py \
+            tests/test_process_id_positive_audit.py \
+            tests/test_process_id_development.py \
+            tests/test_process_id_development_contract.py \
+            tests/test_process_id_development_v2_contract.py \
+            tests/test_process_id_development_v3_contract.py
+      - name: Run reused-component compatibility tests
+        run: |
+          pytest -q \
+            tests/test_process_information_closure.py \
+            tests/test_sealed_occurrence_contract.py \
+            tests/test_oracle_process_identifiability_development_contract.py
