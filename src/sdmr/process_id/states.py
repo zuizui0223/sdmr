@@ -136,9 +136,9 @@ def apply_identical_closure_abstention(
     for closure, group in out.groupby(closure_col, sort=False):
         if not str(closure).strip() or len(group) < 2:
             continue
-        positive_idx = group.index[group[state_col].isin(positive)]
-        if len(positive_idx) < 2:
+        sharp_idx = group.index[group[state_col].isin(sharp)]
+        if len(sharp_idx) < 2:
             continue
-        out.loc[positive_idx, state_col] = "unresolved"
-        out.loc[positive_idx, reason_col] = "identical_shared_carrier_closure"
+        out.loc[sharp_idx, state_col] = "unresolved"
+        out.loc[sharp_idx, reason_col] = "identical_shared_carrier_closure"
     return out
