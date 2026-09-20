@@ -68,6 +68,8 @@ def summarize_occurrence_oracle_crosswalk(
 
     recovery: dict[str, float] = {}
     false_positive: dict[str, float] = {}
+    replaceable_false_positive: dict[str, float] = {}
+    unresolved_overresolution: dict[str, float] = {}
     for learner, group in crosswalk.groupby("learner", sort=True):
         dist_positive = group["distribution_positive"].astype(bool)
         finite_positive = group["finite_positive"].astype(bool)
@@ -77,6 +79,17 @@ def summarize_occurrence_oracle_crosswalk(
         dist_nonpositive = ~dist_positive
         false_positive[str(learner)] = _rate(
             int((dist_nonpositive & finite_positive).sum()), int(dist_nonpositive.sum())
+        )
+        dist_replaceable = group["distribution_state"].astype(str).eq("replaceable")
+        replaceable_false_positive[str(learner)] = _rate(
+            int((dist_replaceable & finite_positive).sum()), int(dist_replaceable.sum())
+        )
+        dist_unresolved = group["distribution_state"].astype(str).eq("unresolved")
+        finite_sharp = group["finite_state"].astype(str).isin(
+            {"replaceable", "contributory", "required"}
+        )
+        unresolved_overresolution[str(learner)] = _rate(
+            int((dist_unresolved & finite_sharp).sum()), int(dist_unresolved.sum())
         )
 
     metrics: dict[str, object] = {
@@ -91,6 +104,8 @@ def summarize_occurrence_oracle_crosswalk(
         ),
         "finite_positive_recovery": recovery,
         "finite_false_positive_rate": false_positive,
+        "finite_false_positive_rate_on_replaceable": replaceable_false_positive,
+        "finite_overresolution_rate_on_unresolved": unresolved_overresolution,
         "occurrence_oracle_unavailable_cells": int(
             occurrence_oracle_states["state"].astype(str).eq("unavailable").sum()
         ),
