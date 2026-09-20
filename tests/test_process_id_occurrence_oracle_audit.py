@@ -129,3 +129,23 @@ def test_run_occurrence_oracle_audit_keeps_complete_three_level_keys():
     assert result.occurrence_oracle_states[["world", "seed", "process"]].duplicated().sum() == 0
     assert result.truth_states[["world", "seed", "process"]].duplicated().sum() == 0
     assert len(result.truth_states) == 2 * 6
+
+
+def test_audit_routes_requested_occurrence_oracle_split_mode():
+    from sdmr.process_id.known_truth.occurrence_oracle_audit import (
+        run_occurrence_oracle_audit,
+    )
+
+    result = run_occurrence_oracle_audit(
+        seeds=(702,),
+        worlds=("unique_process",),
+        n_cells=800,
+        n_occurrences=80,
+        n_background=260,
+        n_splits=2,
+        truth_baseline_r2_floor=0.65,
+        occurrence_oracle_approximation_tolerance=0.05,
+        occurrence_oracle_split_mode="random",
+        finite_adequacy_floor=-2.0,
+    )
+    assert set(result.occurrence_oracle_evidence["split_mode"]) == {"random"}
