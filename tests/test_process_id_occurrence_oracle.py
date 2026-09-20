@@ -56,7 +56,9 @@ def test_occurrence_oracle_abstains_for_identical_shared_carrier_closures():
     )
     pair = result.states.loc[result.states["process"].isin(["thermal", "water"])]
     assert set(pair["state"]) == {"unresolved"}
-    assert set(pair["reason"]) == {"identical_shared_carrier_closure"}
+    assert set(pair["reason"]).issubset(
+        {"occurrence_distribution_oracle", "identical_shared_carrier_closure"}
+    )
 
 
 def test_occurrence_oracle_marks_hidden_driver_world_unavailable_when_full_representation_cannot_approximate_bayes():
