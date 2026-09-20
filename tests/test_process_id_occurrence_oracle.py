@@ -1,3 +1,5 @@
+import pandas as pd
+import pytest
 import numpy as np
 
 
@@ -88,3 +90,63 @@ def test_occurrence_oracle_preserves_declared_observation_nonseparability():
     thermal = result.states.loc[result.states["process"].eq("thermal")].iloc[0]
     assert thermal["state"] == "unresolved"
     assert thermal["reason"] == "observation_process_not_separable"
+
+
+def test_occurrence_oracle_random_crossfit_is_deterministic_and_records_mode():
+    from sdmr.process_id.known_truth.occurrence_oracle import evaluate_occurrence_oracle_states
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=23001, n_cells=900, n_occurrences=90, n_background=300
+    )
+    first = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.01, split_mode="random"
+    )
+    second = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.01, split_mode="random"
+    )
+    pd.testing.assert_frame_equal(first.evidence, second.evidence)
+    pd.testing.assert_frame_equal(first.states, second.states)
+    assert set(first.evidence["split_mode"]) == {"random"}
+
+
+def test_occurrence_oracle_rejects_unknown_split_mode():
+    from sdmr.process_id.known_truth.occurrence_oracle import evaluate_occurrence_oracle_states
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=23001, n_cells=900, n_occurrences=90, n_background=300
+    )
+    with pytest.raises(ValueError, match="split_mode"):
+        evaluate_occurrence_oracle_states(world, n_splits=3, split_mode="checkerboard")
+
+
+def test_random_crossfit_repairs_known_w1_numerical_extrapolation_failure():
+    from sdmr.process_id.known_truth.occurrence_oracle import evaluate_occurrence_oracle_states
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=23002, n_cells=1600, n_occurrences=180, n_background=600
+    )
+    spatial = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.01, split_mode="spatial"
+    )
+    random = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.01, split_mode="random"
+    )
+    assert not spatial.states["full_numerically_adequate"].all()
+    assert random.states["full_numerically_adequate"].all()
+
+
+def test_random_crossfit_keeps_omitted_driver_unavailable():
+    from sdmr.process_id.known_truth.occurrence_oracle import evaluate_occurrence_oracle_states
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "omitted_driver", seed=23001, n_cells=1600, n_occurrences=180, n_background=600
+    )
+    result = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.01, split_mode="random"
+    )
+    assert set(result.states["state"]) == {"unavailable"}
+    assert (~result.states["full_numerically_adequate"]).all()
