@@ -71,3 +71,18 @@ def test_occurrence_oracle_marks_hidden_driver_world_unavailable_when_full_repre
     )
     assert set(result.states["state"]) == {"unavailable"}
     assert (~result.states["full_numerically_adequate"]).all()
+
+
+def test_occurrence_oracle_preserves_declared_observation_nonseparability():
+    from sdmr.process_id.known_truth.occurrence_oracle import evaluate_occurrence_oracle_states
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "observation_confounded", seed=605, n_cells=900, n_occurrences=90, n_background=300
+    )
+    result = evaluate_occurrence_oracle_states(
+        world, n_splits=3, approximation_tolerance=0.05
+    )
+    thermal = result.states.loc[result.states["process"].eq("thermal")].iloc[0]
+    assert thermal["state"] == "unresolved"
+    assert thermal["reason"] == "observation_process_not_separable"
