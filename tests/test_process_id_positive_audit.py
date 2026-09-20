@@ -147,3 +147,24 @@ def test_build_audit_keeps_only_positive_targets_and_both_learners():
     assert set(folds["learner"]) == {"linear", "quadratic"}
     assert {"lower_delta", "upper_delta", "diagnostic_boundary"}.issubset(summary.columns)
     assert len(folds) == 4
+
+
+def test_run_positive_audit_panel_keeps_only_target_positive_cells_for_both_learners():
+    from sdmr.process_id.known_truth.positive_audit import run_positive_evidence_audit
+
+    result = run_positive_evidence_audit(
+        seeds=(501,),
+        worlds=("unique_process", "interaction"),
+        n_cells=800,
+        n_occurrences=80,
+        n_background=260,
+        n_splits=2,
+        oracle_baseline_r2_floor=0.65,
+        occurrence_adequacy_floor=-2.0,
+    )
+    assert set(result.summary["learner"]) == {"linear", "quadratic"}
+    assert set(result.summary["world"]) <= {"unique_process", "interaction"}
+    assert result.summary["target_state"].isin({"contributory", "required"}).all()
+    assert set(result.folds["learner"]) == {"linear", "quadratic"}
+    assert set(result.boundary_counts.columns) == {"learner", "diagnostic_boundary", "count"}
+    assert result.summary[["world", "seed", "process", "learner"]].duplicated().sum() == 0
