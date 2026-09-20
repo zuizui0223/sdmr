@@ -15,7 +15,7 @@
 - Complete simulated distributions are used; sampled occurrence/background rows are forbidden as oracle inputs.
 - Process closure uses the frozen many-to-many registry.
 - The oracle may return `replaceable`, `contributory`, `required`, `unresolved`, or `unavailable`.
-- Existing margin `0.01`, adequacy floor `-0.75`, and SEM multiplier `1.0` are reused only as development diagnostics; they are not prospectively frozen.
+- Existing margin `0.01`, adequacy floor `-0.75`, and SEM multiplier `1.0` are reused only as development diagnostics; they are not prospectively frozen.\n- Oracle function-class availability additionally requires recovery of at least `0.80` of the exact Bayes gain above the null `-log(2)` score.
 - No finite-sample learner result is used to assign oracle state.
 
 ---
@@ -89,7 +89,7 @@ score(q) =
 
 **State classification**
 - summarize paired `full_score - knockout_score` across folds;
-- `full_adequate = mean_full_score >= adequacy_floor`;
+- `full_adequate = mean_full_score >= adequacy_floor` **and** mean full-model Bayes-gain recovery fraction `>= 0.80`;
 - `knockout_adequate = mean_knockout_score >= adequacy_floor`;
 - call existing `classify_process_state`;
 - apply identical-closure abstention after state assignment.
@@ -103,7 +103,7 @@ score(q) =
 - W1 thermal is not unavailable under standard development profile;
 - W4 seasonality remains replaceable;
 - W3 thermal/water remain unresolved because of identical closure;
-- W7 may be unavailable if the declared predictor system cannot recover observation structure.
+- W7 must be `unavailable` when the declared predictor system cannot recover at least 80% of the exact Bayes gain.
 
 ---
 
@@ -148,7 +148,7 @@ score(q) =
 - n_splits: 3;
 - margin: 0.01;
 - adequacy floor: -0.75;
-- SEM multiplier: 1.0;
+- SEM multiplier: 1.0;\n- minimum Bayes-gain recovery for oracle availability: 0.80;
 - no sampled-row counts are inputs to the oracle;
 - prospective status: `not_frozen`;
 - fresh empirical open: false.
