@@ -143,7 +143,7 @@ score(q) =
 
 **Frozen development profile**
 - seeds: 23001–23008;
-- worlds: `unique_process, interaction, geographic_shift`;
+- worlds: all W1–W8 in the frozen `KNOWN_TRUTH_WORLDS` order;
 - n_cells: 1600;
 - n_splits: 3;
 - margin: 0.01;
@@ -165,7 +165,7 @@ score(q) =
 - number and fraction also occurrence-distribution-positive;
 - finite-sample recovery conditional on occurrence-distribution-positive;
 - truth-positive but occurrence-distribution-nonpositive count;
-- breakdown by W1/W5/W8 and thermal/water.
+- breakdown by all worlds/processes, with the positive-recovery denominator reported explicitly for W1/W5/W8 positive cells.
 
 No PASS/FAIL promotion decision is made in this audit.
 
