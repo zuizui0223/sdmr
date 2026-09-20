@@ -52,8 +52,7 @@ jobs:
             tests/test_process_id_identifiability_crosswalk.py \
             tests/test_process_id_occurrence_oracle_audit.py \
             tests/test_process_id_occurrence_oracle_audit_contract.py \
-            tests/test_process_id_identifiability_crosswalk.py \
-            tests/test_process_id_occurrence_oracle_audit.py \
+            tests/test_process_id_occurrence_oracle_audit_v2_contract.py \
             tests/test_process_id_development.py \
             tests/test_process_id_development_contract.py \
             tests/test_process_id_development_v2_contract.py \
