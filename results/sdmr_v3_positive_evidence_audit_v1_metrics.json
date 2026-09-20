@@ -1,0 +1,19 @@
+{
+  "by_boundary": [
+    {"count": 12, "diagnostic_boundary": "interval_indeterminate", "learner": "linear"},
+    {"count": 2, "diagnostic_boundary": "positive_contribution_evidence", "learner": "linear"},
+    {"count": 16, "diagnostic_boundary": "process_free_noninferior_witness", "learner": "linear"},
+    {"count": 5, "diagnostic_boundary": "full_inadequate", "learner": "quadratic"},
+    {"count": 13, "diagnostic_boundary": "interval_indeterminate", "learner": "quadratic"},
+    {"count": 12, "diagnostic_boundary": "process_free_noninferior_witness", "learner": "quadratic"}
+  ],
+  "delta_summary": [
+    {"learner": "linear", "world": "geographic_shift", "n_cells": 8, "mean_delta": 0.011098702843986863, "median_delta": 0.008512366811956829, "mean_sem": 0.012008574198538756},
+    {"learner": "linear", "world": "interaction", "n_cells": 14, "mean_delta": -0.0054482989018787755, "median_delta": -0.005839289505209011, "mean_sem": 0.004580347577127794},
+    {"learner": "linear", "world": "unique_process", "n_cells": 8, "mean_delta": 0.009478582081860082, "median_delta": 0.010766936793406252, "mean_sem": 0.009578718109897959},
+    {"learner": "quadratic", "world": "geographic_shift", "n_cells": 8, "mean_delta": -0.04226581160520441, "median_delta": -0.03234561564004451, "mean_sem": 0.04136386114456916},
+    {"learner": "quadratic", "world": "interaction", "n_cells": 14, "mean_delta": -0.008275899479209824, "median_delta": -0.008707231816199628, "mean_sem": 0.018490909587608583},
+    {"learner": "quadratic", "world": "unique_process", "n_cells": 8, "mean_delta": -0.010541866087134658, "median_delta": -0.00956902370029043, "mean_sem": 0.018820464035352372}
+  ],
+  "n_summary_rows": 60
+}
