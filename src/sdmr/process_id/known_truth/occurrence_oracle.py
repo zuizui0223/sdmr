@@ -271,6 +271,11 @@ def evaluate_occurrence_oracle_states(
         })
 
     states = apply_identical_closure_abstention(pd.DataFrame(state_rows))
+    unresolved = set(world.observation_unresolved_processes)
+    if unresolved:
+        mask = states["process"].astype(str).isin(unresolved)
+        states.loc[mask, "state"] = "unresolved"
+        states.loc[mask, "reason"] = "observation_process_not_separable"
     return OccurrenceOracleEvaluation(
         evidence=evidence.reset_index(drop=True),
         states=states.reset_index(drop=True),
