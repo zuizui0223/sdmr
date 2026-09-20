@@ -7,7 +7,7 @@ import math
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, KFold
 
 from ...process_information_closure import process_information_closure
 from ..states import apply_identical_closure_abstention, classify_process_state
@@ -137,6 +137,7 @@ def evaluate_occurrence_oracle_states(
     min_samples_leaf: int = 20,
     learning_rate: float = 0.08,
     l2_regularization: float = 1e-3,
+    split_mode: str = "spatial",
 ) -> OccurrenceOracleEvaluation:
     """Evaluate process identifiability in the complete observation distribution."""
 
@@ -151,6 +152,9 @@ def evaluate_occurrence_oracle_states(
             raise ValueError(f"{name} must be finite and non-negative")
     if not math.isfinite(float(adequacy_floor)):
         raise ValueError("adequacy_floor must be finite")
+    split_mode = str(split_mode)
+    if split_mode not in {"spatial", "random"}:
+        raise ValueError("split_mode must be spatial or random")
 
     distribution = occurrence_distribution_components(world)
     groups = np.asarray(world.spatial_groups)
@@ -159,12 +163,18 @@ def evaluate_occurrence_oracle_states(
     if len(np.unique(groups)) < int(n_splits):
         raise ValueError("insufficient spatial groups for occurrence oracle")
 
-    splitter = GroupKFold(n_splits=int(n_splits))
     index = np.arange(len(world.environment))
+    if split_mode == "spatial":
+        splitter = GroupKFold(n_splits=int(n_splits))
+        split_indices = splitter.split(index, groups=groups)
+    else:
+        splitter = KFold(n_splits=int(n_splits), shuffle=True, random_state=0)
+        split_indices = splitter.split(index)
+
     full_predictors = tuple(world.predictor_universe)
     rows: list[dict[str, object]] = []
 
-    for fold, (train_idx, test_idx) in enumerate(splitter.split(index, groups=groups)):
+    for fold, (train_idx, test_idx) in enumerate(split_indices):
         train = world.environment.iloc[train_idx].reset_index(drop=True)
         test = world.environment.iloc[test_idx].reset_index(drop=True)
         q1_train, q0_train, posterior_train, mixture_train = _conditional_components(
@@ -196,6 +206,7 @@ def evaluate_occurrence_oracle_states(
             reduced_score = _balanced_expected_log_score(q1_test, q0_test, reduced_pred)
             rows.append({
                 "fold": int(fold),
+                "split_mode": split_mode,
                 "process": str(process),
                 "complete": True,
                 "bayes_score": bayes_score,
