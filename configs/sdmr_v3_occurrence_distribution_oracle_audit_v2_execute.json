@@ -1,0 +1,6 @@
+{
+  "purpose": "execute_sdmr_v3_occurrence_distribution_oracle_audit_v2",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "config_path": "configs/sdmr_v3_occurrence_distribution_oracle_audit_v2.json"
+}
