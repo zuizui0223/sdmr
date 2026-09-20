@@ -82,6 +82,7 @@ def main() -> None:
         occurrence_oracle_approximation_tolerance=float(
             occurrence["approximation_tolerance"]
         ),
+        occurrence_oracle_split_mode=str(occurrence.get("split_mode", "spatial")),
         finite_margin=float(finite["margin"]),
         finite_sem_multiplier=float(finite["sem_multiplier"]),
         finite_adequacy_floor=float(finite["adequacy_floor"]),
