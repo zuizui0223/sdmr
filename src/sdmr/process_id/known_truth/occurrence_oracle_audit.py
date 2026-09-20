@@ -167,6 +167,7 @@ def run_occurrence_oracle_audit(
     occurrence_oracle_sem_multiplier: float = 1.0,
     occurrence_oracle_adequacy_floor: float = -0.75,
     occurrence_oracle_approximation_tolerance: float = 0.01,
+    occurrence_oracle_split_mode: str = "spatial",
     finite_margin: float = 0.01,
     finite_sem_multiplier: float = 1.0,
     finite_adequacy_floor: float = -0.75,
@@ -210,6 +211,7 @@ def run_occurrence_oracle_audit(
                 sem_multiplier=float(occurrence_oracle_sem_multiplier),
                 adequacy_floor=float(occurrence_oracle_adequacy_floor),
                 approximation_tolerance=float(occurrence_oracle_approximation_tolerance),
+                split_mode=str(occurrence_oracle_split_mode),
             )
             dist_states = distribution.states.copy()
             dist_states.insert(0, "seed", int(seed))
