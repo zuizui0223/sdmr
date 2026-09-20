@@ -52,6 +52,21 @@ def test_occurrence_oracle_audit_metrics_use_distribution_positive_denominator()
             "finite_false_negative_given_distribution_positive": False,
             "finite_false_positive_given_distribution_not_positive": False,
         },
+        {
+            "world": "shared_carrier",
+            "seed": 1,
+            "process": "thermal",
+            "learner": "linear",
+            "truth_state": "unresolved",
+            "distribution_state": "unresolved",
+            "finite_state": "replaceable",
+            "truth_positive": False,
+            "distribution_positive": False,
+            "finite_positive": False,
+            "truth_positive_but_distribution_not_positive": False,
+            "finite_false_negative_given_distribution_positive": False,
+            "finite_false_positive_given_distribution_not_positive": False,
+        },
     ])
     oracle_states = pd.DataFrame([
         {
@@ -68,6 +83,13 @@ def test_occurrence_oracle_audit_metrics_use_distribution_positive_denominator()
             "state": "contributory",
             "full_numerically_adequate": True,
         },
+        {
+            "world": "shared_carrier",
+            "seed": 1,
+            "process": "thermal",
+            "state": "unresolved",
+            "full_numerically_adequate": True,
+        },
     ])
 
     metrics, by_world, by_process = summarize_occurrence_oracle_crosswalk(
@@ -78,6 +100,8 @@ def test_occurrence_oracle_audit_metrics_use_distribution_positive_denominator()
     assert metrics["truth_positive_distribution_positive_fraction"] == 0.5
     assert metrics["finite_positive_recovery"]["linear"] == 0.0
     assert metrics["finite_positive_recovery"]["quadratic"] == 1.0
+    assert metrics["finite_false_positive_rate_on_replaceable"]["linear"] == 0.0
+    assert metrics["finite_overresolution_rate_on_unresolved"]["linear"] == 1.0
     assert metrics["occurrence_oracle_unavailable_cells"] == 0
     assert {"world", "truth_positive", "distribution_positive"}.issubset(by_world.columns)
     assert {"process", "truth_positive", "distribution_positive"}.issubset(by_process.columns)
