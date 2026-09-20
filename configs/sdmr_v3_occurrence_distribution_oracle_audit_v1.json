@@ -1,0 +1,57 @@
+{
+  "program": "sdmr-v3-occurrence-distribution-oracle-audit-v1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "truth_oracle": {
+    "margin": 0.02,
+    "sem_multiplier": 1,
+    "baseline_r2_floor": 0.7,
+    "required_r2_ceiling": 0
+  },
+  "occurrence_oracle": {
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01
+  },
+  "finite": {
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "logistic_C": 1,
+    "learners": [
+      "linear",
+      "quadratic"
+    ],
+    "fit_class_weight": "balanced"
+  },
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Diagnostic-only three-level audit using already-burned development seeds. No threshold, seed, or output may support a prospective performance claim."
+}
