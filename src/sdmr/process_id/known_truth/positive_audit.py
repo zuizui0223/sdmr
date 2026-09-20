@@ -176,3 +176,131 @@ def build_positive_evidence_audit(
     summary = pd.DataFrame(summary_rows)
     folds = pd.concat(fold_frames, ignore_index=True) if fold_frames else pd.DataFrame()
     return summary, folds
+
+
+from dataclasses import dataclass
+from collections.abc import Sequence
+
+from .development import expected_occurrence_targets
+from .oracle import evaluate_oracle_states
+from .worlds import simulate_process_world
+from ..evidence import evaluate_occurrence_processes
+
+
+@dataclass(frozen=True)
+class PositiveEvidenceAuditResult:
+    summary: pd.DataFrame
+    folds: pd.DataFrame
+    boundary_counts: pd.DataFrame
+
+
+def run_positive_evidence_audit(
+    seeds: Sequence[int],
+    *,
+    worlds: Sequence[str] = ("unique_process", "interaction", "geographic_shift"),
+    n_cells: int = 1600,
+    n_occurrences: int = 180,
+    n_background: int = 600,
+    n_splits: int = 3,
+    oracle_margin: float = 0.02,
+    oracle_sem_multiplier: float = 1.0,
+    oracle_baseline_r2_floor: float = 0.70,
+    oracle_required_r2_ceiling: float = 0.0,
+    occurrence_margin: float = 0.01,
+    occurrence_sem_multiplier: float = 1.0,
+    occurrence_adequacy_floor: float = -0.75,
+    logistic_C: float = 1.0,
+) -> PositiveEvidenceAuditResult:
+    """Run the burned-development positive-target audit for two learner routes."""
+
+    seed_tuple = tuple(int(seed) for seed in seeds)
+    world_tuple = tuple(str(world) for world in worlds)
+    if not seed_tuple or len(set(seed_tuple)) != len(seed_tuple):
+        raise ValueError("seeds must be a non-empty unique sequence")
+    allowed_worlds = {"unique_process", "interaction", "geographic_shift"}
+    if not world_tuple or len(set(world_tuple)) != len(world_tuple):
+        raise ValueError("worlds must be a non-empty unique sequence")
+    unknown = sorted(set(world_tuple) - allowed_worlds)
+    if unknown:
+        raise ValueError(f"positive audit only supports target-positive worlds: {unknown}")
+
+    summary_frames: list[pd.DataFrame] = []
+    fold_frames: list[pd.DataFrame] = []
+    for seed in seed_tuple:
+        for world_name in world_tuple:
+            world = simulate_process_world(
+                world_name,
+                seed=seed,
+                n_cells=int(n_cells),
+                n_occurrences=int(n_occurrences),
+                n_background=int(n_background),
+            )
+            oracle = evaluate_oracle_states(
+                world,
+                n_splits=int(n_splits),
+                margin=float(oracle_margin),
+                sem_multiplier=float(oracle_sem_multiplier),
+                baseline_r2_floor=float(oracle_baseline_r2_floor),
+                required_r2_ceiling=float(oracle_required_r2_ceiling),
+            )
+            targets = expected_occurrence_targets(world, oracle)
+            states_by_learner: dict[str, pd.DataFrame] = {}
+            evidence_by_learner: dict[str, pd.DataFrame] = {}
+            for learner in ("linear", "quadratic"):
+                evaluation = evaluate_occurrence_processes(
+                    world,
+                    n_splits=int(n_splits),
+                    margin=float(occurrence_margin),
+                    adequacy_floor=float(occurrence_adequacy_floor),
+                    sem_multiplier=float(occurrence_sem_multiplier),
+                    C=float(logistic_C),
+                    learner=learner,
+                )
+                states_by_learner[learner] = evaluation.states
+                evidence_by_learner[learner] = evaluation.evidence
+
+            summary, folds = build_positive_evidence_audit(
+                targets,
+                states_by_learner,
+                evidence_by_learner,
+                margin=float(occurrence_margin),
+                adequacy_floor=float(occurrence_adequacy_floor),
+                sem_multiplier=float(occurrence_sem_multiplier),
+            )
+            if not summary.empty:
+                summary.insert(0, "seed", int(seed))
+                summary.insert(0, "world", world_name)
+                summary_frames.append(summary)
+            if not folds.empty:
+                folds.insert(0, "seed", int(seed))
+                folds.insert(0, "world", world_name)
+                fold_frames.append(folds)
+
+    summary_all = (
+        pd.concat(summary_frames, ignore_index=True)
+        if summary_frames
+        else pd.DataFrame()
+    )
+    folds_all = (
+        pd.concat(fold_frames, ignore_index=True)
+        if fold_frames
+        else pd.DataFrame()
+    )
+    if summary_all.empty:
+        boundary_counts = pd.DataFrame(
+            columns=["learner", "diagnostic_boundary", "count"]
+        )
+    else:
+        boundary_counts = (
+            summary_all.groupby(["learner", "diagnostic_boundary"], dropna=False)
+            .size()
+            .rename("count")
+            .reset_index()
+            .sort_values(["learner", "diagnostic_boundary"], kind="mergesort")
+            .reset_index(drop=True)
+        )
+    return PositiveEvidenceAuditResult(
+        summary=summary_all,
+        folds=folds_all,
+        boundary_counts=boundary_counts,
+    )
