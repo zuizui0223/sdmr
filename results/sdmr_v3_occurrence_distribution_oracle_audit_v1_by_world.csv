@@ -1,0 +1,9 @@
+world,n_cells,truth_positive,distribution_positive,truth_positive_distribution_positive,truth_positive_but_distribution_not_positive,occurrence_oracle_unavailable
+geographic_shift,48,8,3,3,5,24
+interaction,48,14,0,0,14,48
+null_correlated,48,0,0,0,0,24
+observation_confounded,48,8,0,0,8,5
+omitted_driver,48,0,0,0,0,48
+redundant_representation,48,0,0,0,0,24
+shared_carrier,48,0,0,0,0,24
+unique_process,48,8,4,4,4,24
