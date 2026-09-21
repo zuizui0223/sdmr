@@ -1,0 +1,13 @@
+{
+  "baseline_odo_positive": {
+    "hgb": {"positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_log_score": -1.457516905809411},
+    "linear": {"positive_recovery": 0.0625, "unavailable_rate": 0.0, "mean_full_log_score": -0.6885824350827731},
+    "quadratic": {"positive_recovery": 0.0, "unavailable_rate": 0.15625, "mean_full_log_score": -0.7201678260009142}
+  },
+  "hgb_power": [
+    {"multiplier": 1, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_log_score": -1.336220, "mean_delta": -0.0018677970021205657, "mean_delta_sem": 0.09532757044679872},
+    {"multiplier": 2, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_log_score": -1.209602, "mean_delta": 0.0044994954250548065, "mean_delta_sem": 0.07183788016113678},
+    {"multiplier": 4, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_log_score": -0.956071, "mean_delta": 0.01601661815110801, "mean_delta_sem": 0.057058111887260066}
+  ],
+  "odo_positive_cells": 32
+}
