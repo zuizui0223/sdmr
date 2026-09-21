@@ -153,3 +153,24 @@ def test_occurrence_learner_rejects_unknown_route():
     )
     with pytest.raises(ValueError, match="learner"):
         evaluate_occurrence_processes(world, n_splits=3, learner="neural_magic")
+
+
+def test_hgb_balanced_weights_preserve_equal_prior_and_empirical_loss_scale():
+    import numpy as np
+    from sdmr.process_id.evidence import _hgb_balanced_sample_weight
+
+    y = np.r_[np.ones(180, dtype=int), np.zeros(600, dtype=int)]
+    weights = _hgb_balanced_sample_weight(y)
+
+    assert weights.sum() == pytest.approx(len(y))
+    assert weights[y == 1].sum() == pytest.approx(len(y) / 2)
+    assert weights[y == 0].sum() == pytest.approx(len(y) / 2)
+    assert np.all(weights > 0)
+
+
+def test_hgb_balanced_weights_require_both_classes():
+    import numpy as np
+    from sdmr.process_id.evidence import _hgb_balanced_sample_weight
+
+    with pytest.raises(ValueError, match="both classes"):
+        _hgb_balanced_sample_weight(np.ones(20, dtype=int))
