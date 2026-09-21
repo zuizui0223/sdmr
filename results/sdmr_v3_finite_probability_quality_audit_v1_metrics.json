@@ -1,0 +1,44 @@
+{
+  "hgb": {
+    "random_cell": {
+      "train_log_score": -0.02588375641962998,
+      "test_log_score": -1.4008393176988285,
+      "train_auc": 1.0,
+      "test_auc": 0.6200347671268882,
+      "train_brier": 0.0013197224044307586,
+      "test_brier": 0.35971083432699325,
+      "train_extreme_fraction": 0.3796741452991453,
+      "test_extreme_fraction": 0.2916666666666667,
+      "train_test_log_score_gap": 1.3749555612791986
+    },
+    "spatial": {
+      "train_log_score": -0.02597032184833841,
+      "test_log_score": -1.4693669605910211,
+      "train_auc": 1.0,
+      "test_auc": 0.6049423797541794,
+      "train_brier": 0.0013406797904656359,
+      "test_brier": 0.36880462349998244,
+      "train_extreme_fraction": 0.38508832646886454,
+      "test_extreme_fraction": 0.2909484084463461,
+      "train_test_log_score_gap": 1.4433966387426826
+    }
+  },
+  "linear": {
+    "random_cell": {
+      "train_log_score": -0.6381937755644317,
+      "test_log_score": -0.6594241029392244,
+      "train_auc": 0.6696115235650125,
+      "test_auc": 0.6255039623567406,
+      "test_brier": 0.23393492059255566,
+      "test_extreme_fraction": 0.00005341880341880342
+    },
+    "spatial": {
+      "train_log_score": -0.6381210042969789,
+      "test_log_score": -0.6768584866933254,
+      "train_auc": 0.6696701612129328,
+      "test_auc": 0.6041784409261063,
+      "test_brier": 0.24189211598037896,
+      "test_extreme_fraction": 0.0
+    }
+  }
+}
