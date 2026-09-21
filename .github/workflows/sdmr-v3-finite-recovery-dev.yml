@@ -9,6 +9,7 @@ on:
       - 'src/sdmr/process_id/known_truth/resampling.py'
       - 'tests/test_process_id_evidence.py'
       - 'tests/test_process_id_resampling.py'
+      - 'tests/test_process_id_finite_recovery_audit.py'
       - '.github/workflows/sdmr-v3-finite-recovery-dev.yml'
   pull_request:
     paths:
@@ -38,4 +39,5 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Run finite-recovery development tests
         run: |
-          pytest -q             tests/test_process_id_evidence.py             tests/test_process_id_resampling.py
+          pytest -q             tests/test_process_id_evidence.py             tests/test_process_id_resampling.py \
+            tests/test_process_id_finite_recovery_audit.py
