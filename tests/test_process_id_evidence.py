@@ -174,3 +174,98 @@ def test_hgb_balanced_weights_require_both_classes():
 
     with pytest.raises(ValueError, match="both classes"):
         _hgb_balanced_sample_weight(np.ones(20, dtype=int))
+
+
+def test_random_cell_split_is_deterministic_and_keeps_duplicate_cells_together():
+    import numpy as np
+    import pandas as pd
+    from sdmr.process_id.evidence import _finite_split_indices
+
+    sample = pd.DataFrame({
+        "cell_id": [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 8, 8],
+        "label":   [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+    })
+    spatial_groups = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3])
+
+    first = _finite_split_indices(
+        sample, spatial_groups, n_splits=3, split_mode="random_cell"
+    )
+    second = _finite_split_indices(
+        sample, spatial_groups, n_splits=3, split_mode="random_cell"
+    )
+
+    assert len(first) == len(second) == 3
+    for (tr1, te1), (tr2, te2) in zip(first, second, strict=True):
+        np.testing.assert_array_equal(tr1, tr2)
+        np.testing.assert_array_equal(te1, te2)
+        train_cells = set(sample.iloc[tr1]["cell_id"])
+        test_cells = set(sample.iloc[te1]["cell_id"])
+        assert train_cells.isdisjoint(test_cells)
+
+
+def test_finite_process_challenge_rejects_unknown_split_mode():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=208, n_cells=900, n_occurrences=90, n_background=300
+    )
+    with pytest.raises(ValueError, match="split_mode"):
+        evaluate_occurrence_processes(
+            world, n_splits=3, learner="hgb", split_mode="checkerboard"
+        )
+
+
+def test_random_cell_split_restores_hgb_full_adequacy_in_known_w1_case():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=23002, n_cells=1600, n_occurrences=180, n_background=600
+    )
+    spatial = evaluate_occurrence_processes(
+        world, n_splits=3, learner="hgb", split_mode="spatial"
+    )
+    random_cell = evaluate_occurrence_processes(
+        world, n_splits=3, learner="hgb", split_mode="random_cell"
+    )
+
+    assert (spatial.states["full_log_score"] < -0.75).all()
+    assert (random_cell.states["full_log_score"] >= -0.75).all()
+    assert set(random_cell.evidence["split_mode"]) == {"random_cell"}
+
+
+def test_random_cell_preserves_observation_and_shared_closure_refusals():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    confounded = simulate_process_world(
+        "observation_confounded",
+        seed=209,
+        n_cells=1000,
+        n_occurrences=100,
+        n_background=340,
+    )
+    confounded_result = evaluate_occurrence_processes(
+        confounded, n_splits=3, learner="hgb", split_mode="random_cell", adequacy_floor=-2.0
+    )
+    thermal = confounded_result.states.loc[
+        confounded_result.states["process"].eq("thermal")
+    ].iloc[0]
+    assert thermal["state"] == "unresolved"
+    assert thermal["reason"] == "observation_process_not_separable"
+
+    shared = simulate_process_world(
+        "shared_carrier",
+        seed=210,
+        n_cells=1000,
+        n_occurrences=100,
+        n_background=340,
+    )
+    shared_result = evaluate_occurrence_processes(
+        shared, n_splits=3, learner="hgb", split_mode="random_cell", adequacy_floor=-2.0
+    )
+    pair = shared_result.states.loc[
+        shared_result.states["process"].isin(["thermal", "water"])
+    ]
+    assert set(pair["state"]) == {"unresolved"}
