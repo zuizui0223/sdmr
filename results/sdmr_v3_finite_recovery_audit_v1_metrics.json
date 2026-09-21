@@ -1,0 +1,28 @@
+{
+  "baseline": {
+    "hgb": {
+      "positive_recovery": 0.0,
+      "positive_unavailable_rate": 1.0,
+      "false_positive_rate": 0.0,
+      "overresolution_rate": 0.0
+    },
+    "linear": {
+      "positive_recovery": 0.0625,
+      "positive_unavailable_rate": 0.0,
+      "false_positive_rate": 0.0035714285714285713,
+      "overresolution_rate": 0.0
+    },
+    "quadratic": {
+      "positive_recovery": 0.0,
+      "positive_unavailable_rate": 0.15625,
+      "false_positive_rate": 0.0,
+      "overresolution_rate": 0.0
+    }
+  },
+  "hgb_power": [
+    {"multiplier": 1, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_score": -1.162511, "mean_delta": 0.021299555734308282, "mean_delta_sem": 0.06854730290268791},
+    {"multiplier": 2, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_score": -1.019061, "mean_delta": 0.032118593728526545, "mean_delta_sem": 0.047971349691309985},
+    {"multiplier": 4, "positive_recovery": 0.0, "unavailable_rate": 1.0, "mean_full_score": -0.827575, "mean_delta": 0.02834531490751509, "mean_delta_sem": 0.032273874707951546}
+  ],
+  "odo_positive_cells": 32
+}
