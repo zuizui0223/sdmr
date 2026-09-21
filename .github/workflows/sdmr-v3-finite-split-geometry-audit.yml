@@ -1,0 +1,56 @@
+name: sdmr-v3-finite-split-geometry-audit
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_finite_split_geometry_audit_v1_execute.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-finite-split-geometry-audit-v1
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate split-geometry machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_evidence.py \
+            tests/test_process_id_finite_split_audit.py \
+            tests/test_process_id_finite_split_audit_contract.py
+      - name: Verify explicit activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          marker=json.loads(Path("configs/sdmr_v3_finite_split_geometry_audit_v1_execute.json").read_text())
+          assert marker["purpose"] == "execute_sdmr_v3_finite_split_geometry_audit_v1"
+          assert marker["branch"] == "design/sdmr-v3-process-identification"
+          assert marker["single_activation"] is True
+          assert marker["config_path"] == "configs/sdmr_v3_finite_split_geometry_audit_v1.json"
+          PY
+      - name: Run burned split-geometry diagnostic
+        run: |
+          python scripts/run_sdmr_v3_finite_split_geometry_audit.py \
+            --config configs/sdmr_v3_finite_split_geometry_audit_v1.json \
+            --outdir finite-split-output
+      - name: Upload split-geometry evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v3-finite-split-geometry-audit-v1
+          path: finite-split-output/
+          if-no-files-found: error
