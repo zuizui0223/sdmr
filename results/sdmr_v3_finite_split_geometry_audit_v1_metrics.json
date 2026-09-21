@@ -1,0 +1,26 @@
+{
+  "overall": [
+    {
+      "split_mode": "random_cell",
+      "n_rows": 32,
+      "positive_recovery": 0.0,
+      "unavailable_rate": 1.0,
+      "unresolved_rate": 0.0,
+      "replaceable_rate": 0.0,
+      "mean_full_log_score": -1.4035038621626947,
+      "mean_delta": -0.043763858580496855,
+      "mean_delta_sem": 0.05903206160722944
+    },
+    {
+      "split_mode": "spatial",
+      "n_rows": 32,
+      "positive_recovery": 0.0,
+      "unavailable_rate": 1.0,
+      "unresolved_rate": 0.0,
+      "replaceable_rate": 0.0,
+      "mean_full_log_score": -1.457516905809411,
+      "mean_delta": -0.030914468795376383,
+      "mean_delta_sem": 0.09700136313862663
+    }
+  ]
+}
