@@ -18,42 +18,7 @@ from .probability_audit import (
 from .worlds import simulate_process_world
 
 
-HGB_PROFILES = {
-    "current": {
-        "learning_rate": 0.08,
-        "max_iter": 200,
-        "max_leaf_nodes": 31,
-        "min_samples_leaf": 20,
-        "l2_regularization": 1e-3,
-        "early_stopping": False,
-    },
-    "shallow7": {
-        "learning_rate": 0.05,
-        "max_iter": 100,
-        "max_leaf_nodes": 7,
-        "min_samples_leaf": 40,
-        "l2_regularization": 1.0,
-        "early_stopping": False,
-    },
-    "shallow3": {
-        "learning_rate": 0.05,
-        "max_iter": 100,
-        "max_leaf_nodes": 3,
-        "min_samples_leaf": 40,
-        "l2_regularization": 1.0,
-        "early_stopping": False,
-    },
-    "early7": {
-        "learning_rate": 0.05,
-        "max_iter": 200,
-        "max_leaf_nodes": 7,
-        "min_samples_leaf": 40,
-        "l2_regularization": 1.0,
-        "early_stopping": True,
-        "validation_fraction": 0.2,
-        "n_iter_no_change": 10,
-    },
-}
+from ..hgb_profiles import HGB_PROFILES, get_hgb_profile
 
 
 def _fit_profile(train, test, predictors, *, profile: str):
@@ -76,7 +41,7 @@ def _fit_profile(train, test, predictors, *, profile: str):
     model = HistGradientBoostingClassifier(
         loss="log_loss",
         random_state=0,
-        **HGB_PROFILES[profile],
+        **get_hgb_profile(profile),
     )
     model.fit(
         x_train,
