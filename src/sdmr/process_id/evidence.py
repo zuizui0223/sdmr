@@ -45,6 +45,21 @@ def _sem(values):
     return float("nan")
 
 
+def _hgb_balanced_sample_weight(y_train):
+    """Balance class prior while preserving ordinary empirical loss scale."""
+    y = np.asarray(y_train, dtype=int)
+    n = int(len(y))
+    n_pos = int(np.sum(y == 1))
+    n_neg = int(np.sum(y == 0))
+    if n <= 0 or n_pos <= 0 or n_neg <= 0:
+        raise ValueError("HGB balanced weights require both classes")
+    return np.where(
+        y == 1,
+        n / (2.0 * n_pos),
+        n / (2.0 * n_neg),
+    )
+
+
 def _fit_score(train, test, predictors, *, C, learner="linear"):
     if not predictors:
         return float("nan")
@@ -88,14 +103,11 @@ def _fit_score(train, test, predictors, *, C, learner="linear"):
             early_stopping=False,
             random_state=0,
         )
-        n_pos = int(np.sum(y_train == 1))
-        n_neg = int(np.sum(y_train == 0))
-        sample_weight = np.where(
-            y_train == 1,
-            0.5 / n_pos,
-            0.5 / n_neg,
+        model.fit(
+            x_train,
+            y_train,
+            sample_weight=_hgb_balanced_sample_weight(y_train),
         )
-        model.fit(x_train, y_train, sample_weight=sample_weight)
     probability = model.predict_proba(x_test)[:, 1]
     return _balanced_log_score(y_test, probability)
 
