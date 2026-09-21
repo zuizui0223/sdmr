@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 
 
@@ -106,3 +107,49 @@ def test_quadratic_occurrence_learner_represents_pure_interaction_signal():
     quadratic = _fit_score(train, test, ("x1", "x2"), C=1.0, learner="quadratic")
 
     assert quadratic > linear + 0.20
+
+
+def test_hgb_occurrence_learner_is_equal_prior_calibrated_and_deterministic():
+    import math
+    import numpy as np
+    import pandas as pd
+    from sdmr.process_id.evidence import _fit_score
+
+    rng = np.random.default_rng(992)
+    train = pd.DataFrame({
+        "x": rng.normal(size=780),
+        "label": np.r_[np.ones(180, dtype=int), np.zeros(600, dtype=int)],
+    })
+    train["x"] = 0.0
+    test = pd.DataFrame({
+        "x": np.zeros(200),
+        "label": np.r_[np.ones(100, dtype=int), np.zeros(100, dtype=int)],
+    })
+    first = _fit_score(train, test, ("x",), C=1.0, learner="hgb")
+    second = _fit_score(train, test, ("x",), C=1.0, learner="hgb")
+    assert abs(first + math.log(2.0)) < 0.01
+    assert first == second
+
+
+def test_hgb_route_label_is_explicit():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=206, n_cells=900, n_occurrences=90, n_background=300
+    )
+    result = evaluate_occurrence_processes(
+        world, n_splits=3, learner="hgb", adequacy_floor=-2.0
+    )
+    assert set(result.evidence["route"]) == {"hgb"}
+
+
+def test_occurrence_learner_rejects_unknown_route():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process", seed=207, n_cells=900, n_occurrences=90, n_background=300
+    )
+    with pytest.raises(ValueError, match="learner"):
+        evaluate_occurrence_processes(world, n_splits=3, learner="neural_magic")
