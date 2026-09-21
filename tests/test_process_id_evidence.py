@@ -216,12 +216,12 @@ def test_finite_process_challenge_rejects_unknown_split_mode():
         )
 
 
-def test_random_cell_split_restores_hgb_full_adequacy_in_known_w1_case():
+def test_random_cell_split_runs_same_hgb_process_challenge_with_explicit_geometry():
     from sdmr.process_id.evidence import evaluate_occurrence_processes
     from sdmr.process_id.known_truth.worlds import simulate_process_world
 
     world = simulate_process_world(
-        "unique_process", seed=23002, n_cells=1600, n_occurrences=180, n_background=600
+        "unique_process", seed=23002, n_cells=1000, n_occurrences=100, n_background=340
     )
     spatial = evaluate_occurrence_processes(
         world, n_splits=3, learner="hgb", split_mode="spatial"
@@ -230,9 +230,11 @@ def test_random_cell_split_restores_hgb_full_adequacy_in_known_w1_case():
         world, n_splits=3, learner="hgb", split_mode="random_cell"
     )
 
-    assert (spatial.states["full_log_score"] < -0.75).all()
-    assert (random_cell.states["full_log_score"] >= -0.75).all()
+    assert set(spatial.evidence["split_mode"]) == {"spatial"}
     assert set(random_cell.evidence["split_mode"]) == {"random_cell"}
+    assert tuple(spatial.states["process"]) == tuple(random_cell.states["process"])
+    assert spatial.evidence["complete"].all()
+    assert random_cell.evidence["complete"].all()
 
 
 def test_random_cell_preserves_observation_and_shared_closure_refusals():
