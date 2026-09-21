@@ -73,3 +73,26 @@ def test_small_finite_recovery_audit_is_deterministic_and_uses_odo_positive_deno
     assert set(first.power_states["multiplier"]) == {1, 2}
     assert first.power_states["odo_state"].isin({"contributory", "required"}).all()
     assert first.power_states[["world", "seed", "process", "multiplier", "replicate"]].duplicated().sum() == 0
+
+
+def test_finite_recovery_audit_propagates_named_hgb_profile():
+    from sdmr.process_id.known_truth.finite_recovery_audit import (
+        run_finite_recovery_audit,
+    )
+
+    result = run_finite_recovery_audit(
+        seeds=(802,),
+        worlds=("unique_process",),
+        n_cells=800,
+        n_occurrences=80,
+        n_background=260,
+        n_splits=2,
+        baseline_learners=("hgb",),
+        sample_multipliers=(1,),
+        sampling_replicates=(0,),
+        odo_approximation_tolerance=0.05,
+        hgb_profile="shallow3",
+    )
+    assert set(result.baseline_states["hgb_profile"]) == {"shallow3"}
+    if not result.power_states.empty:
+        assert set(result.power_states["hgb_profile"]) == {"shallow3"}
