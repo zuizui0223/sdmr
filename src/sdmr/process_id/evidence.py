@@ -107,17 +107,32 @@ def _finite_split_indices(sample, spatial_groups, *, n_splits, split_mode):
     return splits
 
 
-def _fit_score(train, test, predictors, *, C, learner="linear"):
+def _fit_probabilities(train, test, predictors, *, C, learner="linear"):
+    """Fit one declared finite learner and return train/test probabilities."""
+
     if not predictors:
-        return float("nan")
+        return (
+            np.full(len(train), np.nan, dtype=float),
+            np.full(len(test), np.nan, dtype=float),
+        )
     y_train = train["label"].to_numpy(int)
     y_test = test["label"].to_numpy(int)
     if len(np.unique(y_train)) != 2 or len(np.unique(y_test)) != 2:
-        return float("nan")
-    x_train = train.loc[:, list(predictors)].apply(pd.to_numeric, errors="coerce").to_numpy(float)
-    x_test = test.loc[:, list(predictors)].apply(pd.to_numeric, errors="coerce").to_numpy(float)
+        return (
+            np.full(len(train), np.nan, dtype=float),
+            np.full(len(test), np.nan, dtype=float),
+        )
+    x_train = train.loc[:, list(predictors)].apply(
+        pd.to_numeric, errors="coerce"
+    ).to_numpy(float)
+    x_test = test.loc[:, list(predictors)].apply(
+        pd.to_numeric, errors="coerce"
+    ).to_numpy(float)
     if not np.isfinite(x_train).all() or not np.isfinite(x_test).all():
-        return float("nan")
+        return (
+            np.full(len(train), np.nan, dtype=float),
+            np.full(len(test), np.nan, dtype=float),
+        )
     learner = str(learner)
     if learner not in {"linear", "quadratic", "hgb"}:
         raise ValueError("learner must be linear, quadratic, or hgb")
@@ -155,9 +170,22 @@ def _fit_score(train, test, predictors, *, C, learner="linear"):
             y_train,
             sample_weight=_hgb_balanced_sample_weight(y_train),
         )
-    probability = model.predict_proba(x_test)[:, 1]
-    return _balanced_log_score(y_test, probability)
+    train_probability = np.asarray(model.predict_proba(x_train)[:, 1], dtype=float)
+    test_probability = np.asarray(model.predict_proba(x_test)[:, 1], dtype=float)
+    return train_probability, test_probability
 
+
+def _fit_score(train, test, predictors, *, C, learner="linear"):
+    _, probability = _fit_probabilities(
+        train,
+        test,
+        predictors,
+        C=C,
+        learner=learner,
+    )
+    if not np.isfinite(probability).all():
+        return float("nan")
+    return _balanced_log_score(test["label"].to_numpy(int), probability)
 
 def evaluate_occurrence_processes(
     world: KnownTruthWorld,
