@@ -6,6 +6,7 @@ import math
 
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
@@ -56,8 +57,8 @@ def _fit_score(train, test, predictors, *, C, learner="linear"):
     if not np.isfinite(x_train).all() or not np.isfinite(x_test).all():
         return float("nan")
     learner = str(learner)
-    if learner not in {"linear", "quadratic"}:
-        raise ValueError("learner must be linear or quadratic")
+    if learner not in {"linear", "quadratic", "hgb"}:
+        raise ValueError("learner must be linear, quadratic, or hgb")
     logistic = LogisticRegression(
         C=float(C),
         penalty="l2",
@@ -68,13 +69,33 @@ def _fit_score(train, test, predictors, *, C, learner="linear"):
     )
     if learner == "linear":
         model = logistic
-    else:
+        model.fit(x_train, y_train)
+    elif learner == "quadratic":
         model = make_pipeline(
             PolynomialFeatures(degree=2, include_bias=False),
             StandardScaler(),
             logistic,
         )
-    model.fit(x_train, y_train)
+        model.fit(x_train, y_train)
+    else:
+        model = HistGradientBoostingClassifier(
+            loss="log_loss",
+            learning_rate=0.08,
+            max_iter=200,
+            max_leaf_nodes=31,
+            min_samples_leaf=20,
+            l2_regularization=1e-3,
+            early_stopping=False,
+            random_state=0,
+        )
+        n_pos = int(np.sum(y_train == 1))
+        n_neg = int(np.sum(y_train == 0))
+        sample_weight = np.where(
+            y_train == 1,
+            0.5 / n_pos,
+            0.5 / n_neg,
+        )
+        model.fit(x_train, y_train, sample_weight=sample_weight)
     probability = model.predict_proba(x_test)[:, 1]
     return _balanced_log_score(y_test, probability)
 
@@ -101,9 +122,13 @@ def evaluate_occurrence_processes(
     if float(C) <= 0 or not math.isfinite(float(C)):
         raise ValueError("C must be finite and positive")
     learner = str(learner)
-    if learner not in {"linear", "quadratic"}:
-        raise ValueError("learner must be linear or quadratic")
-    route_label = "logistic" if learner == "linear" else "logistic_quadratic"
+    if learner not in {"linear", "quadratic", "hgb"}:
+        raise ValueError("learner must be linear, quadratic, or hgb")
+    route_label = {
+        "linear": "logistic",
+        "quadratic": "logistic_quadratic",
+        "hgb": "hgb",
+    }[learner]
 
     occurrence = world.occurrences.copy()
     background = world.background.copy()
