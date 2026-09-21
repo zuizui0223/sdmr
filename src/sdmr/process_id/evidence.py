@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
@@ -58,6 +58,53 @@ def _hgb_balanced_sample_weight(y_train):
         n / (2.0 * n_pos),
         n / (2.0 * n_neg),
     )
+
+
+def _finite_split_indices(sample, spatial_groups, *, n_splits, split_mode):
+    """Return deterministic finite-sample CV indices.
+
+    random_cell splits unique cell IDs rather than records, so duplicated
+    resamples from one cell never appear in both train and test.
+    """
+
+    mode = str(split_mode)
+    if mode not in {"spatial", "random_cell"}:
+        raise ValueError("split_mode must be spatial or random_cell")
+    if "cell_id" not in sample.columns:
+        raise KeyError("sample missing cell_id")
+    groups = np.asarray(spatial_groups)
+    if len(groups) != len(sample):
+        raise ValueError("spatial_groups must align with sample rows")
+    if int(n_splits) < 2:
+        raise ValueError("n_splits must be >= 2")
+
+    if mode == "spatial":
+        if len(np.unique(groups)) < int(n_splits):
+            raise ValueError("insufficient spatial groups for occurrence challenge")
+        splitter = GroupKFold(n_splits=int(n_splits))
+        return list(
+            splitter.split(
+                np.arange(len(sample)),
+                sample["label"].to_numpy(int),
+                groups=groups,
+            )
+        )
+
+    cell_ids = pd.to_numeric(sample["cell_id"], errors="raise").to_numpy(int)
+    unique_cells = np.unique(cell_ids)
+    if len(unique_cells) < int(n_splits):
+        raise ValueError("insufficient unique cells for random_cell split")
+    splitter = KFold(n_splits=int(n_splits), shuffle=True, random_state=0)
+    splits = []
+    for train_cell_idx, test_cell_idx in splitter.split(unique_cells):
+        train_cells = set(unique_cells[train_cell_idx].tolist())
+        test_cells = set(unique_cells[test_cell_idx].tolist())
+        if train_cells & test_cells:
+            raise AssertionError("random_cell split leaked cell IDs")
+        train_idx = np.flatnonzero(np.isin(cell_ids, list(train_cells)))
+        test_idx = np.flatnonzero(np.isin(cell_ids, list(test_cells)))
+        splits.append((train_idx, test_idx))
+    return splits
 
 
 def _fit_score(train, test, predictors, *, C, learner="linear"):
@@ -121,6 +168,7 @@ def evaluate_occurrence_processes(
     sem_multiplier: float = 1.0,
     C: float = 1.0,
     learner: str = "linear",
+    split_mode: str = "spatial",
 ) -> OccurrenceProcessEvaluation:
     """Fit matched full/knockout occurrence models and classify each process.
 
@@ -133,6 +181,9 @@ def evaluate_occurrence_processes(
         raise ValueError("n_splits must be >= 2")
     if float(C) <= 0 or not math.isfinite(float(C)):
         raise ValueError("C must be finite and positive")
+    split_mode = str(split_mode)
+    if split_mode not in {"spatial", "random_cell"}:
+        raise ValueError("split_mode must be spatial or random_cell")
     learner = str(learner)
     if learner not in {"linear", "quadratic", "hgb"}:
         raise ValueError("learner must be linear, quadratic, or hgb")
@@ -157,11 +208,12 @@ def evaluate_occurrence_processes(
     groups = sample["cell_id"].astype(int).map(group_lookup)
     if groups.isna().any():
         raise ValueError("sample cell ids are not aligned with world spatial groups")
-    if groups.nunique() < int(n_splits):
-        raise ValueError("insufficient spatial groups for occurrence challenge")
-
-    splitter = GroupKFold(n_splits=int(n_splits))
-    split_indices = list(splitter.split(sample, sample["label"], groups=groups.to_numpy()))
+    split_indices = _finite_split_indices(
+        sample,
+        groups.to_numpy(),
+        n_splits=int(n_splits),
+        split_mode=split_mode,
+    )
     full_predictors = tuple(world.predictor_universe)
     rows = []
 
@@ -179,6 +231,7 @@ def evaluate_occurrence_processes(
                 "process": process,
                 "fold": int(fold),
                 "route": route_label,
+                "split_mode": split_mode,
                 "complete": complete,
                 "full_log_score": float(full_score),
                 "knockout_log_score": float(knockout_score),
@@ -228,6 +281,7 @@ def evaluate_occurrence_processes(
             "process": process,
             "state": state,
             "reason": reason,
+            "split_mode": split_mode,
             "closure_predictors": ",".join(closure),
             "complete": complete,
             "full_log_score": full_mean,
