@@ -13,6 +13,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 from ..process_information_closure import process_information_closure
+from .hgb_profiles import get_hgb_profile
 from .known_truth.worlds import KnownTruthWorld
 from .states import apply_identical_closure_abstention, classify_process_state
 
@@ -107,7 +108,7 @@ def _finite_split_indices(sample, spatial_groups, *, n_splits, split_mode):
     return splits
 
 
-def _fit_probabilities(train, test, predictors, *, C, learner="linear"):
+def _fit_probabilities(\n    train, test, predictors, *, C, learner="linear", hgb_profile="current"\n):
     """Fit one declared finite learner and return train/test probabilities."""
 
     if not predictors:
@@ -136,6 +137,13 @@ def _fit_probabilities(train, test, predictors, *, C, learner="linear"):
     learner = str(learner)
     if learner not in {"linear", "quadratic", "hgb"}:
         raise ValueError("learner must be linear, quadratic, or hgb")
+    hgb_profile = str(hgb_profile)
+    if learner == "hgb":
+        hgb_params = get_hgb_profile(hgb_profile)
+    else:
+        if hgb_profile != "current":
+            raise ValueError("hgb_profile may only be changed for learner=hgb")
+        hgb_params = None
     logistic = LogisticRegression(
         C=float(C),
         penalty="l2",
@@ -155,16 +163,7 @@ def _fit_probabilities(train, test, predictors, *, C, learner="linear"):
         )
         model.fit(x_train, y_train)
     else:
-        model = HistGradientBoostingClassifier(
-            loss="log_loss",
-            learning_rate=0.08,
-            max_iter=200,
-            max_leaf_nodes=31,
-            min_samples_leaf=20,
-            l2_regularization=1e-3,
-            early_stopping=False,
-            random_state=0,
-        )
+        model = HistGradientBoostingClassifier(\n            loss="log_loss",\n            random_state=0,\n            **hgb_params,\n        )
         model.fit(
             x_train,
             y_train,
@@ -175,14 +174,7 @@ def _fit_probabilities(train, test, predictors, *, C, learner="linear"):
     return train_probability, test_probability
 
 
-def _fit_score(train, test, predictors, *, C, learner="linear"):
-    _, probability = _fit_probabilities(
-        train,
-        test,
-        predictors,
-        C=C,
-        learner=learner,
-    )
+def _fit_score(\n    train, test, predictors, *, C, learner="linear", hgb_profile="current"\n):\n    _, probability = _fit_probabilities(\n        train,\n        test,\n        predictors,\n        C=C,\n        learner=learner,\n        hgb_profile=hgb_profile,\n    )
     if not np.isfinite(probability).all():
         return float("nan")
     return _balanced_log_score(test["label"].to_numpy(int), probability)
@@ -195,8 +187,7 @@ def evaluate_occurrence_processes(
     adequacy_floor: float = -0.75,
     sem_multiplier: float = 1.0,
     C: float = 1.0,
-    learner: str = "linear",
-    split_mode: str = "spatial",
+    learner: str = "linear",\n    split_mode: str = "spatial",\n    hgb_profile: str = "current",
 ) -> OccurrenceProcessEvaluation:
     """Fit matched full/knockout occurrence models and classify each process.
 
@@ -212,10 +203,7 @@ def evaluate_occurrence_processes(
     split_mode = str(split_mode)
     if split_mode not in {"spatial", "random_cell"}:
         raise ValueError("split_mode must be spatial or random_cell")
-    learner = str(learner)
-    if learner not in {"linear", "quadratic", "hgb"}:
-        raise ValueError("learner must be linear, quadratic, or hgb")
-    route_label = {
+    learner = str(learner)\n    if learner not in {"linear", "quadratic", "hgb"}:\n        raise ValueError("learner must be linear, quadratic, or hgb")\n    hgb_profile = str(hgb_profile)\n    if learner == "hgb":\n        get_hgb_profile(hgb_profile)\n    elif hgb_profile != "current":\n        raise ValueError("hgb_profile may only be changed for learner=hgb")\n    route_label = {
         "linear": "logistic",
         "quadratic": "logistic_quadratic",
         "hgb": "hgb",
@@ -248,19 +236,18 @@ def evaluate_occurrence_processes(
     for fold, (train_idx, test_idx) in enumerate(split_indices):
         train = sample.iloc[train_idx].reset_index(drop=True)
         test = sample.iloc[test_idx].reset_index(drop=True)
-        full_score = _fit_score(train, test, full_predictors, C=C, learner=learner)
+        full_score = _fit_score(\n            train, test, full_predictors, C=C, learner=learner, hgb_profile=hgb_profile\n        )
         for process in world.process_universe:
             excluded = process_information_closure(world.process_registry, process)
             excluded_set = set(excluded)
             retained = tuple(p for p in full_predictors if p not in excluded_set)
-            knockout_score = _fit_score(train, test, retained, C=C, learner=learner)
+            knockout_score = _fit_score(\n                train, test, retained, C=C, learner=learner, hgb_profile=hgb_profile\n            )
             complete = bool(np.isfinite(full_score) and np.isfinite(knockout_score))
             rows.append({
                 "process": process,
                 "fold": int(fold),
                 "route": route_label,
-                "split_mode": split_mode,
-                "complete": complete,
+                "split_mode": split_mode,\n                "hgb_profile": hgb_profile if learner == "hgb" else "",\n                "complete": complete,
                 "full_log_score": float(full_score),
                 "knockout_log_score": float(knockout_score),
                 "delta": float(full_score - knockout_score) if complete else float("nan"),
@@ -309,8 +296,7 @@ def evaluate_occurrence_processes(
             "process": process,
             "state": state,
             "reason": reason,
-            "split_mode": split_mode,
-            "closure_predictors": ",".join(closure),
+            "split_mode": split_mode,\n            "hgb_profile": hgb_profile if learner == "hgb" else "",\n            "closure_predictors": ",".join(closure),
             "complete": complete,
             "full_log_score": full_mean,
             "knockout_log_score": knockout_mean,
