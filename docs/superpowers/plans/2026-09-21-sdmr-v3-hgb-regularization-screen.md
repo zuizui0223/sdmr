@@ -55,7 +55,7 @@ All use balanced empirical weights and random_state=0.
 Use only held-out full-model probability quality:
 
 - primary: mean test balanced log score;
-- guardrail: each world-specific mean test score must exceed -0.75;
+- guardrail: every world × split-mode mean test score must be at least -0.75;
 - diagnostics: test AUC, balanced Brier, extreme-probability fraction, train-test log-score gap.
 
 Profiles failing the -0.75 world guardrail are ineligible.
