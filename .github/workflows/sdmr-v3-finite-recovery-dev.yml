@@ -9,6 +9,7 @@ on:
       - 'src/sdmr/process_id/known_truth/resampling.py'
       - 'src/sdmr/process_id/known_truth/finite_recovery_audit.py'
       - 'src/sdmr/process_id/known_truth/finite_split_audit.py'
+      - 'src/sdmr/process_id/known_truth/probability_audit.py'
       - 'tests/test_process_id_evidence.py'
       - 'tests/test_process_id_resampling.py'
       - 'tests/test_process_id_finite_recovery_audit.py'
@@ -16,6 +17,7 @@ on:
       - 'tests/test_process_id_finite_recovery_audit_v2_contract.py'
       - 'tests/test_process_id_finite_split_audit.py'
       - 'tests/test_process_id_finite_split_audit_contract.py'
+      - 'tests/test_process_id_probability_audit.py'
       - 'configs/sdmr_v3_finite_recovery_audit_v1.json'
       - 'configs/sdmr_v3_finite_recovery_audit_v2.json'
       - 'configs/sdmr_v3_finite_split_geometry_audit_v1.json'
@@ -63,4 +65,5 @@ jobs:
             tests/test_process_id_finite_recovery_audit_contract.py \
             tests/test_process_id_finite_recovery_audit_v2_contract.py \
             tests/test_process_id_finite_split_audit.py \
-            tests/test_process_id_finite_split_audit_contract.py
+            tests/test_process_id_finite_split_audit_contract.py \
+            tests/test_process_id_probability_audit.py
