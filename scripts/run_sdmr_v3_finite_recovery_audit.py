@@ -104,7 +104,9 @@ def main() -> None:
         finite_margin=float(config["margin"]),
         finite_sem_multiplier=float(config["sem_multiplier"]),
         finite_adequacy_floor=float(config["adequacy_floor"]),
-        logistic_C=float(config["logistic_C"]),\n        hgb_profile=str(config.get("hgb_profile", "current")),\n    )
+        logistic_C=float(config["logistic_C"]),
+        hgb_profile=str(config.get("hgb_profile", "current")),
+    )
 
     frames = {
         "baseline_states.csv": result.baseline_states,
@@ -139,7 +141,8 @@ def main() -> None:
         "product_a_boundary": "closed_not_reopened",
         "config_path": str(config_path),
         "config_sha256": _sha256(config_path),
-        "odo_target": config["odo_target"],\n        "hgb_profile": str(config.get("hgb_profile", "current")),
+        "odo_target": config["odo_target"],
+        "hgb_profile": str(config.get("hgb_profile", "current")),
         "outputs": {name: _sha256(outdir / name) for name in outputs},
     }
     (outdir / "manifest.json").write_text(
