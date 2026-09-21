@@ -130,7 +130,10 @@ def run_finite_recovery_audit(
     odo_approximation_tolerance: float = 0.01,
     finite_margin: float = 0.01,
     finite_sem_multiplier: float = 1.0,
-    finite_adequacy_floor: float = -0.75,\n    logistic_C: float = 1.0,\n    hgb_profile: str = "current",\n) -> FiniteRecoveryAuditResult:
+    finite_adequacy_floor: float = -0.75,
+    logistic_C: float = 1.0,
+    hgb_profile: str = "current",
+) -> FiniteRecoveryAuditResult:
     """Run baseline learner comparison plus HGB sample-size power curve."""
 
     seed_tuple = tuple(int(x) for x in seeds)
@@ -190,7 +193,10 @@ def run_finite_recovery_audit(
                     margin=float(finite_margin),
                     adequacy_floor=float(finite_adequacy_floor),
                     sem_multiplier=float(finite_sem_multiplier),
-                    C=float(logistic_C),\n                    learner=learner,\n                    hgb_profile=hgb_profile if learner == "hgb" else "current",\n                ).states
+                    C=float(logistic_C),
+                    learner=learner,
+                    hgb_profile=hgb_profile if learner == "hgb" else "current",
+                ).states
                 merged = odo_target.merge(
                     finite,
                     on="process",
@@ -231,7 +237,10 @@ def run_finite_recovery_audit(
                         margin=float(finite_margin),
                         adequacy_floor=float(finite_adequacy_floor),
                         sem_multiplier=float(finite_sem_multiplier),
-                        C=float(logistic_C),\n                        learner="hgb",\n                        hgb_profile=hgb_profile,\n                    ).states
+                        C=float(logistic_C),
+                        learner="hgb",
+                        hgb_profile=hgb_profile,
+                    ).states
                     merged = positive_target.merge(
                         finite,
                         on="process",
