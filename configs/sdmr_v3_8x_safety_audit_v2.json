@@ -82,8 +82,12 @@
     "spatial_artifact_id": 10801581626,
     "spatial_artifact_digest": "sha256:d5ffb683b8a3dc0eba12cc6a8515755cbdbc823f65f09bd28ec82744f283fbe7",
     "canonical_positive_state_sha256": {
-      "random_cell": "168892687a28cb9245412ffcc01bb5d204d336c6d3ebd4523a38d48e0d448f32",
-      "spatial": "cb7632ea2c7c0d8277951d53c6bc2656db7c58d6746598c11f5a9d8401a1eca0"
+      "random_cell": "16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5",
+      "spatial": "fed1a0826856918e5cbe56d75308a45a70b7ff4558c1727bd8c7cfa86eb0f7d5"
+    },
+    "canonical_positive_numeric_sha256_12dp": {
+      "random_cell": "e5e7cd00781d49c0064723612ab98004c3a2a2999f5967f9e3fc5e8d15f3b6dc",
+      "spatial": "80a7a084e814d94e734221a152a7077c89bc85ce07520f0b91c3ad72a6ccf159"
     }
   },
   "prospective_status": "not_frozen",
