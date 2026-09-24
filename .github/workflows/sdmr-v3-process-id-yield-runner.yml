@@ -1,0 +1,21 @@
+name: sdmr-v3-process-id-yield-runner
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v5_yield_runner_once.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-process-id-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yield:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "yield runner to focused v5 validation"
