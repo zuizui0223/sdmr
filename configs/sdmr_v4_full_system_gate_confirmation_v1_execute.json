@@ -1,0 +1,77 @@
+{
+  "purpose": "execute_sdmr_v4_full_system_gate_confirmation_v1",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "config_path": "configs/sdmr_v4_full_system_gate_confirmation_v1.json",
+  "config_blob_sha": "a086572262c9f7058301409f8326a5dfebd1159a",
+  "calibration_terminal_passed": true,
+  "calibration_workflow_run": 36014081688,
+  "calibration_artifact_id": 10814773861,
+  "calibration_artifact_digest": "sha256:77024e0489f55fa2e4a229c667372503f95a71a9b20f66a42956b4c23846fbf6",
+  "selected_multiplier": 1,
+  "seed_blocks": [
+    [
+      42001,
+      42002,
+      42003,
+      42004,
+      42005,
+      42006,
+      42007,
+      42008,
+      42009,
+      42010
+    ],
+    [
+      42011,
+      42012,
+      42013,
+      42014,
+      42015,
+      42016,
+      42017,
+      42018,
+      42019,
+      42020
+    ],
+    [
+      42021,
+      42022,
+      42023,
+      42024,
+      42025,
+      42026,
+      42027,
+      42028,
+      42029,
+      42030
+    ],
+    [
+      42031,
+      42032,
+      42033,
+      42034,
+      42035,
+      42036,
+      42037,
+      42038,
+      42039,
+      42040
+    ],
+    [
+      42041,
+      42042,
+      42043,
+      42044,
+      42045,
+      42046,
+      42047,
+      42048,
+      42049,
+      42050
+    ]
+  ],
+  "confirmation_seeds_opened_by_this_activation": "42001-42050",
+  "reserved_prospective_opened": false,
+  "note": "First and only opening of the independent v4 confirmation panel. Multiplier 1.0 is frozen from calibration; no reselection allowed."
+}
