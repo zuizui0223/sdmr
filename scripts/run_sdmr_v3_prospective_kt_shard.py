@@ -32,6 +32,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _git_blob_sha1(path: Path) -> str:
+    data = path.read_bytes()
+    header = f"blob {len(data)}\0".encode("utf-8")
+    return hashlib.sha1(header + data).hexdigest()
+
+
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -60,13 +66,15 @@ def _validate_activation(
         raise ValueError("execution profile must remain immutable/blocked")
 
     expected_contract_blob = str(execution["scientific_contract_blob_sha"])
-    if activation.get("scientific_contract_blob_sha") != expected_contract_blob:
-        raise ValueError("activation scientific contract blob SHA mismatch")
+    actual_contract_blob = _git_blob_sha1(contract_path)
+    actual_execution_blob = _git_blob_sha1(execution_path)
 
-    if activation.get("scientific_contract_sha256") != _sha256(contract_path):
-        raise ValueError("activation scientific contract content SHA mismatch")
-    if activation.get("execution_profile_sha256") != _sha256(execution_path):
-        raise ValueError("activation execution profile content SHA mismatch")
+    if actual_contract_blob != expected_contract_blob:
+        raise ValueError("scientific contract blob SHA drift")
+    if activation.get("scientific_contract_blob_sha") != actual_contract_blob:
+        raise ValueError("activation scientific contract blob SHA mismatch")
+    if activation.get("execution_profile_blob_sha") != actual_execution_blob:
+        raise ValueError("activation execution profile blob SHA mismatch")
 
     prerequisite = contract["development_prerequisite"]
     if activation.get("development_prerequisite_run") != prerequisite["workflow_run"]:
