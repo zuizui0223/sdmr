@@ -271,3 +271,71 @@ def test_random_cell_preserves_observation_and_shared_closure_refusals():
         shared_result.states["process"].isin(["thermal", "water"])
     ]
     assert set(pair["state"]) == {"unresolved"}
+
+
+def test_stage_p_full_system_gate_forces_unavailable_when_full_model_has_no_information():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "omitted_driver",
+        seed=23001,
+        n_cells=1600,
+        n_occurrences=180,
+        n_background=600,
+    )
+    result = evaluate_occurrence_processes(
+        world,
+        n_splits=3,
+        learner="hgb",
+        hgb_profile="shallow3",
+        split_mode="random_cell",
+        require_full_system_information=True,
+    )
+    assert set(result.states["state"]) == {"unavailable"}
+    assert set(result.states["reason"]) == {"full_system_not_informative"}
+
+
+def test_stage_p_full_system_gate_preserves_informative_world_process_states():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process",
+        seed=23001,
+        n_cells=1600,
+        n_occurrences=180,
+        n_background=600,
+    )
+    result = evaluate_occurrence_processes(
+        world,
+        n_splits=3,
+        learner="hgb",
+        hgb_profile="shallow3",
+        split_mode="random_cell",
+        require_full_system_information=True,
+    )
+    assert not result.states["state"].eq("unavailable").all()
+    assert result.states["full_system_information_adequate"].all()
+
+
+def test_full_system_gate_is_stage_p_only():
+    from sdmr.process_id.evidence import evaluate_occurrence_processes
+    from sdmr.process_id.known_truth.worlds import simulate_process_world
+
+    world = simulate_process_world(
+        "unique_process",
+        seed=23001,
+        n_cells=900,
+        n_occurrences=90,
+        n_background=300,
+    )
+    with pytest.raises(ValueError, match="random_cell"):
+        evaluate_occurrence_processes(
+            world,
+            n_splits=3,
+            learner="hgb",
+            hgb_profile="shallow3",
+            split_mode="spatial",
+            require_full_system_information=True,
+        )
