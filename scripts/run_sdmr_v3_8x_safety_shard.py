@@ -73,7 +73,13 @@ def main() -> None:
     split_mode = str(args.split_mode)
     if world not in config["worlds"]:
         raise ValueError("world outside frozen safety contract")
-    if split_mode not in config["split_modes"]:
+    allowed_split_modes = config.get("split_modes")
+    if allowed_split_modes is None:
+        single_split_mode = config.get("split_mode")
+        if not isinstance(single_split_mode, str) or not single_split_mode:
+            raise ValueError("safety contract must declare split_modes or split_mode")
+        allowed_split_modes = [single_split_mode]
+    if split_mode not in allowed_split_modes:
         raise ValueError("split mode outside frozen safety contract")
 
     odo = config["odo_target"]
