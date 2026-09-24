@@ -1,0 +1,20 @@
+{
+  "purpose": "execute_sdmr_v3_prospective_known_truth_v3",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "scientific_contract_path": "configs/sdmr_v3_prospective_kt_v3.json",
+  "scientific_contract_blob_sha": "73bb1ac9e5b1357d4c278712176e65286bd3bb6b",
+  "execution_profile_path": "configs/sdmr_v3_prospective_kt_v3_execution.json",
+  "execution_profile_blob_sha": "48f0e9dbcb8762b7e9f1eca6d9279382fc1feb0b",
+  "development_prerequisite_run": 35997608669,
+  "development_prerequisite_conclusion": "success",
+  "development_prerequisite_artifact_id": 10806253612,
+  "development_prerequisite_artifact_digest": "sha256:4a7174bdb701225de22c5735a80923df0a37944ec071f90f421662fc105e4847",
+  "source_scientific_shard_run": 35992320576,
+  "source_scientific_shards_recomputed": false,
+  "approved_for_single_prospective_execution": true,
+  "prospective_outcomes_opened_before_activation": false,
+  "fresh_empirical_open": false,
+  "seeds_opened_by_this_activation": "33001-33020",
+  "note": "First opening of prospective seed denominator. Scientific thresholds and execution architecture were frozen before activation."
+}
