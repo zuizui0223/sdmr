@@ -2,5 +2,7 @@
   "purpose": "execute_sdmr_v3_stage_p_safety_audit_v3",
   "branch": "design/sdmr-v3-process-identification",
   "single_activation": true,
-  "config_path": "configs/sdmr_v3_stage_p_safety_audit_v3.json"
+  "config_path": "configs/sdmr_v3_stage_p_safety_audit_v3.json",
+  "retry": 1,
+  "retry_reason": "runner accepted only split_modes array; scientific config unchanged"
 }
