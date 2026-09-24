@@ -2,5 +2,10 @@
   "purpose": "execute_sdmr_v3_8x_safety_audit_v1",
   "branch": "design/sdmr-v3-process-identification",
   "single_activation": true,
-  "config_path": "configs/sdmr_v3_8x_safety_audit_v1.json"
+  "config_path": "configs/sdmr_v3_8x_safety_audit_v1.json",
+  "pre_execution_retry": {
+    "reason": "preflight wiring bug: duplicate hgb_profile insert; no safety shard executed",
+    "previous_run": 35986823740,
+    "fix_commit": "37563e813847821d959e33a15ee07aa141a9a040"
+  }
 }
