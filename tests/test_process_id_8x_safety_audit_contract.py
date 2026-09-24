@@ -30,3 +30,12 @@ def test_8x_safety_contract_freezes_candidate_regime_and_targets():
     assert payload["power_tail_target"]["workflow_run"] == 35981741906
     assert payload["prospective_status"] == "not_frozen"
     assert payload["fresh_empirical_open"] is False
+
+
+def test_8x_safety_contract_pins_world_level_odo_hashes():
+    payload = json.loads(CONTRACT.read_text(encoding="utf-8"))
+    hashes = payload["odo_target"]["world_state_sha256"]
+    assert set(hashes) == set(KNOWN_TRUTH_WORLDS)
+    assert hashes["unique_process"] == "a0e22591d236e96d367ded8c07f8731407364e1bdf0b8e8ee500d53e9c871a15"
+    assert hashes["interaction"] == "a065a0fe568e9b7e789995a7e5a0568cf4d94c1896649aa52498a96ad42807d3"
+    assert hashes["omitted_driver"] == "920ad11a7852ca900082dde7b91c038ae308c92af105b01ff9cf9bdb5c55616a"
