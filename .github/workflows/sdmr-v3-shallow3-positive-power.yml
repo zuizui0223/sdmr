@@ -1,0 +1,66 @@
+name: sdmr-v3-shallow3-positive-power
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_shallow3_positive_power_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-shallow3-positive-power-v1
+  cancel-in-progress: false
+
+jobs:
+  power:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        split_mode: [spatial, random_cell]
+        multiplier: [1, 2, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate shallow3 power machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_selected_power.py \
+            tests/test_process_id_selected_power_contract.py
+      - name: Verify explicit activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          marker=json.loads(
+              Path("configs/sdmr_v3_shallow3_positive_power_v1_execute.json").read_text()
+          )
+          assert marker["purpose"]=="execute_sdmr_v3_shallow3_positive_power_v1"
+          assert marker["branch"]=="design/sdmr-v3-process-identification"
+          assert marker["single_activation"] is True
+          assert marker["config_path"]=="configs/sdmr_v3_shallow3_positive_power_v1.json"
+          PY
+      - name: Run shallow3 power shard
+        run: |
+          python scripts/run_sdmr_v3_shallow3_positive_power.py \
+            --config configs/sdmr_v3_shallow3_positive_power_v1.json \
+            --outdir power-output \
+            --split-mode ${{ matrix.split_mode }} \
+            --multiplier ${{ matrix.multiplier }}
+      - name: Upload power evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: shallow3-power-${{ matrix.split_mode }}-${{ matrix.multiplier }}
+          path: power-output/
+          if-no-files-found: error
