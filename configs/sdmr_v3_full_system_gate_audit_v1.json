@@ -1,0 +1,61 @@
+{
+  "program": "sdmr-v3-full-system-information-gate-audit-v1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "split_modes": [
+    "spatial",
+    "random_cell"
+  ],
+  "sampling_replicates": [
+    0,
+    1,
+    2
+  ],
+  "multiplier": 8,
+  "hgb_profile": "shallow3",
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "sem_multiplier": 1,
+  "adequacy_floor": -0.75,
+  "null_information_boundary": 0,
+  "null_balanced_log_score": "-log(2)",
+  "odo_target": {
+    "workflow_run": 35495871747,
+    "artifact_id": 10601311224,
+    "artifact_digest": "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c",
+    "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+    "unavailable_world": "omitted_driver"
+  },
+  "safety_v1_target": {
+    "workflow_run": 35987109202,
+    "artifact_id": 10802923720,
+    "artifact_digest": "sha256:2fa5e2b3661ce395a4a2523a62ca30d38b51170f3a5390dfa727d7b893138418"
+  },
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Development-only full-model information audit. The only information boundary is zero gain over the equal-prior null; no post-hoc biological threshold is introduced."
+}
