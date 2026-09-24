@@ -1,0 +1,53 @@
+name: sdmr-v3-selected-nonlinear-recovery-sharded
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_selected_nonlinear_recovery_v1_sharded_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-selected-nonlinear-recovery-v1-sharded
+  cancel-in-progress: false
+
+jobs:
+  shard:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    strategy:
+      fail-fast: false
+      matrix:
+        learner: [linear, quadratic, hgb]
+        split_mode: [spatial, random_cell]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate frozen selected recovery contract
+        run: |
+          pytest -q \
+            tests/test_process_id_selected_recovery.py \
+            tests/test_process_id_selected_recovery_contract.py \
+            tests/test_process_id_hgb_profiles.py
+      - name: Run learner-split shard
+        run: |
+          python scripts/run_sdmr_v3_selected_nonlinear_recovery_shard.py \
+            --config configs/sdmr_v3_selected_nonlinear_recovery_v1.json \
+            --outdir shard-output \
+            --learner "${{ matrix.learner }}" \
+            --split-mode "${{ matrix.split_mode }}"
+      - name: Upload shard evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: selected-recovery-${{ matrix.learner }}-${{ matrix.split_mode }}
+          path: shard-output/
+          if-no-files-found: error
