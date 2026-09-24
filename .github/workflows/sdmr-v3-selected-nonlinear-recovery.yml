@@ -1,0 +1,59 @@
+name: sdmr-v3-selected-nonlinear-recovery
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_selected_nonlinear_recovery_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-selected-nonlinear-recovery-v1
+  cancel-in-progress: false
+
+jobs:
+  recovery:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate selected recovery machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_selected_recovery.py \
+            tests/test_process_id_selected_recovery_contract.py \
+            tests/test_process_id_hgb_profiles.py
+      - name: Verify explicit activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          marker = json.loads(
+              Path("configs/sdmr_v3_selected_nonlinear_recovery_v1_execute.json").read_text()
+          )
+          assert marker["purpose"] == "execute_sdmr_v3_selected_nonlinear_recovery_v1"
+          assert marker["branch"] == "design/sdmr-v3-process-identification"
+          assert marker["single_activation"] is True
+          assert marker["config_path"] == "configs/sdmr_v3_selected_nonlinear_recovery_v1.json"
+          PY
+      - name: Run burned selected recovery retest
+        run: |
+          python scripts/run_sdmr_v3_selected_nonlinear_recovery.py \
+            --config configs/sdmr_v3_selected_nonlinear_recovery_v1.json \
+            --outdir selected-recovery-output
+      - name: Upload selected recovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v3-selected-nonlinear-recovery-v1
+          path: selected-recovery-output/
+          if-no-files-found: error
