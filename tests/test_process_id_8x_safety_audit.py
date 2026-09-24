@@ -113,3 +113,30 @@ def test_sharded_sampling_world_index_reproduces_global_seed_geometry():
         full_geo[shard.states.columns],
         shard.states.reset_index(drop=True),
     )
+
+
+def test_8x_safety_stage_p_full_system_gate_preserves_w7_unavailable():
+    from sdmr.process_id.known_truth.safety_audit import run_8x_safety_audit
+
+    result = run_8x_safety_audit(
+        seeds=(23001,),
+        worlds=("omitted_driver",),
+        split_modes=("random_cell","spatial"),
+        sampling_replicates=(0,),
+        multiplier=2,
+        n_cells=800,
+        n_occurrences=80,
+        n_background=260,
+        n_splits=2,
+        hgb_profile="shallow3",
+        odo_approximation_tolerance=0.05,
+        expected_odo_state_hash=None,
+        require_stage_p_full_system_information=True,
+    )
+
+    random_rows = result.states.loc[result.states["split_mode"].eq("random_cell")]
+    spatial_rows = result.states.loc[result.states["split_mode"].eq("spatial")]
+    assert set(random_rows["finite_state"]) == {"unavailable"}
+    assert set(random_rows["reason"]) == {"full_system_not_informative"}
+    # Stage-T is transfer-only: the Stage-P information gate is not applied there.
+    assert not spatial_rows["reason"].eq("full_system_not_informative").any()
