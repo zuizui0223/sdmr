@@ -72,5 +72,11 @@
     "workflow_run": 35992320576,
     "terminal_review_receipt_required": true
   },
-  "note": "Execution details frozen before any prospective seed is opened. Activation remains blocked until Stage-P safety-v3 terminal review."
+  "note": "Execution details frozen before any prospective seed is opened. Activation remains blocked until Stage-P safety-v3 terminal review.",
+  "base_world_sample_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false,
+    "note": "Required only by world constructor; ODO uses the complete cell distribution and finite inference uses the separately frozen 1440/4800 resample."
+  }
 }
