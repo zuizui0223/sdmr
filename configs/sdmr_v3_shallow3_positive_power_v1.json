@@ -1,0 +1,74 @@
+{
+  "program": "sdmr-v3-shallow3-positive-power-v1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "split_modes": [
+    "spatial",
+    "random_cell"
+  ],
+  "sample_multipliers": [
+    1,
+    2,
+    4
+  ],
+  "sampling_replicates": [
+    0,
+    1,
+    2
+  ],
+  "hgb_profile": "shallow3",
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "margin": 0.01,
+  "adequacy_floor": -0.75,
+  "sem_multiplier": 1,
+  "logistic_C": 1,
+  "odo_target": {
+    "workflow_run": 35495871747,
+    "artifact_id": 10601311224,
+    "artifact_digest": "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c",
+    "split_mode": "random",
+    "approximation_tolerance": 0.01,
+    "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
+  },
+  "screen_target": {
+    "workflow_run": 35608090218,
+    "artifact_id": 10644928842,
+    "artifact_digest": "sha256:1a07609267cfba8ef443f3a956cf7015a2caf8db65a7af9e63b0a48c3157edaf",
+    "selected_profile": "shallow3",
+    "selection_used_process_recovery": false
+  },
+  "selected_recovery_target": {
+    "workflow_run": 35946188585,
+    "artifact_id": 10787697930,
+    "artifact_digest": "sha256:c37d027f1286e0d2a8c45a09ae58c57c03dd2ce65808f64358e53ce0267bda76",
+    "config_sha256": "999363f4096627aa3297352ce2b8de67f89e650448c75985a4b993a3e3e9738f"
+  },
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Development-only shallow3 positive-denominator sample-size curve. Six execution shards cover split_mode x multiplier; ODO v2 hash and screen-selected shallow3 profile are immutable."
+}
