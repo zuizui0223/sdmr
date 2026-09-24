@@ -1,0 +1,36 @@
+{
+  "odo_state_hash": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+  "hgb_profile": "shallow3",
+  "multiplier": 8,
+  "occurrences": 1440,
+  "background": 4800,
+  "replicates": 3,
+  "random_cell": {
+    "positive_recovery": 0.8541666666666666,
+    "unresolved_rate": 0.14583333333333334,
+    "replaceable_rate": 0.0,
+    "unavailable_rate": 0.0,
+    "mean_delta": 0.017356032470127986,
+    "mean_delta_sem": 0.0027220918665382733,
+    "mean_full_log_score": -0.6481630770134346,
+    "thermal_recovery": 0.8055555555555556,
+    "water_recovery": 1.0,
+    "unique_process_recovery": 0.9166666666666666,
+    "interaction_recovery": 0.8958333333333334,
+    "geographic_shift_recovery": 0.7083333333333334
+  },
+  "spatial": {
+    "positive_recovery": 0.7083333333333334,
+    "unresolved_rate": 0.2916666666666667,
+    "replaceable_rate": 0.0,
+    "unavailable_rate": 0.0,
+    "mean_delta": 0.021149074290534736,
+    "mean_delta_sem": 0.007396127125352606,
+    "mean_full_log_score": -0.6620917874232194,
+    "thermal_recovery": 0.625,
+    "water_recovery": 0.9583333333333334,
+    "unique_process_recovery": 0.5833333333333334,
+    "interaction_recovery": 0.9166666666666666,
+    "geographic_shift_recovery": 0.4166666666666667
+  }
+}
