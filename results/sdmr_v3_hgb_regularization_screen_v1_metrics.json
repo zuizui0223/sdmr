@@ -1,0 +1,20 @@
+{
+  "selected_profile": "shallow3",
+  "eligible_profiles": ["early7", "shallow3", "shallow7"],
+  "profile_scores": {
+    "current": -1.435103139144925,
+    "early7": -0.668747623050611,
+    "shallow3": -0.6660416747885907,
+    "shallow7": -0.7083130599731482
+  },
+  "guardrail_floor": -0.75,
+  "shallow3_world_split_scores": {
+    "random_cell_geographic_shift": -0.6495866675225557,
+    "random_cell_interaction": -0.6754888864130457,
+    "random_cell_unique_process": -0.6460736748636108,
+    "spatial_geographic_shift": -0.6712482695639306,
+    "spatial_interaction": -0.696971218840289,
+    "spatial_unique_process": -0.6568813315281116
+  },
+  "selection_used_process_recovery": false
+}
