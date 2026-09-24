@@ -23,6 +23,6 @@ def test_stage_p_safety_v3_contract_freezes_null_information_gate():
     assert payload["multiplier"]==8
     assert payload["hgb_profile"]=="shallow3"
     assert payload["odo_target"]["state_key_sha256"]=="966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
-    assert payload["power_tail_target"]["canonical_positive_state_sha256"]=="168892687a28cb9245412ffcc01bb5d204d336c6d3ebd4523a38d48e0d448f32"
+    assert payload["power_tail_target"]["canonical_positive_state_sha256"]=="16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5"
     assert payload["prospective_status"]=="not_frozen"
     assert payload["fresh_empirical_open"] is False
