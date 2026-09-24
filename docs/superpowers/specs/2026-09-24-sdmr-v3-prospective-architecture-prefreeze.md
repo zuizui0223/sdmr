@@ -173,3 +173,47 @@ Product-A v2.8.4 remains closed:
 No SDMR v3 development result rescues or reinterprets that endpoint.
 
 Fresh empirical data remain unopened.
+
+
+## 7. Full-system information adequacy correction
+
+Before any Stage-P process-specific state is assigned, the complete declared predictor system must itself contain held-out information above the equal-prior null model.
+
+For the same Stage-P `random_cell` folds used by the full model, define:
+
+```text
+gain_k = full_balanced_log_score_k - (-log 2)
+```
+
+and summarize:
+
+```text
+lower_gain = mean(gain_k) - 1 × SEM(gain_k)
+```
+
+The full system is information-adequate only if:
+
+```text
+mean full score >= -0.75
+AND
+lower_gain > 0
+```
+
+If this conjunction fails, every process-specific Stage-P state for that taxon/world is `unavailable` before process knockout interpretation.
+
+This gate uses the natural zero-information boundary and the already-frozen 1×SEM convention. It does not introduce a fitted biological threshold.
+
+The gate applies to **Stage P**. Stage T spatial evaluation remains a separate transfer endpoint and does not redefine process availability.
+
+Consequences:
+
+```text
+full system not informative
+→ unavailable
+
+full system informative
+→ proceed to process closure
+→ replaceable / contributory / required / unresolved
+```
+
+This correction is motivated by the W7 omitted-driver failure mode, where the previous -0.75 absolute floor allowed a no-information model near -log(2) to generate a false sharp negative (`replaceable`).
