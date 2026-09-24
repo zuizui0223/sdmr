@@ -38,7 +38,20 @@ def _clean(value):
     return value
 
 
-def _canonical_positive_hash(frame: pd.DataFrame) -> str:
+SEMANTIC_TAIL_COLUMNS = [
+    "world","seed","multiplier","replicate","process","odo_state","finite_state",
+    "reason","split_mode","hgb_profile","closure_predictors","complete",
+]
+NUMERIC_TAIL_COLUMNS = [
+    "full_log_score","knockout_log_score","delta_mean","delta_sem",
+]
+
+
+def _canonical_positive_hashes(
+    frame: pd.DataFrame,
+    *,
+    round_decimals: int = 14,
+) -> dict[str, str]:
     required = set(TAIL_COLUMNS)
     missing = sorted(required - set(frame.columns))
     if missing:
@@ -51,8 +64,26 @@ def _canonical_positive_hash(frame: pd.DataFrame) -> str:
         ["world","seed","process","replicate","split_mode"],
         kind="mergesort",
     ).reset_index(drop=True)
-    payload = positive.to_csv(index=False,float_format="%.17g").encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()
+
+    semantic_payload = positive.loc[:, SEMANTIC_TAIL_COLUMNS].to_csv(
+        index=False
+    ).encode("utf-8")
+    semantic_hash = hashlib.sha256(semantic_payload).hexdigest()
+
+    rounded = positive.copy()
+    for column in NUMERIC_TAIL_COLUMNS:
+        rounded[column] = pd.to_numeric(
+            rounded[column], errors="raise"
+        ).round(int(round_decimals))
+    rounded_payload = rounded.to_csv(
+        index=False,
+        float_format=f"%.{int(round_decimals)}f",
+    ).encode("utf-8")
+    rounded_hash = hashlib.sha256(rounded_payload).hexdigest()
+    return {
+        "semantic": semantic_hash,
+        "rounded_numeric": rounded_hash,
+    }
 
 
 def _group_metrics(states: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
@@ -156,14 +187,29 @@ def main() -> None:
     if set(states["hgb_profile"].astype(str))!={"shallow3"}:
         raise ValueError("Stage-P safety HGB profile drift")
 
-    observed_positive_hash=_canonical_positive_hash(states)
-    expected_positive_hash=str(
-        config["power_tail_target"]["canonical_positive_state_sha256"]
+    tail_config=config["power_tail_target"]
+    round_decimals=int(tail_config["numeric_hash_round_decimals"])
+    observed_positive_hashes=_canonical_positive_hashes(
+        states,
+        round_decimals=round_decimals,
     )
-    if observed_positive_hash!=expected_positive_hash:
+    expected_semantic_hash=str(
+        tail_config["canonical_positive_semantic_sha256"]
+    )
+    expected_rounded_hash=str(
+        tail_config["canonical_positive_rounded14_sha256"]
+    )
+    if observed_positive_hashes["semantic"]!=expected_semantic_hash:
         raise ValueError(
-            "Stage-P positive-tail hash mismatch: "
-            f"expected {expected_positive_hash}, observed {observed_positive_hash}"
+            "Stage-P positive-tail semantic hash mismatch: "
+            f"expected {expected_semantic_hash}, "
+            f"observed {observed_positive_hashes['semantic']}"
+        )
+    if observed_positive_hashes["rounded_numeric"]!=expected_rounded_hash:
+        raise ValueError(
+            "Stage-P positive-tail rounded numeric hash mismatch: "
+            f"expected {expected_rounded_hash}, "
+            f"observed {observed_positive_hashes['rounded_numeric']}"
         )
 
     metrics=summarize_safety(states)
@@ -224,7 +270,8 @@ def main() -> None:
         "status":"development_only",
         "n_state_rows":int(len(states)),
         "n_shards":int(len(state_files)),
-        "positive_tail_canonical_hash":observed_positive_hash,
+        "positive_tail_semantic_hash":observed_positive_hashes["semantic"],
+        "positive_tail_rounded_numeric_hash":observed_positive_hashes["rounded_numeric"],
         "metrics":metrics.to_dict(orient="records"),
         "full_system_gate_by_world":gate_by_world.to_dict(orient="records"),
     }
@@ -240,7 +287,8 @@ def main() -> None:
         "product_a_boundary":"closed_not_reopened",
         "config_path":str(config_path),
         "config_sha256":_sha256(config_path),
-        "positive_tail_canonical_hash":observed_positive_hash,
+        "positive_tail_semantic_hash":observed_positive_hashes["semantic"],
+        "positive_tail_rounded_numeric_hash":observed_positive_hashes["rounded_numeric"],
         "outputs":{name:_sha256(outdir/name) for name in output_names},
     }
     (outdir/"manifest.json").write_text(
