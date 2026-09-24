@@ -220,7 +220,12 @@ def run_selected_power_curve(
                             how="left",
                             validate="one_to_one",
                         ).rename(columns={"state": "finite_state"})
-                        merged.insert(0, "hgb_profile", str(hgb_profile))
+                        if "hgb_profile" not in merged.columns:
+                            merged.insert(0, "hgb_profile", str(hgb_profile))
+                        elif not merged["hgb_profile"].astype(str).eq(
+                            str(hgb_profile)
+                        ).all():
+                            raise ValueError("finite HGB profile drift")
                         merged.insert(0, "replicate", int(replicate))
                         merged.insert(0, "multiplier", int(multiplier))
                         merged.insert(0, "seed", int(ecological_seed))
