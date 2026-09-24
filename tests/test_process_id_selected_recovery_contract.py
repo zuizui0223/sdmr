@@ -25,9 +25,11 @@ def test_selected_recovery_contract_freezes_screen_and_odo_targets():
     assert payload["sem_multiplier"] == 1.0
     assert payload["odo_target"]["workflow_run"] == 35495871747
     assert payload["odo_target"]["artifact_id"] == 10601311224
+    assert payload["odo_target"]["artifact_digest"] == "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c"
     assert payload["odo_target"]["state_key_sha256"] == "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
     assert payload["screen_target"]["workflow_run"] == 35608090218
     assert payload["screen_target"]["artifact_id"] == 10644928842
+    assert payload["screen_target"]["artifact_digest"] == "sha256:1a07609267cfba8ef443f3a956cf7015a2caf8db65a7af9e63b0a48c3157edaf"
     assert payload["screen_target"]["selected_profile"] == "shallow3"
     assert payload["screen_target"]["selection_used_process_recovery"] is False
     assert payload["prospective_status"] == "not_frozen"
