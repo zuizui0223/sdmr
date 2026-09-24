@@ -206,6 +206,7 @@ def evaluate_occurrence_processes(
     learner: str = "linear",
     split_mode: str = "spatial",
     hgb_profile: str = "current",
+    require_full_system_information: bool = False,
 ) -> OccurrenceProcessEvaluation:
     """Fit matched full/knockout occurrence models and classify each process.
 
@@ -221,6 +222,9 @@ def evaluate_occurrence_processes(
     split_mode = str(split_mode)
     if split_mode not in {"spatial", "random_cell"}:
         raise ValueError("split_mode must be spatial or random_cell")
+    require_full_system_information = bool(require_full_system_information)
+    if require_full_system_information and split_mode != "random_cell":
+        raise ValueError("full-system information gate is Stage-P random_cell only")
     learner = str(learner)
     if learner not in {"linear", "quadratic", "hgb"}:
         raise ValueError("learner must be linear, quadratic, or hgb")
@@ -258,6 +262,7 @@ def evaluate_occurrence_processes(
     )
     full_predictors = tuple(world.predictor_universe)
     rows = []
+    full_scores = []
 
     for fold, (train_idx, test_idx) in enumerate(split_indices):
         train = sample.iloc[train_idx].reset_index(drop=True)
@@ -265,6 +270,7 @@ def evaluate_occurrence_processes(
         full_score = _fit_score(
             train, test, full_predictors, C=C, learner=learner, hgb_profile=hgb_profile
         )
+        full_scores.append(float(full_score))
         for process in world.process_universe:
             excluded = process_information_closure(world.process_registry, process)
             excluded_set = set(excluded)
@@ -288,6 +294,31 @@ def evaluate_occurrence_processes(
             })
 
     evidence = pd.DataFrame(rows)
+    full_scores_array = np.asarray(full_scores, dtype=float)
+    full_scores_complete = (
+        len(full_scores_array) == int(n_splits)
+        and np.isfinite(full_scores_array).all()
+    )
+    null_score = -math.log(2.0)
+    if full_scores_complete:
+        full_mean_global = float(np.mean(full_scores_array))
+        full_gain = full_scores_array - null_score
+        full_gain_mean = float(np.mean(full_gain))
+        full_gain_sem = float(_sem(full_gain))
+        full_gain_lower = float(
+            full_gain_mean - float(sem_multiplier) * full_gain_sem
+        )
+        full_system_information_adequate = bool(
+            full_mean_global >= float(adequacy_floor)
+            and full_gain_lower > 0.0
+        )
+    else:
+        full_mean_global = float("nan")
+        full_gain_mean = float("nan")
+        full_gain_sem = float("nan")
+        full_gain_lower = float("nan")
+        full_system_information_adequate = False
+
     state_rows = []
     for process in world.process_universe:
         group = evidence.loc[evidence["process"].eq(process)].copy()
@@ -320,7 +351,10 @@ def evaluate_occurrence_processes(
             sem_multiplier=float(sem_multiplier),
         )
         reason = "interval_process_challenge"
-        if process in set(world.observation_unresolved_processes):
+        if require_full_system_information and not full_system_information_adequate:
+            state = "unavailable"
+            reason = "full_system_not_informative"
+        elif process in set(world.observation_unresolved_processes):
             state = "unresolved"
             reason = "observation_process_not_separable"
         closure = process_information_closure(world.process_registry, process)
@@ -336,6 +370,10 @@ def evaluate_occurrence_processes(
             "knockout_log_score": knockout_mean,
             "delta_mean": delta_mean,
             "delta_sem": delta_sem,
+            "full_system_information_adequate": full_system_information_adequate,
+            "full_system_mean_gain_over_null": full_gain_mean,
+            "full_system_gain_sem": full_gain_sem,
+            "full_system_lower_gain_over_null": full_gain_lower,
         })
 
     states = apply_identical_closure_abstention(pd.DataFrame(state_rows))
