@@ -1,0 +1,30 @@
+{
+  "workflow_run": 35987109202,
+  "artifact_id": 10802923720,
+  "artifact_digest": "sha256:2fa5e2b3661ce395a4a2523a62ca30d38b51170f3a5390dfa727d7b893138418",
+  "n_state_rows": 2304,
+  "random_cell": {
+    "positive_recovery": 0.9166666666666666,
+    "false_positive_rate": 0.0,
+    "overresolution_rate": 0.0,
+    "unavailable_favorable_rate": 0.0,
+    "unavailable_sharp_rate": 1.0,
+    "structural_refusal_violation_rate": 0.0,
+    "structural_refusal_unresolved_rate": 1.0
+  },
+  "spatial": {
+    "positive_recovery": 0.7291666666666666,
+    "false_positive_rate": 0.0,
+    "overresolution_rate": 0.0,
+    "unavailable_favorable_rate": 0.0,
+    "unavailable_sharp_rate": 1.0,
+    "structural_refusal_violation_rate": 0.0,
+    "structural_refusal_unresolved_rate": 1.0
+  },
+  "full_gain_over_equal_prior_null": {
+    "random_cell_omitted_driver_mean": -0.003931530226604721,
+    "spatial_omitted_driver_mean": -0.006556698976379811,
+    "random_cell_omitted_driver_positive_gain_rate": 0.0,
+    "spatial_omitted_driver_positive_gain_rate": 0.041666666666666664
+  }
+}
