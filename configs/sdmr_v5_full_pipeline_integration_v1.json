@@ -1,0 +1,121 @@
+{
+  "program": "sdmr-v5-full-pipeline-integration-v1",
+  "status": "frozen_blocked_by_gate_validation",
+  "prerequisites": {
+    "validation": {
+      "workflow_run": 36070724122,
+      "required_terminal_decision": "passed"
+    },
+    "confirmation": {
+      "program": "sdmr-v5-permutation-gate-confirmation-v1",
+      "required_terminal_decision": "passed"
+    }
+  },
+  "seeds": [
+    61001,
+    61002,
+    61003,
+    61004,
+    61005,
+    61006,
+    61007,
+    61008,
+    61009,
+    61010,
+    61011,
+    61012,
+    61013,
+    61014,
+    61015,
+    61016,
+    61017,
+    61018,
+    61019,
+    61020
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "expected_odo_counts_total": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "stage_p": {
+    "multiplier": 8,
+    "n_occurrences": 1440,
+    "n_background": 4800,
+    "n_cells": 1600,
+    "n_splits": 3,
+    "learner": "hgb",
+    "hgb_profile": "shallow3",
+    "split_mode": "random_cell",
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "permutation_gate": {
+      "n_permutations": 999,
+      "alpha": 0.001,
+      "permutation_seed": 0
+    }
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "retroactive_stage_p_state_change": false
+  },
+  "gate_vector": {
+    "INT-B": {
+      "minimum_positive_recovery": 0.8
+    },
+    "INT-C": {
+      "maximum_false_positive_rate": 0.01
+    },
+    "INT-D": {
+      "maximum_overresolution_rate": 0,
+      "maximum_structural_refusal_violation_rate": 0
+    },
+    "INT-E": {
+      "maximum_unavailable_sharp_rate": 0,
+      "maximum_unavailable_favorable_rate": 0,
+      "maximum_w7_authorized_count": 0,
+      "minimum_non_w7_authorization_rate": 0.95
+    },
+    "INT-F": {
+      "maximum_stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.05,
+      "maximum_spatial_structural_refusal_violation_rate": 0
+    }
+  },
+  "prospective_reserved_seeds": [
+    53001,
+    53002,
+    53003,
+    53004,
+    53005,
+    53006,
+    53007,
+    53008,
+    53009,
+    53010,
+    53011,
+    53012,
+    53013,
+    53014,
+    53015,
+    53016,
+    53017,
+    53018,
+    53019,
+    53020
+  ],
+  "integration_open": false,
+  "prospective_open": false,
+  "fresh_empirical_open": false
+}
