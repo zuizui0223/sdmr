@@ -73,7 +73,11 @@
     "random_cell_artifact_id": 10801478002,
     "random_cell_artifact_digest": "sha256:bb9e8d8fb9b416424b460d6b2cace75feee85cddfedadf6c1f8ebdc5355c5985",
     "canonical_positive_state_sha256": "16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5",
-    "canonical_positive_numeric_sha256_12dp": "e5e7cd00781d49c0064723612ab98004c3a2a2999f5967f9e3fc5e8d15f3b6dc"
+    "canonical_positive_numeric_sha256_12dp": "e5e7cd00781d49c0064723612ab98004c3a2a2999f5967f9e3fc5e8d15f3b6dc",
+    "canonical_positive_semantic_sha256": "16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5",
+    "canonical_positive_rounded14_sha256": "da8bc77209c2e08bbc598d0591670b27739bd1c39b4f4bfed351ba3bee1c64c7",
+    "numeric_hash_round_decimals": 14,
+    "exact_float_hash_status": "not_portable_across_csv_roundtrip_at_1e-16"
   },
   "prospective_status": "not_frozen",
   "prospective_validation_seeds": [],
