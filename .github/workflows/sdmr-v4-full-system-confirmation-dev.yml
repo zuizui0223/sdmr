@@ -1,0 +1,52 @@
+name: sdmr-v4-full-system-confirmation-dev
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v4_full_system_gate_confirmation_v1.json'
+      - 'src/sdmr/process_id/known_truth/full_system_calibration.py'
+      - 'scripts/run_sdmr_v4_full_system_gate_confirmation_shard.py'
+      - 'scripts/aggregate_sdmr_v4_full_system_gate_confirmation.py'
+      - 'tests/test_process_id_full_system_calibration.py'
+      - 'tests/test_process_id_v4_full_system_confirmation_contract.py'
+      - '.github/workflows/sdmr-v4-full-system-confirmation-dev.yml'
+  pull_request:
+    paths:
+      - 'configs/sdmr_v4_full_system_gate_confirmation_v1.json'
+      - 'src/sdmr/process_id/known_truth/full_system_calibration.py'
+      - 'scripts/run_sdmr_v4_full_system_gate_confirmation_shard.py'
+      - 'scripts/aggregate_sdmr_v4_full_system_gate_confirmation.py'
+      - 'tests/test_process_id_full_system_calibration.py'
+      - 'tests/test_process_id_v4_full_system_confirmation_contract.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v4-full-system-confirmation-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Compile confirmation machinery
+        run: |
+          python -m py_compile \
+            scripts/run_sdmr_v4_full_system_gate_confirmation_shard.py \
+            scripts/aggregate_sdmr_v4_full_system_gate_confirmation.py \
+            src/sdmr/process_id/known_truth/full_system_calibration.py
+      - name: Run confirmation tests
+        run: |
+          pytest -q \
+            tests/test_process_id_full_system_calibration.py \
+            tests/test_process_id_v4_full_system_confirmation_contract.py
