@@ -1,0 +1,115 @@
+name: sdmr-v3-8x-safety-audit
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_8x_safety_audit_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-8x-safety-audit-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate safety machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_8x_safety_audit.py \
+            tests/test_process_id_8x_safety_audit_contract.py
+      - name: Verify explicit activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          marker=json.loads(
+              Path("configs/sdmr_v3_8x_safety_audit_v1_execute.json").read_text()
+          )
+          assert marker["purpose"]=="execute_sdmr_v3_8x_safety_audit_v1"
+          assert marker["branch"]=="design/sdmr-v3-process-identification"
+          assert marker["single_activation"] is True
+          assert marker["config_path"]=="configs/sdmr_v3_8x_safety_audit_v1.json"
+          PY
+
+  safety:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        split_mode: [spatial, random_cell]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run safety shard
+        run: |
+          python scripts/run_sdmr_v3_8x_safety_shard.py \
+            --config configs/sdmr_v3_8x_safety_audit_v1.json \
+            --outdir safety-output \
+            --world ${{ matrix.world }} \
+            --split-mode ${{ matrix.split_mode }}
+      - name: Upload safety shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-${{ matrix.world }}-${{ matrix.split_mode }}
+          path: safety-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download safety shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'safety-*'
+          path: safety-shards
+      - name: Aggregate safety evidence
+        run: |
+          python scripts/aggregate_sdmr_v3_8x_safety_audit.py \
+            --input-root safety-shards \
+            --outdir safety-aggregate \
+            --expected-shards 16
+      - name: Upload aggregate safety evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v3-8x-safety-audit-v1
+          path: safety-aggregate/
+          if-no-files-found: error
