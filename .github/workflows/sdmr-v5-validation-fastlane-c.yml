@@ -1,0 +1,56 @@
+name: sdmr-v5-validation-fastlane-c
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v5_validation_fastlane_c_once.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v5-validation-fastlane-c
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - world: omitted_driver
+            seed_block: 4
+          - world: geographic_shift
+            seed_block: 2
+          - world: geographic_shift
+            seed_block: 3
+          - world: geographic_shift
+            seed_block: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 89dd508e3367417fc077c2b71511e6567cf60813
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run frozen validation shard
+        run: |
+          python scripts/run_sdmr_v5_permutation_gate_validation_shard.py \
+            --config configs/sdmr_v5_permutation_gate_validation_v1.json \
+            --activation configs/sdmr_v5_permutation_gate_validation_v1_execute.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir validation-output
+      - name: Upload frozen validation shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-perm-val-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: validation-output/
+          if-no-files-found: error
