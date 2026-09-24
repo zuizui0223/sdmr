@@ -1,0 +1,48 @@
+{
+  "program": "sdmr-v3-prospective-known-truth-v3",
+  "workflow_run": 35998363272,
+  "workflow_head": "bbb4960e51c9e92bea5178997a5cb13ba67cd3cd",
+  "artifact_id": 10808210084,
+  "artifact_digest": "sha256:b1af8f272a9ae9981e0658f303819c59621cdaeea435149e79b4820f5c3cb066",
+  "prospective_seed_min": 33001,
+  "prospective_seed_max": 33020,
+  "passed": false,
+  "gates": {
+    "KT-A": true,
+    "KT-B": true,
+    "KT-C": true,
+    "KT-D": true,
+    "KT-E": false,
+    "KT-F": true
+  },
+  "counts": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "metrics": {
+    "positive_recovery": 0.875,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "unavailable_sharp_rate": 0.05,
+    "non_w7_full_system_information_adequacy": 0.9928571428571429,
+    "w7_full_system_information_adequacy": 0.05,
+    "stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.014285714285714285,
+    "spatial_structural_refusal_violation_rate": 0
+  },
+  "kt_e_failure": {
+    "seed": 33009,
+    "world": "omitted_driver",
+    "full_system_mean_gain_over_null": 0.001449,
+    "full_system_gain_sem": 0.000655,
+    "full_system_lower_gain_over_null": 0.000794,
+    "finite_sharp_processes": 6,
+    "finite_state": "replaceable"
+  },
+  "fresh_empirical_open": false,
+  "decision": "prospective_terminal_fail_kt_e"
+}
