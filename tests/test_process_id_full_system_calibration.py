@@ -188,3 +188,57 @@ def test_candidate_selector_fails_closed_on_missing_worlds():
             max_w7_false_authorization=0.01,
             min_informative_world_authorization=0.95,
         )
+
+
+import pandas as pd
+
+
+def test_confirmation_passes_only_with_zero_w7_and_48_of_50_controls():
+    from sdmr.process_id.known_truth.full_system_calibration import (
+        evaluate_confirmation_panel,
+    )
+
+    rows=[]
+    controls=[
+        "unique_process",
+        "redundant_representation",
+        "shared_carrier",
+        "null_correlated",
+        "interaction",
+        "geographic_shift",
+    ]
+    for world in controls:
+        rows.append({"world":world,"authorized_count":48,"denominator":50})
+    rows.append({"world":"observation_confounded","authorized_count":20,"denominator":50})
+    rows.append({"world":"omitted_driver","authorized_count":0,"denominator":50})
+
+    decision=evaluate_confirmation_panel(pd.DataFrame(rows))
+    assert decision.passed
+    assert decision.w7_authorized_count==0
+    assert decision.minimum_control_authorized_count==48
+
+
+def test_confirmation_fails_without_reselection():
+    from sdmr.process_id.known_truth.full_system_calibration import (
+        evaluate_confirmation_panel,
+    )
+
+    rows=[
+        {"world":"unique_process","authorized_count":50,"denominator":50},
+        {"world":"redundant_representation","authorized_count":50,"denominator":50},
+        {"world":"shared_carrier","authorized_count":50,"denominator":50},
+        {"world":"null_correlated","authorized_count":50,"denominator":50},
+        {"world":"interaction","authorized_count":50,"denominator":50},
+        {"world":"geographic_shift","authorized_count":47,"denominator":50},
+        {"world":"observation_confounded","authorized_count":50,"denominator":50},
+        {"world":"omitted_driver","authorized_count":0,"denominator":50},
+    ]
+    decision=evaluate_confirmation_panel(pd.DataFrame(rows))
+    assert not decision.passed
+    assert "geographic_shift" in decision.failed_controls
+
+    rows[-1]["authorized_count"]=1
+    rows[5]["authorized_count"]=48
+    decision2=evaluate_confirmation_panel(pd.DataFrame(rows))
+    assert not decision2.passed
+    assert decision2.w7_authorized_count==1
