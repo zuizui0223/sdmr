@@ -22,6 +22,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _git_blob_sha(path: Path) -> str:
+    data=path.read_bytes()
+    header=f"blob {len(data)}\0".encode("utf-8")
+    return hashlib.sha1(header+data).hexdigest()
+
+
 def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -43,8 +49,8 @@ def main() -> None:
 
     config=_load(config_path)
     activation=_load(activation_path)
-    if activation.get("config_sha256")!=_sha256(config_path):
-        raise ValueError("aggregate config hash mismatch")
+    if activation.get("config_blob_sha")!=_git_blob_sha(config_path):
+        raise ValueError("aggregate config blob SHA mismatch")
 
     manifests=sorted(root.glob("**/manifest.json"))
     if len(manifests)!=int(args.expected_shards):
@@ -56,7 +62,7 @@ def main() -> None:
         if item.get("status")!="development_calibration_evidence":
             raise ValueError("unexpected shard status")
         if item.get("config_sha256")!=_sha256(config_path):
-            raise ValueError("shard config hash drift")
+            raise ValueError("shard config content hash drift")
         if item.get("activation_sha256")!=_sha256(activation_path):
             raise ValueError("shard activation hash drift")
 
