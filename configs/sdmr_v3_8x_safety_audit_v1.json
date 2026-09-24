@@ -48,7 +48,17 @@
     "artifact_digest": "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c",
     "split_mode": "random",
     "approximation_tolerance": 0.01,
-    "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
+    "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+    "world_state_sha256": {
+      "unique_process": "a0e22591d236e96d367ded8c07f8731407364e1bdf0b8e8ee500d53e9c871a15",
+      "redundant_representation": "c1de0ee8336a52e679413d83e67e07a42bd7141f983d0b7bbe24bb753245575d",
+      "shared_carrier": "2ab8c9b5707697b7d0b4c7312a8b613cbdf661ff3189d8c1562d1779e61d2e93",
+      "null_correlated": "5f5c24388ddf35eb5d43fb5fc848040d207940c45bc56d2cc52ae2f9c1ef7c5e",
+      "interaction": "a065a0fe568e9b7e789995a7e5a0568cf4d94c1896649aa52498a96ad42807d3",
+      "observation_confounded": "2036c1f1a951556b8a39dd2fd385237a2b60193aff2ab9b66e0b064793a48adf",
+      "omitted_driver": "920ad11a7852ca900082dde7b91c038ae308c92af105b01ff9cf9bdb5c55616a",
+      "geographic_shift": "c4ad6ae59d901716407646ffeaf45188cb6f25b8f13e12fdbb20e278fe95dd45"
+    }
   },
   "screen_target": {
     "workflow_run": 35608090218,
