@@ -98,6 +98,9 @@ def main() -> None:
         logistic_C=float(config["logistic_C"]),
         expected_odo_state_hash=str(odo["world_state_sha256"][world]),
         sampling_world_indices={world: int(config["worlds"].index(world))},
+        require_stage_p_full_system_information=bool(
+            config.get("require_full_system_information", False)
+        ),
     )
 
     states_path = outdir / "states.csv"
