@@ -1,0 +1,50 @@
+{
+  "odo_state_hash": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+  "odo_positive_cells": 32,
+  "odo_replaceable_cells": 280,
+  "odo_unresolved_cells": 24,
+  "hgb_profile": "shallow3",
+  "learners": {
+    "hgb_spatial": {
+      "positive_recovery": 0.40625,
+      "positive_unresolved_rate": 0.53125,
+      "positive_unavailable_rate": 0.0,
+      "false_positive_rate": 0.017857142857142856,
+      "overresolution_rate": 0.0,
+      "mean_positive_delta": 0.018512959135284886,
+      "mean_positive_delta_sem": 0.010178020500319174,
+      "mean_positive_full_log_score": -0.680518009693155
+    },
+    "hgb_random_cell": {
+      "positive_recovery": 0.25,
+      "positive_unresolved_rate": 0.6875,
+      "positive_unavailable_rate": 0.0,
+      "false_positive_rate": 0.0035714285714285713,
+      "overresolution_rate": 0.0,
+      "mean_positive_delta": 0.01615862013964285,
+      "mean_positive_delta_sem": 0.011002718640546924,
+      "mean_positive_full_log_score": -0.6616595288030646
+    },
+    "linear_spatial": {
+      "positive_recovery": 0.0625,
+      "false_positive_rate": 0.0035714285714285713,
+      "overresolution_rate": 0.0
+    },
+    "linear_random_cell": {
+      "positive_recovery": 0.21875,
+      "false_positive_rate": 0.0,
+      "overresolution_rate": 0.0
+    },
+    "quadratic_spatial": {
+      "positive_recovery": 0.0,
+      "positive_unavailable_rate": 0.15625,
+      "false_positive_rate": 0.0,
+      "overresolution_rate": 0.0
+    },
+    "quadratic_random_cell": {
+      "positive_recovery": 0.09375,
+      "false_positive_rate": 0.0,
+      "overresolution_rate": 0.0
+    }
+  }
+}
