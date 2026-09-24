@@ -1,0 +1,28 @@
+{
+  "purpose": "accelerate_v5_validation_fastlane_a",
+  "original_head": "89dd508e3367417fc077c2b71511e6567cf60813",
+  "original_workflow_run": 36070724122,
+  "scientific_settings_changed": false,
+  "shards": [
+    {
+      "world": "shared_carrier",
+      "block": 1
+    },
+    {
+      "world": "null_correlated",
+      "block": 1
+    },
+    {
+      "world": "interaction",
+      "block": 1
+    },
+    {
+      "world": "interaction",
+      "block": 2
+    },
+    {
+      "world": "interaction",
+      "block": 4
+    }
+  ]
+}
