@@ -22,6 +22,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _git_blob_sha(path: Path) -> str:
+    data=path.read_bytes()
+    header=f"blob {len(data)}\0".encode("utf-8")
+    return hashlib.sha1(header+data).hexdigest()
+
+
 def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -43,8 +49,8 @@ def main() -> None:
     outdir=Path(args.outdir)
     outdir.mkdir(parents=True,exist_ok=True)
 
-    if activation.get("config_sha256")!=_sha256(config_path):
-        raise ValueError("confirmation aggregate config hash mismatch")
+    if activation.get("config_blob_sha")!=_git_blob_sha(config_path):
+        raise ValueError("confirmation aggregate config blob SHA mismatch")
 
     manifests=sorted(root.glob("**/manifest.json"))
     if len(manifests)!=int(args.expected_shards):
