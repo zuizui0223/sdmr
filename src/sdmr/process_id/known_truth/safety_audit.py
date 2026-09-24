@@ -151,6 +151,7 @@ def run_8x_safety_audit(
     logistic_C: float = 1.0,
     expected_odo_state_hash: str | None = None,
     sampling_world_indices: Mapping[str, int] | None = None,
+    require_stage_p_full_system_information: bool = False,
 ) -> SafetyAuditResult:
     """Run the full-state 8x safety audit on burned development worlds."""
 
@@ -174,6 +175,7 @@ def run_8x_safety_audit(
         raise ValueError("multiplier must be positive")
     if str(hgb_profile) != "shallow3":
         raise ValueError("8x safety audit requires frozen shallow3 profile")
+    require_stage_p_full_system_information = bool(require_stage_p_full_system_information)
 
     if sampling_world_indices is None:
         world_index_map = {
@@ -262,6 +264,10 @@ def run_8x_safety_audit(
                         learner="hgb",
                         split_mode=split_mode,
                         hgb_profile=str(hgb_profile),
+                        require_full_system_information=(
+                            require_stage_p_full_system_information
+                            and split_mode == "random_cell"
+                        ),
                     ).states
                     merged = odo_target.merge(
                         finite,
