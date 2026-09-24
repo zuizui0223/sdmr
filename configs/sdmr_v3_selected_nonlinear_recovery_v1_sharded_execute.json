@@ -1,0 +1,7 @@
+{
+  "purpose": "execute_sdmr_v3_selected_nonlinear_recovery_v1_sharded_duplicate",
+  "branch": "design/sdmr-v3-process-identification",
+  "scientific_contract": "configs/sdmr_v3_selected_nonlinear_recovery_v1.json",
+  "duplicate_execution_of_run": 35946188585,
+  "reason": "parallelize identical burned-development computation without changing scientific settings"
+}
