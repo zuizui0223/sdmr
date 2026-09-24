@@ -1,0 +1,24 @@
+{
+  "purpose": "accelerate_v5_validation_fastlane_b",
+  "original_head": "89dd508e3367417fc077c2b71511e6567cf60813",
+  "original_workflow_run": 36070724122,
+  "scientific_settings_changed": false,
+  "shards": [
+    {
+      "world": "observation_confounded",
+      "block": 2
+    },
+    {
+      "world": "observation_confounded",
+      "block": 3
+    },
+    {
+      "world": "observation_confounded",
+      "block": 4
+    },
+    {
+      "world": "omitted_driver",
+      "block": 2
+    }
+  ]
+}
