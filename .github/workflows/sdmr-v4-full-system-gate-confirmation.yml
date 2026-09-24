@@ -1,0 +1,119 @@
+name: sdmr-v4-full-system-gate-confirmation
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v4_full_system_gate_confirmation_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v4-full-system-gate-confirmation-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate confirmation machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_full_system_calibration.py \
+            tests/test_process_id_v4_full_system_confirmation_contract.py
+      - name: Verify activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("configs/sdmr_v4_full_system_gate_confirmation_v1_execute.json").read_text())
+          assert x["purpose"]=="execute_sdmr_v4_full_system_gate_confirmation_v1"
+          assert x["single_activation"] is True
+          assert x["config_blob_sha"]=="a086572262c9f7058301409f8326a5dfebd1159a"
+          assert x["calibration_terminal_passed"] is True
+          assert x["calibration_workflow_run"]==36014081688
+          assert x["calibration_artifact_id"]==10814773861
+          assert x["selected_multiplier"]==1.0
+          assert x["reserved_prospective_opened"] is False
+          PY
+
+  confirm:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        seed_block: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run confirmation shard
+        run: |
+          python scripts/run_sdmr_v4_full_system_gate_confirmation_shard.py \
+            --config configs/sdmr_v4_full_system_gate_confirmation_v1.json \
+            --activation configs/sdmr_v4_full_system_gate_confirmation_v1_execute.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir confirmation-output
+      - name: Upload confirmation shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-gate-confirm-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: confirmation-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: confirm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download confirmation shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'v4-gate-confirm-*'
+          path: confirmation-shards
+      - name: Aggregate confirmation panel
+        run: |
+          python scripts/aggregate_sdmr_v4_full_system_gate_confirmation.py \
+            --input-root confirmation-shards \
+            --config configs/sdmr_v4_full_system_gate_confirmation_v1.json \
+            --activation configs/sdmr_v4_full_system_gate_confirmation_v1_execute.json \
+            --outdir confirmation-aggregate \
+            --expected-shards 40
+      - name: Upload confirmation terminal evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v4-full-system-gate-confirmation-v1
+          path: confirmation-aggregate/
+          if-no-files-found: error
