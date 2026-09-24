@@ -256,7 +256,10 @@ def run_8x_safety_audit(
                             for process in merged["process"].astype(str)
                         ],
                     )
-                    merged.insert(0, "hgb_profile", str(hgb_profile))
+                    if "hgb_profile" not in merged.columns:
+                        raise ValueError("finite safety states missing hgb_profile")
+                    if set(merged["hgb_profile"].astype(str)) != {str(hgb_profile)}:
+                        raise ValueError("finite safety HGB profile drift")
                     merged.insert(0, "replicate", int(replicate))
                     merged.insert(0, "multiplier", multiplier)
                     merged.insert(0, "seed", int(ecological_seed))
