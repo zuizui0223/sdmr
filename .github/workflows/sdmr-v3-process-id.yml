@@ -6,6 +6,9 @@ on:
       - 'src/sdmr/process_id/**'
       - 'tests/test_process_id_*.py'
       - 'configs/sdmr_v3_process_id_phase1_contract.json'
+      - 'configs/sdmr_v3_stage_p_safety_audit_v3.json'
+      - 'scripts/aggregate_sdmr_v3_stage_p_safety_v3.py'
+      - '.github/workflows/sdmr-v3-stage-p-safety-v3.yml'
       - '.github/workflows/sdmr-v3-process-id.yml'
   push:
     branches:
