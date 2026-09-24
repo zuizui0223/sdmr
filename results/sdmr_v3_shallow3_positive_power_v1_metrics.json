@@ -1,0 +1,15 @@
+{
+  "odo_state_hash": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+  "hgb_profile": "shallow3",
+  "odo_positive_cells": 32,
+  "random_cell": {
+    "1": {"positive_recovery": 0.375, "unresolved_rate": 0.5, "replaceable_rate": 0.125, "unavailable_rate": 0.0, "mean_delta": 0.013992603552622709, "mean_delta_sem": 0.009766397081625232},
+    "2": {"positive_recovery": 0.5833333333333334, "unresolved_rate": 0.3645833333333333, "replaceable_rate": 0.052083333333333336, "unavailable_rate": 0.0, "mean_delta": 0.018341243584793332, "mean_delta_sem": 0.005716993798295285},
+    "4": {"positive_recovery": 0.71875, "unresolved_rate": 0.25, "replaceable_rate": 0.03125, "unavailable_rate": 0.0, "mean_delta": 0.017768355411052972, "mean_delta_sem": 0.003991606284206307}
+  },
+  "spatial": {
+    "1": {"positive_recovery": 0.3958333333333333, "unresolved_rate": 0.4166666666666667, "replaceable_rate": 0.16666666666666666, "unavailable_rate": 0.020833333333333332, "mean_delta": 0.017420294361269354, "mean_delta_sem": 0.01357748860448444},
+    "2": {"positive_recovery": 0.4375, "unresolved_rate": 0.46875, "replaceable_rate": 0.09375, "unavailable_rate": 0.0, "mean_delta": 0.017254892476929785, "mean_delta_sem": 0.010977164193214399},
+    "4": {"positive_recovery": 0.6145833333333334, "unresolved_rate": 0.34375, "replaceable_rate": 0.041666666666666664, "unavailable_rate": 0.0, "mean_delta": 0.020383377575601814, "mean_delta_sem": 0.00788883605960683}
+  }
+}
