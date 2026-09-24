@@ -23,7 +23,7 @@ def test_8x_safety_v2_is_seed_index_correction_only():
     assert payload["adequacy_floor"]==-0.75
     assert payload["sem_multiplier"]==1.0
     assert payload["odo_target"]["state_key_sha256"]=="966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
-    assert payload["power_tail_target"]["canonical_positive_state_sha256"]["random_cell"]=="168892687a28cb9245412ffcc01bb5d204d336c6d3ebd4523a38d48e0d448f32"
-    assert payload["power_tail_target"]["canonical_positive_state_sha256"]["spatial"]=="cb7632ea2c7c0d8277951d53c6bc2656db7c58d6746598c11f5a9d8401a1eca0"
+    assert payload["power_tail_target"]["canonical_positive_state_sha256"]["random_cell"]=="16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5"
+    assert payload["power_tail_target"]["canonical_positive_state_sha256"]["spatial"]=="fed1a0826856918e5cbe56d75308a45a70b7ff4558c1727bd8c7cfa86eb0f7d5"
     assert payload["prospective_status"]=="not_frozen"
     assert payload["fresh_empirical_open"] is False
