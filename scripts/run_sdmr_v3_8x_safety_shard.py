@@ -97,6 +97,7 @@ def main() -> None:
         finite_adequacy_floor=float(config["adequacy_floor"]),
         logistic_C=float(config["logistic_C"]),
         expected_odo_state_hash=str(odo["world_state_sha256"][world]),
+        sampling_world_indices={world: int(config["worlds"].index(world))},
     )
 
     states_path = outdir / "states.csv"
