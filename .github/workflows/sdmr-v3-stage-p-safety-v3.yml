@@ -1,0 +1,117 @@
+name: sdmr-v3-stage-p-safety-v3
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_stage_p_safety_audit_v3_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-stage-p-safety-v3
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate Stage-P safety machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_evidence.py \
+            tests/test_process_id_8x_safety_audit.py \
+            tests/test_process_id_full_system_gate.py \
+            tests/test_process_id_stage_p_safety_v3_contract.py
+      - name: Verify explicit activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          marker=json.loads(
+              Path("configs/sdmr_v3_stage_p_safety_audit_v3_execute.json").read_text()
+          )
+          assert marker["purpose"]=="execute_sdmr_v3_stage_p_safety_audit_v3"
+          assert marker["branch"]=="design/sdmr-v3-process-identification"
+          assert marker["single_activation"] is True
+          assert marker["config_path"]=="configs/sdmr_v3_stage_p_safety_audit_v3.json"
+          PY
+
+  stage-p-safety:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run Stage-P safety shard
+        run: |
+          python scripts/run_sdmr_v3_8x_safety_shard.py \
+            --config configs/sdmr_v3_stage_p_safety_audit_v3.json \
+            --outdir safety-output \
+            --world ${{ matrix.world }} \
+            --split-mode random_cell
+      - name: Upload Stage-P safety shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-p-safety-v3-${{ matrix.world }}
+          path: safety-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: stage-p-safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download Stage-P safety shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'stage-p-safety-v3-*'
+          path: safety-shards
+      - name: Aggregate Stage-P safety evidence
+        run: |
+          python scripts/aggregate_sdmr_v3_stage_p_safety_v3.py \
+            --input-root safety-shards \
+            --outdir safety-aggregate \
+            --config configs/sdmr_v3_stage_p_safety_audit_v3.json \
+            --expected-shards 8
+      - name: Upload Stage-P safety aggregate
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v3-stage-p-safety-v3
+          path: safety-aggregate/
+          if-no-files-found: error
