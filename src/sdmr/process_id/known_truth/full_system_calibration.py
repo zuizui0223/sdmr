@@ -52,6 +52,15 @@ class InformationMultiplierDecision:
     candidate_summary: pd.DataFrame
 
 
+@dataclass(frozen=True)
+class InformationConfirmationDecision:
+    passed: bool
+    w7_authorized_count: int
+    minimum_control_authorized_count: int
+    failed_controls: tuple[str, ...]
+    w6_report_only_authorized_count: int
+
+
 def _sem(values) -> float:
     x = np.asarray(values, dtype=float)
     x = x[np.isfinite(x)]
@@ -365,4 +374,73 @@ def select_information_multiplier(
         selected_multiplier=selected,
         eligible_multipliers=tuple(eligible),
         candidate_summary=pd.DataFrame(result_rows),
+    )
+
+
+
+def evaluate_confirmation_panel(
+    world_counts: pd.DataFrame,
+    *,
+    w7_max_authorized_count: int = 0,
+    informative_control_min_authorized_count: int = 48,
+    expected_denominator: int = 50,
+) -> InformationConfirmationDecision:
+    """Evaluate the frozen independent v4 information-gate confirmation panel."""
+
+    required={"world","authorized_count","denominator"}
+    missing=sorted(required-set(world_counts.columns))
+    if missing:
+        raise KeyError(f"world_counts missing columns: {missing}")
+    if world_counts.empty:
+        raise ValueError("world_counts must be non-empty")
+    if world_counts["world"].astype(str).duplicated().any():
+        raise ValueError("world_counts must contain one row per world")
+
+    observed=set(world_counts["world"].astype(str))
+    missing_worlds=sorted(set(REQUIRED_CALIBRATION_WORLDS)-observed)
+    if missing_worlds:
+        raise ValueError(
+            "required confirmation worlds missing: "
+            f"{missing_worlds}"
+        )
+
+    denominator=int(expected_denominator)
+    if denominator<=0:
+        raise ValueError("expected_denominator must be positive")
+    w7_limit=int(w7_max_authorized_count)
+    control_min=int(informative_control_min_authorized_count)
+    if w7_limit<0 or control_min<0 or control_min>denominator:
+        raise ValueError("invalid confirmation count thresholds")
+
+    counts={}
+    for _,row in world_counts.iterrows():
+        world=str(row["world"])
+        den=int(row["denominator"])
+        authorized=int(row["authorized_count"])
+        if den!=denominator:
+            raise ValueError(
+                f"confirmation denominator for {world} must equal {denominator}"
+            )
+        if authorized<0 or authorized>den:
+            raise ValueError(f"invalid authorized_count for {world}")
+        counts[world]=authorized
+
+    failed_controls=tuple(
+        world
+        for world in INFORMATIVE_CONTROL_WORLDS
+        if counts[world]<control_min
+    )
+    w7_count=counts[NULL_WORLD]
+    passed=bool(
+        w7_count<=w7_limit
+        and not failed_controls
+    )
+    return InformationConfirmationDecision(
+        passed=passed,
+        w7_authorized_count=w7_count,
+        minimum_control_authorized_count=min(
+            counts[world] for world in INFORMATIVE_CONTROL_WORLDS
+        ),
+        failed_controls=failed_controls,
+        w6_report_only_authorized_count=counts[REPORT_ONLY_WORLD],
     )
