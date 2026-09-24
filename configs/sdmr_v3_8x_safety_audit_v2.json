@@ -1,0 +1,93 @@
+{
+  "program": "sdmr-v3-8x-safety-audit-v2",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "correction_of": "sdmr-v3-8x-safety-audit-v1",
+  "invalidated_predecessor": {
+    "workflow_run": 35987109202,
+    "artifact_id": 10802923720,
+    "artifact_digest": "sha256:2fa5e2b3661ce395a4a2523a62ca30d38b51170f3a5390dfa727d7b893138418",
+    "reason": "world-sharded execution reset world_index to zero and changed development resampling seeds for W2-W8"
+  },
+  "sampling_seed_world_index_mode": "frozen_global_world_order",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "split_modes": [
+    "spatial",
+    "random_cell"
+  ],
+  "sampling_replicates": [
+    0,
+    1,
+    2
+  ],
+  "multiplier": 8,
+  "hgb_profile": "shallow3",
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "margin": 0.01,
+  "adequacy_floor": -0.75,
+  "sem_multiplier": 1,
+  "logistic_C": 1,
+  "odo_target": {
+    "workflow_run": 35495871747,
+    "artifact_id": 10601311224,
+    "artifact_digest": "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c",
+    "split_mode": "random",
+    "approximation_tolerance": 0.01,
+    "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d",
+    "world_state_sha256": {
+      "unique_process": "a0e22591d236e96d367ded8c07f8731407364e1bdf0b8e8ee500d53e9c871a15",
+      "redundant_representation": "c1de0ee8336a52e679413d83e67e07a42bd7141f983d0b7bbe24bb753245575d",
+      "shared_carrier": "2ab8c9b5707697b7d0b4c7312a8b613cbdf661ff3189d8c1562d1779e61d2e93",
+      "null_correlated": "5f5c24388ddf35eb5d43fb5fc848040d207940c45bc56d2cc52ae2f9c1ef7c5e",
+      "interaction": "a065a0fe568e9b7e789995a7e5a0568cf4d94c1896649aa52498a96ad42807d3",
+      "observation_confounded": "2036c1f1a951556b8a39dd2fd385237a2b60193aff2ab9b66e0b064793a48adf",
+      "omitted_driver": "920ad11a7852ca900082dde7b91c038ae308c92af105b01ff9cf9bdb5c55616a",
+      "geographic_shift": "c4ad6ae59d901716407646ffeaf45188cb6f25b8f13e12fdbb20e278fe95dd45"
+    }
+  },
+  "screen_target": {
+    "workflow_run": 35608090218,
+    "artifact_id": 10644928842,
+    "artifact_digest": "sha256:1a07609267cfba8ef443f3a956cf7015a2caf8db65a7af9e63b0a48c3157edaf",
+    "selected_profile": "shallow3",
+    "selection_used_process_recovery": false
+  },
+  "power_tail_target": {
+    "workflow_run": 35981741906,
+    "random_cell_artifact_id": 10801478002,
+    "random_cell_artifact_digest": "sha256:bb9e8d8fb9b416424b460d6b2cace75feee85cddfedadf6c1f8ebdc5355c5985",
+    "spatial_artifact_id": 10801581626,
+    "spatial_artifact_digest": "sha256:d5ffb683b8a3dc0eba12cc6a8515755cbdbc823f65f09bd28ec82744f283fbe7",
+    "canonical_positive_state_sha256": {
+      "random_cell": "168892687a28cb9245412ffcc01bb5d204d336c6d3ebd4523a38d48e0d448f32",
+      "spatial": "cb7632ea2c7c0d8277951d53c6bc2656db7c58d6746598c11f5a9d8401a1eca0"
+    }
+  },
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Development-only correction of safety v1. Scientific settings unchanged; only shard resampling indices are restored to the frozen global W1-W8 order. Aggregate must reproduce 8x positive-tail canonical states exactly."
+}
