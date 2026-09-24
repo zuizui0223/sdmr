@@ -26,6 +26,12 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _git_blob_sha(path: Path) -> str:
+    data=path.read_bytes()
+    header=f"blob {len(data)}\0".encode("utf-8")
+    return hashlib.sha1(header+data).hexdigest()
+
+
 def _load(path: Path) -> dict:
     payload=json.loads(path.read_text(encoding="utf-8"))
     if payload.get("program")!="sdmr-v4-full-system-gate-calibration-v1":
@@ -55,8 +61,8 @@ def main() -> None:
         raise ValueError("wrong v4 calibration activation")
     if activation.get("single_activation") is not True:
         raise ValueError("calibration activation must be single-use")
-    if activation.get("config_sha256")!=_sha256(config_path):
-        raise ValueError("calibration activation config hash mismatch")
+    if activation.get("config_blob_sha")!=_git_blob_sha(config_path):
+        raise ValueError("calibration activation config blob SHA mismatch")
     if activation.get("confirmation_opened_before_calibration") is not False:
         raise ValueError("confirmation panel opened before calibration")
     if activation.get("reserved_prospective_opened") is not False:
