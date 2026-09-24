@@ -32,7 +32,7 @@ def test_full_system_information_summary_is_conservative_under_fold_uncertainty(
     from sdmr.process_id.known_truth.full_system_gate import summarize_full_system_gain
 
     result = summarize_full_system_gain(
-        np.array([-0.650, -0.700, -0.670]),
+        np.array([-0.650, -0.720, -0.670]),
         sem_multiplier=1.0,
         adequacy_floor=-0.75,
     )
