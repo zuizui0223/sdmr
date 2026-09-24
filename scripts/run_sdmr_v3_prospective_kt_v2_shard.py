@@ -154,9 +154,10 @@ def main() -> None:
             n_splits=int(stage_p_cfg["n_splits"]),
             margin=float(stage_p_cfg["margin"]),
             sem_multiplier=float(stage_p_cfg["sem_multiplier"]),
-            baseline_r2_floor=0.80,
-            required_r2_ceiling=0.0,
-        ).copy()
+            adequacy_floor=float(stage_p_cfg["adequacy_floor"]),
+            approximation_tolerance=0.01,
+            split_mode="random",
+        ).states.copy()
         odo.insert(0, "seed", int(ecological_seed))
         odo.insert(0, "world", world_name)
         odo_frames.append(odo)
