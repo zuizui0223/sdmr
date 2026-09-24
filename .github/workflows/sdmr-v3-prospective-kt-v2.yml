@@ -1,0 +1,121 @@
+name: sdmr-v3-prospective-kt-v2
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_prospective_kt_v2_activate.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-prospective-kt-v2
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.ref == 'refs/heads/design/sdmr-v3-process-identification'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate prospective frozen contracts
+        run: |
+          pytest -q \
+            tests/test_process_id_prospective_kt_v2_contract.py \
+            tests/test_process_id_prospective_kt_v2_execution_contract.py \
+            tests/test_process_id_prospective_kt_gate.py
+      - name: Verify activation receipt exists and is single-use
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("configs/sdmr_v3_prospective_kt_v2_activate.json")
+          receipt=json.loads(p.read_text())
+          assert receipt["purpose"]=="execute_sdmr_v3_prospective_known_truth_v2"
+          assert receipt["branch"]=="design/sdmr-v3-process-identification"
+          assert receipt["single_activation"] is True
+          assert receipt["approved_for_single_prospective_execution"] is True
+          assert receipt["prospective_outcomes_opened_before_activation"] is False
+          PY
+
+  prospective:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        seed_block: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run prospective shard
+        run: |
+          python scripts/run_sdmr_v3_prospective_kt_v2_shard.py \
+            --contract configs/sdmr_v3_prospective_kt_v2.json \
+            --execution-profile configs/sdmr_v3_prospective_kt_v2_execution.json \
+            --activation configs/sdmr_v3_prospective_kt_v2_activate.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir prospective-output
+      - name: Upload prospective shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: prospective-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: prospective
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download prospective shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'prospective-*'
+          path: prospective-shards
+      - name: Aggregate prospective KT evidence
+        run: |
+          python scripts/aggregate_sdmr_v3_prospective_kt_v2.py \
+            --input-root prospective-shards \
+            --contract configs/sdmr_v3_prospective_kt_v2.json \
+            --execution-profile configs/sdmr_v3_prospective_kt_v2_execution.json \
+            --activation configs/sdmr_v3_prospective_kt_v2_activate.json \
+            --outdir prospective-aggregate \
+            --expected-shards 32
+      - name: Upload prospective terminal evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v3-prospective-kt-v2
+          path: prospective-aggregate/
+          if-no-files-found: error
