@@ -1,0 +1,53 @@
+name: sdmr-v3-prospective-kt-v2-dev
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v3_prospective_kt_v2.json'
+      - 'configs/sdmr_v3_prospective_kt_v2_execution.json'
+      - 'src/sdmr/process_id/known_truth/prospective_kt.py'
+      - 'scripts/run_sdmr_v3_prospective_kt_v2_shard.py'
+      - 'scripts/aggregate_sdmr_v3_prospective_kt_v2.py'
+      - 'tests/test_process_id_prospective_kt_*.py'
+      - '.github/workflows/sdmr-v3-prospective-kt-v2-dev.yml'
+  pull_request:
+    paths:
+      - 'configs/sdmr_v3_prospective_kt_v2.json'
+      - 'configs/sdmr_v3_prospective_kt_v2_execution.json'
+      - 'src/sdmr/process_id/known_truth/prospective_kt.py'
+      - 'scripts/run_sdmr_v3_prospective_kt_v2_shard.py'
+      - 'scripts/aggregate_sdmr_v3_prospective_kt_v2.py'
+      - 'tests/test_process_id_prospective_kt_*.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v3-prospective-kt-v2-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Compile blocked prospective machinery
+        run: |
+          python -m py_compile \
+            scripts/run_sdmr_v3_prospective_kt_v2_shard.py \
+            scripts/aggregate_sdmr_v3_prospective_kt_v2.py \
+            src/sdmr/process_id/known_truth/prospective_kt.py
+      - name: Run frozen prospective contract and gate tests
+        run: |
+          pytest -q \
+            tests/test_process_id_prospective_kt_v2_contract.py \
+            tests/test_process_id_prospective_kt_v2_execution_contract.py \
+            tests/test_process_id_prospective_kt_gate.py
