@@ -79,3 +79,37 @@ def test_8x_safety_audit_fails_closed_on_odo_hash_drift():
             odo_approximation_tolerance=0.05,
             expected_odo_state_hash="deadbeef",
         )
+
+
+def test_sharded_sampling_world_index_reproduces_global_seed_geometry():
+    from sdmr.process_id.known_truth.safety_audit import run_8x_safety_audit
+
+    common = dict(
+        seeds=(1301,),
+        split_modes=("random_cell",),
+        sampling_replicates=(0,),
+        multiplier=2,
+        n_cells=700,
+        n_occurrences=70,
+        n_background=220,
+        n_splits=2,
+        hgb_profile="shallow3",
+        odo_approximation_tolerance=0.05,
+        expected_odo_state_hash=None,
+    )
+    full = run_8x_safety_audit(
+        worlds=("unique_process","geographic_shift"),
+        **common,
+    )
+    shard = run_8x_safety_audit(
+        worlds=("geographic_shift",),
+        sampling_world_indices={"geographic_shift": 1},
+        **common,
+    )
+    full_geo = full.states.loc[
+        full.states["world"].eq("geographic_shift")
+    ].reset_index(drop=True)
+    pd.testing.assert_frame_equal(
+        full_geo[shard.states.columns],
+        shard.states.reset_index(drop=True),
+    )
