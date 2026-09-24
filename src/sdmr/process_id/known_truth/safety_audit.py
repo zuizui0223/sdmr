@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 import pandas as pd
 
@@ -150,6 +150,7 @@ def run_8x_safety_audit(
     finite_adequacy_floor: float = -0.75,
     logistic_C: float = 1.0,
     expected_odo_state_hash: str | None = None,
+    sampling_world_indices: Mapping[str, int] | None = None,
 ) -> SafetyAuditResult:
     """Run the full-state 8x safety audit on burned development worlds."""
 
@@ -173,6 +174,25 @@ def run_8x_safety_audit(
         raise ValueError("multiplier must be positive")
     if str(hgb_profile) != "shallow3":
         raise ValueError("8x safety audit requires frozen shallow3 profile")
+
+    if sampling_world_indices is None:
+        world_index_map = {
+            world_name: int(index)
+            for index, world_name in enumerate(world_tuple)
+        }
+    else:
+        world_index_map = {
+            str(world_name): int(index)
+            for world_name, index in sampling_world_indices.items()
+        }
+        if set(world_index_map) != set(world_tuple):
+            raise ValueError(
+                "sampling_world_indices must cover exactly the requested worlds"
+            )
+        if any(index < 0 for index in world_index_map.values()):
+            raise ValueError("sampling world indices must be non-negative")
+        if len(set(world_index_map.values())) != len(world_index_map):
+            raise ValueError("sampling world indices must be unique")
 
     worlds_by_key = {}
     odo_frames: list[pd.DataFrame] = []
@@ -211,7 +231,8 @@ def run_8x_safety_audit(
         )
 
     state_frames: list[pd.DataFrame] = []
-    for world_index, world_name in enumerate(world_tuple):
+    for world_name in world_tuple:
+        world_index = world_index_map[world_name]
         for ecological_seed in seed_tuple:
             world = worlds_by_key[(world_name, ecological_seed)]
             odo_target = odo_states.loc[
