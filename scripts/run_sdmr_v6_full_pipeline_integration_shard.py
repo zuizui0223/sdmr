@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one blocked SDMR v5 full-pipeline integration shard."""
+"""Run one blocked SDMR v6 full-pipeline integration shard."""
 from __future__ import annotations
 
 import argparse
@@ -57,7 +57,7 @@ def _validate_activation(
         raise ValueError("wrong integration scientific contract")
     if execution.get("program")!="sdmr-v6-full-pipeline-integration-v1-execution":
         raise ValueError("wrong integration execution profile")
-    if activation.get("purpose")!="execute_sdmr_v5_full_pipeline_integration_v1":
+    if activation.get("purpose")!="execute_sdmr_v6_full_pipeline_integration_v1":
         raise ValueError("wrong integration activation")
     if activation.get("single_activation") is not True:
         raise ValueError("integration activation must be single-use")
