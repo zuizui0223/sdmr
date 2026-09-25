@@ -1,0 +1,121 @@
+name: sdmr-v6-full-pipeline-integration
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v6_full_pipeline_integration_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v6-full-pipeline-integration-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate integration machinery
+        run: |
+          pytest -q \
+            tests/test_process_id_v5_integration.py
+          python -m py_compile \
+            scripts/run_sdmr_v6_full_pipeline_integration_shard.py \
+            scripts/aggregate_sdmr_v6_full_pipeline_integration.py
+      - name: Verify integration activation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("configs/sdmr_v6_full_pipeline_integration_v1_execute.json").read_text())
+          assert x["purpose"]=="execute_sdmr_v5_full_pipeline_integration_v1"
+          assert x["single_activation"] is True
+          assert x["validation_prerequisite"]["terminal_passed"] is True
+          assert x["confirmation_prerequisite"]["terminal_passed"] is True
+          assert x["prospective_opened_before_integration"] is False
+          assert x["fresh_empirical_opened"] is False
+          PY
+
+  integrate:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        seed_block: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run integration shard
+        run: |
+          python scripts/run_sdmr_v6_full_pipeline_integration_shard.py \
+            --scientific-contract configs/sdmr_v6_full_pipeline_integration_v1.json \
+            --execution-profile configs/sdmr_v6_full_pipeline_integration_v1_execution.json \
+            --activation configs/sdmr_v6_full_pipeline_integration_v1_execute.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir integration-output
+      - name: Upload integration shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-integration-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: integration-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: integrate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download integration shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'v5-integration-*'
+          path: integration-shards
+      - name: Aggregate integration evidence
+        run: |
+          python scripts/aggregate_sdmr_v6_full_pipeline_integration.py \
+            --input-root integration-shards \
+            --scientific-contract configs/sdmr_v6_full_pipeline_integration_v1.json \
+            --execution-profile configs/sdmr_v6_full_pipeline_integration_v1_execution.json \
+            --activation configs/sdmr_v6_full_pipeline_integration_v1_execute.json \
+            --outdir integration-aggregate \
+            --expected-shards 32
+      - name: Upload integration terminal evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v6-full-pipeline-integration-v1
+          path: integration-aggregate/
+          if-no-files-found: error
