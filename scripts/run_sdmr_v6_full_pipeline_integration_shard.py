@@ -188,7 +188,7 @@ def main() -> None:
             sampling_seed=sampling_seed,
         )
 
-        permutation=stage_p_cfg["permutation_gate"]
+        permutation=stage_p_cfg["authorization_gate"]
         gate_result=evaluate_full_system_permutation_gate(
             sampled,
             n_splits=int(stage_p_cfg["n_splits"]),
