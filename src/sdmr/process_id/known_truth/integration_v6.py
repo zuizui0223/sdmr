@@ -6,7 +6,10 @@ remains the null-control world. Older v5/v6-v1 evaluators remain untouched.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 import pandas as pd
+
+from .integration_v5 import IntegrationDecision, evaluate_integration_gate
 
 
 _SHARP={"replaceable","contributory","required"}
@@ -146,3 +149,81 @@ def evaluate_scoped_int_e(
         "unavailable_favorable_rate":unavailable_favorable_rate,
         "passed":passed,
     }
+
+
+
+def evaluate_scoped_integration_gate(
+    stage_p_states: pd.DataFrame,
+    stage_t_states: pd.DataFrame,
+    *,
+    expected_counts: dict[str,int],
+    gate_vector: dict,
+    expected_seed_count: int,
+    expected_worlds: tuple[str,...],
+    informative_controls: tuple[str,...],
+    report_only_world: str,
+    null_world: str,
+    provenance_complete: bool,
+) -> IntegrationDecision:
+    """Evaluate INT-A–INT-F while using explicit authorization world roles."""
+
+    # Reuse the frozen v5/v6-v1 implementation for A/B/C/D/F and all
+    # denominator/provenance validation. Neutralize only the old pooled
+    # non-W7 retention threshold, which is replaced below.
+    base_gate=deepcopy(gate_vector)
+    base_gate["INT-E"]["minimum_non_w7_authorization_rate"]=0.0
+    base=evaluate_integration_gate(
+        stage_p_states,
+        stage_t_states,
+        expected_counts=expected_counts,
+        gate_vector=base_gate,
+        expected_seed_count=int(expected_seed_count),
+        expected_worlds=tuple(expected_worlds),
+        provenance_complete=bool(provenance_complete),
+    )
+
+    int_e_cfg=gate_vector["INT-E"]
+    scoped=evaluate_scoped_int_e(
+        stage_p_states,
+        informative_controls=tuple(informative_controls),
+        report_only_world=str(report_only_world),
+        null_world=str(null_world),
+        minimum_each_control_rate=float(
+            int_e_cfg["minimum_each_informative_control_authorization_rate"]
+        ),
+        maximum_null_authorized_count=int(
+            int_e_cfg["maximum_w7_authorized_count"]
+        ),
+        maximum_unavailable_sharp_rate=float(
+            int_e_cfg["maximum_unavailable_sharp_rate"]
+        ),
+        maximum_unavailable_favorable_rate=float(
+            int_e_cfg["maximum_unavailable_favorable_rate"]
+        ),
+    )
+
+    gates=dict(base.gates)
+    gates["INT-E"]=bool(scoped["passed"])
+    metrics=dict(base.metrics)
+    metrics.update({
+        "minimum_informative_control_authorization_rate":
+            float(scoped["minimum_informative_control_rate"]),
+        "w6_report_only_authorization_rate":
+            float(scoped["report_only_rate"]),
+        "w7_full_system_information_adequacy":
+            float(scoped["null_rate"]),
+        "w7_authorized_count":
+            float(scoped["null_authorized_count"]),
+        "unavailable_sharp_rate":
+            float(scoped["unavailable_sharp_rate"]),
+        "unavailable_favorable_rate":
+            float(scoped["unavailable_favorable_rate"]),
+    })
+    reasons=tuple(name for name,passed in gates.items() if not passed)
+    return IntegrationDecision(
+        passed=bool(all(gates.values())),
+        gates=gates,
+        metrics=metrics,
+        counts=base.counts,
+        reasons=reasons,
+    )
