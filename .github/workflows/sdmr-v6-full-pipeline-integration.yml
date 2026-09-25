@@ -29,7 +29,9 @@ jobs:
       - name: Validate integration machinery
         run: |
           pytest -q \
-            tests/test_process_id_v5_integration.py
+            tests/test_process_id_v5_integration.py \
+            tests/test_process_id_v6_integration_execution_contract.py \
+            tests/test_process_id_v6_prefreeze_contracts.py
           python -m py_compile \
             scripts/run_sdmr_v6_full_pipeline_integration_shard.py \
             scripts/aggregate_sdmr_v6_full_pipeline_integration.py
