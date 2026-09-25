@@ -1,8 +1,8 @@
 {
-  "purpose": "yield_redundant_sdmr_v3_full_suite_runner_to_v5_validation",
+  "purpose": "yield_redundant_sdmr_v3_full_suite_runner_to_v6_validation",
   "scientific_state_changed": false,
   "seed_state_changed": false,
   "threshold_state_changed": false,
-  "retry": 1,
-  "reason": "yield redundant full-suite runner to independent v5 confirmation"
+  "retry": 2,
+  "reason": "yield redundant full-suite runner to focused v6 validation"
 }
