@@ -176,15 +176,23 @@ def classify_full_system_permutation_gate(
     *,
     adequacy_floor: float = -0.75,
     alpha: float = 0.001,
+    minimum_gain_over_null: float = 0.0,
 ) -> dict[str, object]:
-    """Apply the frozen v5 authorization conjunction."""
+    """Apply the frozen permutation authorization conjunction.
+
+    minimum_gain_over_null defaults to zero so SDMR v5 remains reproducible.
+    SDMR v6 sets it to the existing process-information margin (0.01).
+    """
 
     adequacy_floor = float(adequacy_floor)
     alpha = float(alpha)
+    minimum_gain_over_null = float(minimum_gain_over_null)
     if not math.isfinite(adequacy_floor):
         raise ValueError("adequacy_floor must be finite")
     if not math.isfinite(alpha) or not 0.0 < alpha <= 1.0:
         raise ValueError("alpha must be in (0, 1]")
+    if not math.isfinite(minimum_gain_over_null) or minimum_gain_over_null < 0.0:
+        raise ValueError("minimum_gain_over_null must be finite and non-negative")
 
     required = {"observed_mean_score", "mean_gain_over_null", "p_value"}
     missing = sorted(required - set(statistic))
@@ -201,9 +209,13 @@ def classify_full_system_permutation_gate(
 
     absolute_adequate = bool(score >= adequacy_floor)
     positive_gain = bool(gain > 0.0)
+    minimum_gain_met = bool(gain >= minimum_gain_over_null)
     permutation_significant = bool(p_value <= alpha)
     authorized = bool(
-        absolute_adequate and positive_gain and permutation_significant
+        absolute_adequate
+        and positive_gain
+        and minimum_gain_met
+        and permutation_significant
     )
 
     return {
@@ -215,9 +227,11 @@ def classify_full_system_permutation_gate(
         ),
         "absolute_adequate": absolute_adequate,
         "positive_gain": positive_gain,
+        "minimum_gain_met": minimum_gain_met,
         "permutation_significant": permutation_significant,
         "adequacy_floor": adequacy_floor,
         "alpha": alpha,
+        "minimum_gain_over_null": minimum_gain_over_null,
         "observed_mean_score": score,
         "mean_gain_over_null": gain,
         "p_value": p_value,
@@ -236,6 +250,7 @@ def evaluate_full_system_permutation_gate(
     n_permutations: int = 999,
     alpha: float = 0.001,
     permutation_seed: int = 0,
+    minimum_gain_over_null: float = 0.0,
 ) -> FullSystemPermutationEvaluation:
     """Fit the full system once per fold, then test held-out labels by permutation."""
 
@@ -294,6 +309,7 @@ def evaluate_full_system_permutation_gate(
         statistic,
         adequacy_floor=float(adequacy_floor),
         alpha=float(alpha),
+        minimum_gain_over_null=float(minimum_gain_over_null),
     )
 
     summary = {
