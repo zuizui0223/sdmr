@@ -1,0 +1,147 @@
+{
+  "program": "sdmr-v6-full-pipeline-integration-v2",
+  "status": "frozen_pending_execution",
+  "prerequisites": {
+    "validation": {
+      "program": "sdmr-v6-magnitude-permutation-validation-v1",
+      "workflow_run": 36088891887,
+      "artifact_id": 10844948845,
+      "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e",
+      "terminal_passed": true
+    },
+    "confirmation": {
+      "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+      "workflow_run": 36121116341,
+      "artifact_id": 10858132902,
+      "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956",
+      "terminal_passed": true
+    }
+  },
+  "seeds": [
+    75001,
+    75002,
+    75003,
+    75004,
+    75005,
+    75006,
+    75007,
+    75008,
+    75009,
+    75010,
+    75011,
+    75012,
+    75013,
+    75014,
+    75015,
+    75016,
+    75017,
+    75018,
+    75019,
+    75020
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "expected_odo_counts_total": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "stage_p": {
+    "multiplier": 8,
+    "n_occurrences": 1440,
+    "n_background": 4800,
+    "n_cells": 1600,
+    "n_splits": 3,
+    "learner": "hgb",
+    "hgb_profile": "shallow3",
+    "split_mode": "random_cell",
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "authorization_gate": {
+      "n_permutations": 999,
+      "alpha": 0.001,
+      "permutation_seed": 0,
+      "minimum_gain_over_null": 0.01
+    }
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "retroactive_stage_p_state_change": false
+  },
+  "gate_vector": {
+    "INT-B": {
+      "minimum_positive_recovery": 0.8
+    },
+    "INT-C": {
+      "maximum_false_positive_rate": 0.01
+    },
+    "INT-D": {
+      "maximum_overresolution_rate": 0,
+      "maximum_structural_refusal_violation_rate": 0
+    },
+    "INT-E": {
+      "maximum_unavailable_sharp_rate": 0,
+      "maximum_unavailable_favorable_rate": 0,
+      "maximum_w7_authorized_count": 0,
+      "minimum_each_informative_control_authorization_rate": 0.95
+    },
+    "INT-F": {
+      "maximum_stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.05,
+      "maximum_spatial_structural_refusal_violation_rate": 0
+    }
+  },
+  "prospective_reserved_seeds": [
+    74001,
+    74002,
+    74003,
+    74004,
+    74005,
+    74006,
+    74007,
+    74008,
+    74009,
+    74010,
+    74011,
+    74012,
+    74013,
+    74014,
+    74015,
+    74016,
+    74017,
+    74018,
+    74019,
+    74020
+  ],
+  "integration_open": false,
+  "prospective_open": false,
+  "fresh_empirical_open": false,
+  "predecessor": {
+    "program": "sdmr-v6-full-pipeline-integration-v1",
+    "disposition": "terminal_fail_INT_E_scope_mismatch",
+    "workflow_run": 36122603465,
+    "artifact_id": 10857564844,
+    "artifact_digest": "sha256:bb07b4a5d4e65ca48f180dc54fc2ee564c8c952bdfd46f84b0fb2fd9ccf1dd9d",
+    "scientific_gate_behavior": "W1/W2/W3/W4/W5/W8 all 20/20; W7 0/20; W6 report-only 1/20"
+  },
+  "informative_controls": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "geographic_shift"
+  ],
+  "report_only_world": "observation_confounded",
+  "null_world": "omitted_driver",
+  "note": "Fresh integration v2 corrects only the INT-E authorization scope. W6 remains report-only exactly as in validation/confirmation; all scientific model/process settings are unchanged."
+}
