@@ -1,0 +1,123 @@
+name: sdmr-v5-prospective-known-truth
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v5_prospective_kt_v1_execute.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v5-prospective-known-truth-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate prospective machinery
+        run: |
+          python -m py_compile \
+            scripts/run_sdmr_v5_prospective_kt_shard.py \
+            scripts/aggregate_sdmr_v5_prospective_kt.py
+          pytest -q \
+            tests/test_process_id_prospective_kt_gate.py \
+            tests/test_process_id_v5_integration.py
+      - name: Verify prospective activation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("configs/sdmr_v5_prospective_kt_v1_execute.json").read_text())
+          assert x["purpose"]=="execute_sdmr_v5_prospective_known_truth_v1"
+          assert x["single_activation"] is True
+          assert x["validation_prerequisite"]["terminal_passed"] is True
+          assert x["confirmation_prerequisite"]["terminal_passed"] is True
+          assert x["integration_prerequisite"]["terminal_passed"] is True
+          assert x["prospective_outcomes_opened_before_activation"] is False
+          assert x["fresh_empirical_opened"] is False
+          PY
+
+  prospective:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        seed_block: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run prospective shard
+        run: |
+          python scripts/run_sdmr_v5_prospective_kt_shard.py \
+            --scientific-contract configs/sdmr_v5_prospective_kt_v1.json \
+            --execution-profile configs/sdmr_v5_prospective_kt_v1_execution.json \
+            --activation configs/sdmr_v5_prospective_kt_v1_execute.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir prospective-output
+      - name: Upload prospective shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-prospective-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: prospective-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: prospective
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download prospective shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'v5-prospective-*'
+          path: prospective-shards
+      - name: Aggregate prospective KT evidence
+        run: |
+          python scripts/aggregate_sdmr_v5_prospective_kt.py \
+            --input-root prospective-shards \
+            --scientific-contract configs/sdmr_v5_prospective_kt_v1.json \
+            --execution-profile configs/sdmr_v5_prospective_kt_v1_execution.json \
+            --activation configs/sdmr_v5_prospective_kt_v1_execute.json \
+            --outdir prospective-aggregate \
+            --expected-shards 32
+      - name: Upload prospective terminal evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v5-prospective-known-truth-v1
+          path: prospective-aggregate/
+          if-no-files-found: error
