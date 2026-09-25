@@ -1,0 +1,116 @@
+name: sdmr-v6-magnitude-permutation-validation
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v6_magnitude_permutation_validation_v1_execute.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v6-magnitude-permutation-validation-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Validate frozen v6 contract
+        run: |
+          pytest -q \
+            tests/test_process_id_permutation_gate.py \
+            tests/test_process_id_v6_magnitude_permutation_contract.py
+      - name: Verify activation marker
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("configs/sdmr_v6_magnitude_permutation_validation_v1_execute.json").read_text())
+          assert x["purpose"]=="execute_sdmr_v6_magnitude_permutation_validation_v1"
+          assert x["single_activation"] is True
+          assert x["config_blob_sha"]=="6b7f38cd64f95299ba1900892f651c36fffb2df5"
+          assert x["confirmation_opened_before_validation"] is False
+          assert x["integration_opened_before_validation"] is False
+          assert x["reserved_prospective_opened"] is False
+          PY
+
+  validate:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        world:
+          - unique_process
+          - redundant_representation
+          - shared_carrier
+          - null_correlated
+          - interaction
+          - observation_confounded
+          - omitted_driver
+          - geographic_shift
+        seed_block: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Run v6 validation shard
+        run: |
+          python scripts/run_sdmr_v6_magnitude_permutation_validation_shard.py \
+            --config configs/sdmr_v6_magnitude_permutation_validation_v1.json \
+            --activation configs/sdmr_v6_magnitude_permutation_validation_v1_execute.json \
+            --world ${{ matrix.world }} \
+            --seed-block ${{ matrix.seed_block }} \
+            --outdir validation-output
+      - name: Upload validation shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: v6-mag-perm-val-${{ matrix.world }}-block${{ matrix.seed_block }}
+          path: validation-output/
+          if-no-files-found: error
+
+  aggregate:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Download validation shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'v6-mag-perm-val-*'
+          path: validation-shards
+      - name: Aggregate validation evidence
+        run: |
+          python scripts/aggregate_sdmr_v6_magnitude_permutation_validation.py \
+            --input-root validation-shards \
+            --config configs/sdmr_v6_magnitude_permutation_validation_v1.json \
+            --activation configs/sdmr_v6_magnitude_permutation_validation_v1_execute.json \
+            --outdir validation-aggregate \
+            --expected-shards 40
+      - name: Upload terminal validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v6-magnitude-permutation-validation-v1
+          path: validation-aggregate/
+          if-no-files-found: error
