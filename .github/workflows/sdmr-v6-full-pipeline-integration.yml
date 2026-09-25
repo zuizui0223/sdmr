@@ -39,7 +39,7 @@ jobs:
           import json
           from pathlib import Path
           x=json.loads(Path("configs/sdmr_v6_full_pipeline_integration_v1_execute.json").read_text())
-          assert x["purpose"]=="execute_sdmr_v5_full_pipeline_integration_v1"
+          assert x["purpose"]=="execute_sdmr_v6_full_pipeline_integration_v1"
           assert x["single_activation"] is True
           assert x["validation_prerequisite"]["terminal_passed"] is True
           assert x["confirmation_prerequisite"]["terminal_passed"] is True
@@ -84,7 +84,7 @@ jobs:
       - name: Upload integration shard
         uses: actions/upload-artifact@v4
         with:
-          name: v5-integration-${{ matrix.world }}-block${{ matrix.seed_block }}
+          name: v6-integration-${{ matrix.world }}-block${{ matrix.seed_block }}
           path: integration-output/
           if-no-files-found: error
 
@@ -102,7 +102,7 @@ jobs:
       - name: Download integration shards
         uses: actions/download-artifact@v4
         with:
-          pattern: 'v5-integration-*'
+          pattern: 'v6-integration-*'
           path: integration-shards
       - name: Aggregate integration evidence
         run: |
