@@ -1,0 +1,25 @@
+{
+  "purpose": "execute_sdmr_v5_full_pipeline_integration_v1",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "scientific_contract_path": "configs/sdmr_v5_full_pipeline_integration_v1.json",
+  "scientific_contract_blob_sha": "df5285df160faba020453dcfaab4201d9580644a",
+  "execution_profile_path": "configs/sdmr_v5_full_pipeline_integration_v1_execution.json",
+  "execution_profile_blob_sha": "1d14ad90437a80e2cb6cb6cf8aa3eadb8e0d4b17",
+  "validation_prerequisite": {
+    "terminal_passed": true,
+    "workflow_run": 36070724122,
+    "artifact_id": 10838468711,
+    "artifact_digest": "sha256:74190cc9022fd024a1be2a00748f6dd9053b76a61adc3f2163dc36a22c71d0d9"
+  },
+  "confirmation_prerequisite": {
+    "terminal_passed": true,
+    "workflow_run": 36081546640,
+    "artifact_id": 10841589899,
+    "artifact_digest": "sha256:f4f9aab2bf0358d25c66767a687519ad6581f9554df671c8554df1a974a7aa6a"
+  },
+  "integration_seeds_opened_by_this_activation": "61001-61020",
+  "prospective_opened_before_integration": false,
+  "fresh_empirical_opened": false,
+  "note": "First and only opening of the frozen v5 full-pipeline integration panel after permutation-gate validation and independent confirmation both passed."
+}
