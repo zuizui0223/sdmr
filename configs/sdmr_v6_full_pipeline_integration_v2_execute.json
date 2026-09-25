@@ -1,0 +1,27 @@
+{
+  "purpose": "execute_sdmr_v6_full_pipeline_integration_v2",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "scientific_contract_path": "configs/sdmr_v6_full_pipeline_integration_v2.json",
+  "scientific_contract_blob_sha": "ec61d79208e4f079c60880093953450915f45088",
+  "execution_profile_path": "configs/sdmr_v6_full_pipeline_integration_v2_execution.json",
+  "execution_profile_blob_sha": "18490d475f4f1ce3d5c34b2cf6f5e3f2d5cfb694",
+  "validation_prerequisite": {
+    "program": "sdmr-v6-magnitude-permutation-validation-v1",
+    "workflow_run": 36088891887,
+    "terminal_passed": true,
+    "artifact_id": 10844948845,
+    "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e"
+  },
+  "confirmation_prerequisite": {
+    "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+    "workflow_run": 36121116341,
+    "terminal_passed": true,
+    "artifact_id": 10858132902,
+    "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956"
+  },
+  "integration_seeds_opened_by_this_activation": "75001-75020",
+  "prospective_opened_before_integration": false,
+  "fresh_empirical_opened": false,
+  "note": "First and only opening of integration v2 denominator. Only authorization scope differs from failed v1; model/process settings and thresholds are unchanged."
+}
