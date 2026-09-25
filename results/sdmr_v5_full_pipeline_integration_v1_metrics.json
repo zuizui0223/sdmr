@@ -1,0 +1,40 @@
+{
+  "program": "sdmr-v5-full-pipeline-integration-v1",
+  "workflow_run": 36082238336,
+  "workflow_head": "2f802e22b5a09774fccee94e49f514dc67d15d77",
+  "artifact_id": 10842358603,
+  "artifact_digest": "sha256:01506d0643cdb79e37111650c9a6ad5f43eb2c50fff064055eb7b828c1ec6326",
+  "passed": false,
+  "gates": {
+    "INT-A": true,
+    "INT-B": true,
+    "INT-C": true,
+    "INT-D": true,
+    "INT-E": false,
+    "INT-F": true
+  },
+  "metrics": {
+    "positive_recovery": 0.925,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "unavailable_sharp_rate": 0.05,
+    "non_w7_full_system_information_adequacy": 1,
+    "w7_full_system_information_adequacy": 0.05,
+    "stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.013513513513513514,
+    "spatial_structural_refusal_violation_rate": 0
+  },
+  "failure": {
+    "seed": 61014,
+    "world": "omitted_driver",
+    "observed_mean_score": -0.691131,
+    "mean_gain_over_null": 0.002016,
+    "permutation_p": 0.001,
+    "exceedance_count": 0,
+    "finite_state": "replaceable",
+    "affected_processes": 6
+  },
+  "prospective_open": false,
+  "fresh_empirical_open": false
+}
