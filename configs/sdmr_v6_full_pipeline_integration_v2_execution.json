@@ -1,0 +1,75 @@
+{
+  "program": "sdmr-v6-full-pipeline-integration-v2-execution",
+  "status": "frozen_blocked",
+  "scientific_contract_path": "configs/sdmr_v6_full_pipeline_integration_v2.json",
+  "activation_status": "blocked",
+  "integration_outcomes_opened": false,
+  "prospective_open": false,
+  "fresh_empirical_open": false,
+  "base_world_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false
+  },
+  "odo_v2": {
+    "n_splits": 3,
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "split_mode": "random"
+  },
+  "sampling": {
+    "multiplier": 8,
+    "sampling_replicate": 0,
+    "with_replacement": true
+  },
+  "sharding": {
+    "seed_blocks": [
+      [
+        75001,
+        75002,
+        75003,
+        75004,
+        75005
+      ],
+      [
+        75006,
+        75007,
+        75008,
+        75009,
+        75010
+      ],
+      [
+        75011,
+        75012,
+        75013,
+        75014,
+        75015
+      ],
+      [
+        75016,
+        75017,
+        75018,
+        75019,
+        75020
+      ]
+    ],
+    "expected_shards": 32
+  },
+  "prerequisites": {
+    "validation": {
+      "program": "sdmr-v6-magnitude-permutation-validation-v1",
+      "terminal_passed": true,
+      "artifact_id": 10844948845,
+      "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e"
+    },
+    "confirmation": {
+      "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+      "terminal_passed": true,
+      "artifact_id": 10858132902,
+      "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956"
+    }
+  },
+  "note": "Fresh v2 integration denominator. Only INT-E authorization scope differs from v1; scientific model/process settings are unchanged."
+}
