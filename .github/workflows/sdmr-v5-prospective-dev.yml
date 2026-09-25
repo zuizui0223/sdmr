@@ -1,0 +1,46 @@
+name: sdmr-v5-prospective-dev
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'configs/sdmr_v5_prospective_kt_v1.json'
+      - 'configs/sdmr_v5_prospective_kt_v1_execution.json'
+      - 'scripts/run_sdmr_v5_prospective_kt_shard.py'
+      - 'scripts/aggregate_sdmr_v5_prospective_kt.py'
+      - 'tests/test_process_id_v5_prospective_contract.py'
+      - '.github/workflows/sdmr-v5-prospective-dev.yml'
+  pull_request:
+    paths:
+      - 'configs/sdmr_v5_prospective_kt_v1.json'
+      - 'configs/sdmr_v5_prospective_kt_v1_execution.json'
+      - 'scripts/run_sdmr_v5_prospective_kt_shard.py'
+      - 'scripts/aggregate_sdmr_v5_prospective_kt.py'
+      - 'tests/test_process_id_v5_prospective_contract.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v5-prospective-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Compile blocked prospective code
+        run: |
+          python -m py_compile \
+            scripts/run_sdmr_v5_prospective_kt_shard.py \
+            scripts/aggregate_sdmr_v5_prospective_kt.py
+      - name: Validate frozen prospective contract
+        run: pytest -q tests/test_process_id_v5_prospective_contract.py
