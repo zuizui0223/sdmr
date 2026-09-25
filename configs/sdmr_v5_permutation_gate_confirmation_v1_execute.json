@@ -1,0 +1,77 @@
+{
+  "purpose": "execute_sdmr_v5_permutation_gate_confirmation_v1",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "config_path": "configs/sdmr_v5_permutation_gate_confirmation_v1.json",
+  "config_blob_sha": "e4ff574d5ab6801534e4a55e911ba19d29e6ee61",
+  "validation_terminal_passed": true,
+  "validation_workflow_run": 36070724122,
+  "validation_artifact_id": 10838468711,
+  "validation_artifact_digest": "sha256:74190cc9022fd024a1be2a00748f6dd9053b76a61adc3f2163dc36a22c71d0d9",
+  "seed_blocks": [
+    [
+      52001,
+      52002,
+      52003,
+      52004,
+      52005,
+      52006,
+      52007,
+      52008,
+      52009,
+      52010
+    ],
+    [
+      52011,
+      52012,
+      52013,
+      52014,
+      52015,
+      52016,
+      52017,
+      52018,
+      52019,
+      52020
+    ],
+    [
+      52021,
+      52022,
+      52023,
+      52024,
+      52025,
+      52026,
+      52027,
+      52028,
+      52029,
+      52030
+    ],
+    [
+      52031,
+      52032,
+      52033,
+      52034,
+      52035,
+      52036,
+      52037,
+      52038,
+      52039,
+      52040
+    ],
+    [
+      52041,
+      52042,
+      52043,
+      52044,
+      52045,
+      52046,
+      52047,
+      52048,
+      52049,
+      52050
+    ]
+  ],
+  "confirmation_seeds_opened_by_this_activation": "52001-52050",
+  "reserved_prospective_opened": false,
+  "fresh_empirical_open": false,
+  "note": "First and only opening of the independent v5 confirmation panel after terminal validation PASS. B=999, alpha=0.001 and all scientific settings remain frozen."
+}
