@@ -20,6 +20,12 @@ def _stage_rows():
                 "full_system_information_adequate":True,
             })
         rows.append({
+            "seed":seed,"world":"unique_process","process":"productivity",
+            "odo_state":"replaceable","finite_state":"replaceable",
+            "structural_refusal_expected":False,
+            "full_system_information_adequate":True,
+        })
+        rows.append({
             "seed":seed,"world":"observation_confounded","process":"thermal",
             "odo_state":"unresolved","finite_state":"unresolved",
             "structural_refusal_expected":True,
@@ -74,7 +80,7 @@ def test_scoped_pipeline_gate_excludes_report_only_w6_from_authorization_minimum
         stage_t,
         expected_counts={
             "positive":12,
-            "replaceable":0,
+            "replaceable":2,
             "unresolved":2,
             "unavailable":2,
             "structural_refusal":2,
@@ -120,7 +126,7 @@ def test_scoped_pipeline_gate_fails_if_one_informative_control_is_below_threshol
         stage_t,
         expected_counts={
             "positive":12,
-            "replaceable":0,
+            "replaceable":2,
             "unresolved":2,
             "unavailable":2,
             "structural_refusal":2,
@@ -164,7 +170,7 @@ def test_scoped_pipeline_gate_fails_if_w7_authorizes():
         stage_t,
         expected_counts={
             "positive":12,
-            "replaceable":0,
+            "replaceable":2,
             "unresolved":2,
             "unavailable":2,
             "structural_refusal":2,
@@ -220,7 +226,7 @@ def test_scoped_integration_gate_maps_int_names_without_changing_other_gates():
         stage_t,
         expected_counts={
             "positive":12,
-            "replaceable":0,
+            "replaceable":2,
             "unresolved":2,
             "unavailable":2,
             "structural_refusal":2,
