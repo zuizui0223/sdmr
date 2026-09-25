@@ -165,3 +165,69 @@ def test_permutation_gate_rejects_invalid_alpha_and_permutation_count():
             adequacy_floor=-0.75,
             alpha=0.0,
         )
+
+
+def test_v6_magnitude_floor_uses_existing_process_margin():
+    from sdmr.process_id.known_truth.permutation_gate import (
+        classify_full_system_permutation_gate,
+    )
+
+    weak_but_significant={
+        "observed_mean_score":-0.691,
+        "mean_gain_over_null":0.0021471805599453,
+        "p_value":0.001,
+    }
+    v5=classify_full_system_permutation_gate(
+        weak_but_significant,
+        adequacy_floor=-0.75,
+        alpha=0.001,
+    )
+    assert v5["authorized"]
+
+    v6=classify_full_system_permutation_gate(
+        weak_but_significant,
+        adequacy_floor=-0.75,
+        alpha=0.001,
+        minimum_gain_over_null=0.01,
+    )
+    assert not v6["authorized"]
+    assert v6["minimum_gain_met"] is False
+    assert v6["minimum_gain_over_null"] == pytest.approx(0.01)
+
+
+def test_v6_magnitude_floor_preserves_strong_signal():
+    from sdmr.process_id.known_truth.permutation_gate import (
+        classify_full_system_permutation_gate,
+    )
+
+    strong={
+        "observed_mean_score":-0.65,
+        "mean_gain_over_null":0.0431471805599453,
+        "p_value":0.001,
+    }
+    decision=classify_full_system_permutation_gate(
+        strong,
+        adequacy_floor=-0.75,
+        alpha=0.001,
+        minimum_gain_over_null=0.01,
+    )
+    assert decision["authorized"]
+    assert decision["minimum_gain_met"] is True
+
+
+def test_v6_magnitude_floor_rejects_invalid_values():
+    from sdmr.process_id.known_truth.permutation_gate import (
+        classify_full_system_permutation_gate,
+    )
+
+    with pytest.raises(ValueError,match="minimum_gain_over_null"):
+        classify_full_system_permutation_gate(
+            {
+                "observed_mean_score":-0.65,
+                "mean_gain_over_null":0.04,
+                "p_value":0.001,
+            },
+            adequacy_floor=-0.75,
+            alpha=0.001,
+            minimum_gain_over_null=-0.01,
+        )
