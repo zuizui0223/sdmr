@@ -1,0 +1,43 @@
+name: sdmr-v6-magnitude-permutation-dev
+
+on:
+  push:
+    branches:
+      - 'design/sdmr-v3-process-identification'
+    paths:
+      - 'src/sdmr/process_id/known_truth/permutation_gate.py'
+      - 'tests/test_process_id_permutation_gate.py'
+      - 'tests/test_process_id_v6_magnitude_permutation_contract.py'
+      - 'scripts/run_sdmr_v6_magnitude_permutation_validation_shard.py'
+      - 'scripts/aggregate_sdmr_v6_magnitude_permutation_validation.py'
+      - '.github/workflows/sdmr-v6-magnitude-permutation-dev.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-v6-magnitude-permutation-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Compile v6 validation machinery
+        run: |
+          python -m py_compile \
+            src/sdmr/process_id/known_truth/permutation_gate.py \
+            scripts/run_sdmr_v6_magnitude_permutation_validation_shard.py \
+            scripts/aggregate_sdmr_v6_magnitude_permutation_validation.py
+      - name: Run v6 focused tests
+        run: |
+          pytest -q \
+            tests/test_process_id_permutation_gate.py \
+            tests/test_process_id_v6_magnitude_permutation_contract.py
