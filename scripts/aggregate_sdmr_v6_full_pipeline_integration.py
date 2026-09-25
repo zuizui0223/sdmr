@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggregate SDMR v5 full-pipeline integration evidence."""
+"""Aggregate SDMR v6 full-pipeline integration evidence."""
 from __future__ import annotations
 
 import argparse
@@ -58,7 +58,7 @@ def main() -> None:
 
     if scientific.get("program")!="sdmr-v6-full-pipeline-integration-v1":
         raise ValueError("wrong integration scientific contract")
-    if activation.get("purpose")!="execute_sdmr_v5_full_pipeline_integration_v1":
+    if activation.get("purpose")!="execute_sdmr_v6_full_pipeline_integration_v1":
         raise ValueError("wrong integration activation")
 
     manifests=sorted(root.glob("**/manifest.json"))
