@@ -1,0 +1,40 @@
+{
+  "program": "sdmr-v6-full-pipeline-integration-v2",
+  "workflow_run": 36124407533,
+  "workflow_head": "8d776d54ac7d712c8a832b8333b614cbbece0319",
+  "artifact_id": 10859533239,
+  "artifact_digest": "sha256:de57d1ad14f431a0b9bce0862ae6621d9065a6d09a9522b9cecd070807fe26eb",
+  "passed": true,
+  "gates": {
+    "INT-A": true,
+    "INT-B": true,
+    "INT-C": true,
+    "INT-D": true,
+    "INT-E": true,
+    "INT-F": true
+  },
+  "counts": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "metrics": {
+    "positive_recovery": 0.8875,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "unavailable_sharp_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "w7_authorized_count": 0,
+    "minimum_informative_control_authorization_rate": 1,
+    "w6_report_only_authorization_rate": 0.05,
+    "stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.014084507042253521,
+    "spatial_structural_refusal_violation_rate": 0,
+    "stage_t_complete": 1
+  },
+  "prospective_open": false,
+  "fresh_empirical_open": false,
+  "decision": "development_integration_passed"
+}
