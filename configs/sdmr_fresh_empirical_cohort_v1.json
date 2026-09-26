@@ -1,0 +1,76 @@
+{
+  "program": "sdmr-fresh-empirical-cohort-v1",
+  "status": "cohort_rule_frozen_outcomes_unopened",
+  "parent_planning_contract": "configs/sdmr_fresh_empirical_planning_freeze_v1.json",
+  "exact_denominator": 50,
+  "historical_exclusion": {
+    "manifest": "configs/sdmr_fresh_empirical_historical_exclusion_v1.csv",
+    "expected_taxa": 84,
+    "rule": "exclude_every_historical_Product-A_taxon_and_every_predeclared_Product-A_candidate"
+  },
+  "gbif_snapshot": {
+    "provider": "GBIF monthly cloud snapshot",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "region": "us-east-1",
+    "temporal_window": [
+      2010,
+      2025
+    ]
+  },
+  "eligibility": {
+    "phylum": "Tracheophyta",
+    "taxon_rank": "SPECIES",
+    "occurrence_status": "PRESENT_or_missing",
+    "excluded_basis_of_record": [
+      "FOSSIL_SPECIMEN"
+    ],
+    "maximum_coordinate_uncertainty_m": 10000,
+    "allow_missing_coordinate_uncertainty": true,
+    "reject_null_or_invalid_coordinates": true,
+    "reject_zero_zero_coordinate": true,
+    "minimum_occurrences": 500,
+    "grid_degrees": 1,
+    "minimum_unique_grid_cells": 20,
+    "require_family": true,
+    "require_genus": true
+  },
+  "breadth_constraints": {
+    "maximum_per_genus": 1,
+    "maximum_per_family": 2
+  },
+  "deterministic_selection": {
+    "algorithm": "sha256_ascending_then_scientific_name",
+    "seed": "sdmr-fresh-empirical-cohort-v1|2026-09-26",
+    "post_count_reordering_allowed": false,
+    "threshold_relaxation_allowed": false,
+    "replacement_after_selection_allowed": false
+  },
+  "information_barrier": {
+    "allowed": [
+      "GBIF_interpreted_taxonomy",
+      "year",
+      "basisofrecord",
+      "occurrencestatus",
+      "coordinates",
+      "coordinate_uncertainty",
+      "occurrence_counts",
+      "occupied_1_degree_cells"
+    ],
+    "forbidden": [
+      "environmental_values",
+      "CHELSA",
+      "SoilGrids",
+      "AUC",
+      "CBI",
+      "OR10",
+      "AICc",
+      "balanced_log_score",
+      "candidate_model_fit",
+      "process_state",
+      "sealed_answer_check",
+      "EMP_A_to_EMP_F_outcomes"
+    ],
+    "fresh_outcomes_opened": false
+  }
+}
