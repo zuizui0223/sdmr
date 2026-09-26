@@ -312,9 +312,15 @@ def build_backgrounds(
     threshold = {km: _chord_for_km(km) for km in M_KM}
     max_chord = threshold[max(M_KM)]
 
+    taxa_tuple = tuple(str(taxon) for taxon in taxa)
+    if not taxa_tuple or len(taxa_tuple) != len(set(taxa_tuple)):
+        raise ValueError("taxa must contain unique non-empty names")
+    if any(not taxon.strip() for taxon in taxa_tuple):
+        raise ValueError("taxa must contain unique non-empty names")
+
     background_frames: list[pd.DataFrame] = []
     summary_rows: list[dict[str, object]] = []
-    for taxon in taxa:
+    for taxon in taxa_tuple:
         focal = model_pool.loc[
             model_pool["scientific_name"].astype(str).eq(str(taxon))
         ].copy()
@@ -380,7 +386,7 @@ def build_backgrounds(
 
     backgrounds = pd.concat(background_frames, ignore_index=True)
     summary = pd.DataFrame(summary_rows)
-    if len(summary) != EXPECTED_TAXA * len(M_KM):
+    if len(summary) != len(taxa_tuple) * len(M_KM):
         raise AssertionError("background M summary denominator changed")
     return backgrounds, summary
 
