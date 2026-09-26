@@ -1,0 +1,28 @@
+{
+  "program": "sdmr-fresh-empirical-occurrence-split-v1-artifact-receipt",
+  "workflow_run": 36222283703,
+  "workflow_head": "f9b23730b453afa7255f655606f86491428709b4",
+  "artifact_id": 10899781608,
+  "artifact_name": "sdmr-fresh-empirical-occurrence-split-v1",
+  "artifact_digest": "sha256:fdea13477e7918cae826397ba5154874894ce7955e81d435f1b566c630036e6a",
+  "artifact_expires_at": "2026-12-25T05:56:58Z",
+  "files": {
+    "model_pool_occurrences.csv": "sha256:57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137",
+    "outer_split.csv": "sha256:d8067fba501f89dcf869f86ecdb82adf928e5eb2457d6da9526e4fb86ca4c4c9",
+    "taxon_source_gate.csv": "sha256:20900e7cb97afa30c264c7f1722e204988ed0017a8f076b9652e3ffba62abc1c",
+    "occurrence_split_result.json": "sha256:67b069a5e6b1c5cd9903d433d7edbc52f2f96bbf64857d38e6f2aaca21bdb990"
+  },
+  "taxon_count": 50,
+  "raw_occurrence_sum": 186645,
+  "thinned_occurrence_sum": 58323,
+  "model_pool_occurrence_sum": 43201,
+  "answer_check_occurrence_sum": 15122,
+  "minimum_raw_occurrences": 512,
+  "minimum_thinned_occurrences": 130,
+  "all_source_gates_passed": true,
+  "environmental_values_read": false,
+  "answer_check_features_read": false,
+  "answer_check_coordinates_persisted_for_M": false,
+  "accessible_area_built": false,
+  "next_gate": "build_model_pool_only_target_group_M_and_freeze_background_receipt"
+}
