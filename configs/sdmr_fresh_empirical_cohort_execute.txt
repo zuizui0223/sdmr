@@ -1,0 +1,8 @@
+program=sdmr-fresh-empirical-cohort-v1
+execution_attempt=2
+execution_receipt_commit=940f22b03053d06a9c2e1a675342b5115fe52653
+frozen_design_commit=022b35576b413256e65c54231fc80fc7ff9227ee
+previous_failed_preflight_run=36218537257
+previous_failure=checkout_fetch_depth_1_only
+fresh_outcomes_opened=false
+execute_once=true
