@@ -1,7 +1,7 @@
 {
   "program": "sdmr-fresh-empirical-background-v1-execution",
   "one_shot": true,
-  "frozen_design_sha": "168ef6adc4078b0738e590ff91d15111b2585d9c",
+  "frozen_design_sha": "47fd25e28073f1d01381d8fcefc8fc4b4765012b",
   "occurrence_split_run": 36222283703,
   "occurrence_split_artifact_id": 10899781608,
   "occurrence_split_artifact_digest": "sha256:fdea13477e7918cae826397ba5154874894ce7955e81d435f1b566c630036e6a",
@@ -18,11 +18,13 @@
   "answer_check_features_allowed": false,
   "model_fitting_allowed": false,
   "blob_sha": {
-    "src/sdmr/process_id/fresh/background.py": "b93908cd8f27b19e8a8546294a5ba6d84307dd64",
+    "src/sdmr/process_id/fresh/background.py": "93bd2bf276a9984b26626cf4696b314a50c9ac65",
     ".github/workflows/sdmr-fresh-empirical-background-v1.yml": "3abec55fcdca2decca28f4996e69aea9209d735e",
     "configs/sdmr_fresh_empirical_final_freeze_v1.json": "e9e444fa28b849f44565b679017c73db21a845d4",
     "configs/sdmr_fresh_empirical_source_freeze_v1.json": "d90b5e02fd07e95b4d067023165668042fd3bcb1",
     "configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json": "1f52fc071a9258462f8387eae01a745a887e95ec",
     "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54"
-  }
+  },
+  "previous_failed_preflight_run": 36239246209,
+  "previous_failure": "generic_background_helper_hardcoded_50_taxa_in_unit_test_denominator"
 }
