@@ -1,0 +1,17 @@
+{
+  "accessible_area_built": false,
+  "all_source_gates_passed": true,
+  "answer_check_coordinates_persisted_for_M": false,
+  "answer_check_features_read": false,
+  "answer_check_occurrences": 15122,
+  "environmental_values_read": false,
+  "model_fitting_performed": false,
+  "model_pool_occurrences": 43201,
+  "model_pool_occurrences_sha256": "57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137",
+  "next_gate": "build_model_pool_only_target_group_M_and_freeze_background_receipt",
+  "outer_split_sha256": "d8067fba501f89dcf869f86ecdb82adf928e5eb2457d6da9526e4fb86ca4c4c9",
+  "program": "sdmr-fresh-empirical-occurrence-split-v1",
+  "status": "occurrence_source_gate_and_outer_split_passed",
+  "taxon_count": 50,
+  "taxon_source_gate_sha256": "20900e7cb97afa30c264c7f1722e204988ed0017a8f076b9652e3ffba62abc1c"
+}
