@@ -1,0 +1,5 @@
+program=sdmr-fresh-empirical-cohort-v1
+execution_receipt_commit=48732aae143bc9fa7be90d7758a0adf4d0582909
+frozen_design_commit=0766f626091b5ee831e6de351e16f259d0fa6989
+fresh_outcomes_opened=false
+execute_once=true
