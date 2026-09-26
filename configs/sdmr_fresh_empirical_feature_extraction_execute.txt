@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-feature-extraction-v1
+execution_receipt_commit=27cbe477825a6cb16679f4f76985164936673d32
+frozen_design_commit=5c5a4235552db1d6929e90540ef5cb6624a09f3e
+probe_run=36240673693
+expected_predictors=46
+expected_taxa=50
+environmental_values_opened=true
+answer_check_accessed=false
+model_fitting_started=false
+execute_once=true
