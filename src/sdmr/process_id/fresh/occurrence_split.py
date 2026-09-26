@@ -348,6 +348,19 @@ def run_aggregate(
     metadata = [json.loads(path.read_text(encoding="utf-8")) for path in metadata_paths]
     if {int(row["chunk_index"]) for row in metadata} != set(range(EXPECTED_CHUNKS)):
         raise RuntimeError("occurrence chunk index set is incomplete")
+    metadata_by_index = {int(row["chunk_index"]): row for row in metadata}
+    partial_by_index = {
+        int(path.stem.rsplit("_", 1)[1]): path for path in partial_paths
+    }
+    if set(partial_by_index) != set(range(EXPECTED_CHUNKS)):
+        raise RuntimeError("occurrence partial index set is incomplete")
+    for idx in range(EXPECTED_CHUNKS):
+        if _sha256(partial_by_index[idx]) != str(metadata_by_index[idx]["partial_sha256"]):
+            raise RuntimeError(f"occurrence partial SHA mismatch for chunk {idx}")
+    if sum(int(row["chunk_shard_count"]) for row in metadata) != int(
+        metadata[0]["snapshot_shard_count"]
+    ):
+        raise RuntimeError("occurrence chunks do not cover the complete snapshot shard catalog")
     invariant_keys = (
         "program",
         "snapshot_date",
