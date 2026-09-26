@@ -25,7 +25,12 @@ EXPECTED_PREDICTORS = 46
 EXPECTED_CHELSA = 42
 EXPECTED_SOILGRIDS = 4
 PRIMARY_M_KM = 300
+EXPECTED_MODEL_POOL_ROWS = 43201
+BACKGROUND_POINTS_PER_TAXON = 5000
 EXPECTED_PRIMARY_BACKGROUND_ROWS = 250000
+MIN_MODEL_POOL_RETENTION_FRACTION = 0.80
+MIN_MODEL_POOL_COMPLETE_ROWS = 50
+MIN_PRIMARY_BACKGROUND_COMPLETE_ROWS = 4000
 EXPECTED_PROCESSES = (
     "thermal",
     "water",
@@ -235,7 +240,7 @@ def prepare_primary_points(
     missing_model = sorted(required_model - set(model.columns))
     if missing_model:
         raise ValueError(f"model-pool artifact missing columns: {missing_model}")
-    if len(model) != 43201:
+    if len(model) != EXPECTED_MODEL_POOL_ROWS:
         raise ValueError("model-pool occurrence denominator changed")
     if model["occurrence_id"].astype(str).duplicated().any():
         raise ValueError("model-pool occurrence identities must be unique")
@@ -258,7 +263,7 @@ def prepare_primary_points(
     if len(background) != EXPECTED_PRIMARY_BACKGROUND_ROWS:
         raise ValueError("primary 300-km background denominator changed")
     per_taxon = background.groupby(background["scientific_name"].astype(str)).size()
-    if len(per_taxon) != EXPECTED_TAXA or not per_taxon.eq(5000).all():
+    if len(per_taxon) != EXPECTED_TAXA or not per_taxon.eq(BACKGROUND_POINTS_PER_TAXON).all():
         raise ValueError("primary background is not exactly 5000 rows for each frozen taxon")
 
     model_points = model[["scientific_name", "occurrence_id", "longitude", "latitude"]].copy()
@@ -356,7 +361,7 @@ def extract_primary_feature_bundle(
         how="left",
         validate="many_to_one",
     ).reset_index(drop=True)
-    if len(model_features) != 43201 or len(background_features) != EXPECTED_PRIMARY_BACKGROUND_ROWS:
+    if len(model_features) != EXPECTED_MODEL_POOL_ROWS or len(background_features) != EXPECTED_PRIMARY_BACKGROUND_ROWS:
         raise RuntimeError("featured row denominator changed")
     return model_features, background_features, provenance, unique_locations
 
@@ -385,9 +390,9 @@ def evaluate_complete_case_gate(
         bg_complete = bg.loc[bg[list(predictor_tuple)].notna().all(axis=1)]
         retention = len(model_complete) / len(model) if len(model) else 0.0
         passed = (
-            retention >= 0.80
-            and len(model_complete) >= 50
-            and len(bg_complete) >= 4000
+            retention >= MIN_MODEL_POOL_RETENTION_FRACTION
+            and len(model_complete) >= MIN_MODEL_POOL_COMPLETE_ROWS
+            and len(bg_complete) >= MIN_PRIMARY_BACKGROUND_COMPLETE_ROWS
         )
         rows.append(
             {
