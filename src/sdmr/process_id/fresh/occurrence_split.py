@@ -244,17 +244,18 @@ def _combine_cells(partial_paths: Iterable[Path]) -> pd.DataFrame:
     raw = pd.concat(frames, ignore_index=True)
     if raw.empty:
         raise ValueError("occurrence partials are empty")
-    raw["gbifid_num"] = pd.to_numeric(raw["gbifid"], errors="raise").astype("uint64")
+    raw["gbifid"] = raw["gbifid"].astype(str)
     group_cols = ["species", "cell_x", "cell_y"]
     counts = (
         raw.groupby(group_cols, as_index=False)["n_occurrences_in_cell"]
         .sum()
     )
-    rep_index = raw.groupby(group_cols)["gbifid_num"].idxmin()
-    reps = raw.loc[
-        rep_index,
-        ["species", "cell_x", "cell_y", "gbifid", "gbifid_num", "longitude", "latitude"],
-    ].copy()
+    reps = (
+        raw.sort_values([*group_cols, "gbifid"], kind="mergesort")
+        .drop_duplicates(group_cols, keep="first")
+        [["species", "cell_x", "cell_y", "gbifid", "longitude", "latitude"]]
+        .copy()
+    )
     cells = counts.merge(reps, on=group_cols, how="left", validate="one_to_one")
     return cells.sort_values(["species", "cell_x", "cell_y"]).reset_index(drop=True)
 
