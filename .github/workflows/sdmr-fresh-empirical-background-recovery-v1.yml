@@ -1,0 +1,129 @@
+name: sdmr-fresh-empirical-background-recovery-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-background-v1
+    paths:
+      - configs/sdmr_fresh_empirical_background_recovery_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-background-recovery-v1
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[cloud,parquet,test]'
+      - name: Verify aggregate-only recovery receipt
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          from sdmr.process_id.fresh.background import validate_background_contract
+
+          receipt_path = 'configs/sdmr_fresh_empirical_background_recovery_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_background_recovery_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-background-recovery-v1-execution':
+              raise SystemExit('wrong recovery receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('recovery is not one-shot')
+          if receipt.get('source_chunk_run') != 36239328323:
+              raise SystemExit('wrong frozen source chunk run')
+          if receipt.get('source_run_chunk_jobs_passed') != 32:
+              raise SystemExit('source run did not freeze 32 passing chunks')
+          if receipt.get('recovery_reason') != 'aggregate_runner_missing_duckdb_only':
+              raise SystemExit('recovery reason changed')
+          for key in (
+              'rerun_gbif_chunks_allowed',
+              'environmental_values_allowed',
+              'answer_check_coordinates_allowed',
+              'answer_check_features_allowed',
+              'model_fitting_allowed',
+          ):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'recovery crossed frozen boundary: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_recovery_design_sha']:
+              raise SystemExit('recovery design is not trigger grandparent')
+          trigger_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x
+          ]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'recovery trigger changed unexpected files: {trigger_changes}')
+          receipt_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x
+          ]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'recovery receipt commit changed unexpected files: {receipt_changes}')
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen recovery blob changed: {path}: {observed} != {expected}')
+
+          validate_background_contract(
+              final_contract_path='configs/sdmr_fresh_empirical_final_freeze_v1.json',
+              source_contract_path='configs/sdmr_fresh_empirical_source_freeze_v1.json',
+              occurrence_receipt_path='configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json',
+              selected_taxa_path='configs/sdmr_fresh_empirical_selected_taxa_v1.csv',
+          )
+          print('aggregate-only recovery preflight passed')
+          PY
+          python -m pytest -q tests/test_process_id_fresh_background.py
+
+      - name: Download frozen 32 target-footprint chunk artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36239328323
+          pattern: sdmr-fresh-background-chunk-*
+          path: chunk_parts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download frozen model-pool occurrence artifact only
+        uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36222283703
+          name: sdmr-fresh-empirical-occurrence-split-v1
+          path: occurrence_split
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Recover M and deterministic backgrounds without rescanning GBIF
+        run: |
+          test -f occurrence_split/model_pool_occurrences.csv
+          python -m sdmr.process_id.fresh.background aggregate \
+            --final-contract configs/sdmr_fresh_empirical_final_freeze_v1.json \
+            --source-contract configs/sdmr_fresh_empirical_source_freeze_v1.json \
+            --occurrence-receipt configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json \
+            --selected-taxa configs/sdmr_fresh_empirical_selected_taxa_v1.csv \
+            --model-pool occurrence_split/model_pool_occurrences.csv \
+            --parts-root chunk_parts \
+            --output-dir background
+          cat background/background_result.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-background-v1
+          path: background/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
