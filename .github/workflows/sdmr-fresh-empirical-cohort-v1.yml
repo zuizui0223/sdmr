@@ -27,11 +27,39 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -e '.[test]'
-      - name: Validate frozen metadata-only cohort contract
+      - name: Validate one-shot receipt and frozen metadata-only cohort contract
         run: |
           python - <<'PY'
+          import json
+          import subprocess
+
           from sdmr.process_id.fresh.cohort import load_exclusion_manifest, validate_contract
           from sdmr.data.snapshot_citation import validate_snapshot_citation
+
+          receipt_path = 'configs/sdmr_fresh_empirical_cohort_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_cohort_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-cohort-v1-execution':
+              raise SystemExit('wrong cohort execution receipt')
+          if receipt.get('one_shot') is not True or receipt.get('fresh_outcomes_opened') is not False:
+              raise SystemExit('cohort execution receipt is not one-shot and outcome-blind')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_design_sha']:
+              raise SystemExit('frozen design SHA is not the grandparent of trigger execution')
+          trigger_changes = [x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'trigger commit changed unexpected files: {trigger_changes}')
+          receipt_changes = [x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'receipt commit changed unexpected files: {receipt_changes}')
+
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen blob changed: {path}: {observed} != {expected}')
 
           c = validate_contract('configs/sdmr_fresh_empirical_cohort_v1.json')
           ex = load_exclusion_manifest('configs/sdmr_fresh_empirical_historical_exclusion_v1.csv')
