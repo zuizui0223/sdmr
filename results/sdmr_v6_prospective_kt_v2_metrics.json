@@ -1,0 +1,50 @@
+{
+  "program": "sdmr-v6-prospective-known-truth-v2",
+  "workflow_run": 36212033498,
+  "workflow_head": "30306885926dbc1ebcf8945d786d65e5881dd1aa",
+  "artifact_id": 10896590112,
+  "artifact_digest": "sha256:7c0c3dd6f12a0478abcd0fadabdb013a26356ac7ac6dacca7bc2cbdabee7fe68",
+  "prospective_seed_min": 74001,
+  "prospective_seed_max": 74020,
+  "passed": true,
+  "gates": {
+    "KT-A": true,
+    "KT-B": true,
+    "KT-C": true,
+    "KT-D": true,
+    "KT-E": true,
+    "KT-F": true
+  },
+  "counts": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "metrics": {
+    "positive_recovery": 0.8875,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "unavailable_sharp_rate": 0,
+    "minimum_informative_control_authorization_rate": 1,
+    "report_only_world_authorization_rate": 0.05,
+    "w7_authorization_rate": 0,
+    "w7_authorized_count": 0,
+    "stage_p_positive_to_spatial_replaceable_contradiction_rate": 0,
+    "spatial_structural_refusal_violation_rate": 0,
+    "stage_t_complete": 1
+  },
+  "informative_control_authorization_rates": {
+    "unique_process": 1,
+    "redundant_representation": 1,
+    "shared_carrier": 1,
+    "null_correlated": 1,
+    "interaction": 1,
+    "geographic_shift": 1
+  },
+  "fresh_empirical_open": false,
+  "decision": "prospective_known_truth_passed"
+}
