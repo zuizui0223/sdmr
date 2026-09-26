@@ -1,0 +1,115 @@
+{
+  "program": "sdmr-fresh-empirical-source-freeze-v1",
+  "status": "frozen_before_environmental_feature_access",
+  "selected_taxa": {
+    "path": "configs/sdmr_fresh_empirical_selected_taxa_v1.csv",
+    "sha256": "930821c74cc76820907f7c942b98189ddc4f28aca1597198db431ef6eebb40c2",
+    "denominator": 50,
+    "post_selection_replacement_allowed": false
+  },
+  "occurrence_source": {
+    "provider": "GBIF monthly cloud snapshot",
+    "snapshot_date": "2026-08-01",
+    "snapshot_doi": "10.15468/dl.fs3btq",
+    "region": "us-east-1",
+    "temporal_window": [
+      2010,
+      2025
+    ],
+    "taxon_scope": "exact_frozen_50_scientific_names",
+    "qc": [
+      "taxonrank_SPECIES",
+      "occurrencestatus_PRESENT_or_missing",
+      "basisofrecord_not_FOSSIL_SPECIMEN",
+      "coordinate_uncertainty_missing_or_le_10000m",
+      "valid_finite_WGS84_coordinates",
+      "exclude_0_0_coordinate"
+    ],
+    "thinning": {
+      "rule": "one_record_per_species_per_0.05_degree_cell",
+      "tie_breaker": "minimum_gbifid",
+      "minimum_raw_occurrences": 80,
+      "minimum_thinned_cells": 50,
+      "failure_rule": "whole_50_taxon_program_unavailable_no_replacement"
+    }
+  },
+  "outer_split": {
+    "unit": "within_taxon",
+    "input_columns": [
+      "occurrence_id",
+      "longitude",
+      "latitude"
+    ],
+    "occurrence_id": "species_pipe_gbifid",
+    "n_blocks": 8,
+    "answer_check_fraction": 0.2,
+    "random_state": 42,
+    "algorithm": "freeze_occurrence_answer_check_split",
+    "answer_check_environmental_features_opened": false
+  },
+  "accessible_area": {
+    "primary_rule": "target_group_cells_within_300km_of_any_model_pool_occurrence",
+    "focal_coordinates_allowed": "model_pool_only",
+    "answer_check_coordinates_for_M_allowed": false,
+    "target_group": "Tracheophyta excluding frozen 50 taxa",
+    "target_group_qc": "same GBIF snapshot temporal and coordinate QC",
+    "target_group_thinning": "one_record_per_0.05_degree_cell_minimum_gbifid",
+    "background_points_per_taxon": 5000,
+    "background_sampling": "deterministic_hash_order_without_replacement",
+    "background_seed": "sdmr-fresh-background-v1|2026-09-26",
+    "if_fewer_than_5000": "use_all_available_target_group_cells",
+    "sensitivity_M_km": [
+      150,
+      500
+    ],
+    "primary_M_km": 300
+  },
+  "environmental_sources": {
+    "chelsa": {
+      "version": "2.1",
+      "registry": "configs/chelsa_v2_1_plant_candidates.csv",
+      "registry_git_blob": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa",
+      "included_predictors": 42,
+      "excluded_predictors": [
+        "sfcWind"
+      ],
+      "exclusion_reason": "outside_frozen_six_process_taxonomy"
+    },
+    "soilgrids": {
+      "version": "2.0",
+      "access": "official_WebDAV_global_VRT",
+      "depth": "0-5cm",
+      "statistic": "mean",
+      "predictors": [
+        "sg_phh2o_0_5",
+        "sg_clay_0_5",
+        "sg_soc_0_5",
+        "sg_nitrogen_0_5"
+      ],
+      "conversion_to_conventional_units": {
+        "sg_phh2o_0_5": "divide_by_10",
+        "sg_clay_0_5": "divide_by_10",
+        "sg_soc_0_5": "divide_by_10",
+        "sg_nitrogen_0_5": "divide_by_100"
+      }
+    }
+  },
+  "process_universe": [
+    "thermal",
+    "water",
+    "seasonality",
+    "radiation_energy",
+    "soil_substrate",
+    "productivity"
+  ],
+  "predictor_count": 46,
+  "comparability_rule": "all_flat_comparators_and_sdmr_use_identical_46_predictor_universe",
+  "information_barrier": {
+    "environmental_feature_extraction_allowed_only_after_source_and_split_receipts": true,
+    "answer_check_features_sealed_until_selection_receipt": true,
+    "outcome_dependent_QC": false,
+    "outcome_dependent_M": false,
+    "outcome_dependent_predictor_addition": false,
+    "outcome_dependent_taxon_replacement": false
+  }
+}
