@@ -1,0 +1,17 @@
+{
+  "program": "sdmr-fresh-empirical-feature-probe-v1-artifact-receipt",
+  "workflow_run": 36240673693,
+  "workflow_head": "b61cd12bf5c027903b69531979502429f573ead5",
+  "artifact_id": 10905990106,
+  "artifact_name": "sdmr-fresh-empirical-feature-probe-v1",
+  "artifact_digest": "sha256:dbbc56b9658793f9830e122afe01e5b12b9197acca9ced96028918a4953cd6ad",
+  "artifact_expires_at": "2026-12-25T12:02:22Z",
+  "expected_layers": 46,
+  "probed_layers": 46,
+  "successful_layers": 46,
+  "failed_layers": 0,
+  "failed_predictors": [],
+  "environmental_point_values_read": false,
+  "answer_check_accessed": false,
+  "status": "pass"
+}

@@ -1,0 +1,59 @@
+{
+  "program": "sdmr-fresh-empirical-feature-extraction-v1",
+  "status": "frozen_before_environmental_value_read",
+  "selected_taxa_sha256": "930821c74cc76820907f7c942b98189ddc4f28aca1597198db431ef6eebb40c2",
+  "occurrence_split_artifact": {
+    "run": 36222283703,
+    "artifact_id": 10899781608,
+    "model_pool_occurrences_sha256": "57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137"
+  },
+  "background_artifact": {
+    "recovery_run": 36240044258,
+    "artifact_id": 10905064972,
+    "artifact_digest": "sha256:d907566fcdef3586692ab854dc441f9e762fd0f50392daa199675ce139be916f",
+    "background_points_sha256": "99b7fe02380d5be27fd14eeb821cb24b86d7684e82c705e3ca8781928e454776",
+    "primary_m_km": 300,
+    "primary_rows": 250000
+  },
+  "process_registry": {
+    "path": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "sha256": "523d18e95b9120eb1670403a60e542017576398f21be423c717f72c5355e2cf6",
+    "predictor_count": 46,
+    "process_count": 6
+  },
+  "extraction_scope": {
+    "model_pool_occurrences": true,
+    "primary_300km_background": true,
+    "sensitivity_150_500_background": false,
+    "answer_check_occurrences": false,
+    "answer_check_features": false
+  },
+  "location_deduplication": {
+    "rule": "extract_each_exact_lon_lat_location_once_then_join_back",
+    "row_role_not_used_to_choose_raster_values": true
+  },
+  "missingness": {
+    "imputation": "none",
+    "predictor_deletion_after_value_read": false,
+    "complete_case_across_all_46": true,
+    "minimum_model_pool_retention_fraction": 0.8,
+    "minimum_model_pool_complete_rows": 50,
+    "minimum_primary_background_complete_rows": 4000,
+    "taxon_replacement": false,
+    "failure_rule": "whole_50_taxon_program_unavailable_before_model_fitting"
+  },
+  "layers": {
+    "chelsa_predictors": 42,
+    "soilgrids_predictors": 4,
+    "expected_total": 46,
+    "chelsa_manifest": "configs/chelsa_v2_1_plant_candidates.csv",
+    "soilgrids_depth": "0-5cm",
+    "soilgrids_statistic": "mean"
+  },
+  "execution": {
+    "raster_layer_parallel_jobs": 4,
+    "preflight_probe_required": true,
+    "require_all_46_probe_success": true,
+    "feature_extraction_allowed_only_after_probe_pass": true
+  }
+}
