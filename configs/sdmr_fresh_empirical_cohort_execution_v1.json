@@ -1,7 +1,7 @@
 {
   "program": "sdmr-fresh-empirical-cohort-v1-execution",
   "one_shot": true,
-  "frozen_design_sha": "0766f626091b5ee831e6de351e16f259d0fa6989",
+  "frozen_design_sha": "022b35576b413256e65c54231fc80fc7ff9227ee",
   "trigger_path": "configs/sdmr_fresh_empirical_cohort_execute.txt",
   "snapshot_date": "2026-08-01",
   "snapshot_doi": "10.15468/dl.fs3btq",
@@ -16,8 +16,10 @@
   "sealed_answer_check_allowed": false,
   "blob_sha": {
     "src/sdmr/process_id/fresh/cohort.py": "496952b28fa165f7c20c28183325daa02c7c02d0",
-    ".github/workflows/sdmr-fresh-empirical-cohort-v1.yml": "a6d7bab9b5d5c3a065af215878f4515da2d2097b",
+    ".github/workflows/sdmr-fresh-empirical-cohort-v1.yml": "104fbb36381b0bde997403b073870f005fefd8ab",
     "configs/sdmr_fresh_empirical_cohort_v1.json": "5bc83cd39c42315f840bf13148f0aba9bcb501c5",
     "configs/sdmr_fresh_empirical_historical_exclusion_v1.csv": "b85d8b6031ab3fba9cef26d4cab2d4253cfc31b4"
-  }
+  },
+  "previous_failed_preflight_run": 36218537257,
+  "previous_failure": "checkout_fetch_depth_1_prevented_HEAD_grandparent_verification"
 }
