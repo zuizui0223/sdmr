@@ -1,0 +1,25 @@
+{
+  "accessible_area_summary_sha256": "15cee2f0745010a8034f2e5f8900f113cbbbc99ed67b3423dc41788614a511f5",
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "background_points_sha256": "99b7fe02380d5be27fd14eeb821cb24b86d7684e82c705e3ca8781928e454776",
+  "environmental_values_read": false,
+  "minimum_primary_background_points": 5000,
+  "minimum_primary_candidate_cells": 5606,
+  "model_fitting_performed": false,
+  "model_pool_occurrences_sha256": "57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137",
+  "next_gate": "extract_frozen_environmental_features_for_model_pool_and_background_only",
+  "occurrence_split_artifact_id": 10899781608,
+  "primary_background_rows": 250000,
+  "primary_m_km": 300,
+  "program": "sdmr-fresh-empirical-background-v1",
+  "sensitivity_m_km": [
+    150,
+    500
+  ],
+  "status": "model_pool_only_accessible_area_and_background_passed",
+  "target_footprint_rows": 1060909,
+  "target_footprint_sha256": "ab424b13665a6f59d30f9b4408aa9cb2b9d4b207b1155bd21e8e99ae07ae50c1",
+  "taxa_using_all_available_primary_cells": 0,
+  "taxon_count": 50
+}
