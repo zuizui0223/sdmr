@@ -20,6 +20,7 @@ REQUIRED_COMPARATORS = (
 )
 PROGRAM = "sdmr-fresh-empirical-prefreeze-v1"
 KNOWN_TRUTH_PROGRAM = "sdmr-v6-prospective-known-truth-v2"
+PLANNING_STATUS = "planning_frozen_no_outcomes"
 FINAL_STATUS = "frozen_ready_for_fresh_execution"
 
 
@@ -102,7 +103,7 @@ def validate_prefreeze_contract(contract: Mapping) -> None:
 
     if c.get("program") != PROGRAM:
         raise FreshContractError(f"program must be {PROGRAM!r}")
-    if c.get("status") not in {"prefreeze_scaffold_no_outcomes", FINAL_STATUS}:
+    if c.get("status") not in {"prefreeze_scaffold_no_outcomes", PLANNING_STATUS, FINAL_STATUS}:
         raise FreshContractError("unexpected fresh empirical contract status")
     if c.get("product_a_boundary") != "closed_not_reopened":
         raise FreshContractError("Product-A boundary must remain closed_not_reopened")
@@ -223,6 +224,86 @@ def validate_prefreeze_contract(contract: Mapping) -> None:
     if emp_f.get("required") is not True:
         raise FreshContractError("EMP-F denominator integrity must be required")
     _explicit_bool(promotion.get("frozen"), name="promotion.frozen")
+
+
+
+def validate_planning_freeze_contract(contract: Mapping) -> None:
+    """Require the pre-outcome planning decisions to be frozen.
+
+    This intermediate gate deliberately does not require taxon identities,
+    source manifests, provider/QC details, or the process-registry manifest.
+    It freezes only choices that can be justified without opening the fresh
+    empirical answer-check.
+    """
+    validate_prefreeze_contract(contract)
+    c = _mapping(contract, name="contract")
+    if c.get("status") not in {PLANNING_STATUS, FINAL_STATUS}:
+        raise FreshContractError(
+            f"planning freeze status must be {PLANNING_STATUS!r} or {FINAL_STATUS!r}"
+        )
+
+    cohort = _mapping(c["cohort"], name="cohort")
+    exact_denominator = cohort.get("exact_denominator")
+    if isinstance(exact_denominator, bool) or not isinstance(exact_denominator, int):
+        raise FreshContractError("planning freeze requires an exact taxon denominator")
+    if not 30 <= exact_denominator <= 50:
+        raise FreshContractError("planning freeze denominator must stay inside [30, 50]")
+
+    metric = _mapping(c["primary_metric"], name="primary_metric")
+    _nonempty_text(
+        metric.get("prediction_guardrail"),
+        name="primary_metric.prediction_guardrail",
+    )
+    if _explicit_bool(
+        metric.get("prediction_guardrail_frozen"),
+        name="primary_metric.prediction_guardrail_frozen",
+    ) is not True:
+        raise FreshContractError("planning freeze requires a frozen prediction guardrail")
+
+    comparators = _mapping(c["comparators"], name="comparators")
+    if _explicit_bool(comparators.get("frozen"), name="comparators.frozen") is not True:
+        raise FreshContractError("planning freeze requires frozen comparators")
+    if comparators.get("primary") not in REQUIRED_COMPARATORS[:-1]:
+        raise FreshContractError("planning freeze requires one flat primary comparator")
+
+    learners = _mapping(c["learner_design_panel"], name="learner_design_panel")
+    if _explicit_bool(learners.get("frozen"), name="learner_design_panel.frozen") is not True:
+        raise FreshContractError("planning freeze requires a frozen learner/design panel")
+    routes = tuple(learners.get("routes", ()))
+    if len(routes) < 2 or any(
+        not isinstance(route, str) or not route.strip() for route in routes
+    ):
+        raise FreshContractError(
+            "planning freeze requires at least two named learner/design routes"
+        )
+
+    promotion = _mapping(c["promotion"], name="promotion")
+    if _explicit_bool(promotion.get("frozen"), name="promotion.frozen") is not True:
+        raise FreshContractError("planning freeze requires frozen EMP thresholds")
+    gates = _mapping(promotion["gate_vector"], name="promotion.gate_vector")
+    _finite_number(
+        _mapping(gates["EMP-A"], name="EMP-A").get("minimum_mean_gain"),
+        name="EMP-A.minimum_mean_gain",
+    )
+    _finite_number(
+        _mapping(gates["EMP-B"], name="EMP-B").get("minimum_lower_bound"),
+        name="EMP-B.minimum_lower_bound",
+    )
+    emp_c = _mapping(gates["EMP-C"], name="EMP-C")
+    margin = _finite_number(
+        emp_c.get("noninferiority_margin"),
+        name="EMP-C.noninferiority_margin",
+    )
+    if margin < 0:
+        raise FreshContractError("EMP-C noninferiority margin must be >= 0")
+    _probability(
+        _mapping(gates["EMP-D"], name="EMP-D").get("minimum_stable_fraction"),
+        name="EMP-D.minimum_stable_fraction",
+    )
+    if _mapping(gates["EMP-E"], name="EMP-E").get("maximum_violation_rate") != 0:
+        raise FreshContractError("EMP-E maximum_violation_rate must remain zero")
+    if _mapping(gates["EMP-F"], name="EMP-F").get("required") is not True:
+        raise FreshContractError("EMP-F must remain required")
 
 
 def validate_final_freeze_contract(contract: Mapping) -> None:

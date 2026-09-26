@@ -1,0 +1,127 @@
+{
+  "program": "sdmr-fresh-empirical-prefreeze-v1",
+  "status": "planning_frozen_no_outcomes",
+  "product_a_boundary": "closed_not_reopened",
+  "known_truth_prerequisite": {
+    "program": "sdmr-v6-prospective-known-truth-v2",
+    "workflow_run": 36212033498,
+    "terminal_passed": true,
+    "artifact_id": 10896590112,
+    "artifact_digest": "sha256:7c0c3dd6f12a0478abcd0fadabdb013a26356ac7ac6dacca7bc2cbdabee7fe68"
+  },
+  "fresh_outcomes_opened": false,
+  "scientific_scope": {
+    "taxon_group": "vascular_plants",
+    "response": "occurrence_only",
+    "primary_question": "Does process-first identification improve sealed ecological niche reconstruction relative to predeclared flat predictor-selection baselines without sacrificing prediction safety?"
+  },
+  "cohort": {
+    "planning_range": [
+      30,
+      50
+    ],
+    "exact_denominator": 50,
+    "eligibility_rules_frozen": false,
+    "taxon_identities_frozen": false,
+    "taxon_identity_manifest_sha256": null,
+    "source_manifest_frozen": false,
+    "source_manifest_sha256": null,
+    "historical_product_a_taxa_excluded": true,
+    "replacement_after_outcome_access": false
+  },
+  "data_boundary": {
+    "provider": null,
+    "temporal_window": null,
+    "occurrence_qc_rule": null,
+    "accessible_area_rule": null,
+    "outer_split_rule": "coordinate_only_before_environmental_feature_access",
+    "answer_check_sealed": true
+  },
+  "process_registry": {
+    "processes": [
+      "thermal",
+      "water",
+      "seasonality",
+      "radiation_energy",
+      "soil_substrate",
+      "productivity"
+    ],
+    "frozen": false,
+    "registry_manifest_sha256": null
+  },
+  "primary_metric": {
+    "name": "balanced_presence_background_log_score",
+    "frozen": true,
+    "prediction_guardrail": "answer-check AUC noninferiority versus matched_learner_flat_predictive_selector",
+    "prediction_guardrail_frozen": true
+  },
+  "comparators": {
+    "required": [
+      "auc_oriented_flat_selector",
+      "correlation_vif_flat_filter",
+      "matched_learner_flat_predictive_selector",
+      "sdmr_process_first"
+    ],
+    "primary": "matched_learner_flat_predictive_selector",
+    "frozen": true
+  },
+  "learner_design_panel": {
+    "routes": [
+      "penalized_logistic",
+      "shallow3_hgb"
+    ],
+    "disagreement_policy": "unresolved_not_averaged",
+    "frozen": true
+  },
+  "promotion": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "gate_vector": {
+      "EMP-A": {
+        "metric": "paired_reconstruction_gain",
+        "minimum_mean_gain": 0.01,
+        "unit": "taxon_level_paired_balanced_log_score_gain"
+      },
+      "EMP-B": {
+        "metric": "paired_uncertainty_lower_bound",
+        "minimum_lower_bound": 0,
+        "interval": "taxon_level_percentile_bootstrap_95",
+        "bootstrap_replicates": 20000,
+        "bootstrap_seed": 20260926
+      },
+      "EMP-C": {
+        "metric": "prediction_guardrail_noninferiority",
+        "noninferiority_margin": 0.02,
+        "guardrail_metric": "answer_check_auc"
+      },
+      "EMP-D": {
+        "metric": "stable_process_fraction",
+        "minimum_stable_fraction": 0.8,
+        "stable_definition": "same sharp process state across penalized_logistic and shallow3_hgb; learner disagreement remains unresolved"
+      },
+      "EMP-E": {
+        "metric": "abstention_integrity_violation_rate",
+        "maximum_violation_rate": 0
+      },
+      "EMP-F": {
+        "metric": "declared_denominator_integrity",
+        "required": true
+      }
+    },
+    "frozen": true
+  },
+  "planning_evidence": {
+    "config": "configs/sdmr_fresh_empirical_power_v1.json",
+    "target_power": 0.8,
+    "worst_case_planning_true_gain": 0.02,
+    "worst_case_taxon_sd": 0.05,
+    "selected_denominator_power": 0.8074295788138212,
+    "n49_power": 0.7995559032981121
+  }
+}
