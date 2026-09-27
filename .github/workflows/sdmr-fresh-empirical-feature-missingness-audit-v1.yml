@@ -1,0 +1,62 @@
+name: sdmr-fresh-empirical-feature-missingness-audit-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_feature_missingness_audit_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - name: Verify diagnostic-only audit contract
+        run: |
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/sdmr_fresh_empirical_feature_missingness_audit_v1.json'))
+          if c.get('program')!='sdmr-fresh-empirical-feature-missingness-audit-v1':
+              raise SystemExit('wrong audit program')
+          if c.get('source_feature_run')!=36317289983:
+              raise SystemExit('source feature run changed')
+          forbidden=set(c.get('forbidden',[]))
+          required={'answer_check_access','model_fitting','taxon_replacement','predictor_deletion','threshold_relaxation'}
+          if forbidden!=required:
+              raise SystemExit('audit forbidden-operation set changed')
+          print('diagnostic-only audit contract passed')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36317289983
+          name: sdmr-fresh-empirical-feature-extraction-v1
+          path: failed_feature_bundle
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit structural missingness without fitting models
+        run: |
+          python -m sdmr.process_id.fresh.feature_missingness_audit \
+            --location-features failed_feature_bundle/feature_bundle/location_features.parquet \
+            --predictor-missingness failed_feature_bundle/feature_bundle/predictor_missingness.csv \
+            --raster-provenance failed_feature_bundle/feature_bundle/raster_provenance.csv \
+            --output-dir audit
+          cat audit/structural_missingness_result.json
+          cat audit/structural_missingness_audit.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-feature-missingness-audit-v1
+          path: audit/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
