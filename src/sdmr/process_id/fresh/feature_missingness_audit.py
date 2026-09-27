@@ -103,7 +103,7 @@ def audit_feature_missingness(
                 "interpretation": "missing_event_date_despite_positive_companion",
             }
         )
-        if companion.startswith("ngd"):
+        if companion.startswith("ngd") or companion == "gsl":
             rows.append(
                 {
                     "audit_type": "event_date_missing_with_full_year_companion",
@@ -117,7 +117,7 @@ def audit_feature_missingness(
                         if missing_n
                         else 0.0
                     ),
-                    "interpretation": "missing_event_date_where_threshold_holds_all_year",
+                    "interpretation": "missing_event_date_where_companion_holds_all_year",
                 }
             )
 
