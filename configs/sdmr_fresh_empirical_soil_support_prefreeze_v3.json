@@ -1,0 +1,99 @@
+{
+  "schema": "sdmr.fresh_empirical_soil_support_prefreeze_v3",
+  "frozen_date": "2026-09-27",
+  "status": "design_frozen_before_new_candidate_scan",
+  "parent_method": {
+    "program": "sdmr-v6-prospective-known-truth-v2",
+    "authoritative_run": 36212033498,
+    "result": "prospective_known_truth_passed",
+    "kt_gates": [
+      "KT-A",
+      "KT-B",
+      "KT-C",
+      "KT-D",
+      "KT-E",
+      "KT-F"
+    ],
+    "product_a_boundary": "closed_not_reopened"
+  },
+  "predecessor_empirical_v2": {
+    "status": "terminal_unavailable_under_frozen_50_taxon_46_predictor_contract",
+    "selected_taxa": 50,
+    "feature_complete_taxa": 37,
+    "blocked_taxa": 13,
+    "blocker_process": "soil_substrate",
+    "blocker_predictors": [
+      "sg_phh2o_0_5",
+      "sg_clay_0_5",
+      "sg_soc_0_5",
+      "sg_nitrogen_0_5"
+    ],
+    "answer_check_accessed": false,
+    "model_fitting_performed": false
+  },
+  "independence": {
+    "exclude_all_predecessor_fresh_v2_taxa": true,
+    "exclude_historical_product_a_taxa": true,
+    "exact_final_denominator": 50,
+    "no_replacement_after_final_freeze": true
+  },
+  "two_stage_selection": {
+    "stage1_candidate_roster": {
+      "target_candidates": 200,
+      "metadata_rules": "same GBIF 2026-08-01 / 2010-2025 Tracheophyta SPECIES / >=500 rows / >=20 occupied 1-degree cells / family+genus required / coordinate QC as v2",
+      "breadth_before_roster": "max one per genus, max four per family",
+      "deterministic_order": "new SHA-256 seed independent of v2",
+      "environmental_values_allowed": false,
+      "answer_check_allowed": false,
+      "model_fitting_allowed": false
+    },
+    "stage2_support_eligibility": {
+      "purpose": "technical support-mask eligibility before final taxon selection",
+      "permitted_information": [
+        "model-pool occurrence coordinates only",
+        "primary 300-km target-group background coordinates only",
+        "source-decoded 46-predictor finite/missing masks"
+      ],
+      "forbidden_information": [
+        "sealed answer-check coordinates",
+        "sealed answer-check environmental values",
+        "model predictions",
+        "AUC/CBI/OR10/AICc/balanced log score",
+        "process states",
+        "KT truth"
+      ],
+      "predictors": "same frozen 42 CHELSA + four SoilGrids topsoil predictors",
+      "source_decoding_rules": "inherit six deterministic CHELSA structural-state decoding rules from terminal v2",
+      "technical_gate": {
+        "minimum_model_pool_complete_fraction": 0.8,
+        "minimum_model_pool_complete_rows": 50,
+        "minimum_primary_background_complete_rows": 4000,
+        "complete_case_across_all_46": true
+      },
+      "eligibility_is_binary_only": true,
+      "no_ranking_by_coverage_margin": true
+    },
+    "stage3_final_cohort": {
+      "selection_pool": "only stage2-eligible taxa",
+      "exact_n": 50,
+      "breadth": "max one per genus and max two per family",
+      "deterministic_order": "second frozen SHA-256 seed distinct from stage1 candidate roster seed",
+      "coverage_values_may_not_rank_within_eligible_pool": true
+    }
+  },
+  "failure_rules": {
+    "fewer_than_50_support_eligible_taxa": "terminal_unavailable; do not lower support gate or expand roster",
+    "breadth_constraints_cannot_fill_50": "terminal_unavailable; do not relax genus/family caps",
+    "any_candidate_source_or_feature_failure": "retain candidate as ineligible; no per-candidate repair after screen",
+    "post_selection_environment_repair": false
+  },
+  "next_gate_if_pass": "freeze source identity, process registry, M, outer split and empirical EMP-A–EMP-F execution on the final 50 before sealed answer-check access",
+  "prohibited": [
+    "reuse any of the 50 v2 taxa",
+    "select final taxa by outcome or model performance",
+    "rank final taxa by amount of SoilGrids coverage once the binary technical gate is passed",
+    "delete soil predictors to rescue taxa",
+    "relax 0.80/50/4000 complete-case thresholds",
+    "open sealed answer-check before final cohort and execution contract are frozen"
+  ]
+}
