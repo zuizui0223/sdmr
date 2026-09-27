@@ -1,0 +1,11 @@
+program=sdmr-fresh-empirical-soil-recovery-v1
+execution_receipt_commit=617503fcb5a5442e922b7bdc64bb6226ffaa9450
+frozen_recovery_design_commit=e401d0263736897c9e6821b0c7e64461e08d210d
+source_feature_run=36270370682
+successful_chelsa_artifacts=42
+soil_predictors=4
+spatial_shards_per_predictor=16
+location_rows=249919
+answer_check_accessed=false
+model_fitting_started=false
+execute_once=true
