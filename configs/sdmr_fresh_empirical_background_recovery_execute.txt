@@ -1,0 +1,9 @@
+program=sdmr-fresh-empirical-background-recovery-v1
+execution_receipt_commit=e73815feb218ceb4e4837270fc78877e858280d9
+frozen_recovery_design_commit=6a5b4db1e6edb413db25516658aca7a401c062e2
+source_chunk_run=36239328323
+rerun_gbif_chunks=false
+environmental_values_opened=false
+answer_check_coordinates_opened=false
+answer_check_features_opened=false
+execute_once=true

@@ -1,0 +1,22 @@
+{
+  "program": "sdmr-fresh-empirical-occurrence-split-v1-execution",
+  "one_shot": true,
+  "frozen_design_sha": "f7fcbfd464e4a7d2f8b78e4462cbf7cefe3eb477",
+  "snapshot_date": "2026-08-01",
+  "snapshot_doi": "10.15468/dl.fs3btq",
+  "selected_taxa_sha256": "930821c74cc76820907f7c942b98189ddc4f28aca1597198db431ef6eebb40c2",
+  "exact_taxon_denominator": 50,
+  "environmental_values_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "accessible_area_build_allowed": false,
+  "answer_check_coordinates_persisted_for_M": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/occurrence_split.py": "0636278cc48aaf78949e59634e554fec27048a7a",
+    ".github/workflows/sdmr-fresh-empirical-occurrence-split-v1.yml": "5c543aca07f7b2b4a1776347ab88bc8dd0c28eca",
+    "configs/sdmr_fresh_empirical_final_freeze_v1.json": "e9e444fa28b849f44565b679017c73db21a845d4",
+    "configs/sdmr_fresh_empirical_source_freeze_v1.json": "d90b5e02fd07e95b4d067023165668042fd3bcb1",
+    "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "program": "sdmr-fresh-empirical-cohort-v1-artifact-receipt",
+  "workflow_run": 36218619147,
+  "workflow_head": "788789a7438fdc2cc6317916c0310134f8f15e38",
+  "artifact_id": 10897629889,
+  "artifact_name": "sdmr-fresh-empirical-cohort-v1",
+  "artifact_digest": "sha256:503f584dcf72727154f451d51b3c3ece497a8b455027e5f5206f9836bbb7aca8",
+  "selected_manifest_sha256": "930821c74cc76820907f7c942b98189ddc4f28aca1597198db431ef6eebb40c2",
+  "result_file_sha256": "c5ee8ead0197d5d1adb9aa4e8bd874430e3ce90ff62cef3a6c9953b40407f767",
+  "availability_summary_sha256": "62e946fdc451a41b0bb1edf0d97b4373f1216b495c39946daf15de6471f4a74d",
+  "selection_audit_sha256": "959843e5dbf82bb1c2058ef87e48a690eb3b77393642af2664c29f9ff1d5fea3",
+  "selected_count": 50,
+  "selected_families": 42,
+  "selected_genera": 50,
+  "fresh_outcomes_opened": false,
+  "environmental_values_read": false,
+  "sealed_answer_check_read": false
+}

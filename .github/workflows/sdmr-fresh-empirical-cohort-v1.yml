@@ -1,0 +1,148 @@
+name: sdmr-fresh-empirical-cohort-v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-cohort-freeze-v1
+    paths:
+      - configs/sdmr_fresh_empirical_cohort_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-cohort-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Validate one-shot receipt and frozen metadata-only cohort contract
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          from sdmr.process_id.fresh.cohort import load_exclusion_manifest, validate_contract
+          from sdmr.data.snapshot_citation import validate_snapshot_citation
+
+          receipt_path = 'configs/sdmr_fresh_empirical_cohort_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_cohort_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-cohort-v1-execution':
+              raise SystemExit('wrong cohort execution receipt')
+          if receipt.get('one_shot') is not True or receipt.get('fresh_outcomes_opened') is not False:
+              raise SystemExit('cohort execution receipt is not one-shot and outcome-blind')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_design_sha']:
+              raise SystemExit('frozen design SHA is not the grandparent of trigger execution')
+          trigger_changes = [x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'trigger commit changed unexpected files: {trigger_changes}')
+          receipt_changes = [x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'receipt commit changed unexpected files: {receipt_changes}')
+
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen blob changed: {path}: {observed} != {expected}')
+
+          c = validate_contract('configs/sdmr_fresh_empirical_cohort_v1.json')
+          ex = load_exclusion_manifest('configs/sdmr_fresh_empirical_historical_exclusion_v1.csv')
+          if len(ex) != 84:
+              raise SystemExit('historical exclusion denominator changed')
+          citation = validate_snapshot_citation(
+              '2026-08-01',
+              '10.15468/dl.fs3btq',
+              region='us-east-1',
+          )
+          expected = '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050'
+          if citation.citation_sha256 != expected:
+              raise SystemExit(f'GBIF snapshot citation drifted: {citation.citation_sha256}')
+          if c['information_barrier']['fresh_outcomes_opened'] is not False:
+              raise SystemExit('fresh outcomes opened before cohort selection')
+          print('metadata-only cohort preflight passed')
+          PY
+          python -m pytest -q tests/test_process_id_fresh_cohort.py
+
+  chunk:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[cloud,parquet]'
+      - name: Count eligible vascular-plant occurrences and occupied 1-degree cells
+        run: |
+          python -m sdmr.process_id.fresh.cohort chunk \
+            --contract configs/sdmr_fresh_empirical_cohort_v1.json \
+            --exclusion configs/sdmr_fresh_empirical_historical_exclusion_v1.csv \
+            --chunk-index ${{ matrix.chunk }} \
+            --chunk-count 32 \
+            --output-dir chunk_output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-cohort-chunk-${{ matrix.chunk }}
+          path: chunk_output/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-cohort-chunk-*
+          path: chunk_parts
+      - name: Apply frozen deterministic selection rule
+        run: |
+          python -m sdmr.process_id.fresh.cohort aggregate \
+            --contract configs/sdmr_fresh_empirical_cohort_v1.json \
+            --exclusion configs/sdmr_fresh_empirical_historical_exclusion_v1.csv \
+            --parts-root chunk_parts \
+            --output-dir cohort
+          echo '--- selected_fresh_taxa.csv ---'
+          cat cohort/selected_fresh_taxa.csv
+          echo '--- cohort_selection_result.json ---'
+          cat cohort/cohort_selection_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-cohort-v1
+          path: cohort/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

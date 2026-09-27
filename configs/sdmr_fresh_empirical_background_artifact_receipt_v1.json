@@ -1,0 +1,42 @@
+{
+  "program": "sdmr-fresh-empirical-background-v1-artifact-receipt",
+  "source_chunk_run": 36239328323,
+  "source_chunk_run_preflight": "success",
+  "source_chunk_jobs_passed": 32,
+  "source_chunk_run_aggregate": "failed_missing_duckdb_only",
+  "recovery_run": 36240044258,
+  "recovery_head": "dc5b81fc7fb3c82df9747d732290e22a96879b79",
+  "recovery_conclusion": "success",
+  "artifact_id": 10905064972,
+  "artifact_name": "sdmr-fresh-empirical-background-v1",
+  "artifact_digest": "sha256:d907566fcdef3586692ab854dc441f9e762fd0f50392daa199675ce139be916f",
+  "artifact_expires_at": "2026-12-25T11:49:59Z",
+  "files": {
+    "target_footprint.parquet": "sha256:ab424b13665a6f59d30f9b4408aa9cb2b9d4b207b1155bd21e8e99ae07ae50c1",
+    "background_points.csv": "sha256:99b7fe02380d5be27fd14eeb821cb24b86d7684e82c705e3ca8781928e454776",
+    "accessible_area_summary.csv": "sha256:15cee2f0745010a8034f2e5f8900f113cbbbc99ed67b3423dc41788614a511f5",
+    "background_result.json": "sha256:6c81114706633c90fea74f024e92f5e650e90da87aeec1d16e28c952bf56431b"
+  },
+  "target_footprint_rows": 1060909,
+  "taxon_count": 50,
+  "primary_m_km": 300,
+  "sensitivity_m_km": [
+    150,
+    500
+  ],
+  "primary_background_rows": 250000,
+  "minimum_primary_candidate_cells": 5606,
+  "minimum_primary_candidate_taxon": "Aidia micrantha",
+  "minimum_primary_background_points": 5000,
+  "taxa_using_all_available_primary_cells": 0,
+  "sensitivity_150_minimum_candidate_cells": 2973,
+  "sensitivity_150_minimum_candidate_taxon": "Aidia micrantha",
+  "sensitivity_150_taxa_below_5000": 1,
+  "sensitivity_500_minimum_candidate_cells": 9698,
+  "sensitivity_500_minimum_candidate_taxon": "Epilobium melanocaulon",
+  "environmental_values_read": false,
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "extract_frozen_environmental_features_for_model_pool_and_background_only"
+}

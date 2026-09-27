@@ -1,0 +1,43 @@
+{
+  "program": "sdmr-fresh-empirical-power-v1",
+  "outcome_boundary": "fresh_empirical_answer_check_unopened",
+  "planning_range": [
+    30,
+    50
+  ],
+  "paired_gain": {
+    "target_power": 0.8,
+    "true_mean_gain": 0.02,
+    "taxon_sd_upper": 0.05,
+    "alpha_two_sided": 0.05,
+    "minimum_mean_gain": 0.01,
+    "minimum_lower_bound": 0,
+    "selected_denominator": 50,
+    "achieved_power": 0.8074295788138212,
+    "n49_power": 0.7995559032981121,
+    "selected_critical_mean": 0.013859038243496779,
+    "interval_planning_model": "normal_approximation_for_sample_size_only",
+    "empirical_interval": "taxon_level_percentile_bootstrap_95",
+    "bootstrap_replicates": 20000,
+    "bootstrap_seed": 20260926
+  },
+  "prediction_guardrail": {
+    "metric": "answer_check_auc",
+    "comparator": "matched_learner_flat_predictive_selector",
+    "noninferiority_margin": 0.02,
+    "role": "safety_guardrail_not_primary_ecological_objective"
+  },
+  "stability": {
+    "minimum_stable_fraction": 0.8,
+    "planning_true_stable_fraction": 0.9,
+    "selected_denominator": 50,
+    "required_stable_taxa": 40,
+    "power_at_planning_fraction": 0.990645398412671
+  },
+  "learner_design_panel": [
+    "penalized_logistic",
+    "shallow3_hgb"
+  ],
+  "primary_comparator": "matched_learner_flat_predictive_selector",
+  "decision": "freeze_N50_EMP_A_D_and_prediction_guardrail_before_manifest_construction"
+}

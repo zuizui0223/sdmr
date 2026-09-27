@@ -1,0 +1,110 @@
+{
+  "program": "sdmr-fresh-empirical-prefreeze-v1",
+  "status": "prefreeze_scaffold_no_outcomes",
+  "product_a_boundary": "closed_not_reopened",
+  "known_truth_prerequisite": {
+    "program": "sdmr-v6-prospective-known-truth-v2",
+    "workflow_run": 36212033498,
+    "terminal_passed": true,
+    "artifact_id": 10896590112,
+    "artifact_digest": "sha256:7c0c3dd6f12a0478abcd0fadabdb013a26356ac7ac6dacca7bc2cbdabee7fe68"
+  },
+  "fresh_outcomes_opened": false,
+  "scientific_scope": {
+    "taxon_group": "vascular_plants",
+    "response": "occurrence_only",
+    "primary_question": "Does process-first identification improve sealed ecological niche reconstruction relative to predeclared flat predictor-selection baselines without sacrificing prediction safety?"
+  },
+  "cohort": {
+    "planning_range": [
+      30,
+      50
+    ],
+    "exact_denominator": null,
+    "eligibility_rules_frozen": false,
+    "taxon_identities_frozen": false,
+    "taxon_identity_manifest_sha256": null,
+    "source_manifest_frozen": false,
+    "source_manifest_sha256": null,
+    "historical_product_a_taxa_excluded": true,
+    "replacement_after_outcome_access": false
+  },
+  "data_boundary": {
+    "provider": null,
+    "temporal_window": null,
+    "occurrence_qc_rule": null,
+    "accessible_area_rule": null,
+    "outer_split_rule": "coordinate_only_before_environmental_feature_access",
+    "answer_check_sealed": true
+  },
+  "process_registry": {
+    "processes": [
+      "thermal",
+      "water",
+      "seasonality",
+      "radiation_energy",
+      "soil_substrate",
+      "productivity"
+    ],
+    "frozen": false,
+    "registry_manifest_sha256": null
+  },
+  "primary_metric": {
+    "name": "balanced_presence_background_log_score",
+    "frozen": true,
+    "prediction_guardrail": null,
+    "prediction_guardrail_frozen": false
+  },
+  "comparators": {
+    "required": [
+      "auc_oriented_flat_selector",
+      "correlation_vif_flat_filter",
+      "matched_learner_flat_predictive_selector",
+      "sdmr_process_first"
+    ],
+    "primary": null,
+    "frozen": false
+  },
+  "learner_design_panel": {
+    "routes": [],
+    "disagreement_policy": "unresolved_not_averaged",
+    "frozen": false
+  },
+  "promotion": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "gate_vector": {
+      "EMP-A": {
+        "metric": "paired_reconstruction_gain",
+        "minimum_mean_gain": null
+      },
+      "EMP-B": {
+        "metric": "paired_uncertainty_lower_bound",
+        "minimum_lower_bound": null
+      },
+      "EMP-C": {
+        "metric": "prediction_guardrail_noninferiority",
+        "noninferiority_margin": null
+      },
+      "EMP-D": {
+        "metric": "stable_process_fraction",
+        "minimum_stable_fraction": null
+      },
+      "EMP-E": {
+        "metric": "abstention_integrity_violation_rate",
+        "maximum_violation_rate": 0
+      },
+      "EMP-F": {
+        "metric": "declared_denominator_integrity",
+        "required": true
+      }
+    },
+    "frozen": false
+  }
+}

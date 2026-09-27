@@ -1,0 +1,24 @@
+{
+  "program": "sdmr-fresh-empirical-background-recovery-v1-execution",
+  "one_shot": true,
+  "frozen_recovery_design_sha": "6a5b4db1e6edb413db25516658aca7a401c062e2",
+  "source_chunk_run": 36239328323,
+  "source_run_chunk_jobs_passed": 32,
+  "source_run_preflight_passed": true,
+  "source_run_aggregate_failed": true,
+  "recovery_reason": "aggregate_runner_missing_duckdb_only",
+  "occurrence_split_run": 36222283703,
+  "rerun_gbif_chunks_allowed": false,
+  "environmental_values_allowed": false,
+  "answer_check_coordinates_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/background.py": "93bd2bf276a9984b26626cf4696b314a50c9ac65",
+    ".github/workflows/sdmr-fresh-empirical-background-recovery-v1.yml": "5e459b9c3a2a65f926c366bfab7621e430f86ba3",
+    "configs/sdmr_fresh_empirical_final_freeze_v1.json": "e9e444fa28b849f44565b679017c73db21a845d4",
+    "configs/sdmr_fresh_empirical_source_freeze_v1.json": "d90b5e02fd07e95b4d067023165668042fd3bcb1",
+    "configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json": "1f52fc071a9258462f8387eae01a745a887e95ec",
+    "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54"
+  }
+}
