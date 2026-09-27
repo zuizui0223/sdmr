@@ -1,0 +1,53 @@
+{
+  "program": "sdmr-fresh-empirical-feature-stage-terminal-v2",
+  "status": "terminal_unavailable_under_frozen_50_taxon_46_predictor_contract",
+  "source_feature_run": 36317289983,
+  "source_feature_artifact_id": 10932610520,
+  "source_feature_artifact_digest": "sha256:0cf9df03c101ffa9fd22f903e795599de5ead38b31164e615b5c1e9510e79906",
+  "source_decoding_run": 36321163009,
+  "source_decoding_artifact_id": 10931944682,
+  "source_decoding_artifact_digest": "sha256:0838fc9cb6a988c6dc08a7a1b1c2a584d217d6199fdfd86d8ab8c7fa79d8d4b0",
+  "coverage_audit_run": 36321337976,
+  "coverage_audit_artifact_id": 10932398417,
+  "coverage_audit_artifact_digest": "sha256:d55673a2dac3a1f44c3dea73c6510dc376efeef9f4652ee77f42be03b1d7a84c",
+  "structural_source_decoding": {
+    "corrected_predictors": [
+      "fcf",
+      "swe",
+      "fgd",
+      "lgd",
+      "gdgfgd5",
+      "gdgfgd10"
+    ],
+    "corrected_rows": 725654,
+    "taxa_passing_after_decoding": 37,
+    "taxa_total": 50,
+    "minimum_model_pool_retention_fraction": 0.41263940520446096,
+    "minimum_model_pool_retention_taxon": "Euphrasia tetraquetra",
+    "minimum_background_complete_rows": 3904,
+    "minimum_background_complete_taxon": "Broussonetia monoica"
+  },
+  "true_coverage_diagnosis": {
+    "failing_taxa": 13,
+    "individual_blocker_predictors": [
+      "sg_clay_0_5",
+      "sg_nitrogen_0_5",
+      "sg_phh2o_0_5",
+      "sg_soc_0_5"
+    ],
+    "individual_blocker_processes": [
+      "soil_substrate"
+    ],
+    "taxa_with_individual_predictor_blockers": 13,
+    "taxa_rescued_by_single_predictor_omission_diagnostic_only": 0,
+    "interpretation": "common SoilGrids support coverage, not CHELSA layer availability or a single removable predictor"
+  },
+  "integrity": {
+    "answer_check_accessed": false,
+    "model_fitting_performed": false,
+    "taxon_replacement_performed": false,
+    "predictor_deletion_performed": false,
+    "threshold_relaxation_performed": false
+  },
+  "decision": "close v2 as terminal unavailable; start independent v3 fresh cohort with pre-outcome SoilGrids support eligibility and exclude all prior v2 taxa"
+}
