@@ -1,0 +1,8 @@
+program=sdmr-fresh-empirical-feature-source-decoding-v2
+execution_receipt_commit=e57d530e4d7fe6cfe44a4cfc3dff6c390eb3b895
+frozen_design_commit=7d71f6722660496aa874603580b56d52c313e2ac
+source_feature_run=36317289983
+source_feature_artifact_id=10932610520
+answer_check_accessed=false
+model_fitting_started=false
+execute_once=true

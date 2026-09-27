@@ -1,0 +1,72 @@
+{
+  "program": "sdmr-fresh-empirical-feature-source-decoding-v2",
+  "status": "frozen_after_v1_gate_failure_before_model_fitting",
+  "source_feature_run": 36317289983,
+  "source_feature_artifact_id": 10932610520,
+  "source_feature_artifact_digest": "sha256:0cf9df03c101ffa9fd22f903e795599de5ead38b31164e615b5c1e9510e79906",
+  "source_status": "feature_extraction_unavailable_complete_case_gate_failed",
+  "rationale": "correct structurally encoded ecological zero/all-year states misread as raster NODATA; do not change taxa, predictors, thresholds, or true missing cells",
+  "frozen_rules": [
+    {
+      "predictor": "fcf",
+      "when": "isna(fcf) and bio6 > 0",
+      "set_to": 0,
+      "logic": "no freezing month implies zero freeze-thaw transitions",
+      "expected_rows": 148163
+    },
+    {
+      "predictor": "swe",
+      "when": "isna(swe) and scd == 0",
+      "set_to": 0,
+      "logic": "zero snow-cover days implies zero annual snow water equivalent",
+      "expected_rows": 186897
+    },
+    {
+      "predictor": "fgd",
+      "when": "isna(fgd) and gsl == 365",
+      "set_to": 1,
+      "logic": "all-year growing season begins on Julian day 1",
+      "expected_rows": 91166
+    },
+    {
+      "predictor": "lgd",
+      "when": "isna(lgd) and gsl == 365",
+      "set_to": 365,
+      "logic": "all-year growing season ends on Julian day 365",
+      "expected_rows": 91166
+    },
+    {
+      "predictor": "gdgfgd5",
+      "when": "isna(gdgfgd5) and ngd5 == 365",
+      "set_to": 1,
+      "logic": "temperature above 5C on all days implies first qualifying day is Julian day 1",
+      "expected_rows": 130488
+    },
+    {
+      "predictor": "gdgfgd10",
+      "when": "isna(gdgfgd10) and ngd10 == 365",
+      "set_to": 1,
+      "logic": "temperature above 10C on all days implies first qualifying day is Julian day 1",
+      "expected_rows": 77774
+    }
+  ],
+  "unchanged": {
+    "taxon_count": 50,
+    "predictor_count": 46,
+    "minimum_model_pool_retention_fraction": 0.8,
+    "minimum_model_pool_complete_rows": 50,
+    "minimum_primary_background_complete_rows": 4000,
+    "imputation": "none_outside_frozen_structural_decoding_rules",
+    "predictor_deletion": false,
+    "taxon_replacement": false,
+    "threshold_relaxation": false
+  },
+  "forbidden": [
+    "answer_check_access",
+    "model_fitting",
+    "taxon_replacement",
+    "predictor_deletion",
+    "threshold_relaxation",
+    "additional_value_dependent_decoding_rules"
+  ]
+}

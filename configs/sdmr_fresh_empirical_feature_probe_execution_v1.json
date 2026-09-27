@@ -1,0 +1,19 @@
+{
+  "program": "sdmr-fresh-empirical-feature-probe-v1-execution",
+  "one_shot": true,
+  "frozen_probe_design_sha": "2876fa92a175a1fa9537fb09030801a1eb4a973e",
+  "expected_layers": 46,
+  "expected_chelsa_layers": 42,
+  "expected_soilgrids_layers": 4,
+  "environmental_values_allowed": false,
+  "answer_check_access_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/features.py": "9eea84199d892f9a255a7abec7a2d7f229bb8e56",
+    "src/sdmr/data/raster.py": "d28a9ceab362e3419c8844413d7dd0e378e066a9",
+    ".github/workflows/sdmr-fresh-empirical-feature-probe-v1.yml": "6105d59cce72d856455f1647e905a00c22530f58",
+    "configs/sdmr_fresh_empirical_feature_extraction_v1.json": "ed51a7bbd93464c74521b608b39465f931f56c8d",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json": "8e400efa9d5c5890982da6a67eef9724904177d7",
+    "configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json": "1f52fc071a9258462f8387eae01a745a887e95ec"
+  }
+}

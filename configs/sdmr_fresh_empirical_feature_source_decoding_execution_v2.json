@@ -1,0 +1,19 @@
+{
+  "program": "sdmr-fresh-empirical-feature-source-decoding-v2-execution",
+  "one_shot": true,
+  "frozen_design_sha": "7d71f6722660496aa874603580b56d52c313e2ac",
+  "source_feature_run": 36317289983,
+  "source_feature_artifact_id": 10932610520,
+  "source_feature_artifact_digest": "sha256:0cf9df03c101ffa9fd22f903e795599de5ead38b31164e615b5c1e9510e79906",
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "taxon_replacement_allowed": false,
+  "predictor_deletion_allowed": false,
+  "threshold_relaxation_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/feature_source_decoding.py": "41311b1cd2957f18153740844fc031a1e10bb0d6",
+    ".github/workflows/sdmr-fresh-empirical-feature-source-decoding-v2.yml": "cc45cff1c0f7309313e4d4d5f581ba58338a3589",
+    "configs/sdmr_fresh_empirical_feature_source_decoding_v2.json": "fbd3efcbcbae312f86a0e25ee4c3dc58e5965cee",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b"
+  }
+}

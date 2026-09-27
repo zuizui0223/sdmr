@@ -1,0 +1,45 @@
+name: sdmr-fresh-empirical-postdecode-coverage-audit-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_postdecode_coverage_audit_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36321163009
+          name: sdmr-fresh-empirical-feature-source-decoding-v2
+          path: decoded_v2
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit failing-taxon predictor coverage
+        run: |
+          python -m sdmr.process_id.fresh.postdecode_coverage_audit \
+            --decoded-bundle-dir decoded_v2 \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir audit
+          cat audit/coverage_audit_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-postdecode-coverage-audit-v1
+          path: audit/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

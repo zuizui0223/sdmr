@@ -1,0 +1,27 @@
+{
+  "program": "sdmr-fresh-empirical-feature-extraction-v1-execution",
+  "one_shot": true,
+  "frozen_design_sha": "5c5a4235552db1d6929e90540ef5cb6624a09f3e",
+  "probe_run": 36240673693,
+  "probe_artifact_id": 10905990106,
+  "probe_passed": true,
+  "expected_predictors": 46,
+  "expected_taxa": 50,
+  "environmental_values_allowed": true,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "model_pool_occurrences_sha256": "57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137",
+  "background_points_sha256": "99b7fe02380d5be27fd14eeb821cb24b86d7684e82c705e3ca8781928e454776",
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/features.py": "954ea797758c5440c46db1c62c8a318699b6f9f6",
+    "src/sdmr/data/raster.py": "d28a9ceab362e3419c8844413d7dd0e378e066a9",
+    ".github/workflows/sdmr-fresh-empirical-feature-extraction-v1.yml": "fc6da528f3e256b0496e572852a99224aee01fe5",
+    "configs/sdmr_fresh_empirical_feature_extraction_v1.json": "ed51a7bbd93464c74521b608b39465f931f56c8d",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json": "8e400efa9d5c5890982da6a67eef9724904177d7",
+    "configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json": "1f52fc071a9258462f8387eae01a745a887e95ec",
+    "configs/sdmr_fresh_empirical_feature_probe_artifact_receipt_v1.json": "885d5d1a4a0cb6010b861f04b65125aad50acf04",
+    "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
+  }
+}

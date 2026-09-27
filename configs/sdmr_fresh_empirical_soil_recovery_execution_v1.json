@@ -1,0 +1,35 @@
+{
+  "program": "sdmr-fresh-empirical-soil-recovery-v1-execution",
+  "one_shot": true,
+  "frozen_recovery_design_sha": "e401d0263736897c9e6821b0c7e64461e08d210d",
+  "source_feature_run": 36270370682,
+  "successful_chelsa_artifacts": 42,
+  "original_soil_jobs_timed_out": 4,
+  "soil_predictors": [
+    "sg_phh2o_0_5",
+    "sg_clay_0_5",
+    "sg_soc_0_5",
+    "sg_nitrogen_0_5"
+  ],
+  "spatial_shards_per_predictor": 16,
+  "location_rows": 249919,
+  "location_index_sha256": "ed25443651c3c9717ac83847de8e257be4947cfe8a84974d6fede9a30e869bed",
+  "environmental_values_allowed": true,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "recovery_changes_execution_geometry_only": true,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/soil_recovery.py": "b9e59f8bdb417a718862f26b61e2d882d893ed38",
+    "src/sdmr/process_id/fresh/features.py": "954ea797758c5440c46db1c62c8a318699b6f9f6",
+    "src/sdmr/data/raster.py": "d28a9ceab362e3419c8844413d7dd0e378e066a9",
+    ".github/workflows/sdmr-fresh-empirical-soil-recovery-v1.yml": "430aaa0dab9e07f9e0993030bf7c1e68259c1c8c",
+    "configs/sdmr_fresh_empirical_feature_extraction_v1.json": "ed51a7bbd93464c74521b608b39465f931f56c8d",
+    "configs/sdmr_fresh_empirical_chelsa_feature_artifacts_v1.json": "407b43204da3f9923b45060cc32531cf16ce8144",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json": "8e400efa9d5c5890982da6a67eef9724904177d7",
+    "configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json": "1f52fc071a9258462f8387eae01a745a887e95ec",
+    "configs/sdmr_fresh_empirical_feature_probe_artifact_receipt_v1.json": "885d5d1a4a0cb6010b861f04b65125aad50acf04",
+    "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
+  }
+}
