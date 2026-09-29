@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-feature-missingness-audit-v1",
+  "status": "diagnostic_only_after_feature_gate_failure",
+  "source_feature_run": 36317289983,
+  "source_feature_artifact_id": 10932610520,
+  "source_feature_artifact_digest": "sha256:0cf9df03c101ffa9fd22f903e795599de5ead38b31164e615b5c1e9510e79906",
+  "source_feature_status": "feature_extraction_unavailable_complete_case_gate_failed",
+  "expected_location_rows": 249919,
+  "expected_predictors": 46,
+  "audit_scope": [
+    "GeoTIFF_nodata_zero_collision_for_zero-domain_variables",
+    "event-date_missingness_vs_gsl_or_ngd_companions",
+    "swe_missingness_vs_scd"
+  ],
+  "forbidden": [
+    "answer_check_access",
+    "model_fitting",
+    "taxon_replacement",
+    "predictor_deletion",
+    "threshold_relaxation"
+  ],
+  "purpose": "distinguish_source_decoding_issue_from_true_environmental_coverage_failure"
+}

@@ -1,0 +1,226 @@
+name: sdmr-fresh-empirical-soil-recovery-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_soil_recovery_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-soil-recovery-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - name: Verify frozen SoilGrids recovery boundary
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          from sdmr.process_id.fresh.features import validate_feature_contract
+          from sdmr.process_id.fresh.soil_recovery import (
+              EXPECTED_LOCATION_INDEX_SHA256,
+              EXPECTED_LOCATION_ROWS,
+              SOIL_PREDICTORS,
+              SOIL_SHARD_COUNT,
+          )
+
+          receipt_path = 'configs/sdmr_fresh_empirical_soil_recovery_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_soil_recovery_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-soil-recovery-v1-execution':
+              raise SystemExit('wrong SoilGrids recovery receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('SoilGrids recovery is not one-shot')
+          if receipt.get('source_feature_run') != 36270370682:
+              raise SystemExit('wrong frozen source feature run')
+          if receipt.get('successful_chelsa_artifacts') != 42:
+              raise SystemExit('source feature run does not freeze 42 CHELSA artifacts')
+          if receipt.get('soil_predictors') != list(SOIL_PREDICTORS):
+              raise SystemExit('SoilGrids predictor set changed')
+          if receipt.get('spatial_shards_per_predictor') != SOIL_SHARD_COUNT:
+              raise SystemExit('SoilGrids shard count changed')
+          if receipt.get('location_rows') != EXPECTED_LOCATION_ROWS:
+              raise SystemExit('frozen location denominator changed')
+          if receipt.get('location_index_sha256') != EXPECTED_LOCATION_INDEX_SHA256:
+              raise SystemExit('frozen location fingerprint changed')
+          for key in ('answer_check_access_allowed', 'model_fitting_allowed'):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'SoilGrids recovery crossed frozen boundary: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_recovery_design_sha']:
+              raise SystemExit('SoilGrids recovery design is not trigger grandparent')
+          trigger_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x
+          ]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'SoilGrids trigger changed unexpected files: {trigger_changes}')
+          receipt_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x
+          ]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'SoilGrids receipt commit changed unexpected files: {receipt_changes}')
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen SoilGrids recovery blob changed: {path}: {observed} != {expected}')
+
+          source = json.load(open('configs/sdmr_fresh_empirical_chelsa_feature_artifacts_v1.json'))
+          if source.get('source_run') != 36270370682:
+              raise SystemExit('CHELSA artifact source run changed')
+          if len(source.get('successful_feature_artifacts', [])) != 42:
+              raise SystemExit('CHELSA artifact manifest denominator changed')
+          if any(item.get('expired') for item in source['successful_feature_artifacts']):
+              raise SystemExit('a frozen CHELSA feature artifact is expired')
+
+          validate_feature_contract(
+              feature_contract_path='configs/sdmr_fresh_empirical_feature_extraction_v1.json',
+              process_registry_path='configs/sdmr_fresh_empirical_process_registry_v1.csv',
+              selected_taxa_path='configs/sdmr_fresh_empirical_selected_taxa_v1.csv',
+              occurrence_receipt_path='configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json',
+              background_receipt_path='configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json',
+          )
+          print('SoilGrids spatial-shard recovery preflight passed')
+          PY
+          python -m pytest -q             tests/test_process_id_fresh_features.py             tests/test_process_id_fresh_soil_recovery.py
+
+  soil-shard:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        predictor:
+          - sg_phh2o_0_5
+          - sg_clay_0_5
+          - sg_soc_0_5
+          - sg_nitrogen_0_5
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36270370682
+          name: sdmr-fresh-feature-inputs-v1
+          path: feature_inputs
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract one frozen SoilGrids layer spatial shard
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          python -m sdmr.process_id.fresh.soil_recovery shard \
+            --predictor "${{ matrix.predictor }}" \
+            --shard-index ${{ matrix.shard }} \
+            --shard-count 16 \
+            --model-pool feature_inputs/model_pool_occurrences.csv \
+            --background-points feature_inputs/background_points.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir soil_part
+          cat soil_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-soil-${{ matrix.predictor }}-shard-${{ matrix.shard }}
+          path: soil_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [preflight, soil-shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet,test]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36270370682
+          name: sdmr-fresh-feature-inputs-v1
+          path: feature_inputs
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download frozen 42 CHELSA feature artifacts
+        uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36270370682
+          pattern: sdmr-fresh-feature-*
+          path: feature_parts/chelsa
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download recovered SoilGrids spatial shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-soil-*
+          path: soil_shards
+      - name: Assemble four SoilGrids features
+        run: |
+          python -m sdmr.process_id.fresh.soil_recovery assemble \
+            --parts-root soil_shards \
+            --model-pool feature_inputs/model_pool_occurrences.csv \
+            --background-points feature_inputs/background_points.csv \
+            --output-dir feature_parts/soil
+          cat feature_parts/soil/soil_recovery_result.json
+      - name: Aggregate exact 46-layer feature bundle and apply frozen gate
+        run: |
+          python -m sdmr.process_id.fresh.features aggregate \
+            --parts-root feature_parts \
+            --model-pool feature_inputs/model_pool_occurrences.csv \
+            --background-points feature_inputs/background_points.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir feature_bundle
+          cat feature_bundle/feature_extraction_result.json
+          python - <<'PY'
+          import json
+          result = json.load(open('feature_bundle/feature_extraction_result.json'))
+          if result.get('all_taxa_complete_case_gate_passed') is not True:
+              raise SystemExit('frozen complete-case gate failed; no taxon/predictor replacement permitted')
+          if result.get('answer_check_accessed') is not False:
+              raise SystemExit('answer-check boundary crossed')
+          if result.get('model_fitting_performed') is not False:
+              raise SystemExit('model fitting occurred before feature gate')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-fresh-empirical-feature-extraction-v1
+          path: |
+            feature_bundle/
+            feature_parts/soil/soil_recovery_result.json
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

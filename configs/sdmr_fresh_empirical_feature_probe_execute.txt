@@ -1,0 +1,7 @@
+program=sdmr-fresh-empirical-feature-probe-v1
+execution_receipt_commit=7eaab78336fee330752c8e4ee84af8a9cde82865
+frozen_probe_design_commit=2876fa92a175a1fa9537fb09030801a1eb4a973e
+expected_layers=46
+environmental_point_values_opened=false
+answer_check_accessed=false
+execute_once=true

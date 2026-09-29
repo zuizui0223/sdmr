@@ -1,0 +1,243 @@
+name: sdmr-fresh-empirical-feature-extraction-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_feature_extraction_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-feature-extraction-v1
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      predictor_matrix: ${{ steps.matrix.outputs.predictors }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - name: Verify one-shot environmental value boundary
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          from sdmr.process_id.fresh.features import validate_feature_contract
+
+          receipt_path = 'configs/sdmr_fresh_empirical_feature_extraction_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_feature_extraction_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-feature-extraction-v1-execution':
+              raise SystemExit('wrong feature-extraction execution receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('feature extraction is not one-shot')
+          if receipt.get('probe_run') != 36240673693 or receipt.get('probe_passed') is not True:
+              raise SystemExit('46-layer probe PASS is not frozen')
+          if receipt.get('environmental_values_allowed') is not True:
+              raise SystemExit('value opening not explicitly authorized')
+          for key in ('answer_check_access_allowed', 'model_fitting_allowed'):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'feature extraction crossed frozen boundary: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_design_sha']:
+              raise SystemExit('feature extraction design is not trigger grandparent')
+          trigger_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x
+          ]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'feature trigger changed unexpected files: {trigger_changes}')
+          receipt_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x
+          ]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'feature receipt commit changed unexpected files: {receipt_changes}')
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen feature blob changed: {path}: {observed} != {expected}')
+
+          probe = json.load(open('configs/sdmr_fresh_empirical_feature_probe_artifact_receipt_v1.json'))
+          if probe.get('status') != 'pass' or probe.get('successful_layers') != 46 or probe.get('failed_layers') != 0:
+              raise SystemExit('feature probe receipt is not terminal 46/46 PASS')
+          if probe.get('environmental_point_values_read') is not False or probe.get('answer_check_accessed') is not False:
+              raise SystemExit('probe crossed point-value or answer-check boundary')
+
+          validate_feature_contract(
+              feature_contract_path='configs/sdmr_fresh_empirical_feature_extraction_v1.json',
+              process_registry_path='configs/sdmr_fresh_empirical_process_registry_v1.csv',
+              selected_taxa_path='configs/sdmr_fresh_empirical_selected_taxa_v1.csv',
+              occurrence_receipt_path='configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json',
+              background_receipt_path='configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json',
+          )
+          print('feature-extraction preflight passed')
+          PY
+          python -m pytest -q tests/test_process_id_fresh_features.py
+
+      - id: matrix
+        name: Freeze exact 46-predictor job matrix
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pandas as pd
+          predictors = pd.read_csv('configs/sdmr_fresh_empirical_process_registry_v1.csv')['predictor'].astype(str).tolist()
+          if len(predictors) != 46 or len(set(predictors)) != 46:
+              raise SystemExit('feature matrix denominator changed')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write('predictors=' + json.dumps(predictors, separators=(',', ':')) + '\n')
+          print(json.dumps(predictors))
+          PY
+
+  prepare-inputs:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36222283703
+          name: sdmr-fresh-empirical-occurrence-split-v1
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36240044258
+          name: sdmr-fresh-empirical-background-v1
+          path: background_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify and minimize feature inputs
+        run: |
+          python - <<'PY'
+          import hashlib
+          import pathlib
+          import shutil
+
+          expected = {
+              'occurrence_source/model_pool_occurrences.csv': '57aed9612e1a5dc69f6d8c6789ef2c55ed6963698f15172e02d8ff3dc89c9137',
+              'background_source/background_points.csv': '99b7fe02380d5be27fd14eeb821cb24b86d7684e82c705e3ca8781928e454776',
+          }
+          for path, wanted in expected.items():
+              p = pathlib.Path(path)
+              got = hashlib.sha256(p.read_bytes()).hexdigest()
+              if got != wanted:
+                  raise SystemExit(f'feature input SHA mismatch: {path}: {got} != {wanted}')
+          out = pathlib.Path('feature_inputs')
+          out.mkdir()
+          shutil.copy2('occurrence_source/model_pool_occurrences.csv', out / 'model_pool_occurrences.csv')
+          shutil.copy2('background_source/background_points.csv', out / 'background_points.csv')
+          # Deliberately do not carry outer_split.csv, target footprint, or any answer-check artifact onward.
+          print('feature inputs reduced to model-pool occurrences + frozen primary backgrounds only')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-feature-inputs-v1
+          path: feature_inputs/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  layer:
+    needs: [preflight, prepare-inputs]
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        predictor: ${{ fromJson(needs.preflight.outputs.predictor_matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-feature-inputs-v1
+          path: feature_inputs
+      - name: Extract one frozen environmental layer
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          python -m sdmr.process_id.fresh.features layer \
+            --predictor "${{ matrix.predictor }}" \
+            --model-pool feature_inputs/model_pool_occurrences.csv \
+            --background-points feature_inputs/background_points.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir feature_part
+          cat feature_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-feature-${{ matrix.predictor }}
+          path: feature_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [preflight, prepare-inputs, layer]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-feature-inputs-v1
+          path: feature_inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-feature-*
+          path: feature_parts
+      - name: Aggregate 46 frozen layers and apply complete-case gate
+        run: |
+          python -m sdmr.process_id.fresh.features aggregate \
+            --parts-root feature_parts \
+            --model-pool feature_inputs/model_pool_occurrences.csv \
+            --background-points feature_inputs/background_points.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir feature_bundle
+          cat feature_bundle/feature_extraction_result.json
+          python - <<'PY'
+          import json
+          result = json.load(open('feature_bundle/feature_extraction_result.json'))
+          if result.get('all_taxa_complete_case_gate_passed') is not True:
+              raise SystemExit('frozen complete-case gate failed: no taxon/predictor replacement permitted')
+          if result.get('answer_check_accessed') is not False or result.get('model_fitting_performed') is not False:
+              raise SystemExit('feature extraction crossed sealed/model-fit boundary')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-feature-extraction-v1
+          path: feature_bundle/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

@@ -1,0 +1,311 @@
+{
+  "program": "sdmr-fresh-empirical-chelsa-feature-artifacts-v1",
+  "source_run": 36270370682,
+  "source_head": "7638ebd139ff231b4effd7a24984476cc4a901f8",
+  "expected_chelsa_predictors": 42,
+  "successful_feature_artifacts": [
+    {
+      "name": "sdmr-fresh-feature-bio1",
+      "artifact_id": 10915651345,
+      "size_in_bytes": 552892,
+      "digest": "sha256:df54f4c63e1dbf446f810b7f9efdbcfd306c62999103102d0e062f4a09f937de",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio10",
+      "artifact_id": 10914899404,
+      "size_in_bytes": 546584,
+      "digest": "sha256:bfd1cf0723fffea2c81116660142cfe270e3a91df625174e25b821d57932a6b3",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio11",
+      "artifact_id": 10915358055,
+      "size_in_bytes": 555155,
+      "digest": "sha256:1c7cce4e55468f3a4f30d0a809b3eef911797c414ec51da4c6eca6b26dc1b52f",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio12",
+      "artifact_id": 10916166115,
+      "size_in_bytes": 846487,
+      "digest": "sha256:0311c811fcdfb91cda2af4d8657920ac36567d2d762a89a9f87fce37449d82e0",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio13",
+      "artifact_id": 10915227332,
+      "size_in_bytes": 701839,
+      "digest": "sha256:31c15042dec076e0327a912571496ee72a026e5536914ea561760325d42a72d6",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio14",
+      "artifact_id": 10915187551,
+      "size_in_bytes": 631094,
+      "digest": "sha256:6c9a646d77fa1ecab3b15b333b53469ae460cccb7c0d263ec30db519925a9cf8",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio15",
+      "artifact_id": 10915059787,
+      "size_in_bytes": 616447,
+      "digest": "sha256:121ae8b106520732d37cb3cf4f69c344d7cf5f6a432a641d4444906b53ec866a",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio16",
+      "artifact_id": 10915303586,
+      "size_in_bytes": 763544,
+      "digest": "sha256:e99e944ad087718cadfdfd9d8f436bba0c3e8ada7b44e1843ce7bbc72e6c59b0",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio17",
+      "artifact_id": 10915287500,
+      "size_in_bytes": 696239,
+      "digest": "sha256:44c7a0eacd5f62631615ef5ee461c36d6e553acb303e1c5c215554012195fec6",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio18",
+      "artifact_id": 10915009670,
+      "size_in_bytes": 736071,
+      "digest": "sha256:709d8780504902bc57706aa2d8e368e759352b52077a82326a4e1b6808c81efb",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio19",
+      "artifact_id": 10915801785,
+      "size_in_bytes": 749925,
+      "digest": "sha256:12b4dc7f892fe0ddaa3677cd2ab19498567a68ce4c47607ed5313b6841f0714a",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio2",
+      "artifact_id": 10914964130,
+      "size_in_bytes": 467917,
+      "digest": "sha256:45afd9d9957234eaa11d287e13cd6b1bb59d0e76e3edb5680f8cff773586c557",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio3",
+      "artifact_id": 10915477311,
+      "size_in_bytes": 580299,
+      "digest": "sha256:65a1b9fc509784768d370e8efbc7864c864ee13b23412949af91a73755f03617",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio4",
+      "artifact_id": 10915921288,
+      "size_in_bytes": 745763,
+      "digest": "sha256:3128d80ec98ce69f47801f32db8e9581674a5be22bb51b447cb10d93e01313c0",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio5",
+      "artifact_id": 10915004073,
+      "size_in_bytes": 548845,
+      "digest": "sha256:829daa00905727cfdb8f4bfe528e7940920131dcb82a3109ff8bb388b570f87e",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio6",
+      "artifact_id": 10914729689,
+      "size_in_bytes": 560269,
+      "digest": "sha256:40f2027f1665cfe9110fc4df2800698316a77e6d73ebeec49f69423f754b91f7",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio7",
+      "artifact_id": 10915562330,
+      "size_in_bytes": 555968,
+      "digest": "sha256:db5c521f72eea6a70c5a6bc97bdd8bbafda60a8cffaf6d6f1d9735a35172b6b6",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio8",
+      "artifact_id": 10915546585,
+      "size_in_bytes": 553156,
+      "digest": "sha256:8be45eac9a224d04ffd6c710c73ee8a7ed27f902e7f5853bab890b9c289da152",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-bio9",
+      "artifact_id": 10915805998,
+      "size_in_bytes": 560588,
+      "digest": "sha256:d4a1769eda587ac1aae8e9c27fcae43d2df3f0295117a3c052437d604da82481",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-clt",
+      "artifact_id": 10915242984,
+      "size_in_bytes": 696996,
+      "digest": "sha256:2d1e3254aad92587134f12e420c536550ec735eb99f51821624deb46f0e33cef",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-cmi",
+      "artifact_id": 10915512129,
+      "size_in_bytes": 687163,
+      "digest": "sha256:499f8ab13b75e6f4595357fd2e8bfe4456ca18f57456026c4c616cfc15a0267a",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-fcf",
+      "artifact_id": 10915701796,
+      "size_in_bytes": 409866,
+      "digest": "sha256:ca95492131cd6b753a1707a83b02bab5a0dc5490531ba5da3b6ce59bfaa941f5",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-fgd",
+      "artifact_id": 10916045558,
+      "size_in_bytes": 459568,
+      "digest": "sha256:2ea3ab3287ba5efe42e4a7c48bc49e669d3e549d5b00adc516f51bdad08a8bf2",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gdd0",
+      "artifact_id": 10915024176,
+      "size_in_bytes": 1072551,
+      "digest": "sha256:5d74fa6743711962694f4913db0ed0e941de7100145a104c34e034f428b850f1",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gdd10",
+      "artifact_id": 10914904425,
+      "size_in_bytes": 969367,
+      "digest": "sha256:560b7bd2d4115c815770c1b45c4a3f6cb2bbded2f0ab89cf9c74a5f89a92a5ff",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gdd5",
+      "artifact_id": 10915097549,
+      "size_in_bytes": 1032248,
+      "digest": "sha256:46f47d4da64f0bc43c37161e70716cb373b02dca20d6e51f10d7973167bacb13",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gdgfgd10",
+      "artifact_id": 10916190292,
+      "size_in_bytes": 478734,
+      "digest": "sha256:a3947e4bf4a8a5767fc1d93a33afb9da3a7628882741bfdab007dd05103e42ee",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gdgfgd5",
+      "artifact_id": 10916190212,
+      "size_in_bytes": 426436,
+      "digest": "sha256:f9335ca8d702f8e13a9185a52c832e38d7827ca8b4df2603cbc8f79cb963a918",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gsl",
+      "artifact_id": 10915901528,
+      "size_in_bytes": 505356,
+      "digest": "sha256:554ad25d2caecbfaa78da4e5e7d2fc4dae4e472c8bbf6372bf2b7bfd2a9d884c",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gsp",
+      "artifact_id": 10915029645,
+      "size_in_bytes": 842522,
+      "digest": "sha256:294f5f28966ccf80b6c90dcaeb4024dc879217da936515f5e38eb28a4f0e7ed0",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-gst",
+      "artifact_id": 10915114030,
+      "size_in_bytes": 547608,
+      "digest": "sha256:14534000c2bc228178ce9221dd453b970c41be02f05c329f4f54314726da711f",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-hurs",
+      "artifact_id": 10915985401,
+      "size_in_bytes": 654456,
+      "digest": "sha256:965e0d859baa64c05ea4b86d18b17fa24a154138bc6f8568c945ea59e05a6361",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-lgd",
+      "artifact_id": 10915846967,
+      "size_in_bytes": 474619,
+      "digest": "sha256:841b7f7ff71c2b299f8b58bc747d944e0501f2d2d24e3a599d476c6524518544",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-ngd0",
+      "artifact_id": 10915034241,
+      "size_in_bytes": 387092,
+      "digest": "sha256:99f8d1f0014d9469c98a47fb517e4b059e7c1d75e2ce493e2e95e803436e9fcf",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-ngd10",
+      "artifact_id": 10915097610,
+      "size_in_bytes": 502414,
+      "digest": "sha256:7a54e9e9e78f8c746ac309417ae5780c6015ed0a1e026144f2c821be73d09b3f",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-ngd5",
+      "artifact_id": 10915721659,
+      "size_in_bytes": 460105,
+      "digest": "sha256:c730613d46bbdcdc8c15ee9a3125bf1b66c782f52d2a83c73914f64727016d94",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-npp",
+      "artifact_id": 10915961133,
+      "size_in_bytes": 786293,
+      "digest": "sha256:9a1ef429b44e91aeb77aac696dd83e86032c33883e63de8223f7aea5e046e98b",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-pet",
+      "artifact_id": 10915422239,
+      "size_in_bytes": 760880,
+      "digest": "sha256:c5120fead8d484edf72ad09ac6cb9fdaa1546177271c2ffe83c94869660f4eb7",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-rsds",
+      "artifact_id": 10916060809,
+      "size_in_bytes": 769828,
+      "digest": "sha256:421c61f4897fa16dafe7f3180ab6ac71fcaebe2925597cb73a4f2670a8a40f6a",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-scd",
+      "artifact_id": 10915392604,
+      "size_in_bytes": 398569,
+      "digest": "sha256:2274edd6ed6cf98d4503135f4d76fddcea91dbc0d9798ae0919d28595b164ac8",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-swe",
+      "artifact_id": 10914674146,
+      "size_in_bytes": 416817,
+      "digest": "sha256:33196dbb7c4967a0194d23d73d8ba47ddf35568c7dc23199aa492198a9766a1b",
+      "expired": false
+    },
+    {
+      "name": "sdmr-fresh-feature-vpd",
+      "artifact_id": 10915861422,
+      "size_in_bytes": 779160,
+      "digest": "sha256:70049516f73a962990eee7f271814abf74076e2274e645ed9bb8ad02b897d13f",
+      "expired": false
+    }
+  ],
+  "soilgrids_predictors_not_completed": [
+    "sg_phh2o_0_5",
+    "sg_clay_0_5",
+    "sg_soc_0_5",
+    "sg_nitrogen_0_5"
+  ],
+  "source_run_failure_mode": "four_SoilGrids_jobs_exceeded_90_minute_job_timeout",
+  "answer_check_accessed": false,
+  "model_fitting_performed": false
+}

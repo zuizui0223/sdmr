@@ -40,7 +40,7 @@ def _raster_env(rasterio, uri: str):
     if str(uri).lower().startswith(("http://", "https://")):
         return rasterio.Env(
             GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR",
-            CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif,.tiff",
+            CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif,.tiff,.vrt,.ovr",
             GDAL_HTTP_MULTIRANGE="YES",
             VSI_CACHE="TRUE",
             VSI_CACHE_SIZE="67108864",

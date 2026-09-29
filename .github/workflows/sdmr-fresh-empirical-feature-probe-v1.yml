@@ -1,0 +1,149 @@
+name: sdmr-fresh-empirical-feature-probe-v1
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_feature_probe_execute.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-fresh-empirical-feature-probe-v1
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,test]'
+      - name: Verify frozen probe execution chain
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          from sdmr.process_id.fresh.features import validate_feature_contract
+
+          receipt_path = 'configs/sdmr_fresh_empirical_feature_probe_execution_v1.json'
+          trigger_path = 'configs/sdmr_fresh_empirical_feature_probe_execute.txt'
+          receipt = json.load(open(receipt_path))
+          if receipt.get('program') != 'sdmr-fresh-empirical-feature-probe-v1-execution':
+              raise SystemExit('wrong feature-probe receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('feature probe is not one-shot')
+          if receipt.get('environmental_values_allowed') is not False:
+              raise SystemExit('feature probe cannot read environmental point values')
+          if receipt.get('answer_check_access_allowed') is not False:
+              raise SystemExit('feature probe cannot access answer-check')
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          if git('rev-parse', 'HEAD^^') != receipt['frozen_probe_design_sha']:
+              raise SystemExit('feature-probe design is not trigger grandparent')
+          trigger_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines() if x
+          ]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'probe trigger changed unexpected files: {trigger_changes}')
+          receipt_changes = [
+              x for x in git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD^').splitlines() if x
+          ]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'probe receipt commit changed unexpected files: {receipt_changes}')
+          for path, expected in receipt['blob_sha'].items():
+              observed = git('hash-object', path)
+              if observed != expected:
+                  raise SystemExit(f'frozen probe blob changed: {path}: {observed} != {expected}')
+
+          validate_feature_contract(
+              feature_contract_path='configs/sdmr_fresh_empirical_feature_extraction_v1.json',
+              process_registry_path='configs/sdmr_fresh_empirical_process_registry_v1.csv',
+              selected_taxa_path='configs/sdmr_fresh_empirical_selected_taxa_v1.csv',
+              occurrence_receipt_path='configs/sdmr_fresh_empirical_occurrence_split_artifact_receipt_v1.json',
+              background_receipt_path='configs/sdmr_fresh_empirical_background_artifact_receipt_v1.json',
+          )
+          print('feature-probe execution contract passed')
+          PY
+          python -m pytest -q tests/test_process_id_fresh_features.py
+
+      - name: Probe all 46 frozen environmental layers without sampling point values
+        env:
+          GDAL_HTTP_TIMEOUT: '120'
+          GDAL_HTTP_MAX_RETRY: '5'
+          GDAL_HTTP_RETRY_DELAY: '2'
+        run: |
+          mkdir -p feature_probe
+          python - <<'PY'
+          import hashlib
+          import json
+
+          from sdmr.process_id.fresh.features import (
+              EXPECTED_PREDICTORS,
+              build_frozen_layer_specs,
+              probe_frozen_layers,
+          )
+
+          specs, resolved = build_frozen_layer_specs(
+              process_registry_path='configs/sdmr_fresh_empirical_process_registry_v1.csv',
+              chelsa_manifest_path='configs/chelsa_v2_1_plant_candidates.csv',
+          )
+          probe = probe_frozen_layers(
+              process_registry_path='configs/sdmr_fresh_empirical_process_registry_v1.csv',
+              chelsa_manifest_path='configs/chelsa_v2_1_plant_candidates.csv',
+          )
+          probe.to_csv('feature_probe/raster_probe.csv', index=False)
+          resolved.to_csv('feature_probe/chelsa_resolution.csv', index=False)
+          catalog = [
+              {
+                  'predictor': spec.predictor,
+                  'uri': spec.uri,
+                  'source': spec.source,
+                  'version': spec.version,
+                  'scale': spec.scale,
+                  'offset': spec.offset,
+              }
+              for spec in specs
+          ]
+          open('feature_probe/layer_catalog.json','w').write(
+              json.dumps(catalog, indent=2, sort_keys=True) + '\n'
+          )
+          failures = probe.loc[probe['status'].ne('ok')]
+          result = {
+              'program': 'sdmr-fresh-empirical-feature-probe-v1',
+              'status': 'pass' if len(failures) == 0 else 'fail',
+              'expected_layers': EXPECTED_PREDICTORS,
+              'probed_layers': int(len(probe)),
+              'successful_layers': int(probe['status'].eq('ok').sum()),
+              'failed_layers': int(len(failures)),
+              'failed_predictors': failures['predictor'].astype(str).tolist(),
+              'environmental_point_values_read': False,
+              'answer_check_accessed': False,
+          }
+          open('feature_probe/probe_result.json','w').write(
+              json.dumps(result, indent=2, sort_keys=True) + '\n'
+          )
+          print(json.dumps(result, indent=2, sort_keys=True))
+          if len(probe) != EXPECTED_PREDICTORS or len(failures):
+              raise SystemExit('all 46 frozen raster layers must probe successfully')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-fresh-empirical-feature-probe-v1
+          path: feature_probe/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

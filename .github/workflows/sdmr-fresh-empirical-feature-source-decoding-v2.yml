@@ -1,0 +1,121 @@
+name: sdmr-fresh-empirical-feature-source-decoding-v2
+
+on:
+  push:
+    branches:
+      - development/sdmr-fresh-empirical-features-v1
+    paths:
+      - configs/sdmr_fresh_empirical_feature_source_decoding_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-feature-source-decoding-v2
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet,test]'
+      - name: Verify frozen source-decoding execution chain
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+
+          receipt_path='configs/sdmr_fresh_empirical_feature_source_decoding_execution_v2.json'
+          trigger_path='configs/sdmr_fresh_empirical_feature_source_decoding_execute.txt'
+          receipt=json.load(open(receipt_path))
+          contract=json.load(open('configs/sdmr_fresh_empirical_feature_source_decoding_v2.json'))
+
+          if receipt.get('program')!='sdmr-fresh-empirical-feature-source-decoding-v2-execution':
+              raise SystemExit('wrong source-decoding execution receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('source-decoding recovery is not one-shot')
+          if receipt.get('source_feature_run')!=36317289983:
+              raise SystemExit('source feature run changed')
+          if receipt.get('source_feature_artifact_id')!=10932610520:
+              raise SystemExit('source feature artifact changed')
+          if contract.get('program')!='sdmr-fresh-empirical-feature-source-decoding-v2':
+              raise SystemExit('wrong source-decoding contract')
+          if len(contract.get('frozen_rules',[]))!=6:
+              raise SystemExit('source-decoding rule denominator changed')
+          if contract.get('unchanged',{}).get('taxon_count')!=50:
+              raise SystemExit('taxon denominator changed')
+          if contract.get('unchanged',{}).get('predictor_count')!=46:
+              raise SystemExit('predictor denominator changed')
+          if contract.get('unchanged',{}).get('minimum_model_pool_retention_fraction')!=0.8:
+              raise SystemExit('model-pool gate changed')
+          if contract.get('unchanged',{}).get('minimum_model_pool_complete_rows')!=50:
+              raise SystemExit('model-pool row gate changed')
+          if contract.get('unchanged',{}).get('minimum_primary_background_complete_rows')!=4000:
+              raise SystemExit('background row gate changed')
+          for key in ('answer_check_access_allowed','model_fitting_allowed','taxon_replacement_allowed','predictor_deletion_allowed','threshold_relaxation_allowed'):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'source-decoding boundary crossed: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git',*args],text=True).strip()
+          if git('rev-parse','HEAD^^')!=receipt['frozen_design_sha']:
+              raise SystemExit('source-decoding design is not trigger grandparent')
+          trigger_changes=[x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x]
+          if trigger_changes != [trigger_path]:
+              raise SystemExit(f'trigger changed unexpected files: {trigger_changes}')
+          receipt_changes=[x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x]
+          if receipt_changes != [receipt_path]:
+              raise SystemExit(f'receipt commit changed unexpected files: {receipt_changes}')
+          for path,expected in receipt['blob_sha'].items():
+              observed=git('hash-object',path)
+              if observed!=expected:
+                  raise SystemExit(f'frozen source-decoding blob changed: {path}: {observed} != {expected}')
+          print('source-decoding recovery preflight passed')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 36317289983
+          name: sdmr-fresh-empirical-feature-extraction-v1
+          path: source_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify source artifact digest by frozen receipt
+        run: |
+          test -f source_artifact/feature_bundle/location_features.parquet
+          test -f source_artifact/feature_bundle/feature_extraction_result.json
+          python - <<'PY'
+          import json
+          result=json.load(open('source_artifact/feature_bundle/feature_extraction_result.json'))
+          if result.get('status')!='feature_extraction_unavailable_complete_case_gate_failed':
+              raise SystemExit('source artifact is not frozen v1 gate failure')
+          if result.get('answer_check_accessed') is not False:
+              raise SystemExit('source artifact crossed answer-check boundary')
+          if result.get('model_fitting_performed') is not False:
+              raise SystemExit('source artifact fitted models')
+          print('source v1 failure artifact verified')
+          PY
+      - name: Apply six frozen structural source-decoding rules
+        run: |
+          python -m sdmr.process_id.fresh.feature_source_decoding \
+            --source-bundle-dir source_artifact/feature_bundle \
+            --contract configs/sdmr_fresh_empirical_feature_source_decoding_v2.json \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir decoded_v2
+          cat decoded_v2/source_decoding_result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-fresh-empirical-feature-source-decoding-v2
+          path: decoded_v2/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
