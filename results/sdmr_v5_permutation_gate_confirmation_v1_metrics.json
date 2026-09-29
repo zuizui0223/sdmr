@@ -1,0 +1,27 @@
+{
+  "program": "sdmr-v5-permutation-gate-confirmation-v1",
+  "workflow_run": 36081546640,
+  "workflow_head": "26b2e576c9fe46fba54d8c7fb5bce515ef325009",
+  "artifact_id": 10841589899,
+  "artifact_digest": "sha256:f4f9aab2bf0358d25c66767a687519ad6581f9554df671c8554df1a974a7aa6a",
+  "validation_workflow_run": 36070724122,
+  "validation_artifact_digest": "sha256:74190cc9022fd024a1be2a00748f6dd9053b76a61adc3f2163dc36a22c71d0d9",
+  "confirmation_seed_min": 52001,
+  "confirmation_seed_max": 52050,
+  "passed": true,
+  "world_authorized_counts": {
+    "unique_process": 50,
+    "redundant_representation": 50,
+    "shared_carrier": 50,
+    "null_correlated": 50,
+    "interaction": 50,
+    "geographic_shift": 50,
+    "observation_confounded": 48,
+    "omitted_driver": 0
+  },
+  "w7_authorized_count": 0,
+  "minimum_control_authorized_count": 50,
+  "w6_report_only_authorized_count": 48,
+  "reserved_future_prospective_open": false,
+  "fresh_empirical_open": false
+}

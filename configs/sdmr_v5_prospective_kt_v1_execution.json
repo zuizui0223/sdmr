@@ -1,0 +1,82 @@
+{
+  "program": "sdmr-v5-prospective-known-truth-v1-execution",
+  "status": "frozen_blocked",
+  "scientific_contract_path": "configs/sdmr_v5_prospective_kt_v1.json",
+  "scientific_contract_blob_sha": "d61025bef92049da1c121e053403cf75dd64a396",
+  "activation_status": "blocked",
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "base_world_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false
+  },
+  "odo_v2": {
+    "n_splits": 3,
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "split_mode": "random"
+  },
+  "sampling": {
+    "multiplier": 8,
+    "sampling_replicate": 0,
+    "seed_rule": "ecological_seed*100000 + (world_index+1)*1000 + multiplier*100 + sampling_replicate",
+    "with_replacement": true
+  },
+  "sharding": {
+    "seed_blocks": [
+      [
+        53001,
+        53002,
+        53003,
+        53004,
+        53005
+      ],
+      [
+        53006,
+        53007,
+        53008,
+        53009,
+        53010
+      ],
+      [
+        53011,
+        53012,
+        53013,
+        53014,
+        53015
+      ],
+      [
+        53016,
+        53017,
+        53018,
+        53019,
+        53020
+      ]
+    ],
+    "expected_shards": 32
+  },
+  "prerequisites": {
+    "validation": {
+      "workflow_run": 36070724122,
+      "artifact_id": 10838468711,
+      "artifact_digest": "sha256:74190cc9022fd024a1be2a00748f6dd9053b76a61adc3f2163dc36a22c71d0d9",
+      "terminal_passed": true
+    },
+    "confirmation": {
+      "workflow_run": 36081546640,
+      "artifact_id": 10841589899,
+      "artifact_digest": "sha256:f4f9aab2bf0358d25c66767a687519ad6581f9554df671c8554df1a974a7aa6a",
+      "terminal_passed": true
+    },
+    "integration": {
+      "program": "sdmr-v5-full-pipeline-integration-v1",
+      "terminal_passed": false,
+      "artifact_id": null,
+      "artifact_digest": null
+    }
+  },
+  "note": "Execution profile frozen before integration terminal outcome. Prospective activation remains forbidden until INT-A through INT-F pass."
+}

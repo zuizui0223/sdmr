@@ -1,0 +1,74 @@
+{
+  "program": "sdmr-v6-full-pipeline-integration-v1-execution",
+  "status": "frozen_blocked",
+  "scientific_contract_path": "configs/sdmr_v6_full_pipeline_integration_v1.json",
+  "activation_status": "blocked",
+  "integration_outcomes_opened": false,
+  "prospective_open": false,
+  "fresh_empirical_open": false,
+  "base_world_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false
+  },
+  "odo_v2": {
+    "n_splits": 3,
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "split_mode": "random"
+  },
+  "sampling": {
+    "multiplier": 8,
+    "sampling_replicate": 0,
+    "with_replacement": true
+  },
+  "sharding": {
+    "seed_blocks": [
+      [
+        73001,
+        73002,
+        73003,
+        73004,
+        73005
+      ],
+      [
+        73006,
+        73007,
+        73008,
+        73009,
+        73010
+      ],
+      [
+        73011,
+        73012,
+        73013,
+        73014,
+        73015
+      ],
+      [
+        73016,
+        73017,
+        73018,
+        73019,
+        73020
+      ]
+    ],
+    "expected_shards": 32
+  },
+  "prerequisites": {
+    "validation": {
+      "program": "sdmr-v6-magnitude-permutation-validation-v1",
+      "terminal_passed": false,
+      "artifact_id": null,
+      "artifact_digest": null
+    },
+    "confirmation": {
+      "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+      "terminal_passed": false,
+      "artifact_id": null,
+      "artifact_digest": null
+    }
+  }
+}

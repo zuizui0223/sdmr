@@ -1,0 +1,11 @@
+{
+  "purpose": "repair_stage_p_safety_v3_aggregate_only",
+  "branch": "design/sdmr-v3-process-identification",
+  "source_workflow_run": 35992320576,
+  "source_shard_count": 8,
+  "scientific_shards_recomputed": false,
+  "reason": "float_serialization_hash_only",
+  "observed_max_absolute_float_difference": 1.1102230246251565e-16,
+  "semantic_positive_tail_match": true,
+  "rounded14_positive_tail_match": true
+}

@@ -1,0 +1,84 @@
+{
+  "program": "sdmr-v3-prospective-known-truth-v3-execution-profile",
+  "status": "frozen_blocked",
+  "scientific_contract_path": "configs/sdmr_v3_prospective_kt_v3.json",
+  "scientific_contract_blob_sha": "73bb1ac9e5b1357d4c278712176e65286bd3bb6b",
+  "activation_status": "blocked",
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "sampling": {
+    "multiplier": 8,
+    "sampling_replicate": 0,
+    "seed_rule": "ecological_seed*100000 + (world_index+1)*1000 + multiplier*100 + sampling_replicate",
+    "world_index_order": [
+      "unique_process",
+      "redundant_representation",
+      "shared_carrier",
+      "null_correlated",
+      "interaction",
+      "observation_confounded",
+      "omitted_driver",
+      "geographic_shift"
+    ],
+    "with_replacement": true
+  },
+  "sharding": {
+    "axis": [
+      "world",
+      "seed_block"
+    ],
+    "seed_blocks": [
+      [
+        33001,
+        33002,
+        33003,
+        33004,
+        33005
+      ],
+      [
+        33006,
+        33007,
+        33008,
+        33009,
+        33010
+      ],
+      [
+        33011,
+        33012,
+        33013,
+        33014,
+        33015
+      ],
+      [
+        33016,
+        33017,
+        33018,
+        33019,
+        33020
+      ]
+    ],
+    "expected_shards": 32
+  },
+  "stage_p": {
+    "split_mode": "random_cell",
+    "require_full_system_information": true
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "require_full_system_information": false,
+    "uses_same_sample_as_stage_p": true
+  },
+  "prerequisite": {
+    "workflow_run": 35997608669,
+    "source_scientific_shard_run": 35992320576,
+    "terminal_review_receipt_required": true,
+    "source_scientific_shards_recomputed": false
+  },
+  "note": "Execution profile identical to v2 in scientific settings and unopened seed denominator; only prerequisite receipt points to aggregate-only repair workflow.",
+  "base_world_sample_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false,
+    "note": "Required only by world constructor; ODO uses the complete cell distribution and finite inference uses the separately frozen 1440/4800 resample."
+  }
+}

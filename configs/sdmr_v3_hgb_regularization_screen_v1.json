@@ -1,0 +1,42 @@
+{
+  "program": "sdmr-v3-hgb-regularization-screen-v1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "interaction",
+    "geographic_shift"
+  ],
+  "split_modes": [
+    "spatial",
+    "random_cell"
+  ],
+  "profiles": [
+    "current",
+    "shallow7",
+    "shallow3",
+    "early7"
+  ],
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "adequacy_floor": -0.75,
+  "tie_margin": 0.005,
+  "selection_uses_process_recovery": false,
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Exploratory burned-seed screen. Candidate selection uses full-model held-out probability quality only; process deltas/states are forbidden."
+}

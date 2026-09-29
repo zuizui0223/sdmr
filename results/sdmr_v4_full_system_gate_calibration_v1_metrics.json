@@ -1,0 +1,61 @@
+{
+  "program": "sdmr-v4-full-system-gate-calibration-v1",
+  "workflow_run": 36014081688,
+  "workflow_head": "ec2afba5702c877df30a145fcac779b77445ee7a",
+  "artifact_id": 10814773861,
+  "artifact_digest": "sha256:77024e0489f55fa2e4a229c667372503f95a71a9b20f66a42956b4c23846fbf6",
+  "config_sha256": "5ef81e07298da147cce27b0216053de0e1afe6e057058db234aef91fba167e6f",
+  "calibration_seed_min": 41001,
+  "calibration_seed_max": 41100,
+  "n_calibration_seeds": 100,
+  "passed": true,
+  "selected_multiplier": 1,
+  "eligible_multipliers": [
+    1,
+    1.645,
+    1.96,
+    2.326,
+    2.576,
+    3.09
+  ],
+  "candidate_summary": [
+    {
+      "multiplier": 1,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.9
+    },
+    {
+      "multiplier": 1.645,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.82
+    },
+    {
+      "multiplier": 1.96,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.74
+    },
+    {
+      "multiplier": 2.326,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.68
+    },
+    {
+      "multiplier": 2.576,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.63
+    },
+    {
+      "multiplier": 3.09,
+      "w7_false_authorization_rate": 0,
+      "minimum_informative_control_rate": 1,
+      "w6_report_only_authorization_rate": 0.49
+    }
+  ],
+  "confirmation_open": false,
+  "reserved_future_prospective_open": false
+}

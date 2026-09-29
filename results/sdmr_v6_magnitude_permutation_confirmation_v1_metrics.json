@@ -1,0 +1,28 @@
+{
+  "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+  "workflow_run": 36121116341,
+  "workflow_head": "a7873b05b9b9a3b3a4408a7421b562413a8ae1bd",
+  "artifact_id": 10858132902,
+  "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956",
+  "validation_workflow_run": 36088891887,
+  "validation_artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e",
+  "confirmation_seed_min": 72001,
+  "confirmation_seed_max": 72050,
+  "passed": true,
+  "w7_authorized_count": 0,
+  "minimum_control_authorized_count": 50,
+  "w6_report_only_authorized_count": 2,
+  "world_authorized_counts": {
+    "unique_process": 50,
+    "redundant_representation": 50,
+    "shared_carrier": 50,
+    "null_correlated": 50,
+    "interaction": 50,
+    "geographic_shift": 50,
+    "observation_confounded": 2,
+    "omitted_driver": 0
+  },
+  "integration_open": false,
+  "reserved_future_prospective_open": false,
+  "fresh_empirical_open": false
+}

@@ -1,0 +1,85 @@
+{
+  "program": "sdmr-v6-prospective-known-truth-v2-execution",
+  "status": "frozen_blocked",
+  "scientific_contract_path": "configs/sdmr_v6_prospective_kt_v2.json",
+  "scientific_contract_blob_sha": "bdef009362fb4bd6025e616743605bd9787a5008",
+  "activation_status": "blocked",
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "base_world_placeholders": {
+    "n_occurrences": 180,
+    "n_background": 600,
+    "used_for_finite_inference": false
+  },
+  "odo_v2": {
+    "n_splits": 3,
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "split_mode": "random"
+  },
+  "sampling": {
+    "multiplier": 8,
+    "sampling_replicate": 0,
+    "seed_rule": "ecological_seed*100000 + (world_index+1)*1000 + multiplier*100 + sampling_replicate",
+    "with_replacement": true
+  },
+  "sharding": {
+    "seed_blocks": [
+      [
+        74001,
+        74002,
+        74003,
+        74004,
+        74005
+      ],
+      [
+        74006,
+        74007,
+        74008,
+        74009,
+        74010
+      ],
+      [
+        74011,
+        74012,
+        74013,
+        74014,
+        74015
+      ],
+      [
+        74016,
+        74017,
+        74018,
+        74019,
+        74020
+      ]
+    ],
+    "expected_shards": 32
+  },
+  "prerequisites": {
+    "validation": {
+      "program": "sdmr-v6-magnitude-permutation-validation-v1",
+      "terminal_passed": true,
+      "workflow_run": 36088891887,
+      "artifact_id": 10844948845,
+      "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e"
+    },
+    "confirmation": {
+      "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+      "terminal_passed": true,
+      "workflow_run": 36121116341,
+      "artifact_id": 10858132902,
+      "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956"
+    },
+    "integration": {
+      "program": "sdmr-v6-full-pipeline-integration-v2",
+      "terminal_passed": false,
+      "workflow_run": null,
+      "artifact_id": null,
+      "artifact_digest": null
+    }
+  },
+  "note": "Blocked prospective v2 execution profile frozen before integration v2 outcomes. Seeds 74001-74020 remain unopened; only KT-E authorization scope differs from aborted prospective v1."
+}

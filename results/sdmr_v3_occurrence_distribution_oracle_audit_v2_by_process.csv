@@ -1,0 +1,7 @@
+process,n_cells,truth_positive,distribution_positive,truth_positive_distribution_positive,truth_positive_but_distribution_not_positive,occurrence_oracle_unavailable
+productivity,64,0,0,0,0,8
+radiation_energy,64,0,0,0,0,8
+seasonality,64,0,0,0,0,8
+soil_substrate,64,0,0,0,0,8
+thermal,64,31,24,23,8,8
+water,64,7,8,7,0,8

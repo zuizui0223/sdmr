@@ -1,0 +1,77 @@
+{
+  "purpose": "execute_sdmr_v6_magnitude_permutation_confirmation_v1",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "config_path": "configs/sdmr_v6_magnitude_permutation_confirmation_v1.json",
+  "config_blob_sha": "9421c4318482a4e1e23d21076f2773329d42f088",
+  "validation_terminal_passed": true,
+  "validation_workflow_run": 36088891887,
+  "validation_artifact_id": 10844948845,
+  "validation_artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e",
+  "seed_blocks": [
+    [
+      72001,
+      72002,
+      72003,
+      72004,
+      72005,
+      72006,
+      72007,
+      72008,
+      72009,
+      72010
+    ],
+    [
+      72011,
+      72012,
+      72013,
+      72014,
+      72015,
+      72016,
+      72017,
+      72018,
+      72019,
+      72020
+    ],
+    [
+      72021,
+      72022,
+      72023,
+      72024,
+      72025,
+      72026,
+      72027,
+      72028,
+      72029,
+      72030
+    ],
+    [
+      72031,
+      72032,
+      72033,
+      72034,
+      72035,
+      72036,
+      72037,
+      72038,
+      72039,
+      72040
+    ],
+    [
+      72041,
+      72042,
+      72043,
+      72044,
+      72045,
+      72046,
+      72047,
+      72048,
+      72049,
+      72050
+    ]
+  ],
+  "confirmation_seeds_opened_by_this_activation": "72001-72050",
+  "integration_opened_before_confirmation": false,
+  "reserved_prospective_opened": false,
+  "note": "First and only opening of v6 confirmation. Validation passed under the frozen magnitude-permutation gate; integration 73001-73020 and prospective 74001-74020 remain unopened."
+}

@@ -1,0 +1,142 @@
+{
+  "program": "sdmr-v6-prospective-known-truth-v2",
+  "status": "frozen_pending_integration_v2_prerequisite",
+  "product_a_boundary": "closed_not_reopened",
+  "predecessor": {
+    "program": "sdmr-v6-prospective-known-truth-v1",
+    "disposition": "aborted_unopened",
+    "reason": "integration v1 and KT-E used pooled non-W7 authorization denominator inconsistent with predeclared W6 report-only role",
+    "seeds_opened": false
+  },
+  "prerequisites": {
+    "validation": {
+      "program": "sdmr-v6-magnitude-permutation-validation-v1",
+      "workflow_run": 36088891887,
+      "artifact_id": 10844948845,
+      "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e",
+      "terminal_passed": true
+    },
+    "confirmation": {
+      "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+      "workflow_run": 36121116341,
+      "artifact_id": 10858132902,
+      "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956",
+      "terminal_passed": true
+    },
+    "integration": {
+      "program": "sdmr-v6-full-pipeline-integration-v2",
+      "required_terminal_decision": "passed",
+      "outcome_not_opened_when_contract_frozen": true
+    }
+  },
+  "seeds": [
+    74001,
+    74002,
+    74003,
+    74004,
+    74005,
+    74006,
+    74007,
+    74008,
+    74009,
+    74010,
+    74011,
+    74012,
+    74013,
+    74014,
+    74015,
+    74016,
+    74017,
+    74018,
+    74019,
+    74020
+  ],
+  "replacement_policy": "forbidden_after_any_prospective_outcome_access",
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "informative_controls": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "geographic_shift"
+  ],
+  "report_only_world": "observation_confounded",
+  "null_world": "omitted_driver",
+  "expected_odo_counts_total": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "stage_p": {
+    "multiplier": 8,
+    "n_occurrences": 1440,
+    "n_background": 4800,
+    "n_cells": 1600,
+    "n_splits": 3,
+    "learner": "hgb",
+    "hgb_profile": "shallow3",
+    "split_mode": "random_cell",
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "authorization_gate": {
+      "n_permutations": 999,
+      "alpha": 0.001,
+      "permutation_seed": 0,
+      "minimum_gain_over_null": 0.01
+    }
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "retroactive_stage_p_state_change": false
+  },
+  "gate_vector": {
+    "KT-A": {
+      "all_declared_seeds_required": true,
+      "all_worlds_required": true,
+      "no_replacement": true,
+      "exact_odo_denominator_required": true,
+      "complete_provenance_required": true
+    },
+    "KT-B": {
+      "metric": "stage_p_positive_recovery",
+      "minimum": 0.8
+    },
+    "KT-C": {
+      "metric": "stage_p_false_positive_rate_among_odo_replaceable",
+      "maximum": 0.01
+    },
+    "KT-D": {
+      "max_overresolution_rate_among_odo_unresolved": 0,
+      "max_structural_refusal_violation_rate": 0
+    },
+    "KT-E": {
+      "max_sharp_rate_among_odo_unavailable": 0,
+      "max_favorable_positive_rate_among_odo_unavailable": 0,
+      "maximum_w7_authorized_count": 0,
+      "minimum_each_informative_control_authorization_rate": 0.95,
+      "w6_role": "report_only"
+    },
+    "KT-F": {
+      "complete_spatial_transfer_evaluation_required": true,
+      "max_stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.05,
+      "max_spatial_structural_refusal_violation_rate": 0,
+      "spatial_positive_retention_report_only": true
+    }
+  },
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "activation_status": "blocked",
+  "note": "Scientific model and all thresholds are unchanged from prospective v1. Only KT-E authorization scope is made consistent with predeclared validation/confirmation roles: W1/W2/W3/W4/W5/W8 informative controls, W6 report-only, W7 null."
+}

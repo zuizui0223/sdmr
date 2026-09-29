@@ -1,0 +1,14 @@
+target_state,occurrence_state,count
+contributory,replaceable,10
+contributory,unavailable,5
+contributory,unresolved,13
+replaceable,replaceable,229
+replaceable,unavailable,29
+replaceable,unresolved,17
+required,replaceable,2
+unavailable,replaceable,18
+unavailable,unavailable,30
+unavailable,unresolved,6
+unresolved,replaceable,1
+unresolved,unavailable,2
+unresolved,unresolved,22
