@@ -1,0 +1,133 @@
+{
+  "schema": "sdmr.fresh_empirical_v3_soil_support_eligibility.contract.v1",
+  "program": "sdmr-fresh-empirical-v3-soil-support-eligibility",
+  "frozen_date": "2026-09-29",
+  "status": "design_frozen_before_v3_candidate_roster_or_soil_support_opening",
+  "product_a_boundary": "closed_not_reopened",
+  "known_truth_prerequisite": {
+    "program": "sdmr-v6-prospective-known-truth-v2",
+    "workflow_run": 36212033498,
+    "artifact_id": 10896590112,
+    "artifact_digest": "sha256:7c0c3dd6f12a0478abcd0fadabdb013a26356ac7ac6dacca7bc2cbdabee7fe68",
+    "terminal_passed": true
+  },
+  "predecessor_feature_stage": {
+    "program": "sdmr-fresh-empirical-feature-stage-terminal-v2",
+    "status": "terminal_unavailable_under_frozen_50_taxon_46_predictor_contract",
+    "selected_taxa": 50,
+    "passed_after_source_decoding": 37,
+    "failed_after_source_decoding": 13,
+    "failure_process": "soil_substrate",
+    "blocker_predictors": [
+      "sg_phh2o_0_5",
+      "sg_clay_0_5",
+      "sg_soc_0_5",
+      "sg_nitrogen_0_5"
+    ],
+    "answer_check_accessed": false,
+    "model_fitting_performed": false
+  },
+  "candidate_roster": {
+    "exact_candidates": 80,
+    "final_taxa": 50,
+    "source": "GBIF 2026-08-01 snapshot",
+    "temporal_window": [
+      2010,
+      2025
+    ],
+    "eligibility": {
+      "phylum": "Tracheophyta",
+      "taxon_rank": "SPECIES",
+      "minimum_occurrences": 500,
+      "minimum_unique_1_degree_cells": 20,
+      "maximum_coordinate_uncertainty_m": 10000,
+      "require_family": true,
+      "require_genus": true
+    },
+    "breadth_constraints": {
+      "maximum_per_genus": 1,
+      "maximum_per_family": 2
+    },
+    "ranking": {
+      "algorithm": "sha256_ascending_then_scientific_name",
+      "seed": "sdmr-fresh-empirical-v3-candidate-roster|2026-09-29"
+    },
+    "exclusions": [
+      "all historical Product-A taxa and candidates",
+      "all 50 taxa from fresh empirical v2"
+    ]
+  },
+  "preselection_coordinate_pipeline": {
+    "thinning": "one_record_per_species_per_0.05_degree_cell; minimum gbifid tie-break",
+    "minimum_raw_occurrences": 80,
+    "minimum_thinned_cells": 50,
+    "outer_split": {
+      "algorithm": "freeze_occurrence_answer_check_split",
+      "n_blocks": 8,
+      "answer_check_fraction": 0.2,
+      "random_state": 42,
+      "environmental_features_used": false
+    },
+    "accessible_area": {
+      "target_group": "Tracheophyta_nonfocal",
+      "primary_M_km": 300,
+      "background_points_per_taxon": 5000,
+      "seed": "sdmr-fresh-v3-background-v1"
+    }
+  },
+  "soil_support_gate": {
+    "predictors": [
+      "sg_phh2o_0_5",
+      "sg_clay_0_5",
+      "sg_soc_0_5",
+      "sg_nitrogen_0_5"
+    ],
+    "source": "SoilGrids 2.0 latest 0-5cm mean WebDAV VRTs pinned by the unchanged process registry",
+    "persisted_information": "finite_or_missing_bit_only",
+    "raw_numeric_soil_values_persisted": false,
+    "answer_check_coordinates_read_for_support": false,
+    "answer_check_soil_support_read": false,
+    "model_pool_gate": {
+      "minimum_joint_finite_fraction": 0.8,
+      "minimum_joint_finite_rows": 50
+    },
+    "background_300km_gate": {
+      "minimum_joint_finite_rows": 4000,
+      "denominator_rows": 5000
+    },
+    "candidate_pass_rule": "both model-pool and primary-background gates pass across the joint four-layer finite mask"
+  },
+  "final_selection": {
+    "rule": "retain support-eligible candidates in frozen candidate-roster hash order and take the first 50",
+    "minimum_support_eligible_candidates": 50,
+    "replacement_after_final_selection": false,
+    "threshold_relaxation": false,
+    "predictor_deletion": false,
+    "if_fewer_than_50_pass": "terminal_unavailable_before_final_cohort_freeze"
+  },
+  "information_barrier": {
+    "allowed_before_final_50": [
+      "GBIF taxonomy/counts/coordinates needed for the frozen candidate split",
+      "coordinate-only split assignment",
+      "model-pool-only 300km target-group background coordinates",
+      "four SoilGrids finite-versus-missing support bits"
+    ],
+    "forbidden_before_final_50": [
+      "numeric SoilGrids values",
+      "CHELSA values",
+      "answer-check environmental values",
+      "model fitting",
+      "AUC/CBI/OR10/AICc/balanced log score",
+      "process states",
+      "EMP-A through EMP-F outcomes"
+    ]
+  },
+  "prohibited": [
+    "select replacement taxa after any model or answer-check outcome",
+    "persist raw numeric soil values during support eligibility",
+    "read answer-check SoilGrids support during eligibility",
+    "change 0.80/50/4000 support thresholds after support bits are opened",
+    "drop any of the four SoilGrids predictors after support bits are opened",
+    "reuse any of the predecessor 50 fresh taxa"
+  ]
+}
