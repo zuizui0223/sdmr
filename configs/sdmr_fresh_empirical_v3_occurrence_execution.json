@@ -1,0 +1,19 @@
+{
+  "program": "sdmr-fresh-empirical-v3-occurrence-split-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "debbfa69e8d1c1820b97ba7b806a238253e13b29",
+  "candidate_roster_run": 36807167254,
+  "candidate_roster_artifact_id": 11139696690,
+  "candidate_count": 80,
+  "environmental_values_allowed": false,
+  "soil_support_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v3_occurrence.py": "6cd820cff91583f1af1e13ae80c874d160eb7000",
+    ".github/workflows/sdmr-fresh-empirical-v3-occurrence-split.yml": "80b2adcdf98ce104030357a1e4f95ff8a00befbf",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster_artifact_receipt.json": "9de8ae7e5a692ad2ab9a9047dc090927a8a3015f",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster.csv": "a671b59f367e4c0fbe3c02f8b8221da517a1b214",
+    "configs/sdmr_fresh_empirical_v3_soil_support_eligibility.json": "792bb8fb4659d58dfc9fd611edea408e2bef44a4"
+  }
+}
