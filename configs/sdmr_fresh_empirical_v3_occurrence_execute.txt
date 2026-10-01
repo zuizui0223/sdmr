@@ -1,0 +1,9 @@
+program=sdmr-fresh-empirical-v3-occurrence-split
+execution_receipt_commit=4194b324915f69bb910ce9ffbff480cb594a0bb9
+frozen_implementation_commit=debbfa69e8d1c1820b97ba7b806a238253e13b29
+candidate_roster_run=36807167254
+candidate_count=80
+environmental_values_opened=false
+soil_support_opened=false
+answer_check_features_opened=false
+execute_once=true
