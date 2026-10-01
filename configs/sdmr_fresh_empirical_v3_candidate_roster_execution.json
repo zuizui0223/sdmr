@@ -1,0 +1,28 @@
+{
+  "program": "sdmr-fresh-empirical-v3-candidate-roster-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "8b72d143b4c2894ed494f1e04682554b0f903ebf",
+  "outcomes_opened": false,
+  "exact_candidates": 80,
+  "historical_exclusions": 84,
+  "predecessor_v2_exclusions": 50,
+  "gbif_snapshot_date": "2026-08-01",
+  "temporal_window": [
+    2010,
+    2025
+  ],
+  "environmental_values_allowed": false,
+  "soil_support_bits_allowed": false,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v3_metadata.py": "63292c209f38b1840ec17528d1756bfbdbcb9e60",
+    "src/sdmr/process_id/fresh/cohort_v3_candidates.py": "52865c617ed42ab385df486c6c5f23aec53df3ef",
+    ".github/workflows/sdmr-fresh-empirical-v3-candidate-roster.yml": "37848b7542cc833171cffde3c33b25c2fc33ab46",
+    "configs/sdmr_fresh_empirical_v3_soil_support_eligibility.json": "792bb8fb4659d58dfc9fd611edea408e2bef44a4",
+    "configs/sdmr_fresh_empirical_historical_exclusion_v1.csv": "b85d8b6031ab3fba9cef26d4cab2d4253cfc31b4",
+    "configs/sdmr_fresh_empirical_selected_taxa_v1.csv": "6561578073ee10536a2561958f09331b50814c54"
+  }
+}
