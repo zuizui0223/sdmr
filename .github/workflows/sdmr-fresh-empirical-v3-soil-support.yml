@@ -1,0 +1,213 @@
+name: SDMR fresh empirical v3 SoilGrids support eligibility
+
+on:
+  push:
+    branches:
+      - design/sdmr-v3-process-identification
+    paths:
+      - configs/sdmr_fresh_empirical_v3_soil_support_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-v3-soil-support
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      candidate_run: ${{ steps.receipts.outputs.candidate_run }}
+      occurrence_run: ${{ steps.receipts.outputs.occurrence_run }}
+      background_run: ${{ steps.receipts.outputs.background_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - id: receipts
+        name: Verify frozen v3 support execution boundary
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          from sdmr.process_id.fresh.cohort_v3_soil_support import validate_contract
+
+          receipt_path=Path('configs/sdmr_fresh_empirical_v3_soil_support_execution.json')
+          trigger='configs/sdmr_fresh_empirical_v3_soil_support_execute.txt'
+          cand=json.load(open('configs/sdmr_fresh_empirical_v3_candidate_roster_artifact_receipt.json'))
+          occ=json.load(open('configs/sdmr_fresh_empirical_v3_occurrence_artifact_receipt.json'))
+          bg=json.load(open('configs/sdmr_fresh_empirical_v3_background_artifact_receipt.json'))
+          receipt=json.load(open(receipt_path))
+          if receipt.get('program')!='sdmr-fresh-empirical-v3-soil-support-execution':
+              raise SystemExit('wrong v3 support receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('v3 support execution is not one-shot')
+          if cand.get('candidate_count')!=80 or occ.get('candidate_count')!=80 or bg.get('candidate_count')!=80:
+              raise SystemExit('v3 upstream denominator changed')
+          if occ.get('answer_check_coordinates_persisted_for_support') is not False:
+              raise SystemExit('answer-check coordinates crossed occurrence boundary')
+          if bg.get('answer_check_coordinates_read') is not False:
+              raise SystemExit('answer-check coordinates crossed background boundary')
+          if receipt.get('persist_numeric_soil_values') is not False:
+              raise SystemExit('numeric SoilGrids persistence became allowed')
+          for key in ('answer_check_support_allowed','chelsa_values_allowed','model_fitting_allowed','metrics_allowed','process_states_allowed'):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'v3 support boundary crossed: {key}')
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          if git('rev-parse','HEAD^^')!=receipt['frozen_implementation_sha']:
+              raise SystemExit('v3 support implementation is not trigger grandparent')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x] != [trigger]:
+              raise SystemExit('v3 support trigger changed unexpected files')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x] != [str(receipt_path)]:
+              raise SystemExit('v3 support receipt commit changed unexpected files')
+          for path,expected in receipt['blob_sha'].items():
+              if git('hash-object',path)!=expected:
+                  raise SystemExit(f'frozen v3 support blob changed: {path}')
+          validate_contract('configs/sdmr_fresh_empirical_v3_soil_support_eligibility.json')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f"candidate_run={int(cand['workflow_run'])}\n")
+              fh.write(f"occurrence_run={int(occ['workflow_run'])}\n")
+              fh.write(f"background_run={int(bg['workflow_run'])}\n")
+          print('v3 SoilGrids support preflight passed')
+          PY
+          pytest -q             tests/test_process_id_fresh_v3_soil_support.py             tests/test_process_id_fresh_v3_support_runtime.py
+
+  support-shard:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        predictor:
+          - sg_phh2o_0_5
+          - sg_clay_0_5
+          - sg_soc_0_5
+          - sg_nitrogen_0_5
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.candidate_run }}
+          name: sdmr-fresh-empirical-v3-candidate-roster
+          path: candidate_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v3-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.background_run }}
+          name: sdmr-fresh-empirical-v3-background
+          path: background_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract one finite/missing SoilGrids support shard
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v3_support_runtime shard \
+            --predictor "${{ matrix.predictor }}" \
+            --shard-index ${{ matrix.shard }} --shard-count 32 \
+            --candidates candidate_source/candidate_roster_v3.csv \
+            --model-pool occurrence_source/model_pool_occurrences_v3.csv \
+            --background background_source/background_points_v3.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir support_part
+          cat support_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v3-support-${{ matrix.predictor }}-${{ matrix.shard }}
+          path: support_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [preflight, support-shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.candidate_run }}
+          name: sdmr-fresh-empirical-v3-candidate-roster
+          path: candidate_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v3-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.background_run }}
+          name: sdmr-fresh-empirical-v3-background
+          path: background_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v3-support-*
+          path: support_parts
+      - name: Freeze support eligibility and select first 50 eligible candidates
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v3_support_runtime aggregate \
+            --parts-root support_parts \
+            --candidates candidate_source/candidate_roster_v3.csv \
+            --model-pool occurrence_source/model_pool_occurrences_v3.csv \
+            --background background_source/background_points_v3.csv \
+            --contract configs/sdmr_fresh_empirical_v3_soil_support_eligibility.json \
+            --output-dir selection
+          cat selection/soil_support_selection_result_v3.json
+          python - <<'PY'
+          import json
+          r=json.load(open('selection/soil_support_selection_result_v3.json'))
+          if r.get('numeric_soil_values_persisted') is not False or r.get('answer_check_support_read') is not False:
+              raise SystemExit('v3 support information boundary crossed')
+          if r.get('model_fitting_performed') is not False:
+              raise SystemExit('model fitting occurred before final50 freeze')
+          if r.get('status') not in (
+              'final_50_frozen_after_soil_support_eligibility',
+              'terminal_unavailable_before_final_cohort_freeze',
+          ):
+              raise SystemExit('unexpected v3 support terminal state')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v3-soil-support
+          path: selection/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
