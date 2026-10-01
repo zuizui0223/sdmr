@@ -22,6 +22,8 @@ def test_v3_support_registry_is_exact_four_soilgrids():
 
 
 def test_v3_support_shard_persists_boolean_bits_only(tmp_path, monkeypatch):
+    import pytest
+    pytest.importorskip("pyarrow")
     locations=pd.DataFrame({
         "location_id":range(64),
         "longitude":[float(i) for i in range(64)],
