@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v3-candidate-roster
+execution_receipt_commit=7f0c364f4ed1cb0c00cb97d5bc2a3c71a9d42c41
+frozen_implementation_commit=8b72d143b4c2894ed494f1e04682554b0f903ebf
+exact_candidates=80
+historical_exclusions=84
+predecessor_v2_exclusions=50
+environmental_values_opened=false
+soil_support_opened=false
+answer_check_accessed=false
+execute_once=true
