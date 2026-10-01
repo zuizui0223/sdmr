@@ -1,0 +1,7 @@
+learner,diagnostic_boundary,count
+linear,interval_indeterminate,12
+linear,positive_contribution_evidence,2
+linear,process_free_noninferior_witness,16
+quadratic,full_inadequate,5
+quadratic,interval_indeterminate,13
+quadratic,process_free_noninferior_witness,12

@@ -1,0 +1,41 @@
+{
+  "program": "sdmr-v6-full-pipeline-integration-v1",
+  "workflow_run": 36122603465,
+  "workflow_head": "e13d2e6f76c8e038c7215395e92c9eda9db3d45a",
+  "artifact_id": 10857564844,
+  "artifact_digest": "sha256:bb07b4a5d4e65ca48f180dc54fc2ee564c8c952bdfd46f84b0fb2fd9ccf1dd9d",
+  "passed": false,
+  "gates": {
+    "INT-A": true,
+    "INT-B": true,
+    "INT-C": true,
+    "INT-D": true,
+    "INT-E": false,
+    "INT-F": true
+  },
+  "metrics": {
+    "positive_recovery": 0.8875,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "unavailable_sharp_rate": 0,
+    "non_w7_full_system_information_adequacy": 0.8642857142857143,
+    "w7_full_system_information_adequacy": 0,
+    "stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.028169014084507043,
+    "spatial_structural_refusal_violation_rate": 0
+  },
+  "world_authorized_counts": {
+    "unique_process": 20,
+    "redundant_representation": 20,
+    "shared_carrier": 20,
+    "null_correlated": 20,
+    "interaction": 20,
+    "geographic_shift": 20,
+    "observation_confounded": 1,
+    "omitted_driver": 0
+  },
+  "failure_class": "contract_scope_mismatch_report_only_W6_included_in_non_W7_denominator",
+  "prospective_open": false,
+  "fresh_empirical_open": false
+}

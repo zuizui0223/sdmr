@@ -1,0 +1,154 @@
+{
+  "program": "sdmr-v3-prospective-known-truth-v2",
+  "status": "frozen_pending_development_prerequisite",
+  "frozen_at": "2026-09-24",
+  "product_a_boundary": "closed_not_reopened",
+  "development_prerequisite": {
+    "workflow_name": "sdmr-v3-stage-p-safety-v3",
+    "workflow_run": 35992320576,
+    "required_terminal_conclusion": "success",
+    "outcome_not_opened_when_contract_frozen": true,
+    "execution_blocked_until_terminal_review": true,
+    "scientific_settings_unchanged_from_v1": true
+  },
+  "seeds": {
+    "values": [
+      33001,
+      33002,
+      33003,
+      33004,
+      33005,
+      33006,
+      33007,
+      33008,
+      33009,
+      33010,
+      33011,
+      33012,
+      33013,
+      33014,
+      33015,
+      33016,
+      33017,
+      33018,
+      33019,
+      33020
+    ],
+    "count": 20,
+    "replacement_policy": "forbidden_after_any_prospective_outcome_access",
+    "prior_repository_search_hits": 0
+  },
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "expected_odo_counts_per_seed": {
+    "positive": 4,
+    "replaceable": 35,
+    "unresolved": 3,
+    "unavailable": 6,
+    "structural_refusal": 3
+  },
+  "expected_odo_counts_total": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "stage_p": {
+    "learner": "hgb",
+    "hgb_profile": "shallow3",
+    "split_mode": "random_cell",
+    "multiplier": 8,
+    "n_occurrences": 1440,
+    "n_background": 4800,
+    "n_cells": 1600,
+    "n_splits": 3,
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "sem_multiplier": 1,
+    "logistic_C": 1,
+    "full_system_information_gate": {
+      "required": true,
+      "null_balanced_log_score": "-log(2)",
+      "information_boundary": 0,
+      "criterion": "mean_full_score >= -0.75 AND mean_gain_over_null - 1*SEM > 0"
+    }
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "role": "separate_transfer_guardrail",
+    "retroactive_stage_p_state_change": false
+  },
+  "gate_vector": {
+    "KT-A": {
+      "all_declared_seeds_required": true,
+      "replacement_forbidden": true,
+      "all_worlds_required": true,
+      "exact_expected_odo_denominator_required": true,
+      "provenance_complete_required": true
+    },
+    "KT-B": {
+      "metric": "stage_p_positive_recovery",
+      "minimum": 0.8
+    },
+    "KT-C": {
+      "metric": "stage_p_false_positive_rate_among_odo_replaceable",
+      "maximum": 0.01
+    },
+    "KT-D": {
+      "max_overresolution_rate_among_odo_unresolved": 0,
+      "max_structural_refusal_violation_rate": 0
+    },
+    "KT-E": {
+      "max_sharp_rate_among_odo_unavailable": 0,
+      "max_favorable_positive_rate_among_odo_unavailable": 0,
+      "min_non_w7_full_system_information_adequacy": 0.95,
+      "max_w7_full_system_information_adequacy": 0
+    },
+    "KT-F": {
+      "complete_spatial_transfer_evaluation_required": true,
+      "max_stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.05,
+      "max_spatial_structural_refusal_violation_rate": 0,
+      "spatial_positive_retention_report_only": true
+    }
+  },
+  "source_freezes": {
+    "odo_v2": {
+      "workflow_run": 35495871747,
+      "artifact_id": 10601311224,
+      "artifact_digest": "sha256:bc67412ccf10e40cd5039f204410bf31f96773de4d0f808268e2773e9192488c",
+      "state_key_sha256": "966d5fc5c2bc60951386c4c83e666c9a1d7fb6ae8168f2139706e49900a2943d"
+    },
+    "hgb_screen": {
+      "workflow_run": 35608090218,
+      "artifact_id": 10644928842,
+      "artifact_digest": "sha256:1a07609267cfba8ef443f3a956cf7015a2caf8db65a7af9e63b0a48c3157edaf",
+      "selected_profile": "shallow3",
+      "selection_used_process_recovery": false
+    },
+    "positive_power_tail": {
+      "workflow_run": 35981741906,
+      "random_cell_artifact_id": 10801478002,
+      "random_cell_artifact_digest": "sha256:bb9e8d8fb9b416424b460d6b2cace75feee85cddfedadf6c1f8ebdc5355c5985",
+      "spatial_artifact_id": 10801581626,
+      "spatial_artifact_digest": "sha256:d5ffb683b8a3dc0eba12cc6a8515755cbdbc823f65f09bd28ec82744f283fbe7"
+    }
+  },
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "activation_status": "blocked",
+  "note": "Scientific denominator and KT thresholds identical to v1; v1 was aborted unopened because its prerequisite run failed before scientific evidence due runner split-key plumbing. Seeds remain unopened.",
+  "predecessor": {
+    "program": "sdmr-v3-prospective-known-truth-v1",
+    "disposition": "aborted_unopened",
+    "reason": "development prerequisite runner plumbing failure before scientific evidence"
+  }
+}

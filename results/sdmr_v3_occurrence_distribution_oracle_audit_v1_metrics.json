@@ -1,0 +1,25 @@
+{
+  "distribution_positive_cells": 7,
+  "finite_false_positive_rate": {
+    "linear": 0.005305039787798408,
+    "quadratic": 0.0
+  },
+  "finite_false_positive_rate_on_replaceable": {
+    "linear": 0.0,
+    "quadratic": 0.0
+  },
+  "finite_overresolution_rate_on_unresolved": {
+    "linear": 0.0,
+    "quadratic": 0.0
+  },
+  "finite_positive_recovery": {
+    "linear": 0.14285714285714285,
+    "quadratic": 0.0
+  },
+  "occurrence_oracle_numerically_inadequate_cells": 222,
+  "occurrence_oracle_unavailable_cells": 221,
+  "truth_positive_but_distribution_not_positive_cells": 31,
+  "truth_positive_cells": 38,
+  "truth_positive_distribution_positive_cells": 7,
+  "truth_positive_distribution_positive_fraction": 0.18421052631578946
+}

@@ -1,0 +1,114 @@
+{
+  "purpose": "continue_stalled_sdmr_v5_validation_without_scientific_change",
+  "original_workflow_run": 36070724122,
+  "original_head": "89dd508e3367417fc077c2b71511e6567cf60813",
+  "scientific_code_recomputed_from_original_head": true,
+  "completed_shards_retained": 14,
+  "missing_shards": [
+    {
+      "world": "unique_process",
+      "block": 0
+    },
+    {
+      "world": "redundant_representation",
+      "block": 2
+    },
+    {
+      "world": "redundant_representation",
+      "block": 3
+    },
+    {
+      "world": "shared_carrier",
+      "block": 1
+    },
+    {
+      "world": "shared_carrier",
+      "block": 2
+    },
+    {
+      "world": "shared_carrier",
+      "block": 4
+    },
+    {
+      "world": "null_correlated",
+      "block": 1
+    },
+    {
+      "world": "interaction",
+      "block": 1
+    },
+    {
+      "world": "interaction",
+      "block": 2
+    },
+    {
+      "world": "interaction",
+      "block": 3
+    },
+    {
+      "world": "interaction",
+      "block": 4
+    },
+    {
+      "world": "observation_confounded",
+      "block": 0
+    },
+    {
+      "world": "observation_confounded",
+      "block": 1
+    },
+    {
+      "world": "observation_confounded",
+      "block": 2
+    },
+    {
+      "world": "observation_confounded",
+      "block": 3
+    },
+    {
+      "world": "observation_confounded",
+      "block": 4
+    },
+    {
+      "world": "omitted_driver",
+      "block": 0
+    },
+    {
+      "world": "omitted_driver",
+      "block": 1
+    },
+    {
+      "world": "omitted_driver",
+      "block": 2
+    },
+    {
+      "world": "omitted_driver",
+      "block": 3
+    },
+    {
+      "world": "omitted_driver",
+      "block": 4
+    },
+    {
+      "world": "geographic_shift",
+      "block": 0
+    },
+    {
+      "world": "geographic_shift",
+      "block": 1
+    },
+    {
+      "world": "geographic_shift",
+      "block": 2
+    },
+    {
+      "world": "geographic_shift",
+      "block": 3
+    },
+    {
+      "world": "geographic_shift",
+      "block": 4
+    }
+  ],
+  "seeds_or_thresholds_changed": false
+}

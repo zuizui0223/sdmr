@@ -1,0 +1,31 @@
+{
+  "source_scientific_shard_run": 35992320576,
+  "aggregate_repair_run": 35997608669,
+  "artifact_id": 10806253612,
+  "artifact_digest": "sha256:4a7174bdb701225de22c5735a80923df0a37944ec071f90f421662fc105e4847",
+  "scientific_shards_recomputed": false,
+  "stage_p": {
+    "positive_recovery": 0.8541666666666666,
+    "false_positive_rate": 0,
+    "overresolution_rate": 0,
+    "unavailable_favorable_rate": 0,
+    "unavailable_sharp_rate": 0,
+    "structural_refusal_violation_rate": 0,
+    "positive_unavailable_rate": 0,
+    "n_positive": 96,
+    "n_replaceable": 840,
+    "n_unresolved": 72,
+    "n_unavailable": 144,
+    "n_structural_refusal": 72
+  },
+  "full_system_gate": {
+    "non_w7_adequacy_rate": 0.9940476190476191,
+    "w7_adequacy_rate": 0,
+    "observation_confounded_adequacy_rate": 0.9583333333333334
+  },
+  "positive_tail": {
+    "semantic_sha256": "16fcea7cc49c64bb3f90f7f6f43fd93803286bc740f2b6eab228c6760666ebe5",
+    "rounded14_sha256": "da8bc77209c2e08bbc598d0591670b27739bd1c39b4f4bfed351ba3bee1c64c7"
+  },
+  "decision": "development_prerequisite_passed"
+}

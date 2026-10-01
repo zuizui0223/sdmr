@@ -1,0 +1,8 @@
+{
+  "purpose": "yield_redundant_sdmr_v3_full_suite_runner_to_v6_validation",
+  "scientific_state_changed": false,
+  "seed_state_changed": false,
+  "threshold_state_changed": false,
+  "retry": 3,
+  "reason": "yield latest redundant full-suite runner to active v6 validation"
+}

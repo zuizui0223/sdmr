@@ -1,0 +1,35 @@
+{
+  "purpose": "execute_sdmr_v6_prospective_known_truth_v2",
+  "branch": "design/sdmr-v3-process-identification",
+  "single_activation": true,
+  "scientific_contract_path": "configs/sdmr_v6_prospective_kt_v2.json",
+  "scientific_contract_blob_sha": "bdef009362fb4bd6025e616743605bd9787a5008",
+  "execution_profile_path": "configs/sdmr_v6_prospective_kt_v2_execution.json",
+  "execution_profile_blob_sha": "d85c108abeab4d25af1b757fa99c3ea53734c6b5",
+  "validation_prerequisite": {
+    "program": "sdmr-v6-magnitude-permutation-validation-v1",
+    "workflow_run": 36088891887,
+    "terminal_passed": true,
+    "artifact_id": 10844948845,
+    "artifact_digest": "sha256:f9dc1b593e77a33648d494a784aded984669830cc587da0f06825277ff25328e"
+  },
+  "confirmation_prerequisite": {
+    "program": "sdmr-v6-magnitude-permutation-confirmation-v1",
+    "workflow_run": 36121116341,
+    "terminal_passed": true,
+    "artifact_id": 10858132902,
+    "artifact_digest": "sha256:70e5a02d7a74494915dc3e06e505fd59fc9c8f3caa2eb51eba15559f757ae956"
+  },
+  "integration_prerequisite": {
+    "program": "sdmr-v6-full-pipeline-integration-v2",
+    "workflow_run": 36124407533,
+    "terminal_passed": true,
+    "artifact_id": 10859533239,
+    "artifact_digest": "sha256:de57d1ad14f431a0b9bce0862ae6621d9065a6d09a9522b9cecd070807fe26eb"
+  },
+  "approved_for_single_prospective_execution": true,
+  "prospective_outcomes_opened_before_activation": false,
+  "fresh_empirical_opened": false,
+  "seeds_opened_by_this_activation": "74001-74020",
+  "note": "First and only opening of SDMR v6 prospective KT v2. Scientific contract, execution profile, thresholds and seed denominator were frozen before integration v2 outcome."
+}

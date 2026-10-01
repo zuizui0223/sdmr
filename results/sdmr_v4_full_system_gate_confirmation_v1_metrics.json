@@ -1,0 +1,28 @@
+{
+  "program": "sdmr-v4-full-system-gate-confirmation-v1",
+  "workflow_run": 36018251680,
+  "workflow_head": "80e9c77ed11010bf85801705ab204dc3477d3117",
+  "artifact_id": 10815239881,
+  "artifact_digest": "sha256:99355939b6d308ad68a8e653a557c7b54131930583a08c0c0cbe068ee2ede1c4",
+  "selected_multiplier": 1,
+  "confirmation_seed_min": 42001,
+  "confirmation_seed_max": 42050,
+  "passed": false,
+  "world_authorized_counts": {
+    "unique_process": 50,
+    "redundant_representation": 50,
+    "shared_carrier": 50,
+    "null_correlated": 50,
+    "interaction": 50,
+    "geographic_shift": 50,
+    "observation_confounded": 45,
+    "omitted_driver": 2
+  },
+  "failed_controls": [],
+  "w7_authorized_count": 2,
+  "minimum_control_authorized_count": 50,
+  "w6_report_only_authorized_count": 45,
+  "reserved_future_prospective_open": false,
+  "fresh_empirical_open": false,
+  "decision": "development_confirmation_fail_w7"
+}

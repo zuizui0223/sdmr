@@ -1,0 +1,125 @@
+{
+  "program": "sdmr-v5-prospective-known-truth-v1",
+  "status": "frozen_pending_integration_prerequisite",
+  "product_a_boundary": "closed_not_reopened",
+  "prerequisites": {
+    "validation": {
+      "workflow_run": 36070724122,
+      "artifact_id": 10838468711,
+      "artifact_digest": "sha256:74190cc9022fd024a1be2a00748f6dd9053b76a61adc3f2163dc36a22c71d0d9",
+      "terminal_passed": true
+    },
+    "confirmation": {
+      "workflow_run": 36081546640,
+      "artifact_id": 10841589899,
+      "artifact_digest": "sha256:f4f9aab2bf0358d25c66767a687519ad6581f9554df671c8554df1a974a7aa6a",
+      "terminal_passed": true
+    },
+    "integration": {
+      "program": "sdmr-v5-full-pipeline-integration-v1",
+      "required_terminal_decision": "passed",
+      "outcome_not_opened_when_contract_frozen": true
+    }
+  },
+  "seeds": [
+    53001,
+    53002,
+    53003,
+    53004,
+    53005,
+    53006,
+    53007,
+    53008,
+    53009,
+    53010,
+    53011,
+    53012,
+    53013,
+    53014,
+    53015,
+    53016,
+    53017,
+    53018,
+    53019,
+    53020
+  ],
+  "replacement_policy": "forbidden_after_any_prospective_outcome_access",
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "expected_odo_counts_total": {
+    "positive": 80,
+    "replaceable": 700,
+    "unresolved": 60,
+    "unavailable": 120,
+    "structural_refusal": 60
+  },
+  "stage_p": {
+    "multiplier": 8,
+    "n_occurrences": 1440,
+    "n_background": 4800,
+    "n_cells": 1600,
+    "n_splits": 3,
+    "learner": "hgb",
+    "hgb_profile": "shallow3",
+    "split_mode": "random_cell",
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "permutation_gate": {
+      "n_permutations": 999,
+      "alpha": 0.001,
+      "permutation_seed": 0,
+      "alternative": "greater",
+      "pvalue_formula": "(1 + count(null_stat >= observed_stat)) / 1000",
+      "require_positive_gain_over_null": true
+    }
+  },
+  "stage_t": {
+    "split_mode": "spatial",
+    "retroactive_stage_p_state_change": false
+  },
+  "gate_vector": {
+    "KT-A": {
+      "all_declared_seeds_required": true,
+      "all_worlds_required": true,
+      "no_replacement": true,
+      "exact_odo_denominator_required": true,
+      "complete_provenance_required": true
+    },
+    "KT-B": {
+      "metric": "stage_p_positive_recovery",
+      "minimum": 0.8
+    },
+    "KT-C": {
+      "metric": "stage_p_false_positive_rate_among_odo_replaceable",
+      "maximum": 0.01
+    },
+    "KT-D": {
+      "max_overresolution_rate_among_odo_unresolved": 0,
+      "max_structural_refusal_violation_rate": 0
+    },
+    "KT-E": {
+      "max_sharp_rate_among_odo_unavailable": 0,
+      "max_favorable_positive_rate_among_odo_unavailable": 0,
+      "max_w7_authorized_count": 0,
+      "min_non_w7_full_system_authorization_rate": 0.95
+    },
+    "KT-F": {
+      "complete_spatial_transfer_evaluation_required": true,
+      "max_stage_p_positive_to_spatial_replaceable_contradiction_rate": 0.05,
+      "max_spatial_structural_refusal_violation_rate": 0,
+      "spatial_positive_retention_report_only": true
+    }
+  },
+  "prospective_outcomes_opened": false,
+  "fresh_empirical_open": false,
+  "activation_status": "blocked",
+  "note": "Scientific contract frozen before the v5 full-pipeline integration outcome is opened. Activation is forbidden unless INT-A through INT-F pass on 61001-61020."
+}

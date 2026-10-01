@@ -1,0 +1,38 @@
+{
+  "program": "sdmr-v3-finite-probability-quality-audit-v1",
+  "status": "development_only",
+  "product_a_boundary": "closed_not_reopened",
+  "seeds_reused_only_as_burned_development_evidence": true,
+  "seeds": [
+    23001,
+    23002,
+    23003,
+    23004,
+    23005,
+    23006,
+    23007,
+    23008
+  ],
+  "worlds": [
+    "unique_process",
+    "interaction",
+    "geographic_shift"
+  ],
+  "learners": [
+    "linear",
+    "hgb"
+  ],
+  "split_modes": [
+    "spatial",
+    "random_cell"
+  ],
+  "n_cells": 1600,
+  "n_occurrences": 180,
+  "n_background": 600,
+  "n_splits": 3,
+  "logistic_C": 1,
+  "prospective_status": "not_frozen",
+  "prospective_validation_seeds": [],
+  "fresh_empirical_open": false,
+  "note": "Diagnostic-only full-model probability-quality audit. No process state, threshold, learner hyperparameter, sample size, or ODO target is changed."
+}
