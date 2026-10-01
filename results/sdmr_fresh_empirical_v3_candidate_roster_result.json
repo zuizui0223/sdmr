@@ -1,0 +1,19 @@
+{
+  "answer_check_accessed": false,
+  "availability_summary_sha256": "ccc7b0d28851a56dccff7eb9ed0d16f8c9dd0b6bcbe722c724983f80bce5b467",
+  "candidate_count": 80,
+  "candidate_families": 61,
+  "candidate_genera": 80,
+  "candidate_roster_sha256": "91394fc4a3f18c5625de0c3c82932dc26cdd798f5e9a27efdd11626a0c89915b",
+  "environmental_values_read": false,
+  "historical_exclusions": 84,
+  "model_fitting_performed": false,
+  "next_gate": "freeze coordinate-only occurrence split and 300-km background for all 80 candidates",
+  "predecessor50_exclusions": 50,
+  "prediction_metrics_read": false,
+  "process_states_read": false,
+  "program": "sdmr-fresh-empirical-v3-candidate-roster",
+  "selection_audit_sha256": "ce4149b14cef2e96a4ea9d83d3b11697271ffc37183b7d3b735840ebb4b69c37",
+  "soil_support_opened": false,
+  "status": "candidate_roster_frozen_outcomes_unopened"
+}

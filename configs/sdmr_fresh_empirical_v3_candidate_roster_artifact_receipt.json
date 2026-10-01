@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-v3-candidate-roster-artifact-receipt",
+  "workflow_run": 36807167254,
+  "workflow_head": "b2a40d2cd12cc4be2ecc22d7ac2f7552abb8352e",
+  "artifact_id": 11139696690,
+  "artifact_name": "sdmr-fresh-empirical-v3-candidate-roster",
+  "artifact_digest": "sha256:bdc13ed5ed1ea597a3eaf09e519b12c6e2e186b0679bccf43d74fcc2fac98943",
+  "candidate_count": 80,
+  "candidate_families": 61,
+  "candidate_genera": 80,
+  "candidate_roster_sha256": "91394fc4a3f18c5625de0c3c82932dc26cdd798f5e9a27efdd11626a0c89915b",
+  "candidate_result_sha256": "f7836fc894fd79d0f5f3e12314d85b5a29213cfca8de37e95c49dfafc909d84b",
+  "selection_audit_sha256": "ce4149b14cef2e96a4ea9d83d3b11697271ffc37183b7d3b735840ebb4b69c37",
+  "availability_summary_sha256": "ccc7b0d28851a56dccff7eb9ed0d16f8c9dd0b6bcbe722c724983f80bce5b467",
+  "historical_exclusions": 84,
+  "predecessor50_exclusions": 50,
+  "environmental_values_read": false,
+  "soil_support_opened": false,
+  "answer_check_accessed": false,
+  "model_fitting_performed": false,
+  "prediction_metrics_read": false,
+  "process_states_read": false
+}
