@@ -1,0 +1,19 @@
+{
+  "program": "sdmr-fresh-empirical-v3-occurrence-split-artifact-receipt",
+  "workflow_run": 36835840637,
+  "workflow_head": "f9e6c4385f5456f49477a51f3147aa3d3aed45d7",
+  "artifact_id": 11150141298,
+  "artifact_name": "sdmr-fresh-empirical-v3-occurrence-split",
+  "artifact_digest": "sha256:aaf3de9e9fecd05850027a8b6fd68ad99ab469716a8a1a9fb1fe8f54d7710fc6",
+  "candidate_count": 80,
+  "model_pool_occurrences": 141701,
+  "answer_check_occurrences": 43324,
+  "model_pool_sha256": "0f1966002b6be5da354cbec503c9d2d4f33a5f2b56c0f26029fef0f05123b4ee",
+  "outer_split_sha256": "f32b71b3629d2bdefd9a6af2ad0e923d65f0e60557142d0ad100afa9820cdadb",
+  "source_gate_sha256": "e92bfadd2c18d41aac4e8b60b204835b64a233a24b722e6589ce0f00a9042825",
+  "answer_check_coordinates_persisted_for_support": false,
+  "environmental_values_read": false,
+  "soil_support_opened": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false
+}
