@@ -1,0 +1,16 @@
+{
+  "program": "sdmr-fresh-empirical-v3-occurrence-split",
+  "status": "candidate80_occurrence_split_passed",
+  "candidate_count": 80,
+  "model_pool_occurrences": 141701,
+  "answer_check_occurrences": 43324,
+  "model_pool_sha256": "0f1966002b6be5da354cbec503c9d2d4f33a5f2b56c0f26029fef0f05123b4ee",
+  "outer_split_sha256": "f32b71b3629d2bdefd9a6af2ad0e923d65f0e60557142d0ad100afa9820cdadb",
+  "source_gate_sha256": "e92bfadd2c18d41aac4e8b60b204835b64a233a24b722e6589ce0f00a9042825",
+  "environmental_values_read": false,
+  "soil_support_opened": false,
+  "answer_check_coordinates_persisted_for_support": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "build_300km_model_pool_only_background_for_all_80_candidates"
+}
