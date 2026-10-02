@@ -1,0 +1,18 @@
+{
+  "program": "sdmr-fresh-empirical-v3-background",
+  "status": "candidate80_model_pool_only_background_passed",
+  "candidate_count": 80,
+  "target_footprint_rows": 1060491,
+  "target_footprint_sha256": "c9bd021ba01c339f92bffb73e7f94b7730b8d63b17eb6623ef1ec108906cc58a",
+  "primary_m_km": 300,
+  "background_rows": 400000,
+  "background_points_sha256": "5c1e912e1392f327c81b286fce31b3f17d777021193b77f30caf4616d677e961",
+  "accessible_area_summary_sha256": "6bc46e6aac99b68dec3c8026ce919e6bb7eade07d9a6d833b712cc66fb6b5d61",
+  "minimum_candidate_target_cells": 8041,
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "environmental_values_read": false,
+  "soil_support_opened": false,
+  "model_fitting_performed": false,
+  "next_gate": "read_four_SoilGrids_finite_missing_bits_at_model_pool_and_background_only"
+}
