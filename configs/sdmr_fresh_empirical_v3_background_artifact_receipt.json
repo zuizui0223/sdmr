@@ -1,0 +1,21 @@
+{
+  "program": "sdmr-fresh-empirical-v3-background-artifact-receipt",
+  "workflow_run": 36953827651,
+  "workflow_head": "b26738c90d2f723c0aa52f443f3b7a428b3b9a45",
+  "artifact_id": 11205676545,
+  "artifact_name": "sdmr-fresh-empirical-v3-background",
+  "artifact_digest": "sha256:d63d7b44e9d92b934c24625b3733a8b467d36c1a7c0bd91bcac3b0cedaf4fff0",
+  "candidate_count": 80,
+  "primary_m_km": 300,
+  "background_rows": 400000,
+  "background_points_sha256": "5c1e912e1392f327c81b286fce31b3f17d777021193b77f30caf4616d677e961",
+  "target_footprint_rows": 1060491,
+  "target_footprint_sha256": "c9bd021ba01c339f92bffb73e7f94b7730b8d63b17eb6623ef1ec108906cc58a",
+  "accessible_area_summary_sha256": "6bc46e6aac99b68dec3c8026ce919e6bb7eade07d9a6d833b712cc66fb6b5d61",
+  "minimum_candidate_target_cells": 8041,
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "environmental_values_read": false,
+  "soil_support_opened": false,
+  "model_fitting_performed": false
+}
