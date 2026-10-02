@@ -1,0 +1,20 @@
+{
+  "program": "sdmr-fresh-empirical-v3-background-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "d626c42b54c1988773614fe4a3439426c6782b2f",
+  "candidate_count": 80,
+  "primary_m_km": 300,
+  "background_points_per_candidate": 5000,
+  "environmental_values_allowed": false,
+  "soil_support_allowed": false,
+  "answer_check_coordinates_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v3_background.py": "9d11ce2934fd5b75e91e45c062f6e216d9b7d2ef",
+    ".github/workflows/sdmr-fresh-empirical-v3-background.yml": "17e46c38785ab9ad531695c34d13f567ebeabe2b",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster_artifact_receipt.json": "9de8ae7e5a692ad2ab9a9047dc090927a8a3015f",
+    "configs/sdmr_fresh_empirical_v3_occurrence_artifact_receipt.json": "2549f18fcfb3f8f74d660e4a4eb17ae2571bb2f7",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster.csv": "a671b59f367e4c0fbe3c02f8b8221da517a1b214"
+  }
+}
