@@ -1,0 +1,31 @@
+{
+  "program": "sdmr-fresh-empirical-v3-soil-support-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "b3b2dec157f39a7fd3571b297900350a999efc43",
+  "candidate_count": 80,
+  "final_taxa": 50,
+  "soil_predictors": [
+    "sg_phh2o_0_5",
+    "sg_clay_0_5",
+    "sg_soc_0_5",
+    "sg_nitrogen_0_5"
+  ],
+  "support_shards_per_predictor": 32,
+  "persist_numeric_soil_values": false,
+  "answer_check_support_allowed": false,
+  "chelsa_values_allowed": false,
+  "model_fitting_allowed": false,
+  "metrics_allowed": false,
+  "process_states_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v3_support_runtime.py": "fc7a24823ac2063d85ce61da0c1782982ac05132",
+    "src/sdmr/process_id/fresh/cohort_v3_soil_support.py": "21cf36c195c7d4ceaf2d0e455c85bc0f79beff43",
+    ".github/workflows/sdmr-fresh-empirical-v3-soil-support.yml": "23516d1883495f987488b0ab1244436206fe1cd4",
+    "configs/sdmr_fresh_empirical_v3_soil_support_eligibility.json": "792bb8fb4659d58dfc9fd611edea408e2bef44a4",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster_artifact_receipt.json": "9de8ae7e5a692ad2ab9a9047dc090927a8a3015f",
+    "configs/sdmr_fresh_empirical_v3_occurrence_artifact_receipt.json": "2549f18fcfb3f8f74d660e4a4eb17ae2571bb2f7",
+    "configs/sdmr_fresh_empirical_v3_background_artifact_receipt.json": "f51fd6f99656813bee557e29b887de0f902cc168",
+    "configs/sdmr_fresh_empirical_v3_candidate_roster.csv": "a671b59f367e4c0fbe3c02f8b8221da517a1b214"
+  }
+}
