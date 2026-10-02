@@ -1,0 +1,12 @@
+program=sdmr-fresh-empirical-v3-soil-support
+execution_receipt_commit=1b3452a20dbc73ad581d400fcd4097ece94ddb84
+frozen_implementation_commit=b3b2dec157f39a7fd3571b297900350a999efc43
+candidate_count=80
+final_taxa=50
+soil_predictors=4
+support_shards_per_predictor=32
+persist_numeric_soil_values=false
+answer_check_support=false
+chelsa_values=false
+model_fitting=false
+execute_once=true
