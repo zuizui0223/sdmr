@@ -101,7 +101,7 @@
     "learner_routes": {
       "penalized_logistic": {
         "role": "stability_route",
-        "preprocessing": "StandardScaler on training data only",
+        "preprocessing": "none; raw frozen predictor values, matching the M5 evidence.py linear route",
         "penalty": "l2",
         "C": 1,
         "solver": "lbfgs",
