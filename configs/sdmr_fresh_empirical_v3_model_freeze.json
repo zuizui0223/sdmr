@@ -1,0 +1,211 @@
+{
+  "schema": "sdmr.fresh_empirical_v3_model_and_promotion_freeze.v1",
+  "frozen_date": "2026-10-03",
+  "status": "frozen_before_model_fit_and_answer_check_opening",
+  "product_a_boundary": "closed_not_reopened",
+  "known_truth_prerequisite": {
+    "program": "sdmr-v6-prospective-known-truth-v2",
+    "workflow_run": 36212033498,
+    "artifact_id": 10896590112,
+    "artifact_digest": "sha256:7c0c3dd6f12a0478abcd0fadabdb013a26356ac7ac6dacca7bc2cbdabee7fe68",
+    "passed": true
+  },
+  "cohort": {
+    "exact_taxa": 50,
+    "selected_manifest": "configs/sdmr_fresh_empirical_v3_selected_taxa.csv",
+    "selected_manifest_sha256": "4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359",
+    "selection_run": 36955197195,
+    "selection_artifact_id": 11207553588,
+    "selection_artifact_digest": "sha256:91f04ad02069f9f580bc31595c5641458b513dac0f687b4d0f3bef1d69f02ee8",
+    "support_eligible_candidates": 65,
+    "replacement_after_freeze": false
+  },
+  "feature_prerequisite": {
+    "program": "sdmr-fresh-empirical-v3-feature-gate",
+    "workflow_run": 37128999833,
+    "frozen_head_sha": "4a061dd888b493aa7938dcd6f52e4252660fe53b",
+    "required_terminal_status": "v3_feature_gate_passed",
+    "result_not_used_to_tune_this_contract": true,
+    "if_failed": "terminal_unavailable_no_model_fit"
+  },
+  "data_boundary": {
+    "occurrence_source": "GBIF 2026-08-01 snapshot; 2010-2025; frozen coordinate/QC rules",
+    "primary_M_km": 300,
+    "model_pool_only_accessible_area": true,
+    "outer_occurrence_split": "existing frozen coordinate-only 8-block split; 20% answer-check; random_state=42",
+    "answer_check_occurrence_coordinates_opened": false,
+    "answer_check_environmental_values_opened": false,
+    "model_pool_environmental_values_may_be_open": true,
+    "model_fit_started": false
+  },
+  "predictor_and_process_universe": {
+    "predictor_count": 46,
+    "process_count": 6,
+    "process_registry": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "processes": [
+      "thermal",
+      "water",
+      "seasonality",
+      "radiation_energy",
+      "soil_substrate",
+      "productivity"
+    ],
+    "post_freeze_predictor_deletion": false,
+    "post_freeze_process_taxonomy_change": false
+  },
+  "primary_ecological_metric": {
+    "name": "balanced_presence_background_log_score",
+    "convention": "higher_is_better",
+    "taxon_gain": "sdmr_process_first minus matched_learner_flat_predictive_selector on sealed answer-check",
+    "emp_a_minimum_mean_gain": 0.01,
+    "emp_b_bootstrap_replicates": 20000,
+    "emp_b_bootstrap_seed": 20260926,
+    "emp_b_required_95pct_lower_bound_strictly_above": 0
+  },
+  "prediction_guardrail": {
+    "metric": "answer_check_roc_auc",
+    "comparator": "matched_learner_flat_predictive_selector",
+    "primary_route": "shallow3_hgb",
+    "noninferiority_margin": 0.02,
+    "rule": "mean paired AUC difference (sdmr - comparator) >= -0.02",
+    "emp_c": true
+  },
+  "model_pool_background_split": {
+    "source": "frozen 5000-point primary 300-km background per taxon",
+    "training_rule": "background_rank modulo 5 != 0",
+    "sealed_evaluation_rule": "background_rank modulo 5 == 0",
+    "training_rows_per_taxon": 4000,
+    "evaluation_rows_per_taxon": 1000,
+    "split_frozen_before_model_fit": true
+  },
+  "process_identification": {
+    "stage_p": {
+      "full_vs_process_closure_knockouts": true,
+      "inner_occurrence_groups": "frozen model-pool spatial_block values",
+      "background_group_assignment": "nearest model-pool occurrence spatial_block by great-circle distance; deterministic nearest occurrence_id tie-break",
+      "n_inner_splits": 3,
+      "score": "balanced_presence_background_log_score",
+      "margin": 0.01,
+      "adequacy_floor": -0.75,
+      "sem_multiplier": 1,
+      "full_system_authorization": {
+        "n_permutations": 999,
+        "alpha": 0.001,
+        "permutation_seed": 0,
+        "minimum_gain_over_null": 0.01
+      },
+      "identical_process_closure_policy": "sharp states with identical closure are converted to unresolved"
+    },
+    "learner_routes": {
+      "penalized_logistic": {
+        "role": "stability_route",
+        "preprocessing": "StandardScaler on training data only",
+        "penalty": "l2",
+        "C": 1,
+        "solver": "lbfgs",
+        "max_iter": 1000,
+        "class_weight": "balanced",
+        "random_state": 0
+      },
+      "shallow3_hgb": {
+        "role": "primary_prediction_and_stability_route",
+        "loss": "log_loss",
+        "learning_rate": 0.05,
+        "max_iter": 100,
+        "max_leaf_nodes": 3,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1,
+        "early_stopping": false,
+        "random_state": 0,
+        "class_balance": "training-only inverse class-frequency sample weights"
+      }
+    },
+    "stability": {
+      "same_sharp_state_required_across_both_learners": true,
+      "sharp_states": [
+        "replaceable",
+        "contributory",
+        "required"
+      ],
+      "learner_disagreement": "unresolved",
+      "unavailable_on_either_route": "unavailable",
+      "emp_d_minimum_stable_fraction": 0.8,
+      "denominator": "all 50 taxa x 6 declared processes; unresolved/unavailable count as not stable"
+    }
+  },
+  "sdmr_process_first_prediction": {
+    "primary_learner": "shallow3_hgb",
+    "predictor_filter_rule": [
+      "derive stable process states before any answer-check feature is opened",
+      "drop an ecological predictor only when every declared process mapped to that predictor is stably replaceable",
+      "retain predictors mapped to any contributory, required, unresolved, or unavailable process",
+      "retain shared-carrier predictors whenever any mapped process is not stably replaceable",
+      "if the full system is unavailable for the taxon, the SDMR prediction route is unavailable rather than rescued"
+    ],
+    "representation_refinement": "not part of the primary EMP-A to EMP-F test; any Stage-R refinement requires a separately frozen secondary contract"
+  },
+  "flat_comparators": {
+    "common_primary_learner": "shallow3_hgb",
+    "inner_grouping": "same frozen model-pool groups and training background as SDMR",
+    "auc_oriented_flat_selector": {
+      "algorithm": "deterministic sequential forward selection over all 46 predictors by mean inner-spatial-CV ROC AUC",
+      "maximum_predictors": 8,
+      "stopping": "evaluate prefixes 1..8 and choose the prefix with maximum mean AUC; ties choose fewer predictors then lexicographic predictor sequence"
+    },
+    "correlation_vif_flat_filter": {
+      "algorithm": "VIF pruning on training-background environmental predictors only",
+      "vif_threshold": 5,
+      "deterministic_tie_break": "lexicographic predictor name"
+    },
+    "matched_learner_flat_predictive_selector": {
+      "primary_comparator": true,
+      "algorithm": "deterministic sequential forward selection over all 46 predictors by mean inner-spatial-CV balanced log score",
+      "maximum_predictors": 8,
+      "stopping": "evaluate prefixes 1..8 and choose the prefix with maximum mean balanced log score; ties choose fewer predictors then lexicographic predictor sequence"
+    }
+  },
+  "denominator_and_failure_rules": {
+    "declared_taxa": 50,
+    "no_taxon_drop": true,
+    "no_taxon_replacement": true,
+    "no_predictor_drop_after_feature_open": true,
+    "unavailable_taxon_primary_gain": 0,
+    "unavailable_taxon_guardrail_pass": false,
+    "unavailable_or_unresolved_process_cells_count_as_stable": false,
+    "failed_declared_route_cannot_be_silently_omitted": true
+  },
+  "promotion": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "EMP-A": "mean taxon-level balanced-log-score gain >= 0.01",
+    "EMP-B": "paired taxon bootstrap 95% lower bound > 0",
+    "EMP-C": "mean paired AUC difference >= -0.02",
+    "EMP-D": "stable process fraction >= 0.80 under the frozen 50x6 denominator",
+    "EMP-E": "abstention-integrity violation rate == 0",
+    "EMP-F": "all 50 declared taxa retained under frozen failure/evaluability rules"
+  },
+  "answer_check_opening_order": [
+    "feature gate must terminally pass",
+    "run all model-pool SDMR process states and all flat comparator selections",
+    "freeze per-taxon process states, retained predictor sets, comparator predictor sets, and fitted-model specifications",
+    "only then materialize answer-check coordinates/environmental values once",
+    "score all frozen routes on the same sealed answer-check occurrences and frozen 1000-row evaluation background",
+    "apply EMP-A through EMP-F without retuning"
+  ],
+  "prohibited": [
+    "change EMP-A through EMP-F thresholds after feature or answer-check values are seen",
+    "change learner hyperparameters after model fitting begins",
+    "change background train/evaluation split",
+    "change process margin, adequacy floor, permutation gate, or stability rule after fitting",
+    "use answer-check outcomes for process-state classification or predictor selection",
+    "run Stage-R representation refinement as a rescue of the primary result",
+    "drop unavailable taxa or unresolved process cells from declared denominators",
+    "reinterpret known-truth M5 as an empirical ecological process claim"
+  ]
+}
