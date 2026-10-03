@@ -68,7 +68,8 @@
     "primary_route": "shallow3_hgb",
     "noninferiority_margin": 0.02,
     "rule": "mean paired AUC difference (sdmr - comparator) >= -0.02",
-    "emp_c": true
+    "emp_c": true,
+    "evaluable_denominator_rule": "all 50 taxa must have an evaluable SDMR primary route; any unavailable taxon makes EMP-C fail"
   },
   "model_pool_background_split": {
     "source": "frozen 5000-point primary 300-km background per taxon",
@@ -173,7 +174,8 @@
     "unavailable_taxon_primary_gain": 0,
     "unavailable_taxon_guardrail_pass": false,
     "unavailable_or_unresolved_process_cells_count_as_stable": false,
-    "failed_declared_route_cannot_be_silently_omitted": true
+    "failed_declared_route_cannot_be_silently_omitted": true,
+    "unavailable_taxon_auc_difference": null
   },
   "promotion": {
     "strict_conjunction": [
