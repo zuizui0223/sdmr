@@ -1,0 +1,32 @@
+{
+  "program": "sdmr-fresh-empirical-v3-feature-gate-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "445e61f84428b600adfdecf4e5306009d7695d9c",
+  "final50_manifest_sha256": "4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359",
+  "predictor_count": 46,
+  "taxon_count": 50,
+  "numeric_environmental_values_allowed": true,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "EMP_outcomes_allowed": false,
+  "structural_decoding_rule_count": 6,
+  "complete_case_gate": {
+    "minimum_model_pool_retention_fraction": 0.8,
+    "minimum_model_pool_complete_rows": 50,
+    "minimum_background_complete_rows": 4000
+  },
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/features_v3.py": "d5d75f0919015c917902b41a18918dd6adbb508e",
+    ".github/workflows/sdmr-fresh-empirical-v3-feature-gate.yml": "260b11ac8013f4d4e8c632f8ddb4d5cdd1f8e11f",
+    "configs/sdmr_fresh_empirical_v3_feature_gate.json": "ae0fdc5e04f157108fc59f13c589d109ef2db47b",
+    "tests/test_process_id_fresh_v3_features.py": "10916feb88fe49d3d115de08822229465c666a56",
+    "configs/sdmr_fresh_empirical_v3_selected_taxa.csv": "4d8ad975d4384ae534adc40b414fa47032f962ea",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/sdmr_fresh_empirical_v3_occurrence_artifact_receipt.json": "2549f18fcfb3f8f74d660e4a4eb17ae2571bb2f7",
+    "configs/sdmr_fresh_empirical_v3_background_artifact_receipt.json": "f51fd6f99656813bee557e29b887de0f902cc168",
+    "configs/sdmr_fresh_empirical_v3_soil_support_artifact_receipt.json": "cb8151190e51a5cb9f106e52bb7ddff5a65313a4",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
+  }
+}
