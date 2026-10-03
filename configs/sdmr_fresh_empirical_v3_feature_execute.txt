@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v3-feature-gate
+execution_receipt_commit=a856f4b815ed4736efa9bd256796bf4bbde530e9
+frozen_implementation_commit=445e61f84428b600adfdecf4e5306009d7695d9c
+final50_manifest_sha256=4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359
+predictor_count=46
+taxon_count=50
+numeric_environmental_values_opened=true
+answer_check_accessed=false
+model_fitting_started=false
+execute_once=true
