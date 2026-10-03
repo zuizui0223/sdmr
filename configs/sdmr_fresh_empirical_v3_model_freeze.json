@@ -94,7 +94,8 @@
         "permutation_seed": 0,
         "minimum_gain_over_null": 0.01
       },
-      "identical_process_closure_policy": "sharp states with identical closure are converted to unresolved"
+      "identical_process_closure_policy": "sharp states with identical closure are converted to unresolved",
+      "split_mode": "spatial"
     },
     "learner_routes": {
       "penalized_logistic": {
