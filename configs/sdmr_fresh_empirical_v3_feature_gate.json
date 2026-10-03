@@ -1,0 +1,109 @@
+{
+  "program": "sdmr-fresh-empirical-v3-feature-gate",
+  "status": "frozen_before_numeric_environmental_value_read",
+  "frozen_date": "2026-10-03",
+  "taxon_count": 50,
+  "predictor_count": 46,
+  "selected_manifest_sha256": "4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359",
+  "upstream": {
+    "occurrence_run": 36835840637,
+    "occurrence_artifact_id": 11150141298,
+    "occurrence_model_pool_sha256": "0f1966002b6be5da354cbec503c9d2d4f33a5f2b56c0f26029fef0f05123b4ee",
+    "background_run": 36953827651,
+    "background_artifact_id": 11205676545,
+    "background_points_sha256": "5c1e912e1392f327c81b286fce31b3f17d777021193b77f30caf4616d677e961",
+    "final_selection_run": 36955197195,
+    "final_selection_artifact_id": 11207553588
+  },
+  "extraction_scope": {
+    "final50_model_pool_only": true,
+    "final50_primary_300km_background": true,
+    "answer_check_occurrences": false,
+    "answer_check_features": false
+  },
+  "complete_case_gate": {
+    "complete_case_across_all_46": true,
+    "minimum_model_pool_retention_fraction": 0.8,
+    "minimum_model_pool_complete_rows": 50,
+    "minimum_background_complete_rows": 4000,
+    "taxon_replacement": false,
+    "predictor_deletion": false,
+    "threshold_relaxation": false,
+    "imputation": "none_outside_structural_source_decoding",
+    "failure_rule": "whole_final50_program_terminal_unavailable"
+  },
+  "structural_source_decoding": [
+    {
+      "predictor": "fcf",
+      "companion": "bio6",
+      "operator": "gt",
+      "condition_value": 0,
+      "set_to": 0,
+      "reason": "no_freezing_month_zero_freeze_thaw_transitions"
+    },
+    {
+      "predictor": "swe",
+      "companion": "scd",
+      "operator": "eq",
+      "condition_value": 0,
+      "set_to": 0,
+      "reason": "zero_snow_cover_days_zero_swe"
+    },
+    {
+      "predictor": "fgd",
+      "companion": "gsl",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_growing_season_first_day_1"
+    },
+    {
+      "predictor": "lgd",
+      "companion": "gsl",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 365,
+      "reason": "all_year_growing_season_last_day_365"
+    },
+    {
+      "predictor": "gdgfgd5",
+      "companion": "ngd5",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_above_5C_first_qualifying_day_1"
+    },
+    {
+      "predictor": "gdgfgd10",
+      "companion": "ngd10",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_above_10C_first_qualifying_day_1"
+    }
+  ],
+  "execution": {
+    "preflight_probe_required": true,
+    "require_all_46_probe_success": true,
+    "chelsa_predictor_jobs": 42,
+    "chelsa_max_parallel": 4,
+    "soil_predictors": 4,
+    "soil_spatial_shards_per_predictor": 32,
+    "soil_max_parallel": 16
+  },
+  "information_boundary": {
+    "numeric_environmental_values": true,
+    "answer_check_access": false,
+    "model_fitting": false,
+    "prediction_metrics": false,
+    "process_states": false,
+    "EMP_outcomes": false
+  },
+  "prohibited": [
+    "taxon replacement after value read",
+    "predictor deletion after value read",
+    "threshold relaxation",
+    "new value-dependent decoding rules",
+    "answer-check access before model selection freeze"
+  ]
+}
