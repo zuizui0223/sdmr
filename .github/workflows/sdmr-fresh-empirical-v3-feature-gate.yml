@@ -192,27 +192,25 @@ jobs:
               model_pool80_path='occurrence80/model_pool_occurrences_v3.csv',
               background80_path='background80/background_points_v3.csv',
           )
-          taxa=set(pd.read_csv('configs/sdmr_fresh_empirical_v3_selected_taxa.csv').scientific_name.astype(str))
-          model80=pd.read_csv('occurrence80/model_pool_occurrences_v3.csv')
-          bg80=pd.read_csv('background80/background_points_v3.csv')
-          model50=model80.loc[model80.scientific_name.astype(str).isin(taxa)].copy()
-          bg50=bg80.loc[bg80.scientific_name.astype(str).isin(taxa)].copy()
-          if len(model50)!=43849 or len(bg50)!=250000:
+          if len(model)!=43849 or len(bg)!=250000:
               raise SystemExit('v3 final50 feature-input denominator changed')
 
           out=Path('feature_inputs'); out.mkdir()
-          model50.to_csv(out/'model_pool_occurrences_v3_final50.csv',index=False)
-          bg50.to_csv(out/'background_points_v3_final50.csv',index=False)
+          # Preserve exact frozen 80-candidate source files so every layer job can
+          # re-verify their upstream SHA before filtering internally to final50.
+          import shutil
+          shutil.copy2('occurrence80/model_pool_occurrences_v3.csv',out/'model_pool_occurrences_v3.csv')
+          shutil.copy2('background80/background_points_v3.csv',out/'background_points_v3.csv')
           receipt={
             'program':'sdmr-fresh-empirical-v3-feature-inputs',
             'taxon_count':50,
-            'model_pool_rows':len(model50),
-            'background_rows':len(bg50),
+            'model_pool_rows':len(model),
+            'background_rows':len(bg),
             'unique_location_rows':len(locations),
             'answer_check_accessed':False,
             'model_fitting_performed':False,
-            'model_pool_sha256':hashlib.sha256((out/'model_pool_occurrences_v3_final50.csv').read_bytes()).hexdigest(),
-            'background_sha256':hashlib.sha256((out/'background_points_v3_final50.csv').read_bytes()).hexdigest(),
+            'model_pool80_sha256':hashlib.sha256((out/'model_pool_occurrences_v3.csv').read_bytes()).hexdigest(),
+            'background80_sha256':hashlib.sha256((out/'background_points_v3.csv').read_bytes()).hexdigest(),
           }
           (out/'input_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
           print(json.dumps(receipt,indent=2,sort_keys=True))
@@ -254,8 +252,8 @@ jobs:
           python -m sdmr.process_id.fresh.features_v3 chelsa \
             --predictor "${{ matrix.predictor }}" \
             --selected configs/sdmr_fresh_empirical_v3_selected_taxa.csv \
-            --model-pool80 feature_inputs/model_pool_occurrences_v3_final50.csv \
-            --background80 feature_inputs/background_points_v3_final50.csv \
+            --model-pool80 feature_inputs/model_pool_occurrences_v3.csv \
+            --background80 feature_inputs/background_points_v3.csv \
             --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
             --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
             --output-dir feature_part
@@ -303,8 +301,8 @@ jobs:
             --predictor "${{ matrix.predictor }}" \
             --shard-index ${{ matrix.shard }} --shard-count 32 \
             --selected configs/sdmr_fresh_empirical_v3_selected_taxa.csv \
-            --model-pool80 feature_inputs/model_pool_occurrences_v3_final50.csv \
-            --background80 feature_inputs/background_points_v3_final50.csv \
+            --model-pool80 feature_inputs/model_pool_occurrences_v3.csv \
+            --background80 feature_inputs/background_points_v3.csv \
             --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
             --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
             --output-dir soil_part
@@ -341,8 +339,8 @@ jobs:
           python -m sdmr.process_id.fresh.features_v3 soil-assemble \
             --parts-root soil_parts \
             --selected configs/sdmr_fresh_empirical_v3_selected_taxa.csv \
-            --model-pool80 feature_inputs/model_pool_occurrences_v3_final50.csv \
-            --background80 feature_inputs/background_points_v3_final50.csv \
+            --model-pool80 feature_inputs/model_pool_occurrences_v3.csv \
+            --background80 feature_inputs/background_points_v3.csv \
             --output-dir soil_features
       - uses: actions/upload-artifact@v4
         with:
@@ -380,8 +378,8 @@ jobs:
           python -m sdmr.process_id.fresh.features_v3 aggregate \
             --parts-root feature_parts \
             --selected configs/sdmr_fresh_empirical_v3_selected_taxa.csv \
-            --model-pool80 feature_inputs/model_pool_occurrences_v3_final50.csv \
-            --background80 feature_inputs/background_points_v3_final50.csv \
+            --model-pool80 feature_inputs/model_pool_occurrences_v3.csv \
+            --background80 feature_inputs/background_points_v3.csv \
             --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
             --output-dir feature_bundle
           cat feature_bundle/feature_gate_result_v3.json
