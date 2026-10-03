@@ -375,14 +375,15 @@ def freeze_one_taxon(
         q=frame.copy();q.insert(0,"scientific_name",taxon);q.insert(1,"selector",name);traces.append(q)
     return stable,row,traces
 
-def run(*,feature_bundle,occurrence_split,selected,registry,freeze,output_dir):
+def _load_common(*,feature_bundle,occurrence_split,selected,registry,freeze):
     c=validate_freeze(freeze)
-    selected_df=pd.read_csv(selected)
+    selected_df=pd.read_csv(selected).sort_values("selection_rank").reset_index(drop=True)
     if len(selected_df)!=EXPECTED_TAXA or selected_df.scientific_name.astype(str).nunique()!=EXPECTED_TAXA:
         raise ValueError("final50 identity denominator changed")
     if _sha256(selected)!=c["cohort"]["selected_manifest_sha256"]:
         raise ValueError("final50 manifest hash changed")
-    reg=load_registry(registry); predictors=tuple(pd.read_csv(registry).predictor.astype(str))
+    reg=load_registry(registry)
+    predictors=tuple(pd.read_csv(registry).predictor.astype(str))
 
     root=Path(feature_bundle)
     result=json.loads((root/"feature_gate_result_v3.json").read_text())
@@ -397,21 +398,104 @@ def run(*,feature_bundle,occurrence_split,selected,registry,freeze,output_dir):
     occ=pd.read_csv(Path(occurrence_split)/"model_pool_occurrences_v3.csv")
     if set(selected_df.scientific_name.astype(str))!=set(model.scientific_name.astype(str)):
         raise RuntimeError("feature model-pool final50 set changed")
+    return c,selected_df,reg,predictors,location,model,bg,occ
 
-    states=[];rows=[];traces=[]
-    for taxon in selected_df.sort_values("selection_rank").scientific_name.astype(str):
-        st,row,tr=freeze_one_taxon(
-            taxon=taxon,model_index=model,bg_index=bg,location_features=location,
-            occurrence_geometry=occ,predictors=predictors,registry=reg
-        )
-        states.append(st);rows.append(row);traces.extend(tr)
+
+def run_taxon(*,rank,feature_bundle,occurrence_split,selected,registry,freeze,output_dir):
+    _,selected_df,reg,predictors,location,model,bg,occ=_load_common(
+        feature_bundle=feature_bundle,occurrence_split=occurrence_split,
+        selected=selected,registry=registry,freeze=freeze
+    )
+    rank=int(rank)
+    if not 1<=rank<=EXPECTED_TAXA:
+        raise ValueError("taxon rank must be 1..50")
+    row=selected_df.iloc[rank-1]
+    if int(row.selection_rank)!=rank:
+        raise RuntimeError("selected cohort rank order changed")
+    taxon=str(row.scientific_name)
+    states,pred,traces=freeze_one_taxon(
+        taxon=taxon,model_index=model,bg_index=bg,location_features=location,
+        occurrence_geometry=occ,predictors=predictors,registry=reg
+    )
+    states.insert(1,"selection_rank",rank)
+    pred={"selection_rank":rank,**pred}
+    trace=pd.concat(traces,ignore_index=True,sort=False)
+    trace.insert(1,"selection_rank",rank)
+
+    out=Path(output_dir);out.mkdir(parents=True,exist_ok=True)
+    sp=out/"process_states.csv"; pp=out/"predictor_sets.csv"; tp=out/"selector_traces.csv"
+    states.to_csv(sp,index=False)
+    pd.DataFrame([pred]).to_csv(pp,index=False)
+    trace.to_csv(tp,index=False)
+    receipt={
+      "program":PROGRAM,
+      "status":"taxon_model_pool_freeze_complete",
+      "selection_rank":rank,
+      "scientific_name":taxon,
+      "process_cells":int(len(states)),
+      "stable_sharp_process_cells":int(states.stable_sharp.sum()),
+      "hgb_full_system_authorized":bool(pred["hgb_full_system_authorized"]),
+      "logistic_full_system_authorized":bool(pred["logistic_full_system_authorized"]),
+      "sdmr_prediction_available":bool(pred["sdmr_prediction_available"]),
+      "process_states_sha256":_sha256(sp),
+      "predictor_sets_sha256":_sha256(pp),
+      "selector_traces_sha256":_sha256(tp),
+      "answer_check_accessed":False,
+      "sealed_scoring_performed":False,
+    }
+    (out/"taxon_result.json").write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
+    return receipt
+
+
+def aggregate_parts(*,parts_root,selected,output_dir):
+    selected_df=pd.read_csv(selected).sort_values("selection_rank").reset_index(drop=True)
+    if len(selected_df)!=EXPECTED_TAXA:
+        raise ValueError("final50 denominator changed during aggregate")
+    root=Path(parts_root)
+    receipts=sorted(root.rglob("taxon_result.json"))
+    if len(receipts)!=EXPECTED_TAXA:
+        raise RuntimeError(f"expected 50 taxon model-pool receipts; found {len(receipts)}")
+    metadata=[json.loads(p.read_text()) for p in receipts]
+    ranks={int(x["selection_rank"]) for x in metadata}
+    if ranks!=set(range(1,EXPECTED_TAXA+1)):
+        raise RuntimeError("model-pool taxon rank set incomplete")
+    expected_names=dict(zip(
+        selected_df.selection_rank.astype(int),
+        selected_df.scientific_name.astype(str),
+    ))
+    for x in metadata:
+        if str(x["scientific_name"])!=expected_names[int(x["selection_rank"])]:
+            raise RuntimeError("model-pool taxon identity/rank mismatch")
+
+    states=[];pred=[];traces=[]
+    by_rank={}
+    for rp in receipts:
+        x=json.loads(rp.read_text())
+        by_rank[int(x["selection_rank"])]=rp.parent
+    for rank in range(1,EXPECTED_TAXA+1):
+        d=by_rank[rank]
+        for name,key in (
+            ("process_states.csv","process_states_sha256"),
+            ("predictor_sets.csv","predictor_sets_sha256"),
+            ("selector_traces.csv","selector_traces_sha256"),
+        ):
+            rec=metadata[[int(y["selection_rank"]) for y in metadata].index(rank)]
+            if _sha256(d/name)!=rec[key]:
+                raise RuntimeError(f"taxon shard hash mismatch: rank={rank} file={name}")
+        states.append(pd.read_csv(d/"process_states.csv"))
+        pred.append(pd.read_csv(d/"predictor_sets.csv"))
+        traces.append(pd.read_csv(d/"selector_traces.csv"))
 
     states=pd.concat(states,ignore_index=True)
-    summary=pd.DataFrame(rows)
+    summary=pd.concat(pred,ignore_index=True)
     trace=pd.concat(traces,ignore_index=True,sort=False)
     if len(states)!=EXPECTED_TAXA*len(EXPECTED_PROCESSES):
         raise RuntimeError("process-state denominator changed")
-    stable_fraction=float(states.stable_sharp.mean())
+    if states.groupby("scientific_name").size().ne(len(EXPECTED_PROCESSES)).any():
+        raise RuntimeError("taxon process denominator is incomplete")
+    if len(summary)!=EXPECTED_TAXA or summary.scientific_name.astype(str).nunique()!=EXPECTED_TAXA:
+        raise RuntimeError("predictor-set taxon denominator changed")
+
     out=Path(output_dir);out.mkdir(parents=True,exist_ok=True)
     sp=out/"taxon_process_states_v3.csv"; pp=out/"taxon_predictor_sets_v3.csv"; tp=out/"selector_traces_v3.csv"
     states.to_csv(sp,index=False);summary.to_csv(pp,index=False);trace.to_csv(tp,index=False)
@@ -420,7 +504,8 @@ def run(*,feature_bundle,occurrence_split,selected,registry,freeze,output_dir):
       "status":"model_pool_states_and_predictor_sets_frozen",
       "taxon_count":EXPECTED_TAXA,
       "process_cells":int(len(states)),
-      "stable_sharp_process_fraction_model_pool":stable_fraction,
+      "stable_sharp_process_fraction_model_pool":float(states.stable_sharp.mean()),
+      "stable_sharp_process_cells":int(states.stable_sharp.sum()),
       "hgb_authorized_taxa":int(summary.hgb_full_system_authorized.sum()),
       "logistic_authorized_taxa":int(summary.logistic_full_system_authorized.sum()),
       "sdmr_prediction_available_taxa":int(summary.sdmr_prediction_available.sum()),
@@ -437,19 +522,31 @@ def run(*,feature_bundle,occurrence_split,selected,registry,freeze,output_dir):
     (out/"model_pool_freeze_result_v3.json").write_text(json.dumps(receipt,indent=2,sort_keys=True)+"\n")
     return receipt
 
+
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("--feature-bundle",required=True)
-    p.add_argument("--occurrence-split",required=True)
-    p.add_argument("--selected",required=True)
-    p.add_argument("--registry",required=True)
-    p.add_argument("--freeze",required=True)
-    p.add_argument("--output-dir",required=True)
+    sub=p.add_subparsers(dest="command",required=True)
+    q=sub.add_parser("taxon")
+    q.add_argument("--rank",type=int,required=True)
+    q.add_argument("--feature-bundle",required=True)
+    q.add_argument("--occurrence-split",required=True)
+    q.add_argument("--selected",required=True)
+    q.add_argument("--registry",required=True)
+    q.add_argument("--freeze",required=True)
+    q.add_argument("--output-dir",required=True)
+    q=sub.add_parser("aggregate")
+    q.add_argument("--parts-root",required=True)
+    q.add_argument("--selected",required=True)
+    q.add_argument("--output-dir",required=True)
     a=p.parse_args()
-    print(json.dumps(run(
-        feature_bundle=a.feature_bundle,occurrence_split=a.occurrence_split,
-        selected=a.selected,registry=a.registry,freeze=a.freeze,output_dir=a.output_dir
-    ),indent=2,sort_keys=True))
+    if a.command=="taxon":
+        result=run_taxon(
+            rank=a.rank,feature_bundle=a.feature_bundle,occurrence_split=a.occurrence_split,
+            selected=a.selected,registry=a.registry,freeze=a.freeze,output_dir=a.output_dir
+        )
+    else:
+        result=aggregate_parts(parts_root=a.parts_root,selected=a.selected,output_dir=a.output_dir)
+    print(json.dumps(result,indent=2,sort_keys=True))
 
 if __name__=="__main__":
     main()
