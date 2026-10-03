@@ -1,0 +1,18 @@
+{
+  "program": "sdmr-fresh-empirical-v3-soil-support-artifact-receipt",
+  "workflow_run": 36955197195,
+  "workflow_head": "99636146a93a3ee6954c11a8b77b2acbffff1e66",
+  "artifact_id": 11207553588,
+  "artifact_name": "sdmr-fresh-empirical-v3-soil-support",
+  "artifact_digest": "sha256:91f04ad02069f9f580bc31595c5641458b513dac0f687b4d0f3bef1d69f02ee8",
+  "candidate_count": 80,
+  "support_eligible_count": 65,
+  "final_selected_count": 50,
+  "selected_manifest_sha256": "4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359",
+  "support_audit_sha256": "fae9121dc87c3d7bdf9480ea0fd0fc99e959b82f8d528b3d6c32c47f9bd2f75d",
+  "support_bit_summary_sha256": "2b027a0495cee99bd0bab5ef6eb42b75bdc4c89658f00b0f92613802657df5e0",
+  "support_shards_per_predictor": 32,
+  "numeric_soil_values_persisted": false,
+  "answer_check_support_read": false,
+  "model_fitting_performed": false
+}
