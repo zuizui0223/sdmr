@@ -65,3 +65,10 @@ def test_emp_f_keeps_full_denominator():
     assert d["no_taxon_drop"] is True
     assert d["unavailable_taxon_primary_gain"] == 0.0
     assert d["failed_declared_route_cannot_be_silently_omitted"] is True
+
+
+def test_emp_c_fails_closed_on_unavailable_taxa():
+    c=json.loads(C.read_text())
+    assert c["prediction_guardrail"]["evaluable_denominator_rule"].startswith("all 50 taxa")
+    assert c["denominator_and_failure_rules"]["unavailable_taxon_auc_difference"] is None
+    assert c["denominator_and_failure_rules"]["unavailable_taxon_guardrail_pass"] is False
