@@ -1,0 +1,14 @@
+{
+  "answer_check_support_read": false,
+  "candidate_count": 80,
+  "final_selected_count": 50,
+  "model_fitting_performed": false,
+  "numeric_soil_values_persisted": false,
+  "program": "sdmr-fresh-empirical-v3-soil-support-eligibility",
+  "selected_manifest_sha256": "4b49f457bcf8b74969e39144789c8e20a3b9739558475290f0a7abf77d7f9359",
+  "status": "final_50_frozen_after_soil_support_eligibility",
+  "support_audit_sha256": "fae9121dc87c3d7bdf9480ea0fd0fc99e959b82f8d528b3d6c32c47f9bd2f75d",
+  "support_bit_summary_sha256": "2b027a0495cee99bd0bab5ef6eb42b75bdc4c89658f00b0f92613802657df5e0",
+  "support_eligible_count": 65,
+  "support_shards_per_predictor": 32
+}
