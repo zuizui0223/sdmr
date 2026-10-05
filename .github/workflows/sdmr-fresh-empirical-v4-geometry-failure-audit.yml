@@ -1,0 +1,146 @@
+name: SDMR fresh v4 geometry failure audit
+
+on:
+  push:
+    branches:
+      - design/sdmr-fresh-v4-all46-support
+    paths:
+      - configs/sdmr_fresh_empirical_v4_geometry_failure_audit_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[cloud,parquet]'
+      - name: Verify diagnostic-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/sdmr_fresh_empirical_v4_geometry_failure_audit.json'))
+          if c.get('program')!='sdmr-fresh-empirical-v4-geometry-failure-audit':
+              raise SystemExit('wrong v4 geometry audit program')
+          if c.get('source_background_run')!=37275454617:
+              raise SystemExit('wrong frozen background run')
+          required={
+            'threshold_relaxation','taxon_replacement','candidate_reordering',
+            'environmental_value_access','support_bit_access','answer_check_access','model_fitting'
+          }
+          if set(c.get('forbidden',[]))!=required:
+              raise SystemExit('v4 geometry audit boundary changed')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 37253199774
+          name: sdmr-fresh-empirical-v4-candidate-roster
+          path: candidate_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 37263186500
+          name: sdmr-fresh-empirical-v4-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 37275454617
+          pattern: sdmr-fresh-v4-background-chunk-*
+          path: chunk_parts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Audit 300-km target-cell availability for all candidate90
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          from scipy.spatial import cKDTree
+
+          from sdmr.process_id.fresh.cohort_v4_background import (
+              _combine_target, _xyz, _chord, load_candidates,
+              EXPECTED_CHUNKS, PRIMARY_M_KM, BACKGROUND_POINTS, _sha256,
+          )
+
+          candidates=load_candidates('candidate_source/candidate_roster_v4.csv')
+          model=pd.read_csv('occurrence_source/model_pool_occurrences_v4.csv')
+          root=Path('chunk_parts')
+          metas=sorted(root.rglob('metadata_*.json'))
+          parts=sorted(root.rglob('partial_*.parquet'))
+          if len(metas)!=EXPECTED_CHUNKS or len(parts)!=EXPECTED_CHUNKS:
+              raise SystemExit(f'expected 32 frozen chunks: metadata={len(metas)} parts={len(parts)}')
+          metadata=[json.loads(p.read_text()) for p in metas]
+          by_idx={int(m['chunk_index']):m for m in metadata}
+          part_idx={int(p.stem.rsplit('_',1)[1]):p for p in parts}
+          if set(by_idx)!=set(range(EXPECTED_CHUNKS)) or set(part_idx)!=set(range(EXPECTED_CHUNKS)):
+              raise SystemExit('frozen v4 geometry chunk set incomplete')
+          for i in range(EXPECTED_CHUNKS):
+              if _sha256(part_idx[i])!=by_idx[i]['partial_sha256']:
+                  raise SystemExit(f'frozen v4 geometry chunk SHA mismatch: {i}')
+          for key in (
+              'environmental_values_read','support_bits_opened',
+              'answer_check_coordinates_read','answer_check_features_read','model_fitting_performed'
+          ):
+              if any(m.get(key) is not False for m in metadata):
+                  raise SystemExit(f'v4 geometry audit source crossed boundary: {key}')
+
+          out=Path('audit');out.mkdir()
+          footprint=out/'target_footprint_v4_audit.parquet'
+          _combine_target([part_idx[i] for i in range(EXPECTED_CHUNKS)],footprint)
+          target=pd.read_parquet(footprint)
+          txyz=_xyz(target.longitude,target.latitude)
+          limit=_chord(PRIMARY_M_KM)
+          rows=[]
+          for row in candidates.itertuples(index=False):
+              taxon=str(row.scientific_name)
+              focal=model.loc[model.scientific_name.astype(str).eq(taxon)]
+              if focal.empty:
+                  raise SystemExit(f'model-pool absent for {taxon}')
+              tree=cKDTree(_xyz(focal.longitude,focal.latitude))
+              d,_=tree.query(txyz,k=1,distance_upper_bound=limit,workers=-1)
+              n=int((np.isfinite(d)&(d<=limit+1e-15)).sum())
+              rows.append({
+                'candidate_rank':int(row.candidate_rank),
+                'scientific_name':taxon,
+                'candidate_target_cells':n,
+                'geometry_eligible':bool(n>=BACKGROUND_POINTS),
+                'shortfall':max(0,BACKGROUND_POINTS-n),
+              })
+          audit=pd.DataFrame(rows).sort_values('candidate_rank')
+          audit.to_csv(out/'candidate90_geometry_eligibility.csv',index=False)
+          failed=audit.loc[~audit.geometry_eligible].copy()
+          result={
+            'program':'sdmr-fresh-empirical-v4-geometry-failure-audit',
+            'status':'diagnostic_complete',
+            'candidate_count':90,
+            'geometry_eligible_count':int(audit.geometry_eligible.sum()),
+            'geometry_ineligible_count':int((~audit.geometry_eligible).sum()),
+            'minimum_candidate_target_cells':int(audit.candidate_target_cells.min()),
+            'failed_taxa':failed[['candidate_rank','scientific_name','candidate_target_cells','shortfall']].to_dict('records'),
+            'threshold_relaxation_performed':False,
+            'taxon_replacement_performed':False,
+            'environmental_values_read':False,
+            'support_bits_opened':False,
+            'answer_check_accessed':False,
+            'model_fitting_performed':False,
+          }
+          (out/'geometry_failure_audit_result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v4-geometry-failure-audit
+          path: audit/
+          if-no-files-found: error
+          retention-days: 90
