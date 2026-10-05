@@ -1,0 +1,22 @@
+{
+  "program": "sdmr-fresh-empirical-v4-background",
+  "status": "terminal_unavailable_before_all46_support",
+  "workflow_run": 37275454617,
+  "workflow_head": "aacc46450e775f9108106e4d778d8d9def80c146",
+  "candidate_count": 90,
+  "shard_jobs_passed": 32,
+  "aggregate_passed": false,
+  "failure_gate": "exact_5000_background_points_within_300km",
+  "first_failed_taxon": "Eryngium glomeratum",
+  "first_failed_candidate_target_cells": 4699,
+  "required_background_points": 5000,
+  "primary_m_km": 300,
+  "threshold_relaxation_performed": false,
+  "taxon_replacement_performed": false,
+  "environmental_values_read": false,
+  "support_bits_opened": false,
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "diagnose_geometry_eligibility_across_frozen_candidate90_then_start_independent_fresh_v5"
+}
