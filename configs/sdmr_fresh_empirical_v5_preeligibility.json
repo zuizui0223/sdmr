@@ -1,0 +1,137 @@
+{
+  "program": "sdmr-fresh-empirical-v5-preeligibility",
+  "status": "design_frozen_before_v5_candidate_selection",
+  "predecessor": {
+    "v4_background_run": 37275454617,
+    "v4_status": "terminal_unavailable_before_all46_support",
+    "v4_geometry_audit_run": 37276592530,
+    "v4_geometry_eligible": 89,
+    "v4_geometry_ineligible": 1,
+    "v4_failed_taxon": "Eryngium glomeratum",
+    "v4_answer_check_accessed": false,
+    "v4_environmental_values_read": false,
+    "v4_model_fitting_performed": false
+  },
+  "independence": {
+    "prior_taxa": 304,
+    "groups": {
+      "historical_product_a": 84,
+      "fresh_v2_selected": 50,
+      "fresh_v3_candidates": 80,
+      "fresh_v4_candidates": 90
+    },
+    "base_exclusion_manifest": "configs/sdmr_fresh_empirical_v4_exclusion_manifest.csv",
+    "base_exclusion_taxa": 214,
+    "v4_candidate_artifact_receipt": "configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json",
+    "v4_candidate_taxa": 90,
+    "overlap_between_groups": 0,
+    "reuse_prior_taxa": false
+  },
+  "candidate_roster": {
+    "exact_candidates": 120,
+    "selection_information": "GBIF taxonomy occurrence counts occupied_1degree_cells coordinates_only",
+    "metadata_rule": "Tracheophyta species; GBIF 2026-08-01; 2010-2025; same frozen QC",
+    "minimum_occurrences": 500,
+    "minimum_unique_1_degree_cells": 20,
+    "max_per_genus": 1,
+    "max_per_family": 2,
+    "deterministic_order": "sha256_ascending_then_scientific_name",
+    "seed": "sdmr-fresh-empirical-v5-candidate-roster|2026-10-05",
+    "no_reordering": true,
+    "no_threshold_relaxation": true
+  },
+  "planning": {
+    "conservative_joint_eligibility_probability": 0.5,
+    "probability_at_least_50_eligible_with_120_candidates": 0.9726101015431489,
+    "role": "denominator_planning_only_not_gate_calibration"
+  },
+  "geometry_eligibility": {
+    "occurrence_thinning": "one_record_per_species_per_0.05_degree_cell_minimum_gbifid",
+    "minimum_raw_occurrences": 80,
+    "minimum_thinned_cells": 50,
+    "outer_split": {
+      "n_blocks": 8,
+      "answer_check_fraction": 0.2,
+      "seed": 42,
+      "answer_check_coordinates_persisted_downstream": false
+    },
+    "accessible_area": {
+      "target_group": "nonfocal_Tracheophyta",
+      "primary_m_km": 300,
+      "required_background_points": 5000,
+      "use_model_pool_coordinates_only": true,
+      "answer_check_coordinates_allowed": false
+    },
+    "candidate_rule": "geometry_eligible_if_at_least_5000_target_group_cells_within_300km",
+    "ineligible_candidate_action": "retain_in_audit_but_do_not_enter_support_or_final_selection",
+    "whole_program_failure_on_one_geometry_ineligible": false
+  },
+  "all46_support_eligibility": {
+    "predictor_registry": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "predictor_count": 46,
+    "support_bit_definition": "usable_after_frozen_structural_decoding",
+    "ordinary_predictor_rule": "finite_raster_value",
+    "structural_decoding_rules": [
+      {
+        "predictor": "fcf",
+        "companion": "bio6",
+        "rule": "finite(fcf) OR (missing(fcf) AND bio6 > 0)"
+      },
+      {
+        "predictor": "swe",
+        "companion": "scd",
+        "rule": "finite(swe) OR (missing(swe) AND scd == 0)"
+      },
+      {
+        "predictor": "fgd",
+        "companion": "gsl",
+        "rule": "finite(fgd) OR (missing(fgd) AND gsl == 365)"
+      },
+      {
+        "predictor": "lgd",
+        "companion": "gsl",
+        "rule": "finite(lgd) OR (missing(lgd) AND gsl == 365)"
+      },
+      {
+        "predictor": "gdgfgd5",
+        "companion": "ngd5",
+        "rule": "finite(gdgfgd5) OR (missing(gdgfgd5) AND ngd5 == 365)"
+      },
+      {
+        "predictor": "gdgfgd10",
+        "companion": "ngd10",
+        "rule": "finite(gdgfgd10) OR (missing(gdgfgd10) AND ngd10 == 365)"
+      }
+    ],
+    "persisted_information": "boolean_support_bits_and_candidate_level_support_counts_only",
+    "persist_numeric_environmental_values": false,
+    "answer_check_support_read": false,
+    "gate": {
+      "model_pool_minimum_joint_usable_fraction": 0.8,
+      "model_pool_minimum_joint_usable_rows": 50,
+      "background_denominator_rows": 5000,
+      "background_minimum_joint_usable_rows": 4000
+    }
+  },
+  "final_selection": {
+    "eligible_definition": "geometry_eligible AND all46_support_eligible",
+    "rule": "first_50_jointly_eligible_in_frozen_candidate_order",
+    "final_taxa": 50,
+    "if_fewer_than_50": "terminal_unavailable_no_replacement_no_relaxation"
+  },
+  "after_final50_only": {
+    "numeric_environmental_values_may_be_persisted": true,
+    "model_fitting_allowed_after_feature_gate_only": true,
+    "answer_check_remains_sealed_until_model_selection_freeze": true
+  },
+  "prohibited": [
+    "reuse_any_of_304_prior_taxa",
+    "candidate_reordering_after_eligibility_read",
+    "taxon_replacement_after_eligibility_read",
+    "geometry_threshold_relaxation",
+    "predictor_deletion",
+    "support_threshold_relaxation",
+    "answer_check_access_before_model_selection_freeze",
+    "performance_metrics_during_cohort_selection"
+  ]
+}
