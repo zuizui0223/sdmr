@@ -1,0 +1,18 @@
+{
+  "answer_check_accessed": false,
+  "availability_summary_sha256": "72731bed43969f869fbebc39e4823c189b0c32321ea045535b6cbf827a08a402",
+  "candidate_count": 90,
+  "candidate_families": 65,
+  "candidate_genera": 90,
+  "candidate_roster_sha256": "cb017bf18f342f0097ea0193bd30210b99acbe281f60ab5ad9851a52582a543a",
+  "environmental_values_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "freeze occurrence split and 300km backgrounds for all 90 candidates before all46 support eligibility",
+  "prediction_metrics_read": false,
+  "prior_taxa_excluded": 214,
+  "process_states_read": false,
+  "program": "sdmr-fresh-empirical-v4-candidate-roster",
+  "selection_audit_sha256": "ad90efdb89ac9211697f5d4db80b8f456cf302f46e39694f99fd228e25829302",
+  "status": "candidate90_frozen_outcomes_unopened",
+  "support_bits_opened": false
+}
