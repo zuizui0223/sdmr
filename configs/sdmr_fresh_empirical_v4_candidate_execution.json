@@ -1,0 +1,22 @@
+{
+  "program": "sdmr-fresh-empirical-v4-candidate-roster-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "9a693e60d0e62e02b3d7e042012d89c2fa700efc",
+  "candidate_count": 90,
+  "exclusion_taxa": 214,
+  "environmental_values_allowed": false,
+  "support_bits_allowed": false,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v4_metadata.py": "70d9a30fff770582b5549b48f3a5b938a58c9cf5",
+    "src/sdmr/process_id/fresh/cohort_v4_candidates.py": "3be480a66c5b4a91226cae08d38b77c325ed85b2",
+    ".github/workflows/sdmr-fresh-empirical-v4-candidate-roster.yml": "4e2cc37f8cd1cb3bc8955ebc4f21e7d0564b4c1c",
+    "configs/sdmr_fresh_empirical_v4_all46_support.json": "cb61aad8a9e2364f2c63eadc73cf2a653e438fe2",
+    "configs/sdmr_fresh_empirical_v4_exclusion_manifest.csv": "da634b9d26f7d25f596fcfb08ab2fb0bc4704269",
+    "tests/test_process_id_fresh_v4_all46_support.py": "ac128b8e87572b340129c1a0803396c1e21756d4",
+    "tests/test_process_id_fresh_v4_candidates.py": "46b728bf729bdf3b5f81bec7036cbcb6d101c9c8"
+  }
+}
