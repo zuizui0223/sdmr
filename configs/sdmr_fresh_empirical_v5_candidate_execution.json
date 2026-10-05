@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-v5-candidate-roster-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "46cbc28e45bc45487e6c6e5d366443437599b605",
+  "exact_candidates": 120,
+  "prior_taxa_excluded": 304,
+  "geometry_eligibility_allowed": false,
+  "environmental_values_allowed": false,
+  "support_bits_allowed": false,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v5_candidates.py": "60e6d1abf303fb4f55a2b39f4cf2cebf8e6ab4e7",
+    "src/sdmr/process_id/fresh/cohort_v5_metadata.py": "a9c176d7d81b1463dca88609d820ae82ea23985b",
+    ".github/workflows/sdmr-fresh-empirical-v5-candidate-roster.yml": "0216037483e1c4d4b3fbe7e914a6fa435b6c59c0",
+    "configs/sdmr_fresh_empirical_v5_preeligibility.json": "8607dd997ab717415556e1a384c9e4be72636515",
+    "configs/sdmr_fresh_empirical_v4_exclusion_manifest.csv": "da634b9d26f7d25f596fcfb08ab2fb0bc4704269",
+    "configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json": "ad7da5becab26d9e922d58c439f83eb5b13b7a2a",
+    "tests/test_process_id_fresh_v5_candidates.py": "e264dcd522c73979668bf90d9467392fe29a458d"
+  }
+}

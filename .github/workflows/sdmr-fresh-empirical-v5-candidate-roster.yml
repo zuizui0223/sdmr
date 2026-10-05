@@ -1,0 +1,197 @@
+name: SDMR fresh empirical v5 candidate roster
+
+on:
+  push:
+    branches:
+      - design/sdmr-fresh-v5-preeligibility
+    paths:
+      - configs/sdmr_fresh_empirical_v5_candidate_roster_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-v5-candidate-roster
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      v4_candidate_run: ${{ steps.boundary.outputs.v4_candidate_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - id: boundary
+        name: Verify frozen v5 metadata-only boundary
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          from sdmr.process_id.fresh.cohort_v5_metadata import validate_design
+
+          receipt_path=Path('configs/sdmr_fresh_empirical_v5_candidate_execution.json')
+          trigger='configs/sdmr_fresh_empirical_v5_candidate_roster_execute.txt'
+          receipt=json.load(open(receipt_path))
+          v4=json.load(open('configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json'))
+          if receipt.get('program')!='sdmr-fresh-empirical-v5-candidate-roster-execution':
+              raise SystemExit('wrong v5 candidate execution receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('v5 candidate execution is not one-shot')
+          if v4.get('candidate_count')!=90 or v4.get('environmental_values_read') is not False:
+              raise SystemExit('v4 candidate artifact boundary changed')
+          for key in (
+              'geometry_eligibility_allowed','environmental_values_allowed',
+              'support_bits_allowed','answer_check_access_allowed','model_fitting_allowed',
+              'prediction_metrics_allowed','process_states_allowed',
+          ):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'v5 candidate boundary crossed: {key}')
+
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          if git('rev-parse','HEAD^^')!=receipt['frozen_implementation_sha']:
+              raise SystemExit('v5 candidate implementation is not trigger grandparent')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x] != [trigger]:
+              raise SystemExit('v5 candidate trigger changed unexpected files')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x] != [str(receipt_path)]:
+              raise SystemExit('v5 candidate receipt commit changed unexpected files')
+          for path,expected in receipt['blob_sha'].items():
+              if git('hash-object',path)!=expected:
+                  raise SystemExit(f'frozen v5 candidate blob changed: {path}')
+          validate_design('configs/sdmr_fresh_empirical_v5_preeligibility.json')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f"v4_candidate_run={int(v4['workflow_run'])}\n")
+          print('v5 metadata-only candidate preflight passed')
+          PY
+          pytest -q tests/test_process_id_fresh_v5_candidates.py
+
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ steps.boundary.outputs.v4_candidate_run }}
+          name: sdmr-fresh-empirical-v4-candidate-roster
+          path: v4_candidate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Freeze combined 304-taxon exclusion universe
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          base=pd.read_csv('configs/sdmr_fresh_empirical_v4_exclusion_manifest.csv')
+          v4=pd.read_csv('v4_candidate/candidate_roster_v4.csv')
+          if len(base)!=214 or base.scientific_name.astype(str).nunique()!=214:
+              raise SystemExit('v5 base exclusion denominator changed')
+          if len(v4)!=90 or v4.scientific_name.astype(str).nunique()!=90:
+              raise SystemExit('v4 candidate artifact denominator changed')
+          b=set(base.scientific_name.astype(str).str.strip())
+          v=set(v4.scientific_name.astype(str).str.strip())
+          if b & v:
+              raise SystemExit('v4 candidate roster overlaps prior214 unexpectedly')
+          rows=[]
+          for name in sorted(b):
+              rows.append({'scientific_name':name,'exclusion_group':'prior214'})
+          for name in sorted(v):
+              rows.append({'scientific_name':name,'exclusion_group':'fresh_v4_candidate90'})
+          out=pd.DataFrame(rows)
+          if len(out)!=304 or out.scientific_name.nunique()!=304:
+              raise SystemExit('v5 combined exclusion universe is not exactly 304')
+          Path('exclusions').mkdir()
+          out.to_csv('exclusions/sdmr_fresh_empirical_v5_exclusions.csv',index=False)
+          receipt={
+            'program':'sdmr-fresh-empirical-v5-exclusions',
+            'excluded_taxa':304,
+            'prior214':214,
+            'fresh_v4_candidate90':90,
+            'overlap':0,
+            'environmental_values_read':False,
+            'support_bits_opened':False,
+          }
+          Path('exclusions/exclusion_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-exclusions
+          path: exclusions/
+          if-no-files-found: error
+          retention-days: 90
+
+  chunk:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[cloud,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-exclusions
+          path: exclusions
+      - name: Count v5 metadata-only candidate support
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v5_metadata chunk \
+            --design configs/sdmr_fresh_empirical_v5_preeligibility.json \
+            --exclusions exclusions/sdmr_fresh_empirical_v5_exclusions.csv \
+            --chunk-index ${{ matrix.chunk }} --chunk-count 32 \
+            --output-dir chunk_output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-roster-chunk-${{ matrix.chunk }}
+          path: chunk_output/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [preflight, chunk]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-exclusions
+          path: exclusions
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-roster-chunk-*
+          path: chunk_parts
+      - name: Freeze exact 120-candidate v5 roster
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v5_metadata aggregate \
+            --design configs/sdmr_fresh_empirical_v5_preeligibility.json \
+            --exclusions exclusions/sdmr_fresh_empirical_v5_exclusions.csv \
+            --parts-root chunk_parts --output-dir cohort
+          cat cohort/candidate_roster_result_v5.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-candidate-roster
+          path: cohort/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
