@@ -1,0 +1,27 @@
+{
+  "program": "sdmr-fresh-empirical-v3-feature-failure-audit",
+  "status": "diagnostic_only_after_terminal_feature_gate",
+  "source_run": 37128999833,
+  "source_artifact_id": 11278021879,
+  "source_status": "v3_feature_gate_terminal_unavailable",
+  "failed_taxa": [
+    "Luzula arcuata",
+    "Micranthes foliolosa"
+  ],
+  "allowed": [
+    "decoded_location_features",
+    "model_pool_feature_index",
+    "background_feature_index",
+    "predictor_registry",
+    "raster_provenance"
+  ],
+  "forbidden": [
+    "answer_check_access",
+    "model_fitting",
+    "taxon_replacement",
+    "predictor_deletion",
+    "threshold_relaxation",
+    "new_decoding_rules"
+  ],
+  "decision_rule": "audit_only; no v3 rescue"
+}
