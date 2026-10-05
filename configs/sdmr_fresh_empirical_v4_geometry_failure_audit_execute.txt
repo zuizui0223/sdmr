@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v4-geometry-failure-audit
+source_background_run=37275454617
+candidate_count=90
+threshold_relaxation=false
+taxon_replacement=false
+environmental_values_opened=false
+support_bits_opened=false
+answer_check_access=false
+model_fitting=false
+execute_once=true
