@@ -1,0 +1,368 @@
+name: SDMR fresh empirical v4 all46 support eligibility
+
+on:
+  push:
+    branches:
+      - design/sdmr-fresh-v4-all46-support
+    paths:
+      - configs/sdmr_fresh_empirical_v4_all46_support_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-v4-all46-support
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      candidate_run: ${{ steps.receipts.outputs.candidate_run }}
+      occurrence_run: ${{ steps.receipts.outputs.occurrence_run }}
+      background_run: ${{ steps.receipts.outputs.background_run }}
+      chelsa_matrix: ${{ steps.receipts.outputs.chelsa_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - id: receipts
+        name: Verify frozen v4 all46-support execution boundary
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          import pandas as pd
+
+          from sdmr.process_id.fresh.cohort_v4_all46_support import validate_contract
+
+          receipt_path=Path('configs/sdmr_fresh_empirical_v4_all46_support_execution.json')
+          trigger='configs/sdmr_fresh_empirical_v4_all46_support_execute.txt'
+          candidate=json.load(open('configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json'))
+          occurrence=json.load(open('configs/sdmr_fresh_empirical_v4_occurrence_artifact_receipt.json'))
+          background=json.load(open('configs/sdmr_fresh_empirical_v4_background_artifact_receipt.json'))
+          receipt=json.load(open(receipt_path))
+
+          if receipt.get('program')!='sdmr-fresh-empirical-v4-all46-support-execution':
+              raise SystemExit('wrong v4 all46-support execution receipt')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('v4 all46-support execution is not one-shot')
+          if candidate.get('candidate_count')!=90 or occurrence.get('candidate_count')!=90 or background.get('candidate_count')!=90:
+              raise SystemExit('v4 all46 upstream denominator changed')
+          if occurrence.get('answer_check_coordinates_persisted_for_support') is not False:
+              raise SystemExit('answer-check coordinates crossed v4 occurrence boundary')
+          if background.get('answer_check_coordinates_read') is not False:
+              raise SystemExit('answer-check coordinates crossed v4 background boundary')
+          if receipt.get('persist_numeric_environmental_values') is not False:
+              raise SystemExit('numeric environmental persistence became allowed')
+          for key in (
+              'answer_check_support_allowed','model_fitting_allowed',
+              'prediction_metrics_allowed','process_states_allowed','EMP_outcomes_allowed',
+          ):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'v4 all46 support boundary crossed: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git',*args],text=True).strip()
+
+          if git('rev-parse','HEAD^^')!=receipt['frozen_implementation_sha']:
+              raise SystemExit('v4 all46 implementation is not trigger grandparent')
+          trigger_changes=[
+              x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x
+          ]
+          if trigger_changes != [trigger]:
+              raise SystemExit(f'v4 all46 trigger changed unexpected files: {trigger_changes}')
+          receipt_changes=[
+              x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x
+          ]
+          if receipt_changes != [str(receipt_path)]:
+              raise SystemExit(f'v4 all46 receipt commit changed unexpected files: {receipt_changes}')
+          for path,expected in receipt['blob_sha'].items():
+              observed=git('hash-object',path)
+              if observed!=expected:
+                  raise SystemExit(f'frozen v4 all46 blob changed: {path}: {observed} != {expected}')
+
+          validate_contract('configs/sdmr_fresh_empirical_v4_all46_support.json')
+          registry=pd.read_csv('configs/sdmr_fresh_empirical_process_registry_v1.csv')
+          chelsa=registry.loc[registry.source_family.eq('CHELSA'),'predictor'].astype(str).tolist()
+          if len(chelsa)!=42 or len(set(chelsa))!=42:
+              raise SystemExit('v4 CHELSA support matrix denominator changed')
+
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as fh:
+              fh.write(f"candidate_run={int(candidate['workflow_run'])}\n")
+              fh.write(f"occurrence_run={int(occurrence['workflow_run'])}\n")
+              fh.write(f"background_run={int(background['workflow_run'])}\n")
+              fh.write('chelsa_matrix='+json.dumps(chelsa,separators=(',',':'))+'\n')
+          print('v4 all46-support preflight passed')
+          PY
+          pytest -q \
+            tests/test_process_id_fresh_v4_all46_support.py \
+            tests/test_process_id_fresh_v4_support_runtime.py
+
+  prepare-inputs:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.candidate_run }}
+          name: sdmr-fresh-empirical-v4-candidate-roster
+          path: candidate_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v4-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.background_run }}
+          name: sdmr-fresh-empirical-v4-background
+          path: background_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify upstream v4 geometry artifacts and minimize inputs
+        run: |
+          python - <<'PY'
+          import hashlib, json, shutil
+          from pathlib import Path
+
+          cand=json.load(open('configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json'))
+          occ=json.load(open('configs/sdmr_fresh_empirical_v4_occurrence_artifact_receipt.json'))
+          bg=json.load(open('configs/sdmr_fresh_empirical_v4_background_artifact_receipt.json'))
+          expected={
+            'candidate_source/candidate_roster_v4.csv':cand['candidate_roster_sha256'],
+            'occurrence_source/model_pool_occurrences_v4.csv':occ['model_pool_sha256'],
+            'background_source/background_points_v4.csv':bg['background_points_sha256'],
+          }
+          for path,wanted in expected.items():
+              got=hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              if got!=wanted:
+                  raise SystemExit(f'v4 support upstream SHA mismatch: {path}: {got} != {wanted}')
+          out=Path('support_inputs');out.mkdir()
+          shutil.copy2('candidate_source/candidate_roster_v4.csv',out/'candidate_roster_v4.csv')
+          shutil.copy2('occurrence_source/model_pool_occurrences_v4.csv',out/'model_pool_occurrences_v4.csv')
+          shutil.copy2('background_source/background_points_v4.csv',out/'background_points_v4.csv')
+          receipt={
+            'program':'sdmr-fresh-empirical-v4-support-inputs',
+            'candidate_count':90,
+            'answer_check_coordinates_present':False,
+            'answer_check_support_read':False,
+            'numeric_environmental_values_persisted':False,
+          }
+          (out/'input_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(receipt,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v4-support-inputs
+          path: support_inputs/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  chelsa:
+    needs: [preflight, prepare-inputs]
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        predictor: ${{ fromJson(needs.preflight.outputs.chelsa_matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v4-support-inputs
+          path: support_inputs
+      - name: Extract one CHELSA usable-support bit
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v4_all46_support chelsa \
+            --predictor "${{ matrix.predictor }}" \
+            --candidates support_inputs/candidate_roster_v4.csv \
+            --model-pool support_inputs/model_pool_occurrences_v4.csv \
+            --background support_inputs/background_points_v4.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir support_part
+          cat support_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v4-chelsa-support-${{ matrix.predictor }}
+          path: support_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil:
+    needs: prepare-inputs
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        predictor:
+          - sg_phh2o_0_5
+          - sg_clay_0_5
+          - sg_soc_0_5
+          - sg_nitrogen_0_5
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v4-support-inputs
+          path: support_inputs
+      - name: Extract one SoilGrids usable-support shard
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v4_all46_support soil-shard \
+            --predictor "${{ matrix.predictor }}" \
+            --shard-index ${{ matrix.shard }} --shard-count 32 \
+            --candidates support_inputs/candidate_roster_v4.csv \
+            --model-pool support_inputs/model_pool_occurrences_v4.csv \
+            --background support_inputs/background_points_v4.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir support_part
+          cat support_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v4-soil-support-${{ matrix.predictor }}-${{ matrix.shard }}
+          path: support_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil-assemble:
+    needs: [prepare-inputs, soil]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v4-support-inputs
+          path: support_inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v4-soil-support-*
+          path: soil_parts
+      - name: Assemble exact four SoilGrids boolean-support layers
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v4_all46_support soil-assemble \
+            --parts-root soil_parts \
+            --candidates support_inputs/candidate_roster_v4.csv \
+            --model-pool support_inputs/model_pool_occurrences_v4.csv \
+            --background support_inputs/background_points_v4.csv \
+            --output-dir soil_support
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v4-soil-support
+          path: soil_support/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [prepare-inputs, chelsa, soil-assemble]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v4-support-inputs
+          path: support_inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v4-chelsa-support-*
+          path: support_parts/chelsa
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v4-soil-support
+          path: support_parts/soil
+      - name: Freeze all46 support eligibility and first 50 eligible taxa
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v4_all46_support aggregate \
+            --parts-root support_parts \
+            --candidates support_inputs/candidate_roster_v4.csv \
+            --model-pool support_inputs/model_pool_occurrences_v4.csv \
+            --background support_inputs/background_points_v4.csv \
+            --contract configs/sdmr_fresh_empirical_v4_all46_support.json \
+            --output-dir selection
+          cat selection/all46_support_selection_result_v4.json
+          python - <<'PY'
+          import json
+          r=json.load(open('selection/all46_support_selection_result_v4.json'))
+          if r.get('numeric_environmental_values_persisted') is not False:
+              raise SystemExit('v4 support persisted numeric environmental values')
+          if r.get('answer_check_support_read') is not False:
+              raise SystemExit('v4 support read answer-check support')
+          if r.get('model_fitting_performed') is not False:
+              raise SystemExit('v4 support fitted models before final50')
+          if r.get('taxon_replacement_performed') is not False:
+              raise SystemExit('v4 support replaced taxa')
+          if r.get('predictor_deletion_performed') is not False:
+              raise SystemExit('v4 support deleted predictors')
+          if r.get('threshold_relaxation_performed') is not False:
+              raise SystemExit('v4 support relaxed thresholds')
+          if r.get('status') not in (
+              'final50_frozen_after_all46_support_eligibility',
+              'terminal_unavailable_before_final50_freeze',
+          ):
+              raise SystemExit('unexpected v4 all46 support terminal state')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v4-all46-support
+          path: selection/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
