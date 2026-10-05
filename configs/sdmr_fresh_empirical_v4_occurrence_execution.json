@@ -1,0 +1,16 @@
+{
+  "program": "sdmr-fresh-empirical-v4-occurrence-split-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "436dc267707e676ee53b123b00a43467bdf1cef9",
+  "candidate_count": 90,
+  "environmental_values_allowed": false,
+  "support_bits_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v4_occurrence.py": "737aa827b71d241aef0bd4e6fbcd8c3e84864066",
+    ".github/workflows/sdmr-fresh-empirical-v4-occurrence-split.yml": "ddea246edcf4cb3c9a542de4b5b12f19d210b859",
+    "configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json": "ad7da5becab26d9e922d58c439f83eb5b13b7a2a",
+    "tests/test_process_id_fresh_v4_occurrence.py": "bb529d6046f2b5dcdcd6efaa275c17ab8b8663b3"
+  }
+}
