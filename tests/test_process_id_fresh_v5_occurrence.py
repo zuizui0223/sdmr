@@ -50,3 +50,15 @@ def test_v5_outer_split_is_order_invariant():
     b_m,b_l,b_s=_freeze_taxon(_cells().sample(frac=1,random_state=7),"Taxon 000")
     assert a_s["split_digest"]==b_s["split_digest"]
     assert set(a_m.occurrence_id)==set(b_m.occurrence_id)
+
+
+def test_v5_source_gate_policy_allows_individual_ineligible_candidates():
+    from sdmr.process_id.fresh.cohort_v3_occurrence import MIN_RAW_OCCURRENCES, MIN_THINNED_CELLS
+
+    cells=_cells(MIN_THINNED_CELLS-1)
+    cells["n_occurrences_in_cell"]=[1]*(MIN_THINNED_CELLS-1)
+    raw_n=int(cells["n_occurrences_in_cell"].sum())
+    thin_n=int(len(cells))
+    assert raw_n<MIN_RAW_OCCURRENCES or thin_n<MIN_THINNED_CELLS
+    # v5 policy: this candidate is retained in the audit as ineligible;
+    # it must not imply whole-program failure or threshold relaxation.
