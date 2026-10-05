@@ -67,6 +67,7 @@ def test_soil_spatial_shards_cover_locations_exactly_once():
 
 
 def test_support_job_persists_boolean_bits_only(tmp_path,monkeypatch):
+    pytest.importorskip("pyarrow")
     candidates=pd.DataFrame({
         "candidate_rank":range(1,91),
         "scientific_name":[f"T{i}" for i in range(90)],
