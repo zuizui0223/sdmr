@@ -1,0 +1,16 @@
+{
+  "program": "sdmr-fresh-empirical-v4-occurrence-split",
+  "status": "candidate90_occurrence_split_passed",
+  "candidate_count": 90,
+  "model_pool_occurrences": 156795,
+  "answer_check_occurrences": 48782,
+  "model_pool_sha256": "4ca1690f2b2844f0dfe67dea74cead01c3a5700daa72a4ee91235e78d6c0f20c",
+  "outer_split_sha256": "7d9fd2c2e519ab3c3da875611adc42dd9e87ecb81d04b474cf25f1922d4de79f",
+  "source_gate_sha256": "a3bec164e14f9ccc66e6ffb8e75d6573f33187f59569c0f173c3514d6819801f",
+  "environmental_values_read": false,
+  "support_bits_opened": false,
+  "answer_check_coordinates_persisted_for_support": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "build_300km_model_pool_only_background_for_all_90_candidates"
+}
