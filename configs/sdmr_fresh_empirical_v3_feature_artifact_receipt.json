@@ -1,0 +1,24 @@
+{
+  "program": "sdmr-fresh-empirical-v3-feature-gate-artifact-receipt",
+  "workflow_run": 37128999833,
+  "workflow_head": "4a061dd888b493aa7938dcd6f52e4252660fe53b",
+  "artifact_id": 11278021879,
+  "artifact_name": "sdmr-fresh-empirical-v3-feature-gate",
+  "artifact_digest": "sha256:db80f36ca78a1af090b02bd1342e9750707fc542519ff7ea460bc2823b5d0a67",
+  "result_sha256": "5d56ea9719e5d8450259f162a93b616bbc37705bbbe1763b3bfe7269640cc2a4",
+  "complete_case_gate_sha256": "521e39f1d9976f1d6e5902979f86c6ca5bce7117433fe62908245a047f678fe2",
+  "predictor_missingness_sha256": "1f9d5ebd1302b1809c27d556408e0f81a1885c4093af567a130a98702391ffd5",
+  "source_decoding_ledger_sha256": "a4c23bb3f4e4097e021bb4f872673fb276d71bb385f9da87a9c84249b26e2bb4",
+  "taxon_count": 50,
+  "taxa_passing_complete_case_gate": 48,
+  "failed_taxa": [
+    "Luzula arcuata",
+    "Micranthes foliolosa"
+  ],
+  "environmental_values_read": true,
+  "answer_check_accessed": false,
+  "model_fitting_performed": false,
+  "taxon_replacement_performed": false,
+  "predictor_deletion_performed": false,
+  "threshold_relaxation_performed": false
+}
