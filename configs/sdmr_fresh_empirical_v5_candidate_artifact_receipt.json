@@ -1,0 +1,21 @@
+{
+  "program": "sdmr-fresh-empirical-v5-candidate-roster-artifact-receipt",
+  "workflow_run": 37277512193,
+  "workflow_head": "dd0da77df9f85d3686818741770ac053feca75ac",
+  "artifact_id": 11331501434,
+  "artifact_name": "sdmr-fresh-empirical-v5-candidate-roster",
+  "artifact_digest": "sha256:f08a8ba8953dc726fcde08ef5a2aad7103a9d25b2f555ca4e94dbbd8ddaf8e42",
+  "candidate_count": 120,
+  "candidate_families": 87,
+  "candidate_genera": 120,
+  "candidate_roster_sha256": "8caaf8d8e30a897d487b6c22e964ef62397bb18b56c8d6c81af7c2c6799006a5",
+  "selection_audit_sha256": "e3701e153c644dae6ec913a387f6261cbccdd8f9579223c281e12c4d809a4a89",
+  "availability_summary_sha256": "ad2b2c5e059a71fce379de42598e9084816de069d969c57fd9242324574d205e",
+  "prior_taxa_excluded": 304,
+  "eligibility_bits_opened": false,
+  "environmental_values_read": false,
+  "answer_check_accessed": false,
+  "model_fitting_performed": false,
+  "prediction_metrics_read": false,
+  "process_states_read": false
+}
