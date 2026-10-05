@@ -1,0 +1,20 @@
+{
+  "program": "sdmr-fresh-empirical-v4-background-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "cbe469883c02cb52c20a6d83a2a6e2bd24ae40b1",
+  "candidate_count": 90,
+  "primary_m_km": 300,
+  "background_points_per_candidate": 5000,
+  "environmental_values_allowed": false,
+  "support_bits_allowed": false,
+  "answer_check_coordinates_allowed": false,
+  "answer_check_features_allowed": false,
+  "model_fitting_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v4_background.py": "dae3e8c623ed9afca13dc829e3dab44dc8c11c3d",
+    ".github/workflows/sdmr-fresh-empirical-v4-background.yml": "8049a995d700bc0c8bd4fecc58eb2fb3f3682c64",
+    "configs/sdmr_fresh_empirical_v4_candidate_artifact_receipt.json": "ad7da5becab26d9e922d58c439f83eb5b13b7a2a",
+    "configs/sdmr_fresh_empirical_v4_occurrence_artifact_receipt.json": "b115582057f2944b70a92fe749b1afd05045f5ab",
+    "tests/test_process_id_fresh_v4_background.py": "1d2ee33f69ae68169cbb8884c0833804ba1b2a98"
+  }
+}
