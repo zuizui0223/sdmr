@@ -1,0 +1,9 @@
+program=sdmr-fresh-empirical-v5-occurrence-split
+execution_receipt_commit=52ffdbf64d500a3e3396367b48ee1f3c784aa495
+frozen_implementation_commit=0600125026c0939c189190f2c55d6e2b20c9e625
+candidate_count=120
+environmental_values_opened=false
+eligibility_bits_opened=false
+answer_check_features_opened=false
+model_fitting_started=false
+execute_once=true
