@@ -1,0 +1,18 @@
+{
+  "program": "sdmr-fresh-empirical-v3-feature-failure-audit-artifact-receipt",
+  "workflow_run": 37251666841,
+  "workflow_head": "9e90212a459b2c8898d15dee7aa4ec7ad5248413",
+  "artifact_id": 11321360870,
+  "artifact_name": "sdmr-fresh-empirical-v3-feature-failure-audit",
+  "artifact_digest": "sha256:da5f9e869326c5a981664cc425f084c2b87dedc9ba52b8af71dec40071677a89",
+  "failed_taxa": [
+    "Luzula arcuata",
+    "Micranthes foliolosa"
+  ],
+  "answer_check_accessed": false,
+  "model_fitting_performed": false,
+  "taxon_replacement_performed": false,
+  "predictor_deletion_performed": false,
+  "threshold_relaxation_performed": false,
+  "new_decoding_rules_added": false
+}
