@@ -546,6 +546,10 @@ def aggregate_support(
     root=Path(parts_root)
     metas=sorted(root.rglob("metadata.json"))
     metadata=[json.loads(p.read_text()) for p in metas]
+    if len(metadata)!=EXPECTED_PREDICTORS:
+        raise RuntimeError(
+            f"v4 support metadata denominator changed: {len(metadata)} != {EXPECTED_PREDICTORS}"
+        )
     by={str(m["predictor"]):m for m in metadata}
     if len(by)!=EXPECTED_PREDICTORS:
         raise RuntimeError(
