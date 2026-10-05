@@ -1,0 +1,20 @@
+{
+  "program": "sdmr-fresh-empirical-v4-geometry-failure-audit",
+  "status": "diagnostic_only_after_terminal_geometry_failure",
+  "source_background_run": 37275454617,
+  "source_background_status": "terminal_unavailable_before_all46_support",
+  "candidate_count": 90,
+  "primary_m_km": 300,
+  "required_background_points": 5000,
+  "audit_scope": "candidate_target_cell_counts_only",
+  "forbidden": [
+    "threshold_relaxation",
+    "taxon_replacement",
+    "candidate_reordering",
+    "environmental_value_access",
+    "support_bit_access",
+    "answer_check_access",
+    "model_fitting"
+  ],
+  "purpose": "measure_geometry_eligibility_for_all_90_without_rescuing_v4"
+}
