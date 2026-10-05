@@ -1,0 +1,20 @@
+{
+  "program": "sdmr-fresh-empirical-v4-geometry-failure-audit-artifact-receipt",
+  "workflow_run": 37276592530,
+  "workflow_head": "01c756c2a95db8f3a4efa96ffa29e162f27a43b8",
+  "artifact_id": 11330208213,
+  "artifact_name": "sdmr-fresh-empirical-v4-geometry-failure-audit",
+  "artifact_digest": "sha256:ee3c98c074ce1914fbf2b3a27a7a07f358970397669c23765188673f211b95fe",
+  "candidate_count": 90,
+  "geometry_eligible_count": 89,
+  "geometry_ineligible_count": 1,
+  "failed_taxa": [
+    "Eryngium glomeratum"
+  ],
+  "threshold_relaxation_performed": false,
+  "taxon_replacement_performed": false,
+  "environmental_values_read": false,
+  "support_bits_opened": false,
+  "answer_check_accessed": false,
+  "model_fitting_performed": false
+}
