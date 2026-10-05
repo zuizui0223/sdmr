@@ -1,0 +1,18 @@
+{
+  "answer_check_accessed": false,
+  "availability_summary_sha256": "ad2b2c5e059a71fce379de42598e9084816de069d969c57fd9242324574d205e",
+  "candidate_count": 120,
+  "candidate_families": 87,
+  "candidate_genera": 120,
+  "candidate_roster_sha256": "8caaf8d8e30a897d487b6c22e964ef62397bb18b56c8d6c81af7c2c6799006a5",
+  "eligibility_bits_opened": false,
+  "environmental_values_read": false,
+  "model_fitting_performed": false,
+  "next_gate": "freeze occurrence split then geometry eligibility and all46 support before final50 selection",
+  "prediction_metrics_read": false,
+  "prior_taxa_excluded": 304,
+  "process_states_read": false,
+  "program": "sdmr-fresh-empirical-v5-candidate-roster",
+  "selection_audit_sha256": "e3701e153c644dae6ec913a387f6261cbccdd8f9579223c281e12c4d809a4a89",
+  "status": "candidate120_frozen_outcomes_unopened"
+}
