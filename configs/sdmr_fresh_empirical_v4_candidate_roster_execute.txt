@@ -1,0 +1,9 @@
+program=sdmr-fresh-empirical-v4-candidate-roster
+execution_receipt_commit=60f2bd052c09e68b39d543478339bc86316c21fe
+frozen_implementation_commit=9a693e60d0e62e02b3d7e042012d89c2fa700efc
+candidate_count=90
+exclusion_taxa=214
+environmental_values_opened=false
+support_bits_opened=false
+answer_check_accessed=false
+execute_once=true
