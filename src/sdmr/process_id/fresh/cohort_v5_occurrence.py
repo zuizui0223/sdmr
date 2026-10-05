@@ -10,7 +10,9 @@ import pandas as pd
 
 from sdmr.data.snapshot import _configure_duckdb_cloud, _sql_literal
 from sdmr.target_footprint_parallel_cli import _chunk_files, _list_snapshot_shards, _sql_list
-from sdmr.process_id.fresh.cohort_v3_occurrence import _combine_cells, _freeze_taxon
+from sdmr.process_id.fresh.cohort_v3_occurrence import (
+    MIN_RAW_OCCURRENCES, MIN_THINNED_CELLS, _combine_cells, _freeze_taxon,
+)
 
 PROGRAM="sdmr-fresh-empirical-v5-occurrence-split"
 SNAPSHOT_DATE="2026-08-01"
@@ -140,20 +142,38 @@ def run_aggregate(*,candidate_path,parts_root,output_dir):
             raise RuntimeError(f"v5 pre-eligibility information boundary crossed: {key}")
 
     cells=_combine_cells([part_idx[i] for i in range(EXPECTED_CHUNKS)])
-    observed=set(cells.species.astype(str))
-    missing=[x for x in candidates.scientific_name if x not in observed]
-    if missing:
-        raise RuntimeError("v5 candidates absent from occurrence scan: "+", ".join(missing))
-
     models=[];ledgers=[];summaries=[]
     for taxon in candidates.scientific_name:
+        subset=cells.loc[cells.species.astype(str).eq(str(taxon))].copy()
+        raw_n=int(subset["n_occurrences_in_cell"].sum()) if len(subset) else 0
+        thin_n=int(len(subset))
+        if raw_n<MIN_RAW_OCCURRENCES or thin_n<MIN_THINNED_CELLS:
+            summaries.append({
+              "scientific_name":str(taxon),
+              "raw_occurrences":raw_n,
+              "thinned_occurrences":thin_n,
+              "model_pool_occurrences":0,
+              "answer_check_occurrences":0,
+              "split_digest":"",
+              "source_gate_passed":False,
+            })
+            continue
         m,l,s=_freeze_taxon(cells,taxon)
         models.append(m);ledgers.append(l);summaries.append(s)
-    model=pd.concat(models,ignore_index=True)
-    ledger=pd.concat(ledgers,ignore_index=True)
+    model=(pd.concat(models,ignore_index=True) if models else pd.DataFrame(
+        columns=["scientific_name","occurrence_id","gbifid","longitude","latitude","cell_x","cell_y","spatial_block"]
+    ))
+    ledger=(pd.concat(ledgers,ignore_index=True) if ledgers else pd.DataFrame(
+        columns=["scientific_name","occurrence_id","spatial_block","outer_role"]
+    ))
     summary=pd.DataFrame(summaries)
-    if len(summary)!=EXPECTED_CANDIDATES or not summary.source_gate_passed.all():
-        raise RuntimeError("v5 occurrence source gate denominator changed")
+    if len(summary)!=EXPECTED_CANDIDATES:
+        raise RuntimeError("v5 occurrence source-gate audit denominator changed")
+    passed=int(summary["source_gate_passed"].sum())
+    if passed<50:
+        raise RuntimeError(
+            f"v5 source geometry leaves fewer than 50 candidates before background eligibility: {passed}"
+        )
 
     answer_ids=set(
         ledger.loc[ledger.outer_role.eq("answer_check"),"occurrence_id"].astype(str)
@@ -167,8 +187,11 @@ def run_aggregate(*,candidate_path,parts_root,output_dir):
     sp=out/"taxon_source_gate_v5.csv"
     model.to_csv(mp,index=False);ledger.to_csv(op,index=False);summary.to_csv(sp,index=False)
     result={
-      "program":PROGRAM,"status":"candidate120_occurrence_split_passed",
+      "program":PROGRAM,"status":"candidate120_occurrence_split_frozen",
       "candidate_count":EXPECTED_CANDIDATES,
+      "source_gate_eligible_count":int(summary["source_gate_passed"].sum()),
+      "source_gate_ineligible_count":int((~summary["source_gate_passed"]).sum()),
+      "source_gate_ineligible_taxa":summary.loc[~summary["source_gate_passed"],"scientific_name"].astype(str).tolist(),
       "model_pool_occurrences":int(len(model)),
       "answer_check_occurrences":int((ledger.outer_role=="answer_check").sum()),
       "model_pool_sha256":_sha256(mp),"outer_split_sha256":_sha256(op),
