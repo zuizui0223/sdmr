@@ -45,5 +45,7 @@ def test_v4_background_fails_instead_of_relaxing_denominator():
     target=_target(1000)
     with pytest.raises(RuntimeError,match="without denominator relaxation"):
         build_backgrounds(
-            target_footprint=target,model_pool=_model().head(1),taxa=["Taxon 0"]*90
+            target_footprint=target,
+            model_pool=_model(),
+            taxa=[f"Taxon {i}" for i in range(90)],
         )
