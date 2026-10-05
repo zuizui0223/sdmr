@@ -1,0 +1,138 @@
+name: SDMR fresh v3 feature failure audit
+
+on:
+  push:
+    branches:
+      - execution/sdmr-fresh-v3-features
+    paths:
+      - configs/sdmr_fresh_empirical_v3_feature_failure_audit_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - name: Verify diagnostic-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/sdmr_fresh_empirical_v3_feature_failure_audit.json'))
+          if c.get('program')!='sdmr-fresh-empirical-v3-feature-failure-audit':
+              raise SystemExit('wrong v3 failure audit program')
+          if c.get('source_run')!=37128999833 or c.get('source_status')!='v3_feature_gate_terminal_unavailable':
+              raise SystemExit('wrong frozen source feature failure')
+          forbidden=set(c.get('forbidden',[]))
+          required={'answer_check_access','model_fitting','taxon_replacement','predictor_deletion','threshold_relaxation','new_decoding_rules'}
+          if forbidden!=required:
+              raise SystemExit('v3 failure audit boundary changed')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: 37128999833
+          name: sdmr-fresh-empirical-v3-feature-gate
+          path: feature_bundle
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Decompose failed-taxon missingness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+          import numpy as np
+
+          root=Path('feature_bundle')
+          result=json.load(open(root/'feature_gate_result_v3.json'))
+          if result.get('status')!='v3_feature_gate_terminal_unavailable':
+              raise SystemExit('source artifact is not the frozen v3 terminal failure')
+          if result.get('answer_check_accessed') is not False or result.get('model_fitting_performed') is not False:
+              raise SystemExit('source artifact crossed sealed/model boundary')
+
+          failed=['Luzula arcuata','Micranthes foliolosa']
+          loc=pd.read_parquet(root/'location_features_v3.parquet').set_index('location_id')
+          model=pd.read_csv(root/'model_pool_feature_index_v3.csv')
+          bg=pd.read_csv(root/'background_300km_feature_index_v3.csv')
+          registry=pd.read_csv('configs/sdmr_fresh_empirical_process_registry_v1.csv')
+          predictors=registry['predictor'].astype(str).tolist()
+          source_family=dict(zip(registry.predictor.astype(str),registry.source_family.astype(str)))
+
+          rows=[]
+          signature_rows=[]
+          for taxon in failed:
+              for role,idx in [('model_pool',model),('background_300km',bg)]:
+                  ids=idx.loc[idx.scientific_name.astype(str).eq(taxon),'location_id'].astype(int)
+                  frame=loc.loc[ids,predictors]
+                  if frame.empty:
+                      raise SystemExit(f'no {role} rows for {taxon}')
+                  missing=frame.isna()
+                  for p in predictors:
+                      n=int(missing[p].sum())
+                      rows.append({
+                        'scientific_name':taxon,
+                        'role':role,
+                        'predictor':p,
+                        'source_family':source_family[p],
+                        'rows':int(len(frame)),
+                        'missing_rows':n,
+                        'missing_fraction':float(n/len(frame)),
+                      })
+                  sig=missing.apply(lambda r: ','.join(np.array(predictors)[r.to_numpy()]),axis=1)
+                  vc=sig[sig!=''].value_counts()
+                  for signature,count in vc.head(20).items():
+                      signature_rows.append({
+                        'scientific_name':taxon,'role':role,
+                        'missing_signature':signature,'rows':int(count),
+                        'fraction':float(count/len(frame)),
+                      })
+
+          audit=pd.DataFrame(rows)
+          signatures=pd.DataFrame(signature_rows)
+          failing=audit.loc[(audit.role=='model_pool') & (audit.missing_rows>0)].copy()
+          top=(failing.sort_values(['scientific_name','missing_fraction'],ascending=[True,False])
+               .groupby('scientific_name',as_index=False).head(12))
+
+          out=Path('audit');out.mkdir()
+          audit.to_csv(out/'failed_taxon_predictor_missingness.csv',index=False)
+          signatures.to_csv(out/'failed_taxon_missing_signatures.csv',index=False)
+          top.to_csv(out/'failed_taxon_top_missing_predictors.csv',index=False)
+
+          summary={}
+          for taxon in failed:
+              sub=top.loc[top.scientific_name.eq(taxon)]
+              summary[taxon]=[
+                {'predictor':r.predictor,'source_family':r.source_family,
+                 'missing_rows':int(r.missing_rows),'missing_fraction':float(r.missing_fraction)}
+                for r in sub.itertuples(index=False)
+              ]
+          payload={
+            'program':'sdmr-fresh-empirical-v3-feature-failure-audit',
+            'status':'diagnostic_complete',
+            'failed_taxa':failed,
+            'top_model_pool_missing_predictors':summary,
+            'answer_check_accessed':False,
+            'model_fitting_performed':False,
+            'taxon_replacement_performed':False,
+            'predictor_deletion_performed':False,
+            'threshold_relaxation_performed':False,
+            'new_decoding_rules_added':False,
+          }
+          (out/'feature_failure_audit_result.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(payload,indent=2,sort_keys=True))
+          print(top.to_string(index=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v3-feature-failure-audit
+          path: audit/
+          if-no-files-found: error
+          retention-days: 90
