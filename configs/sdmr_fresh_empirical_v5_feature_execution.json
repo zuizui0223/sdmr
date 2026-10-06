@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-v5-feature-gate-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "4a8ee2442e2e54a44a326fb536e8c0846d1cb166",
+  "selected_manifest_sha256": "fb845485a1415c1fe3c2366d44834b194fe8b7a183718bd5cd69123f6ad79e27",
+  "numeric_environmental_values_allowed": true,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "EMP_outcomes_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/features_v5.py": "735827844ca1dee9aa48b3f15539b475b76fd3fe",
+    ".github/workflows/sdmr-fresh-empirical-v5-feature-gate.yml": "48657e020cd5aafa1bb4ba127041786922b76fe8",
+    "configs/sdmr_fresh_empirical_v5_feature_gate.json": "1cace47d69f5d6956d5a11d311b77b8f8ce1032d",
+    "tests/test_process_id_fresh_v5_features.py": "fce5dcd3f1a7542372c1fdb4c842ef6275d1f640",
+    "configs/sdmr_fresh_empirical_v5_all46_artifact_receipt.json": "4771b6e286a471693b39c2814747d408280773ee",
+    "configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json": "6d3f02f3d45cefca7052d63eec4252bb4f69bffc",
+    "configs/sdmr_fresh_empirical_v5_background_artifact_receipt.json": "a27793fa700a5698d242ea4af8159bad513c08f4",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
+  }
+}
