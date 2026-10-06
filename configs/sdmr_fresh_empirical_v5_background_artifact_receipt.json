@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-v5-background-artifact-receipt",
+  "workflow_run": 37424487977,
+  "workflow_head": "1a35c7305e9e6377c8677689490223fe892a46e1",
+  "artifact_id": 11395517715,
+  "artifact_name": "sdmr-fresh-empirical-v5-background",
+  "artifact_digest": "sha256:fc27d7e67946ec9de4b659e24eab23a9e5621c27304e0dca3970cf7d0f9b988c",
+  "candidate_count": 120,
+  "source_gate_eligible_count": 120,
+  "geometry_eligible_count": 120,
+  "geometry_ineligible_count": 0,
+  "background_rows": 600000,
+  "background_points_sha256": "3aaaa9a76360a5f22ed0e8616beea30b1dbcbef8ce8c4d6123af1a2cade86f6e",
+  "geometry_eligibility_sha256": "22d481eaa2def3a2eb089846b5572aa03b08cbfdda8c84848c94f285d59a481a",
+  "target_footprint_sha256": "8684f893006970ead325e2b9931d320fcae04a1cf29e9b0e4dcdd13ae1d550fe",
+  "environmental_values_read": false,
+  "eligibility_bits_opened": false,
+  "answer_check_coordinates_read": false,
+  "answer_check_features_read": false,
+  "model_fitting_performed": false,
+  "taxon_replacement_performed": false,
+  "geometry_threshold_relaxation_performed": false
+}
