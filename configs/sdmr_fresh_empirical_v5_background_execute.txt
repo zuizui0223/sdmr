@@ -1,0 +1,11 @@
+program=sdmr-fresh-empirical-v5-background
+execution_receipt_commit=1ca36484d79a13e90d5f67ffb77b21078371e5d2
+frozen_implementation_commit=35bbb9df38a4b744811c79b9e9ad63146276a272
+candidate_count=120
+primary_m_km=300
+required_background_points=5000
+environmental_values_opened=false
+eligibility_bits_opened=false
+answer_check_coordinates_opened=false
+model_fitting_started=false
+execute_once=true
