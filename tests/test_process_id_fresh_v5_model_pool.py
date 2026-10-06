@@ -141,3 +141,21 @@ def test_background_groups_are_anchored_before_complete_case_filtering():
     got=dict(zip(bg.background_rank,bg.spatial_block))
     assert got[1]==1
     assert got[2]==9
+
+
+def test_route_failure_is_recorded_as_unavailable_not_taxon_drop(monkeypatch):
+    import sdmr.process_id.fresh.model_pool_v5 as m
+
+    class Dummy:
+        pass
+
+    def fail(*args, **kwargs):
+        raise ValueError("insufficient spatial groups")
+
+    monkeypatch.setattr(m, "evaluate_full_system_permutation_gate", fail)
+    states, evidence, auth = m._learner_process_states(Dummy(), learner="shallow3_hgb")
+    assert len(states) == 6
+    assert states["state"].eq("unavailable").all()
+    assert set(states["process"]) == set(m.DEFAULT_PLANT_PROCESSES)
+    assert evidence.empty
+    assert auth["authorized"] is False
