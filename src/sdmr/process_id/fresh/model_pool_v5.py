@@ -826,6 +826,24 @@ def _fit_final_hgb(
     return fitted
 
 
+def final_predictor_sets(
+    *,
+    frozen: TaxonModelFreeze,
+    predictors: Sequence[str],
+) -> dict[str, tuple[str, ...]]:
+    """Return the frozen prediction routes, including the pre-outcome capacity control."""
+    full=tuple(str(x) for x in predictors)
+    if len(full)!=EXPECTED_PREDICTORS or len(set(full))!=EXPECTED_PREDICTORS:
+        raise ValueError("full46 capacity-control predictor universe changed")
+    return {
+        "sdmr_process_first":tuple(frozen.sdmr_predictors),
+        "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
+        "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
+        "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
+        "full_46_flat_hgb":full,
+    }
+
+
 def run_taxon_freeze(
     *,
     selection_rank: int,
@@ -892,14 +910,7 @@ def run_taxon_freeze(
     frozen.selector_audit.to_csv(selector_path,index=False)
 
     model_specs={}
-    predictor_sets={
-        "sdmr_process_first":tuple(frozen.sdmr_predictors),
-        "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
-        "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
-        "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
-        # Pre-outcome capacity control: same learner, no selection, full frozen universe.
-        "full_46_flat_hgb":tuple(predictors),
-    }
+    predictor_sets=final_predictor_sets(frozen=frozen,predictors=predictors)
     for name,predictor_set in predictor_sets.items():
         available=bool(predictor_set) and (name!="sdmr_process_first" or sdmr_available)
         model_path=None
