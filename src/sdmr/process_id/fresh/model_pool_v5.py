@@ -226,17 +226,21 @@ def _taxon_training_tables(
     predictors: Sequence[str],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     taxon = str(taxon)
-    model = model_index.loc[model_index["scientific_name"].astype(str).eq(taxon)].copy()
-    bg = background_index.loc[background_index["scientific_name"].astype(str).eq(taxon)].copy()
-    if model.empty or bg.empty:
+    all_model = model_index.loc[model_index["scientific_name"].astype(str).eq(taxon)].copy()
+    all_bg = background_index.loc[background_index["scientific_name"].astype(str).eq(taxon)].copy()
+    if all_model.empty or all_bg.empty:
         raise ValueError(f"missing v5 feature rows for {taxon}")
 
-    if "complete_case" not in model or "complete_case" not in bg:
+    if "complete_case" not in all_model or "complete_case" not in all_bg:
         raise ValueError("v5 model input requires complete_case flags")
-    model = model.loc[model["complete_case"].astype(bool)].copy()
-    bg = bg.loc[
-        bg["complete_case"].astype(bool)
-        & pd.to_numeric(bg["background_rank"], errors="raise").astype(int).mod(BACKGROUND_TRAIN_MODULUS).ne(BACKGROUND_EVAL_REMAINDER)
+    # Frozen background grouping is defined against every model-pool occurrence,
+    # before complete-case filtering.  Missing environmental values must not
+    # change the spatial CV groups.
+    all_bg["spatial_block"] = _nearest_occurrence_blocks(all_model, all_bg)
+    model = all_model.loc[all_model["complete_case"].astype(bool)].copy()
+    bg = all_bg.loc[
+        all_bg["complete_case"].astype(bool)
+        & pd.to_numeric(all_bg["background_rank"], errors="raise").astype(int).mod(BACKGROUND_TRAIN_MODULUS).ne(BACKGROUND_EVAL_REMAINDER)
     ].copy()
     if len(model) < 50:
         raise ValueError(f"insufficient complete model-pool occurrences for {taxon}")
@@ -263,7 +267,8 @@ def _empirical_world(
     registry: pd.DataFrame,
 ) -> KnownTruthWorld:
     bg = background.copy()
-    bg["spatial_block"] = _nearest_occurrence_blocks(model, bg)
+    if "spatial_block" not in bg:
+        bg["spatial_block"] = _nearest_occurrence_blocks(model, bg)
 
     occurrence_rows = model.copy().reset_index(drop=True)
     background_rows = bg.copy().reset_index(drop=True)
@@ -417,7 +422,8 @@ def _fit_hgb_probability(train: pd.DataFrame, test: pd.DataFrame, predictors: Se
 def _inner_sample_and_groups(model: pd.DataFrame, background: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
     occ = model.copy()
     bg = background.copy()
-    bg["spatial_block"] = _nearest_occurrence_blocks(occ, bg)
+    if "spatial_block" not in bg:
+        bg["spatial_block"] = _nearest_occurrence_blocks(occ, bg)
     occ["label"] = 1
     bg["label"] = 0
     sample = pd.concat([occ, bg], ignore_index=True, sort=False)
@@ -517,34 +523,54 @@ def sequential_forward_selection(
 
 
 def vif_prune(background: pd.DataFrame, predictors: Sequence[str], *, threshold: float = VIF_THRESHOLD) -> tuple[str, ...]:
+    """Deterministic iterative VIF pruning on training-background rows only."""
     retained = list(sorted(str(p) for p in predictors))
-    x = background.loc[:, retained].to_numpy(float)
-    if not np.isfinite(x).all():
-        raise ValueError("VIF input must be complete finite training background")
+    threshold = float(threshold)
+    if not math.isfinite(threshold) or threshold <= 1.0:
+        raise ValueError("VIF threshold must be finite and > 1")
+
+    def current_vif(columns: list[str]) -> np.ndarray:
+        x = background.loc[:, columns].to_numpy(float)
+        if not np.isfinite(x).all():
+            raise ValueError("VIF input must be complete finite training background")
+        values = np.empty(len(columns), dtype=float)
+        for i in range(len(columns)):
+            y = x[:, i]
+            others = np.delete(x, i, axis=1)
+            y_centered = y - float(np.mean(y))
+            sst = float(np.dot(y_centered, y_centered))
+            if not math.isfinite(sst) or sst <= 1e-15:
+                values[i] = float("inf")
+                continue
+            if others.shape[1] == 0:
+                values[i] = 1.0
+                continue
+            design = np.column_stack([np.ones(len(others)), others])
+            try:
+                coef, *_ = np.linalg.lstsq(design, y, rcond=None)
+                residual = y - design @ coef
+                sse = float(np.dot(residual, residual))
+                r2 = 1.0 - sse / sst
+                if r2 >= 1.0 - 1e-12:
+                    values[i] = float("inf")
+                else:
+                    values[i] = 1.0 / max(1.0 - r2, 1e-12)
+            except np.linalg.LinAlgError:
+                values[i] = float("inf")
+        return values
+
     while len(retained) > 1:
-        x = background.loc[:, retained].to_numpy(float)
-        sd = np.std(x, axis=0)
-        constant = [retained[i] for i, value in enumerate(sd) if not np.isfinite(value) or value <= 0]
-        if constant:
-            # deterministic removal; a constant predictor has infinite VIF.
-            retained.remove(sorted(constant)[0])
-            continue
-        z = (x - np.mean(x, axis=0)) / sd
-        corr = np.corrcoef(z, rowvar=False)
-        try:
-            inv = np.linalg.pinv(corr, hermitian=True)
-            vif = np.diag(inv)
-        except np.linalg.LinAlgError:
-            vif = np.full(len(retained), np.inf)
+        vif = current_vif(retained)
         max_vif = float(np.max(vif))
-        if math.isfinite(max_vif) and max_vif <= float(threshold):
+        if math.isfinite(max_vif) and max_vif <= threshold:
             break
-        candidates = [
-            retained[i]
-            for i, value in enumerate(vif)
-            if (not math.isfinite(max_vif) and not math.isfinite(float(value)))
-            or np.isclose(float(value), max_vif, rtol=0.0, atol=1e-10)
-        ]
+        if math.isfinite(max_vif):
+            candidates = [
+                retained[i] for i, value in enumerate(vif)
+                if np.isclose(float(value), max_vif, rtol=0.0, atol=1e-10)
+            ]
+        else:
+            candidates = [retained[i] for i, value in enumerate(vif) if not math.isfinite(float(value))]
         retained.remove(sorted(candidates)[0])
     return tuple(retained)
 
