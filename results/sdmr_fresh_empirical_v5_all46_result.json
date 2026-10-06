@@ -1,0 +1,19 @@
+{
+  "program": "sdmr-fresh-empirical-v5-preeligibility",
+  "status": "final50_frozen_after_geometry_plus_all46_preeligibility",
+  "candidate_count": 120,
+  "geometry_eligible_count": 120,
+  "all46_support_eligible_count": 79,
+  "jointly_eligible_count": 79,
+  "final_selected_count": 50,
+  "selected_manifest_sha256": "fb845485a1415c1fe3c2366d44834b194fe8b7a183718bd5cd69123f6ad79e27",
+  "eligibility_audit_sha256": "a0d83cfe979eec0212aef8a3513dde6ffcce8ea1c8a6c4afc870383ad40c8356",
+  "predictor_support_summary_sha256": "0b39735e936af68f4f79ef807983d8759bd9e33d87ebf4dfe8ba034091e8b907",
+  "answer_check_support_read": false,
+  "numeric_environmental_values_persisted": false,
+  "model_fitting_performed": false,
+  "taxon_replacement_performed": false,
+  "predictor_deletion_performed": false,
+  "geometry_threshold_relaxation_performed": false,
+  "support_threshold_relaxation_performed": false
+}
