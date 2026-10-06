@@ -1,0 +1,161 @@
+{
+  "schema": "sdmr.fresh_empirical_v5_sealed_evaluation.v1",
+  "frozen_date": "2026-10-06",
+  "status": "frozen_before_answer_check_coordinates_or_features",
+  "product_a_boundary": "closed_not_reopened",
+  "prerequisites": {
+    "final50": "sdmr-fresh-empirical-v5-all46-support status final50_frozen_after_geometry_plus_all46_preeligibility",
+    "numeric_feature_gate": "sdmr-fresh-empirical-v5-feature-gate status v5_feature_gate_passed and 50/50 complete-case gate pass",
+    "model_pool_freeze": "sdmr-fresh-empirical-v5-model-pool-freeze status model_pool_states_and_comparator_sets_frozen",
+    "answer_check_opening_before_prerequisites": false
+  },
+  "answer_check_materialization": {
+    "identity_source": "frozen outer_split_v5.csv from occurrence-split artifact",
+    "role_filter": "outer_role == answer_check AND scientific_name in frozen final50",
+    "coordinate_source": "reconstruct exact thinned-cell representative coordinates from the 32 frozen occurrence chunk artifacts of the same occurrence-split workflow run",
+    "public_GBIF_reread_allowed": false,
+    "occurrence_row_filtering_after_open": false,
+    "use_all_sealed_answer_check_occurrences": true,
+    "deduplicate_after_open": false
+  },
+  "environmental_features": {
+    "predictor_count": 46,
+    "process_registry": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "same_raster_sources_as_feature_gate": true,
+    "structural_source_decoding": [
+      {
+        "predictor": "fcf",
+        "companion": "bio6",
+        "operator": "gt",
+        "condition_value": 0,
+        "set_to": 0,
+        "reason": "no_freezing_month_zero_freeze_thaw_transitions"
+      },
+      {
+        "predictor": "swe",
+        "companion": "scd",
+        "operator": "eq",
+        "condition_value": 0,
+        "set_to": 0,
+        "reason": "zero_snow_cover_days_zero_swe"
+      },
+      {
+        "predictor": "fgd",
+        "companion": "gsl",
+        "operator": "eq",
+        "condition_value": 365,
+        "set_to": 1,
+        "reason": "all_year_growing_season_first_day_1"
+      },
+      {
+        "predictor": "lgd",
+        "companion": "gsl",
+        "operator": "eq",
+        "condition_value": 365,
+        "set_to": 365,
+        "reason": "all_year_growing_season_last_day_365"
+      },
+      {
+        "predictor": "gdgfgd5",
+        "companion": "ngd5",
+        "operator": "eq",
+        "condition_value": 365,
+        "set_to": 1,
+        "reason": "all_year_above_5C_first_qualifying_day_1"
+      },
+      {
+        "predictor": "gdgfgd10",
+        "companion": "ngd10",
+        "operator": "eq",
+        "condition_value": 365,
+        "set_to": 1,
+        "reason": "all_year_above_10C_first_qualifying_day_1"
+      }
+    ],
+    "residual_missing_values": "leave_as_NaN_for_frozen_HistGradientBoostingClassifier_prediction",
+    "post_open_imputation": false,
+    "predictor_deletion": false
+  },
+  "evaluation_denominator": {
+    "presence": "all sealed answer-check occurrence rows for each of the 50 taxa; no complete-case filtering and no route-specific filtering",
+    "negative": "all 1000 frozen 300-km background rows with background_rank modulo 5 == 0 for each taxon; no complete-case filtering and no route-specific filtering",
+    "same_rows_for_primary_routes": true,
+    "row_drop_after_prediction_failure": false
+  },
+  "frozen_routes": {
+    "primary": "sdmr_process_first",
+    "primary_comparator": "matched_learner_flat_predictive_selector",
+    "secondary": [
+      "auc_oriented_flat_selector",
+      "correlation_vif_flat_filter"
+    ],
+    "learner": "frozen shallow3_hgb joblib model from model-pool artifact",
+    "refit_after_answer_check_open": false,
+    "predictor_set_change_after_answer_check_open": false
+  },
+  "metrics": {
+    "ecological": "balanced_presence_background_log_score",
+    "prediction_guardrail": "roc_auc",
+    "higher_is_better": true,
+    "taxon_gain": "sdmr_process_first log score minus matched_learner_flat_predictive_selector log score",
+    "taxon_auc_difference": "sdmr_process_first AUC minus matched_learner_flat_predictive_selector AUC"
+  },
+  "unavailable_rules": {
+    "unavailable_primary_or_primary_comparator_taxon_gain": 0,
+    "unavailable_primary_or_primary_comparator_auc_difference": null,
+    "EMP_C_requires_all_50_taxa_evaluable": true,
+    "unavailable_taxon_cannot_be_dropped": true,
+    "unavailable_process_cell_counts_stable": false
+  },
+  "promotion": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "EMP_A": {
+      "mean_taxon_gain_minimum": 0.01,
+      "denominator": 50
+    },
+    "EMP_B": {
+      "bootstrap_replicates": 20000,
+      "bootstrap_seed": 20260926,
+      "lower_quantile": 0.025,
+      "required_lower_bound_strictly_above": 0,
+      "denominator": 50
+    },
+    "EMP_C": {
+      "mean_auc_difference_minimum": -0.02,
+      "requires_50_of_50_evaluable": true
+    },
+    "EMP_D": {
+      "stable_process_fraction_minimum": 0.8,
+      "denominator_process_cells": 300
+    },
+    "EMP_E": {
+      "maximum_abstention_integrity_violations": 0
+    },
+    "EMP_F": {
+      "required_taxa_retained": 50
+    }
+  },
+  "abstention_integrity": {
+    "predictor_retention_rule": "a predictor may be dropped by SDMR iff every mapped process is stably replaceable",
+    "unresolved_or_unavailable_process_predictors_must_be_retained": true,
+    "unavailable_taxon_gain_must_be_zero_not_omitted": true,
+    "declared_taxon_or_process_denominator_drop_is_violation": true
+  },
+  "prohibited": [
+    "answer_check_use_in_process_state_classification",
+    "answer_check_use_in_predictor_selection",
+    "answer_check_use_in_model_refitting",
+    "route_specific_answer_check_row_filtering",
+    "route_specific_evaluation_background_filtering",
+    "taxon_drop_or_replacement",
+    "predictor_deletion_after_answer_check_open",
+    "EMP_threshold_change_after_answer_check_open"
+  ]
+}
