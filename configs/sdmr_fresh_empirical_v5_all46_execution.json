@@ -1,0 +1,26 @@
+{
+  "program": "sdmr-fresh-empirical-v5-all46-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "3d7ac6de3fba5d326eb61fbe60e1a839d7b585e7",
+  "candidate_count": 120,
+  "geometry_eligible_count": 120,
+  "predictor_count": 46,
+  "final_taxa": 50,
+  "persist_numeric_environmental_values": false,
+  "answer_check_support_allowed": false,
+  "model_fitting_allowed": false,
+  "prediction_metrics_allowed": false,
+  "process_states_allowed": false,
+  "EMP_outcomes_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/cohort_v5_all46_support.py": "5b8cca4753b7debace2fffe28f976a400ca912f5",
+    ".github/workflows/sdmr-fresh-empirical-v5-all46-support.yml": "3702d950193e0be204530132409fbc0d5ad166a2",
+    "configs/sdmr_fresh_empirical_v5_preeligibility.json": "8607dd997ab717415556e1a384c9e4be72636515",
+    "configs/sdmr_fresh_empirical_v5_candidate_artifact_receipt.json": "7445ee9a42e75685a0b51e7d0dd6c4c7eb2549b0",
+    "configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json": "6d3f02f3d45cefca7052d63eec4252bb4f69bffc",
+    "configs/sdmr_fresh_empirical_v5_background_artifact_receipt.json": "a27793fa700a5698d242ea4af8159bad513c08f4",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa",
+    "tests/test_process_id_fresh_v5_all46_support.py": "5da3b55d96de2cfeae1efdd4e8836560583dc741"
+  }
+}
