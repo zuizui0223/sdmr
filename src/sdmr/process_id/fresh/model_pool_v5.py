@@ -311,31 +311,64 @@ def _learner_process_states(world: KnownTruthWorld, *, learner: str) -> tuple[pd
     else:
         raise ValueError("unknown frozen v5 learner route")
 
-    authorization = evaluate_full_system_permutation_gate(
-        world,
-        n_splits=INNER_SPLITS,
-        split_mode="spatial",
-        learner=evidence_learner,
-        hgb_profile=hgb_profile,
-        C=1.0,
-        adequacy_floor=ADEQUACY_FLOOR,
-        n_permutations=PERMUTATIONS,
-        alpha=PERMUTATION_ALPHA,
-        permutation_seed=PERMUTATION_SEED,
-        minimum_gain_over_null=MIN_GAIN_OVER_NULL,
-    )
-    evaluation = evaluate_occurrence_processes(
-        world,
-        n_splits=INNER_SPLITS,
-        margin=PROCESS_MARGIN,
-        adequacy_floor=ADEQUACY_FLOOR,
-        sem_multiplier=SEM_MULTIPLIER,
-        C=1.0,
-        learner=evidence_learner,
-        split_mode="spatial",
-        hgb_profile=hgb_profile,
-        require_full_system_information=False,
-    )
+    try:
+        authorization = evaluate_full_system_permutation_gate(
+            world,
+            n_splits=INNER_SPLITS,
+            split_mode="spatial",
+            learner=evidence_learner,
+            hgb_profile=hgb_profile,
+            C=1.0,
+            adequacy_floor=ADEQUACY_FLOOR,
+            n_permutations=PERMUTATIONS,
+            alpha=PERMUTATION_ALPHA,
+            permutation_seed=PERMUTATION_SEED,
+            minimum_gain_over_null=MIN_GAIN_OVER_NULL,
+        )
+        evaluation = evaluate_occurrence_processes(
+            world,
+            n_splits=INNER_SPLITS,
+            margin=PROCESS_MARGIN,
+            adequacy_floor=ADEQUACY_FLOOR,
+            sem_multiplier=SEM_MULTIPLIER,
+            C=1.0,
+            learner=evidence_learner,
+            split_mode="spatial",
+            hgb_profile=hgb_profile,
+            require_full_system_information=False,
+        )
+    except ValueError as exc:
+        # Expected finite-data failures (for example insufficient surviving
+        # spatial groups) are scientific unavailability, not permission to
+        # delete the taxon from the declared denominator.
+        states = pd.DataFrame([
+            {
+                "learner_route": learner,
+                "process": process,
+                "state": "unavailable",
+                "reason": f"finite_route_unavailable:{type(exc).__name__}",
+                "closure_predictors": "",
+                "complete": False,
+                "full_system_information_adequate": False,
+            }
+            for process in DEFAULT_PLANT_PROCESSES
+        ])
+        evidence = pd.DataFrame(columns=[
+            "learner_route","process","fold","route","split_mode","hgb_profile",
+            "complete","full_log_score","knockout_log_score","delta",
+            "excluded_predictors","retained_predictors",
+        ])
+        auth = {
+            "authorized": False,
+            "reason": f"finite_route_unavailable:{type(exc).__name__}",
+            "observed_mean_score": float("nan"),
+            "mean_gain_over_null": float("nan"),
+            "p_value": float("nan"),
+            "n_permutations": PERMUTATIONS,
+            "permutation_seed": PERMUTATION_SEED,
+        }
+        return states, evidence, auth
+
     states = apply_permutation_authorization(
         evaluation.states,
         authorized=bool(authorization.summary["authorized"]),
@@ -630,19 +663,44 @@ def freeze_taxon_model_pool(
         predictors=predictors,
     )
 
-    flat_balanced = sequential_forward_selection(
-        model=model,
-        background=background,
-        predictors=predictors,
-        metric="balanced_log_score",
-    )
-    flat_auc = sequential_forward_selection(
-        model=model,
-        background=background,
-        predictors=predictors,
-        metric="roc_auc",
-    )
-    vif = vif_prune(background, predictors, threshold=VIF_THRESHOLD)
+    selector_errors = {}
+    try:
+        flat_balanced = sequential_forward_selection(
+            model=model,
+            background=background,
+            predictors=predictors,
+            metric="balanced_log_score",
+        )
+    except (ValueError, RuntimeError) as exc:
+        flat_balanced = {
+            "metric": "balanced_log_score",
+            "selected_predictors": (),
+            "selected_count": 0,
+            "selected_mean_score": float("nan"),
+            "prefixes": [],
+        }
+        selector_errors["matched_learner_flat_predictive_selector"] = type(exc).__name__
+    try:
+        flat_auc = sequential_forward_selection(
+            model=model,
+            background=background,
+            predictors=predictors,
+            metric="roc_auc",
+        )
+    except (ValueError, RuntimeError) as exc:
+        flat_auc = {
+            "metric": "roc_auc",
+            "selected_predictors": (),
+            "selected_count": 0,
+            "selected_mean_score": float("nan"),
+            "prefixes": [],
+        }
+        selector_errors["auc_oriented_flat_selector"] = type(exc).__name__
+    try:
+        vif = vif_prune(background, predictors, threshold=VIF_THRESHOLD)
+    except (ValueError, RuntimeError) as exc:
+        vif = ()
+        selector_errors["correlation_vif_flat_filter"] = type(exc).__name__
 
     audit_rows = []
     for label, result in (
@@ -657,6 +715,19 @@ def freeze_taxon_model_pool(
                 "predictors": ",".join(prefix["predictors"]),
                 "mean_score": prefix["mean_score"],
                 "selected": tuple(prefix["predictors"]) == tuple(result["selected_predictors"]),
+                "available": True,
+                "failure_reason": "",
+            })
+        if not result["prefixes"]:
+            audit_rows.append({
+                "selector": label,
+                "metric": result["metric"],
+                "n_predictors": 0,
+                "predictors": "",
+                "mean_score": np.nan,
+                "selected": False,
+                "available": False,
+                "failure_reason": selector_errors.get(label, "unavailable"),
             })
     audit_rows.append({
         "selector": "correlation_vif_flat_filter",
@@ -664,7 +735,9 @@ def freeze_taxon_model_pool(
         "n_predictors": len(vif),
         "predictors": ",".join(vif),
         "mean_score": np.nan,
-        "selected": True,
+        "selected": bool(vif),
+        "available": bool(vif),
+        "failure_reason": selector_errors.get("correlation_vif_flat_filter", ""),
     })
     return TaxonModelFreeze(
         taxon=str(taxon),
