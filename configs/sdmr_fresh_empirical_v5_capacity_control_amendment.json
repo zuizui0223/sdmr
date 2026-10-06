@@ -2,9 +2,11 @@
   "schema": "sdmr.fresh_empirical_v5_capacity_control_amendment.v1",
   "frozen_date": "2026-10-06",
   "status": "frozen_pre_model_fit_pre_answer_check",
-  "rationale": "Pre-outcome code review identified a model-capacity asymmetry: the process-first route can retain more than eight predictors while the predeclared primary flat selector is capped at eight. Add an all-46 same-learner control so any predictive advantage can be separated from simple predictor-count capacity.",
+  "rationale": "Pre-model-fit code review identified a model-capacity asymmetry: the process-first route can retain more than eight predictors while the predeclared primary flat selector is capped at eight. Add an all-46 same-learner report-only control so any predictive advantage can be separated from simple predictor-count capacity.",
   "information_state_when_frozen": {
-    "all46_preeligibility_outcome_opened": false,
+    "all46_preeligibility_run_started": true,
+    "all46_preeligibility_terminal_selection_result_opened": false,
+    "partial_support_values_or_candidate_eligibility_opened": false,
     "final50_numeric_features_opened": false,
     "model_pool_fit_started": false,
     "answer_check_opened": false,
@@ -31,7 +33,10 @@
     "auc_difference": "sdmr_process_first minus full_46_flat_hgb"
   },
   "interpretation_boundary": {
-    "process_first_filtering_predictive_advantage_supported_if": "paired bootstrap 95% lower bound for SDMR minus full46 balanced-log-score gain > 0",
+    "exact_taxon_denominator": 50,
+    "unavailable_capacity_comparison_gain": 0,
+    "require_all_50_capacity_comparisons_evaluable_for_strong_filtering_claim": true,
+    "process_first_filtering_predictive_advantage_supported_if": "all 50 capacity comparisons are evaluable AND paired bootstrap 95% lower bound for SDMR minus full46 balanced-log-score gain > 0",
     "otherwise": "Do not attribute the original EMP-A/B gain specifically to process-aware filtering; report that comparison as advantage over the frozen <=8-predictor flat selector only.",
     "does_not_affect_EMP_promotion": true
   },
