@@ -653,16 +653,53 @@ def freeze_taxon_model_pool(
     )
 
 
+def attach_occurrence_spatial_blocks(
+    model_index: pd.DataFrame,
+    *,
+    occurrence_model_pool_path: str | Path,
+) -> pd.DataFrame:
+    """Restore the pre-feature frozen occurrence block labels by occurrence_id."""
+    source = pd.read_csv(occurrence_model_pool_path)
+    required = {"scientific_name", "occurrence_id", "spatial_block"}
+    missing = required - set(source.columns)
+    if missing:
+        raise ValueError(f"v5 occurrence artifact missing spatial-block columns: {sorted(missing)}")
+    source = source.loc[:, ["scientific_name", "occurrence_id", "spatial_block"]].copy()
+    source["scientific_name"] = source["scientific_name"].astype(str)
+    source["occurrence_id"] = source["occurrence_id"].astype(str)
+    if source["occurrence_id"].duplicated().any():
+        raise ValueError("v5 occurrence artifact occurrence_id must be unique")
+    out = model_index.copy()
+    out["scientific_name"] = out["scientific_name"].astype(str)
+    out["occurrence_id"] = out["occurrence_id"].astype(str)
+    out = out.merge(
+        source,
+        on=["scientific_name", "occurrence_id"],
+        how="left",
+        validate="one_to_one",
+    )
+    if out["spatial_block"].isna().any():
+        raise ValueError("v5 feature model index does not map completely to frozen spatial blocks")
+    out["spatial_block"] = pd.to_numeric(out["spatial_block"], errors="raise").astype(int)
+    return out
+
+
 def load_inputs(
     *,
     feature_root: str | Path,
     selected_path: str | Path,
     process_registry_path: str | Path,
     model_design_path: str | Path,
+    occurrence_model_pool_path: str | Path,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, tuple[str, ...], pd.DataFrame]:
     validate_model_design(model_design_path)
-    return _load_feature_bundle(
+    selected, locations, model_index, background_index, predictors, registry = _load_feature_bundle(
         feature_root=feature_root,
         selected_path=selected_path,
         process_registry_path=process_registry_path,
     )
+    model_index = attach_occurrence_spatial_blocks(
+        model_index,
+        occurrence_model_pool_path=occurrence_model_pool_path,
+    )
+    return selected, locations, model_index, background_index, predictors, registry
