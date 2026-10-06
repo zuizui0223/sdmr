@@ -1,0 +1,78 @@
+{
+  "program": "sdmr-fresh-empirical-v5-feature-gate",
+  "status": "staged_before_final50_numeric_value_read",
+  "taxon_count": 50,
+  "predictor_count": 46,
+  "upstream_final50": {
+    "source": "sdmr-fresh-empirical-v5-all46-support",
+    "requirement": "final50_frozen_after_geometry_plus_all46_preeligibility"
+  },
+  "structural_source_decoding": [
+    {
+      "predictor": "fcf",
+      "companion": "bio6",
+      "operator": "gt",
+      "condition_value": 0,
+      "set_to": 0,
+      "reason": "no_freezing_month_zero_freeze_thaw_transitions"
+    },
+    {
+      "predictor": "swe",
+      "companion": "scd",
+      "operator": "eq",
+      "condition_value": 0,
+      "set_to": 0,
+      "reason": "zero_snow_cover_days_zero_swe"
+    },
+    {
+      "predictor": "fgd",
+      "companion": "gsl",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_growing_season_first_day_1"
+    },
+    {
+      "predictor": "lgd",
+      "companion": "gsl",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 365,
+      "reason": "all_year_growing_season_last_day_365"
+    },
+    {
+      "predictor": "gdgfgd5",
+      "companion": "ngd5",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_above_5C_first_qualifying_day_1"
+    },
+    {
+      "predictor": "gdgfgd10",
+      "companion": "ngd10",
+      "operator": "eq",
+      "condition_value": 365,
+      "set_to": 1,
+      "reason": "all_year_above_10C_first_qualifying_day_1"
+    }
+  ],
+  "complete_case_gate": {
+    "minimum_model_pool_retention_fraction": 0.8,
+    "minimum_model_pool_complete_rows": 50,
+    "minimum_background_complete_rows": 4000,
+    "taxon_replacement": false,
+    "predictor_deletion": false,
+    "threshold_relaxation": false,
+    "imputation": "none_outside_structural_source_decoding"
+  },
+  "information_boundary": {
+    "numeric_environmental_values": true,
+    "answer_check_access": false,
+    "model_fitting": false,
+    "prediction_metrics": false,
+    "process_states": false,
+    "EMP_outcomes": false
+  },
+  "failure_rule": "terminal_unavailable_no_replacement_no_relaxation"
+}
