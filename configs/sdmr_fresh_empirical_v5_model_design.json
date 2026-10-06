@@ -1,0 +1,194 @@
+{
+  "schema": "sdmr.fresh_empirical_v5_model_design.v1",
+  "frozen_date": "2026-10-06",
+  "status": "model_design_frozen_before_final50_numeric_features_and_model_fit",
+  "product_a_boundary": "closed_not_reopened",
+  "cohort_binding": {
+    "exact_taxa": 50,
+    "binding_status": "pending_preeligibility_terminal_pass",
+    "allowed_future_change": "bind_only_selected_manifest_sha256_and_selection_artifact_provenance",
+    "forbidden_after_binding": [
+      "taxon_replacement",
+      "taxon_drop",
+      "taxon_reordering"
+    ]
+  },
+  "feature_prerequisite": {
+    "program": "sdmr-fresh-empirical-v5-feature-gate",
+    "required_terminal_status": "v5_feature_gate_passed",
+    "result_not_used_to_tune_this_contract": true,
+    "if_failed": "terminal_unavailable_no_model_fit"
+  },
+  "predictor_and_process_universe": {
+    "predictor_count": 46,
+    "process_count": 6,
+    "process_registry": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "processes": [
+      "thermal",
+      "water",
+      "seasonality",
+      "radiation_energy",
+      "soil_substrate",
+      "productivity"
+    ],
+    "post_freeze_predictor_deletion": false,
+    "post_freeze_process_taxonomy_change": false
+  },
+  "primary_ecological_metric": {
+    "name": "balanced_presence_background_log_score",
+    "convention": "higher_is_better",
+    "taxon_gain": "sdmr_process_first minus matched_learner_flat_predictive_selector on sealed answer-check",
+    "emp_a_minimum_mean_gain": 0.01,
+    "emp_b_bootstrap_replicates": 20000,
+    "emp_b_bootstrap_seed": 20260926,
+    "emp_b_required_95pct_lower_bound_strictly_above": 0
+  },
+  "prediction_guardrail": {
+    "metric": "answer_check_roc_auc",
+    "comparator": "matched_learner_flat_predictive_selector",
+    "primary_route": "shallow3_hgb",
+    "noninferiority_margin": 0.02,
+    "rule": "mean paired AUC difference (sdmr - comparator) >= -0.02",
+    "evaluable_denominator_rule": "all 50 taxa must have an evaluable SDMR primary route; any unavailable taxon makes EMP-C fail"
+  },
+  "model_pool_background_split": {
+    "source": "frozen 5000-point primary 300-km background per taxon",
+    "training_rule": "background_rank modulo 5 != 0",
+    "sealed_evaluation_rule": "background_rank modulo 5 == 0",
+    "training_rows_per_taxon": 4000,
+    "evaluation_rows_per_taxon": 1000,
+    "split_frozen_before_model_fit": true
+  },
+  "process_identification": {
+    "stage_p": {
+      "full_vs_process_closure_knockouts": true,
+      "inner_occurrence_groups": "frozen model-pool spatial_block values",
+      "background_group_assignment": "nearest model-pool occurrence spatial_block by great-circle distance; deterministic nearest occurrence_id tie-break",
+      "n_inner_splits": 3,
+      "score": "balanced_presence_background_log_score",
+      "margin": 0.01,
+      "adequacy_floor": -0.75,
+      "sem_multiplier": 1,
+      "full_system_authorization": {
+        "n_permutations": 999,
+        "alpha": 0.001,
+        "permutation_seed": 0,
+        "minimum_gain_over_null": 0.01
+      },
+      "identical_process_closure_policy": "sharp states with identical closure are converted to unresolved",
+      "split_mode": "spatial"
+    },
+    "learner_routes": {
+      "penalized_logistic": {
+        "role": "stability_route",
+        "preprocessing": "none; raw frozen predictor values",
+        "penalty": "l2",
+        "C": 1,
+        "solver": "lbfgs",
+        "max_iter": 1000,
+        "class_weight": "balanced",
+        "random_state": 0
+      },
+      "shallow3_hgb": {
+        "role": "primary_prediction_and_stability_route",
+        "loss": "log_loss",
+        "learning_rate": 0.05,
+        "max_iter": 100,
+        "max_leaf_nodes": 3,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1,
+        "early_stopping": false,
+        "random_state": 0,
+        "class_balance": "training-only inverse class-frequency sample weights"
+      }
+    },
+    "stability": {
+      "same_sharp_state_required_across_both_learners": true,
+      "sharp_states": [
+        "replaceable",
+        "contributory",
+        "required"
+      ],
+      "learner_disagreement": "unresolved",
+      "unavailable_on_either_route": "unavailable",
+      "emp_d_minimum_stable_fraction": 0.8,
+      "denominator": "all 50 taxa x 6 declared processes; unresolved/unavailable count as not stable"
+    }
+  },
+  "sdmr_process_first_prediction": {
+    "primary_learner": "shallow3_hgb",
+    "predictor_filter_rule": [
+      "derive stable process states before any answer-check feature is opened",
+      "drop a predictor only when every declared process mapped to it is stably replaceable",
+      "retain predictors mapped to any contributory required unresolved or unavailable process",
+      "retain shared-carrier predictors whenever any mapped process is not stably replaceable",
+      "if the full system is unavailable for the taxon the SDMR route is unavailable rather than rescued"
+    ],
+    "representation_refinement": "not part of primary EMP-A to EMP-F test"
+  },
+  "flat_comparators": {
+    "common_primary_learner": "shallow3_hgb",
+    "inner_grouping": "same frozen model-pool groups and training background as SDMR",
+    "auc_oriented_flat_selector": {
+      "algorithm": "deterministic sequential forward selection over all 46 predictors by mean inner-spatial-CV ROC AUC",
+      "maximum_predictors": 8,
+      "stopping": "evaluate prefixes 1..8 and choose maximum mean AUC; ties fewer predictors then lexicographic sequence"
+    },
+    "correlation_vif_flat_filter": {
+      "algorithm": "VIF pruning on training-background environmental predictors only",
+      "vif_threshold": 5,
+      "deterministic_tie_break": "lexicographic predictor name"
+    },
+    "matched_learner_flat_predictive_selector": {
+      "primary_comparator": true,
+      "algorithm": "deterministic sequential forward selection over all 46 predictors by mean inner-spatial-CV balanced log score",
+      "maximum_predictors": 8,
+      "stopping": "evaluate prefixes 1..8 and choose maximum mean balanced log score; ties fewer predictors then lexicographic sequence"
+    }
+  },
+  "denominator_and_failure_rules": {
+    "declared_taxa": 50,
+    "no_taxon_drop": true,
+    "no_taxon_replacement": true,
+    "no_predictor_drop_after_feature_open": true,
+    "unavailable_taxon_primary_gain": 0,
+    "unavailable_taxon_guardrail_pass": false,
+    "unavailable_or_unresolved_process_cells_count_as_stable": false,
+    "failed_declared_route_cannot_be_silently_omitted": true,
+    "unavailable_taxon_auc_difference": null
+  },
+  "promotion": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "EMP-A": "mean taxon-level balanced-log-score gain >= 0.01",
+    "EMP-B": "paired taxon bootstrap 95% lower bound > 0",
+    "EMP-C": "mean paired AUC difference >= -0.02",
+    "EMP-D": "stable process fraction >= 0.80 under frozen 50x6 denominator",
+    "EMP-E": "abstention-integrity violations = 0",
+    "EMP-F": "all 50 declared taxa retained"
+  },
+  "answer_check_opening_order": [
+    "preeligibility must freeze exact final50",
+    "feature gate must terminally pass",
+    "run all model-pool SDMR process states and flat comparator selections",
+    "freeze per-taxon process states retained predictor sets comparator sets and fitted-model specifications",
+    "only then materialize answer-check coordinates/environmental values once",
+    "score all frozen routes on same sealed answer-check occurrences and frozen 1000-row evaluation background",
+    "apply EMP-A through EMP-F without retuning"
+  ],
+  "prohibited": [
+    "change EMP thresholds after feature or answer-check values are seen",
+    "change learner hyperparameters after model fitting begins",
+    "change background train/evaluation split",
+    "change process margin adequacy floor permutation gate or stability rule after fitting",
+    "use answer-check outcomes for process-state classification or predictor selection",
+    "drop unavailable taxa or unresolved process cells from declared denominators",
+    "bind a cohort other than the first 50 jointly eligible taxa from frozen v5 preeligibility"
+  ]
+}
