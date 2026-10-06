@@ -108,28 +108,39 @@ def test_vif_pruning_is_deterministic_on_collinear_background():
 def test_background_groups_are_anchored_before_complete_case_filtering():
     from sdmr.process_id.fresh.model_pool_v5 import _taxon_training_tables
 
-    locations=pd.DataFrame({
-        "location_id":[1,2,3,4],
-        "p":[0.0,1.0,0.2,0.8],
-    })
+    # Satisfy the frozen production denominator (>=50 complete model rows and
+    # >=50 training-background rows) while retaining one deliberately
+    # incomplete occurrence as the only right-side spatial anchor.
+    model_n=51
+    background_n=63
+    model_location_ids=list(range(1,model_n+1))
+    background_location_ids=list(range(model_n+1,model_n+background_n+1))
+    complete_left_longitudes=[i*0.01 for i in range(50)]
     model_index=pd.DataFrame({
-        "scientific_name":["Taxon A","Taxon A"],
-        "occurrence_id":["left","right"],
-        "longitude":[0.0,10.0],
-        "latitude":[0.0,0.0],
-        "spatial_block":[1,9],
-        "location_id":[1,2],
-        # right anchor is environmentally incomplete but must still define bg group.
-        "complete_case":[True,False],
+        "scientific_name":["Taxon A"]*model_n,
+        "occurrence_id":[f"left-{i:02d}" for i in range(50)]+["right"],
+        "longitude":complete_left_longitudes+[10.0],
+        "latitude":[0.0]*model_n,
+        "spatial_block":[1]*50+[9],
+        "location_id":model_location_ids,
+        # The right anchor is environmentally incomplete but must still define
+        # background CV grouping before complete-case filtering.
+        "complete_case":[True]*50+[False],
     })
+    bg_longitudes=[0.1,9.9]+[0.2+(i%20)*0.005 for i in range(background_n-2)]
     background_index=pd.DataFrame({
-        "scientific_name":["Taxon A","Taxon A"],
-        "background_rank":[1,2],
-        "longitude":[0.1,9.9],
-        "latitude":[0.0,0.0],
-        "location_id":[3,4],
-        "complete_case":[True,True],
+        "scientific_name":["Taxon A"]*background_n,
+        "background_rank":list(range(1,background_n+1)),
+        "longitude":bg_longitudes,
+        "latitude":[0.0]*background_n,
+        "location_id":background_location_ids,
+        "complete_case":[True]*background_n,
     })
+    locations=pd.DataFrame({
+        "location_id":model_location_ids+background_location_ids,
+        "p":[0.0]*model_n+[0.2+0.001*i for i in range(background_n)],
+    })
+
     model,bg=_taxon_training_tables(
         taxon="Taxon A",
         locations=locations,
@@ -137,7 +148,8 @@ def test_background_groups_are_anchored_before_complete_case_filtering():
         background_index=background_index,
         predictors=("p",),
     )
-    assert len(model)==1
+    assert len(model)==50
+    assert len(bg)>=50
     got=dict(zip(bg.background_rank,bg.spatial_block))
     assert got[1]==1
     assert got[2]==9
