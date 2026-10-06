@@ -45,6 +45,7 @@ jobs:
           feature=json.load(open('configs/sdmr_fresh_empirical_v5_feature_artifact_receipt.json'))
           occurrence=json.load(open('configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json'))
           binding=json.load(open('configs/sdmr_fresh_empirical_v5_model_cohort_binding.json'))
+          capacity=json.load(open('configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json'))
           receipt=json.load(open(receipt_path))
 
           if receipt.get('program')!='sdmr-fresh-empirical-v5-model-pool-freeze-execution':
@@ -61,6 +62,14 @@ jobs:
               raise SystemExit('v5 model cohort binding differs from frozen final50')
           if int(binding.get('taxon_count',-1))!=50:
               raise SystemExit('v5 model cohort binding denominator changed')
+          if capacity.get('schema')!='sdmr.fresh_empirical_v5_capacity_control_amendment.v1':
+              raise SystemExit('wrong v5 capacity-control amendment')
+          if capacity.get('status')!='frozen_pre_model_fit_pre_answer_check':
+              raise SystemExit('capacity control was not frozen pre-outcome')
+          if capacity.get('added_report_only_route',{}).get('name')!='full_46_flat_hgb':
+              raise SystemExit('full46 capacity-control route changed')
+          if capacity.get('original_promotion',{}).get('EMP_A_to_EMP_F_unchanged') is not True:
+              raise SystemExit('capacity control changed original EMP promotion')
 
           for key in ('answer_check_access_allowed','answer_check_features_allowed','EMP_outcomes_allowed'):
               if receipt.get(key) is not False:
