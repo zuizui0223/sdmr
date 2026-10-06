@@ -977,6 +977,7 @@ def aggregate_taxon_freezes(
         raise RuntimeError(f"expected 50 taxon model receipts; found {len(receipts)}")
 
     rows=[]; route=[]; stable=[]; auth=[]; selector=[]
+    full46_frozen_taxa=0
     for path in receipts:
         r=json.loads(path.read_text(encoding="utf-8"))
         rank=int(r["selection_rank"]); taxon=str(r["scientific_name"])
@@ -1000,6 +1001,18 @@ def aggregate_taxon_freezes(
                 mp=parent/spec["model_file"]
                 if _sha256(mp)!=spec["model_sha256"]:
                     raise RuntimeError(f"serialized model SHA mismatch: {taxon}/{spec['model_file']}")
+        full46=r["predictor_sets"].get("full_46_flat_hgb")
+        if (
+            isinstance(full46,dict)
+            and full46.get("available") is True
+            and int(full46.get("predictor_count",-1))==EXPECTED_PREDICTORS
+            and len(tuple(full46.get("predictors",())))==EXPECTED_PREDICTORS
+            and full46.get("model_file")
+            and full46.get("model_sha256")
+        ):
+            full46_frozen_taxa+=1
+        else:
+            raise RuntimeError(f"full46 capacity-control route not frozen for {taxon}")
         rows.append(r)
         x=pd.read_csv(parent/"route_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);route.append(x)
         x=pd.read_csv(parent/"stable_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);stable.append(x)
@@ -1008,6 +1021,10 @@ def aggregate_taxon_freezes(
 
     if sorted(int(r["selection_rank"]) for r in rows)!=list(range(1,EXPECTED_TAXA+1)):
         raise RuntimeError("taxon model freeze ranks are not exactly 1..50")
+    if full46_frozen_taxa!=EXPECTED_TAXA:
+        raise RuntimeError(
+            f"full46 capacity-control denominator changed: {full46_frozen_taxa}/{EXPECTED_TAXA}"
+        )
     stable_df=pd.concat(stable,ignore_index=True)
     denominator=EXPECTED_TAXA*EXPECTED_PROCESSES
     stable_sharp=int(stable_df["stable_sharp"].astype(bool).sum())
@@ -1034,6 +1051,8 @@ def aggregate_taxon_freezes(
         "stable_process_fraction":float(stable_sharp/denominator),
         "sdmr_primary_available_taxa":available_taxa,
         "sdmr_primary_unavailable_taxa":EXPECTED_TAXA-available_taxa,
+        "full46_capacity_control_frozen_taxa":full46_frozen_taxa,
+        "capacity_control_affects_emp_promotion":False,
         "taxon_summary_sha256":_sha256(summary_path),
         "route_states_sha256":_sha256(route_path),
         "stable_states_sha256":_sha256(stable_path),
