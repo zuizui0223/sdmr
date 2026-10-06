@@ -103,3 +103,41 @@ def test_vif_pruning_is_deterministic_on_collinear_background():
     second=vif_prune(x.sample(frac=1.0,random_state=7),("a","b","c"),threshold=5.0)
     assert first==second
     assert len(first)>=1
+
+
+def test_background_groups_are_anchored_before_complete_case_filtering():
+    from sdmr.process_id.fresh.model_pool_v5 import _taxon_training_tables
+
+    locations=pd.DataFrame({
+        "location_id":[1,2,3,4],
+        "p":[0.0,1.0,0.2,0.8],
+    })
+    model_index=pd.DataFrame({
+        "scientific_name":["Taxon A","Taxon A"],
+        "occurrence_id":["left","right"],
+        "longitude":[0.0,10.0],
+        "latitude":[0.0,0.0],
+        "spatial_block":[1,9],
+        "location_id":[1,2],
+        # right anchor is environmentally incomplete but must still define bg group.
+        "complete_case":[True,False],
+    })
+    background_index=pd.DataFrame({
+        "scientific_name":["Taxon A","Taxon A"],
+        "background_rank":[1,2],
+        "longitude":[0.1,9.9],
+        "latitude":[0.0,0.0],
+        "location_id":[3,4],
+        "complete_case":[True,True],
+    })
+    model,bg=_taxon_training_tables(
+        taxon="Taxon A",
+        locations=locations,
+        model_index=model_index,
+        background_index=background_index,
+        predictors=("p",),
+    )
+    assert len(model)==1
+    got=dict(zip(bg.background_rank,bg.spatial_block))
+    assert got[1]==1
+    assert got[2]==9
