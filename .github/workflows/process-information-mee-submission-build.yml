@@ -1,0 +1,100 @@
+name: Build MEE process-information submission package
+
+on:
+  push:
+    branches:
+      - release/process-information-mee-submission-v1
+    paths:
+      - 'manuscript/**'
+      - 'scripts/build_process_information_anonymous_review_bundle.py'
+      - '.github/workflows/process-information-mee-submission-build.yml'
+      - 'results/sdmr_v6_prospective_kt_v2_metrics.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build dependencies
+        run: python -m pip install -e '.[test]' matplotlib
+      - name: Build final figures
+        run: |
+          python manuscript/figures/build_process_information_figures.py             --output-dir build/mee/figures
+          test $(find build/mee/figures -name '*.svg' | wc -l) -eq 4
+      - name: Build anonymous reviewer bundle
+        run: |
+          python scripts/build_process_information_anonymous_review_bundle.py             --output build/mee/anonymous_process_information_review_bundle.zip
+      - name: Assemble review package
+        run: |
+          mkdir -p build/mee/review build/mee/editorial
+          cp manuscript/PROCESS_INFORMATION_MEE_SUBMISSION_V1.md build/mee/review/
+          cp build/mee/figures/*.svg build/mee/review/
+          cp build/mee/anonymous_process_information_review_bundle.zip build/mee/review/
+          cp manuscript/COVER_LETTER_MEE_V1.md build/mee/editorial/
+          cp manuscript/PRESUBMISSION_INQUIRY_MEE_V1.md build/mee/editorial/
+          cp manuscript/TITLE_PAGE_MEE_TEMPLATE_V1.md build/mee/editorial/
+          cp manuscript/MEE_SUBMISSION_READINESS_V1.md build/mee/editorial/
+      - name: Audit double-anonymous review package
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, zipfile
+          root=Path('build/mee/review')
+          patterns=[
+            re.compile(r'zuizui0223',re.I),
+            re.compile(r'github\.com/zuizui0223',re.I),
+            re.compile(r'@tohoku\.ac\.jp',re.I),
+            re.compile(r'/Users/',re.I),
+            re.compile(r'C:\\Users\\',re.I),
+          ]
+          for path in root.rglob('*'):
+              if path.is_file() and path.suffix.lower() in {'.md','.svg','.txt','.json','.csv','.py'}:
+                  text=path.read_text(encoding='utf-8',errors='ignore')
+                  for p in patterns:
+                      if p.search(text):
+                          raise SystemExit(f'identity leak: {path}: {p.pattern}')
+          z=root/'anonymous_process_information_review_bundle.zip'
+          if not z.exists():
+              raise SystemExit('anonymous bundle missing')
+          with zipfile.ZipFile(z) as arc:
+              if not any(name.endswith('MANIFEST.json') for name in arc.namelist()):
+                  raise SystemExit('anonymous bundle manifest missing')
+          PY
+      - name: Record build manifest
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('build/mee')
+          rows=[]
+          for p in sorted(root.rglob('*')):
+              if p.is_file():
+                  rows.append({
+                    'path':str(p.relative_to(root)),
+                    'bytes':p.stat().st_size,
+                    'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+                  })
+          (root/'BUILD_MANIFEST.json').write_text(json.dumps({'files':rows},indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-information-mee-review-files
+          path: build/mee/review
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-information-mee-editorial-files
+          path: build/mee/editorial
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-information-mee-build-manifest
+          path: build/mee/BUILD_MANIFEST.json
+          if-no-files-found: error
