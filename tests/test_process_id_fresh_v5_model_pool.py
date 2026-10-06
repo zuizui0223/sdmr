@@ -1,0 +1,105 @@
+import pandas as pd
+import pytest
+
+from sdmr.process_id.fresh.model_pool_v5 import (
+    _nearest_occurrence_blocks,
+    attach_occurrence_spatial_blocks,
+    sdmr_retained_predictors,
+    stable_process_states,
+    validate_model_design,
+    vif_prune,
+)
+
+
+def test_v5_model_design_runtime_matches_frozen_contract():
+    c=validate_model_design("configs/sdmr_fresh_empirical_v5_model_design.json")
+    assert c["cohort_binding"]["exact_taxa"]==50
+    assert c["predictor_and_process_universe"]["predictor_count"]==46
+    assert c["process_identification"]["stage_p"]["n_inner_splits"]==3
+    assert c["process_identification"]["stage_p"]["full_system_authorization"]["n_permutations"]==999
+    assert c["model_pool_background_split"]["training_rows_per_taxon"]==4000
+
+
+def test_stable_states_fail_closed_on_disagreement_and_unavailable():
+    routes=pd.DataFrame([
+        {"learner_route":"penalized_logistic","process":"thermal","state":"required"},
+        {"learner_route":"shallow3_hgb","process":"thermal","state":"required"},
+        {"learner_route":"penalized_logistic","process":"water","state":"replaceable"},
+        {"learner_route":"shallow3_hgb","process":"water","state":"contributory"},
+        {"learner_route":"penalized_logistic","process":"seasonality","state":"unavailable"},
+        {"learner_route":"shallow3_hgb","process":"seasonality","state":"required"},
+        {"learner_route":"penalized_logistic","process":"radiation_energy","state":"replaceable"},
+        {"learner_route":"shallow3_hgb","process":"radiation_energy","state":"replaceable"},
+        {"learner_route":"penalized_logistic","process":"soil_substrate","state":"contributory"},
+        {"learner_route":"shallow3_hgb","process":"soil_substrate","state":"contributory"},
+        {"learner_route":"penalized_logistic","process":"productivity","state":"unresolved"},
+        {"learner_route":"shallow3_hgb","process":"productivity","state":"replaceable"},
+    ])
+    stable=stable_process_states(routes).set_index("process")
+    assert stable.loc["thermal","stable_state"]=="required"
+    assert stable.loc["water","stable_state"]=="unresolved"
+    assert stable.loc["seasonality","stable_state"]=="unavailable"
+    assert stable.loc["radiation_energy","stable_state"]=="replaceable"
+    assert stable.loc["soil_substrate","stable_state"]=="contributory"
+    assert stable.loc["productivity","stable_state"]=="unresolved"
+
+
+def test_sdmr_drops_predictor_only_when_every_mapped_process_replaceable():
+    registry=pd.DataFrame([
+        {"predictor":"a","process":"thermal","role":"direct"},
+        {"predictor":"b","process":"thermal","role":"proxy"},
+        {"predictor":"b","process":"water","role":"composite"},
+        {"predictor":"c","process":"water","role":"direct"},
+    ])
+    states=pd.DataFrame([
+        {"process":"thermal","stable_state":"replaceable"},
+        {"process":"water","stable_state":"required"},
+    ])
+    retained=sdmr_retained_predictors(
+        registry=registry,
+        stable_states=states,
+        predictors=("a","b","c"),
+    )
+    assert retained==("b","c")
+
+
+def test_nearest_occurrence_block_assignment_uses_frozen_occurrence_labels():
+    occ=pd.DataFrame({
+        "occurrence_id":["b","a"],
+        "longitude":[1.0,0.0],
+        "latitude":[0.0,0.0],
+        "spatial_block":[7,3],
+    })
+    bg=pd.DataFrame({"longitude":[0.1,0.9],"latitude":[0.0,0.0]})
+    blocks=_nearest_occurrence_blocks(occ,bg)
+    assert blocks.tolist()==[3,7]
+
+
+def test_attach_occurrence_spatial_blocks_is_one_to_one(tmp_path):
+    source=pd.DataFrame({
+        "scientific_name":["Taxon A","Taxon A"],
+        "occurrence_id":["a","b"],
+        "spatial_block":[2,5],
+    })
+    p=tmp_path/"occ.csv";source.to_csv(p,index=False)
+    index=pd.DataFrame({
+        "scientific_name":["Taxon A","Taxon A"],
+        "occurrence_id":["b","a"],
+        "location_id":[11,10],
+        "complete_case":[True,True],
+    })
+    out=attach_occurrence_spatial_blocks(index,occurrence_model_pool_path=p)
+    got=dict(zip(out.occurrence_id,out.spatial_block))
+    assert got=={"a":2,"b":5}
+
+
+def test_vif_pruning_is_deterministic_on_collinear_background():
+    x=pd.DataFrame({
+        "a":[0.,1.,2.,3.,4.,5.],
+        "b":[0.,2.,4.,6.,8.,10.],
+        "c":[1.,0.,1.,0.,1.,0.],
+    })
+    first=vif_prune(x,("a","b","c"),threshold=5.0)
+    second=vif_prune(x.sample(frac=1.0,random_state=7),("a","b","c"),threshold=5.0)
+    assert first==second
+    assert len(first)>=1
