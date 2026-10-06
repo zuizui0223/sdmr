@@ -1,0 +1,32 @@
+{
+  "program": "sdmr-fresh-empirical-v5-all46-compact-recovery",
+  "one_shot": true,
+  "frozen_implementation_sha": "1e3fee36d2a92aa7fd4263380d7a2d9f18bd6765",
+  "source_run": 37468504591,
+  "source_run_reason": "runner_starvation_large_matrix_execution_only",
+  "execution_geometry_only": true,
+  "scientific_runtime_unchanged": "src/sdmr/process_id/fresh/cohort_v5_all46_support.py",
+  "original_jobs_total": 172,
+  "compact_execution_jobs": "6 CHELSA batches + 16 SoilGrids batches + preflight/input/assemble/aggregate",
+  "source_candidate_level_eligibility_opened": false,
+  "source_final50_opened": false,
+  "partial_artifact_values_reused": false,
+  "threshold_change_allowed": false,
+  "candidate_reordering_allowed": false,
+  "taxon_replacement_allowed": false,
+  "predictor_deletion_allowed": false,
+  "answer_check_access_allowed": false,
+  "model_fitting_allowed": false,
+  "persist_numeric_environmental_values": false,
+  "blob_sha": {
+    ".github/workflows/sdmr-fresh-empirical-v5-all46-compact-recovery.yml": "ede4a3de15fd8b3d1f66fd4616c70296c61f2161",
+    "src/sdmr/process_id/fresh/cohort_v5_all46_support.py": "5b8cca4753b7debace2fffe28f976a400ca912f5",
+    "configs/sdmr_fresh_empirical_v5_preeligibility.json": "8607dd997ab717415556e1a384c9e4be72636515",
+    "configs/sdmr_fresh_empirical_v5_candidate_artifact_receipt.json": "7445ee9a42e75685a0b51e7d0dd6c4c7eb2549b0",
+    "configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json": "6d3f02f3d45cefca7052d63eec4252bb4f69bffc",
+    "configs/sdmr_fresh_empirical_v5_background_artifact_receipt.json": "a27793fa700a5698d242ea4af8159bad513c08f4",
+    "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+    "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa",
+    "tests/test_process_id_fresh_v5_all46_support.py": "5da3b55d96de2cfeae1efdd4e8836560583dc741"
+  }
+}
