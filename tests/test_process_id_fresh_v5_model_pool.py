@@ -8,6 +8,8 @@ from sdmr.process_id.fresh.model_pool_v5 import (
     stable_process_states,
     validate_model_design,
     vif_prune,
+    final_predictor_sets,
+    TaxonModelFreeze,
 )
 
 
@@ -171,3 +173,33 @@ def test_route_failure_is_recorded_as_unavailable_not_taxon_drop(monkeypatch):
     assert set(states["process"]) == set(m.DEFAULT_PLANT_PROCESSES)
     assert evidence.empty
     assert auth["authorized"] is False
+
+
+def test_full46_capacity_control_uses_exact_full_predictor_universe():
+    predictors=tuple(f"p{i:02d}" for i in range(46))
+    frozen=TaxonModelFreeze(
+        taxon="T",
+        route_states=pd.DataFrame(),
+        stable_states=pd.DataFrame(),
+        process_evidence=pd.DataFrame(),
+        authorization=pd.DataFrame(),
+        sdmr_predictors=("p00","p01"),
+        flat_balanced_predictors=("p00",),
+        flat_auc_predictors=("p01",),
+        vif_predictors=("p02",),
+        selector_audit=pd.DataFrame(),
+    )
+    routes=final_predictor_sets(frozen=frozen,predictors=predictors)
+    assert routes["full_46_flat_hgb"]==predictors
+    assert len(routes["full_46_flat_hgb"])==46
+    assert routes["sdmr_process_first"]==("p00","p01")
+
+
+def test_capacity_control_amendment_does_not_change_emp_gates():
+    import json
+    from pathlib import Path
+    p=json.loads(Path("configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json").read_text())
+    assert p["status"]=="frozen_pre_model_fit_pre_answer_check"
+    assert p["original_promotion"]["EMP_A_to_EMP_F_unchanged"] is True
+    assert p["added_report_only_route"]["name"]=="full_46_flat_hgb"
+    assert p["interpretation_boundary"]["does_not_affect_EMP_promotion"] is True
