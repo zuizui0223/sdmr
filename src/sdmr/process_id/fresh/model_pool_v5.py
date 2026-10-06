@@ -897,6 +897,8 @@ def run_taxon_freeze(
         "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
         "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
         "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
+        # Pre-outcome capacity control: same learner, no selection, full frozen universe.
+        "full_46_flat_hgb":tuple(predictors),
     }
     for name,predictor_set in predictor_sets.items():
         available=bool(predictor_set) and (name!="sdmr_process_first" or sdmr_available)
