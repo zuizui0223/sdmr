@@ -17,6 +17,7 @@ answer-check occurrence coordinates/features or evaluates EMP outcomes.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import argparse
 import hashlib
 import json
 import math
@@ -703,3 +704,276 @@ def load_inputs(
         occurrence_model_pool_path=occurrence_model_pool_path,
     )
     return selected, locations, model_index, background_index, predictors, registry
+
+
+def _fit_final_hgb(
+    model: pd.DataFrame,
+    background: pd.DataFrame,
+    predictors: Sequence[str],
+):
+    if not predictors:
+        raise ValueError("final HGB fit requires at least one predictor")
+    occ=model.copy(); bg=background.copy()
+    occ["label"]=1; bg["label"]=0
+    sample=pd.concat([occ,bg],ignore_index=True,sort=False)
+    x=sample.loc[:,list(predictors)].to_numpy(float)
+    y=sample["label"].to_numpy(int)
+    if not np.isfinite(x).all() or len(np.unique(y))!=2:
+        raise ValueError("final HGB fit requires finite two-class training data")
+    fitted=HistGradientBoostingClassifier(
+        loss="log_loss",random_state=0,**get_hgb_profile("shallow3")
+    )
+    fitted.fit(x,y,sample_weight=_hgb_balanced_sample_weight(y))
+    return fitted
+
+
+def run_taxon_freeze(
+    *,
+    selection_rank: int,
+    feature_root: str | Path,
+    selected_path: str | Path,
+    occurrence_model_pool_path: str | Path,
+    process_registry_path: str | Path,
+    model_design_path: str | Path,
+    output_dir: str | Path,
+) -> dict:
+    import joblib
+
+    selected,locations,model_index,background_index,predictors,registry=load_inputs(
+        feature_root=feature_root,
+        selected_path=selected_path,
+        process_registry_path=process_registry_path,
+        model_design_path=model_design_path,
+        occurrence_model_pool_path=occurrence_model_pool_path,
+    )
+    rank=int(selection_rank)
+    if not 1<=rank<=EXPECTED_TAXA:
+        raise ValueError("selection_rank must be in 1..50")
+    row=selected.loc[pd.to_numeric(selected["selection_rank"],errors="raise").astype(int).eq(rank)]
+    if len(row)!=1:
+        raise ValueError("selection_rank does not map to exactly one frozen taxon")
+    taxon=str(row.iloc[0]["scientific_name"])
+
+    frozen=freeze_taxon_model_pool(
+        taxon=taxon,
+        locations=locations,
+        model_index=model_index,
+        background_index=background_index,
+        predictors=predictors,
+        registry=registry,
+    )
+    model,background=_taxon_training_tables(
+        taxon=taxon,
+        locations=locations,
+        model_index=model_index,
+        background_index=background_index,
+        predictors=predictors,
+    )
+    auth_map=dict(zip(
+        frozen.authorization["learner_route"].astype(str),
+        frozen.authorization["authorized"].astype(bool),
+        strict=True,
+    ))
+    sdmr_available=bool(
+        auth_map.get("penalized_logistic",False)
+        and auth_map.get("shallow3_hgb",False)
+        and len(frozen.sdmr_predictors)>0
+    )
+
+    out=Path(output_dir);out.mkdir(parents=True,exist_ok=True)
+    route_path=out/"route_states.csv"
+    stable_path=out/"stable_states.csv"
+    evidence_path=out/"process_evidence.csv"
+    auth_path=out/"full_system_authorization.csv"
+    selector_path=out/"selector_audit.csv"
+    frozen.route_states.to_csv(route_path,index=False)
+    frozen.stable_states.to_csv(stable_path,index=False)
+    frozen.process_evidence.to_csv(evidence_path,index=False)
+    frozen.authorization.to_csv(auth_path,index=False)
+    frozen.selector_audit.to_csv(selector_path,index=False)
+
+    model_specs={}
+    predictor_sets={
+        "sdmr_process_first":tuple(frozen.sdmr_predictors),
+        "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
+        "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
+        "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
+    }
+    for name,predictor_set in predictor_sets.items():
+        available=bool(predictor_set) and (name!="sdmr_process_first" or sdmr_available)
+        model_path=None
+        if available:
+            fitted=_fit_final_hgb(model,background,predictor_set)
+            model_path=out/f"{name}.joblib"
+            joblib.dump(fitted,model_path,compress=3)
+        model_specs[name]={
+            "available":available,
+            "learner":"shallow3_hgb",
+            "predictors":list(predictor_set),
+            "predictor_count":len(predictor_set),
+            "model_file":model_path.name if model_path is not None else None,
+            "model_sha256":_sha256(model_path) if model_path is not None else None,
+        }
+
+    result={
+        "program":PROGRAM,
+        "status":"taxon_model_pool_frozen",
+        "selection_rank":rank,
+        "scientific_name":taxon,
+        "predictor_count":len(predictors),
+        "process_count":len(DEFAULT_PLANT_PROCESSES),
+        "model_pool_complete_occurrences":int(len(model)),
+        "training_background_complete_rows":int(len(background)),
+        "full_system_authorized_logistic":bool(auth_map["penalized_logistic"]),
+        "full_system_authorized_hgb":bool(auth_map["shallow3_hgb"]),
+        "sdmr_primary_available":sdmr_available,
+        "stable_sharp_processes":int(frozen.stable_states["stable_sharp"].astype(bool).sum()),
+        "stable_process_denominator":EXPECTED_PROCESSES,
+        "predictor_sets":model_specs,
+        "route_states_sha256":_sha256(route_path),
+        "stable_states_sha256":_sha256(stable_path),
+        "process_evidence_sha256":_sha256(evidence_path),
+        "authorization_sha256":_sha256(auth_path),
+        "selector_audit_sha256":_sha256(selector_path),
+        "answer_check_accessed":False,
+        "answer_check_features_read":False,
+        "model_pool_only":True,
+    }
+    (out/"taxon_model_freeze.json").write_text(
+        json.dumps(result,indent=2,sort_keys=True)+"\n",encoding="utf-8"
+    )
+    return result
+
+
+def aggregate_taxon_freezes(
+    *,
+    taxon_root: str | Path,
+    selected_path: str | Path,
+    output_dir: str | Path,
+) -> dict:
+    selected=pd.read_csv(selected_path)
+    if len(selected)!=EXPECTED_TAXA:
+        raise ValueError("aggregate requires exact final50 manifest")
+    expected=dict(zip(
+        pd.to_numeric(selected["selection_rank"],errors="raise").astype(int),
+        selected["scientific_name"].astype(str),
+        strict=True,
+    ))
+    root=Path(taxon_root)
+    receipts=sorted(root.rglob("taxon_model_freeze.json"))
+    if len(receipts)!=EXPECTED_TAXA:
+        raise RuntimeError(f"expected 50 taxon model receipts; found {len(receipts)}")
+
+    rows=[]; route=[]; stable=[]; auth=[]; selector=[]
+    for path in receipts:
+        r=json.loads(path.read_text(encoding="utf-8"))
+        rank=int(r["selection_rank"]); taxon=str(r["scientific_name"])
+        if expected.get(rank)!=taxon:
+            raise RuntimeError(f"taxon model receipt does not match frozen final50: {rank}/{taxon}")
+        if r.get("answer_check_accessed") is not False or r.get("model_pool_only") is not True:
+            raise RuntimeError(f"taxon model freeze crossed answer-check boundary: {taxon}")
+        parent=path.parent
+        checks={
+            "route_states.csv":r["route_states_sha256"],
+            "stable_states.csv":r["stable_states_sha256"],
+            "process_evidence.csv":r["process_evidence_sha256"],
+            "full_system_authorization.csv":r["authorization_sha256"],
+            "selector_audit.csv":r["selector_audit_sha256"],
+        }
+        for filename,wanted in checks.items():
+            if _sha256(parent/filename)!=wanted:
+                raise RuntimeError(f"taxon model artifact SHA mismatch: {taxon}/{filename}")
+        for spec in r["predictor_sets"].values():
+            if spec["available"]:
+                mp=parent/spec["model_file"]
+                if _sha256(mp)!=spec["model_sha256"]:
+                    raise RuntimeError(f"serialized model SHA mismatch: {taxon}/{spec['model_file']}")
+        rows.append(r)
+        x=pd.read_csv(parent/"route_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);route.append(x)
+        x=pd.read_csv(parent/"stable_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);stable.append(x)
+        x=pd.read_csv(parent/"full_system_authorization.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);auth.append(x)
+        x=pd.read_csv(parent/"selector_audit.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);selector.append(x)
+
+    if sorted(int(r["selection_rank"]) for r in rows)!=list(range(1,EXPECTED_TAXA+1)):
+        raise RuntimeError("taxon model freeze ranks are not exactly 1..50")
+    stable_df=pd.concat(stable,ignore_index=True)
+    denominator=EXPECTED_TAXA*EXPECTED_PROCESSES
+    stable_sharp=int(stable_df["stable_sharp"].astype(bool).sum())
+    available_taxa=int(sum(bool(r["sdmr_primary_available"]) for r in rows))
+
+    out=Path(output_dir);out.mkdir(parents=True,exist_ok=True)
+    summary_path=out/"taxon_model_freeze_summary.csv"
+    route_path=out/"route_states_all_taxa.csv"
+    stable_path=out/"stable_states_all_taxa.csv"
+    auth_path=out/"full_system_authorization_all_taxa.csv"
+    selector_path=out/"selector_audit_all_taxa.csv"
+    pd.DataFrame(rows).drop(columns="predictor_sets").to_csv(summary_path,index=False)
+    pd.concat(route,ignore_index=True).to_csv(route_path,index=False)
+    stable_df.to_csv(stable_path,index=False)
+    pd.concat(auth,ignore_index=True).to_csv(auth_path,index=False)
+    pd.concat(selector,ignore_index=True).to_csv(selector_path,index=False)
+
+    result={
+        "program":PROGRAM,
+        "status":"model_pool_states_and_comparator_sets_frozen",
+        "taxon_count":EXPECTED_TAXA,
+        "process_cells":denominator,
+        "stable_sharp_process_cells":stable_sharp,
+        "stable_process_fraction":float(stable_sharp/denominator),
+        "sdmr_primary_available_taxa":available_taxa,
+        "sdmr_primary_unavailable_taxa":EXPECTED_TAXA-available_taxa,
+        "taxon_summary_sha256":_sha256(summary_path),
+        "route_states_sha256":_sha256(route_path),
+        "stable_states_sha256":_sha256(stable_path),
+        "authorization_sha256":_sha256(auth_path),
+        "selector_audit_sha256":_sha256(selector_path),
+        "answer_check_accessed":False,
+        "answer_check_features_read":False,
+        "model_pool_only":True,
+        "next_gate":"freeze_model_pool_artifact_provenance_then_open_answer_check_once",
+    }
+    (out/"model_pool_freeze_result.json").write_text(
+        json.dumps(result,indent=2,sort_keys=True)+"\n",encoding="utf-8"
+    )
+    return result
+
+
+def main() -> None:
+    parser=argparse.ArgumentParser()
+    sub=parser.add_subparsers(dest="command",required=True)
+    taxon=sub.add_parser("taxon")
+    taxon.add_argument("--selection-rank",type=int,required=True)
+    taxon.add_argument("--feature-root",required=True)
+    taxon.add_argument("--selected",required=True)
+    taxon.add_argument("--occurrence-model-pool",required=True)
+    taxon.add_argument("--process-registry",required=True)
+    taxon.add_argument("--model-design",required=True)
+    taxon.add_argument("--output-dir",required=True)
+
+    agg=sub.add_parser("aggregate")
+    agg.add_argument("--taxon-root",required=True)
+    agg.add_argument("--selected",required=True)
+    agg.add_argument("--output-dir",required=True)
+
+    args=parser.parse_args()
+    if args.command=="taxon":
+        result=run_taxon_freeze(
+            selection_rank=args.selection_rank,
+            feature_root=args.feature_root,
+            selected_path=args.selected,
+            occurrence_model_pool_path=args.occurrence_model_pool,
+            process_registry_path=args.process_registry,
+            model_design_path=args.model_design,
+            output_dir=args.output_dir,
+        )
+    else:
+        result=aggregate_taxon_freezes(
+            taxon_root=args.taxon_root,
+            selected_path=args.selected,
+            output_dir=args.output_dir,
+        )
+    print(json.dumps(result,indent=2,sort_keys=True))
+
+
+if __name__=="__main__":
+    main()
