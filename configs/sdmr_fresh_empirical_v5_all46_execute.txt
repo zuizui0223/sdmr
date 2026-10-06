@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v5-all46
+execution_receipt_commit=4097b7d5e2eefccacd6a8a31b4298712b1a43d51
+frozen_implementation_commit=3d7ac6de3fba5d326eb61fbe60e1a839d7b585e7
+candidate_count=120
+geometry_eligible_count=120
+predictor_count=46
+persist_numeric_environmental_values=false
+answer_check_support=false
+model_fitting=false
+execute_once=true
