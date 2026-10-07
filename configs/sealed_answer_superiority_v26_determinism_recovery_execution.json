@@ -1,0 +1,11 @@
+{
+  "program": "sealed-answer-superiority-v26-determinism-recovery-execution",
+  "one_shot": true,
+  "truth_blind_only": true,
+  "truth_open_allowed": false,
+  "frozen_source_sha": "6165750952bfb07a54d8cb9a9c066096a917c25d",
+  "predecessor_run": 35205828384,
+  "predecessor_truth_opened": false,
+  "only_change": "single-thread runtime determinism controls",
+  "exact_receipt_hash_match_required": true
+}
