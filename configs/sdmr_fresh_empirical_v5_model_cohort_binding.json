@@ -1,0 +1,22 @@
+{
+  "schema": "sdmr.fresh_empirical_v5_model_cohort_binding.v1",
+  "status": "bound_after_preeligibility_before_model_fit",
+  "selected_manifest_sha256": "fb845485a1415c1fe3c2366d44834b194fe8b7a183718bd5cd69123f6ad79e27",
+  "taxon_count": 50,
+  "selection_source": {
+    "program": "sdmr-fresh-empirical-v5-preeligibility",
+    "workflow_run": 37483898817,
+    "artifact_id": 11434387420,
+    "rule": "first 50 jointly geometry-plus-all46 eligible taxa in frozen candidate order"
+  },
+  "feature_gate": {
+    "workflow_run": 37545674411,
+    "status": "v5_feature_gate_passed",
+    "taxa_passing_complete_case_gate": 50
+  },
+  "forbidden": [
+    "taxon_replacement",
+    "taxon_drop",
+    "taxon_reordering"
+  ]
+}
