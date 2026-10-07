@@ -1,7 +1,7 @@
 {
   "program": "sdmr-fresh-empirical-v5-sealed-validation-execution",
   "one_shot": true,
-  "frozen_implementation_sha": "b5bba020ac8d093abd4a71b3e44fb3c23f585dd6",
+  "frozen_implementation_sha": "ed93f6262efb3e6c624bdde882b7d92b074c5ac3",
   "taxon_count": 50,
   "predictor_count": 46,
   "process_cells": 300,
@@ -14,7 +14,7 @@
   "background_resampling_allowed": false,
   "blob_sha": {
     "src/sdmr/process_id/fresh/sealed_validation_v5.py": "1fc4a6091ff29f145dc071cff390faaca9188942",
-    ".github/workflows/sdmr-fresh-empirical-v5-sealed-validation.yml": "b5806cf788bf0ff50f05afce7823dc73038ad076",
+    ".github/workflows/sdmr-fresh-empirical-v5-sealed-validation.yml": "d2dad0388c9daa6ee6f68b30a8239b0eb6afae17",
     "configs/sdmr_fresh_empirical_v5_sealed_validation.json": "e25ce6c8cab586a921564edf62b4100791cb1867",
     "tests/test_process_id_fresh_v5_sealed_validation.py": "b3427c720094115a9fc1b78366459550a26d861c",
     "configs/sdmr_fresh_empirical_v5_all46_artifact_receipt.json": "4771b6e286a471693b39c2814747d408280773ee",
@@ -24,5 +24,7 @@
     "configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json": "057db86214cdcacb76c758dd0c06367400823a60",
     "configs/sdmr_fresh_empirical_process_registry_v1.csv": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
     "configs/chelsa_v2_1_plant_candidates.csv": "fd680b076df1fba2ce8c3c5c6a64ae151885c0fa"
-  }
+  },
+  "supersedes_unexecuted_receipt_commit": "bbcc00141560ccab1c550bbe5fa840ad046dd407",
+  "execution_wiring_change_only": true
 }
