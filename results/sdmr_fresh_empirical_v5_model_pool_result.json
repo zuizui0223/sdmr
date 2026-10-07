@@ -1,0 +1,21 @@
+{
+  "answer_check_accessed": false,
+  "answer_check_features_read": false,
+  "authorization_sha256": "8ce83beaefb6aa1f9996452e0835a0e9531386e26180db4760bf3847535cd475",
+  "capacity_control_affects_emp_promotion": false,
+  "full46_capacity_control_frozen_taxa": 50,
+  "model_pool_only": true,
+  "next_gate": "freeze_model_pool_artifact_provenance_then_open_answer_check_once",
+  "process_cells": 300,
+  "program": "sdmr-fresh-empirical-v5-model-pool-freeze",
+  "route_states_sha256": "1f73e1a65d0b73920309fd4282f813cc0c16c3b285b2432f24b101e4eb7b41b5",
+  "sdmr_primary_available_taxa": 10,
+  "sdmr_primary_unavailable_taxa": 40,
+  "selector_audit_sha256": "0bbd6280f690dad4ccde1160146a8dfba6d0a4ffd9c83614016b934020f1bfbe",
+  "stable_process_fraction": 0.05333333333333334,
+  "stable_sharp_process_cells": 16,
+  "stable_states_sha256": "bf4f2fe613da6998d96268b98804522457898e2eabc9cf64742c3f98ad712bf8",
+  "status": "model_pool_states_and_comparator_sets_frozen",
+  "taxon_count": 50,
+  "taxon_summary_sha256": "0af07c6b01d861df82b2566e191a39fd3f1c007f2c7644e348c4c6b306513812"
+}
