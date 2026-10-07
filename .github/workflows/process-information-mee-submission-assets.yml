@@ -1,0 +1,73 @@
+name: Process-information MEE submission assets
+
+on:
+  push:
+    branches:
+      - paper/process-information-submission-assets-v1
+    paths:
+      - 'configs/process_information_submission_assets_execute.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install figure dependencies
+        run: python -m pip install matplotlib
+      - name: Build quantitative figures
+        run: |
+          mkdir -p build/process_information_submission/figures
+          python manuscript/figures/build_process_information_figures.py \
+            --metrics results/sdmr_v6_prospective_kt_v2_metrics.json \
+            --output-dir build/process_information_submission/figures
+      - name: Build anonymous reviewer bundle
+        run: |
+          python scripts/build_process_information_anonymous_review_bundle.py \
+            --output build/process_information_submission/anonymous_process_information_review_bundle.zip
+      - name: Build manuscript audit
+        run: |
+          python - <<'PY'
+          import hashlib, json, re
+          from pathlib import Path
+
+          root=Path('build/process_information_submission')
+          paper=Path('manuscript/PROCESS_INFORMATION_MEE_SUBMISSION_V1.md')
+          text=paper.read_text(encoding='utf-8')
+          words=re.findall(r"\b[\w'’-]+\b",text)
+          abstract=text.split('## Abstract',1)[1].split('## 1. Introduction',1)[0]
+          abstract_words=re.findall(r"\b[\w'’-]+\b",abstract)
+          files=[]
+          for p in sorted(root.rglob('*')):
+              if p.is_file():
+                  files.append({'path':str(p.relative_to(root)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size})
+          audit={
+            'program':'process-information-mee-submission-assets-v1',
+            'manuscript_words':len(words),
+            'abstract_words':len(abstract_words),
+            'manuscript_under_8000_words':len(words)<8000,
+            'abstract_under_350_words':len(abstract_words)<350,
+            'public_repo_url_in_manuscript':'github.com/zuizui0223' in text.lower(),
+            'username_in_manuscript':'zuizui0223' in text.lower(),
+            'generated_files':files,
+          }
+          if not audit['manuscript_under_8000_words'] or not audit['abstract_under_350_words']:
+              raise SystemExit('MEE word ceiling violated')
+          if audit['public_repo_url_in_manuscript'] or audit['username_in_manuscript']:
+              raise SystemExit('double-anonymous identity leak in manuscript')
+          (root/'submission_asset_audit.json').write_text(json.dumps(audit,indent=2)+'\n')
+          print(json.dumps(audit,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: process-information-mee-submission-assets-v1
+          path: build/process_information_submission/
+          if-no-files-found: error
+          retention-days: 90
