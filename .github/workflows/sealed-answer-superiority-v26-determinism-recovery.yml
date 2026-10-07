@@ -31,6 +31,7 @@ jobs:
           tests/test_sealed_answer_superiority_v26.py
           tests/test_sealed_answer_superiority_v26_prospective.py
           tests/test_sealed_answer_superiority_v26_terminal.py
+          tests/test_sealed_answer_superiority_v26_determinism_recovery.py
           tests/test_separating_evidence_refinement_v24.py
           tests/test_set_valued_attribution_v23.py
           tests/test_two_tier_process_support_v21.py
