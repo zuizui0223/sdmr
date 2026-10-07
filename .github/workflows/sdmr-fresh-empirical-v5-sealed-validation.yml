@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - execution/sdmr-fresh-v5-sealed-validation
+      - design/sdmr-fresh-v5-preeligibility
     paths:
       - configs/sdmr_fresh_empirical_v5_sealed_validation_execute.txt
 
