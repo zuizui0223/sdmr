@@ -1,0 +1,7 @@
+program=process-information-mee-submission-assets-v1
+source_commit=56b099f37ac114fe25d4aa4461ce5806854967ac
+canonical_m5_run=36212033498
+canonical_m5_artifact=10896590112
+generate_anonymous_bundle=true
+generate_quantitative_figures=true
+execute_once=true
