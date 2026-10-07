@@ -1,0 +1,24 @@
+{
+  "program": "sdmr-fresh-empirical-v5-model-pool-freeze-execution",
+  "one_shot": true,
+  "frozen_implementation_sha": "15772ca53370c73e5f7e889688fc3c38e1eaedea",
+  "taxon_count": 50,
+  "predictor_count": 46,
+  "process_count": 6,
+  "model_pool_fitting_allowed": true,
+  "answer_check_access_allowed": false,
+  "answer_check_features_allowed": false,
+  "EMP_outcomes_allowed": false,
+  "blob_sha": {
+    "src/sdmr/process_id/fresh/model_pool_v5.py": "452f90508dd265c223731c2a9f5bc070cb89e6a1",
+    ".github/workflows/sdmr-fresh-empirical-v5-model-pool.yml": "ae200fbc51bfc87c3f2a4a614596fb0b0f1554a4",
+    "configs/sdmr_fresh_empirical_v5_model_design.json": "089471419c47d1631c3f05445664d9cbc569c5d6",
+    "configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json": "ed25d6de8f593da1747f77c11d8f5afc78b7707c",
+    "configs/sdmr_fresh_empirical_v5_model_cohort_binding.json": "6d9c817d3e3b4f517e818675c77257c2b69d657b",
+    "configs/sdmr_fresh_empirical_v5_all46_artifact_receipt.json": "4771b6e286a471693b39c2814747d408280773ee",
+    "configs/sdmr_fresh_empirical_v5_feature_artifact_receipt.json": "ba58cac5ebe76ab5b77eb01b399a305f7ce50061",
+    "configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json": "6d3f02f3d45cefca7052d63eec4252bb4f69bffc",
+    "tests/test_process_id_fresh_v5_model_design.py": "e8e48f25140e07ebaf84de7210935e3b5d04466b",
+    "tests/test_process_id_fresh_v5_model_pool.py": "e344ae549d1abce5a3fb5a29807de2e6c40d4c31"
+  }
+}
