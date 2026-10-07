@@ -1,0 +1,109 @@
+{
+  "schema": "sdmr.fresh_empirical_v5_sealed_validation.v1",
+  "frozen_date": "2026-10-06",
+  "status": "frozen_before_model_pool_results_and_answer_check_opening",
+  "upstream_requirements": {
+    "exact_taxa": 50,
+    "all46_preeligibility_status": "final50_frozen_after_geometry_plus_all46_preeligibility",
+    "numeric_feature_status": "v5_feature_gate_passed",
+    "model_pool_status": "model_pool_states_and_comparator_sets_frozen",
+    "answer_check_access_before_model_pool_freeze": false
+  },
+  "answer_check_occurrences": {
+    "source": "GBIF_2026-08-01_snapshot",
+    "ids": "outer_split_v5 rows with outer_role=answer_check for exact frozen final50",
+    "coordinate_materialization": "exact occurrence_id recovery only after model-pool artifact is frozen",
+    "qc": "same frozen 2010-2025 species/presence/non-fossil/coordinate QC",
+    "missing_or_duplicate_id": "terminal_unavailable_no_substitution",
+    "no_replacement": true
+  },
+  "answer_check_features": {
+    "predictor_count": 46,
+    "predictor_registry": "configs/sdmr_fresh_empirical_process_registry_v1.csv",
+    "structural_source_decoding": "same six frozen rules used by v5 preeligibility and feature gate",
+    "imputation": "none_outside_structural_source_decoding",
+    "occurrence_evaluation_rows": "all sealed answer-check occurrence rows complete across all 46 decoded predictors",
+    "minimum_complete_occurrence_rows_for_evaluable_taxon": 1,
+    "background_evaluation_rows": "frozen 300-km background rows with background_rank modulo 5 == 0 AND complete_case == true",
+    "minimum_complete_background_rows_for_evaluable_taxon": 1,
+    "answer_check_rows_never_used_for_refit": true
+  },
+  "routes": {
+    "primary_sdmr": "sdmr_process_first",
+    "primary_comparator": "matched_learner_flat_predictive_selector",
+    "report_only": [
+      "auc_oriented_flat_selector",
+      "correlation_vif_flat_filter",
+      "full_46_flat_hgb"
+    ],
+    "fitted_models": "exact joblib files frozen in v5 model-pool artifact",
+    "no_refit": true,
+    "no_predictor_reselection": true
+  },
+  "scoring": {
+    "ecological_metric": "balanced_presence_background_log_score",
+    "prediction_guardrail": "roc_auc",
+    "same_rows_per_route_within_taxon": true,
+    "unavailable_taxon_primary_gain": 0,
+    "unavailable_taxon_auc_difference": null,
+    "taxon_evaluable": "both primary fitted routes available AND >=1 complete sealed occurrence AND >=1 complete frozen evaluation-background row"
+  },
+  "promotion": {
+    "EMP_A": {
+      "rule": "mean of 50 declared taxon gains >= 0.01",
+      "minimum": 0.01
+    },
+    "EMP_B": {
+      "bootstrap_replicates": 20000,
+      "bootstrap_seed": 20260926,
+      "rule": "paired taxon bootstrap 95% lower bound > 0",
+      "strict_lower_bound": 0
+    },
+    "EMP_C": {
+      "rule": "all 50 taxa evaluable AND mean paired AUC difference >= -0.02",
+      "minimum_mean_auc_difference": -0.02,
+      "require_all_taxa_evaluable": true
+    },
+    "EMP_D": {
+      "rule": "stable sharp process cells / 300 >= 0.80",
+      "minimum_stable_fraction": 0.8,
+      "denominator_cells": 300
+    },
+    "EMP_E": {
+      "rule": "abstention-integrity violations == 0",
+      "maximum_violations": 0,
+      "violation_definition": "any unresolved/unavailable stable_state marked stable_sharp OR any duplicate/missing cell in frozen 50x6 stable-state table"
+    },
+    "EMP_F": {
+      "rule": "exactly all 50 declared taxa retained in evaluation table",
+      "exact_taxa": 50
+    },
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ]
+  },
+  "prohibited": [
+    "answer_check_rows_in_fit_or_selection",
+    "post_opening_taxon_drop_or_replacement",
+    "post_opening_predictor_or_route_change",
+    "post_opening_threshold_change",
+    "post_opening_new_decoding_rule",
+    "post_opening_background_resampling",
+    "omit_unavailable_taxon_from_EMP_A_or_EMP_B_denominator"
+  ],
+  "capacity_control": {
+    "contract": "configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json",
+    "route": "full_46_flat_hgb",
+    "promotion_gate": false,
+    "balanced_log_score_gain": "sdmr_process_first minus full_46_flat_hgb over the same 50-taxon denominator, unavailable comparisons set to 0",
+    "bootstrap_replicates": 20000,
+    "bootstrap_seed": 20260926,
+    "interpretation_support_rule": "paired bootstrap 95% lower bound > 0",
+    "if_not_supported": "do not attribute EMP-A/B predictive advantage specifically to process-aware filtering"
+  }
+}

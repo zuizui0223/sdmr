@@ -57,7 +57,10 @@
     "sealed_evaluation_rule": "background_rank modulo 5 == 0",
     "training_rows_per_taxon": 4000,
     "evaluation_rows_per_taxon": 1000,
-    "split_frozen_before_model_fit": true
+    "split_frozen_before_model_fit": true,
+    "row_count_interpretation": "4000/1000 are nominal frozen rank-split denominators before the predeclared complete-case filter; fitting and sealed scoring use only complete-case rows within their respective frozen rank subsets",
+    "actual_training_rows": "background_rank modulo 5 != 0 AND complete_case == true",
+    "actual_evaluation_rows": "background_rank modulo 5 == 0 AND complete_case == true"
   },
   "process_identification": {
     "stage_p": {

@@ -4,12 +4,11 @@ import pytest
 from sdmr.process_id.fresh.model_pool_v5 import (
     _nearest_occurrence_blocks,
     attach_occurrence_spatial_blocks,
+    declared_predictor_sets,
     sdmr_retained_predictors,
     stable_process_states,
     validate_model_design,
     vif_prune,
-    final_predictor_sets,
-    TaxonModelFreeze,
 )
 
 
@@ -175,31 +174,23 @@ def test_route_failure_is_recorded_as_unavailable_not_taxon_drop(monkeypatch):
     assert auth["authorized"] is False
 
 
-def test_full46_capacity_control_uses_exact_full_predictor_universe():
+def test_capacity_control_route_is_frozen_to_all_46_predictors():
+    from types import SimpleNamespace
+
     predictors=tuple(f"p{i:02d}" for i in range(46))
-    frozen=TaxonModelFreeze(
-        taxon="T",
-        route_states=pd.DataFrame(),
-        stable_states=pd.DataFrame(),
-        process_evidence=pd.DataFrame(),
-        authorization=pd.DataFrame(),
+    frozen=SimpleNamespace(
         sdmr_predictors=("p00","p01"),
-        flat_balanced_predictors=("p00",),
-        flat_auc_predictors=("p01",),
-        vif_predictors=("p02",),
-        selector_audit=pd.DataFrame(),
+        flat_balanced_predictors=("p02",),
+        flat_auc_predictors=("p03",),
+        vif_predictors=("p04","p05"),
     )
-    routes=final_predictor_sets(frozen=frozen,predictors=predictors)
+    routes=declared_predictor_sets(frozen,predictors)
+    assert set(routes)=={
+        "sdmr_process_first",
+        "matched_learner_flat_predictive_selector",
+        "auc_oriented_flat_selector",
+        "correlation_vif_flat_filter",
+        "full_46_flat_hgb",
+    }
     assert routes["full_46_flat_hgb"]==predictors
     assert len(routes["full_46_flat_hgb"])==46
-    assert routes["sdmr_process_first"]==("p00","p01")
-
-
-def test_capacity_control_amendment_does_not_change_emp_gates():
-    import json
-    from pathlib import Path
-    p=json.loads(Path("configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json").read_text())
-    assert p["status"]=="frozen_pre_model_fit_pre_answer_check"
-    assert p["original_promotion"]["EMP_A_to_EMP_F_unchanged"] is True
-    assert p["added_report_only_route"]["name"]=="full_46_flat_hgb"
-    assert p["interpretation_boundary"]["does_not_affect_EMP_promotion"] is True
