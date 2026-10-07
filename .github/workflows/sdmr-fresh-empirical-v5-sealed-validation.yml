@@ -1,0 +1,413 @@
+name: SDMR fresh empirical v5 sealed validation
+
+on:
+  push:
+    branches:
+      - execution/sdmr-fresh-v5-sealed-validation
+    paths:
+      - configs/sdmr_fresh_empirical_v5_sealed_validation_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-fresh-empirical-v5-sealed-validation
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      support_run: ${{ steps.receipts.outputs.support_run }}
+      occurrence_run: ${{ steps.receipts.outputs.occurrence_run }}
+      feature_run: ${{ steps.receipts.outputs.feature_run }}
+      model_run: ${{ steps.receipts.outputs.model_run }}
+      chelsa_matrix: ${{ steps.receipts.outputs.chelsa_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - id: receipts
+        name: Verify frozen sealed-validation execution boundary
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          import pandas as pd
+
+          from sdmr.process_id.fresh.sealed_validation_v5 import validate_contract
+
+          execution_path=Path('configs/sdmr_fresh_empirical_v5_sealed_validation_execution.json')
+          trigger='configs/sdmr_fresh_empirical_v5_sealed_validation_execute.txt'
+          support=json.load(open('configs/sdmr_fresh_empirical_v5_all46_artifact_receipt.json'))
+          occurrence=json.load(open('configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json'))
+          feature=json.load(open('configs/sdmr_fresh_empirical_v5_feature_artifact_receipt.json'))
+          model=json.load(open('configs/sdmr_fresh_empirical_v5_model_pool_artifact_receipt.json'))
+          capacity=json.load(open('configs/sdmr_fresh_empirical_v5_capacity_control_amendment.json'))
+          execution=json.load(open(execution_path))
+
+          if support.get('status')!='final50_frozen_after_geometry_plus_all46_preeligibility':
+              raise SystemExit('v5 support artifact is not terminal final50')
+          if feature.get('status')!='v5_feature_gate_passed':
+              raise SystemExit('v5 feature artifact did not pass')
+          if model.get('status')!='model_pool_states_and_comparator_sets_frozen':
+              raise SystemExit('v5 model-pool artifact is not frozen')
+          hashes={
+            support.get('selected_manifest_sha256'),
+            feature.get('selected_manifest_sha256'),
+            model.get('selected_manifest_sha256'),
+          }
+          if None in hashes or len(hashes)!=1:
+              raise SystemExit('v5 final50 manifest mismatch across support/feature/model')
+          if occurrence.get('answer_check_coordinates_persisted_for_eligibility') is not False:
+              raise SystemExit('answer-check coordinates were opened upstream')
+          for name,obj in [('feature',feature),('model',model)]:
+              if obj.get('answer_check_accessed') is not False:
+                  raise SystemExit(f'{name} artifact already accessed answer-check')
+          if model.get('model_pool_only') is not True:
+              raise SystemExit('v5 model artifact is not model-pool-only')
+          if int(model.get('full46_capacity_control_frozen_taxa',-1))!=50:
+              raise SystemExit('full46 capacity control is not frozen for exact final50')
+          if model.get('capacity_control_affects_emp_promotion') is not False:
+              raise SystemExit('capacity control changed EMP promotion')
+          if capacity.get('schema')!='sdmr.fresh_empirical_v5_capacity_control_amendment.v1':
+              raise SystemExit('wrong v5 capacity-control amendment')
+          if capacity.get('status')!='frozen_pre_model_fit_pre_answer_check':
+              raise SystemExit('capacity control was not frozen pre-answer-check')
+          if capacity.get('added_report_only_route',{}).get('name')!='full_46_flat_hgb':
+              raise SystemExit('full46 capacity-control route changed')
+          if capacity.get('original_promotion',{}).get('EMP_A_to_EMP_F_unchanged') is not True:
+              raise SystemExit('capacity control changed EMP promotion')
+
+          if execution.get('program')!='sdmr-fresh-empirical-v5-sealed-validation-execution':
+              raise SystemExit('wrong sealed-validation execution receipt')
+          if execution.get('one_shot') is not True:
+              raise SystemExit('sealed validation is not one-shot')
+          if execution.get('answer_check_access_allowed') is not True:
+              raise SystemExit('sealed opening was not explicitly authorized')
+          for key in ('model_refit_allowed','predictor_reselection_allowed','threshold_change_allowed'):
+              if execution.get(key) is not False:
+                  raise SystemExit(f'sealed validation boundary changed: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git',*args],text=True).strip()
+          if git('rev-parse','HEAD^^')!=execution['frozen_implementation_sha']:
+              raise SystemExit('sealed-validation implementation is not trigger grandparent')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x] != [trigger]:
+              raise SystemExit('sealed-validation trigger changed unexpected files')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x] != [str(execution_path)]:
+              raise SystemExit('sealed-validation receipt commit changed unexpected files')
+          for path,expected in execution['blob_sha'].items():
+              if git('hash-object',path)!=expected:
+                  raise SystemExit(f'frozen sealed-validation blob changed: {path}')
+
+          validate_contract('configs/sdmr_fresh_empirical_v5_sealed_validation.json')
+          registry=pd.read_csv('configs/sdmr_fresh_empirical_process_registry_v1.csv')
+          chelsa=registry.loc[registry.source_family.eq('CHELSA'),'predictor'].astype(str).tolist()
+          if len(chelsa)!=42 or len(set(chelsa))!=42:
+              raise SystemExit('sealed CHELSA matrix denominator changed')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f"support_run={int(support['workflow_run'])}\n")
+              fh.write(f"occurrence_run={int(occurrence['workflow_run'])}\n")
+              fh.write(f"feature_run={int(feature['workflow_run'])}\n")
+              fh.write(f"model_run={int(model['workflow_run'])}\n")
+              fh.write('chelsa_matrix='+json.dumps(chelsa,separators=(',',':'))+'\n')
+          print('v5 sealed-validation preflight passed')
+          PY
+          pytest -q tests/test_process_id_fresh_v5_sealed_validation.py
+
+  occurrence-chunk:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[cloud,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.support_run }}
+          name: sdmr-fresh-empirical-v5-all46-support
+          path: support_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Open only frozen sealed occurrence IDs in this GBIF shard chunk
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 occurrence-chunk \
+            --selected support_source/selected_fresh_taxa_v5.csv \
+            --outer-split occurrence_source/outer_split_v5.csv \
+            --chunk-index ${{ matrix.chunk }} --chunk-count 32 \
+            --output-dir answer_chunk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coord-chunk-${{ matrix.chunk }}
+          path: answer_chunk/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  occurrence-aggregate:
+    needs: [preflight, occurrence-chunk]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.support_run }}
+          name: sdmr-fresh-empirical-v5-all46-support
+          path: support_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-answer-coord-chunk-*
+          path: answer_parts
+      - name: Verify exact sealed-ID recovery
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 occurrence-aggregate \
+            --selected support_source/selected_fresh_taxa_v5.csv \
+            --outer-split occurrence_source/outer_split_v5.csv \
+            --parts-root answer_parts --output-dir answer_coordinates
+          cat answer_coordinates/answer_coordinate_result_v5.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coordinates
+          path: answer_coordinates/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
+
+  chelsa:
+    needs: [preflight, occurrence-aggregate]
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        predictor: ${{ fromJson(needs.preflight.outputs.chelsa_matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coordinates
+          path: answer_coordinates
+      - name: Extract one frozen CHELSA answer-check layer
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 chelsa \
+            --predictor "${{ matrix.predictor }}" \
+            --answer answer_coordinates/answer_check_occurrences_v5.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir feature_part
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-chelsa-${{ matrix.predictor }}
+          path: feature_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil:
+    needs: occurrence-aggregate
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        predictor: [sg_phh2o_0_5,sg_clay_0_5,sg_soc_0_5,sg_nitrogen_0_5]
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coordinates
+          path: answer_coordinates
+      - name: Extract one frozen SoilGrids answer-check shard
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 soil-shard \
+            --predictor "${{ matrix.predictor }}" \
+            --shard-index ${{ matrix.shard }} --shard-count 16 \
+            --answer answer_coordinates/answer_check_occurrences_v5.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+            --output-dir soil_part
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-soil-${{ matrix.predictor }}-${{ matrix.shard }}
+          path: soil_part/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil-assemble:
+    needs: [occurrence-aggregate, soil]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coordinates
+          path: answer_coordinates
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-answer-soil-*
+          path: soil_parts
+      - name: Assemble four sealed SoilGrids layers
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 soil-assemble \
+            --parts-root soil_parts \
+            --answer answer_coordinates/answer_check_occurrences_v5.csv \
+            --output-dir soil_features
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-soil-features
+          path: soil_features/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  feature-aggregate:
+    needs: [occurrence-aggregate, chelsa, soil-assemble]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-coordinates
+          path: answer_coordinates
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-answer-chelsa-*
+          path: answer_parts/chelsa
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-soil-features
+          path: answer_parts/soil
+      - name: Aggregate exact 46 sealed layers with frozen source decoding
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 feature-aggregate \
+            --parts-root answer_parts \
+            --answer answer_coordinates/answer_check_occurrences_v5.csv \
+            --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+            --output-dir answer_features
+          cat answer_features/answer_feature_result_v5.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-features
+          path: answer_features/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1
+
+  score:
+    needs: [preflight, feature-aggregate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.support_run }}
+          name: sdmr-fresh-empirical-v5-all46-support
+          path: support_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.feature_run }}
+          name: sdmr-fresh-empirical-v5-feature-gate
+          path: feature_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.model_run }}
+          name: sdmr-fresh-empirical-v5-model-pool-freeze
+          path: model_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-answer-features
+          path: answer_features
+      - name: Score only frozen routes and apply EMP-A through EMP-F
+        run: |
+          python -m sdmr.process_id.fresh.sealed_validation_v5 score \
+            --selected support_source/selected_fresh_taxa_v5.csv \
+            --answer-feature-root answer_features \
+            --model-feature-root feature_source \
+            --model-pool-root model_source \
+            --sealed-contract configs/sdmr_fresh_empirical_v5_sealed_validation.json \
+            --output-dir sealed_validation
+          cat sealed_validation/sealed_promotion_result_v5.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-sealed-validation
+          path: sealed_validation/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

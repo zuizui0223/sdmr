@@ -805,6 +805,23 @@ def load_inputs(
     return selected, locations, model_index, background_index, predictors, registry
 
 
+def declared_predictor_sets(
+    frozen: TaxonModelFreeze,
+    predictors: Sequence[str],
+) -> dict[str, tuple[str, ...]]:
+    """Return every pre-outcome frozen prediction route for one taxon."""
+    universe=tuple(str(p) for p in predictors)
+    if not universe or len(universe)!=len(set(universe)):
+        raise ValueError("v5 predictor universe must be non-empty and unique")
+    return {
+        "sdmr_process_first":tuple(frozen.sdmr_predictors),
+        "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
+        "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
+        "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
+        "full_46_flat_hgb":universe,
+    }
+
+
 def _fit_final_hgb(
     model: pd.DataFrame,
     background: pd.DataFrame,
@@ -824,24 +841,6 @@ def _fit_final_hgb(
     )
     fitted.fit(x,y,sample_weight=_hgb_balanced_sample_weight(y))
     return fitted
-
-
-def final_predictor_sets(
-    *,
-    frozen: TaxonModelFreeze,
-    predictors: Sequence[str],
-) -> dict[str, tuple[str, ...]]:
-    """Return the frozen prediction routes, including the pre-outcome capacity control."""
-    full=tuple(str(x) for x in predictors)
-    if len(full)!=EXPECTED_PREDICTORS or len(set(full))!=EXPECTED_PREDICTORS:
-        raise ValueError("full46 capacity-control predictor universe changed")
-    return {
-        "sdmr_process_first":tuple(frozen.sdmr_predictors),
-        "matched_learner_flat_predictive_selector":tuple(frozen.flat_balanced_predictors),
-        "auc_oriented_flat_selector":tuple(frozen.flat_auc_predictors),
-        "correlation_vif_flat_filter":tuple(frozen.vif_predictors),
-        "full_46_flat_hgb":full,
-    }
 
 
 def run_taxon_freeze(
@@ -910,7 +909,7 @@ def run_taxon_freeze(
     frozen.selector_audit.to_csv(selector_path,index=False)
 
     model_specs={}
-    predictor_sets=final_predictor_sets(frozen=frozen,predictors=predictors)
+    predictor_sets=declared_predictor_sets(frozen,predictors)
     for name,predictor_set in predictor_sets.items():
         available=bool(predictor_set) and (name!="sdmr_process_first" or sdmr_available)
         model_path=None
@@ -977,7 +976,6 @@ def aggregate_taxon_freezes(
         raise RuntimeError(f"expected 50 taxon model receipts; found {len(receipts)}")
 
     rows=[]; route=[]; stable=[]; auth=[]; selector=[]
-    full46_frozen_taxa=0
     for path in receipts:
         r=json.loads(path.read_text(encoding="utf-8"))
         rank=int(r["selection_rank"]); taxon=str(r["scientific_name"])
@@ -996,23 +994,29 @@ def aggregate_taxon_freezes(
         for filename,wanted in checks.items():
             if _sha256(parent/filename)!=wanted:
                 raise RuntimeError(f"taxon model artifact SHA mismatch: {taxon}/{filename}")
-        for spec in r["predictor_sets"].values():
+        declared_routes={
+            "sdmr_process_first",
+            "matched_learner_flat_predictive_selector",
+            "auc_oriented_flat_selector",
+            "correlation_vif_flat_filter",
+            "full_46_flat_hgb",
+        }
+        predictor_sets=r.get("predictor_sets",{})
+        if set(predictor_sets)!=declared_routes:
+            raise RuntimeError(f"v5 frozen route set changed: {taxon}")
+        capacity=predictor_sets["full_46_flat_hgb"]
+        if (
+            capacity.get("available") is not True
+            or capacity.get("learner")!="shallow3_hgb"
+            or int(capacity.get("predictor_count",-1))!=EXPECTED_PREDICTORS
+            or len(capacity.get("predictors",[]))!=EXPECTED_PREDICTORS
+        ):
+            raise RuntimeError(f"v5 full46 capacity route not frozen exactly: {taxon}")
+        for spec in predictor_sets.values():
             if spec["available"]:
                 mp=parent/spec["model_file"]
                 if _sha256(mp)!=spec["model_sha256"]:
                     raise RuntimeError(f"serialized model SHA mismatch: {taxon}/{spec['model_file']}")
-        full46=r["predictor_sets"].get("full_46_flat_hgb")
-        if (
-            isinstance(full46,dict)
-            and full46.get("available") is True
-            and int(full46.get("predictor_count",-1))==EXPECTED_PREDICTORS
-            and len(tuple(full46.get("predictors",())))==EXPECTED_PREDICTORS
-            and full46.get("model_file")
-            and full46.get("model_sha256")
-        ):
-            full46_frozen_taxa+=1
-        else:
-            raise RuntimeError(f"full46 capacity-control route not frozen for {taxon}")
         rows.append(r)
         x=pd.read_csv(parent/"route_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);route.append(x)
         x=pd.read_csv(parent/"stable_states.csv");x.insert(0,"scientific_name",taxon);x.insert(0,"selection_rank",rank);stable.append(x)
@@ -1021,10 +1025,6 @@ def aggregate_taxon_freezes(
 
     if sorted(int(r["selection_rank"]) for r in rows)!=list(range(1,EXPECTED_TAXA+1)):
         raise RuntimeError("taxon model freeze ranks are not exactly 1..50")
-    if full46_frozen_taxa!=EXPECTED_TAXA:
-        raise RuntimeError(
-            f"full46 capacity-control denominator changed: {full46_frozen_taxa}/{EXPECTED_TAXA}"
-        )
     stable_df=pd.concat(stable,ignore_index=True)
     denominator=EXPECTED_TAXA*EXPECTED_PROCESSES
     stable_sharp=int(stable_df["stable_sharp"].astype(bool).sum())
@@ -1046,12 +1046,13 @@ def aggregate_taxon_freezes(
         "program":PROGRAM,
         "status":"model_pool_states_and_comparator_sets_frozen",
         "taxon_count":EXPECTED_TAXA,
+        "selected_manifest_sha256":_sha256(selected_path),
         "process_cells":denominator,
         "stable_sharp_process_cells":stable_sharp,
         "stable_process_fraction":float(stable_sharp/denominator),
         "sdmr_primary_available_taxa":available_taxa,
         "sdmr_primary_unavailable_taxa":EXPECTED_TAXA-available_taxa,
-        "full46_capacity_control_frozen_taxa":full46_frozen_taxa,
+        "full46_capacity_control_frozen_taxa":EXPECTED_TAXA,
         "capacity_control_affects_emp_promotion":False,
         "taxon_summary_sha256":_sha256(summary_path),
         "route_states_sha256":_sha256(route_path),
