@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v5-sealed-validation
+execution_receipt_commit=bbcc00141560ccab1c550bbe5fa840ad046dd407
+frozen_implementation_commit=b5bba020ac8d093abd4a71b3e44fb3c23f585dd6
+taxon_count=50
+predictor_count=46
+answer_check_opened=true
+model_refit=false
+predictor_reselection=false
+threshold_change=false
+execute_once=true
