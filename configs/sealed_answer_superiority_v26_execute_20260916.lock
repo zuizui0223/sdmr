@@ -1,0 +1,6 @@
+purpose=execute_sealed_answer_superiority_v26_once
+frozen_branch=development/sealed-answer-superiority-v26
+frozen_preexecution_head=1dc982bbb2d77712f7f25432c9617b646cad413e
+fresh_seed_denominator=20001-20020
+families=gaussian,asymmetric,soft_threshold,interaction,omitted_driver,observation_confounded
+created_for=prospective_known_truth_endpoint

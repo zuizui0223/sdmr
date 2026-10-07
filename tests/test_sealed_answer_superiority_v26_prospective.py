@@ -1,0 +1,192 @@
+import json
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
+from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts
+from sdmr.sealed_answer_superiority_v26_prospective import (
+    aggregate_truth_blind,
+    assemble_context_stage_from_shards,
+    assemble_truth_blind_v21_contexts,
+    build_truth_blind_v23_sets,
+    freeze_truth_blind_context_stage,
+    load_contract,
+    run_family_separator,
+    support_shard,
+    validate_context_set_provenance,
+)
+
+
+def _geometry():
+    return pd.DataFrame(
+        [
+            {"family": "gaussian", "seed": 20001, "target_process": "temperature", "target_block": 0, "eligibility_prediction": "eligible"},
+            {"family": "gaussian", "seed": 20001, "target_process": "water", "target_block": 0, "eligibility_prediction": "ineligible"},
+            {"family": "gaussian", "seed": 20001, "target_process": "noise", "target_block": 0, "eligibility_prediction": "eligible"},
+        ]
+    )
+
+
+def _activity():
+    return pd.DataFrame(
+        [
+            {"family": "gaussian", "seed": 20001, "target_process": "temperature", "target_block": 0, "context_status": "context_contributory"},
+            {"family": "gaussian", "seed": 20001, "target_process": "water", "target_block": 0, "context_status": "context_contributory"},
+            {"family": "gaussian", "seed": 20001, "target_process": "noise", "target_block": 0, "context_status": "context_noncontributory"},
+        ]
+    )
+
+
+def _truth_blind_receipt(replicate_id="a"):
+    return {
+        "purpose": "sealed_answer_superiority_v26_truth_blind_refinement_receipt",
+        "replicate_id": replicate_id,
+        "truth_opened": False,
+        "n_contexts": 960,
+        "n_supported_members": 420,
+        "n_separator_rows": 420,
+        "context_sets_sha256": "1" * 64,
+        "separator_evidence_sha256": "2" * 64,
+        "context_refinements_sha256": "3" * 64,
+        "member_audit_sha256": "4" * 64,
+    }
+
+
+def test_v26_fresh_contract_freezes_unused_denominator_and_truth_ordering():
+    cfg = load_contract()
+    assert cfg["fresh_seed_denominator"] == list(range(20001, 20021))
+    assert cfg["families"] == [
+        "gaussian", "asymmetric", "soft_threshold", "interaction", "omitted_driver", "observation_confounded"
+    ]
+    assert cfg["process_universe"] == ["temperature", "water", "seasonality", "noise"]
+    assert cfg["separator"]["sem_multiplier"] == 1.96
+    assert cfg["separator"]["superiority_boundary"] == 0.0
+    assert cfg["governance"]["truth_open_after_refinement_receipt_only"] is True
+    assert cfg["governance"]["post_outcome_rule_changes_allowed"] is False
+
+
+def test_truth_blind_v21_assembly_reproduces_frozen_support_rules_without_truth_column():
+    frame = assemble_truth_blind_v21_contexts(_geometry(), _activity())
+    assert "generating_process_true" not in frame.columns
+    keyed = frame.set_index("target_process")
+    assert bool(keyed.loc["temperature", "supported"]) is True
+    assert bool(keyed.loc["temperature", "high_confidence_supported"]) is True
+    assert bool(keyed.loc["water", "supported"]) is True
+    assert bool(keyed.loc["water", "high_confidence_supported"]) is False
+    assert bool(keyed.loc["noise", "supported"]) is False
+
+
+def test_truth_blind_v23_sets_preserve_all_supported_members_and_ignore_extra_truth_like_columns():
+    frame = assemble_truth_blind_v21_contexts(_geometry(), _activity())
+    frame["generating_process_true"] = [False, False, True]
+    sets = build_truth_blind_v23_sets(frame)
+    assert len(sets) == 1
+    row = sets.iloc[0]
+    assert row.supported_set == "temperature+water"
+    assert row.high_confidence_subset == "temperature"
+    assert int(row.supported_set_size) == 2
+    assert "generating_process_true" not in sets.columns
+
+
+def test_context_set_provenance_rejects_tampered_sets():
+    decisions = assemble_truth_blind_v21_contexts(_geometry(), _activity())
+    sets = build_truth_blind_v23_sets(decisions)
+    validate_context_set_provenance(decisions, sets)
+
+    tampered = sets.copy()
+    tampered.loc[0, "supported_set"] = "temperature"
+    tampered.loc[0, "supported_set_size"] = 1
+    with pytest.raises(ValueError, match="build_context_sets"):
+        validate_context_set_provenance(decisions, tampered)
+
+
+def test_preterminal_context_receipt_contains_no_truth_and_pins_constructor(tmp_path):
+    receipt = freeze_truth_blind_context_stage(_geometry(), _activity(), tmp_path)
+    assert receipt["truth_opened"] is False
+    assert receipt["context_set_constructor"] == "set_valued_attribution_v23.build_context_sets"
+    assert receipt["n_contexts"] == 1
+    assert receipt["n_context_decision_rows"] == 3
+    assert len(receipt["context_decisions_sha256"]) == 64
+    assert len(receipt["context_sets_sha256"]) == 64
+
+    decisions = pd.read_csv(tmp_path / "context_decisions.csv")
+    sets = pd.read_csv(tmp_path / "context_sets.csv")
+    assert "generating_process_true" not in decisions.columns
+    assert "generating_process_true" not in sets.columns
+    saved = json.loads((tmp_path / "preterminal_context_receipt.json").read_text())
+    assert saved == receipt
+
+
+def test_scientific_shard_apis_fail_closed_before_heavy_work_on_invalid_denominator(tmp_path):
+    with pytest.raises(ValueError, match="family"):
+        support_shard("not_a_family", "temperature", tmp_path / "support")
+    with pytest.raises(ValueError, match="process"):
+        support_shard("gaussian", "not_a_process", tmp_path / "support")
+    with pytest.raises(ValueError, match="family"):
+        run_family_separator("not_a_family", tmp_path / "sets.csv", tmp_path / "separator")
+
+
+def test_assembly_and_aggregate_require_complete_frozen_shard_rosters(tmp_path):
+    with pytest.raises(ValueError, match="24"):
+        assemble_context_stage_from_shards(tmp_path / "empty_support", tmp_path / "contexts")
+    with pytest.raises(ValueError, match="6"):
+        aggregate_truth_blind(tmp_path / "empty_separator", tmp_path / "sets.csv", tmp_path / "final", replicate_id="a")
+
+
+def test_determinism_gate_accepts_identical_truth_blind_outputs_despite_replicate_id():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    result = compare_truth_blind_receipts(a, b)
+    assert result["deterministic_match"] is True
+    assert result["truth_open_authorized"] is True
+    assert result["replicate_ids"] == ["a", "b"]
+
+
+def test_determinism_gate_blocks_any_digest_or_denominator_mismatch():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    b["context_refinements_sha256"] = "9" * 64
+    result = compare_truth_blind_receipts(a, b)
+    assert result["deterministic_match"] is False
+    assert result["truth_open_authorized"] is False
+    assert "context_refinements_sha256" in result["mismatched_fields"]
+
+    b = _truth_blind_receipt("b")
+    b["n_supported_members"] += 1
+    result = compare_truth_blind_receipts(a, b)
+    assert result["truth_open_authorized"] is False
+    assert "n_supported_members" in result["mismatched_fields"]
+
+
+def test_determinism_gate_rejects_receipt_that_already_opened_truth():
+    a = _truth_blind_receipt("a")
+    b = _truth_blind_receipt("b")
+    b["truth_opened"] = True
+    with pytest.raises(ValueError, match="truth-blind"):
+        compare_truth_blind_receipts(a, b)
+
+
+def _prospective_workflow_text():
+    return (
+        Path(__file__).resolve().parents[1]
+        / ".github"
+        / "workflows"
+        / "sealed-answer-superiority-v26-prospective.yml"
+    ).read_text(encoding="utf-8")
+
+
+def test_prospective_workflow_installs_package_before_determinism_import():
+    workflow = _prospective_workflow_text()
+    determinism_job = workflow.split("\n  determinism:\n", 1)[1].split("\n  terminal:\n", 1)[0]
+    install = "python -m pip install -e ."
+    module_import = "from sdmr.sealed_answer_superiority_v26_determinism import compare_truth_blind_receipts"
+    assert install in determinism_job
+    assert determinism_job.index(install) < determinism_job.index(module_import)
+
+
+def test_prospective_workflow_one_shot_push_trigger_is_sentinel_only():
+    workflow = _prospective_workflow_text()
+    trigger = workflow.split("\njobs:\n", 1)[0]
+    expected = """on:\n  workflow_dispatch:\n  push:\n    branches:\n      - development/sealed-answer-superiority-v26\n    paths:\n      - 'configs/sealed_answer_superiority_v26_execute_20260916.lock'\n"""
+    assert expected in trigger

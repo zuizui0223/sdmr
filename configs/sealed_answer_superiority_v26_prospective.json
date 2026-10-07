@@ -1,0 +1,53 @@
+{
+  "purpose": "sealed_answer_superiority_v26_prospective_known_truth_validation",
+  "fresh_seed_denominator": [20001,20002,20003,20004,20005,20006,20007,20008,20009,20010,20011,20012,20013,20014,20015,20016,20017,20018,20019,20020],
+  "families": ["gaussian","asymmetric","soft_threshold","interaction","omitted_driver","observation_confounded"],
+  "process_universe": ["temperature","water","seasonality","noise"],
+  "true_processes_for_terminal_scoring": ["temperature","water"],
+  "false_process_controls": ["seasonality","noise"],
+  "upstream_rules": {
+    "v21_supported_rule": "context_status_equals_context_contributory",
+    "v21_high_confidence_supported_rule": "supported_and_frozen_v19_geometry_eligible",
+    "v21_threshold_changes_allowed": false,
+    "v23_set_construction": "all_v21_supported_members_preserved"
+  },
+  "simulation": {
+    "n_cells": 8000,
+    "n_occurrences": 500,
+    "n_target_group": 2500,
+    "outer_n_blocks": 8,
+    "answer_check_fraction": 0.20,
+    "outer_random_state_offset": 70000,
+    "separator_background_rows": 1500,
+    "separator_background_seed_offset": 91000
+  },
+  "separator": {
+    "separator_id": "sealed_answer_superiority_v26",
+    "sem_multiplier": 1.96,
+    "superiority_boundary": 0.0,
+    "probability_epsilon": 0.000001,
+    "minimum_complete_sealed_occurrences": 10,
+    "minimum_distinct_sealed_spatial_blocks": 2,
+    "required_model_specs": [
+      {"C": 0.1, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 1, "penalty": "l2", "random_state": 0},
+      {"C": 0.1, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 1.0, "degree": 2, "penalty": "l2", "random_state": 0},
+      {"C": 10.0, "degree": 2, "penalty": "l2", "random_state": 0}
+    ]
+  },
+  "prospective_success_gate": {
+    "n_removed_true_members_max": 0,
+    "n_contexts_with_true_member_deletion_max": 0,
+    "n_removed_false_members_min": 1
+  },
+  "governance": {
+    "truth_open_after_refinement_receipt_only": true,
+    "independent_truth_blind_reproduction_required_before_truth_open": true,
+    "post_outcome_rule_changes_allowed": false,
+    "seed_replacement_allowed": false,
+    "family_replacement_allowed": false,
+    "empirical_validation_authorized_before_terminal": false
+  }
+}

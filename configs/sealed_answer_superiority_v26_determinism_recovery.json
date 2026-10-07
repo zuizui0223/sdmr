@@ -1,0 +1,58 @@
+{
+  "schema": "sdmr.sealed_answer_superiority_v26_determinism_recovery.v1",
+  "frozen_date": "2026-10-08",
+  "status": "truth_blind_successor_after_pretruth_determinism_failure",
+  "predecessor": {
+    "workflow_run": 35205828384,
+    "head_sha": "41c4e415f24b24a0f8676a2a5978b11032727d7e",
+    "terminal_job_status": "skipped",
+    "truth_opened": false,
+    "deterministic_match": false,
+    "mismatched_fields": [
+      "separator_evidence_sha256"
+    ],
+    "context_refinements_identical": true,
+    "member_audit_identical": true,
+    "separator_decision_columns_identical": true,
+    "report_only_mean_density_delta_max_abs_difference": 0.000011558210335202435
+  },
+  "scientific_contract": {
+    "source_contract": "configs/sealed_answer_superiority_v26_prospective.json",
+    "fresh_seed_denominator": "20001-20020 unchanged",
+    "families": "six frozen families unchanged",
+    "separator_rule": "mean(delta) - 1.96*SEM(delta) > 0 for every required model spec",
+    "thresholds_changed": false,
+    "model_specs_changed": false,
+    "support_logic_changed": false,
+    "truth_labels_accessed": false
+  },
+  "only_change": {
+    "type": "runtime_determinism_control",
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "PYTHONHASHSEED": "0"
+    }
+  },
+  "execution": {
+    "truth_blind_only": true,
+    "terminal_truth_job_present": false,
+    "independent_replicates": [
+      "a",
+      "b"
+    ],
+    "exact_receipt_hash_match_required": true,
+    "if_fail": "close technical successor with truth unopened",
+    "if_pass": "freeze recovery artifacts and require a separate one-shot terminal truth-opening contract"
+  },
+  "prohibited": [
+    "change any scientific threshold or separator decision rule",
+    "inspect known-truth labels during this recovery run",
+    "reuse recovery output to tune scientific rules",
+    "treat a deterministic PASS as prospective truth validation",
+    "open truth inside the recovery workflow"
+  ]
+}

@@ -1,0 +1,118 @@
+name: sealed-answer-superiority-v26-terminal-open
+
+on:
+  push:
+    branches:
+      - development/sealed-answer-superiority-v26-terminal-open
+    paths:
+      - 'configs/sealed_answer_superiority_v26_terminal_open_execute.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    outputs:
+      recovery_run: ${{ steps.verify.outputs.recovery_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+
+          contract=json.load(open('configs/sealed_answer_superiority_v26_terminal_open_contract.json'))
+          receipt_path=Path('configs/sealed_answer_superiority_v26_terminal_open_execution.json')
+          lock_path=Path('configs/sealed_answer_superiority_v26_terminal_open_execute.lock')
+          if not receipt_path.exists() or not lock_path.exists():
+              raise SystemExit('terminal opening requires both frozen execution receipt and trigger lock')
+          receipt=json.loads(receipt_path.read_text())
+          if receipt.get('program')!='sealed-answer-superiority-v26-terminal-open-execution':
+              raise SystemExit('wrong terminal execution receipt')
+          if receipt.get('one_shot') is not True or receipt.get('truth_open_allowed') is not True:
+              raise SystemExit('terminal receipt is not a one-shot authorized truth open')
+          if receipt.get('recovery_truth_opened') is not False:
+              raise SystemExit('recovery was not truth blind')
+          if receipt.get('recovery_deterministic_match') is not True or receipt.get('recovery_truth_open_authorized') is not True:
+              raise SystemExit('truth-blind recovery did not pass exact determinism gate')
+          if receipt.get('recovery_mismatched_fields') not in ([], None):
+              raise SystemExit('recovery still has deterministic mismatches')
+          run_id=int(receipt['recovery_workflow_run'])
+          expected={
+            'v26r-refinement-a':(int(receipt['refinement_artifact_id']),str(receipt['refinement_artifact_digest'])),
+            'v26r-determinism-gate':(int(receipt['determinism_artifact_id']),str(receipt['determinism_artifact_digest'])),
+          }
+          req=urllib.request.Request(
+            f"https://api.github.com/repos/{os.environ['GH_REPOSITORY']}/actions/runs/{run_id}/artifacts?per_page=100",
+            headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json'},
+          )
+          with urllib.request.urlopen(req,timeout=30) as r:
+              payload=json.load(r)
+          got={a['name']:(int(a['id']),str(a.get('digest',''))) for a in payload.get('artifacts',[])}
+          for name,want in expected.items():
+              if got.get(name)!=want:
+                  raise SystemExit(f'artifact identity drift for {name}: {got.get(name)} != {want}')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f'recovery_run={run_id}\n')
+          print(json.dumps({'recovery_run':run_id,'artifact_identities_verified':True,'truth_opened':False},indent=2))
+          PY
+      - name: Contract tests
+        run: |
+          python -m pip install -e . pytest
+          pytest -q tests/test_sealed_answer_superiority_v26_terminal.py tests/test_sealed_answer_superiority_v26_terminal_open_contract.py
+
+  terminal:
+    needs: preflight
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.recovery_run }}
+          name: v26r-refinement-a
+          path: refinement
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.preflight.outputs.recovery_run }}
+          name: v26r-determinism-gate
+          path: determinism
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Open frozen truth once and score terminal gate
+        run: |
+          python -m sdmr.sealed_answer_superiority_v26_terminal \
+            --refinements refinement/context_refinements.csv \
+            --separator-evidence refinement/separator_evidence.csv \
+            --determinism-gate determinism/determinism_gate.json \
+            --output-dir terminal
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('terminal/prospective_decision.json').read_text())
+          assert p['purpose']=='sealed_answer_superiority_v26_prospective_terminal_decision'
+          assert p['truth_opened'] is True
+          assert p['n_contexts']==960
+          print(json.dumps(p,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v26-prospective-terminal-recovery-v1
+          path: terminal/
+          if-no-files-found: error
+          retention-days: 90
