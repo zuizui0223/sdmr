@@ -1,0 +1,10 @@
+program=sdmr-fresh-empirical-v5-all46-compact-recovery
+execution_receipt_commit=283a0a97794b6dac7cf16e3abf49ad5355160df6
+frozen_implementation_commit=1e3fee36d2a92aa7fd4263380d7a2d9f18bd6765
+source_run=37468504591
+execution_geometry_only=true
+candidate_level_eligibility_opened=false
+final50_opened=false
+answer_check_accessed=false
+model_fitting_started=false
+execute_once=true

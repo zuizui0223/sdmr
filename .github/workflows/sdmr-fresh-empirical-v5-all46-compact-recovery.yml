@@ -1,0 +1,354 @@
+name: SDMR fresh empirical v5 all46 compact recovery
+
+on:
+  push:
+    branches:
+      - design/sdmr-fresh-v5-preeligibility
+    paths:
+      - configs/sdmr_fresh_empirical_v5_all46_recovery_execute.txt
+
+permissions:
+  contents: read
+  actions: read
+
+# Same group as the original 172-job workflow.  Starting this frozen recovery
+# cancels the runner-starved execution and replaces execution geometry only.
+concurrency:
+  group: sdmr-fresh-empirical-v5-all46
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      candidate_run: ${{ steps.receipts.outputs.candidate_run }}
+      occurrence_run: ${{ steps.receipts.outputs.occurrence_run }}
+      background_run: ${{ steps.receipts.outputs.background_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet,test]'
+      - id: receipts
+        name: Verify frozen compact-recovery boundary
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          from sdmr.process_id.fresh.cohort_v5_all46_support import validate_contract
+
+          receipt_path=Path('configs/sdmr_fresh_empirical_v5_all46_recovery_execution.json')
+          trigger='configs/sdmr_fresh_empirical_v5_all46_recovery_execute.txt'
+          receipt=json.load(open(receipt_path))
+          cand=json.load(open('configs/sdmr_fresh_empirical_v5_candidate_artifact_receipt.json'))
+          occ=json.load(open('configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json'))
+          bg=json.load(open('configs/sdmr_fresh_empirical_v5_background_artifact_receipt.json'))
+
+          if receipt.get('program')!='sdmr-fresh-empirical-v5-all46-compact-recovery':
+              raise SystemExit('wrong compact-recovery program')
+          if receipt.get('one_shot') is not True:
+              raise SystemExit('compact recovery is not one-shot')
+          if receipt.get('source_run')!=37468504591:
+              raise SystemExit('compact recovery source run changed')
+          if receipt.get('execution_geometry_only') is not True:
+              raise SystemExit('compact recovery changed scientific logic')
+          if receipt.get('source_candidate_level_eligibility_opened') is not False:
+              raise SystemExit('candidate-level support was opened before recovery')
+          if receipt.get('source_final50_opened') is not False:
+              raise SystemExit('final50 was opened before recovery')
+          for key in (
+              'threshold_change_allowed','candidate_reordering_allowed',
+              'taxon_replacement_allowed','predictor_deletion_allowed',
+              'answer_check_access_allowed','model_fitting_allowed',
+          ):
+              if receipt.get(key) is not False:
+                  raise SystemExit(f'compact recovery boundary changed: {key}')
+
+          def git(*args):
+              return subprocess.check_output(['git',*args],text=True).strip()
+
+          if git('rev-parse','HEAD^^')!=receipt['frozen_implementation_sha']:
+              raise SystemExit('compact recovery design is not trigger grandparent')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines() if x] != [trigger]:
+              raise SystemExit('compact recovery trigger changed unexpected files')
+          if [x for x in git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines() if x] != [str(receipt_path)]:
+              raise SystemExit('compact recovery receipt commit changed unexpected files')
+          for path,expected in receipt['blob_sha'].items():
+              if git('hash-object',path)!=expected:
+                  raise SystemExit(f'frozen compact recovery blob changed: {path}')
+
+          validate_contract('configs/sdmr_fresh_empirical_v5_preeligibility.json')
+          if cand.get('candidate_count')!=120 or occ.get('candidate_count')!=120 or bg.get('candidate_count')!=120:
+              raise SystemExit('v5 upstream denominator changed')
+          if occ.get('answer_check_coordinates_persisted_for_eligibility') is not False:
+              raise SystemExit('answer-check coordinates crossed occurrence boundary')
+          if bg.get('answer_check_coordinates_read') is not False:
+              raise SystemExit('answer-check coordinates crossed geometry boundary')
+
+          with open(os.environ['GITHUB_OUTPUT'],'a') as fh:
+              fh.write(f"candidate_run={int(cand['workflow_run'])}\n")
+              fh.write(f"occurrence_run={int(occ['workflow_run'])}\n")
+              fh.write(f"background_run={int(bg['workflow_run'])}\n")
+          print('compact all46 recovery preflight passed')
+          PY
+          pytest -q tests/test_process_id_fresh_v5_all46_support.py
+
+  prepare-inputs:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.candidate_run }}
+          name: sdmr-fresh-empirical-v5-candidate-roster
+          path: candidate_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.occurrence_run }}
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          path: occurrence_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          repository: zuizui0223/sdmr
+          run-id: ${{ needs.preflight.outputs.background_run }}
+          name: sdmr-fresh-empirical-v5-background
+          path: background_source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify upstream hashes and freeze support inputs
+        run: |
+          python - <<'PY'
+          import hashlib, json, shutil
+          from pathlib import Path
+          cand=json.load(open('configs/sdmr_fresh_empirical_v5_candidate_artifact_receipt.json'))
+          occ=json.load(open('configs/sdmr_fresh_empirical_v5_occurrence_artifact_receipt.json'))
+          bg=json.load(open('configs/sdmr_fresh_empirical_v5_background_artifact_receipt.json'))
+          expected={
+            'candidate_source/candidate_roster_v5.csv':cand['candidate_roster_sha256'],
+            'occurrence_source/model_pool_occurrences_v5.csv':occ['model_pool_sha256'],
+            'background_source/background_points_v5.csv':bg['background_points_sha256'],
+            'background_source/geometry_eligibility_v5.csv':bg['geometry_eligibility_sha256'],
+          }
+          for path,wanted in expected.items():
+              got=hashlib.sha256(Path(path).read_bytes()).hexdigest()
+              if got!=wanted:
+                  raise SystemExit(f'compact recovery upstream SHA mismatch: {path}')
+          out=Path('support_inputs');out.mkdir()
+          for src,dst in (
+            ('candidate_source/candidate_roster_v5.csv','candidate_roster_v5.csv'),
+            ('occurrence_source/model_pool_occurrences_v5.csv','model_pool_occurrences_v5.csv'),
+            ('background_source/background_points_v5.csv','background_points_v5.csv'),
+            ('background_source/geometry_eligibility_v5.csv','geometry_eligibility_v5.csv'),
+          ):
+              shutil.copy2(src,out/dst)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-support-inputs-compact
+          path: support_inputs/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  chelsa-batch:
+    needs: [preflight, prepare-inputs]
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - batch: 0
+            predictors: "bio1 bio2 bio5 bio6 bio8 bio9 bio10"
+          - batch: 1
+            predictors: "bio11 fcf gdd0 gdd5 gdd10 gst ngd0"
+          - batch: 2
+            predictors: "ngd5 ngd10 bio12 bio13 bio14 bio16 bio17"
+          - batch: 3
+            predictors: "bio18 bio19 hurs swe gsp vpd pet"
+          - batch: 4
+            predictors: "cmi bio3 bio4 bio7 bio15 fgd gdgfgd5"
+          - batch: 5
+            predictors: "gdgfgd10 gsl lgd scd rsds clt npp"
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-support-inputs-compact
+          path: support_inputs
+      - name: Extract frozen CHELSA usable-support batch
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          mkdir -p chelsa_parts
+          for predictor in ${{ matrix.predictors }}; do
+            echo "=== $predictor ==="
+            python -m sdmr.process_id.fresh.cohort_v5_all46_support chelsa \
+              --predictor "$predictor" \
+              --candidates support_inputs/candidate_roster_v5.csv \
+              --model-pool support_inputs/model_pool_occurrences_v5.csv \
+              --background support_inputs/background_points_v5.csv \
+              --geometry support_inputs/geometry_eligibility_v5.csv \
+              --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+              --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+              --output-dir "chelsa_parts/$predictor"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-chelsa-support-compact-${{ matrix.batch }}
+          path: chelsa_parts/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil-batch:
+    needs: prepare-inputs
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        predictor: [sg_phh2o_0_5, sg_clay_0_5, sg_soc_0_5, sg_nitrogen_0_5]
+        shard_group: [0,1,2,3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[geo,parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-support-inputs-compact
+          path: support_inputs
+      - name: Extract eight frozen SoilGrids support shards
+        env:
+          GDAL_HTTP_TIMEOUT: '180'
+          GDAL_HTTP_MAX_RETRY: '6'
+          GDAL_HTTP_RETRY_DELAY: '3'
+        run: |
+          start=$(( ${{ matrix.shard_group }} * 8 ))
+          stop=$(( start + 8 ))
+          mkdir -p soil_parts
+          for shard in $(seq $start $((stop-1))); do
+            echo "=== ${{ matrix.predictor }} shard $shard ==="
+            python -m sdmr.process_id.fresh.cohort_v5_all46_support soil-shard \
+              --predictor "${{ matrix.predictor }}" \
+              --shard-index "$shard" --shard-count 32 \
+              --candidates support_inputs/candidate_roster_v5.csv \
+              --model-pool support_inputs/model_pool_occurrences_v5.csv \
+              --background support_inputs/background_points_v5.csv \
+              --geometry support_inputs/geometry_eligibility_v5.csv \
+              --process-registry configs/sdmr_fresh_empirical_process_registry_v1.csv \
+              --chelsa-manifest configs/chelsa_v2_1_plant_candidates.csv \
+              --output-dir "soil_parts/shard_$shard"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-soil-support-compact-${{ matrix.predictor }}-${{ matrix.shard_group }}
+          path: soil_parts/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  soil-assemble:
+    needs: [prepare-inputs, soil-batch]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-support-inputs-compact
+          path: support_inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-soil-support-compact-*
+          path: soil_parts
+      - name: Assemble exact four SoilGrids boolean-support layers
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v5_all46_support soil-assemble \
+            --parts-root soil_parts \
+            --candidates support_inputs/candidate_roster_v5.csv \
+            --model-pool support_inputs/model_pool_occurrences_v5.csv \
+            --background support_inputs/background_points_v5.csv \
+            --geometry support_inputs/geometry_eligibility_v5.csv \
+            --output-dir soil_support
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-v5-soil-support-compact
+          path: soil_support/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 1
+
+  aggregate:
+    needs: [prepare-inputs, chelsa-batch, soil-assemble]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e '.[parquet]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-support-inputs-compact
+          path: support_inputs
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-fresh-v5-chelsa-support-compact-*
+          path: support_parts/chelsa
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-v5-soil-support-compact
+          path: support_parts/soil
+      - name: Freeze joint geometry plus all46 eligibility and final50
+        run: |
+          python -m sdmr.process_id.fresh.cohort_v5_all46_support aggregate \
+            --parts-root support_parts \
+            --candidates support_inputs/candidate_roster_v5.csv \
+            --model-pool support_inputs/model_pool_occurrences_v5.csv \
+            --background support_inputs/background_points_v5.csv \
+            --geometry support_inputs/geometry_eligibility_v5.csv \
+            --contract configs/sdmr_fresh_empirical_v5_preeligibility.json \
+            --output-dir selection
+          cat selection/preeligibility_selection_result_v5.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-all46-support
+          path: selection/
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 1

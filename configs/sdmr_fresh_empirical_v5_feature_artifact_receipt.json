@@ -1,0 +1,23 @@
+{
+  "program": "sdmr-fresh-empirical-v5-feature-artifact-receipt",
+  "status": "v5_feature_gate_passed",
+  "workflow_run": 37545674411,
+  "workflow_head": "2f87c4eeffbcef32470ca38b14da607575603343",
+  "artifact_id": 11453480812,
+  "artifact_name": "sdmr-fresh-empirical-v5-feature-gate",
+  "artifact_digest": "sha256:7488bff59e4da00db8420afcdccbb1627f1b52455609483ab9413a0b1f166aa0",
+  "selected_manifest_sha256": "fb845485a1415c1fe3c2366d44834b194fe8b7a183718bd5cd69123f6ad79e27",
+  "taxon_count": 50,
+  "predictor_count": 46,
+  "taxa_passing_complete_case_gate": 50,
+  "all_taxa_complete_case_gate_passed": true,
+  "location_features_sha256": "705f4e8d5db87eb60061258dc1e5d936be988e7b9ced45f936a866d7e8f015c5",
+  "complete_case_gate_sha256": "301595a4d9249c5098a11c92f31b05d3ebf1e223fc987e19f1dc4fca1499f55d",
+  "model_pool_feature_index_sha256": "fa33b8ccc6ded3f12ce34b58370c83b1d66857e795cebafa678789f7f317471b",
+  "background_feature_index_sha256": "6caba416d9aefc7345994eb97568b8f24d5565c7ad6fca906de58821e88049f0",
+  "answer_check_accessed": false,
+  "model_fitting_performed": false,
+  "taxon_replacement_performed": false,
+  "predictor_deletion_performed": false,
+  "threshold_relaxation_performed": false
+}
