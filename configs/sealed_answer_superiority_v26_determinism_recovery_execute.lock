@@ -1,0 +1,6 @@
+program=sealed-answer-superiority-v26-determinism-recovery
+frozen_source_commit=6165750952bfb07a54d8cb9a9c066096a917c25d
+execution_receipt_commit=f37fe36e574dc6b42b64cd8e730f8261a4bd37da
+truth_open=false
+exact_reproduction_required=true
+execute_once=true
