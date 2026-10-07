@@ -1,0 +1,87 @@
+{
+  "schema": "sdmr.sealed_answer_superiority_v26_terminal_open.contract.v1",
+  "frozen_date": "2026-10-08",
+  "status": "staged_unexecutable_until_truth_blind_recovery_pass_is_pinned",
+  "upstream_scientific_contract": "configs/sealed_answer_superiority_v26_prospective.json",
+  "required_recovery": {
+    "program": "sdmr.sealed_answer_superiority_v26_determinism_recovery.v1",
+    "deterministic_match": true,
+    "truth_open_authorized": true,
+    "truth_opened": false,
+    "mismatched_fields": [],
+    "exact_recovery_run_must_be_pinned": true,
+    "exact_artifact_ids_and_digests_must_be_pinned": true
+  },
+  "fresh_truth_denominator": {
+    "families": [
+      "gaussian",
+      "asymmetric",
+      "soft_threshold",
+      "interaction",
+      "omitted_driver",
+      "observation_confounded"
+    ],
+    "seeds": [
+      20001,
+      20002,
+      20003,
+      20004,
+      20005,
+      20006,
+      20007,
+      20008,
+      20009,
+      20010,
+      20011,
+      20012,
+      20013,
+      20014,
+      20015,
+      20016,
+      20017,
+      20018,
+      20019,
+      20020
+    ],
+    "blocks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "contexts": 960,
+    "true_processes": [
+      "temperature",
+      "water"
+    ],
+    "false_process_controls": [
+      "seasonality",
+      "noise"
+    ],
+    "replacement_allowed": false
+  },
+  "terminal_gate": {
+    "max_removed_true_members": 0,
+    "max_contexts_with_true_member_deletion": 0,
+    "min_removed_false_members": 1,
+    "all_reported_removals_must_be_qualified": true
+  },
+  "governance": {
+    "one_shot": true,
+    "post_truth_rule_changes_allowed": false,
+    "seed_replacement_allowed": false,
+    "family_replacement_allowed": false,
+    "empirical_validation_authorized_before_terminal": false,
+    "recovery_failure_means_truth_remains_unopened": true
+  },
+  "execution_boundary": {
+    "execution_receipt_path": "configs/sealed_answer_superiority_v26_terminal_open_execution.json",
+    "trigger_path": "configs/sealed_answer_superiority_v26_terminal_open_execute.lock",
+    "both_absent_at_contract_freeze": true,
+    "workflow_may_not_run_without_both": true
+  }
+}
