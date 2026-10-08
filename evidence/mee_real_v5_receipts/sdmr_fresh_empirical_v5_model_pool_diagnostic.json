@@ -1,0 +1,69 @@
+{
+  "schema": "sdmr.fresh_empirical_v5.model_pool_diagnostic.v1",
+  "status": "post_terminal_diagnostic_no_rescue",
+  "source": {
+    "workflow_run": 37613738626,
+    "artifact_id": 11487215382,
+    "artifact_digest": "sha256:f6f959b6fb198a7dba8a2f5d754694cc869412f5072d4c35b2a9cf351d88959b"
+  },
+  "denominator": {
+    "taxa": 50,
+    "processes_per_taxon": 6,
+    "process_cells": 300
+  },
+  "full_system_authorization": {
+    "shallow3_hgb": {
+      "authorized_taxa": 32,
+      "unauthorized_taxa": 18
+    },
+    "penalized_logistic": {
+      "authorized_taxa": 10,
+      "unauthorized_taxa": 40
+    },
+    "both_authorized_taxa": 10,
+    "hgb_only_authorized_taxa": 22
+  },
+  "route_sharp_states": {
+    "shallow3_hgb": {
+      "sharp_cells": 125,
+      "total_cells": 300,
+      "overall_fraction": 0.4166666666666667,
+      "authorized_cell_denominator": 192,
+      "authorized_fraction": 0.6510416666666666
+    },
+    "penalized_logistic": {
+      "sharp_cells": 32,
+      "total_cells": 300,
+      "overall_fraction": 0.10666666666666667,
+      "authorized_cell_denominator": 60,
+      "authorized_fraction": 0.5333333333333333
+    },
+    "stable_two_route": {
+      "sharp_cells": 16,
+      "total_cells": 300,
+      "overall_fraction": 0.05333333333333334,
+      "both_authorized_cell_denominator": 60,
+      "both_authorized_fraction": 0.26666666666666666
+    }
+  },
+  "stable_state_counts": {
+    "unavailable": 240,
+    "unresolved": 44,
+    "replaceable": 15,
+    "contributory": 1,
+    "required": 0
+  },
+  "interpretation": [
+    "v5 solved feature completeness prospectively; the terminal failure occurs at process identifiability.",
+    "The shallow3 HGB route authorizes 32 taxa, whereas the penalized-logistic stability route authorizes only 10.",
+    "Among the 10 taxa authorized by both routes, only 16 of 60 process cells receive the same sharp state.",
+    "HGB alone would still yield only 125 of 300 sharp cells overall, below the frozen EMP-D threshold of 0.80, so dropping the logistic route post hoc would not rescue v5."
+  ],
+  "prohibited": [
+    "change the v5 EMP-D denominator or threshold",
+    "drop the logistic route retroactively",
+    "reinterpret unavailable as biologically absent",
+    "use this diagnosis to rescue v5",
+    "use any later sealed outcome to alter this model-pool diagnosis"
+  ]
+}
