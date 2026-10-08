@@ -43,7 +43,7 @@ INCLUDE=[
 
 FORBIDDEN_PATTERNS=[
   r"\b[a-f0-9]{40}\b",  # Git commit IDs can reveal author and repository
-  r"(?<![0-9])[0-9]{11}(?![0-9])",  # run/artifact IDs are not for anonymous review
+  r"(?<![A-Za-z0-9])[0-9]{11}(?![A-Za-z0-9])",  # run/artifact IDs are not for anonymous review
   r"zuizui0223",
   r"github\.com/zuizui0223",
   r"@tohoku\.ac\.jp",
