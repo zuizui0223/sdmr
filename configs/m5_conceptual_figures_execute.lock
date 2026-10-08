@@ -1,3 +1,4 @@
 program=m5-conceptual-figures-v1
 source=frozen-kt-world-design-no-outcome-values
 review=figure1-process-closure-figure2-eight-worlds
+visual_qa_revision=resolve_heading_and_long_row_overlap
