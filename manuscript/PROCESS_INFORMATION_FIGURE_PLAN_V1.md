@@ -6,7 +6,7 @@ Show three conceptual cases:
 
 A. unique representation — removing the process information worsens all adequate routes; positive process state can be supported.
 
-B. redundant representation — one variable disappears but another adequate route carries the same process; process is replaceable rather than absent.
+B. declared many-to-many redundancy — deleting one variable can leave another carrier of the **same** process. This alone never certifies **process** replaceability. A process-free route must instead exclude every predictor in that process's frozen information closure.
 
 C. shared carrier / missing system — separate sharp attribution is unresolved, or the full system is unavailable.
 
@@ -45,24 +45,24 @@ A denominator-flow graphic or stacked bar:
 
 This is the main quantitative figure.
 
-## Figure 4 — Full-system authorization and Stage-P / Stage-T separation
+## Figure 4 — Full-system authorization across frozen known-truth worlds
 
-Panel A:
-six informative controls, 20/20 authorization each.
+One quantitative panel with:
+- six informative controls, each 20/20 authorization;
+- omitted-driver W7, 0/20 authorization (null);
+- observation-confounded W6, 1/20 authorization (report-only).
 
-Panel B:
-omitted-driver W7, 0/20 authorization.
-
-Panel C:
-Stage P identifies process information; Stage T separately evaluates spatial transfer.
-
-Annotate:
-- Stage-T completeness = 1.0
-- Stage-P-positive → spatial-replaceable contradiction = 0
-- spatial structural-refusal violation = 0.
+Stage P (process-information identification) and Stage T (geographic transfer) are distinct claims discussed in text. Stage-T completeness and contradiction/structural-refusal endpoints are stated in Results, not falsely implied to be plotted in this authorization bar chart. A separate panel would be required to plot them.
 
 ## Supporting figures
 
 - exact KT-A–KT-F gate ledger;
 - result fingerprints/provenance;
 - sensitivity and development lineage only where necessary to explain how the final frozen contract was obtained.
+
+## Audit rules
+
+- Figure 1 state labels are **conditional information classifications**, not causal physiological conclusions.
+- Figure 2 describes the frozen synthetic worlds and roles, **not observed outcomes**.
+- Figures 3–4 are built from the canonical prospective M5 metrics receipt; do not infer sampling independence from bar heights.
+- Keep v5's negative real-plant applicability evidence separate; none of the four figures promotes an empirical result.
