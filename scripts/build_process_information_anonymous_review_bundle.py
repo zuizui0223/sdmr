@@ -53,6 +53,7 @@ FORBIDDEN_PATTERNS=[
 
 # Only reviewer-facing copies are redacted. Archived source receipts stay byte-identical.
 REVIEW_RECEIPTS={
+  "configs/sdmr_v6_prospective_kt_v2.json",
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
