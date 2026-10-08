@@ -15,6 +15,13 @@ ROOT=Path(__file__).resolve().parents[1]
 
 INCLUDE=[
   "src/sdmr/process_id/evidence.py",
+  "src/sdmr/candidate_outer_fold_evidence.py",
+  "src/sdmr/process_exclusion_certificate.py",
+  "src/sdmr/process_information_closure.py",
+  "src/sdmr/process_id/taxonomy.py",
+  "src/sdmr/process_id/known_truth/worlds.py",
+  "src/sdmr/process_id/known_truth/integration_v5.py",
+  "src/sdmr/process_id/known_truth/prospective_kt.py",
   "src/sdmr/process_id/states.py",
   "src/sdmr/process_id/hgb_profiles.py",
   "src/sdmr/process_id/known_truth/permutation_gate.py",
@@ -107,12 +114,30 @@ def main():
             shutil.copy2(src,dst)
             anonymize_review_copy(rel,dst)
             manifest.append({"path":rel,"sha256":sha256(dst)})
+        # Review-specific inert package initializers avoid loading unrelated
+        # modules from the much larger source repository. Scientific modules above
+        # remain verbatim copies (except provenance-only JSON/Markdown redaction).
+        for rel in ("src/sdmr/__init__.py","src/sdmr/process_id/__init__.py",
+                    "src/sdmr/process_id/known_truth/__init__.py"):
+            target=root/rel
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_text('"""Review-only minimal namespace, no package side effects."""\n',encoding="utf-8")
+            manifest.append({"path":rel,"sha256":sha256(target)})
+        req=root/"REQUIREMENTS_REVIEWERS.txt"
+        req.write_text("numpy>=1.24\npandas>=2.0\nscikit-learn>=1.3\npytest>=8\n",encoding="utf-8")
+        manifest.append({"path":"REQUIREMENTS_REVIEWERS.txt","sha256":sha256(req)})
         readme=root/"README_REVIEWERS.md"
         readme.write_text(
             "# Anonymous reviewer bundle\n\n"
             "The primary prospective known-truth metrics and the later FAILED real-plant v5 "
             "decision receipts are included for scientific audit. Model source files and "
             "focused tests are supplied without Git history.\n\n"
+            "To run the three focused tests: install REQUIREMENTS_REVIEWERS.txt, "
+            "then from this directory set PYTHONPATH=src and run "
+            "python -m pytest -q tests/test_process_id_permutation_gate.py "
+            "tests/test_process_id_scoped_pipeline_v6.py "
+            "tests/test_process_id_prospective_kt_gate.py. The three small "
+            "review-only __init__.py files deliberately omit unrelated package imports.\n\n"
             "For double-anonymous review only, run IDs, Git heads and archive artifact "
             "identifiers are removed from the copies in this ZIP. Frozen result counts, "
             "scores, confidence intervals, refusal decisions and learner diagnostics "
