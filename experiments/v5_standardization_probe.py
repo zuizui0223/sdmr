@@ -11,12 +11,14 @@ import hashlib
 import io
 import json
 import math
+import warnings
 import zipfile
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from scipy.spatial import cKDTree
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
@@ -121,14 +123,26 @@ def probe_one(taxon, model_index, bg_index, occurrence, locations, predictors, f
     result={"scientific_name":taxon,"n_occurrence":len(o),"n_background":len(b)}
     for route in ("raw_logistic_v5_replay","standardized_logistic_exploratory"):
         fold_predictions=[]
+        iterations=[]
+        convergence_warnings=[]
+        fold_scores=[]
         for train,test in splits:
             clf=LogisticRegression(C=1,penalty="l2",solver="lbfgs",max_iter=1000,
                                    random_state=0,class_weight="balanced")
             model=clf if route=="raw_logistic_v5_replay" else make_pipeline(StandardScaler(),clf)
-            model.fit(x[train],y[train])
+            with warnings.catch_warnings(record=True) as reported:
+                warnings.simplefilter("always", ConvergenceWarning)
+                model.fit(x[train],y[train])
+            convergence_warnings.append(any(issubclass(w.category,ConvergenceWarning) for w in reported))
+            iterations.append(int(clf.n_iter_[0]))
             pred=model.predict_proba(x[test])[:,1]
             fold_predictions.append((y[test],np.asarray(pred)))
+            fold_scores.append(balanced_log_score(y[test],pred))
         d=gate_stats(fold_predictions)
+        d["solver_iterations_per_fold"]=iterations
+        d["solver_hit_iteration_ceiling_folds"]=sum(i>=1000 for i in iterations)
+        d["convergence_warning_folds"]=sum(convergence_warnings)
+        d["heldout_fold_scores"]=fold_scores
         result[route]=d
     frozen=frozen_auth.loc[(frozen_auth.scientific_name==taxon)&
                            (frozen_auth.learner_route=="penalized_logistic")].iloc[0]
@@ -179,6 +193,8 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
         print(f"{len(rows):2d}/{taxon_limit} {taxon}: raw={item['raw_logistic_v5_replay']['observed_mean_score']:.4f}"
               f" standardized={item['standardized_logistic_exploratory']['observed_mean_score']:.4f}",flush=True)
     matches=[r["raw_replay_absolute_error"] for r in rows]
+    valid_replay=all(x<=1e-3 for x in matches)
+    debug_paired_gain=float(np.mean([r["score_gain_from_standardization"] for r in rows]))
     report={
         "schema":"sdmr.v5.postterminal_standardization_model_pool_probe.v1",
         "status":"exploratory_development_only_no_empirical_repromotion",
@@ -189,11 +205,17 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
         "predictor_count":46,"folds":3,"training_only_scaler":True,
         "same_original_model_pool_folds":True,
         "baseline_replay": {"maximum_absolute_score_error":max(matches),
-                            "all_within_1e-3":all(x<=1e-3 for x in matches)},
+                            "all_within_1e-3":valid_replay,
+                            "matched_taxa_within_1e-3":sum(x<=1e-3 for x in matches)},
+        "comparison_valid_against_original_v5":valid_replay,
+        "scientific_effect_attribution_allowed":False,
+        "diagnostic_status":("baseline_replay_matched_exploratory_only" if valid_replay
+                             else "blocked_original_v5_baseline_not_reproduced"),
         "raw_authorized_count":sum(r["raw_logistic_v5_replay"]["authorized"] for r in rows),
         "scaled_authorized_count":sum(r["standardized_logistic_exploratory"]["authorized"] for r in rows),
         "scaled_better_taxa":sum(r["score_gain_from_standardization"]>0 for r in rows),
-        "paired_mean_score_gain":float(np.mean([r["score_gain_from_standardization"] for r in rows])),
+        "paired_mean_score_gain":debug_paired_gain if valid_replay else None,
+        "debug_paired_gain_not_comparable_to_original":debug_paired_gain if not valid_replay else None,
         "rows":rows,
         "interpretation_limit":"post-outcome method development; no causal mechanism or v5 improvement claim",
     }
