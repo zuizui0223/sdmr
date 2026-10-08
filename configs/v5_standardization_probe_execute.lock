@@ -1,0 +1,8 @@
+program=sdmr-v5-standardization-postterminal-development-v1
+cohort=frozen_final50_first10_selection_rank
+source_model_pool_run=37613738626
+source_feature_run=37545674411
+source_occurrence_run=37305740628
+training_only_standardization=true
+original_v5_promotion=failed_closed
+sealed_answer_check_access=false
