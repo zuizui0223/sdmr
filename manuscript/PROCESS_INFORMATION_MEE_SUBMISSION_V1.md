@@ -55,7 +55,7 @@ Incomplete route sets or interval-indeterminate comparisons remain **unresolved*
 
 If the full predictor system itself fails the frozen information-adequacy gate, the process state is **unavailable**.
 
-Identical process-information closures are not forced into separate sharp states. If two declared processes are structurally inseparable under the available representations, sharp attribution is replaced by unresolved.
+Identical process-information closures are not forced into separate sharp states. If two declared processes are structurally inseparable under the available representations, sharp attribution is replaced by unresolved. Figure 1 summarizes the distinction between single-predictor deletion and process-closure knockout, and the five conditional information states.
 
 ### 2.2 Full-system authorization
 
@@ -95,7 +95,7 @@ Eight frozen worlds were used.
 7. **omitted_driver** — the true driver is absent from the declared predictor universe;
 8. **geographic_shift** — a proxy relationship changes outside the model-pool region.
 
-Unique process, redundant representation, shared carrier, null correlation, interaction and geographic shift were informative controls for full-system authorization. Observation confounding was report-only for that subgate. Omitted driver was the null control.
+Figure 2 records the eight frozen world designs and their authorization roles. Unique process, redundant representation, shared carrier, null correlation, interaction and geographic shift were informative controls for full-system authorization. Observation confounding was report-only for that subgate. Omitted driver was the null control.
 
 ### 2.5 Prospective information barrier
 
@@ -147,7 +147,7 @@ The scientific endpoint was the strict conjunction of KT-A through KT-F.
 
 ### 3.1 Positive process information was recovered
 
-The prospective test recovered **71 of 80 positive process states**, giving Stage-P positive recovery of **0.8875**. This exceeded the frozen 0.80 threshold while leaving nine positive targets unrecovered.
+The prospective test recovered **71 of 80 positive process states**, giving Stage-P positive recovery of **0.8875**. This exceeded the frozen 0.80 threshold while leaving nine positive targets unrecovered (Figure 3).
 
 ### 3.2 Replaceable processes were not falsely promoted
 
@@ -165,7 +165,7 @@ Across **120 unavailable cells**, favorable calls were **0/120** and sharp calls
 
 The omitted-driver null world was authorized **0/20** times.
 
-Each informative control achieved full-system authorization in **20/20** seeds:
+Each informative control achieved full-system authorization in **20/20** seeds (Figure 4):
 
 - unique_process;
 - redundant_representation;
@@ -204,7 +204,7 @@ This supports a simple design principle: allow missed conclusions when the infor
 
 Variable-importance methods ask how much a fitted prediction depends on a predictor. That is valuable for explanation, and modern methods can quantify such contributions robustly (e.g. Zbinden et al. 2026). The present framework asks a different question: whether **process information** remains when all declared carriers of a process are challenged.
 
-This distinction matters under correlated predictors. Collinearity can make coefficients and variable rankings unstable (Dormann et al. 2013), but redundancy is not merely a nuisance to remove. If two predictors carry substitutable information about the same ecological process, the relevant process may be replaceable rather than absent.
+This distinction matters under correlated predictors. Collinearity can make coefficients and variable rankings unstable (Dormann et al. 2013), but redundancy is not merely a nuisance to remove. If two predictors are both declared carriers of the same ecological process, deleting either predictor alone does **not** establish that the process is replaceable: the other carrier remains. Only after excluding the **entire declared process-information closure** can noninferior reconstruction from process-free routes support a replaceable process-information state. Conversely, a variable declared outside that closure may still act as a correlated proxy for its information, a limitation of the chosen registry and observation system rather than proof that the biological process is unnecessary.
 
 Likewise, a shared carrier creates the opposite problem. One predictive variable can support more than one named process, so variable-level importance does not imply unique process attribution.
 
@@ -263,3 +263,13 @@ Roberts, D.R., Bahn, V., Ciuti, S., Boyce, M.S., Elith, J., Guillera-Arroita, G.
 Strobl, C., Boulesteix, A.-L., Kneib, T., Augustin, T. & Zeileis, A. (2008). Conditional variable importance for random forests. *BMC Bioinformatics*, 9, 307. https://doi.org/10.1186/1471-2105-9-307
 
 Zbinden, R., van Tiel, N., Sumbul, G., Vanalli, C., Kellenberger, B. & Tuia, D. (2026). MaskSDM with Shapley values to improve flexibility, robustness and explainability in species distribution modelling. *Methods in Ecology and Evolution*, 17, 188–206. https://doi.org/10.1111/2041-210X.70200
+
+## Figure captions
+
+**Figure 1. Declared process-information closures and abstention-aware state decisions.** Panel A is a schematic many-to-many registry: temperature and elevation proxy carry thermal information, and a shared PET representation is declared to carry both thermal and water information. Deleting a single thermal predictor leaves other thermal carriers in place; evaluating process replaceability requires excluding the whole declared thermal closure. Panel B shows the logical distinctions between unavailable, unresolved, replaceable, contributory and required process-information states. These are conditional statements about declared information and model adequacy, not causal physiological identification.
+
+**Figure 2. Eight prospective known-truth world families and their frozen validation roles.** The schematic inventory summarizes the generating signals, environmental representations or observation structures, and prespecified roles in full-system authorization. Six worlds were informative controls; observation confounding was report-only and omitted driver was the null. This figure presents benchmark design, not development-seed or sealed-test outcomes.
+
+**Figure 3. Prospective known-truth denominators and observed state outcomes.** Of 80 declared positive process targets, 71 were recovered and 9 remained unrecovered. No favorable false call occurred among 700 replaceable targets, no over-resolution among 60 unresolved targets, no sharp call among 120 unavailable targets, and no structural-refusal violation among 60 structural cases. Bars show mutually exclusive cells within each target-state denominator; they do not imply independent observations across worlds and seeds.
+
+**Figure 4. Full-system authorization rates across known-truth worlds.** Each of the six prespecified informative control worlds authorized 20/20 prospective seeds. The omitted-driver null authorized 0/20; the observation-confounded world authorized 1/20 and was report-only for this gate. This figure is not a spatial-transfer panel: Stage-P/Stage-T separation and spatial contradiction checks are reported in the Results text.

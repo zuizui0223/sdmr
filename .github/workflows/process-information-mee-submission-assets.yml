@@ -9,6 +9,7 @@ on:
       - paper/m5-prior-work-positioning-v1
       - paper/m5-submission-manuscript-docx-v1
       - paper/m5-submission-docx-rebased-v1
+      - paper/m5-figures-1-2-complete-v1
     paths:
       - 'configs/process_information_submission_assets_execute.lock'
   workflow_dispatch:
@@ -27,6 +28,10 @@ jobs:
           cache: pip
       - name: Install figure dependencies
         run: python -m pip install matplotlib python-docx
+      - name: Build conceptual figures from frozen method and worlds
+        run: >-
+          python manuscript/figures/build_process_information_conceptual_figures.py
+          --output-dir build/process_information_submission/figures
       - name: Build quantitative figures
         run: |
           mkdir -p build/process_information_submission/figures

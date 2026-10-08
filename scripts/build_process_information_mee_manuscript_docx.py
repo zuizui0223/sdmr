@@ -84,6 +84,8 @@ def format_base(doc: Document) -> None:
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.style = "Normal"
     footer.paragraph_format.line_spacing = 1
+    # Prevent LibreOffice/Word from assigning a second marginal line number to the footer.
+    footer._p.get_or_add_pPr().append(OxmlElement("w:suppressLineNumbers"))
     footer.add_run("Page ")
     fld = OxmlElement("w:fldSimple")
     fld.set(qn("w:instr"), "PAGE")
