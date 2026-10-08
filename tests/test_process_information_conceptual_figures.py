@@ -62,3 +62,15 @@ def test_four_figures_are_explained_without_new_outcome_claims():
     source=BUILDER.read_text(encoding="utf-8")
     for forbidden in ("results/sdmr_", "fresh_empirical", "model_refit", "promotion_failed"):
         assert forbidden not in source
+
+def test_main_submission_bundle_includes_all_four_figures_and_word_manuscript():
+    workflow=(ROOT/".github/workflows/process-information-mee-submission-assets.yml").read_text(encoding="utf-8")
+    assert "build_process_information_conceptual_figures.py" in workflow
+    assert "build_process_information_figures.py" in workflow
+    assert "build_process_information_mee_manuscript_docx.py" in workflow
+    assert "build/process_information_submission/figures" in workflow
+    assert "paper/m5-figures-1-2-complete-v1" in workflow
+    source=BUILDER.read_text(encoding="utf-8")
+    for name in ("figure1_process_information_closure.svg",
+                 "figure2_known_truth_worlds.svg"):
+        assert name in source
