@@ -2,7 +2,7 @@
 
 **Purpose.** Four compact JSON files are verbatim snapshots of the terminal real-plant v5 evidence. They document a **failed and closed** empirical promotion and are not a new cohort, re-analysis, or positive validation of M5.
 
-**Source identity.** Copied without editing from archived branch `archive/sdmr-fresh-v5-sealed-postterminal` at source head `30032637a6661242330aa564185dc53fa4ebfa59`. Git blob SHA-1 values below describe original file bytes; byte-for-byte copying can be checked using the Git blob hash (`sha1(b"blob " + length + b"\\0" + bytes)`). The included regression test checks all four hashes.
+**Source identity.** Copied without editing from archived branch `archive/sdmr-fresh-v5-sealed-postterminal` at source head `30032637a6661242330aa564185dc53fa4ebfa59`. Git blob SHA-1 values below describe original file bytes; byte-for-byte copying can be checked using the Git blob hash (`sha1(b"blob " + length + b"\x00" + bytes)`). The included regression test checks all four hashes.
 
 | Snapshot in this folder | Original path on archived branch | Original Git blob SHA-1 |
 |---|---|---|
