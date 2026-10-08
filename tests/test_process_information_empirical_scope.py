@@ -61,7 +61,7 @@ def test_frozen_v5_receipts_are_original_byte_copies():
     """The anonymous bundle must not silently rewrite archived negative results."""
     for filename, expected_blob_sha in ORIGINAL_GIT_BLOBS.items():
         data=(EVIDENCE/filename).read_bytes()
-        git_blob=b"blob "+str(len(data)).encode("ascii")+b"\\0"+data
+        git_blob=b"blob "+str(len(data)).encode("ascii")+b"\x00"+data
         assert hashlib.sha1(git_blob).hexdigest()==expected_blob_sha, filename
 
 def test_frozen_v5_bottleneck_counts_and_decision_sequence():
