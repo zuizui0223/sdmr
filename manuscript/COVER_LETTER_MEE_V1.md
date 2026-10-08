@@ -10,6 +10,8 @@ The paper's main contribution is not another variable-importance score. It is a 
 
 We believe the manuscript fits *Methods in Ecology and Evolution* because it develops a broadly applicable inferential layer for ecological models rather than a taxon-specific workflow. The method is evaluated using prospective simulations specifically designed to separate unique information, redundancy, shared carriers, null correlation, interaction, observation confounding, missing drivers and geographic shift. The manuscript also draws a clear boundary around what the method does not do: it does not convert correlative occurrence models into mechanistic models or claim causal physiological recovery.
 
+The manuscript's principal evidence is prospective known-truth validation. A later, separately frozen real-plant applicability test did not pass empirical promotion: although all 50 taxa passed environmental-feature completeness, process-first inference was available for only 10 taxa, and just 16 of 300 process cells had stable sharp states across the declared learners. We explicitly disclose this generalization limit in the Discussion rather than treating the real-data attempt as validation of our synthetic benchmark.
+
 For double-anonymous review, we will supply an anonymized reviewer bundle containing the frozen contracts, source code, focused tests and canonical result receipts. A permanent public archive DOI and repository URL will be provided for the final version.
 
 This work is original, is not under consideration elsewhere, and all authors will approve the submitted version.
