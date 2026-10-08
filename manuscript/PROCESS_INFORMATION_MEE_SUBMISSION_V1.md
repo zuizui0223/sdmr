@@ -23,6 +23,8 @@ Species-distribution and ecological niche models are often interpreted twice. Fi
 
 Recent explainability methods can quantify predictor contributions more flexibly, including Shapley-based contributions in modern SDMs (Zbinden et al. 2026). Those methods address an important but different target: how much a predictor contributes to a fitted prediction. Our target is **process-information identifiability under a declared predictor and observation system**. A process may remain represented after one variable is removed, one observed variable may carry information about several processes, and an apparently best predictor can remain uninterpretable when the required process information is absent.
 
+A second line of prior work addresses the ambiguity of predictor importance more directly. Conditional permutation importance adjusts the variable-level perturbation to account for correlated predictors (Strobl et al. 2008), while model class reliance reports the range of feature-importance values across a prespecified set of well-performing models rather than elevating one fitted model (Fisher et al. 2019). Those approaches demonstrate why single-model importance rankings are insufficient, and are substantive conceptual comparators—not just alternative predictive metrics. Neither, by itself, defines an ecological process through **all its declared information carriers**, tests whether the full representation system is adequate, or returns the explicit process-level *unresolved* and *unavailable* states evaluated here. These distinctions concern the **inferential target and decision rule**, not an established predictive advantage over conditional importance or model class reliance.
+
 This distinction is consistent with a broader principle of ecological model adequacy: interpretation should not exceed what the model and data can support (Getz et al. 2018). We operationalize that principle as a state space for process information.
 
 For each declared environmental process, the framework admits five states:
@@ -78,7 +80,7 @@ We separate two estimands that are often conflated.
 
 **Stage T — geographic transfer** asks whether the Stage-P conclusion remains compatible with a frozen spatial-transfer evaluation.
 
-A Stage-P positive state is not automatically treated as evidence of geographic transfer. Stage T cannot retroactively sharpen or rescue a Stage-P claim.
+A Stage-P positive state is not automatically treated as evidence of geographic transfer. Stage T cannot retroactively sharpen or rescue a Stage-P claim. Spatially structured validation is motivated by the known risk that random cross-validation understates error when ecological observations and predictors are spatially dependent (Roberts et al. 2017), but passing a spatial holdout still does not identify a biological mechanism.
 
 ### 2.4 Known-truth worlds
 
@@ -206,6 +208,8 @@ This distinction matters under correlated predictors. Collinearity can make coef
 
 Likewise, a shared carrier creates the opposite problem. One predictive variable can support more than one named process, so variable-level importance does not imply unique process attribution.
 
+Conditional permutation importance (Strobl et al. 2008) addresses dependence in variable-level importance calculations. Model class reliance (Fisher et al. 2019) explicitly respects the possibility that different well-performing models attribute different importance to the same feature. Both are more relevant precedents than AUC or a single unadjusted ranking. Our framework instead challenges the complete, predeclared carrier closure of a *named ecological process*, then distinguishes replaceability from positive, unresolved and unavailable **information states**. MaskSDM (Zbinden et al. 2026) can evaluate flexible feature subsets and Shapley contributions, including groups; that capability is compatible with, but does not by itself supply, a process-adequacy or abstention certificate. Process labels and carrier sets here remain **researcher-declared modelling assumptions**, not biologically verified causes.
+
 ### 4.3 Unavailability is a scientific result
 
 The omitted-driver world makes the boundary explicit. When the true generating information lies outside the declared predictor universe, the appropriate process result is not that all included processes are unimportant, nor that the strongest remaining predictor is mechanistic. The declared information system is simply insufficient for the requested process interpretation.
@@ -222,7 +226,7 @@ The Stage-P/Stage-T separation prevents geographic generalization from being smu
 
 This study is prospective known-truth validation.
 
-It does **not** establish causal physiological mechanism recovery in real species, empirical performance across biodiversity databases or universal superiority over every SDM and variable-selection approach.
+It does **not** establish causal physiological mechanism recovery in real species, empirical performance across biodiversity databases or universal superiority over every SDM and variable-selection approach. No head-to-head benchmark against conditional variable importance, model class reliance or MaskSDM was conducted; their different inferential outputs preclude a simple numerical performance ranking without designing a common target. The observed zero error counts are finite-sample outcomes under the declared dependent world/seed structure, **not** universal zero-error guarantees.
 
 The result is narrower: under a frozen system containing redundancy, correlation, interaction, observation confounding, missing drivers and geographic shift, an occurrence-only process-information procedure recovered most positive states while preserving replaceability, unresolvedness and unavailability.
 
@@ -246,10 +250,16 @@ The methodological contribution is therefore **evidence-bounded process identifi
 
 Aarts, G., Fieberg, J. & Matthiopoulos, J. (2012). Comparative interpretation of count, presence–absence and point methods for species distribution models. *Methods in Ecology and Evolution*, 3, 177–187. https://doi.org/10.1111/j.2041-210X.2011.00141.x
 
+Fisher, A., Rudin, C. & Dominici, F. (2019). All models are wrong, but many are useful: Learning a variable's importance by studying an entire class of prediction models simultaneously. *Journal of Machine Learning Research*, 20(177), 1–81. https://jmlr.org/papers/v20/18-760.html
+
 Dormann, C.F., Elith, J., Bacher, S., Buchmann, C., Carl, G., Carré, G. et al. (2013). Collinearity: a review of methods to deal with it and a simulation study evaluating their performance. *Ecography*, 36, 27–46. https://doi.org/10.1111/j.1600-0587.2012.07348.x
 
 Galipaud, M., Gillingham, M.A.F., David, M. & Dechaume-Moncharmont, F.-X. (2014). Ecologists overestimate the importance of predictor variables in model averaging: a plea for cautious interpretations. *Methods in Ecology and Evolution*, 5, 983–991. https://doi.org/10.1111/2041-210X.12251
 
 Getz, W.M., Marshall, C.R., Carlson, C.J., Giuggioli, L., Ryan, S.J., Romañach, S.S. et al. (2018). Making ecological models adequate. *Ecology Letters*, 21, 153–166. https://doi.org/10.1111/ele.12893
+
+Roberts, D.R., Bahn, V., Ciuti, S., Boyce, M.S., Elith, J., Guillera-Arroita, G. et al. (2017). Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. *Ecography*, 40, 913–929. https://doi.org/10.1111/ecog.02881
+
+Strobl, C., Boulesteix, A.-L., Kneib, T., Augustin, T. & Zeileis, A. (2008). Conditional variable importance for random forests. *BMC Bioinformatics*, 9, 307. https://doi.org/10.1186/1471-2105-9-307
 
 Zbinden, R., van Tiel, N., Sumbul, G., Vanalli, C., Kellenberger, B. & Tuia, D. (2026). MaskSDM with Shapley values to improve flexibility, robustness and explainability in species distribution modelling. *Methods in Ecology and Evolution*, 17, 188–206. https://doi.org/10.1111/2041-210X.70200
