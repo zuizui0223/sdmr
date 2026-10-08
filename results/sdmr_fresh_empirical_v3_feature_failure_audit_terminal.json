@@ -1,0 +1,111 @@
+{
+  "schema": "sdmr.fresh_empirical_v3.feature_failure_audit_terminal.v1",
+  "status": "diagnostic_complete_no_rescue",
+  "source_feature_gate": {
+    "workflow_run": 37128999833,
+    "artifact_id": 11278021879,
+    "artifact_digest": "sha256:db80f36ca78a1af090b02bd1342e9750707fc542519ff7ea460bc2823b5d0a67",
+    "terminal_status": "v3_feature_gate_terminal_unavailable",
+    "taxa_passing": 48,
+    "taxon_count": 50,
+    "answer_check_accessed": false,
+    "model_fitting_performed": false
+  },
+  "diagnostic_audit": {
+    "workflow_run": 37251666841,
+    "artifact_id": 11321360870,
+    "artifact_digest": "sha256:da5f9e869326c5a981664cc425f084c2b87dedc9ba52b8af71dec40071677a89",
+    "answer_check_accessed": false,
+    "model_fitting_performed": false,
+    "taxon_replacement_performed": false,
+    "predictor_deletion_performed": false,
+    "threshold_relaxation_performed": false,
+    "new_decoding_rules_added": false
+  },
+  "failed_taxa": {
+    "Luzula arcuata": {
+      "model_pool_rows": 535,
+      "dominant_missing_predictors": [
+        {
+          "predictor": "gdd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6429906542056075
+        },
+        {
+          "predictor": "ngd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6429906542056075
+        },
+        {
+          "predictor": "gdgfgd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6429906542056075
+        },
+        {
+          "predictor": "gst",
+          "source": "CHELSA",
+          "missing_fraction": 0.20747663551401868
+        },
+        {
+          "predictor": "fgd",
+          "source": "CHELSA",
+          "missing_fraction": 0.20747663551401868
+        },
+        {
+          "predictor": "gsl",
+          "source": "CHELSA",
+          "missing_fraction": 0.20747663551401868
+        },
+        {
+          "predictor": "lgd",
+          "source": "CHELSA",
+          "missing_fraction": 0.20747663551401868
+        }
+      ],
+      "maximum_soilgrids_model_pool_missing_fraction": 0.024299065420560748
+    },
+    "Micranthes foliolosa": {
+      "model_pool_rows": 456,
+      "dominant_missing_predictors": [
+        {
+          "predictor": "gdd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6447368421052632
+        },
+        {
+          "predictor": "ngd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6447368421052632
+        },
+        {
+          "predictor": "gdgfgd10",
+          "source": "CHELSA",
+          "missing_fraction": 0.6447368421052632
+        },
+        {
+          "predictor": "gst",
+          "source": "CHELSA",
+          "missing_fraction": 0.16666666666666666
+        },
+        {
+          "predictor": "fgd",
+          "source": "CHELSA",
+          "missing_fraction": 0.16666666666666666
+        },
+        {
+          "predictor": "gsl",
+          "source": "CHELSA",
+          "missing_fraction": 0.16666666666666666
+        },
+        {
+          "predictor": "lgd",
+          "source": "CHELSA",
+          "missing_fraction": 0.16666666666666666
+        }
+      ],
+      "maximum_soilgrids_model_pool_missing_fraction": 0.08114035087719298
+    }
+  },
+  "conclusion": "The fresh-v3 feature failure was driven primarily by structural missingness in CHELSA-derived growing-degree and growing-season variables in cold-range taxa, not by the SoilGrids layers that motivated the v3 support pre-screen. The v3 programme remains terminal unavailable and is not rescued.",
+  "design_implication": "Any future independent empirical successor must prospectively screen support for the full declared predictor universe or redesign the predictor universe before taxon selection; it may not repair or reopen v3."
+}
