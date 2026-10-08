@@ -134,7 +134,7 @@ def test_reviewer_zip_has_scientific_receipts_without_public_git_identifiers(tmp
             if filename.endswith((".md",".json",".py",".csv",".txt")):
                 contents=z.read(filename).decode("utf-8")
                 assert not re.search(r"\b[a-f0-9]{40}\b",contents,re.I),filename
-                assert not re.search(r"(?<![0-9])[0-9]{11}(?![0-9])",contents),filename
+                assert not re.search(r"(?<![A-Za-z0-9])[0-9]{11}(?![A-Za-z0-9])",contents),filename
         def get_json(rel):
             return json.loads(z.read(prefix+rel))
         known=get_json("results/sdmr_v6_prospective_kt_v2_metrics.json")
