@@ -105,3 +105,13 @@ def test_frozen_predictor_order_is_normalized_before_fit():
     assert "kind=\"mergesort\"" in source
     assert "dict.fromkeys(registry.predictor.astype(str))" in source
     assert "scikit-learn" not in source  # numerical environment pinned in CI, not guessed here
+
+
+def test_unreproduced_baseline_cannot_be_reported_as_effect():
+    source=SCRIPT.read_text(encoding="utf-8")
+    assert '"paired_mean_score_gain":debug_paired_gain if valid_replay else None' in source
+    assert '"comparison_valid_against_original_v5":valid_replay' in source
+    assert '"scientific_effect_attribution_allowed":False' in source
+    assert '"solver_hit_iteration_ceiling_folds"' in source
+    assert '"convergence_warning_folds"' in source
+    assert '"heldout_fold_scores"' in source
