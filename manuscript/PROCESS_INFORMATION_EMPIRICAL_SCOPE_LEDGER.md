@@ -41,7 +41,7 @@ The preceding v2, v3 and v4 failures, including the adaptive design sequence tha
 - Agreement on sharp states in the 10 common authorized taxa: **16/60**; on the frozen full denominator: **16/300**.
 - Final state counts: **240 unavailable, 44 unresolved, 15 replaceable, 1 contributory, 0 required**.
 - HGB-only diagnostic sharp cells: **125/300**, still below EMP-D minimum.
-- The original archived terminal decision, model-pool diagnostic, sealed result and post-terminal receipt are byte-for-byte reproduced in `evidence/mee_real_v5_receipts/` with Git blob identity checks. This is a **compact audit copy**, not a rerunnable fit or a new analysis.
+- The original archived terminal decision, model-pool diagnostic, sealed result and post-terminal receipt are byte-for-byte reproduced in `evidence/mee_real_v5_receipts/` with Git blob identity checks. The double-anonymous reviewer bundle strips repository-identifying Git and run provenance while preserving scientific fields; the unredacted originals remain unchanged. This is a **compact audit copy**, not a rerunnable fit or a new analysis.
 
 ## Permitted interpretation
 
