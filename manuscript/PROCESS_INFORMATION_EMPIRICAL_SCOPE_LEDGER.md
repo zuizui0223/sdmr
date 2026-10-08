@@ -34,6 +34,15 @@ Supplementary sealed authoritative run: `37643074571`, artifact `11501124012`; p
 
 The preceding v2, v3 and v4 failures, including the adaptive design sequence that led to v5, are disclosed in `manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md`. These separately frozen programmes are **not** independent confirmatory replications.
 
+## Frozen model-pool failure decomposition
+
+- Complete features: **50/50** taxa; missing rasters are not the remaining v5 bottleneck.
+- Full-system authorization: **32/50** HGB, **10/50** penalized logistic, **10/50** in common (HGB-only **22**).
+- Agreement on sharp states in the 10 common authorized taxa: **16/60**; on the frozen full denominator: **16/300**.
+- Final state counts: **240 unavailable, 44 unresolved, 15 replaceable, 1 contributory, 0 required**.
+- HGB-only diagnostic sharp cells: **125/300**, still below EMP-D minimum.
+- The original archived terminal decision, model-pool diagnostic, sealed result and post-terminal receipt are byte-for-byte reproduced in `evidence/mee_real_v5_receipts/` with Git blob identity checks. The double-anonymous reviewer bundle strips repository-identifying Git and run provenance while preserving scientific fields; the unredacted originals remain unchanged. This is a **compact audit copy**, not a rerunnable fit or a new analysis.
+
 ## Permitted interpretation
 
 The method achieved high positive recovery with zero observed false sharpening in the known-truth validation. **That does not imply empirical process identification succeeds in real occurrence data.** In the frozen real-plant cohort, complete environmental rasters were insufficient to make most process claims sharp and stable across the declared learners.

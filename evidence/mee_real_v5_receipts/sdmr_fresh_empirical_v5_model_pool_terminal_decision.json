@@ -1,0 +1,63 @@
+{
+  "schema": "sdmr.fresh_empirical_v5.model_pool_terminal_decision.v1",
+  "frozen_date": "2026-10-08",
+  "status": "terminal_empirical_promotion_failed_pre_answer_check",
+  "programme": "sdmr-fresh-empirical-v5",
+  "information_state": {
+    "answer_check_opened": false,
+    "answer_check_artifacts_present": false,
+    "sealed_scoring_performed": false,
+    "model_pool_fit_completed": true,
+    "feature_gate_passed": true
+  },
+  "frozen_emp_d": {
+    "rule": "stable process fraction >= 0.80 under all 50 taxa x 6 declared processes",
+    "denominator": 300,
+    "required_minimum": 0.8,
+    "observed_stable_sharp_process_cells": 16,
+    "observed_stable_process_fraction": 0.05333333333333334,
+    "passed": false
+  },
+  "model_pool_summary": {
+    "taxon_count": 50,
+    "process_cells": 300,
+    "sdmr_primary_available_taxa": 10,
+    "sdmr_primary_unavailable_taxa": 40,
+    "stable_sharp_process_cells": 16,
+    "stable_process_fraction": 0.05333333333333334,
+    "full46_capacity_control_frozen_taxa": 50
+  },
+  "promotion_logic": {
+    "strict_conjunction": [
+      "EMP-A",
+      "EMP-B",
+      "EMP-C",
+      "EMP-D",
+      "EMP-E",
+      "EMP-F"
+    ],
+    "consequence": "Because EMP-D is irreversibly false before answer-check opening, overall fresh-v5 promotion cannot pass regardless of any later sealed predictive metrics.",
+    "rescue_allowed": false,
+    "taxon_drop_allowed": false,
+    "threshold_change_allowed": false,
+    "learner_change_allowed": false,
+    "process_state_reclassification_after_sealed_outcomes": false
+  },
+  "queued_sealed_runs": {
+    "non_authoritative_superseded_run": 37642883197,
+    "rewired_one_shot_run": 37643074571,
+    "artifacts_present_at_terminal_freeze": 0,
+    "interpretation_if_they_later_execute": "supplementary sealed predictive characterization only; cannot rescue, reopen, or promote fresh v5"
+  },
+  "scientific_interpretation": [
+    "The predeclared fresh-v5 feature availability problem was solved prospectively: 50/50 taxa passed the 46-layer complete-case gate.",
+    "However, under the frozen model-pool-only process-identification rules, stable sharp process states were rare (16/300) and the primary SDMR route was unavailable for 40/50 taxa.",
+    "Fresh v5 therefore fails empirical promotion at EMP-D before sealed answer-check information is needed."
+  ],
+  "boundary": [
+    "This does not alter the prospective known-truth M5 pass.",
+    "This does not show that the six ecological processes are biologically absent.",
+    "Unavailable or unresolved process states are not biological negatives.",
+    "Any later sealed score is post-terminal characterization and not promotion evidence."
+  ]
+}

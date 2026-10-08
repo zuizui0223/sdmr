@@ -1,4 +1,11 @@
 """Protect the M5 known-truth claim and transparent empirical applicability boundary."""
+import hashlib
+import os
+import json
+import re
+import subprocess
+import sys
+import zipfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -46,3 +53,132 @@ def test_scope_ledger_is_anonymous():
     text=(LEDGER.read_text(encoding="utf-8")+"\n"+SI.read_text(encoding="utf-8")).lower()
     assert "zuizui0223" not in text
     assert "github.com/" not in text
+
+EVIDENCE=ROOT/"evidence"/"mee_real_v5_receipts"
+ORIGINAL_GIT_BLOBS={
+    "sdmr_fresh_empirical_v5_model_pool_diagnostic.json": "fb6b140f49bf3bc9f28ac5601d108f95d1952fa7",
+    "sdmr_fresh_empirical_v5_model_pool_terminal_decision.json": "d6b7ca10d8238a91a45efe036d26728406c62ccc",
+    "sdmr_fresh_empirical_v5_sealed_promotion_result.json": "29c7b777d4f38ef47516cb293821ca98e5e8b643",
+    "sdmr_fresh_empirical_v5_sealed_postterminal_receipt.json": "88f52b4df1c205b59fcadb9d6fe8ef0e886c6dfa",
+}
+
+def test_frozen_v5_receipts_are_original_byte_copies():
+    """The anonymous bundle must not silently rewrite archived negative results."""
+    for filename, expected_blob_sha in ORIGINAL_GIT_BLOBS.items():
+        data=(EVIDENCE/filename).read_bytes()
+        git_blob=b"blob "+str(len(data)).encode("ascii")+b"\x00"+data
+        assert hashlib.sha1(git_blob).hexdigest()==expected_blob_sha, filename
+
+def test_frozen_v5_bottleneck_counts_and_decision_sequence():
+    diagnostic=json.loads((EVIDENCE/"sdmr_fresh_empirical_v5_model_pool_diagnostic.json").read_text())
+    decision=json.loads((EVIDENCE/"sdmr_fresh_empirical_v5_model_pool_terminal_decision.json").read_text())
+    sealed=json.loads((EVIDENCE/"sdmr_fresh_empirical_v5_sealed_promotion_result.json").read_text())
+    receipt=json.loads((EVIDENCE/"sdmr_fresh_empirical_v5_sealed_postterminal_receipt.json").read_text())
+    full=diagnostic["full_system_authorization"]
+    assert full["shallow3_hgb"]["authorized_taxa"]==32
+    assert full["penalized_logistic"]["authorized_taxa"]==10
+    assert full["both_authorized_taxa"]==10
+    assert full["hgb_only_authorized_taxa"]==22
+    stable=diagnostic["route_sharp_states"]["stable_two_route"]
+    assert stable["sharp_cells"]==16
+    assert stable["total_cells"]==300
+    assert stable["both_authorized_cell_denominator"]==60
+    assert diagnostic["route_sharp_states"]["shallow3_hgb"]["sharp_cells"]==125
+    assert sum(diagnostic["stable_state_counts"].values())==300
+    assert diagnostic["stable_state_counts"]=={
+        "unavailable":240,"unresolved":44,"replaceable":15,"contributory":1,"required":0
+    }
+    assert decision["information_state"]["answer_check_opened"] is False
+    assert decision["frozen_emp_d"]["passed"] is False
+    assert decision["frozen_emp_d"]["required_minimum"]==0.80
+    assert decision["promotion_logic"]["rescue_allowed"] is False
+    assert sealed["status"]=="promotion_failed"
+    assert sealed["strict_promotion_pass"] is False
+    assert sealed["taxon_count"]==50
+    assert sealed["primary_unavailable_taxa"]==40
+    assert sealed["mean_primary_balanced_log_score_gain"]<0
+    assert receipt["terminal_decision_status"]==decision["status"]
+    assert receipt["equal_result_bytes"] is True
+    assert receipt["model_refit_performed"] is False
+    assert receipt["promotion_after_terminal_allowed"] is False
+
+def test_negative_diagnostic_is_reported_without_denominator_shift():
+    si=SI.read_text(encoding="utf-8")
+    paper=PAPER.read_text(encoding="utf-8")
+    for text in (si,paper):
+        assert "32/50" in text
+        assert "10/50" in text
+        assert "16/60" in text
+        assert "16/300" in text
+        assert "125/300" in text
+    for file in EVIDENCE.iterdir():
+        if file.suffix in {".json",".md"}:
+            content=file.read_text(encoding="utf-8").lower()
+            assert "zuizui0223" not in content
+            assert "github.com/" not in content
+
+def test_reviewer_zip_has_scientific_receipts_without_public_git_identifiers(tmp_path):
+    bundle=tmp_path/"review.zip"
+    subprocess.run(
+        [sys.executable,str(ROOT/"scripts/build_process_information_anonymous_review_bundle.py"),
+         "--output",str(bundle)],
+        check=True,capture_output=True,text=True,
+    )
+    prefix="anonymous_process_information_review_bundle/"
+    with zipfile.ZipFile(bundle) as z:
+        names=z.namelist()
+        for filename in ORIGINAL_GIT_BLOBS:
+            assert prefix+"evidence/mee_real_v5_receipts/"+filename in names
+        assert prefix+"evidence/mee_real_v5_receipts/README_EVIDENCE.md" not in names
+        for filename in names:
+            if filename.endswith((".md",".json",".py",".csv",".txt")):
+                contents=z.read(filename).decode("utf-8")
+                assert not re.search(r"\b[a-f0-9]{40}\b",contents,re.I),filename
+                assert not re.search(r"(?<![A-Za-z0-9])[0-9]{11}(?![A-Za-z0-9])",contents),filename
+        def get_json(rel):
+            return json.loads(z.read(prefix+rel))
+        known=get_json("results/sdmr_v6_prospective_kt_v2_metrics.json")
+        assert known["metrics"]["positive_recovery"]==0.8875
+        assert known["gates"]=={f"KT-{letter}":True for letter in "ABCDEF"}
+        assert "workflow_head" not in known and "workflow_run" not in known
+        contract=get_json("configs/sdmr_v6_prospective_kt_v2.json")
+        assert contract["seeds"]==list(range(74001,74021))
+        assert contract["gate_vector"]["KT-B"]["minimum"]==0.8
+        for step in ("validation","confirmation"):
+            assert "workflow_run" not in contract["prerequisites"][step]
+            assert "artifact_id" not in contract["prerequisites"][step]
+        diag=get_json("evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json")
+        assert diag["full_system_authorization"]["shallow3_hgb"]["authorized_taxa"]==32
+        assert diag["full_system_authorization"]["penalized_logistic"]["authorized_taxa"]==10
+        assert "source" not in diag
+        receipt=get_json("evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_postterminal_receipt.json")
+        assert receipt["promotion_after_terminal_allowed"] is False
+        assert "terminal_freeze_commit" not in receipt
+        assert "authoritative_head" not in receipt and "authoritative_run" not in receipt
+
+def test_review_zip_imports_without_full_repository(tmp_path):
+    bundle=tmp_path/"review.zip"
+    subprocess.run(
+        [sys.executable,str(ROOT/"scripts/build_process_information_anonymous_review_bundle.py"),
+         "--output",str(bundle)],
+        check=True,capture_output=True,text=True,
+    )
+    with zipfile.ZipFile(bundle) as z:
+        z.extractall(tmp_path/"unpacked")
+    base=tmp_path/"unpacked"/"anonymous_process_information_review_bundle"
+    for rel in ("src/sdmr/__init__.py","src/sdmr/process_id/__init__.py",
+                "src/sdmr/process_id/known_truth/__init__.py","REQUIREMENTS_REVIEWERS.txt"):
+        assert (base/rel).exists()
+    env=os.environ.copy()
+    env["PYTHONPATH"]=str(base/"src")
+    code=(
+        "from pathlib import Path\n"
+        "import sdmr, sdmr.process_id.evidence\n"
+        "import sdmr.process_id.known_truth.permutation_gate\n"
+        "import sdmr.process_id.known_truth.scoped_pipeline_v6\n"
+        "import sdmr.process_id.known_truth.integration_v6\n"
+        "import sdmr.process_id.known_truth.prospective_kt\n"
+        "assert Path(sdmr.__file__).resolve().is_relative_to(Path('src').resolve())\n"
+    )
+    subprocess.run([sys.executable,"-c",code],cwd=base,env=env,
+                   check=True,capture_output=True,text=True)
