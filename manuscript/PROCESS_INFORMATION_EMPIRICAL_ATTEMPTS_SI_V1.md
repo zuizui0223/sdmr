@@ -30,7 +30,7 @@ Numerical completeness did **not** translate into a learner-invariant process-in
 
 These are descriptive **pre-answer-check model-pool** observations. They reveal two distinct operational bottlenecks—full-system authorization and cross-learner state agreement—but cannot distinguish true biological process ambiguity from representation, learner-capacity, sampling or observation biases. Learners, taxa and thresholds were not changed in response.
 
-The archived decision, model-pool diagnostic and later sealed result are reproduced **verbatim** as immutable evidence snapshots in `evidence/mee_real_v5_receipts/`, with original source-file blob hashes recorded in `README_EVIDENCE.md`. These compact receipts support an audit of the reported numbers; they do not replace the underlying occurrence data or fitted models.
+The archived decision, model-pool diagnostic and later sealed result are preserved **byte-for-byte** as immutable repository evidence snapshots in `evidence/mee_real_v5_receipts/`, with their original source-file blob hashes recorded in `README_EVIDENCE.md`. **For double-anonymous review, the distributed ZIP removes Git heads, run IDs and artifact identifiers from copies of these JSONs while preserving the scientific values and decisions.** These compact receipts support a numerical audit; they do not replace the underlying occurrence data or fitted models.
 
 ## v5 sealed post-terminal characterization
 
