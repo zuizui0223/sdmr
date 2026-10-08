@@ -55,3 +55,42 @@ def test_no_sealed_outcomes_or_v5_state_mutation():
     assert "source_zip" not in s
     assert "postterminal_standardization_model_pool_probe" in s
     assert "ANSWER_CHECK" not in s
+
+
+def test_probe_one_executes_with_small_complete_model_pool():
+    rng=np.random.default_rng(3)
+    predictors=[f"v{i}" for i in range(46)]
+    taxon="synthetic_fixture"
+    occ_rows=[]
+    bg_rows=[]
+    feature_rows=[]
+    location=0
+    for block,lon in enumerate([0.0,5.0,10.0]):
+        for i in range(15):
+            oid=f"{taxon}|{block}|{i}"
+            loc=location;location+=1
+            occ_rows.append(dict(scientific_name=taxon,occurrence_id=oid,
+                                 longitude=lon+0.01*i,latitude=0.0,spatial_block=block,
+                                 location_id=loc,complete_case=True))
+            feature_rows.append(dict(location_id=loc,
+                                     **{p:float(rng.normal()+0.3) for p in predictors}))
+        for i in range(30):
+            loc=location;location+=1
+            bg_rows.append(dict(scientific_name=taxon,background_rank=block*30+i+1,
+                                longitude=lon+0.01*i,latitude=0.01,
+                                location_id=loc,complete_case=True))
+            feature_rows.append(dict(location_id=loc,
+                                     **{p:float(rng.normal()) for p in predictors}))
+    occ=pd.DataFrame(occ_rows)
+    mod=occ.drop(columns=["spatial_block"])
+    bg=pd.DataFrame(bg_rows)
+    features=pd.DataFrame(feature_rows)
+    auth=pd.DataFrame([dict(scientific_name=taxon,learner_route="penalized_logistic",
+                            observed_mean_score=-0.7)])
+    one=probe.probe_one(taxon,mod,bg,occ,features,predictors,auth)
+    assert one["scientific_name"]==taxon
+    assert one["n_occurrence"]==45
+    assert one["n_background"]>0
+    assert one["raw_logistic_v5_replay"]["p_value"]>=0.001
+    assert np.isfinite(one["score_gain_from_standardization"])
+    assert one["diagnostic_only"] is True
