@@ -38,6 +38,12 @@ The 44 unresolved include **34** different learner states and **10** cells unres
 Within the jointly authorized ten taxa, the six process groups each have ten cells. Stable-sharp counts by process are:
 thermal **2**, water **2**, seasonality **4**, radiation_energy **3**, soil_substrate **2**, productivity **3**. No process has enough consistently sharp cross-learner evidence to support a broad claim.
 
+## Fixed-HGB upper bound on any logistic-only repair
+
+The frozen rule requires both learners to report the same sharp process state. Define `S` as the stable-sharp subset and `H` as the sharp states returned by the **unchanged frozen HGB**. Necessarily `S ⊆ H`, even if a scaled/new logistic classifier perfectly predicts and agrees with HGB on every eligible cell. Since `|H| = 125` of the 300 frozen process cells, **a logistic-only modification cannot produce more than 125/300 = 41.7% stable-sharp decisions**, below the original prespecified EMP-D minimum **240/300 = 80%**. This is a deterministic set-inclusion ceiling under a fixed HGB, not a new inferential success or failure. The original v5 is already closed and cannot be rescued.
+
+Therefore the exploratory standardization intervention is diagnostic of the source of learner authorization differences, **not** a route to pass the original EMP-D gate. A genuinely new process-identification design would also need to understand and improve the HGB closure-evidence stage, or establish that abstention is ecologically appropriate.
+
 ## Plausible, NOT yet demonstrated causes
 
 1. **Scaling and penalization**. v5 fitted a linear L2-logistic model with the raw 46 environmental representations, **without standardization**. Because an L2 penalty operates on coefficient magnitudes, unit/scale differences can change regularization pressure. This is a modifiable implementation choice, not an ecological result.
