@@ -122,6 +122,7 @@ def figure1(output: Path) -> None:
             "These are information states within the frozen model, not physiological mechanisms.",
             color=MUTED, fontsize=9.25, ha="left")
     fig.savefig(output, format="svg", bbox_inches="tight", pad_inches=0.16)
+    fig.savefig(output.with_suffix(".png"), format="png", dpi=170, bbox_inches="tight", pad_inches=0.16)
     plt.close(fig)
 
 
@@ -167,6 +168,7 @@ def figure2(output: Path) -> None:
             "observation confounding is report-only, and omitted-driver is the null.",
             fontsize=10, color=MUTED)
     fig.savefig(output, format="svg", bbox_inches="tight", pad_inches=0.16)
+    fig.savefig(output.with_suffix(".png"), format="png", dpi=170, bbox_inches="tight", pad_inches=0.16)
     plt.close(fig)
 
 
