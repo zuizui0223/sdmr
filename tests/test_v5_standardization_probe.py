@@ -94,3 +94,14 @@ def test_probe_one_executes_with_small_complete_model_pool():
     assert one["raw_logistic_v5_replay"]["p_value"]>=0.001
     assert np.isfinite(one["score_gain_from_standardization"])
     assert one["diagnostic_only"] is True
+
+
+def test_frozen_predictor_order_is_normalized_before_fit():
+    import ast
+    tree=ast.parse(SCRIPT.read_text(encoding="utf-8"))
+    source=SCRIPT.read_text(encoding="utf-8")
+    assert '"_role_order"' in source
+    assert '["process","_role_order","predictor"]' in source
+    assert "kind=\"mergesort\"" in source
+    assert "dict.fromkeys(registry.predictor.astype(str))" in source
+    assert "scikit-learn" not in source  # numerical environment pinned in CI, not guessed here
