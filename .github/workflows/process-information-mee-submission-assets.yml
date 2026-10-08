@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - paper/process-information-submission-assets-v1
+      - paper/m5-empirical-scope-amendment
     paths:
       - 'configs/process_information_submission_assets_execute.lock'
   workflow_dispatch:
