@@ -14,6 +14,8 @@ The full method and validation design were frozen before a prospective known-tru
 
 The manuscript is methodological rather than taxon-specific. The benchmark worlds cover predictor redundancy, shared information carriers, correlation without process membership, nonlinear interaction, observation confounding, missing drivers and geographic shift. We deliberately do not claim that occurrence-only models recover causal physiology.
 
+For completeness, a later, separately frozen real-plant stress test did not pass its empirical promotion criteria: 50/50 taxa were feature-complete, but the process-first route was available for 10/50 and only 16/300 process states were stable and sharp across the predeclared learners. The manuscript reports this as a limitation of real-world transport, not a positive empirical validation.
+
 The current manuscript is concise and would be submitted with an anonymized reviewer bundle containing the frozen contracts, code, tests and result receipts. A separate empirical validation programme is not used to support the prospective known-truth result.
 
 Would this prospective simulation-based validation, without relying on a focal empirical case study, be within scope for a Research Article at *Methods in Ecology and Evolution*?

@@ -6,7 +6,9 @@
 - [x] KT-A through KT-F all pass.
 - [x] Claim ledger separates known-truth evidence from empirical ecological claims.
 - [x] Unrelated failed proxy-closed v6 excluded.
-- [x] Fresh empirical programme is not required for manuscript validity.
+- [x] Known-truth promotion stands separately from fresh empirical validation.
+- [x] Later real-v5 applicability failure (10/50 available; 16/300 stable) disclosed in Discussion and editorial correspondence.
+- [x] Document sequential v2–v5 empirical failures, decision timing and adaptive design history in Supporting Information; do not present them as independent replications.
 
 ## MEE manuscript format
 

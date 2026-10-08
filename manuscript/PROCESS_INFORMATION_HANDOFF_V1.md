@@ -21,7 +21,7 @@ Do **not** combine it with the unrelated failed proxy-closed route-evidence v6 p
 
 This paper can stand on known-truth evidence alone.
 
-Fresh empirical v3 is a separate external-validation programme. If it eventually closes, add it only as an empirical extension; do not make manuscript validity conditional on it.
+The subsequent fresh empirical programmes remain **independent of M5's prospective known-truth result**. Fresh v3 stopped at 48/50 taxon feature completeness. Fresh v5 reached 50/50 feature completeness but failed EMP-D at 16/300 stable process cells, with process-first inference available in 10/50 taxa. Its later sealed characterization also did not establish improvement over the matched flat comparator. The MEE manuscript discloses these limitations without relabelling them as positive validation or rewriting M5's frozen endpoint.
 
 ## Remaining production work
 

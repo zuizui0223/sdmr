@@ -226,7 +226,11 @@ It does **not** establish causal physiological mechanism recovery in real specie
 
 The result is narrower: under a frozen system containing redundancy, correlation, interaction, observation confounding, missing drivers and geographic shift, an occurrence-only process-information procedure recovered most positive states while preserving replaceability, unresolvedness and unavailability.
 
-A fresh empirical programme was developed separately and is not used to support the present result. Its status cannot retroactively alter this prospective known-truth endpoint.
+**Empirical applicability was also tested separately, and the result limits generalization.** In the final programme of a sequentially developed series of separately frozen real-plant tests, all 50 taxa passed the 46-predictor feature-completeness gate, but only 10/50 had an available process-first prediction route and only 16/300 taxon-by-process cells (5.33%) received a stable sharp state across the two learner routes. This failed the predeclared 80% stability requirement *before* the sealed answer-check was opened. A subsequently completed, explicitly post-terminal predictive characterization also failed to establish superiority over a matched flat selector (mean balanced-log-score difference −0.00386; taxon-bootstrap 95% interval [−0.01117, +0.00289]). None of these results was used to modify or re-promote the real-data programme.
+
+Earlier fresh-real attempts also stopped at predeclared gates: v2 at 37/50 complete taxa after structural source decoding, v3 at 48/50 complete taxa and v4 at 89/90 candidates meeting the fixed 300-km background requirement. The programme sequence, including design changes made between attempts, is disclosed in the Supporting Information (`PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md`); these attempts are not pooled or portrayed as independent confirmatory replications.
+
+The known-truth validation therefore establishes error control **under its frozen generating conditions**, not transport of that performance to real environmental representations. The real-data failure is consistent with inadequate process identifiability or learner-dependent representation, but does not identify a unique biological cause and is not evidence that the ecological processes are absent. It is kept as a separately audited applicability boundary rather than incorporated as positive empirical evidence for the present method.
 
 ## 5. Conclusions
 
