@@ -8,7 +8,7 @@
 - [x] Unrelated failed proxy-closed v6 excluded.
 - [x] Known-truth promotion stands separately from fresh empirical validation.
 - [x] Later real-v5 applicability failure (10/50 available; 16/300 stable) disclosed in Discussion and editorial correspondence.
-- [ ] Confirm full disclosure of independently registered empirical attempts and the timing of v3–v5 failures in Supporting Information if requested.
+- [x] Document sequential v2–v5 empirical failures, decision timing and adaptive design history in Supporting Information; do not present them as independent replications.
 
 ## MEE manuscript format
 
