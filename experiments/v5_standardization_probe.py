@@ -146,6 +146,18 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
     o=open_frozen(occurrence_zip,FROZEN_ARTIFACTS["occurrence_zip"])
     p=open_frozen(pool_zip,FROZEN_ARTIFACTS["pool_zip"])
     registry=pd.read_csv(registry_path)
+    # The original v5 calls normalize_process_information_registry(), which
+    # sorts by process, representation-role order, then predictor name BEFORE
+    # extracting the 46-column fit matrix. Reproduce that exact column order:
+    # raw L-BFGS optimization is not numerically permutation-invariant when
+    # convergence is limited by the frozen max_iter=1000.
+    role_order={"direct":0,"derived":1,"proxy":2,"composite":3}
+    if set(registry.role.astype(str)) - set(role_order):
+        raise ValueError("unexpected frozen representation role")
+    registry["_role_order"]=registry.role.astype(str).map(role_order)
+    registry=registry.sort_values(
+        ["process","_role_order","predictor"],kind="mergesort"
+    ).drop(columns="_role_order").reset_index(drop=True)
     predictors=list(dict.fromkeys(registry.predictor.astype(str)))
     if len(predictors)!=46:
         raise ValueError("frozen 46 predictor count changed")
