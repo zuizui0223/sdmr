@@ -250,9 +250,9 @@ The methodological contribution is therefore **evidence-bounded process identifi
 
 Aarts, G., Fieberg, J. & Matthiopoulos, J. (2012). Comparative interpretation of count, presence–absence and point methods for species distribution models. *Methods in Ecology and Evolution*, 3, 177–187. https://doi.org/10.1111/j.2041-210X.2011.00141.x
 
-Fisher, A., Rudin, C. & Dominici, F. (2019). All models are wrong, but many are useful: Learning a variable's importance by studying an entire class of prediction models simultaneously. *Journal of Machine Learning Research*, 20(177), 1–81. https://jmlr.org/papers/v20/18-760.html
-
 Dormann, C.F., Elith, J., Bacher, S., Buchmann, C., Carl, G., Carré, G. et al. (2013). Collinearity: a review of methods to deal with it and a simulation study evaluating their performance. *Ecography*, 36, 27–46. https://doi.org/10.1111/j.1600-0587.2012.07348.x
+
+Fisher, A., Rudin, C. & Dominici, F. (2019). All models are wrong, but many are useful: Learning a variable's importance by studying an entire class of prediction models simultaneously. *Journal of Machine Learning Research*, 20(177), 1–81. https://jmlr.org/papers/v20/18-760.html
 
 Galipaud, M., Gillingham, M.A.F., David, M. & Dechaume-Moncharmont, F.-X. (2014). Ecologists overestimate the importance of predictor variables in model averaging: a plea for cautious interpretations. *Methods in Ecology and Evolution*, 5, 983–991. https://doi.org/10.1111/2041-210X.12251
 
