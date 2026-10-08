@@ -30,7 +30,9 @@ The fresh-v5 programme was separately frozen after prior feature-availability ba
 
 Model-pool source run: `37613738626`; terminal decision `results/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json` on the dedicated real-v5 design line.
 
-Supplementary sealed authoritative run: `37643074571`, artifact `11501124012`; postterminal archive is being handled separately by PR #270, and cannot reopen promotion.
+Supplementary sealed authoritative run: `37643074571`, artifact `11501124012`; postterminal archive has been merged and sealed; it cannot reopen promotion.
+
+The preceding v2, v3 and v4 failures, including the adaptive design sequence that led to v5, are disclosed in `manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md`. These separately frozen programmes are **not** independent confirmatory replications.
 
 ## Permitted interpretation
 
