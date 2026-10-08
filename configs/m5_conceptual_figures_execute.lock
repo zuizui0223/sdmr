@@ -3,3 +3,4 @@ source=frozen-kt-world-design-no-outcome-values
 review=figure1-process-closure-figure2-eight-worlds
 visual_qa_revision=resolve_heading_and_long_row_overlap
 visual_qa=two_png_figures_no_overflow_and_sampling_effort_label
+quantitative_figure_fix_baseline=d6d2eceb
