@@ -23,6 +23,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sdmr.process_id.evidence import _fit_probabilities
 
 SEED = 0
 SPLITS = 3
@@ -144,10 +145,37 @@ def probe_one(taxon, model_index, bg_index, occurrence, locations, predictors, f
         d["convergence_warning_folds"]=sum(convergence_warnings)
         d["heldout_fold_scores"]=fold_scores
         result[route]=d
+    # Independently replay the *verbatim frozen v5 predictor fitting helper*.
+    # Its Git blob SHA is unchanged between the authoritative v5 head and main.
+    # This tests whether our hand-written path itself causes replay drift.
+    reference_predictions=[]
+    reference_warning_folds=0
+    for train,test in splits:
+        train_frame=pd.DataFrame(x[train],columns=predictors)
+        test_frame=pd.DataFrame(x[test],columns=predictors)
+        train_frame["label"]=y[train]
+        test_frame["label"]=y[test]
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always",ConvergenceWarning)
+            _,pred=_fit_probabilities(
+                train_frame,test_frame,tuple(predictors),
+                C=1.0,learner="linear",hgb_profile="current",
+            )
+        reference_warning_folds+=int(any(issubclass(w.category,ConvergenceWarning) for w in caught))
+        reference_predictions.append((y[test],np.asarray(pred)))
+    reference=gate_stats(reference_predictions)
+    reference["convergence_warning_folds"]=reference_warning_folds
+    result["verbatim_frozen_fit_helper_replay"]=reference
+    result["helper_vs_manual_score_difference"]=(
+        reference["observed_mean_score"]-result["raw_logistic_v5_replay"]["observed_mean_score"]
+    )
     frozen=frozen_auth.loc[(frozen_auth.scientific_name==taxon)&
                            (frozen_auth.learner_route=="penalized_logistic")].iloc[0]
     result["frozen_raw_score"]=float(frozen.observed_mean_score)
     result["raw_replay_absolute_error"]=abs(result["raw_logistic_v5_replay"]["observed_mean_score"]-result["frozen_raw_score"])
+    result["canonical_helper_replay_absolute_error"]=abs(
+        result["verbatim_frozen_fit_helper_replay"]["observed_mean_score"]-result["frozen_raw_score"]
+    )
     result["score_gain_from_standardization"]=(
         result["standardized_logistic_exploratory"]["observed_mean_score"]-
         result["raw_logistic_v5_replay"]["observed_mean_score"])
@@ -193,7 +221,8 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
         print(f"{len(rows):2d}/{taxon_limit} {taxon}: raw={item['raw_logistic_v5_replay']['observed_mean_score']:.4f}"
               f" standardized={item['standardized_logistic_exploratory']['observed_mean_score']:.4f}",flush=True)
     matches=[r["raw_replay_absolute_error"] for r in rows]
-    valid_replay=all(x<=1e-3 for x in matches)
+    helper_matches=[r["canonical_helper_replay_absolute_error"] for r in rows]
+    valid_replay=all(x<=1e-3 for x in helper_matches)
     debug_paired_gain=float(np.mean([r["score_gain_from_standardization"] for r in rows]))
     report={
         "schema":"sdmr.v5.postterminal_standardization_model_pool_probe.v1",
@@ -204,9 +233,11 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
         "truth_or_sealed_answer_check_read":False,
         "predictor_count":46,"folds":3,"training_only_scaler":True,
         "same_original_model_pool_folds":True,
-        "baseline_replay": {"maximum_absolute_score_error":max(matches),
+        "baseline_replay": {"maximum_absolute_score_error":max(helper_matches),
                             "all_within_1e-3":valid_replay,
-                            "matched_taxa_within_1e-3":sum(x<=1e-3 for x in matches)},
+                            "matched_taxa_within_1e-3":sum(x<=1e-3 for x in helper_matches),
+                            "handwritten_replay_maximum_absolute_error":max(matches),
+                            "canonical_helper_minus_handwritten_maximum_abs":max(abs(r["helper_vs_manual_score_difference"]) for r in rows)},
         "comparison_valid_against_original_v5":valid_replay,
         "scientific_effect_attribution_allowed":False,
         "diagnostic_status":("baseline_replay_matched_exploratory_only" if valid_replay
