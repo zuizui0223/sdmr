@@ -34,6 +34,10 @@ def test_mee_submission_docx_has_numbering_spacing_and_no_author(tmp_path):
     normal=doc.styles["Normal"]
     assert normal.paragraph_format.line_spacing == 2
     assert "Times New Roman" == normal.font.name
+    assert doc.styles["Title"].font.color.rgb is not None
+    assert str(doc.styles["Title"].font.color.rgb) == "000000"
+    assert doc.styles["Title"]._element.pPr.find("{"+NS["w"]+"}pBdr") is None
+    assert str(doc.styles["Heading 1"].font.color.rgb) == "000000"
     assert len(doc.paragraphs)>60
 
     with zipfile.ZipFile(output) as z:
