@@ -23,6 +23,7 @@ INCLUDE=[
   "configs/sdmr_v6_prospective_kt_v2.json",
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
   "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md",
+  "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md",
   "tests/test_process_id_permutation_gate.py",
   "tests/test_process_id_scoped_pipeline_v6.py",
   "tests/test_process_id_prospective_kt_gate.py",
