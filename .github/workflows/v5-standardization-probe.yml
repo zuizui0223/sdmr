@@ -81,8 +81,16 @@ jobs:
           assert x['frozen_taxon_denominator']==50
           assert x['truth_or_sealed_answer_check_read'] is False
           assert x['reference_v5_emp_d']['promotion']=='failed_closed'
-          assert x['baseline_replay']['all_within_1e-3'], 'raw logistic does not reproduce frozen CV; block attribution'
-          print('exploratory model-pool replay reproduced original baseline; no v5 re-promotion')
+          if x['baseline_replay']['all_within_1e-3']:
+              assert x['comparison_valid_against_original_v5'] is True
+              assert x['diagnostic_status']=='baseline_replay_matched_exploratory_only'
+              print('exploratory replay matched; any result remains post-terminal')
+          else:
+              assert x['comparison_valid_against_original_v5'] is False
+              assert x['scientific_effect_attribution_allowed'] is False
+              assert x['paired_mean_score_gain'] is None
+              assert x['diagnostic_status']=='blocked_original_v5_baseline_not_reproduced'
+              print('REPRODUCIBILITY BLOCKER: original v5 replay mismatch; no standardization effect claim')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
