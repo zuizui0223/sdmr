@@ -8,7 +8,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Pt
+from docx.shared import Cm, Pt, RGBColor
 
 INLINE = re.compile(r"(\*\*[^*]+\*\*|(?<!\*)\*[^*]+\*(?!\*)|\x60[^\x60]+\x60)")
 TABLE_SEPARATOR = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$")
@@ -48,6 +48,10 @@ def format_base(doc: Document) -> None:
     title.font.name = "Times New Roman"
     title.font.size = Pt(14)
     title.font.bold = True
+    title.font.color.rgb = RGBColor(0, 0, 0)
+    title_ppr = title._element.get_or_add_pPr()
+    for border in title_ppr.findall(qn("w:pBdr")):
+        title_ppr.remove(border)
     title.paragraph_format.line_spacing = 2
     title.paragraph_format.keep_with_next = True
     title.paragraph_format.space_after = Pt(12)
@@ -57,6 +61,7 @@ def format_base(doc: Document) -> None:
         style.font.size = Pt(12)
         style.font.bold = True
         style.font.italic = False
+        style.font.color.rgb = RGBColor(0, 0, 0)
         style.paragraph_format.line_spacing = 2
         style.paragraph_format.space_before = Pt(10 if level <= 2 else 6)
         style.paragraph_format.space_after = Pt(0)
