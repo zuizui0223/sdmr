@@ -141,6 +141,12 @@ def test_reviewer_zip_has_scientific_receipts_without_public_git_identifiers(tmp
         assert known["metrics"]["positive_recovery"]==0.8875
         assert known["gates"]=={f"KT-{letter}":True for letter in "ABCDEF"}
         assert "workflow_head" not in known and "workflow_run" not in known
+        contract=get_json("configs/sdmr_v6_prospective_kt_v2.json")
+        assert contract["seeds"]==list(range(74001,74021))
+        assert contract["gate_vector"]["KT-B"]["minimum"]==0.8
+        for step in ("validation","confirmation"):
+            assert "workflow_run" not in contract["prerequisites"][step]
+            assert "artifact_id" not in contract["prerequisites"][step]
         diag=get_json("evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json")
         assert diag["full_system_authorization"]["shallow3_hgb"]["authorized_taxa"]==32
         assert diag["full_system_authorization"]["penalized_logistic"]["authorized_taxa"]==10
