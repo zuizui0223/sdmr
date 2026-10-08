@@ -25,7 +25,6 @@ INCLUDE=[
   "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md",
-  "evidence/mee_real_v5_receipts/README_EVIDENCE.md",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
@@ -36,12 +35,57 @@ INCLUDE=[
 ]
 
 FORBIDDEN_PATTERNS=[
+  r"\b[a-f0-9]{40}\b",  # Git commit IDs can reveal author and repository
+  r"(?<![0-9])[0-9]{11}(?![0-9])",  # run/artifact IDs are not for anonymous review
   r"zuizui0223",
   r"github\.com/zuizui0223",
   r"@tohoku\.ac\.jp",
   r"/Users/",
   r"C:\\Users\\",
 ]
+
+# Only reviewer-facing copies are redacted. Archived source receipts stay byte-identical.
+REVIEW_RECEIPTS={
+  "results/sdmr_v6_prospective_kt_v2_metrics.json",
+  "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
+  "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
+  "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
+  "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_postterminal_receipt.json",
+}
+PROVENANCE_KEYS={
+  "source", "queued_sealed_runs", "workflow_run", "workflow_head",
+  "artifact_id", "artifact_digest", "terminal_freeze_commit",
+  "authoritative_run", "authoritative_head", "authoritative_artifact_id",
+  "authoritative_artifact_digest", "superseded_run", "superseded_head",
+  "superseded_artifact_id", "superseded_artifact_digest",
+}
+REVIEW_TEXT_PROVENANCE_LINES={
+  "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md": (
+    "- workflow run:", "- workflow head:", "- artifact id:", "- artifact digest:"
+  ),
+  "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md": (
+    "Authoritative known-truth run:", "Model-pool source run:",
+    "Supplementary sealed authoritative run:"
+  ),
+}
+
+def _remove_provenance(value):
+    if isinstance(value,dict):
+        return {key:_remove_provenance(item) for key,item in value.items()
+                if key not in PROVENANCE_KEYS}
+    if isinstance(value,list):
+        return [_remove_provenance(item) for item in value]
+    return value
+
+def anonymize_review_copy(rel:str,dst:Path)->None:
+    if rel in REVIEW_RECEIPTS:
+        original=json.loads(dst.read_text(encoding="utf-8"))
+        dst.write_text(json.dumps(_remove_provenance(original),indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    if rel in REVIEW_TEXT_PROVENANCE_LINES:
+        starts=REVIEW_TEXT_PROVENANCE_LINES[rel]
+        lines=[line for line in dst.read_text(encoding="utf-8").splitlines()
+               if not line.startswith(starts)]
+        dst.write_text("\n".join(lines)+"\n",encoding="utf-8")
 
 def sha256(path:Path)->str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -61,14 +105,23 @@ def main():
             dst=root/rel
             dst.parent.mkdir(parents=True,exist_ok=True)
             shutil.copy2(src,dst)
+            anonymize_review_copy(rel,dst)
             manifest.append({"path":rel,"sha256":sha256(dst)})
         readme=root/"README_REVIEWERS.md"
         readme.write_text(
             "# Anonymous reviewer bundle\n\n"
-            "This bundle contains the frozen method implementation, prospective known-truth "
-            "contract, canonical metrics receipt, focused tests, real-data applicability disclosures, compact immutable terminal receipts and terminal result note used "
-            "by the submitted manuscript. Git history and repository metadata are intentionally "
-            "excluded for double-anonymous review.\n",
+            "The primary prospective known-truth metrics and the later FAILED real-plant v5 "
+            "decision receipts are included for scientific audit. Model source files and "
+            "focused tests are supplied without Git history.\n\n"
+            "For double-anonymous review only, run IDs, Git heads and archive artifact "
+            "identifiers are removed from the copies in this ZIP. Frozen result counts, "
+            "scores, confidence intervals, refusal decisions and learner diagnostics "
+            "remain intact. Unredacted source receipts are retained outside this review "
+            "bundle and can be verified after anonymized review.\n\n"
+            "These compact receipts are not a rerunnable real-data fit: GBIF inputs, "
+            "environmental rasters and fitted models are not bundled. The original "
+            "failed empirical promotion remains closed and cannot be reinterpreted "
+            "using post-terminal predictive scores.\n",
             encoding="utf-8",
         )
         manifest.append({"path":"README_REVIEWERS.md","sha256":sha256(readme)})
