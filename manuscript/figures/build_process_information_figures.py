@@ -56,14 +56,15 @@ def figure_denominator(data: dict, out: Path) -> None:
     ax.bar(x, adverse, bottom=supported, label="Missed / violated")
     ax.set_xticks(x, labels)
     ax.set_ylabel("Prospective process-state cells")
-    ax.set_title("Prospective known-truth denominator and outcomes")
+    ax.set_ylim(0, max(denominators) * 1.19)  # space for top-of-bar labels
+    ax.set_title("Prospective known-truth denominator and outcomes", pad=16)
     for i, (d, a) in enumerate(zip(denominators, adverse)):
         if i == 0:
             ax.text(i, d + max(denominators) * 0.02, f"71/80 recovered", ha="center", va="bottom")
         else:
             ax.text(i, d + max(denominators) * 0.02, f"{a}/{d} violations", ha="center", va="bottom")
-    ax.legend(frameon=False)
-    fig.tight_layout()
+    ax.legend(frameon=False, loc="upper right")
+    fig.tight_layout(pad=1.3)
     fig.savefig(out, format="svg")
     plt.close(fig)
 
@@ -81,12 +82,12 @@ def figure_authorization(data: dict, out: Path) -> None:
     fig, ax = plt.subplots(figsize=(8.5, 4.8))
     x = list(range(len(names)))
     ax.bar(x, values)
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, 1.2)  # avoid overlap of 20/20 labels with the title
     ax.set_xticks(x, [name.replace("_", "\n") for name in names], rotation=0)
     ax.set_ylabel("Full-system authorization rate")
-    ax.set_title("Authorization across prospective known-truth worlds")
+    ax.set_title("Authorization across prospective known-truth worlds", pad=16)
     for i, value in enumerate(values):
-        ax.text(i, min(1.02, value + 0.025), f"{int(round(value * 20))}/20", ha="center", va="bottom")
+        ax.text(i, value + 0.028, f"{int(round(value * 20))}/20", ha="center", va="bottom")
     fig.tight_layout()
     fig.savefig(out, format="svg")
     plt.close(fig)
