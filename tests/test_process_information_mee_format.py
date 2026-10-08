@@ -51,6 +51,7 @@ def test_mee_submission_docx_has_numbering_spacing_and_no_author(tmp_path):
         footer_names=[x for x in z.namelist() if x.startswith("word/footer") and x.endswith(".xml")]
         assert footer_names
         assert any(b"PAGE" in z.read(f) for f in footer_names)
+        assert all(ElementTree.fromstring(z.read(f)).find(".//w:suppressLineNumbers",NS) is not None for f in footer_names)
         core=z.read("docProps/core.xml").decode("utf-8")
         assert "ZHANG" not in core and "zuizui0223" not in core
 
