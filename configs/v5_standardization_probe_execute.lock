@@ -6,3 +6,4 @@ source_occurrence_run=37305740628
 training_only_standardization=true
 original_v5_promotion=failed_closed
 sealed_answer_check_access=false
+replay_retry=occurrence_variable_fix_and_full_probe_smoke
