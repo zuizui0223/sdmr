@@ -19,6 +19,19 @@ Subsequent real-plant attempts reused the general inferential framework but eval
 
 Cohort exclusion was cumulative: v3 excluded its predecessors, v4 excluded **214** previously considered taxa, and v5 used another fresh metadata-defined roster. This does **not** remove the adaptive history of programme design or make the sequence a randomized experiment.
 
+## v5 model-pool diagnosis before answer-check opening
+
+Numerical completeness did **not** translate into a learner-invariant process-information decision. The archived, model-pool-only diagnostic records:
+
+- The shallow-depth histogram-gradient-boosting (HGB) route passed full-system authorization for **32/50** taxa; the penalized logistic route passed for **10/50**. Both authorized **10/50** of the same taxa, leaving 22 taxa authorized by HGB only.
+- Among the 10 jointly authorized taxa, only **16/60** process-by-taxon cells (26.7%) agreed on a sharp process state across both learners. On the complete fixed denominator this is **16/300** (5.33%), not 26.7%.
+- The final two-learner state accounting was **240 unavailable + 44 unresolved + 15 replaceable + 1 contributory + 0 required = 300** cells. Here *unavailable* means not authorized under the declared model system, **not** that the biological process is absent.
+- A post-hoc single-learner rescue would also be misleading: HGB alone produced **125/300** sharp states (41.7%), still below the prespecified 80% EMP-D threshold.
+
+These are descriptive **pre-answer-check model-pool** observations. They reveal two distinct operational bottlenecks—full-system authorization and cross-learner state agreement—but cannot distinguish true biological process ambiguity from representation, learner-capacity, sampling or observation biases. Learners, taxa and thresholds were not changed in response.
+
+The archived decision, model-pool diagnostic and later sealed result are reproduced **verbatim** as immutable evidence snapshots in `evidence/mee_real_v5_receipts/`, with original source-file blob hashes recorded in `README_EVIDENCE.md`. These compact receipts support an audit of the reported numbers; they do not replace the underlying occurrence data or fitted models.
+
 ## v5 sealed post-terminal characterization
 
 After EMP-D was irreversibly false, the frozen v5 sealed evaluation completed without model refit or post-opening reselection. On the declared 50-taxon denominator:
