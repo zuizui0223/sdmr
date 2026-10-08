@@ -100,7 +100,7 @@ def gate_stats(fold_predictions: list[tuple[np.ndarray,np.ndarray]]) -> dict:
 
 def probe_one(taxon, model_index, bg_index, occurrence, locations, predictors, frozen_auth):
     o=model_index.loc[(model_index.scientific_name==taxon)&model_index.complete_case].copy()
-    all_occ=occ.loc[occ.scientific_name==taxon,["occurrence_id","longitude","latitude","spatial_block"]].copy()
+    all_occ=occurrence.loc[occurrence.scientific_name==taxon,["occurrence_id","longitude","latitude","spatial_block"]].copy()
     if all_occ.occurrence_id.duplicated().any():
         raise ValueError("duplicate frozen occurrence_id")
     o=o.merge(all_occ[["occurrence_id","spatial_block"]],on="occurrence_id",how="left",validate="one_to_one")
