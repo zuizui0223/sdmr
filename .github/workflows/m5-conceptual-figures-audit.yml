@@ -1,0 +1,61 @@
+name: M5 conceptual figures reproducibility check
+
+on:
+  push:
+    branches:
+      - paper/m5-figures-1-2-complete-v1
+    paths:
+      - 'configs/m5_conceptual_figures_execute.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install figure and test dependencies
+        run: python -m pip install matplotlib pytest
+      - name: Check world definitions and conceptual science
+        run: python -m pytest -q tests/test_process_information_conceptual_figures.py
+      - name: Build Figures 1-2 from frozen design
+        run: >-
+          python manuscript/figures/build_process_information_conceptual_figures.py
+          --output-dir build/process_information_conceptual_figures
+      - name: Audit SVG text and outputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+          root=Path('build/process_information_conceptual_figures')
+          required={
+              'figure1_process_information_closure.svg':[
+                  'Thermal-closure knockout:', 'Unavailable', 'Unresolved',
+                  'Replaceable', 'Contributory', 'Required'],
+              'figure2_known_truth_worlds.svg':[
+                  'Unique process', 'Redundant representation', 'Shared carrier',
+                  'Null correlated', 'Interaction', 'Observation confounded',
+                  'Omitted driver', 'Geographic shift'],
+          }
+          for name,phrases in required.items():
+              p=root/name
+              assert p.exists() and p.stat().st_size>1000, name
+              tree=ElementTree.parse(p)
+              contents=' '.join(''.join(tree.getroot().itertext()).split())
+              for phrase in phrases:
+                  assert phrase in contents,(name,phrase)
+              proof=p.with_suffix('.png')
+              assert proof.exists() and proof.stat().st_size>5000, proof
+              print(name,'vector SVG and raster proof present')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m5-conceptual-figures-v1
+          path: build/process_information_conceptual_figures/
+          if-no-files-found: error
+          retention-days: 90
