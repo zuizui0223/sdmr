@@ -1,6 +1,10 @@
 """Protect the M5 known-truth claim and transparent empirical applicability boundary."""
 import hashlib
 import json
+import re
+import subprocess
+import sys
+import zipfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -111,3 +115,36 @@ def test_negative_diagnostic_is_reported_without_denominator_shift():
             content=file.read_text(encoding="utf-8").lower()
             assert "zuizui0223" not in content
             assert "github.com/" not in content
+
+def test_reviewer_zip_has_scientific_receipts_without_public_git_identifiers(tmp_path):
+    bundle=tmp_path/"review.zip"
+    subprocess.run(
+        [sys.executable,str(ROOT/"scripts/build_process_information_anonymous_review_bundle.py"),
+         "--output",str(bundle)],
+        check=True,capture_output=True,text=True,
+    )
+    prefix="anonymous_process_information_review_bundle/"
+    with zipfile.ZipFile(bundle) as z:
+        names=z.namelist()
+        for filename in ORIGINAL_GIT_BLOBS:
+            assert prefix+"evidence/mee_real_v5_receipts/"+filename in names
+        assert prefix+"evidence/mee_real_v5_receipts/README_EVIDENCE.md" not in names
+        for filename in names:
+            if filename.endswith((".md",".json",".py",".csv",".txt")):
+                contents=z.read(filename).decode("utf-8")
+                assert not re.search(r"\b[a-f0-9]{40}\b",contents,re.I),filename
+                assert not re.search(r"(?<![0-9])[0-9]{11}(?![0-9])",contents),filename
+        def get_json(rel):
+            return json.loads(z.read(prefix+rel))
+        known=get_json("results/sdmr_v6_prospective_kt_v2_metrics.json")
+        assert known["metrics"]["positive_recovery"]==0.8875
+        assert known["gates"]=={f"KT-{letter}":True for letter in "ABCDEF"}
+        assert "workflow_head" not in known and "workflow_run" not in known
+        diag=get_json("evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json")
+        assert diag["full_system_authorization"]["shallow3_hgb"]["authorized_taxa"]==32
+        assert diag["full_system_authorization"]["penalized_logistic"]["authorized_taxa"]==10
+        assert "source" not in diag
+        receipt=get_json("evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_postterminal_receipt.json")
+        assert receipt["promotion_after_terminal_allowed"] is False
+        assert "terminal_freeze_commit" not in receipt
+        assert "authoritative_head" not in receipt and "authoritative_run" not in receipt
