@@ -42,7 +42,7 @@ def test_process_closure_versus_variable_deletion_distinction():
     ast.parse(code)
     assert "Drop T only: E and P remain." in code
     assert "Thermal-closure knockout: remove {T, E, P}." in code
-    assert "A single-predictor result cannot certify a process state." in code
+    assert "Deleting T alone cannot certify a thermal process state." in code
     body=PAPER.read_text(encoding="utf-8")
     plan=PLAN.read_text(encoding="utf-8")
     assert "deleting either predictor alone does **not** establish" in body
