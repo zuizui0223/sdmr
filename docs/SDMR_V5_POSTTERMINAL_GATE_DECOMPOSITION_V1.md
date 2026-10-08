@@ -21,6 +21,10 @@ Breakdown of the 40 logistic authorization failures:
 - **6** fail adequacy + minimum gain + permutation significance.
 Thus **34/40** lack sufficient improvement **even though p is significant**.
 
+### Significant does not mean adequate prediction
+
+Of 50 taxa, **33** on raw logistic had both permutation p ≤ .001 **and** a held-out balanced log score worse than the constant 0.5-probability baseline (−log 2 ≈ −0.6931); HGB had **15** such taxa. Among the **34** significant-but-insufficient-gain logistic failures, median observed score was **−0.8837**, while the median corresponding shuffled-label null mean was approximately **−2.049**. For example, *Pentapogon quadrisetus* had logistic score **−1.13469** (below chance calibration) but mean permuted-label score **−2.31001** and p = .001. Thus fixed-prediction permutation significance can coexist with poor absolute calibrated log score: it detects information relative to the particular shuffled-label null, not reliable predictive probability or process identification.
+
 ## After both learners authorize
 
 The same 10 taxa authorize on both routes, so 10 × 6 = 60 process cells. Frozen final states are:
