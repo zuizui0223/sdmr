@@ -26,7 +26,7 @@ WORLDS = [
     ("Shared carrier", "Thermal + water", "Composite PET representation links both processes", "Informative"),
     ("Null correlated", "Thermal", "Seasonality tracks thermal signal;\ndoes not generate suitability", "Informative"),
     ("Interaction", "Thermal x water", "Suitability dominated by the thermal–water product", "Informative"),
-    ("Observation confounded", "Thermal", "Detection effort covaries with temperature", "Report-only"),
+    ("Observation confounded", "Thermal", "Sampling effort covaries with temperature", "Report-only"),
     ("Omitted driver", "Hidden driver", "Suitability driver is outside declared predictors", "Null control"),
     ("Geographic shift", "Thermal", "Elevation proxy reverses sign outside model pool", "Informative"),
 ]
