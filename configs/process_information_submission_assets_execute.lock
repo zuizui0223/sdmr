@@ -5,3 +5,4 @@ primary_result=unchanged_prospective_known_truth_M5
 source_verbatim_v5_receipts=4
 source_archive_ref=archive/sdmr-fresh-v5-sealed-postterminal
 model_pool_failure_breakdown=32_hgb_10_logistic_16_of_60_stable
+reviewer_bundle_anonymization=strip_executable_provenance
