@@ -20,7 +20,7 @@ def test_independent_empirical_limit_is_disclosed():
         assert token in body
     assert "0.80" in body
     assert "10/50" in cover
-    assert "16 of 300" in cover
+    assert "16/300" in cover
     assert "failed" in cover.lower() or "did not pass" in cover.lower()
 
 def test_v5_is_not_promoted_into_positive_evidence():
@@ -43,6 +43,6 @@ def test_complete_sequential_real_plant_disclosure():
 
 
 def test_scope_ledger_is_anonymous():
-    text=(LEDGER.read_text(encoding="utf-8")+"\\n"+SI.read_text(encoding="utf-8")).lower()
+    text=(LEDGER.read_text(encoding="utf-8")+"\n"+SI.read_text(encoding="utf-8")).lower()
     assert "zuizui0223" not in text
     assert "github.com/" not in text
