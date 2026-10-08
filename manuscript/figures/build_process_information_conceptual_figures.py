@@ -24,7 +24,7 @@ WORLDS = [
     ("Unique process", "Thermal", "Distinct thermal signal in a declared predictor", "Informative"),
     ("Redundant representation", "Thermal", "Temperature and water predictors nearly coincide", "Informative"),
     ("Shared carrier", "Thermal + water", "Composite PET representation links both processes", "Informative"),
-    ("Null correlated", "Thermal", "Seasonality correlates with thermal signal but does not generate suitability", "Informative"),
+    ("Null correlated", "Thermal", "Seasonality tracks thermal signal;\ndoes not generate suitability", "Informative"),
     ("Interaction", "Thermal x water", "Suitability dominated by the thermal–water product", "Informative"),
     ("Observation confounded", "Thermal", "Detection effort covaries with temperature", "Report-only"),
     ("Omitted driver", "Hidden driver", "Suitability driver is outside declared predictors", "Null control"),
@@ -67,9 +67,9 @@ def base_figure(width: float, height: float, xmax: float, ymax: float):
 
 def figure1(output: Path) -> None:
     fig, ax = base_figure(13.2, 7.25, 13.2, 7.25)
-    ax.text(0.30, 6.79, "A  Declared predictors and process-information closures",
+    ax.text(0.30, 6.79, "A  Declared carrier registry",
             fontsize=12, color=INK, fontweight="bold")
-    ax.text(6.10, 6.79, "B  Process-state decision rules", fontsize=12,
+    ax.text(6.10, 6.79, "B  Information-state decision rules", fontsize=12,
             color=INK, fontweight="bold")
     ax.plot([5.83, 5.83], [0.75, 6.48], color="#d4dde4", lw=1)
 
@@ -93,11 +93,11 @@ def figure1(output: Path) -> None:
         (2.50, 3.12, 3.60, 3.36),
     ]:
         arrow(ax, *coords)
-    rounded(ax, 0.43, 1.26, 5.02, 1.12,
+    rounded(ax, 0.38, 1.26, 5.28, 1.12,
             "Drop T only: E and P remain.\n"
             "Thermal-closure knockout: remove {T, E, P}.\n"
-            "A single-predictor result cannot certify a process state.",
-            face="white", edge=BORDER, size=10.5)
+            "Deleting T alone cannot certify a thermal process state.",
+            face="white", edge=BORDER, size=9.9)
     ax.text(0.46, 0.84, "Registry links are declared assumptions, not verified causes.",
             color=MUTED, fontsize=9.4)
 
@@ -163,7 +163,7 @@ def figure2(output: Path) -> None:
     for v in x[1:-1]:
         ax.plot([v, v], [head_y - 8*row_h, head_y + head_h],
                 color="#e2e8ed", linewidth=0.7)
-    ax.text(0.36, 0.65,
+    ax.text(0.36, 0.48,
             "Six informative controls enter the full-system authorization gate;\n"
             "observation confounding is report-only, and omitted-driver is the null.",
             fontsize=10, color=MUTED)
