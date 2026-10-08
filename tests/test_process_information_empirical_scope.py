@@ -1,5 +1,6 @@
 """Protect the M5 known-truth claim and transparent empirical applicability boundary."""
 import hashlib
+import os
 import json
 import re
 import subprocess
@@ -148,3 +149,30 @@ def test_reviewer_zip_has_scientific_receipts_without_public_git_identifiers(tmp
         assert receipt["promotion_after_terminal_allowed"] is False
         assert "terminal_freeze_commit" not in receipt
         assert "authoritative_head" not in receipt and "authoritative_run" not in receipt
+
+def test_review_zip_imports_without_full_repository(tmp_path):
+    bundle=tmp_path/"review.zip"
+    subprocess.run(
+        [sys.executable,str(ROOT/"scripts/build_process_information_anonymous_review_bundle.py"),
+         "--output",str(bundle)],
+        check=True,capture_output=True,text=True,
+    )
+    with zipfile.ZipFile(bundle) as z:
+        z.extractall(tmp_path/"unpacked")
+    base=tmp_path/"unpacked"/"anonymous_process_information_review_bundle"
+    for rel in ("src/sdmr/__init__.py","src/sdmr/process_id/__init__.py",
+                "src/sdmr/process_id/known_truth/__init__.py","REQUIREMENTS_REVIEWERS.txt"):
+        assert (base/rel).exists()
+    env=os.environ.copy()
+    env["PYTHONPATH"]=str(base/"src")
+    code=(
+        "from pathlib import Path\n"
+        "import sdmr, sdmr.process_id.evidence\n"
+        "import sdmr.process_id.known_truth.permutation_gate\n"
+        "import sdmr.process_id.known_truth.scoped_pipeline_v6\n"
+        "import sdmr.process_id.known_truth.integration_v6\n"
+        "import sdmr.process_id.known_truth.prospective_kt\n"
+        "assert Path(sdmr.__file__).resolve().is_relative_to(Path('src').resolve())\n"
+    )
+    subprocess.run([sys.executable,"-c",code],cwd=base,env=env,
+                   check=True,capture_output=True,text=True)
