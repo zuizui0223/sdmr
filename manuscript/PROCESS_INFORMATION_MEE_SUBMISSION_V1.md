@@ -204,7 +204,7 @@ This supports a simple design principle: allow missed conclusions when the infor
 
 Variable-importance methods ask how much a fitted prediction depends on a predictor. That is valuable for explanation, and modern methods can quantify such contributions robustly (e.g. Zbinden et al. 2026). The present framework asks a different question: whether **process information** remains when all declared carriers of a process are challenged.
 
-This distinction matters under correlated predictors. Collinearity can make coefficients and variable rankings unstable (Dormann et al. 2013), but redundancy is not merely a nuisance to remove. If two predictors carry substitutable information about the same ecological process, the relevant process may be replaceable rather than absent.
+This distinction matters under correlated predictors. Collinearity can make coefficients and variable rankings unstable (Dormann et al. 2013), but redundancy is not merely a nuisance to remove. If two predictors are both declared carriers of the same ecological process, deleting either predictor alone does **not** establish that the process is replaceable: the other carrier remains. Only after excluding the **entire declared process-information closure** can noninferior reconstruction from process-free routes support a replaceable process-information state. Conversely, a variable declared outside that closure may still act as a correlated proxy for its information, a limitation of the chosen registry and observation system rather than proof that the biological process is unnecessary.
 
 Likewise, a shared carrier creates the opposite problem. One predictive variable can support more than one named process, so variable-level importance does not imply unique process attribution.
 
