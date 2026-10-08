@@ -7,6 +7,7 @@ on:
       - paper/m5-empirical-scope-amendment
       - paper/m5-v5-evidence-traceability-v1
       - paper/m5-prior-work-positioning-v1
+      - paper/m5-submission-manuscript-docx-v1
     paths:
       - 'configs/process_information_submission_assets_execute.lock'
   workflow_dispatch:
@@ -24,13 +25,18 @@ jobs:
           python-version: '3.12'
           cache: pip
       - name: Install figure dependencies
-        run: python -m pip install matplotlib
+        run: python -m pip install matplotlib python-docx
       - name: Build quantitative figures
         run: |
           mkdir -p build/process_information_submission/figures
           python manuscript/figures/build_process_information_figures.py \
             --metrics results/sdmr_v6_prospective_kt_v2_metrics.json \
             --output-dir build/process_information_submission/figures
+      - name: Build journal-formatted anonymous DOCX
+        run: >-
+          python scripts/build_process_information_mee_manuscript_docx.py
+          --source manuscript/PROCESS_INFORMATION_MEE_SUBMISSION_V1.md
+          --output build/process_information_submission/anonymous_process_information_mee_manuscript.docx
       - name: Build anonymous reviewer bundle
         run: |
           python scripts/build_process_information_anonymous_review_bundle.py \
