@@ -24,6 +24,7 @@ INCLUDE=[
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
   "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md",
+  "manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md",
   "tests/test_process_id_permutation_gate.py",
   "tests/test_process_id_scoped_pipeline_v6.py",
   "tests/test_process_id_prospective_kt_gate.py",
@@ -60,7 +61,7 @@ def main():
         readme.write_text(
             "# Anonymous reviewer bundle\n\n"
             "This bundle contains the frozen method implementation, prospective known-truth "
-            "contract, canonical metrics receipt, focused tests and terminal result note used "
+            "contract, canonical metrics receipt, focused tests, real-data applicability disclosures and terminal result note used "
             "by the submitted manuscript. Git history and repository metadata are intentionally "
             "excluded for double-anonymous review.\n",
             encoding="utf-8",
