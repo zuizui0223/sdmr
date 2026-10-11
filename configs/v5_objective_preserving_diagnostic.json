@@ -1,0 +1,26 @@
+{
+  "schema": "sdmr.v5.objective_preserving_diagnostic.v1",
+  "purpose": "Separate numerical convergence from a change of L2 regularization geometry",
+  "scope": "post-terminal model-pool development, not prospective ecological validation",
+  "original_v5_promotion": "failed_closed",
+  "sealed_answer_check_read": false,
+  "cohort": "first ten original frozen selection ranks; no outcome-based selection",
+  "reference_taxa": 50,
+  "folds": 3,
+  "exact_input_requirement": "Feature values, labels, spatial groups and every training/validation matrix SHA-256 must match original input-path audit 38127240195",
+  "objective": "sum_i(weight_i*logloss_i)/sum(weight) + sum(beta_j^2)/(2*C*sum(weight)); C=1, balanced training class weights, unpenalized intercept",
+  "reparameterization": "z_j=(x_j-training_mean_j)/training_scale_j; theta_j=training_scale_j*beta_j; penalty sum(theta_j^2/training_scale_j^2), preserving raw objective",
+  "arms": ["raw_lbfgs_max1000", "same_objective_newton", "scaled_isotropic_lbfgs_max1000"],
+  "solver_certificate": {
+    "newton_max_iter": 100,
+    "gradient_infinity_norm_max": 1e-9,
+    "newton_decrement_max": 1e-6,
+    "independent_check": "raw newton-cholesky tol1e-9 max100 and a second fixed initialization",
+    "max_heldout_probability_disagreement": 2e-6,
+    "max_objective_identity_error": 1e-10,
+    "nonconvergence_policy": "record failed certificate; no claim of an isolated optimizer effect"
+  },
+  "full_system_gate": {"adequacy_floor": -0.75, "minimum_gain_over_constant": 0.01, "alpha": 0.001, "permutations": 999, "seed": 0},
+  "report": "Retain every first10 species and every fold. Compare held-out calibration and authorization, not biological truth or process-closure accuracy.",
+  "historical_runtime_note": "Current local numerical versions differ from historical CI; all three arms must run in the same recorded runtime. This is not an archived-score reproduction claim."
+}

@@ -1,0 +1,5 @@
+program=v5-objective-preserving-input-export
+first10=frozen_selection_ranks
+input_sha256_required=true
+sealed_answer_check_read=false
+original_v5=failed_closed
