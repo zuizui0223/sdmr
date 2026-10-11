@@ -85,8 +85,12 @@ def test_probe_one_executes_with_small_complete_model_pool():
     mod=occ.drop(columns=["spatial_block"])
     bg=pd.DataFrame(bg_rows)
     features=pd.DataFrame(feature_rows)
-    auth=pd.DataFrame([dict(scientific_name=taxon,learner_route="penalized_logistic",
-                            observed_mean_score=-0.7)])
+    auth=pd.DataFrame([
+        dict(scientific_name=taxon,learner_route="penalized_logistic",
+             observed_mean_score=-0.7),
+        dict(scientific_name=taxon,learner_route="shallow3_hgb",
+             observed_mean_score=-0.65),
+    ])
     one=probe.probe_one(taxon,mod,bg,occ,features,predictors,auth)
     assert one["scientific_name"]==taxon
     assert one["n_occurrence"]==45
