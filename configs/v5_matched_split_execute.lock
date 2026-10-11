@@ -1,0 +1,8 @@
+program=sdmr-v5-postterminal-matched-spatial-and-random-location-v1
+original_promotion=failed_closed
+fixed_taxa=first10
+fixed_models=raw_ridge;scaled_ridge;shallow3_hgb
+spatial_fold=original_group_kfold3
+random_fold=location_id_kfold3_seed0
+process_closure=all_six_full_carrier_sets
+sealed_answer_check_read=false
