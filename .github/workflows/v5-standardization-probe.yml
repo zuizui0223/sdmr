@@ -86,6 +86,10 @@ jobs:
           assert x['frozen_taxon_denominator']==50
           assert x['truth_or_sealed_answer_check_read'] is False
           assert x['reference_v5_emp_d']['promotion']=='failed_closed'
+          hgb=x['hgb_input_fold_parity_control']
+          assert 0<=hgb['matched_taxa_within_1e-3']<=10
+          assert hgb['maximum_absolute_score_error']>=0
+          print('Frozen shallow3-HGB parity:',hgb['matched_taxa_within_1e-3'],'/10; max score error',hgb['maximum_absolute_score_error'])
           if x['baseline_replay']['all_within_1e-3']:
               assert x['comparison_valid_against_original_v5'] is True
               assert x['diagnostic_status']=='baseline_replay_matched_exploratory_only'
