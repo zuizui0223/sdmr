@@ -94,6 +94,8 @@ def test_probe_one_executes_with_small_complete_model_pool():
     assert one["raw_logistic_v5_replay"]["p_value"]>=0.001
     assert one["verbatim_frozen_fit_helper_replay"]["p_value"]>=0.001
     assert np.isfinite(one["canonical_helper_replay_absolute_error"])
+    assert np.isfinite(one["hgb_replay_absolute_error"])
+    assert np.isfinite(one["frozen_hgb_fit_helper_replay"]["observed_mean_score"])
     assert np.isfinite(one["helper_vs_manual_score_difference"])
     assert np.isfinite(one["score_gain_from_standardization"])
     assert one["diagnostic_only"] is True
