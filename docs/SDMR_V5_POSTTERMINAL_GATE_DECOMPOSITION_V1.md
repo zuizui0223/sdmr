@@ -44,6 +44,21 @@ The frozen rule requires both learners to report the same sharp process state. D
 
 Therefore the exploratory standardization intervention is diagnostic of the source of learner authorization differences, **not** a route to pass the original EMP-D gate. A genuinely new process-identification design would also need to understand and improve the HGB closure-evidence stage, or establish that abstention is ecologically appropriate.
 
+## Direct 2026-10-11 BLAS falsification and next input parity control
+
+The **post-terminal diagnostic** workflow [38108779636](https://github.com/zuizui0223/sdmr/actions/runs/38108779636) tested the original frozen first four taxa with BLAS thread counts **1, 2, 4, 8**. Every setting returned the **same** frozen-helper and handwritten replay predictions (maximum canonical-vs-handwritten discrepancy ~1.78×10⁻¹⁵), as well as exactly the same mismatches to the 2026-10-07 archive:
+
+| Frozen selected rank | Name | Original log score | Replayed log score | Absolute mismatch |
+|---|---|---:|---:|---:|
+| 1 | *Pentapogon quadrisetus* | −1.13469 | −1.13469 | 0 |
+| 2 | *Westringia eremicola* | −2.98891 | −2.98891 | 0 |
+| 3 | *Acacia concurrens* | −1.17838 | −1.21598 | 0.03761 |
+| 4 | *Tinospora smilacina* | −1.37608 | −1.60827 | 0.23219 |
+
+Thus **BLAS thread count is not an explanation for the observed differences within the tested settings**. The raw L-BFGS learner hit 1,000 iterations in every one of those 12 held-out folds, whereas training-fold standardized logistic did not; nonconvergence remains a real technical weakness but is not yet established as the *specific cause* of historical replay divergence.
+
+A separate new diagnostic now refits the original **shallow3 HGB full-system learner on the identical assembled inputs and grouped folds**. HGB acts as an independent parity control because it does not use the problematic L-BFGS optimization path. If original HGB scores reproduce even for taxa where logistic does not, the source of the discrepancy is narrowed toward optimizer/computation. If HGB scores also diverge, investigate input row ordering, feature transformations, and original spatial-group membership before discussing a scaling effect. The original v5 promotion status remains closed either way.
+
 ## Plausible, NOT yet demonstrated causes
 
 1. **Scaling and penalization**. v5 fitted a linear L2-logistic model with the raw 46 environmental representations, **without standardization**. Because an L2 penalty operates on coefficient magnitudes, unit/scale differences can change regularization pressure. This is a modifiable implementation choice, not an ecological result.
