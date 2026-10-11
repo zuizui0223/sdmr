@@ -1,0 +1,33 @@
+{
+  "schema": "sdmr.v5.matched_closure_diagnostic.v1",
+  "status": "postterminal_exploratory_not_independent_confirmation",
+  "question": "After numerical repair, does loss of interpretable process information arise at full-system authorization, closure contrasts, cross-learner agreement, or spatial transfer?",
+  "original_v5_promotion": "failed_closed",
+  "sealed_answer_check_access": false,
+  "taxa": "exact first 10 frozen selection ranks; no exclusion or replacement",
+  "original_taxon_denominator": 50,
+  "diagnostic_taxon_denominator": 10,
+  "diagnostic_process_denominator_per_arm": 60,
+  "input_archive_sha256": "9a2574ab03506123b1119ed92b5432f5929a293b4d790bed38ac5290ac281237",
+  "predictors": 46,
+  "registry_git_blob": "6e3e7fc8d3d46cbd4bb983914beadf315635d45b",
+  "processes": ["thermal", "water", "seasonality", "radiation_energy", "soil_substrate", "productivity"],
+  "learners": {
+    "preserved_raw_ridge": "same raw-feature C=1 balanced L2 objective; previously tested transformed Newton, max100, gradient1e-12, decrement1e-9; verify two starts <=2e-6 prediction difference",
+    "scaled_isotropic_ridge": "StandardScaler trained within each training fold, balanced C=1 L2 logistic, newton-cholesky, max100, tol1e-10; convergence warning makes fit invalid",
+    "hgb_shallow3": "unchanged profile: learning_rate0.05,100iterations,3leaves,min_leaf40,L2=1,early_stopping=false,seed0,balanced training weights"
+  },
+  "splits": {
+    "spatial": "exact three saved spatial GroupKFold train/test index arrays",
+    "random_location": "three-fold KFold(seed0,shuffle=true) on sorted unique frozen location_id; all records from one exact location remain together, with no label-guided split selection"
+  },
+  "location_grouping": "restore location_id from frozen model-pool and nominal4000 training-background indices; verify joined predictor values/labels/row order exactly equal exported arrays before use",
+  "score": "mean across folds of balanced presence-background log score; not true occurrence probability",
+  "full_gate": {"adequacy_floor": -0.75, "gain_over_constant_minimum": 0.01, "permutations": 999, "seed": 0, "alpha": 0.001},
+  "closure_rule": "remove every declared carrier of each process, keep all other predictors, refit same learner on identical folds; do not tune or prune remaining features",
+  "state_rule": "original classify_process_state logic, margin0.01 and mean +/- 1 SEM across 3 folds (NOT a 95 percent confidence interval); unavailable if full-system gate fails; incomplete numerical fits cannot yield sharp states",
+  "primary_consensus": "HGB and scaled isotropic ridge agree on same sharp state; keep all60 cells in denominator",
+  "secondary_consensus": "HGB and objective-preserving raw ridge, and all three learners, reported without selecting best result",
+  "no_outcome_adaptive_changes": true,
+  "interpretation_limits": ["random-location interpolation is not spatial transfer", "no true ecological process labels in real plants", "shared or unregistered information proxies remain possible", "single split realization and first10 panel cannot establish population-wide frequencies", "cannot compare 71/80 synthetic positive recovery with 60-cell real diagnostic coverage as the same estimand"]
+}
