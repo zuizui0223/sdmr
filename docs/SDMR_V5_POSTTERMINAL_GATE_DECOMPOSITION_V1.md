@@ -59,6 +59,21 @@ Thus **BLAS thread count is not an explanation for the observed differences with
 
 A separate new diagnostic now refits the original **shallow3 HGB full-system learner on the identical assembled inputs and grouped folds**. HGB acts as an independent parity control because it does not use the problematic L-BFGS optimization path. If original HGB scores reproduce even for taxa where logistic does not, the source of the discrepancy is narrowed toward optimizer/computation. If HGB scores also diverge, investigate input row ordering, feature transformations, and original spatial-group membership before discussing a scaling effect. The original v5 promotion status remains closed either way.
 
+## 2026-10-11 decisive cross-learner replay result
+
+The new *unchanged frozen full-46 shallow3-HGB fitting helper* was run on **the same selected first 10 plants, the same model-pool feature arrays, and the same three grouped folds** as the raw logistic replay. The post-terminal development workflow [38109685807](https://github.com/zuizui0223/sdmr/actions/runs/38109685807) completed and archived its [source-backed first10 diagnostic artifact](https://github.com/zuizui0223/sdmr/actions/runs/38109685807).
+
+| Learner's original v5 held-out balanced log score | Exact-match taxa (≤ 0.001) | Maximum absolute error |
+|---|---:|---:|
+| shallow3 HistGradientBoosting | **10/10** | **0.000000** |
+| raw, nonstandardized L2 logistic | **5/10** | **0.23218884** |
+
+For every tested species, HGB matched the archived score **bit-for-bit at recorded floating-point precision**, including Acacia concurrens and Tinospora smilacina, where the raw logistic differed by 0.03761 and 0.23219, respectively. A separate independent raw-logistic implementation agrees with the original v5 logistic fitting helper within **2.7×10⁻¹⁵**, so *its* implementation is not causing the mismatch. Moreover the frozen raw logistic hits `max_iter=1000` in **30/30 folds** on the first ten species, versus **0/30** for a training-fold standardized learner. Taken together, this strongly **localizes** archive-versus-replay drift to the nonconverged logistic numerical optimization path rather than feature loading, predictor order or spatial splitting, **but it does not prove the exact low-level source of the drift**.
+
+**Exploratory new-runtime within-pool comparison (not a v5 replay outcome):** training-fold standardization improved balanced log score for **7/10** first-rank taxa (3 worsened), with a median difference **+0.11159** and arithmetic mean **+0.43427**; the mean is strongly affected by one +2.83060 outlier. The raw new-runtime model authorizes **0/10** taxa and the standardized model **1/10**. Because the frozen raw-logistic archive only matches 5/10, these exploratory values are **not** an authorized v5 improvement estimate, do **not** update promotion evidence, and do **not** establish stable process closure states. The programmed headline `paired_mean_score_gain` remains **null** when original raw replay fails.
+
+**Consequence:** scaling/solver convergence is a strongly supported *technical bottleneck*, but can explain neither the observed real-plant ecological processes nor all original EMP-D failures. The fixed original HGB alone yielded 125/300 sharp cells, far below 240/300, so a logistic-only intervention would not rescue the original method. A successor requires a separate prospective assessment of closure-level identifiability after the basic numerical learner is repaired.
+
 ## Plausible, NOT yet demonstrated causes
 
 1. **Scaling and penalization**. v5 fitted a linear L2-logistic model with the raw 46 environmental representations, **without standardization**. Because an L2 penalty operates on coefficient magnitudes, unit/scale differences can change regularization pressure. This is a modifiable implementation choice, not an ecological result.
