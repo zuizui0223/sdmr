@@ -1,0 +1,95 @@
+name: v5 post-terminal BLAS replay parity diagnosis
+
+on:
+  push:
+    branches:
+      - development/v5-standardization-cause-probe-v1
+    paths:
+      - 'configs/v5_blas_thread_probe_execute.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  frozen-model-pool-blas-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install v5 frozen numeric environment
+        run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install 'scikit-learn==1.9.1' 'numpy==2.5.3' 'pandas==3.0.6' 'scipy==1.18.1'
+          python -m pip show threadpoolctl
+      - name: Verify exact v5 source and tests
+        run: |
+          test "$(git hash-object src/sdmr/process_id/evidence.py)" = "1016cd4a00a1ecb2e5daefc4d282526a1c43f9dd"
+          pytest -q tests/test_v5_standardization_probe.py
+          python -m compileall -q experiments/v5_blas_thread_probe.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-feature-gate
+          run-id: 37545674411
+          github-token: ${{ github.token }}
+          path: frozen/feature
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          run-id: 37305740628
+          github-token: ${{ github.token }}
+          path: frozen/occurrence
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-model-pool-freeze
+          run-id: 37613738626
+          github-token: ${{ github.token }}
+          path: frozen/pool
+      - name: Allowlist exact original model-pool files
+        run: |
+          mkdir -p inputs outputs
+          (cd frozen/feature && zip -q ../../inputs/feature.zip location_features_v5.parquet model_pool_feature_index_v5.csv background_300km_feature_index_v5.csv)
+          (cd frozen/occurrence && zip -q ../../inputs/occurrence.zip model_pool_occurrences_v5.csv)
+          (cd frozen/pool && zip -q -r ../../inputs/pool.zip model_pool_freeze)
+      - name: Diagnose original raw solver across predeclared BLAS thread counts
+        run: >-
+          python experiments/v5_blas_thread_probe.py
+          --feature-zip inputs/feature.zip
+          --occurrence-zip inputs/occurrence.zip
+          --pool-zip inputs/pool.zip
+          --registry experiments/frozen_v5_process_registry.csv
+          --taxon-limit 4
+          --blas-threads 1 2 4 8
+          --output-dir outputs
+      - name: Protect attribution and original v5 conclusion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('outputs/thread_diagnosis.json').read_text())
+          assert data['original_v5_emp_d']=='failed_closed'
+          assert data['sealed_answer_check_read'] is False
+          assert data['causal_standardization_effect_established'] is False
+          assert sorted(map(int,data['runs']))==[1,2,4,8]
+          assert all(v['canonical_manual_max_difference']<1e-10 for v in data['runs'].values())
+          for n,run in data['runs'].items():
+              print(n,'BLAS threads',run['matched_taxa'],'of 4 archived replay matches; max error',run['max_original_score_error'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-v5-postterminal-BLAS-parity-four-taxa
+          path: outputs/
+          if-no-files-found: warn
+          retention-days: 90
