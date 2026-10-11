@@ -89,6 +89,10 @@ jobs:
           hgb=x['hgb_input_fold_parity_control']
           assert 0<=hgb['matched_taxa_within_1e-3']<=10
           assert hgb['maximum_absolute_score_error']>=0
+          assert hgb['all_within_1e-3'], (
+              'HGB archive also fails replay; cannot isolate logistic numerical instability'
+          )
+          assert hgb['matched_taxa_within_1e-3']==10
           print('Frozen shallow3-HGB parity:',hgb['matched_taxa_within_1e-3'],'/10; max score error',hgb['maximum_absolute_score_error'])
           if x['baseline_replay']['all_within_1e-3']:
               assert x['comparison_valid_against_original_v5'] is True
