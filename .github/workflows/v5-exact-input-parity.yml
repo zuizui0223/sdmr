@@ -1,0 +1,101 @@
+name: v5 exact original input-path parity
+
+on:
+  push:
+    branches:
+      - development/v5-standardization-cause-probe-v1
+    paths:
+      - 'experiments/v5_exact_input_parity.py'
+      - 'tests/test_v5_exact_input_parity.py'
+      - '.github/workflows/v5-exact-input-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  original-input-parity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original numeric versions and diagnostic dependencies
+        run: >-
+          python -m pip install -e '.[test,parquet]'
+          'scikit-learn==1.9.1' 'numpy==2.5.3' 'pandas==3.0.6' 'scipy==1.18.1'
+      - name: Verify tiny-difference and source-integrity tests
+        run: python -m pytest -q tests/test_v5_exact_input_parity.py tests/test_v5_standardization_probe.py
+      - name: Retrieve byte-pinned historical original loader
+        run: |
+          mkdir -p frozen_source outputs
+          curl -fsSL --retry 3 'https://raw.githubusercontent.com/zuizui0223/sdmr/bf0d76d615d649adad4c4df6f21b5411f9ac3bfd/src/sdmr/process_id/fresh/model_pool_v5.py' -o frozen_source/model_pool_v5.py
+          test "$(git hash-object frozen_source/model_pool_v5.py)" = '452f90508dd265c223731c2a9f5bc070cb89e6a1'
+          test "$(git hash-object src/sdmr/process_id/evidence.py)" = '1016cd4a00a1ecb2e5daefc4d282526a1c43f9dd'
+          test "$(git hash-object src/sdmr/process_id/known_truth/permutation_gate.py)" = '21843f2abf7e1f4a58b70400af1e61a9fd06bb50'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-feature-gate
+          run-id: 37545674411
+          github-token: ${{ github.token }}
+          path: frozen/feature
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          run-id: 37305740628
+          github-token: ${{ github.token }}
+          path: frozen/occurrence
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-model-pool-freeze
+          run-id: 37613738626
+          github-token: ${{ github.token }}
+          path: frozen/pool
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-all46-support
+          run-id: 37483898817
+          github-token: ${{ github.token }}
+          path: frozen/support
+      - name: Audit exact original pipeline against PR-278 construction on fixed first10
+        run: >-
+          python experiments/v5_exact_input_parity.py
+          --feature-root frozen/feature
+          --occurrence frozen/occurrence/model_pool_occurrences_v5.csv
+          --pool-root frozen/pool/model_pool_freeze
+          --selected frozen/support/selected_fresh_taxa_v5.csv
+          --registry experiments/frozen_v5_process_registry.csv
+          --original-source frozen_source/model_pool_v5.py
+          --taxon-limit 10
+          --output outputs/exact_input_path_parity_first10.json
+      - name: Require complete diagnostic without changing scientific gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('outputs/exact_input_path_parity_first10.json').read_text())
+          assert len(r['rows'])==r['taxon_limit']==10
+          assert r['original_taxon_denominator']==50
+          assert r['original_v5_promotion']=='failed_closed'
+          assert r['sealed_answer_check_read'] is False
+          assert r['causal_scaling_effect_established'] is False
+          assert 'summary' in r
+          print(json.dumps(r['summary'],indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-v5-exact-original-input-parity-first10
+          path: outputs/
+          if-no-files-found: warn
+          retention-days: 90
