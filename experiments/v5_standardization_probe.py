@@ -166,12 +166,35 @@ def probe_one(taxon, model_index, bg_index, occurrence, locations, predictors, f
     reference=gate_stats(reference_predictions)
     reference["convergence_warning_folds"]=reference_warning_folds
     result["verbatim_frozen_fit_helper_replay"]=reference
+    # HGB acts as an independent *input/fold parity control*: the historical
+    # shallow3 learner does not use the L-BFGS solver.  If HGB reproduces
+    # its archived score but raw logistic does not, the source of the gap
+    # is unlikely to be feature rows or CV assignment.
+    hgb_predictions=[]
+    for train,test in splits:
+        train_frame=pd.DataFrame(x[train],columns=predictors)
+        test_frame=pd.DataFrame(x[test],columns=predictors)
+        train_frame["label"]=y[train]
+        test_frame["label"]=y[test]
+        _,pred=_fit_probabilities(
+            train_frame,test_frame,tuple(predictors),
+            C=1.0,learner="hgb",hgb_profile="shallow3",
+        )
+        hgb_predictions.append((y[test],np.asarray(pred)))
+    result["frozen_hgb_fit_helper_replay"]=gate_stats(hgb_predictions)
     result["helper_vs_manual_score_difference"]=(
         reference["observed_mean_score"]-result["raw_logistic_v5_replay"]["observed_mean_score"]
     )
     frozen=frozen_auth.loc[(frozen_auth.scientific_name==taxon)&
                            (frozen_auth.learner_route=="penalized_logistic")].iloc[0]
     result["frozen_raw_score"]=float(frozen.observed_mean_score)
+    frozen_hgb=frozen_auth.loc[(frozen_auth.scientific_name==taxon)&
+                              (frozen_auth.learner_route=="shallow3_hgb")].iloc[0]
+    result["frozen_hgb_score"]=float(frozen_hgb.observed_mean_score)
+    result["hgb_replay_absolute_error"]=abs(
+        result["frozen_hgb_fit_helper_replay"]["observed_mean_score"]-
+        result["frozen_hgb_score"]
+    )
     result["raw_replay_absolute_error"]=abs(result["raw_logistic_v5_replay"]["observed_mean_score"]-result["frozen_raw_score"])
     result["canonical_helper_replay_absolute_error"]=abs(
         result["verbatim_frozen_fit_helper_replay"]["observed_mean_score"]-result["frozen_raw_score"]
@@ -221,6 +244,7 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
         print(f"{len(rows):2d}/{taxon_limit} {taxon}: raw={item['raw_logistic_v5_replay']['observed_mean_score']:.4f}"
               f" standardized={item['standardized_logistic_exploratory']['observed_mean_score']:.4f}",flush=True)
     matches=[r["raw_replay_absolute_error"] for r in rows]
+    hgb_matches=[r["hgb_replay_absolute_error"] for r in rows]
     helper_matches=[r["canonical_helper_replay_absolute_error"] for r in rows]
     valid_replay=all(x<=1e-3 for x in helper_matches)
     debug_paired_gain=float(np.mean([r["score_gain_from_standardization"] for r in rows]))
@@ -238,6 +262,11 @@ def run(*, feature_zip:Path, occurrence_zip:Path, pool_zip:Path, registry_path:P
                             "matched_taxa_within_1e-3":sum(x<=1e-3 for x in helper_matches),
                             "handwritten_replay_maximum_absolute_error":max(matches),
                             "canonical_helper_minus_handwritten_maximum_abs":max(abs(r["helper_vs_manual_score_difference"]) for r in rows)},
+        "hgb_input_fold_parity_control": {
+            "maximum_absolute_score_error":max(hgb_matches),
+            "matched_taxa_within_1e-3":sum(d<=1e-3 for d in hgb_matches),
+            "all_within_1e-3":all(d<=1e-3 for d in hgb_matches),
+        },
         "comparison_valid_against_original_v5":valid_replay,
         "scientific_effect_attribution_allowed":False,
         "diagnostic_status":("baseline_replay_matched_exploratory_only" if valid_replay
