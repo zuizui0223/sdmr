@@ -31,6 +31,8 @@ def summarize(input_root:Path,contract:dict,output:Path):
         finite=json.loads(raw)
         if finite.get('status')!='finite_frozen_before_reference_opening' or finite.get('reference_truth_read_by_learner') is not False:
             raise ValueError('truth information barrier violated')
+        if finite.get('prospective') is not True:
+            raise ValueError('finite receipt prospective flag mismatch: burned or unsealed fit cannot be promoted')
         if (finite.get('seed'),finite.get('world'))!=(result['seed'],result['world']):
             raise ValueError('finite and oracle case identity mismatch')
         if result.get('prospective') is not True or result.get('original_v5_promotion')!='failed_closed':
