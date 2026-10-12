@@ -1,0 +1,51 @@
+{
+  "schema": "sdmr.matched_known_truth_split.execution_freeze.v1",
+  "status": "frozen_source_before_target_outcomes",
+  "code_frozen_commit": "5fb42c8098444fdb59ea0481b49bc8bb1b184d66",
+  "design_commits": [
+    "d02c8b9babe413e92f1134e8bbab9ad0b2df0f5c",
+    "6b41176cb7056cce90868873eecbfad4787b508b"
+  ],
+  "development_smoke": {
+    "run_id": 38192089745,
+    "conclusion": "success",
+    "seed": 1234,
+    "future_target_seeds_opened": false
+  },
+  "source_files": 15,
+  "blob_sha": {
+    "configs/sdmr_matched_kt_split_v1.json": "70fbae62ab8771d6da60837b82246c9c53bfc5cf",
+    "experiments/matched_kt_core.py": "2894004e18f89db1046332ce0d0290fb04786e29",
+    "experiments/matched_kt_split_v1.py": "e410d612b869e39a1ff0bae3c60f98e4a0fc48e6",
+    "experiments/matched_kt_aggregate_v1.py": "9caaa0a9e4a5ffc9bba1625eaca60fd2cc6d1b51",
+    "tests/test_matched_kt_core.py": "0e626ff125466151bfd0893faedbb713892f7694",
+    "tests/test_matched_kt_aggregate.py": "b77bf66394c7265b865c95defc2014f77abfe20b",
+    "docs/SDMR_MATCHED_KT_SPLIT_PREREG_V1.md": "d8e52e4b003f9cc6f845d80bc428167e262b0748",
+    ".github/workflows/sdmr-matched-kt-one-shot-v1.yml": "f5e999e60677782a11cd13b90826b85a56b39baa",
+    ".github/workflows/sdmr-matched-kt-smoke-v1.yml": "d789899ead9d821730460db5507bddc1fd19c8a2",
+    "src/sdmr/process_id/hgb_profiles.py": "38718da0743842e21b52ac223872f5b67064816e",
+    "src/sdmr/process_id/known_truth/worlds.py": "c57d0d49d47473d9f13deba2ae10988b4e59cd19",
+    "src/sdmr/process_id/known_truth/occurrence_oracle.py": "f8ab21073fcb1d6f015261c8028068a33a5ccc1e",
+    "src/sdmr/process_id/known_truth/permutation_gate.py": "21843f2abf7e1f4a58b70400af1e61a9fd06bb50",
+    "src/sdmr/process_id/states.py": "7ff69d91d88025bfcb5c69aac95aa7b9b723ae0c",
+    "src/sdmr/process_information_closure.py": "5c97b462dce44b9ab27629ee172475a9935c1ce9"
+  },
+  "prospective_seed_count": 3,
+  "world_count": 8,
+  "expected_case_count": 24,
+  "expected_process_cells_per_split": 144,
+  "expected_finite_fit_count": 2016,
+  "software_versions": {
+    "python": "3.12",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "scikit_learn": "1.8.0"
+  },
+  "scientific_limits": [
+    "No fresh-v5 re-promotion",
+    "No reuse of sealed real-plant features",
+    "Reference ODO is approximation of observational information state",
+    "Report all seed/world cases; no replacement or post-outcome changes"
+  ]
+}
