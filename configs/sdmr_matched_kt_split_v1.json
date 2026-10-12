@@ -121,7 +121,7 @@
     "oracle_targets": 144,
     "consensus_cells_per_split": 144,
     "learner_cells_per_split": 288,
-    "finite_fits": 1008,
+    "finite_fits": 2016,
     "oracle_regression_fits": 504
   },
   "data_barriers": {
@@ -145,5 +145,11 @@
     "second": "one-shot source-hash receipt",
     "third": "one-shot prospective execution on never-opened seeds",
     "repetition": "prohibited on scientific outcome failure"
+  },
+  "pre_outcome_amendment": {
+    "date": "2026-10-12",
+    "reason": "Correct bookkeeping: 24 cases × 2 splits × 2 learners × 7 full-or-knockout routes × 3 folds = 2016 fits (not 1008)",
+    "science_gate_changed": false,
+    "seeds_opened": false
   }
 }
