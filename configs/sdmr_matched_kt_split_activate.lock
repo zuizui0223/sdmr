@@ -1,0 +1,8 @@
+program=sdmr-matched-known-truth-split-v1
+activation=one_shot
+source_receipt_commit=2d764a9d879cc42a32a461af507d6b02b6d99d12
+declared_worlds=8
+declared_seeds=91001,91002,91003
+target_truth_not_previously_opened=true
+original_fresh_v5=failed_closed
+no_seed_replacement=true
