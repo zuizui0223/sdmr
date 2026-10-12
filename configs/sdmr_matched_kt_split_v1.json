@@ -1,0 +1,149 @@
+{
+  "schema": "sdmr.matched_known_truth_split.v1",
+  "status": "preregistered_before_any_new_seed_outcome",
+  "frozen_date": "2026-10-12",
+  "study": "prospective matched-learner split-mode development benchmark, not original M5 or fresh-v5 promotion",
+  "seeds": [
+    91001,
+    91002,
+    91003
+  ],
+  "worlds": [
+    "unique_process",
+    "redundant_representation",
+    "shared_carrier",
+    "null_correlated",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "geographic_shift"
+  ],
+  "world_roles": {
+    "informative": [
+      "unique_process",
+      "redundant_representation",
+      "shared_carrier",
+      "null_correlated",
+      "interaction",
+      "geographic_shift"
+    ],
+    "observation_report_only": [
+      "observation_confounded"
+    ],
+    "null": [
+      "omitted_driver"
+    ]
+  },
+  "sampling": {
+    "generator": "sdmr.process_id.known_truth.worlds.simulate_process_world",
+    "n_cells": 1600,
+    "n_occurrences": 180,
+    "n_background": 600,
+    "world_code_unchanged": true,
+    "no_seed_replacement": true
+  },
+  "finite": {
+    "splits": 3,
+    "split_modes": [
+      "random_cell",
+      "spatial"
+    ],
+    "random_cell_seed": 0,
+    "spatial_groups": "world.spatial_groups mapped to sampled cell_id; GroupKFold",
+    "learners": [
+      "standardized_isotropic_l2",
+      "shallow3_hgb"
+    ],
+    "logit": {
+      "scaler": "training fold only StandardScaler",
+      "C": 1,
+      "penalty": "l2 after scaling",
+      "solver": "newton-cholesky",
+      "max_iter": 100,
+      "tol": 1e-10,
+      "class_weight": "balanced",
+      "nonconvergence": "abstain"
+    },
+    "hgb": {
+      "profile": "shallow3",
+      "class_weight": "frozen inverse frequency sample weights",
+      "seed": 0
+    },
+    "score": "balanced presence-background log score",
+    "full_gate": {
+      "absolute_min": -0.75,
+      "gain_over_constant_min": 0.01,
+      "permutations": 999,
+      "permutation_seed": 0,
+      "permutation_alpha": 0.001
+    },
+    "process": {
+      "margin": 0.01,
+      "sem_multiplier": 1,
+      "knockout": "remove complete declared process information closure on identical folds",
+      "classify": "frozen v5 classify_process_state + identical closure abstention"
+    },
+    "consensus": "both learners same sharp state; else unresolved; unavailable on either -> unavailable"
+  },
+  "oracle": {
+    "reference": "evaluate_occurrence_oracle_states",
+    "split_mode": "random",
+    "n_splits": 3,
+    "margin": 0.01,
+    "adequacy_floor": -0.75,
+    "sem_multiplier": 1,
+    "approximation_tolerance": 0.01,
+    "fit_max_iter": 250,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "learning_rate": 0.08,
+    "l2_regularization": 0.001,
+    "opening_order": "finite decisions and SHA256 receipt persisted BEFORE ODO reference is computed",
+    "interpretation": "distribution-information approximation conditional on model/world, not causal process truth"
+  },
+  "primary_estimands": [
+    "pair full-system joint authorization by split over all 24 cases",
+    "pair stable-sharp coverage by split over all 24x6 process cells",
+    "positive-state recovery among oracle ODO contributory/required states using full fixed denominator",
+    "false favorable-positive attribution among ODO replaceable/unresolved/unavailable states",
+    "confusion with unavailable and unresolved retained in denominator"
+  ],
+  "secondary_estimands": [
+    "per-learner full-system authorization by split",
+    "paired case-wise random minus spatial sharp-coverage difference",
+    "world-specific counts",
+    "generating-process membership metadata, never substituted for ODO target",
+    "jointly authorized conditional sharp rate explicitly reported as descriptive"
+  ],
+  "denominators": {
+    "world_seed_cases": 24,
+    "processes_per_case": 6,
+    "oracle_targets": 144,
+    "consensus_cells_per_split": 144,
+    "learner_cells_per_split": 288,
+    "finite_fits": 1008,
+    "oracle_regression_fits": 504
+  },
+  "data_barriers": {
+    "real_v5_data_read": false,
+    "real_v5_promotion": "failed_closed",
+    "original_M5_status": "unchanged",
+    "no_truth_to_fit": true,
+    "full_fit_specs_frozen_before_new_seed_opening": true
+  },
+  "no_promotion_test": true,
+  "analysis_policy": {
+    "missing_or_unavailable": "retain all declared worlds/seeds/cells; never silently drop",
+    "zero_target_denominator": "null not 0%",
+    "compare_splits": "paired within exactly same simulated world/seed, do not infer causal source of real-data failure",
+    "multiple_comparisons": "descriptive only; no significance-based promotion",
+    "failures": "report independently of desired effect; no threshold change or seed reruns",
+    "software": "Python 3.12; numpy 2.3.5, pandas 2.2.3, scipy 1.17.0, scikit-learn 1.8.0, frozen source at branch execution receipt"
+  },
+  "activation": {
+    "first": "design and tests from burned seeds only",
+    "second": "one-shot source-hash receipt",
+    "third": "one-shot prospective execution on never-opened seeds",
+    "repetition": "prohibited on scientific outcome failure"
+  }
+}
