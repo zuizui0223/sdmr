@@ -69,3 +69,11 @@ The `omitted_driver` null world yielded zero jointly authorized cases in all thr
 ## Consequence for future work
 
 Do not promote the current two-learner consensus as a validated method for sharp positive ecological attribution. A **new, separately frozen** experiment should compare capacity-matched nonlinear learners and explicitly model observation effort, with separate endpoints for (i) full-system authorization, (ii) positive ODO-state recovery, (iii) unsafe overresolution, and (iv) geographic transfer. It must retain no-outcome-adaptive design and independent holdout seeds. A tuned or alternative learner is not a retrospective reanalysis that can rescue this prospective outcome.
+
+## Auditable source-backed crosswalk (added after outcome opening; no refits)
+
+- `results/sdmr_matched_kt_split_v1_crosswalk_288.csv` — every paired world/seed/process/split label, both original learner states, oracle-reference state and authorization flags. A **post-outcome derivative**, never used to fit or alter the prospectively frozen decisions.
+- `results/sdmr_matched_kt_split_v1_independent_audit.json` — source hashes, fixed denominators and independently recomputed confusion counts.
+- `experiments/audit_matched_kt_split_v1_receipts.py` — Python **standard-library-only** verifier of all 24 downloaded case archives, each pre-oracle finite receipt and the aggregate's original SHA-256 provenance records. No model, predictor or seed selection is performed.
+
+To rerun, download the 24 original case ZIP artifacts and aggregate ZIP from GitHub Action run 38192262406 into one folder, then execute `python experiments/audit_matched_kt_split_v1_receipts.py --artifacts DIR --aggregate AGGREGATE.zip --output DIR/report`. The audit ran successfully on all 24 originals and independently checked **288/288** split×process rows. The narrative result is written *after* the scientifically sealed 24-case outcomes, without changing any earlier settings.

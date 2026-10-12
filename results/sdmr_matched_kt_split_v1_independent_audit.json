@@ -1,0 +1,194 @@
+{
+  "checked_case_zips": 24,
+  "checked_process_split_cells": 288,
+  "oracle_reference": "observational-distribution information state approximation; NOT biological generating-cause labels",
+  "paired_cases": [
+    {
+      "random_sharp": 4,
+      "seed": 91001,
+      "spatial_sharp": 0,
+      "world": "geographic_shift"
+    },
+    {
+      "random_sharp": 5,
+      "seed": 91002,
+      "spatial_sharp": 0,
+      "world": "geographic_shift"
+    },
+    {
+      "random_sharp": 5,
+      "seed": 91003,
+      "spatial_sharp": 5,
+      "world": "geographic_shift"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91001,
+      "spatial_sharp": 0,
+      "world": "interaction"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91002,
+      "spatial_sharp": 0,
+      "world": "interaction"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91003,
+      "spatial_sharp": 0,
+      "world": "interaction"
+    },
+    {
+      "random_sharp": 5,
+      "seed": 91001,
+      "spatial_sharp": 5,
+      "world": "null_correlated"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91002,
+      "spatial_sharp": 5,
+      "world": "null_correlated"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91003,
+      "spatial_sharp": 6,
+      "world": "null_correlated"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91001,
+      "spatial_sharp": 6,
+      "world": "observation_confounded"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91002,
+      "spatial_sharp": 6,
+      "world": "observation_confounded"
+    },
+    {
+      "random_sharp": 4,
+      "seed": 91003,
+      "spatial_sharp": 0,
+      "world": "observation_confounded"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91001,
+      "spatial_sharp": 0,
+      "world": "omitted_driver"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91002,
+      "spatial_sharp": 0,
+      "world": "omitted_driver"
+    },
+    {
+      "random_sharp": 0,
+      "seed": 91003,
+      "spatial_sharp": 0,
+      "world": "omitted_driver"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91001,
+      "spatial_sharp": 6,
+      "world": "redundant_representation"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91002,
+      "spatial_sharp": 6,
+      "world": "redundant_representation"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91003,
+      "spatial_sharp": 5,
+      "world": "redundant_representation"
+    },
+    {
+      "random_sharp": 3,
+      "seed": 91001,
+      "spatial_sharp": 3,
+      "world": "shared_carrier"
+    },
+    {
+      "random_sharp": 4,
+      "seed": 91002,
+      "spatial_sharp": 4,
+      "world": "shared_carrier"
+    },
+    {
+      "random_sharp": 4,
+      "seed": 91003,
+      "spatial_sharp": 4,
+      "world": "shared_carrier"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91001,
+      "spatial_sharp": 5,
+      "world": "unique_process"
+    },
+    {
+      "random_sharp": 6,
+      "seed": 91002,
+      "spatial_sharp": 5,
+      "world": "unique_process"
+    },
+    {
+      "random_sharp": 4,
+      "seed": 91003,
+      "spatial_sharp": 3,
+      "world": "unique_process"
+    }
+  ],
+  "schema": "sdmr.matched_kt.independent_receipt_and_crosswalk_audit.v1",
+  "source_aggregate_artifact_id": 11722575098,
+  "source_aggregate_zip_sha256": "8680990085cf2fdfde35065c3c35b8fd8ace9220ae08f0c8c8ae620779a90cca",
+  "source_workflow_run": 38192262406,
+  "status": "verified_from_all_24_individual_case_SHA256_receipts",
+  "summary": {
+    "random_cell": {
+      "counts": {
+        "contributory": 5,
+        "replaceable": 87,
+        "unavailable": 36,
+        "unresolved": 16
+      },
+      "false_positive_on_replaceable": 0,
+      "joint_authorized": 18,
+      "oracle_positive_denominator": 12,
+      "oracle_replaceable_denominator": 105,
+      "oracle_unavailable_denominator": 18,
+      "oracle_unresolved_denominator": 9,
+      "overresolution_on_unresolved": 2,
+      "positive_recovery": 3,
+      "sharp": 92,
+      "sharp_on_unavailable": 0
+    },
+    "spatial": {
+      "counts": {
+        "contributory": 2,
+        "replaceable": 72,
+        "unavailable": 54,
+        "unresolved": 16
+      },
+      "false_positive_on_replaceable": 0,
+      "joint_authorized": 15,
+      "oracle_positive_denominator": 12,
+      "oracle_replaceable_denominator": 105,
+      "oracle_unavailable_denominator": 18,
+      "oracle_unresolved_denominator": 9,
+      "overresolution_on_unresolved": 2,
+      "positive_recovery": 0,
+      "sharp": 74,
+      "sharp_on_unavailable": 0
+    }
+  }
+}
