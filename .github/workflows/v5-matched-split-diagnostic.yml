@@ -1,0 +1,97 @@
+name: v5 post-terminal matched split and closure audit
+
+on:
+  push:
+    branches:
+      - development/v5-standardization-cause-probe-v1
+    paths:
+      - 'configs/v5_matched_split_execute.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  scientific-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install frozen developmental numerical environment
+        run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - name: Verify model-only contract and unit tests
+        run: |
+          python -m pytest -q tests/test_reliable_closure.py tests/test_split_contrast.py
+          test "$(git hash-object src/sdmr/process_id/states.py)" = '7ff69d91d88025bfcb5c69aac95aa7b9b723ae0c'
+          test "$(git hash-object experiments/frozen_v5_process_registry.csv)" = '6e3e7fc8d3d46cbd4bb983914beadf315635d45b'
+      - name: Retrieve exact frozen first10 model-pool artifact and feature indexes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p frozen build/v5
+          gh api /repos/zuizui0223/sdmr/actions/artifacts/11700850978/zip > frozen/first10.zip
+          gh api /repos/zuizui0223/sdmr/actions/artifacts/11453480812/zip > frozen/feature.zip
+          echo '9a2574ab03506123b1119ed92b5432f5929a293b4d790bed38ac5290ac281237  frozen/first10.zip' | sha256sum -c -
+          echo '7488bff59e4da00db8420afcdccbb1627f1b52455609483ab9413a0b1f166aa0  frozen/feature.zip' | sha256sum -c -
+      - name: Recompute original spatial whole-process closures
+        run: >-
+          python experiments/v5_reliable_closure_probe.py
+          --input-zip frozen/first10.zip
+          --registry experiments/frozen_v5_process_registry.csv
+          --output build/v5/spatial.json
+      - name: Diagnose same-model random-location full-system eligibility
+        run: >-
+          python experiments/split_contrast.py
+          --input-zip frozen/first10.zip
+          --feature-zip frozen/feature.zip
+          --prior-spatial-json build/v5/spatial.json
+          --output build/v5/eligibility.json
+      - name: Recompute random-location whole-process closures on all ten taxa
+        run: >-
+          python experiments/random_location_closure.py
+          --input-zip frozen/first10.zip
+          --feature-zip frozen/feature.zip
+          --registry experiments/frozen_v5_process_registry.csv
+          --prior-spatial-json build/v5/spatial.json
+          --output build/v5/random.json
+      - name: Independently audit states and deny retrospective v5 promotion
+        run: |
+          python experiments/verify_v5_random_closure.py build/v5/random.json experiments/frozen_v5_process_registry.csv
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('build/v5/spatial.json').read_text())
+          r=json.loads(Path('build/v5/random.json').read_text())
+          e=json.loads(Path('build/v5/eligibility.json').read_text())
+          assert all(q['original_v5_promotion']=='failed_closed' and not q['sealed_answer_check_read'] for q in (s,r,e))
+          assert s['tested_taxa']==r['tested_taxa']==10
+          assert s['summary']['standardized_isotropic_converged']['authorized_taxa']==1
+          assert s['summary']['shallow3_hgb']['authorized_taxa']==4
+          assert r['summary']['standardized_isotropic_converged']['authorized_taxa']==9
+          assert r['summary']['shallow3_hgb']['authorized_taxa']==10
+          p=r['summary']['pairs']['standardized_isotropic_converged__vs_hgb']
+          assert p['stable_sharp']==32 and p['denominator']==60
+          assert p['both_authorized_taxa']==9 and p['conditional_denominator']==54
+          assert p['counts']=={'replaceable':29,'contributory':3,'required':0,'unresolved':22,'unavailable':6}
+          print('PASS: 10 fixed taxa, matched split contrast, 32/60 development-only stable-sharp states; no v5 reopening')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-v5-postterminal-matched-split-first10
+          path: build/v5/
+          if-no-files-found: warn
+          retention-days: 90

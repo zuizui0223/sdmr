@@ -1,0 +1,30 @@
+{
+  "scope": "postterminal same-runtime first10; not a v5 re-promotion or ecological identification study",
+  "input_run": 38134483278,
+  "input_artifact": 11700850978,
+  "input_zip_sha256": "9a2574ab03506123b1119ed92b5432f5929a293b4d790bed38ac5290ac281237",
+  "versions": {"python": "3.13.5", "numpy": "2.3.5", "pandas": "2.2.3", "scipy": "1.17.0", "sklearn": "1.8.0"},
+  "taxa": 10,
+  "folds": 30,
+  "numerical_certificates_passed": 30,
+  "raw_iteration_limit_folds": 30,
+  "scaled_iteration_limit_folds": 0,
+  "preserved_newton_iterations_min": 5,
+  "preserved_newton_iterations_max": 24,
+  "max_original_objective_identity_error": 5.051514762044462e-15,
+  "max_two_start_probability_gap": 7.660986456325958e-09,
+  "max_independent_trust_probability_gap": 1.6693082803831416e-06,
+  "original_training_objective_reduced_folds": 30,
+  "results": {
+    "raw_lbfgs": {"authorized_taxa": 0, "mean_score": -1.6436372003446422},
+    "preserved_newton": {"authorized_taxa": 1, "mean_score": -1.7815865920523133},
+    "scaled_isotropic": {"authorized_taxa": 1, "mean_score": -1.1634434673519796},
+    "optimization_only": {"better_taxa": 3, "mean_change": -0.1379493917076713, "median_change": -0.14272697070770918}
+  },
+  "scaled_isotropic_vs_preserved_better_taxa": 10,
+  "result_json_sha256": "f1b7462b02cc3355f7ab9e61afa209e49fd1a940f42f5a2ed7c2b6b95edeea24",
+  "all_inputs_match_previous_direct_audit": true,
+  "original_v5_promotion": "failed_closed",
+  "sealed_answer_check_read": false,
+  "ecological_identification_improvement_established": false
+}

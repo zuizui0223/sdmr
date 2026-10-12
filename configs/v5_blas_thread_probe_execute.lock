@@ -1,0 +1,5 @@
+program=sdmr-v5-postterminal-blas-parity-v1
+cohort=first_four_frozen_selection_ranks
+blas_thread_counts=1,2,4,8
+original_v5_outcome=failed_closed
+sealed_answer_check_access=false

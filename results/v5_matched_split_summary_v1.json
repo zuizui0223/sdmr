@@ -1,0 +1,76 @@
+{
+  "schema": "sdmr.v5.postterminal_matched_spatial_random_summary.v1",
+  "status": "exploratory_not_independent_confirmation",
+  "original_v5_promotion": "failed_closed",
+  "sealed_answer_check_read": false,
+  "taxa": "first 10 fixed selection ranks out of original 50",
+  "predictors": 46,
+  "processes": 6,
+  "cells_per_arm": 60,
+  "random_split": "KFold on sorted distinct frozen location_id, seed 0, three folds: interpolation",
+  "spatial_split": "original frozen GroupKFold, three folds: geographical separation",
+  "underlying_inputs": {
+    "frozen_feature_artifact_sha256": "7488bff59e4da00db8420afcdccbb1627f1b52455609483ab9413a0b1f166aa0",
+    "frozen_npz_artifact_sha256": "9a2574ab03506123b1119ed92b5432f5929a293b4d790bed38ac5290ac281237",
+    "original_spatial_result_sha256": "53d77d314a04f96c6c9bd7adfdf4d635fb683532926e2a9025d52746e7e693c2",
+    "new_random_closure_result_sha256": "7c05f11b12232beb340ff56c3e0ca9b6ac24d0b1102bb5b7ae36671766fe2f84",
+    "separately_run_random_full_system_only_sha256": "8e80211b52d55cfa2a61880a99aefe9e0071541bea88f7c0b5dcbe60df2f6702"
+  },
+  "per_split": {
+    "spatial": {
+      "models": {
+        "raw_objective_converged": 1,
+        "standardized_isotropic_converged": 1,
+        "shallow3_hgb": 4
+      },
+      "scaled_hgb_pair": {
+        "counts": {
+          "replaceable": 0,
+          "contributory": 0,
+          "required": 0,
+          "unresolved": 0,
+          "unavailable": 60
+        },
+        "denominator": 60,
+        "stable_sharp": 0,
+        "both_authorized_taxa": 0,
+        "conditional_denominator": 0
+      }
+    },
+    "random_location": {
+      "models": {
+        "raw_objective_converged": 9,
+        "standardized_isotropic_converged": 9,
+        "shallow3_hgb": 10
+      },
+      "scaled_hgb_pair": {
+        "counts": {
+          "replaceable": 29,
+          "contributory": 3,
+          "required": 0,
+          "unresolved": 22,
+          "unavailable": 6
+        },
+        "denominator": 60,
+        "stable_sharp": 32,
+        "both_authorized_taxa": 9,
+        "conditional_denominator": 54
+      }
+    }
+  },
+  "raw_fit_certificate_sensitivity": {
+    "full_only_screen_authorized": 8,
+    "all_closure_execution_authorized": 9,
+    "affected_taxon": "Tinospora smilacina",
+    "mechanism_observed": "identical full-predictor data in C-order versus F-order; one of two solver starts reaches max_iter=100 in C variant but converges in F variant; predictions agree within 1e-12",
+    "interpretation": "do not promote a raw-ridge authorization count as robust; main comparison uses standardized ridge and HGB"
+  },
+  "source_representation": "Full per-fold results are retained separately (SHA above); code and audit scripts included as development artifacts; no sealed answer-check read",
+  "limits": [
+    "No ground-truth process labels in real plants",
+    "Random-location interpolation cannot establish geographic transfer",
+    "Unknown statistical independence across taxa and process cells",
+    "No post-outcome v5 promotion",
+    "Do not compare with M5 synthetic 71/80 as same estimand"
+  ]
+}

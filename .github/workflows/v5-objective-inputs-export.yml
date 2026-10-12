@@ -1,0 +1,57 @@
+name: v5 objective-preserving model-pool input export
+on:
+  push:
+    branches: [development/v5-standardization-cause-probe-v1]
+    paths: [configs/v5_objective_input_export.lock]
+permissions:
+  contents: read
+  actions: read
+env:
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audited numeric input environment
+        run: |
+          python -m pip install -e '.[parquet]'
+          python -m pip install 'scikit-learn==1.9.1' 'numpy==2.5.3' 'pandas==3.0.6' 'scipy==1.18.1'
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-feature-gate
+          run-id: 37545674411
+          github-token: ${{ github.token }}
+          path: frozen/feature
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-occurrence-split
+          run-id: 37305740628
+          github-token: ${{ github.token }}
+          path: frozen/occurrence
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-fresh-empirical-v5-model-pool-freeze
+          run-id: 37613738626
+          github-token: ${{ github.token }}
+          path: frozen/pool
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-v5-exact-original-input-parity-first10
+          run-id: 38127240195
+          github-token: ${{ github.token }}
+          path: frozen/parity
+      - name: Export only byte-verified first10 model-pool arrays
+        run: python experiments/v5_objective_inputs.py --root frozen --output outputs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-v5-objective-preserving-inputs-first10
+          path: outputs/
+          if-no-files-found: error
+          retention-days: 90

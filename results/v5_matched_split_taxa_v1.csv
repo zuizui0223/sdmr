@@ -1,0 +1,11 @@
+rank,taxon,n_locations,raw_spatial,raw_random_closure,raw_random_screen,scaled_spatial,scaled_random,hgb_spatial,hgb_random
+1,Pentapogon quadrisetus,4211,0,1,1,0,1,1,1
+2,Westringia eremicola,3939,0,1,1,0,1,0,1
+3,Acacia concurrens,4000,0,1,1,0,1,0,1
+4,Tinospora smilacina,4070,0,1,0,0,1,0,1
+5,Fedia cornucopiae,3787,0,1,1,0,1,0,1
+6,Sphaeralcea hastulata,4109,0,1,1,0,1,1,1
+7,Ranunculus flammula,21964,1,1,1,1,1,0,1
+8,Xymalos monospora,3833,0,0,0,0,0,0,1
+9,Cylindropuntia imbricata,6517,0,1,1,0,1,1,1
+10,Pelargonium inodorum,3790,0,1,1,0,1,1,1
