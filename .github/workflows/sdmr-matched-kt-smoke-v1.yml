@@ -1,0 +1,56 @@
+name: SDMR matched known-truth split v1 burned-seed smoke
+on:
+  push:
+    branches: [development/sdmr-matched-kt-split-v1]
+    paths:
+      - 'configs/sdmr_matched_kt_split_smoke.lock'
+permissions:
+  contents: read
+jobs:
+  burned-seed-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned numerical environment
+        run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - name: Run denominator and integrity tests
+        run: pytest -q tests/test_matched_kt_core.py tests/test_matched_kt_aggregate.py
+      - name: Evaluate burned development seed only, truth opened after finite freeze
+        run: |
+          python experiments/matched_kt_split_v1.py \
+            --config configs/sdmr_matched_kt_split_v1.json \
+            --world unique_process --seed 1234 \
+            --output-dir outputs/burned_smoke
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          folder=Path('outputs/burned_smoke')
+          c=json.loads((folder/'case.json').read_text())
+          f=(folder/'finite_frozen_before_oracle.json').read_bytes()
+          assert c['finite_receipt_sha256']==hashlib.sha256(f).hexdigest()
+          assert c['prospective'] is False
+          assert c['world']=='unique_process' and c['seed']==1234
+          assert c['original_v5_promotion']=='failed_closed'
+          assert len(c['oracle'])==6
+          assert set(c['consensus'])=={'random_cell','spatial'}
+          print('Burned seed only; no prospective outcomes opened')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-matched-kt-v1-burned-smoke
+          path: outputs/burned_smoke/
+          if-no-files-found: warn
+          retention-days: 45
