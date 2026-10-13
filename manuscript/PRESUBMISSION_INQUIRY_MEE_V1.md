@@ -2,7 +2,7 @@
 
 **To:** coordinator@methodsinecologyandevolution.org  
 **Proposed article type:** Research Article  
-**Working title:** Abstention-aware process identification recovers ecological information without false attribution in prospective known-truth tests
+**Working title:** Evidence-bounded ecological process identification: prospective known-truth validation of abstention-aware inference
 
 Dear Editorial Office,
 
