@@ -1,0 +1,57 @@
+{
+  "program": "sdmr.nonlinear_effort_known_truth.v2",
+  "status": "frozen_source_before_prospective_outcomes",
+  "source_commit": "992f35dc4eb8909ac0d65de05bc1c87c4aa4e6b3",
+  "source_blobs": {
+    "configs/sdmr_nonlinear_effort_v2_contract.json": "5d1cd72311a613170fc24e7a5afa60019e244b9d",
+    "configs/sdmr_nonlinear_effort_v2_smoke.lock": "5ba2b22af945c34015d74086cecab3dd24653e7c",
+    "experiments/nonlinear_effort_core_v2.py": "b6d20b4abfd2916a634c6eb1267f7478451df5a8",
+    "experiments/nonlinear_effort_case_v2.py": "46431496cdacf645fbe3e98264eb957633305c3a",
+    "experiments/nonlinear_effort_aggregate_v2.py": "5034aca7565062f75b7cca29375d898d8994b075",
+    "tests/test_nonlinear_effort_core_v2.py": "471e8c367892557f635ddc3ffc5e43f3b4fb1428",
+    "tests/test_nonlinear_effort_aggregate_v2.py": "d8063b68208ac2cd277de0c42a4000480987842d",
+    ".github/workflows/sdmr-nonlinear-effort-v2-one-shot.yml": "ee9656003ebe51125f4c33248393d2e739780a80",
+    ".github/workflows/sdmr-nonlinear-effort-v2-smoke.yml": "6965f696646794b270b00eaea34ca5c3d4f0e47b",
+    "docs/SDMR_NONLINEAR_EFFORT_V2_PREREG.md": "c8cb980d84346338158c26b3d0ab03c25e82958c",
+    "src/sdmr/process_id/known_truth/worlds.py": "c57d0d49d47473d9f13deba2ae10988b4e59cd19",
+    "src/sdmr/process_id/known_truth/occurrence_oracle.py": "f8ab21073fcb1d6f015261c8028068a33a5ccc1e",
+    "src/sdmr/process_id/known_truth/permutation_gate.py": "21843f2abf7e1f4a58b70400af1e61a9fd06bb50",
+    "src/sdmr/process_id/states.py": "7ff69d91d88025bfcb5c69aac95aa7b9b723ae0c",
+    "src/sdmr/process_id/hgb_profiles.py": "38718da0743842e21b52ac223872f5b67064816e",
+    "src/sdmr/process_information_closure.py": "5c97b462dce44b9ab27629ee172475a9935c1ce9",
+    "experiments/matched_kt_core.py": "2894004e18f89db1046332ce0d0290fb04786e29",
+    "experiments/matched_kt_split_v1.py": "e410d612b869e39a1ff0bae3c60f98e4a0fc48e6"
+  },
+  "never_opened_seed_status": "as_of_receipt_unopened",
+  "unused_target_seeds": [
+    92001,
+    92002,
+    92003
+  ],
+  "worlds": [
+    "unique_process",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "null_correlated",
+    "geographic_shift"
+  ],
+  "denominators": {
+    "cases": 18,
+    "ecological_process_cells": 108,
+    "total_fit_records": 4536
+  },
+  "smoke_run": {
+    "run_id": 38351654164,
+    "conclusion": "success",
+    "original_pr279_baseline_reproduced": true,
+    "burned_seed": 91001,
+    "worlds": [
+      "interaction",
+      "observation_confounded"
+    ]
+  },
+  "original_M5_unchanged": true,
+  "original_v5_promotion": "failed_closed",
+  "post_outcome_changes_permitted": "independent no-refit audit and factual narrative only"
+}

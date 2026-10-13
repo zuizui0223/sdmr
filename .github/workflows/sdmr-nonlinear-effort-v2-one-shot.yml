@@ -1,0 +1,141 @@
+name: SDMR v2 nonlinear-effort one-shot prospective benchmark
+on:
+  push:
+    branches: [development/sdmr-nonlinear-effort-v2]
+    paths: ['configs/sdmr_nonlinear_effort_v2_activate.lock']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: sdmr-v2-nonlinear-effort-prospective
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - name: Enforce source freeze and unused 18 cases BEFORE generator access
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          c=json.loads(Path('configs/sdmr_nonlinear_effort_v2_contract.json').read_text())
+          e=json.loads(Path('configs/sdmr_nonlinear_effort_v2_execution_v1.json').read_text())
+          def git(*args):return subprocess.check_output(['git',*args],text=True).strip()
+          assert c['schema']=='sdmr.nonlinear_effort_known_truth.v2'
+          assert c['status']=='design_frozen_before_new_seed_opening'
+          assert c['seeds']==[92001,92002,92003]
+          assert len(c['worlds'])==6
+          assert c['denominators']['cases']==18
+          assert c['denominators']['finite_fit_records']==4536
+          assert e['status']=='frozen_source_before_prospective_outcomes'
+          assert e['never_opened_seed_status']=='as_of_receipt_unopened'
+          assert git('rev-parse','HEAD^^')==e['source_commit']
+          assert git('diff-tree','--no-commit-id','--name-only','-r','HEAD^').splitlines()==['configs/sdmr_nonlinear_effort_v2_execution_v1.json']
+          assert git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()==['configs/sdmr_nonlinear_effort_v2_activate.lock']
+          for p,sha in e['source_blobs'].items():
+              assert git('hash-object',p)==sha,p
+          assert not Path('results/sdmr_nonlinear_effort_v2_prospective_summary.json').exists()
+          print('Preflight passed: all scientific source bytes frozen, no previous target results, 18 seeds×worlds retained')
+          PY
+          python -m pytest -q tests/test_nonlinear_effort_core_v2.py tests/test_nonlinear_effort_aggregate_v2.py
+
+  case:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        seed: [92001,92002,92003]
+        world: [unique_process, interaction, observation_confounded, omitted_driver, null_correlated, geographic_shift]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - name: Fit all declared routes and freeze finite evidence BEFORE reference opening
+        run: >-
+          python experiments/nonlinear_effort_case_v2.py
+          --contract configs/sdmr_nonlinear_effort_v2_contract.json
+          --world ${{ matrix.world }}
+          --seed ${{ matrix.seed }}
+          --output-dir build/case
+          --prospective
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-nonlinear-effort-v2-case-${{ matrix.world }}-${{ matrix.seed }}
+          path: build/case/
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate:
+    needs: [preflight,case]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sdmr-nonlinear-effort-v2-case-*
+          path: build/case_parts
+          merge-multiple: false
+      - name: Verify every finite SHA receipt, all 4536 fits, and independently recompute saved OOF permutation statistics
+        run: >-
+          python experiments/nonlinear_effort_aggregate_v2.py
+          --root build/case_parts
+          --contract configs/sdmr_nonlinear_effort_v2_contract.json
+          --out build/prospective_aggregate.json
+      - name: Preserve original M5/v5 and reject denominator/gate outcome promotions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('build/prospective_aggregate.json').read_text())
+          assert d['original_v5_promotion']=='failed_closed'
+          assert d['original_M5_evidence_changed'] is False
+          assert d['status']=='complete_development_science_not_promotion'
+          assert d['finite_fit_records_checked']==4536
+          assert d['n_cases']==18
+          assert len(d['source_receipts'])==18
+          assert d['summary']['oracle_target_cells']==108
+          for split in ['random_cell','spatial']:
+              for effort in ['unavailable','known_effort_upper_bound']:
+                  for policy in ['baseline_pair','nonlinear_pair']:
+                      assert d['summary']['by_policy'][split][effort][policy]['cells']==108
+          print('PASS: all original cases retained; no refitting or prior SDMR promotion')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-nonlinear-effort-v2-one-shot-summary
+          path: build/prospective_aggregate.json
+          if-no-files-found: error
+          retention-days: 90

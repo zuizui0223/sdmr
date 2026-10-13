@@ -1,0 +1,236 @@
+{
+  "schema": "sdmr.nonlinear_effort_known_truth.prospective_result.v2",
+  "status": "complete_development_science_not_promotion",
+  "date_opened": "2026-10-13",
+  "authoritative_execution": {
+    "workflow_run": 38351952478,
+    "head_sha": "92c56545593dabe10ab3d4999d30647cf45c6908",
+    "aggregate_artifact_id": 11791561696,
+    "aggregate_artifact_digest": "sha256:8c05f08ec98e21add9a7881c1dd5976a5cfedcc8680bee09cec735f965f2d08b"
+  },
+  "denominator": {
+    "cases": 18,
+    "worlds": 6,
+    "seeds": [
+      92001,
+      92002,
+      92003
+    ],
+    "oracle_target_cells": 108,
+    "positive": 12,
+    "replaceable": 75,
+    "unresolved": 3,
+    "unavailable": 18,
+    "finite_fit_records": 4536
+  },
+  "audit": {
+    "finite_fit_records_checked": 4536,
+    "full_system_permutation_pvalues_independently_verified": 216,
+    "uncertified_full_routes": 0,
+    "pre_oracle_sha_receipts_required_for_all_cases": true
+  },
+  "primary_effort_unavailable": {
+    "random_cell": {
+      "baseline_hgb_l2": {
+        "joint_authorized_cases": 12,
+        "positive_recovered": [
+          2,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ],
+        "stable_sharp_cells": 59
+      },
+      "nonlinear_hgb_rf": {
+        "joint_authorized_cases": 14,
+        "positive_recovered": [
+          3,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ],
+        "stable_sharp_cells": 67
+      }
+    },
+    "spatial": {
+      "baseline_hgb_l2": {
+        "joint_authorized_cases": 8,
+        "positive_recovered": [
+          0,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ],
+        "stable_sharp_cells": 40
+      },
+      "nonlinear_hgb_rf": {
+        "joint_authorized_cases": 10,
+        "positive_recovered": [
+          4,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ],
+        "stable_sharp_cells": 49
+      }
+    },
+    "unsafe_case": {
+      "world": "observation_confounded",
+      "seed": 92003,
+      "process": "thermal",
+      "oracle_state": "unresolved",
+      "random_cell_baseline_state": "contributory",
+      "random_cell_nonlinear_state": "contributory",
+      "spatial_baseline_state": "contributory",
+      "spatial_nonlinear_state": "contributory"
+    }
+  },
+  "secondary_known_effort_upper_bound": {
+    "interpretation_boundary": "Different representation universe using simulation-privileged true sampling effort; diagnostic sensitivity only, not like-for-like ODO accuracy.",
+    "random_cell": {
+      "baseline_hgb_l2": {
+        "joint_authorized_cases": 12,
+        "positive_recovered": [
+          0,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          3,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ]
+      },
+      "nonlinear_hgb_rf": {
+        "joint_authorized_cases": 14,
+        "positive_recovered": [
+          1,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          3,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ]
+      }
+    },
+    "spatial": {
+      "baseline_hgb_l2": {
+        "joint_authorized_cases": 8,
+        "positive_recovered": [
+          0,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ]
+      },
+      "nonlinear_hgb_rf": {
+        "joint_authorized_cases": 9,
+        "positive_recovered": [
+          3,
+          12
+        ],
+        "false_positive_replaceable": [
+          0,
+          75
+        ],
+        "overresolved_unresolved": [
+          1,
+          3
+        ],
+        "sharp_on_unavailable": [
+          0,
+          18
+        ]
+      }
+    },
+    "observation_confounded_thermal_states": {
+      "random_cell": {
+        "92001": "replaceable",
+        "92002": "replaceable",
+        "92003": "replaceable"
+      },
+      "spatial": {
+        "92001": "unresolved",
+        "92002": "replaceable",
+        "92003": "unresolved"
+      }
+    }
+  },
+  "conclusion": [
+    "Replacing the standardized linear learner with a nonlinear Random Forest partner increased positive ODO-state recovery and joint authorization, especially under spatial validation.",
+    "The nonlinear pair did not eliminate the observation-confounded unsafe sharp state; the same seed-92003 thermal target was overresolved by both learner pairs under both primary split modes.",
+    "Supplying true simulator sampling effort as a nuisance covariate did not provide a safety certificate relative to the unchanged ODO reference and changed the representation universe, so it is only a diagnostic upper-bound sensitivity.",
+    "Model capacity and observation-process confounding are separable bottlenecks; learner agreement alone is not a truth certificate."
+  ],
+  "boundaries": {
+    "original_M5_evidence_changed": false,
+    "original_real_v5_promotion": "failed_closed",
+    "method_promotion_authorized": false,
+    "field_ecology_claim_authorized": false,
+    "no_postoutcome_tuning": true
+  }
+}
