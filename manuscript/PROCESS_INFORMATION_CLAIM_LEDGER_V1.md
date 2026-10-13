@@ -43,4 +43,6 @@ Do not claim:
 
 Keep historical Product-A development and the unrelated proxy-closed route-evidence v6 out of the narrative except, if needed, as a one-sentence provenance boundary in Supporting Information.
 
-Fresh empirical v3 may later be cited as an external empirical evaluation only if it closes under its independent frozen protocol. It cannot change the known-truth result.
+A later fresh-real programme ultimately closed negative at real-v5 and is reported only as an applicability boundary: 10/50 taxa had an available primary process-first route and 16/300 process cells were stably sharp, with EMP-D failed before sealed opening. It does not change the known-truth result.
+
+A separate later matched known-truth sensitivity benchmark also cannot be pooled with M5. Under a different ODO reference, learner pair, sample sizes and split comparison, strict linear/HGB consensus recovered 3/12 positive targets under random-cell validation and 0/12 under spatial validation, while over-resolving 2/9 unresolved targets in each split mode. These unsafe cells came from the same two observation-confounded cases. Therefore do not generalize the original zero-overresolution result into a claim that learner agreement guarantees safe process attribution across configurations.
