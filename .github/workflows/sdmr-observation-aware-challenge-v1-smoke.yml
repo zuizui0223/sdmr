@@ -1,0 +1,47 @@
+name: SDMR observation-aware process-challenge v1 smoke
+
+on:
+  push:
+    branches: [development/sdmr-observation-aware-challenge-v1]
+    paths:
+      - configs/sdmr_observation_aware_challenge_v1_smoke.lock
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -e '.[test]'
+      - name: Guard fresh seeds
+        run: |
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/sdmr_observation_aware_challenge_v1.json'))
+          assert c['prospective_reservation']['seeds']==[93001,93002,93003]
+          assert c['prospective_reservation']['opened'] is False
+          assert c['smoke']['consumed_seed']==92003
+          PY
+          pytest -q tests/test_observation_aware_challenge_v1.py
+      - name: Run consumed-seed smoke
+        run: |
+          python experiments/observation_aware_challenge_smoke_v1.py             --contract configs/sdmr_observation_aware_challenge_v1.json             --output-dir build/observation-aware-smoke
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-observation-aware-challenge-v1-smoke
+          path: build/observation-aware-smoke
+          if-no-files-found: error
