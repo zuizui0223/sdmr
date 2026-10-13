@@ -2,7 +2,7 @@
 
 Dear Editors,
 
-Please consider our Research Article, **“Abstention-aware process identification recovers ecological information without false attribution in prospective known-truth tests,”** for publication in *Methods in Ecology and Evolution*.
+Please consider our Research Article, **“Evidence-bounded ecological process identification: prospective known-truth validation of abstention-aware inference,”** for publication in *Methods in Ecology and Evolution*.
 
 Ecologists routinely interpret environmental predictors twice: as tools for prediction and as evidence about the processes shaping species distributions. Those interpretations can diverge when predictors are correlated, redundant, shared among process domains, or collectively inadequate. Our manuscript introduces an abstention-aware process-information framework that explicitly distinguishes five states — replaceable, contributory, required, unresolved and unavailable — and separates process identification from geographic transfer.
 
