@@ -1,0 +1,141 @@
+{
+  "schema": "sdmr.observation_aware_process_challenge.v1",
+  "status": "development_smoke_only_fresh_seeds_unopened",
+  "date_frozen": "2026-10-13",
+  "scientific_motivation": {
+    "predecessor_pr": 280,
+    "predecessor_run": 38351952478,
+    "predecessor_result": "nonlinear learner consensus improved positive-state recovery but retained observation-confounded overresolution; adding true effort as an ordinary nuisance covariate did not fix the safety failure",
+    "new_question": "Can explicit observation-process separation (training-only nuisance gate, inverse propensity correction, and nuisance marginalization from ecological scores) support process-state inference under an expanded information system without treating learner agreement as a truth certificate?"
+  },
+  "information_systems": {
+    "effort_unavailable": {
+      "method": "process_challenge_learner with no observation predictors",
+      "reference": "original occurrence-distribution oracle, including structural observation-confounded unresolved override"
+    },
+    "effort_conditioned_upper_bound": {
+      "method": "process_challenge_learner with log_sampling_effort declared exclusively as an observation predictor; retained in all process knockouts, marginalized from ecological score, and used for training-only inverse-propensity correction when the nuisance gate activates",
+      "reference": "effort-conditioned occurrence-distribution oracle: same exact occurrence distribution and process closures, log_sampling_effort added as a non-process predictor retained in every knockout, structural observation-confounded unresolved override removed",
+      "interpretation": "simulation-privileged upper bound, not a field-ready GBIF correction and not the same estimand as effort-unavailable ODO"
+    }
+  },
+  "generator": {
+    "source": "simulate_process_world",
+    "cells": 1600,
+    "occurrences": 180,
+    "background": 600,
+    "worlds": [
+      "unique_process",
+      "interaction",
+      "observation_confounded",
+      "omitted_driver",
+      "null_correlated",
+      "geographic_shift"
+    ]
+  },
+  "learner": {
+    "source": "fit_process_challenge_learner",
+    "model_specs": [
+      {
+        "C": 0.1,
+        "degree": 1,
+        "penalty": "l2",
+        "random_state": 0
+      },
+      {
+        "C": 1,
+        "degree": 1,
+        "penalty": "l2",
+        "random_state": 0
+      },
+      {
+        "C": 10,
+        "degree": 1,
+        "penalty": "l2",
+        "random_state": 0
+      },
+      {
+        "C": 0.1,
+        "degree": 2,
+        "penalty": "l2",
+        "random_state": 0
+      },
+      {
+        "C": 1,
+        "degree": 2,
+        "penalty": "l2",
+        "random_state": 0
+      },
+      {
+        "C": 10,
+        "degree": 2,
+        "penalty": "l2",
+        "random_state": 0
+      }
+    ],
+    "n_splits": 3,
+    "chance_score": 0.5,
+    "minimum_margin": 0.01,
+    "sem_multiplier": 1,
+    "relative_noninferiority_margin": 0.02,
+    "relative_sem_multiplier": 1,
+    "observation_signal_chance": 0.5,
+    "observation_signal_margin": 0.01,
+    "observation_signal_sem_multiplier": 1,
+    "observation_weight_truncation_quantile": 0.99,
+    "observation_weight_probability_epsilon": 0.0001
+  },
+  "reference_oracle": {
+    "source": "evaluate_occurrence_oracle_states",
+    "n_splits": 3,
+    "split_mode": "spatial",
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "max_iter": 250,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "learning_rate": 0.08,
+    "l2_regularization": 0.001
+  },
+  "smoke": {
+    "consumed_seed": 92003,
+    "worlds": [
+      "unique_process",
+      "interaction",
+      "observation_confounded"
+    ],
+    "purpose": "API/denominator/reference-separation smoke only; scientific state outcomes may not tune thresholds or learners",
+    "prospective_claim": false
+  },
+  "prospective_reservation": {
+    "seeds": [
+      93001,
+      93002,
+      93003
+    ],
+    "opened": false,
+    "n_cases": 18,
+    "activation_blocked_until_smoke_and_source_receipt": true,
+    "no_seed_replacement": true,
+    "no_world_replacement": true
+  },
+  "prospective_estimands_if_activated": [
+    "exact five-state agreement against the information-system-matched ODO reference",
+    "positive ODO-state recovery among contributory|required targets",
+    "false sharp positive among replaceable targets",
+    "overresolution among unresolved targets",
+    "sharp state among unavailable targets",
+    "observation-confounded thermal state by seed",
+    "observation-correction activation fraction by world",
+    "method availability and stable process-state coverage"
+  ],
+  "hard_boundaries": [
+    "Never score the effort-conditioned method against the effort-unavailable ODO as if they had the same information set.",
+    "Never call true simulator effort a field-ready observation covariate.",
+    "Do not tune margins, learners, weights, worlds or seeds after 93001-93003 opening.",
+    "Do not reinterpret M5, PR279, PR280 or real-v5 outcomes.",
+    "No real plant data are accessed in this programme."
+  ]
+}
