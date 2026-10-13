@@ -80,7 +80,8 @@ def verify_case(finite,case,c,*,source_dir):
         raise ValueError('post-oracle finite state tampering')
     if {s['process']:s['state'] for s in case['reference_numerical_states']}!=case['oracle']:
         raise ValueError('oracle reference labels do not match numerical oracle table')
-    verify_pair_consensus(finite['learners'],case,c['comparisons'],c['ecological_processes'])
+    verify_pair_consensus(finite['learners'],case,
+        {k:c['comparisons'][k] for k in ('baseline_pair','nonlinear_pair')},c['ecological_processes'])
     total=0;full_checks=0;incomplete=[]
     for mode in c['split_modes']:
         for effort in c['effort_regimes']:

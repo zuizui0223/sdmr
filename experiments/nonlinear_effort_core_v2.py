@@ -86,7 +86,10 @@ def audit_case_denominators(cases:list[dict],config:dict):
         raise ValueError('process denominator changed')
     if len(cases)*len(p)!=config['denominators']['oracle_target_cells']:
         raise ValueError('oracle denominator changed')
-    policies=set(config['comparisons'])
+    policies={'baseline_pair','nonlinear_pair'}
+    extra=set(config['comparisons'])-policies
+    if not policies.issubset(set(config['comparisons'])) or extra not in (set(),{'consensus'}):
+        raise ValueError('unexpected model pair contract keys')
     for case in cases:
         if case['status']!='complete_finite_before_oracle' or set(case['oracle'])!=p:
             raise ValueError('case has missing or incomplete ODO reference')
@@ -112,7 +115,7 @@ def summarize_cases(cases:list[dict],config:dict):
         output['by_policy'][mode]={}
         for effort in config['effort_regimes']:
             output['by_policy'][mode][effort]={}
-            for policy in config['comparisons']:
+            for policy in ('baseline_pair','nonlinear_pair'):
                 cells=[(case['oracle'][process],case['consensus'][mode][effort][policy][process])
                        for case in cases for process in config['ecological_processes']]
                 cc=Counter(s for _,s in cells)

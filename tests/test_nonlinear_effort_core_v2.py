@@ -101,3 +101,27 @@ def test_reference_evidence_nan_is_explicit_null_not_nonstandard_json():
     cleaned=safe_jsonable(case)
     assert cleaned=={'a':[None,None,0.25],'b':2}
     assert json.loads(json.dumps(cleaned,allow_nan=False))==cleaned
+
+
+def test_consensus_description_is_not_mistaken_for_third_model_policy():
+    c={'seeds':[1],'worlds':['unique_process'],
+       'ecological_processes':['thermal','water'],
+       'split_modes':{'spatial':{},'random_cell':{}},
+       'effort_regimes':{'unavailable':{},'known_effort_upper_bound':{}},
+       'comparisons':{'baseline_pair':['hgb','logit'],
+                      'nonlinear_pair':['hgb','rf'],
+                      'consensus':'same exact sharp class, else abstain'},
+       'denominators':{'cases':1,'processes_per_case':2,'oracle_target_cells':2,'cells_per_policy_split':2}}
+    cp={}
+    for split in c['split_modes']:
+        cp[split]={}
+        for eff in c['effort_regimes']:
+            cp[split][eff]={p:{'thermal':'replaceable','water':'unresolved'}
+                             for p in ('baseline_pair','nonlinear_pair')}
+    case={'seed':1,'world':'unique_process','status':'complete_finite_before_oracle',
+          'oracle':{'thermal':'replaceable','water':'unresolved'},
+          'consensus':cp,
+          'authorizations':{sp:{e:{p:True for p in ('baseline_pair','nonlinear_pair')}
+                         for e in ep} for sp,ep in cp.items()}}
+    r=summarize_cases([case],c)
+    assert sorted(r['by_policy']['spatial']['unavailable'])==['baseline_pair','nonlinear_pair']

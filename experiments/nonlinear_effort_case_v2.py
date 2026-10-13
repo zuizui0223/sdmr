@@ -43,7 +43,8 @@ def validate_contract(c):
         raise ValueError('split/process registry changed')
     if tuple(c['learner_routes'])!=LEARNERS or tuple(c['effort_regimes'])!=EFFORT_REGIMES:
         raise ValueError('learner/effort registry changed')
-    if {k:tuple(v) for k,v in c['comparisons'].items()}!=PAIRS:
+    if (set(c['comparisons'])-set(PAIRS) not in (set(),{'consensus'}) or
+        {k:tuple(c['comparisons'][k]) for k in PAIRS}!=PAIRS):
         raise ValueError('model pair policy changed')
     d=c['denominators'];s=c['seeds'];w=c['worlds']
     if len(set(s))!=len(s) or len(set(w))!=len(w) or len(s)*len(w)!=d['cases'] or len(PROCESSES)*d['cases']!=d['oracle_target_cells']:
