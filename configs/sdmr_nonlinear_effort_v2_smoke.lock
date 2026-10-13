@@ -4,3 +4,4 @@ burned_seed=91001
 worlds=interaction,observation_confounded
 prospective_seed_92001_92002_92003_opened=false
 original_M5_and_real_v5_unchanged=true
+retry_reason=fix_consensus_metadata_not_a_third_pair
