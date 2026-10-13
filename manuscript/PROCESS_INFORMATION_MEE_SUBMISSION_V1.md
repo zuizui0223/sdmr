@@ -1,4 +1,4 @@
-# Abstention-aware process identification recovers ecological information without false attribution in prospective known-truth tests
+# Evidence-bounded ecological process identification: prospective known-truth validation of abstention-aware inference
 
 **Article type:** Research Article  
 **Target:** Methods in Ecology and Evolution
@@ -237,6 +237,8 @@ Earlier fresh-real attempts also stopped at predeclared gates: v2 at 37/50 compl
 The real-data failure was not reducible to missing raster layers. In the model-pool-only analysis, the full-system gate authorized **32/50** taxa under shallow-depth HGB but only **10/50** under penalized logistic regression; all 10 logistic-authorized taxa were also HGB-authorized. Even among those jointly authorized taxa, only **16/60** process states were stably sharp across both learners. HGB alone produced **125/300** sharp states on the prespecified complete denominator, well below the 80% threshold. These descriptive diagnostics separate a learner-specific authorization bottleneck from disagreement over process states; they do **not** establish whether either originates in ecological nonidentifiability, model representation or sampling. The unchanged archived receipts are included in the anonymous evidence bundle for verification.
 
 The known-truth validation therefore establishes error control **under its frozen generating conditions**, not transport of that performance to real environmental representations. The real-data failure is consistent with inadequate process identifiability or learner-dependent representation, but does not identify a unique biological cause and is not evidence that the ecological processes are absent. It is kept as a separately audited applicability boundary rather than incorporated as positive empirical evidence for the present method.
+
+A later, separately preregistered known-truth sensitivity benchmark also shows that the safety properties are **configuration-dependent rather than guaranteed by learner agreement itself**. That benchmark used a different ODO information-state reference, a standardized linear/HGB learner pair, three new seeds across the eight world families and matched random-cell versus spatial validation; it is therefore not a replication on the original M5 denominator. Under the strict two-learner consensus, positive ODO-state recovery was 3/12 under random-cell validation and 0/12 under spatial validation, while 2/9 ODO-unresolved targets were over-resolved in each split mode. Both unsafe calls arose from the same two observation-confounded world–seed cases. The result does not revise the frozen M5 endpoint, but it rules out a broader interpretation that cross-learner agreement is itself a truth certificate.
 
 ## 5. Conclusions
 
