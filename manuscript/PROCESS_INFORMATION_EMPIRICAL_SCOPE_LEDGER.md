@@ -56,6 +56,18 @@ The method achieved high positive recovery with zero observed false sharpening i
 - Do not claim the observed real-data failure uniquely proves a causal mechanism.
 - Do not merge the known-truth and real-data denominators into a single performance measure.
 
+## Additional known-truth sensitivity boundary
+
+A later, separately preregistered 24-case matched benchmark (seeds 91001–91003 × eight worlds) used a different occurrence-distribution information-state oracle, a standardized L2/HGB learner pair and matched random-cell versus spatial validation. It is **not** the original M5 denominator and must not be used to recompute M5 performance.
+
+Primary two-learner consensus in that sensitivity benchmark:
+- positive ODO-state recovery: **3/12 random-cell; 0/12 spatial**;
+- false positive among ODO replaceable: **0/105** under both split modes;
+- over-resolution of ODO unresolved: **2/9** under both split modes;
+- sharp calls where ODO unavailable: **0/18** under both split modes.
+
+Both overresolved cells in each split mode correspond to the same two observation-confounded world–seed cases. The sensitivity result therefore shows that strict learner agreement can lose substantial positive sensitivity and can still share an observation-bias failure. It is a boundary on generalization, not a retrospective failure of the original M5 benchmark.
+
 ## Editorial status
 
-The MEE manuscript's main claim remains strictly prospective known-truth methods evidence. Its Discussion must disclose the real-data generalization boundary honestly; the real-v5 failed result is not used to improve the headline known-truth metrics.
+The MEE manuscript's main claim remains strictly the original prospective known-truth methods evidence. Its Discussion must disclose both the real-data generalization boundary and the later configuration-sensitivity result honestly. Neither is used to modify the original 71/80, 0/700, 0/60 or gate outcomes.
