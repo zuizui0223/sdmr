@@ -1,6 +1,6 @@
 # Title page template — not for review
 
-**Manuscript title:** Abstention-aware process identification recovers ecological information without false attribution in prospective known-truth tests
+**Manuscript title:** Evidence-bounded ecological process identification: prospective known-truth validation of abstention-aware inference
 
 **Running headline (<=45 characters):** Abstention-aware process identification
 

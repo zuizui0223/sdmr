@@ -1,5 +1,5 @@
 program=process-information-mee-submission-assets-v1
-scope_revision=empirical-v2-v5-disclosure
+scope_revision=final-2026-10-13-realv5-matchedkt-boundaries
 review_bundle_includes=PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md
 primary_result=unchanged_prospective_known_truth_M5
 source_verbatim_v5_receipts=4
@@ -17,3 +17,5 @@ conceptual_figures=generated_from_frozen_worlds
 word_docx_footer_numbering=suppress_footer_line_numbers
 four_figure_rebuild=complete
 four_figure_final_merged_fig34=d6d2eceb
+matched_kt_sensitivity=disclosed_configuration_specific_not_pooled_with_M5
+submission_title_revision=evidence_bounded_ecological_process_identification
