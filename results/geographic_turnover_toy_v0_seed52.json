@@ -2,6 +2,20 @@
   "evidence": "synthetic_only",
   "worlds": {
     "constant_surface": {
+      "known_generating_surface_penalties": {
+        "alpine": {
+          "moisture_penalty_available": 0.02087010340489433,
+          "moisture_penalty_record_weighted": 0.019666819977749113,
+          "temperature_penalty_available": 0.9434829789005207,
+          "temperature_penalty_record_weighted": 0.37986218741322014
+        },
+        "arid": {
+          "moisture_penalty_available": 0.8337352789368636,
+          "moisture_penalty_record_weighted": 0.28295499816179737,
+          "temperature_penalty_available": 0.02308064753271552,
+          "temperature_penalty_record_weighted": 0.020417153321482917
+        }
+      },
       "minimum_contrast": 0.01,
       "minimum_pairwise_available_environment_overlap": 0.21666666666666665,
       "mode": "exploratory_presence_record_information_not_causal_limits",
