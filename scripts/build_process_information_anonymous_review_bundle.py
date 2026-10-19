@@ -29,9 +29,11 @@ INCLUDE=[
   "src/sdmr/process_id/known_truth/integration_v6.py",
   "configs/sdmr_v6_prospective_kt_v2.json",
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
+  "results/sdmr_nonlinear_effort_v2_prospective_result.json",
   "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md",
+  "manuscript/PROCESS_INFORMATION_KNOWN_TRUTH_SENSITIVITY_SI_V1.md",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
@@ -55,6 +57,7 @@ FORBIDDEN_PATTERNS=[
 REVIEW_RECEIPTS={
   "configs/sdmr_v6_prospective_kt_v2.json",
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
+  "results/sdmr_nonlinear_effort_v2_prospective_result.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
@@ -66,6 +69,7 @@ PROVENANCE_KEYS={
   "authoritative_run", "authoritative_head", "authoritative_artifact_id",
   "authoritative_artifact_digest", "superseded_run", "superseded_head",
   "superseded_artifact_id", "superseded_artifact_digest",
+  "head_sha", "aggregate_artifact_id", "aggregate_artifact_digest",
 }
 REVIEW_TEXT_PROVENANCE_LINES={
   "docs/SDMR_V6_PROSPECTIVE_KT_V2_RESULT.md": (
@@ -130,7 +134,8 @@ def main():
         readme=root/"README_REVIEWERS.md"
         readme.write_text(
             "# Anonymous reviewer bundle\n\n"
-            "The primary prospective known-truth metrics and the later FAILED real-plant v5 "
+            "The primary prospective known-truth metrics, independently frozen nonlinear/effort "
+            "sensitivity results, and the later FAILED real-plant v5 "
             "decision receipts are included for scientific audit. Model source files and "
             "focused tests are supplied without Git history.\n\n"
             "To run the three focused tests: install REQUIREMENTS_REVIEWERS.txt, "

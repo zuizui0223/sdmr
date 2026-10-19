@@ -14,7 +14,7 @@ The full method and validation design were frozen before a prospective known-tru
 
 The manuscript is methodological rather than taxon-specific. The benchmark worlds cover predictor redundancy, shared information carriers, correlation without process membership, nonlinear interaction, observation confounding, missing drivers and geographic shift. We deliberately do not claim that occurrence-only models recover causal physiology.
 
-For completeness, a later, separately frozen real-plant stress test did not pass its empirical promotion criteria: 50/50 taxa were feature-complete, but the process-first route was available for 10/50 and only 16/300 process states were stable and sharp across the predeclared learners. The manuscript reports this as a limitation of real-world transport, not a positive empirical validation.
+For completeness, a later, separately frozen real-plant stress test did not pass its empirical promotion criteria: 50/50 taxa were feature-complete, but the process-first route was available for 10/50 and only 16/300 process states were stable and sharp across the predeclared learners. The manuscript reports this as a limitation of real-world transport, not a positive empirical validation. A later independent simulation sensitivity also showed that adding a nonlinear consensus learner restored some positive recovery but did not remove an observation-confounded unsafe process call; that finding is disclosed separately, without re-evaluating the original M5 promotion.
 
 The current manuscript is concise and would be submitted with an anonymized reviewer bundle containing the frozen contracts, code, tests and result receipts. A separate empirical validation programme is not used to support the prospective known-truth result.
 

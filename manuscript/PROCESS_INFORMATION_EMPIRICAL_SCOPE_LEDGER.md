@@ -68,6 +68,14 @@ Primary two-learner consensus in that sensitivity benchmark:
 
 Both overresolved cells in each split mode correspond to the same two observation-confounded world–seed cases. The sensitivity result therefore shows that strict learner agreement can lose substantial positive sensitivity and can still share an observation-bias failure. It is a boundary on generalization, not a retrospective failure of the original M5 benchmark.
 
+## Further developmental nonlinear/effort sensitivity (different frozen denominator)
+
+A later prospective developmental study opened six distinct worlds × three fresh seeds (**18 cases**, not original M5 seeds). Its primary representation did not contain true effort. Using the separate ODO information-state reference, the HGB + Random Forest consensus improved **spatial** positive-state recovery from **0/12 to 4/12** relative to HGB + standardized L2, but **both** learner pairs over-resolved **1/3** observation-confounded unresolved targets. Each pair retained 0/75 false calls on replaceable targets and 0/18 sharp calls when unavailable. The unsafe case was observation-confounded thermal under seed 92003, called contributory by both pairs under both validation modes.
+
+The separately frozen true-simulator-effort nuisance sensitivity still sharpened unresolved observation-confounded targets (**3/3** under random-cell and **1/3** under spatial), and changed the representation system. It is therefore *not* evidence that simply measuring true effort rescues process identifiability under the unchanged ODO reference.
+
+This is a configuration and observation-bias limitation, **not a new M5 promotion, empirical validation or a reclassification of 71/80 and 0/700**. Full fixed-denominator cross-study accounting is in `manuscript/PROCESS_INFORMATION_KNOWN_TRUTH_SENSITIVITY_SI_V1.md`.
+
 ## Editorial status
 
 The MEE manuscript's main claim remains strictly the original prospective known-truth methods evidence. Its Discussion must disclose both the real-data generalization boundary and the later configuration-sensitivity result honestly. Neither is used to modify the original 71/80, 0/700, 0/60 or gate outcomes.
