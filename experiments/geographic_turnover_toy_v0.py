@@ -68,6 +68,21 @@ def main():
     for name in ("constant_surface", "region_shifted_surface"):
         df = generate_world(name, seed=args.seed)
         results[name] = analyze_taxon(df, replicates=args.replicates, seed=args.seed)
+        if name == "constant_surface":
+            # Only a controlled generator has a known decomposition of its
+            # latent suitability penalty. It is NOT estimable from GBIF records.
+            known = {}
+            for region, part in df.groupby("region", sort=True):
+                n = part.n_occ.to_numpy(float)
+                pen_t = (part.temperature.to_numpy(float) - .1)**2
+                pen_w = (part.moisture.to_numpy(float) - .1)**2
+                known[region] = {
+                    "temperature_penalty_available": float(pen_t.mean()),
+                    "moisture_penalty_available": float(pen_w.mean()),
+                    "temperature_penalty_record_weighted": float(n @ pen_t / n.sum()),
+                    "moisture_penalty_record_weighted": float(n @ pen_w / n.sum()),
+                }
+            results[name]["known_generating_surface_penalties"] = known
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps({"evidence": "synthetic_only", "worlds": results},
                                       indent=2, sort_keys=True) + "\n", encoding="utf-8")
