@@ -1,10 +1,7 @@
 name: geographic-turnover-pinus-source-capacity-v1b
 
+# Source acquisition is intentionally one-shot/manual; routine PR tests run in tests.yml.
 on:
-  pull_request:
-    paths:
-      - 'configs/geographic_turnover_pinus_fi_source_capacity_v1b.json'
-      - '.github/workflows/geographic-turnover-pinus-source-capacity-v1b.yml'
   workflow_dispatch:
 
 permissions:
