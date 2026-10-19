@@ -207,6 +207,124 @@
   "pairwise_environment_overlap_coarse": {
     "quercus_DE_central :: quercus_SE_south": 0.1
   },
+  "postsource_ridge_sensitivity_raw_sentinel": {
+    "0.002": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -1.6197316251789178,
+        "temperature_minus_moisture_gain": 0.6728122792383604
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.8122405646143793,
+        "temperature_minus_moisture_gain": 0.6609449795943765
+      }
+    },
+    "0.02": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -1.0317394552746961,
+        "temperature_minus_moisture_gain": 0.6625566140060375
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.484993157867168,
+        "temperature_minus_moisture_gain": 0.5610002363723723
+      }
+    },
+    "0.2": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.5299330282924206,
+        "temperature_minus_moisture_gain": 0.5124908910061206
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.15991066172058455,
+        "temperature_minus_moisture_gain": 0.17861012593593495
+      }
+    },
+    "2.0": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.12077040471827383,
+        "temperature_minus_moisture_gain": 0.1531010066162768
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.026728864224499826,
+        "temperature_minus_moisture_gain": 0.01805695705828736
+      }
+    },
+    "20.0": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.017890531903915985,
+        "temperature_minus_moisture_gain": 0.022524448549915643
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.0030718108307947745,
+        "temperature_minus_moisture_gain": 0.0019567790366985527
+      }
+    }
+  },
+  "postsource_spatial_orientation_sensitivity": {
+    "east_west": {
+      "0.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.10852311905530598,
+          "temperature_minus_moisture_gain": 0.0035293325463228165
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.07181724710674908,
+          "temperature_minus_moisture_gain": 0.14248702447050654
+        }
+      },
+      "0.5": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.11016187643963393,
+          "temperature_minus_moisture_gain": -0.07345005983849795
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.07197602991398888,
+          "temperature_minus_moisture_gain": 0.22395707994504566
+        }
+      },
+      "1.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.13718092207903032,
+          "temperature_minus_moisture_gain": 0.02367756956369016
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.021630868153889704,
+          "temperature_minus_moisture_gain": 0.2623611302374673
+        }
+      }
+    },
+    "north_south": {
+      "0.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.8917417032062542,
+          "temperature_minus_moisture_gain": -0.47930648953928223
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.12247784876463053,
+          "temperature_minus_moisture_gain": -0.22304040079690823
+        }
+      },
+      "0.5": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.1853091444573058,
+          "temperature_minus_moisture_gain": -0.031089507603693
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": -0.14644437143779854,
+          "temperature_minus_moisture_gain": 0.10865744573071234
+        }
+      },
+      "1.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.0317394552746961,
+          "temperature_minus_moisture_gain": 0.6625566140060375
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": -0.484993157867168,
+          "temperature_minus_moisture_gain": 0.5610002363723723
+        }
+      }
+    }
+  },
   "process_turnover_test_authorized": false,
   "publication_claim_allowed": false,
   "reason": [
@@ -215,7 +333,8 @@
     "very_high_cell_occupancy_and_low_common_environmental_support",
     "unvalidated_target_group_detection_effort_and_species_accessible_M",
     "small_spatial_holdout_sample_with_two_folds",
-    "retrospective_effort_sensitivity_not_independent_confirmation"
+    "different_geographic_fold_orientation_can_change_adequacy",
+    "retrospective_effort_and_ridge_sensitivity_not_independent_confirmation"
   ],
   "region_sources": {
     "quercus_DE_central": {

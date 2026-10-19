@@ -87,3 +87,19 @@ def test_occupied_climate_cells_nearly_saturated():
             regions["quercus_SE_south"]["n_recorded_cells"]) == (28, 24)
     assert regions["quercus_SE_south"]["fraction_cells_with_any_record"] == 1.0
     assert result["pairwise_environment_overlap_coarse"]["quercus_DE_central :: quercus_SE_south"] == pytest.approx(0.1)
+
+
+def test_spatial_orientation_and_ridge_sensitivity_block_promotion():
+    a, rec, conf = _source()
+    outcome = post.audit(a, rec, conf)
+    # Fixed-sentinel north/south: full cannot outperform effort-only under
+    # any inspected postsource ridge in Germany; changing ridge is not rescue.
+    assert all(v["quercus_DE_central"]["full_minus_effort_only"] < 0
+               for v in outcome["postsource_ridge_sensitivity_raw_sentinel"].values())
+    # East-west holdout makes Sweden slightly adequate under the same exact
+    # data and raw sentinel offset. Therefore a universal inadequacy claim is
+    # also disallowed, even though no biological-process claim is authorized.
+    spatial = outcome["postsource_spatial_orientation_sensitivity"]
+    assert spatial["north_south"]["1.0"]["quercus_SE_south"]["full_minus_effort_only"] < 0
+    assert spatial["east_west"]["1.0"]["quercus_SE_south"]["full_minus_effort_only"] > 0
+    assert outcome["process_turnover_test_authorized"] is False

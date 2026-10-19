@@ -127,14 +127,34 @@ def region_source_descriptives(a: pd.DataFrame) -> dict[str, dict]:
     return regions
 
 
-def _heldout_scores(a: pd.DataFrame, effort_exponent: float, ridge: float) -> dict:
+def _heldout_scores(a: pd.DataFrame, effort_exponent: float, ridge: float, *,
+                    orientation: str = "north_south") -> dict:
     """Held-out conditional multinomial scoring, including effort-only baseline."""
     if effort_exponent < 0 or not np.isfinite(effort_exponent):
         raise ValueError("Invalid diagnostic effort exponent")
     df = a.copy()
     df["effort"] = df.effort.astype(float).pow(effort_exponent)
     x = model._features(df)
-    folds = model._spatial_folds(df, min_test_records=5)
+    if orientation == "north_south":
+        folds = model._spatial_folds(df, min_test_records=5)
+    elif orientation == "east_west":
+        # Original block IDs are the four pre-outcome equal-area geographic
+        # quadrants; use left/right rather than bottom/top as a stress test.
+        folds = {}
+        for r, part in df.groupby("region", sort=True):
+            blocks = sorted(part.spatial_block.unique())
+            if len(blocks) != 4:
+                raise ValueError("Cannot form geographic east-west folds without four quadrants")
+            f = np.array([blocks.index(b) // 2 for b in part.spatial_block], dtype=int)
+            for held in (0, 1):
+                train, test = f != held, f == held
+                if min(part.n_occ.to_numpy()[train].sum(), part.n_occ.to_numpy()[test].sum()) < 5:
+                    raise ValueError("Insufficient independent support for east-west fold")
+                if min(train.sum(), test.sum()) < 2:
+                    raise ValueError("Too few east-west climate cells")
+            folds[r] = f
+    else:
+        raise ValueError("Unknown spatial fold orientation")
     out = {}
     for region, part in df.groupby("region", sort=True):
         idx = part.index.to_numpy()
@@ -200,6 +220,24 @@ def audit(data: pd.DataFrame, source_receipt: dict, config: dict, *, taxon: str 
             "apparent_rank_reversal_ignoring_adequacy": len(set(labels)) > 1,
             "any_ecological_process_claim_allowed": False,
         }
+    # More permissive models or a different spatial split can change apparent
+    # full-model adequacy; the decision is therefore never made from one ridge.
+    # These sensitivities were chosen POST-source and are not independent tests.
+    ridge_grid = {}
+    for reg in (0.002, 0.02, 0.2, 2.0, 20.0):
+        z = _heldout_scores(a, 1.0, reg)
+        ridge_grid[str(reg)] = {r: {"full_minus_effort_only": v["full_minus_effort_only"],
+                                   "temperature_minus_moisture_gain": v["temperature_minus_moisture_gain"]}
+                                for r, v in z.items()}
+    orientation_grid = {}
+    for orientation in ("north_south", "east_west"):
+        orientation_grid[orientation] = {}
+        for alpha in EFFORT_EXPONENTS:
+            z = _heldout_scores(a, alpha, ridge, orientation=orientation)
+            orientation_grid[orientation][str(alpha)] = {
+                r: {"full_minus_effort_only": v["full_minus_effort_only"],
+                    "temperature_minus_moisture_gain": v["temperature_minus_moisture_gain"]}
+                for r, v in z.items()}
     return {
         "analysis": "quercus_postsource_effort_sensitivity_v1",
         "status": "POST_SOURCE_EXPLORATORY_NOT_PROSPECTIVE",
@@ -208,6 +246,8 @@ def audit(data: pd.DataFrame, source_receipt: dict, config: dict, *, taxon: str 
         "region_sources": region_source_descriptives(a),
         "pairwise_environment_overlap_coarse": model._availability_overlap(a),
         "effort_power_sensitivity": efforts,
+        "postsource_ridge_sensitivity_raw_sentinel": ridge_grid,
+        "postsource_spatial_orientation_sensitivity": orientation_grid,
         "model": "regionwise_heldout_conditional_multinomial_quadratic_temperature_precipitation",
         "all_effect_sizes_are_diagnostic": True,
         "publication_claim_allowed": False,
@@ -218,7 +258,8 @@ def audit(data: pd.DataFrame, source_receipt: dict, config: dict, *, taxon: str 
             "very_high_cell_occupancy_and_low_common_environmental_support",
             "unvalidated_target_group_detection_effort_and_species_accessible_M",
             "small_spatial_holdout_sample_with_two_folds",
-            "retrospective_effort_sensitivity_not_independent_confirmation",
+            "different_geographic_fold_orientation_can_change_adequacy",
+            "retrospective_effort_and_ridge_sensitivity_not_independent_confirmation",
         ],
     }
 
