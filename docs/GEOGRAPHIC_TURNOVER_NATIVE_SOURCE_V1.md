@@ -64,3 +64,14 @@ All values describe environmental **availability within arbitrarily fixed survey
 A **post-source diagnostic** was also run on the fully retrieved *Quercus* windows using the fixed three-sentinel plant record density as a candidate effort proxy. It returned **no observed direction reversal** of temperature-versus-moisture held-out information gain; raw contrast spread `0.10156 nats/record`, null median `0.44626`, uncalibrated bootstrap tail `1.0` (99 replicates). Because process ablations had negative held-out gains, the joint climate-bin overlap was only 0.10, and effort/wild-origin/M assumptions are not validated, this cannot support biological process constancy or reject a niche change. The result is **post-source, not confirmatory**, with all caveats in `results/geographic_turnover_quercus_real_postsource_v1.json`.
 
 The single Finnish source capacity issue is pursued in a separately recorded, source-only `v1b` retrieval contract, **not** by changing the original v1 evidence or any ecological model after observing an effect. The v1b contract retains the exact original *Pinus* Finland rectangle and only raises the API finite-diagnostic retrieval cap to 15,000; the first v1 scientific conclusion remains `macro_inference_blocked=true`.
+
+### Post-source observation-effort sensitivity (NOT a species driver finding)
+
+The two fully retrieved *Quercus robur* rectangles were re-evaluated under **two post-outcome** observation assumptions, without changing occurrence records or climate cells: uniform recording offset (`q=1`) versus raw target-group counts (three sentinel plant species). Code and source-bound JSON: `experiments/geographic_turnover_quercus_effort_sensitivity_v1.py` and `results/geographic_turnover_quercus_effort_sensitivity_v1.json`.
+
+| Rectangular source window | T minus moisture (uniform effort) | T minus moisture (sentinel-count offset) |
+|---|---:|---:|
+| Germany | −0.479 nats/record | +0.663 nats/record |
+| Sweden | −0.223 nats/record | +0.561 nats/record |
+
+The sign of the inferred relative process *information contrast* **flips in both source regions**, using identical focal data. Uniform-effort exploratory turnover tail `(B=99)` was `0.04`, versus `1.00` with sentinel-count offsets; both are post-source, uncalibrated, and **must not be interpreted as significant/no effect in a confirmatory study**. These two recording models are neither independent nor known to be correct, so this illustrates **observation-model dependence**, *not* a biological process switch. The result strengthens the priority of independently measuring collection effort and verifying non-focal control taxa before asking whether drivers genuinely turn over among native populations.
