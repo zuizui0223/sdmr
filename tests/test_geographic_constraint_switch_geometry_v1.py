@@ -94,3 +94,26 @@ def test_exact_threshold_condition_analytically():
         p=dict(mod.ILLUSTRATION,relative_thermal_weight=weight)
         o=mod.evaluate_pair(a,b,params=p,power=2)
         assert o['fixed_weight_observed_opportunity_reversal']==(lo<weight<hi)
+
+
+def test_hypothetical_fitness_sorting_does_not_erase_switches():
+    df,sha=real_inputs()
+    out=mod.study(df,source_sha256=sha)
+    for species in out['results']:
+        for mode in ('quadratic','absolute'):
+            sort=species['fixed_hypothetical_response'][mode]['hypothetically_habitat_sorted_population']
+            assert sort['fixed_weight_dominant_pressure_reversal'] is True
+            assert [r['dominant_hypothetical_penalty'] for r in sort['regions']]==['moisture','thermal']
+            assert all(0 < r['hypothetical_effective_occupied_cells'] <= n
+                       for r,n in zip(sort['regions'],species['climate_cell_counts']))
+    assert [[species['fixed_hypothetical_response'][mode]['sensitivity_grid']
+             ['n_habitat_sorted_driver_reversals_under_fixed_weight'] for mode in ('quadratic','absolute')]
+            for species in out['results']]==[[69,70],[104,103]]
+
+
+def test_current_result_exact_regeneration():
+    import json
+    df,sha=real_inputs()
+    observed=mod.study(df,source_sha256=sha)
+    path=ROOT/'results/geographic_constraint_switch_geometry_v1.json'
+    assert observed==json.loads(path.read_text())

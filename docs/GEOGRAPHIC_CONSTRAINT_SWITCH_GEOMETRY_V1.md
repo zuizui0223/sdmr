@@ -68,3 +68,11 @@ python -m pytest -q tests/test_geographic_constraint_switch_geometry_v1.py
 ```
 
 The input SHA-256 is frozen: `42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa`. The script requires all 187 climate cells, verifies this SHA, and discards all `n_occ`, focal GBIF, and target-group source columns before calculation. The sensitivity and exact algebra are accompanied by seven tests. No new Product-A/B promotion, M5 gate, causal claim, or confirmatory biological conclusion follows.
+
+### Does habitat selection itself erase the predicted switch?
+
+An additional mechanistic check goes beyond averaging all available cells. Assume hypothetical organisms distribute among the predeclared equal-area cells proportionally to `exp(-L_i)` using **the identical fixed fitness function in both regions**. This changes the *model-implied* realized exposure while leaving physiology unaltered, with no focal occurrences or sentinel records used for weighting.
+
+At the same illustrative `T*=9 °C`, `P*=900 mm`, `sT=3 °C`, `sW=250 mm`, and `k=1`, both the quadratic and absolute penalty models still give **moisture-dominated → temperature-dominated** expected exposure for the Quercus DE→SE and Pinus ES→FI source rectangles. Under the exploratory 153-optimum grid, this habitat-sorted switch occurs in **69/153 (quadratic), 70/153 (absolute)** choices for Quercus, and **104/153, 103/153** for Pinus. These are shape/parameter-grid sensitivity counts, not probabilities of biological transitions.
+
+The exact critical-ratio intervals above apply to the **equal-area availability means**. When habitat sorting depends on `k`, the relative exposure distribution itself changes with `k`; those intervals **must not** be reused as exact thresholds for sorted-occupancy predictions. This check only verifies the sign of the model-implied pressure difference at the declared `k=1` and across the listed scenarios. A field test would need independently measured abundance, demographic performance and sampling effort to determine whether any tree populations actually sort this way.

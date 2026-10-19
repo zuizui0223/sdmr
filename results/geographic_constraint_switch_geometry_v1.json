@@ -1,6 +1,7 @@
 {
   "analysis": "stationary_niche_constraint_switch_geometry_v1",
   "environmental_source": "CHELSA v2.1 BIO1 and BIO12, 1981-2010; four predeclared source rectangles",
+  "habitat_sorted_population_is_hypothetical_not_actual_occurrence": true,
   "hypothetical_fitness_parameters_not_species_measured": {
     "precipitation_optimum_mm": 900.0,
     "precipitation_scale_mm": 250.0,
@@ -12,6 +13,7 @@
     "Hypothetical optima, scales, weights and penalty shapes are not measured plant traits",
     "Equal-area geographic rectangles are not validated taxon accessible M",
     "A regional mean penalty is not actual physiological limitation or realized niche adaptation",
+    "Model-implied habitat sorting assumes equal-area availability and density proportional to exp(-penalty), without population/detection validation",
     "The sensitivity grid is post-source and does not represent a prior or ecological frequency",
     "No claim that observed plants have different realized or fundamental niches",
     "Disjoint temperature support prevents a within-shared-support empirical response comparison"
@@ -32,6 +34,26 @@
           ],
           "fixed_weight_observed_opportunity_reversal": true,
           "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 26.72647856388415,
+                "moisture_mean_penalty": 0.3845538968364959,
+                "thermal_mean_penalty": 0.19828450880171147,
+                "thermal_minus_moisture": -0.1862693880347844
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 22.435125244181172,
+                "moisture_mean_penalty": 0.3280580091981097,
+                "thermal_mean_penalty": 0.8559199075479836,
+                "thermal_minus_moisture": 0.527861898349874
+              }
+            ]
+          },
           "penalty_power": 1,
           "raw_temperature_overlap_c": 0.39999999999997726,
           "regions": [
@@ -54,6 +76,7 @@
             "fraction_grid_points_driver_reversal_not_probability": 0.4117647058823529,
             "n_driver_reversals_under_fixed_weight": 63,
             "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 70,
             "precipitation_optima_mm": [
               700.0,
               750.0,
@@ -94,6 +117,26 @@
           ],
           "fixed_weight_observed_opportunity_reversal": true,
           "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 26.702635802832692,
+                "moisture_mean_penalty": 0.21700404501843762,
+                "thermal_mean_penalty": 0.06954729850158622,
+                "thermal_minus_moisture": -0.1474567465168514
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 22.202381069072818,
+                "moisture_mean_penalty": 0.18642566667078736,
+                "thermal_mean_penalty": 0.728970178381341,
+                "thermal_minus_moisture": 0.5425445117105536
+              }
+            ]
+          },
           "penalty_power": 2,
           "raw_temperature_overlap_c": 0.39999999999997726,
           "regions": [
@@ -116,6 +159,7 @@
             "fraction_grid_points_driver_reversal_not_probability": 0.39869281045751637,
             "n_driver_reversals_under_fixed_weight": 61,
             "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 69,
             "precipitation_optima_mm": [
               700.0,
               750.0,
@@ -169,6 +213,26 @@
           ],
           "fixed_weight_observed_opportunity_reversal": true,
           "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 29.141305987244998,
+                "moisture_mean_penalty": 0.8149609250411006,
+                "thermal_mean_penalty": 0.6177908877938052,
+                "thermal_minus_moisture": -0.19717003724729543
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 72.70204621519642,
+                "moisture_mean_penalty": 0.7540001163446857,
+                "thermal_mean_penalty": 1.7530185621921222,
+                "thermal_minus_moisture": 0.9990184458474365
+              }
+            ]
+          },
           "penalty_power": 1,
           "raw_temperature_overlap_c": 0.0,
           "regions": [
@@ -191,6 +255,7 @@
             "fraction_grid_points_driver_reversal_not_probability": 0.6601307189542484,
             "n_driver_reversals_under_fixed_weight": 101,
             "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 103,
             "precipitation_optima_mm": [
               700.0,
               750.0,
@@ -231,6 +296,26 @@
           ],
           "fixed_weight_observed_opportunity_reversal": true,
           "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 19.99483386047627,
+                "moisture_mean_penalty": 0.5745590137137974,
+                "thermal_mean_penalty": 0.3419941534588535,
+                "thermal_minus_moisture": -0.23256486025494388
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 53.698902192066505,
+                "moisture_mean_penalty": 0.5746893832411244,
+                "thermal_mean_penalty": 2.8560963865228968,
+                "thermal_minus_moisture": 2.2814070032817724
+              }
+            ]
+          },
           "penalty_power": 2,
           "raw_temperature_overlap_c": 0.0,
           "regions": [
@@ -253,6 +338,7 @@
             "fraction_grid_points_driver_reversal_not_probability": 0.6535947712418301,
             "n_driver_reversals_under_fixed_weight": 100,
             "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 104,
             "precipitation_optima_mm": [
               700.0,
               750.0,

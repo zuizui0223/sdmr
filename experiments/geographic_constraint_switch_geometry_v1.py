@@ -70,6 +70,32 @@ def component_losses(region: pd.DataFrame, *, t_opt: float, w_opt: float,
     return t, w
 
 
+def fitness_sorted_component_losses(region: pd.DataFrame, *, t_opt: float, w_opt: float,
+                                    t_scale: float, w_scale: float, power: int,
+                                    relative_thermal_weight: float) -> dict[str, float]:
+    """Hypothetical equilibrium habitat sorting under one identical fitness rule.
+
+    Available cells all have equal source area. The assumed density of animals/
+    plants at cell i is proportional to exp(-wT*Tstress_i-wW*Wstress_i).
+    This is a model-derived population, NEVER the recorded GBIF distribution.
+    """
+    if relative_thermal_weight <= 0 or not np.isfinite(relative_thermal_weight):
+        raise ValueError("Relative thermal weight must be positive and finite")
+    if power not in (1, 2) or t_scale <= 0 or w_scale <= 0:
+        raise ValueError("Invalid stationary habitat-sorting fitness parameters")
+    t = np.abs((region.temperature.to_numpy(float) - t_opt) / t_scale) ** power
+    w = np.abs((region.moisture.to_numpy(float) - w_opt) / w_scale) ** power
+    logits = -relative_thermal_weight * t - w
+    prob = np.exp(logits - np.logaddexp.reduce(logits))
+    a, b = float(prob @ t), float(prob @ w)
+    delta = float(relative_thermal_weight * a - b)
+    return {"thermal_mean_penalty":a, "moisture_mean_penalty":b,
+            "thermal_minus_moisture":delta,
+            "hypothetical_effective_occupied_cells":float(1.0 / (prob @ prob)),
+            "dominant_hypothetical_penalty":("thermal" if delta>1e-12 else
+                                             "moisture" if delta<-1e-12 else "tie")}
+
+
 def threshold_for_thermal_dominance(t_loss: float, w_loss: float) -> float:
     if t_loss < 0 or w_loss < 0:
         raise ValueError("Losses must be nonnegative")
@@ -92,12 +118,24 @@ def evaluate_pair(a: pd.DataFrame, b: pd.DataFrame, *, params: dict, power: int)
                    "critical_thermal_to_moisture_weight":threshold_for_thermal_dominance(temp, moisture),
                    "dominant_hypothetical_penalty":("thermal" if gap > 1e-12 else
                                                     "moisture" if gap < -1e-12 else "tie")})
+    # A second, explicitly model-implied estimand: organism locations are
+    # hypothetically sorted into higher-fitness available cells under THE SAME
+    # stationary response. Never replace these with real GBIF record weights.
+    sorted_regions = [fitness_sorted_component_losses(g,t_opt=t0,w_opt=w0,
+                            t_scale=st,w_scale=sw,power=power,
+                            relative_thermal_weight=ratio) for g in (a,b)]
+    sorted_reversal=bool(sorted_regions[0]["thermal_minus_moisture"] *
+                         sorted_regions[1]["thermal_minus_moisture"] < -1e-12)
     l, h = sorted(x["critical_thermal_to_moisture_weight"] for x in av)
     inter = bool(np.isfinite(l) and np.isfinite(h) and h-l > 1e-12)
     t_a = (float(a.temperature.min()),float(a.temperature.max()))
     t_b = (float(b.temperature.min()),float(b.temperature.max()))
     width = max(0.0, min(t_a[1],t_b[1])-max(t_a[0],t_b[0]))
     return {"penalty_power":power, "regions":av,
+            "hypothetically_habitat_sorted_population": {
+                "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+                "regions": sorted_regions,
+                "fixed_weight_dominant_pressure_reversal":sorted_reversal},
             "switch_possible_for_fixed_identical_response_weights":inter,
             "critical_weight_open_interval":([float(l),float(h)] if inter else None),
             "fixed_weight_within_switch_interval":bool(inter and l < ratio < h),
@@ -118,6 +156,7 @@ def study(frame: pd.DataFrame, *, source_sha256: str) -> dict[str, Any]:
         for power,label in ((2,"quadratic"),(1,"absolute")):
             e = evaluate_pair(a,b,params=ILLUSTRATION,power=power)
             n_cross = 0
+            n_sorted_cross = 0
             for t0 in GRID_T:
                 for w0 in GRID_W:
                     p = dict(ILLUSTRATION, temperature_optimum_c=t0,
@@ -128,10 +167,19 @@ def study(frame: pd.DataFrame, *, source_sha256: str) -> dict[str, Any]:
                                                     w_scale=p["precipitation_scale_mm"],power=power)
                     if (temp_a-water_a)*(temp_b-water_b) < -1e-12:
                         n_cross += 1
+                    sort_a=fitness_sorted_component_losses(a,t_opt=t0,w_opt=w0,
+                             t_scale=p["thermal_scale_c"],w_scale=p["precipitation_scale_mm"],
+                             power=power,relative_thermal_weight=1.0)
+                    sort_b=fitness_sorted_component_losses(b,t_opt=t0,w_opt=w0,
+                             t_scale=p["thermal_scale_c"],w_scale=p["precipitation_scale_mm"],
+                             power=power,relative_thermal_weight=1.0)
+                    if sort_a["thermal_minus_moisture"]*sort_b["thermal_minus_moisture"] < -1e-12:
+                        n_sorted_cross+=1
             e["sensitivity_grid"] = {"temperature_optima_c":list(GRID_T),
                                      "precipitation_optima_mm":list(GRID_W),
                                      "n_grid_points":len(GRID_T)*len(GRID_W),
                                      "n_driver_reversals_under_fixed_weight":n_cross,
+                                     "n_habitat_sorted_driver_reversals_under_fixed_weight":n_sorted_cross,
                                      "fraction_grid_points_driver_reversal_not_probability":
                                      n_cross/(len(GRID_T)*len(GRID_W))}
             curves[label] = e
@@ -143,10 +191,12 @@ def study(frame: pd.DataFrame, *, source_sha256: str) -> dict[str, Any]:
             "hypothetical_fitness_parameters_not_species_measured":ILLUSTRATION,
             "response_function":"loss = weight_T * abs((T-Topt)/Tscale)^p + weight_W * abs((P-Popt)/Pscale)^p",
             "same_response_in_both_regions":True,"uses_occurrence_or_effort_columns":False,
+            "habitat_sorted_population_is_hypothetical_not_actual_occurrence":True,
             "environmental_source": "CHELSA v2.1 BIO1 and BIO12, 1981-2010; four predeclared source rectangles",
             "limits": ["Hypothetical optima, scales, weights and penalty shapes are not measured plant traits",
                        "Equal-area geographic rectangles are not validated taxon accessible M",
                        "A regional mean penalty is not actual physiological limitation or realized niche adaptation",
+                       "Model-implied habitat sorting assumes equal-area availability and density proportional to exp(-penalty), without population/detection validation",
                        "The sensitivity grid is post-source and does not represent a prior or ecological frequency",
                        "No claim that observed plants have different realized or fundamental niches",
                        "Disjoint temperature support prevents a within-shared-support empirical response comparison"],
