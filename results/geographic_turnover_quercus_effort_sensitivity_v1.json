@@ -1,0 +1,127 @@
+{
+  "biological_claim_ceiling": "Model-based predictor information contrasts can depend on assumed effort offsets; neither arm estimates true detection or causal limiting factors.",
+  "cautions": [
+    "post-source exploratory",
+    "not pre-registered for scientific inference",
+    "equal-area rectangles are not accessible M",
+    "native-country not native individual",
+    "effort assumptions are neither calibrated nor independently validated",
+    "small uneven numbers of spatial blocks",
+    "plug-in bootstrap not type-I-error calibrated"
+  ],
+  "environmental_process_inference_authorized": false,
+  "full_source_presence_counts": {
+    "quercus_DE_central": 264,
+    "quercus_SE_south": 3310
+  },
+  "n_sign_changed_regions": 2,
+  "n_source_cells": 54,
+  "sensitivity_arms": {
+    "three_sentinel_raw_count_offset": {
+      "minimum_contrast": 0.01,
+      "minimum_pairwise_available_environment_overlap": 0.1,
+      "mode": "exploratory_presence_record_information_not_causal_limits",
+      "n_available_cells": 54,
+      "n_records": 3574,
+      "n_regions": 2,
+      "null_direction_reversal_rate": 0.9494949494949495,
+      "null_shared_response_beta": {
+        "moisture": -0.0075603818100046976,
+        "moisture_sq": -0.3983948996993514,
+        "temperature": 0.8997923153008511,
+        "temperature_sq": -0.4810220739638165,
+        "temperature_x_moisture": -0.15959696156699688
+      },
+      "null_spread_median": 0.4462551216337782,
+      "null_spread_q95": 0.5764187113043424,
+      "observed": {
+        "direction_reversal": false,
+        "spread_nats_per_record": 0.10155637763366543
+      },
+      "one_sided_bootstrap_p": 1.0,
+      "pairwise_available_environment_overlap": {
+        "quercus_DE_central :: quercus_SE_south": 0.1
+      },
+      "regions": {
+        "quercus_DE_central": {
+          "blocks": 4,
+          "cells": 30,
+          "moisture_gain_nats_per_record": -0.9984917247668161,
+          "records": 264,
+          "temperature_gain_nats_per_record": -0.33593511076077864,
+          "thermal_minus_moisture": 0.6625566140060375
+        },
+        "quercus_SE_south": {
+          "blocks": 4,
+          "cells": 24,
+          "moisture_gain_nats_per_record": -0.47916059613778783,
+          "records": 3310,
+          "temperature_gain_nats_per_record": 0.08183964023458422,
+          "thermal_minus_moisture": 0.5610002363723721
+        }
+      },
+      "replicates": 99,
+      "ridge": 0.02,
+      "seed": 20261019,
+      "taxon": "Quercus robur"
+    },
+    "uniform_unit_offset": {
+      "minimum_contrast": 0.01,
+      "minimum_pairwise_available_environment_overlap": 0.1,
+      "mode": "exploratory_presence_record_information_not_causal_limits",
+      "n_available_cells": 54,
+      "n_records": 3574,
+      "n_regions": 2,
+      "null_direction_reversal_rate": 0.3434343434343434,
+      "null_shared_response_beta": {
+        "moisture": -0.3981248009048446,
+        "moisture_sq": -0.19310812722475743,
+        "temperature": 0.8542904078006656,
+        "temperature_sq": -0.3068270447404777,
+        "temperature_x_moisture": 0.23049358373343745
+      },
+      "null_spread_median": 0.13066761156663276,
+      "null_spread_q95": 0.23708822963159368,
+      "observed": {
+        "direction_reversal": false,
+        "spread_nats_per_record": 0.25626608874237433
+      },
+      "one_sided_bootstrap_p": 0.04,
+      "pairwise_available_environment_overlap": {
+        "quercus_DE_central :: quercus_SE_south": 0.1
+      },
+      "regions": {
+        "quercus_DE_central": {
+          "blocks": 4,
+          "cells": 30,
+          "moisture_gain_nats_per_record": -1.2119001553492237,
+          "records": 264,
+          "temperature_gain_nats_per_record": -1.6912066448885061,
+          "thermal_minus_moisture": -0.47930648953928245
+        },
+        "quercus_SE_south": {
+          "blocks": 4,
+          "cells": 24,
+          "moisture_gain_nats_per_record": 0.26551575104023367,
+          "records": 3310,
+          "temperature_gain_nats_per_record": 0.04247535024332552,
+          "thermal_minus_moisture": -0.22304040079690815
+        }
+      },
+      "replicates": 99,
+      "ridge": 0.02,
+      "seed": 20261019,
+      "taxon": "Quercus robur"
+    }
+  },
+  "sign_changed_under_assumed_effort_regions": [
+    "quercus_DE_central",
+    "quercus_SE_south"
+  ],
+  "source_cells_sha256": "42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa",
+  "source_windows": [
+    "quercus_DE_central",
+    "quercus_SE_south"
+  ],
+  "type": "postsource_assumption_sensitivity_not_biological_diagnostic"
+}
