@@ -34,7 +34,6 @@ INCLUDE=[
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_SCOPE_LEDGER.md",
   "manuscript/PROCESS_INFORMATION_EMPIRICAL_ATTEMPTS_SI_V1.md",
   "manuscript/PROCESS_INFORMATION_KNOWN_TRUTH_SENSITIVITY_SI_V1.md",
-  "results/sdmr_nonlinear_effort_v2_prospective_result.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
@@ -58,6 +57,7 @@ FORBIDDEN_PATTERNS=[
 REVIEW_RECEIPTS={
   "configs/sdmr_v6_prospective_kt_v2.json",
   "results/sdmr_v6_prospective_kt_v2_metrics.json",
+  "results/sdmr_nonlinear_effort_v2_prospective_result.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_diagnostic.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_model_pool_terminal_decision.json",
   "evidence/mee_real_v5_receipts/sdmr_fresh_empirical_v5_sealed_promotion_result.json",
