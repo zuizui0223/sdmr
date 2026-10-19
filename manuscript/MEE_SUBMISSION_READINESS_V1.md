@@ -9,6 +9,7 @@
 - [x] Known-truth promotion stands separately from fresh empirical validation.
 - [x] Later real-v5 applicability failure (10/50 available; 16/300 stable) disclosed in Discussion and editorial correspondence.
 - [x] Document sequential v2–v5 empirical failures, decision timing and adaptive design history in Supporting Information; do not present them as independent replications.
+- [x] Disclose separate matched-split and nonlinear/effort sensitivity denominators in Discussion and dedicated Supporting Information; retain primary M5 gates unchanged.
 
 ## MEE manuscript format
 
@@ -38,7 +39,7 @@
 - [x] Pre-submission enquiry draft.
 - [x] Title-page template.
 - [ ] All four figures generated as editable SVGs and visually inspected as PNGs; promote as final when the Figure 3–4 headroom PR and latest full submission build pass.
-- [x] Anonymous reviewer ZIP built with frozen evidence receipts and provenance-only redaction; the four-figure submission assets were built in workflow run 37763741607, with final re-run required after layout edits.
+- [ ] Rebuild anonymous reviewer ZIP and DOCX after the October sensitivity disclosure; re-check identity scanning and manuscript layout.
 - [x] Anonymous single-column double-spaced DOCX produced and visually rendered (17 pages after four figure captions); final footer-layout revision pending CI.
 - [ ] Permanent archive DOI for accepted/public version.
 
