@@ -1,12 +1,7 @@
 name: geographic-turnover-native-source-v1
 
+# Source acquisition is intentionally one-shot/manual; routine PR tests run in tests.yml.
 on:
-  pull_request:
-    paths:
-      - 'configs/geographic_turnover_native_windows_v1.json'
-      - 'experiments/geographic_turnover_native_windows_v1.py'
-      - 'tests/test_geographic_turnover_native_windows_v1.py'
-      - '.github/workflows/geographic-turnover-native-source-v1.yml'
   workflow_dispatch:
 
 permissions:
