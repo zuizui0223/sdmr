@@ -1,0 +1,39 @@
+name: geographic-stationary-warming-switch-v1
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/geographic_stationary_warming_switch_v1.py'
+      - 'tests/test_geographic_stationary_warming_switch_v1.py'
+      - 'results/geographic_stationary_warming_switch_v1.json'
+      - 'results/geographic_turnover_common_support_v1/all_candidate_climate_cells.csv'
+      - '.github/workflows/geographic-stationary-warming-switch-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stationary-illustration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact dependencies
+        run: python -m pip install -e '.[test]' scipy
+      - name: Verify frozen climate-only model and result
+        run: python -m pytest -q tests/test_geographic_stationary_warming_switch_v1.py
+      - name: Recompute stationary exposure shift from archived source
+        run: |
+          python experiments/geographic_stationary_warming_switch_v1.py \
+            --source results/geographic_turnover_common_support_v1/all_candidate_climate_cells.csv \
+            --output artifacts/geographic_stationary_warming_switch_v1.json
+      - name: Archive independently reproducible output
+        uses: actions/upload-artifact@v4
+        with:
+          name: geographic-stationary-warming-switch-v1
+          path: artifacts/geographic_stationary_warming_switch_v1.json
+          if-no-files-found: error
