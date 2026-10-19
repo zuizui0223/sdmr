@@ -20,6 +20,8 @@
 - [x] Keywords.
 - [x] Introduction / Materials and Methods / Results / Discussion structure.
 - [x] References added.
+- [x] Methods states OpenAI ChatGPT and GPT-6 assistance with code/text verification boundary.
+- [ ] Corresponding author to verify any earlier ChatGPT model versions and precise code-level attribution before submission.
 - [x] Figures can remain embedded at initial submission.
 - [x] Anonymous Word submission file generated with native continuous line numbers and a PAGE footer field; footer line-number suppression is tested.
 - [x] Manuscript, references and the four figure captions passed the automated <8,000-word check (latest four-figure build: 3,600 words; abstract: 284).
@@ -29,6 +31,8 @@
 - [x] Main manuscript contains no author names or affiliations.
 - [x] Public GitHub URL omitted from reviewer manuscript.
 - [x] Build anonymized reviewer code/data bundle, including unchanged v5 evidence snapshots with reviewer-facing run/commit provenance redacted.
+- [x] Provide MIT terms in reviewer-only LICENSE_REVIEW.txt with author attribution temporarily withheld; include CODE_AI_PROVENANCE.md.
+- [ ] Upload the canonical unredacted LICENSE to the editor as Not For Review, retaining original copyright attribution.
 - [x] Automated scanner and isolated-import test passed for the generated anonymous reviewer ZIP; final manual review of supplementary figures and document metadata remains advisable.
 - [ ] Upload title page separately as “not for review”.
 
@@ -39,8 +43,8 @@
 - [x] Pre-submission enquiry draft.
 - [x] Title-page template.
 - [ ] All four figures generated as editable SVGs and visually inspected as PNGs; promote as final when the Figure 3–4 headroom PR and latest full submission build pass.
-- [ ] Rebuild anonymous reviewer ZIP and DOCX after the October sensitivity disclosure; re-check identity scanning and manuscript layout.
-- [x] Anonymous single-column double-spaced DOCX produced and visually rendered (17 pages after four figure captions); final footer-layout revision pending CI.
+- [ ] Rebuild reviewer ZIP and anonymous DOCX after October sensitivity plus AI/license disclosures; visually inspect all pages and the 4 figure files.
+- [x] Anonymous single-column double-spaced DOCX with line/page numbering generated; pre-AI-disclosure version visually rendered at 18 pages. Re-render final version.
 - [ ] Permanent archive DOI for accepted/public version.
 
 ## Human/admin blockers

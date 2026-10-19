@@ -143,6 +143,10 @@ The method passed only if all six gates passed.
 
 The scientific endpoint was the strict conjunction of KT-A through KT-F.
 
+### 2.8 Generative AI assistance and verification
+
+OpenAI ChatGPT (including GPT-6, used during manuscript preparation in October 2026) assisted with manuscript wording, software development and refactoring, test design, and documentation. AI-generated text or code was not treated as independent scientific evidence: the reported results were checked against frozen contracts, machine-readable endpoint receipts, and automated tests. The corresponding author remains responsible for verifying the code and manuscript, including the complete model-version history and all AI-assisted code annotations, before submission. AI assistance does not imply that the reported ecological process states identify causal physiology.
+
 ## 3. Results
 
 ### 3.1 Positive process information was recovered

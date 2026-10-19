@@ -12,6 +12,7 @@ on:
       - paper/m5-figures-1-2-complete-v1
       - paper/m5-final-limitations-2026-10-13
       - paper/m5-postprospective-boundary-oct19
+      - paper/m5-mee-ai-license-review-v1
     paths:
       - 'configs/process_information_submission_assets_execute.lock'
   workflow_dispatch:
