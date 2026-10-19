@@ -79,6 +79,10 @@ python -m pytest -q tests/test_geographic_driver_turnover_v0.py
 
 ### Claim ledger
 
-- **Supported by executed synthetic examples only:** regional process-importance ranking can reverse without altering a globally fixed quadratic environmental response; a separately simulated region-dependent response can produce observed contrasts above the matched null.
+- **Supported by executed synthetic examples only:** regional process-importance ranking can reverse without altering a globally fixed quadratic environmental response; in the constant-surface generator, the **known underlying quadratic suitability penalty** is thermally dominated in one available environment and moisture dominated in the other. This provides an explicit mechanism for changing active constraints without any response-function change. A separately simulated region-dependent response can produce observed contrasts above the matched null. Neither result demonstrates physiological evolution in plants.
 - **Not established:** a cross-species macroecological frequency, native-versus-introduced effect, regionally switching *physiological* limiting factor, niche evolution, or empirical advantage over existing SDM approaches.
 - **Product A/B:** unchanged. Product A remains `not_promoted` on its completed fresh plant endpoint and Product B remains blocked. This exploratory lane does not alter any previously frozen denominator, gate or manuscript conclusion.
+
+## Source-volume diagnostic (new experimental route, not an empirical result)
+
+Run `python experiments/geographic_turnover_gbif_gate_v0.py --output /tmp/source_gate.json` only as a **read-only live GBIF count preflight**. The fixed diagnostic panel is *Arabidopsis thaliana*, *Pinus sylvestris* and *Quercus robur*, each in four country-coded source strata. Counts are limited to 2010–2025 valid-coordinates GBIF records and **do not** establish native status, ecological regions, a taxon-specific accessible M, observation effort, or an occurrence response. `.github/workflows/geographic-turnover-source-gate-v0.yml` archives all 12 counts and failures on the PR without touching any frozen SDMR endpoint. Successful counts only authorize the next separate *data-source assembly* step, never a macro effect claim.
