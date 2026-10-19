@@ -1,0 +1,675 @@
+{
+  "analysis": "geographic_turnover_native_window_source_diagnostic_v1",
+  "claim_ceiling": "Observed source support/environmental availability only; no response or niche-shift estimate",
+  "config_file_sha256": "8231fe53e52bdf01f111949b36bb6486cade17c922943a00121797b26e9d2b1a",
+  "config_sha256": "2c0d3ec745bf8d652361ccb6685021c8e4320ff345520ee0cd272dac42cb785b",
+  "macro_inference_blocked": true,
+  "n_climate_complete_windows": 4,
+  "n_focal_search_archives_complete": 3,
+  "positive_biological_evidence": false,
+  "run_utc": "2026-10-19T07:45:15.522896+00:00",
+  "window_count": 4,
+  "windows": [
+    {
+      "climate_moisture_percentiles_raw": [
+        692.2750000000001,
+        820.3000000000001,
+        1162.4549999999995
+      ],
+      "climate_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "climate_temperature_percentiles_raw": [
+        7.140000000000032,
+        8.450000000000045,
+        9.160000000000036
+      ],
+      "country": "DE",
+      "environmental_source_status": "climate_complete",
+      "focal_climate_cell_coverage_fraction": 0.9333333333333333,
+      "focal_source": {
+        "accepted_name": "Quercus robur",
+        "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+        "count_query_sha256": "0b7c86d5eb251296fe6fcfa7276b8f044e13786496b5520975876dfa6459938e",
+        "country": "DE",
+        "full_query_sha256": "d389e9512a7a453d6f75989797d4faacfeb123a5f65c80593ee2a9deca473b79",
+        "indexed_count": 329,
+        "n_retrieved": 329,
+        "qc": {
+          "n_accepted": 292,
+          "n_raw": 329,
+          "rejection_reasons": {
+            "coordinate_uncertainty_out_of_scope": 1,
+            "disallowed_basis_of_record": 3,
+            "missing_coordinates_or_reported_uncertainty": 33
+          }
+        },
+        "region": "quercus_DE_central",
+        "requested_taxon": "Quercus robur",
+        "search_truncated": false,
+        "status": "complete_diagnostic_search_archive",
+        "taxon_key": "4R5YN",
+        "taxon_status": "ACCEPTED"
+      },
+      "focal_taxon": "Quercus robur",
+      "grid_cell_km": 25,
+      "macro_inference_allowed": false,
+      "moisture_p05_raw": 692.2750000000001,
+      "moisture_p50_raw": 820.3000000000001,
+      "moisture_p95_raw": 1162.4549999999995,
+      "n_admitted_focal_records_in_climate_cells": 264,
+      "n_admitted_focal_records_outside_grid": 28,
+      "n_climate_cells_with_focal_records": 28,
+      "n_climate_cells_with_target_group_records": 30,
+      "n_climate_complete_cells": 30,
+      "n_equal_area_rectangle_cells": 30,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "region": "quercus_DE_central",
+      "status": "source_diagnostic_only",
+      "target_group_all_archives_complete": true,
+      "target_group_effort_cell_coverage_fraction": 1.0,
+      "target_group_effort_status": "candidate_proxy_only_not_calibrated",
+      "target_group_sources": [
+        {
+          "accepted_name": "Betula pendula",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "876bcc70b231116701a5bb23c33984f3e76622d735140bf2214b157b2888be13",
+          "country": "DE",
+          "full_query_sha256": "ff116474faca75a836ed8950bcea811d861e508403c0ea380057af6887f78ccf",
+          "indexed_count": 253,
+          "n_retrieved": 253,
+          "qc": {
+            "n_accepted": 223,
+            "n_raw": 253,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 3,
+              "disallowed_basis_of_record": 4,
+              "missing_coordinates_or_reported_uncertainty": 23
+            }
+          },
+          "region": "quercus_DE_central",
+          "requested_taxon": "Betula pendula",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "LPCQ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Salix caprea",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "a723f9bb651158f3e02b5ea1b8eceb7e1578b4bad6d1d89b4e5e2fd4905b1a99",
+          "country": "DE",
+          "full_query_sha256": "dddd9e5c801722dca773a0ce517fcf1eaa9f3dae29fd25288ca58c9d2e039dc2",
+          "indexed_count": 327,
+          "n_retrieved": 327,
+          "qc": {
+            "n_accepted": 276,
+            "n_raw": 327,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 13,
+              "disallowed_basis_of_record": 1,
+              "missing_coordinates_or_reported_uncertainty": 37
+            }
+          },
+          "region": "quercus_DE_central",
+          "requested_taxon": "Salix caprea",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "6XCBJ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Sorbus aucuparia",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "ac334def21f8fac505698936b9afe75069a8a1afba35d4b2be177bd9fac5fc68",
+          "country": "DE",
+          "full_query_sha256": "2c91bec8e9fadc1fa9c86679bf15b4553eb936bf0b75dab17245a65694a5a110",
+          "indexed_count": 961,
+          "n_retrieved": 961,
+          "qc": {
+            "n_accepted": 779,
+            "n_raw": 961,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 17,
+              "disallowed_basis_of_record": 6,
+              "missing_coordinates_or_reported_uncertainty": 159
+            }
+          },
+          "region": "quercus_DE_central",
+          "requested_taxon": "Sorbus aucuparia",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "4YB93",
+          "taxon_status": "ACCEPTED"
+        }
+      ],
+      "temperature_p05_raw": 7.140000000000032,
+      "temperature_p50_raw": 8.450000000000045,
+      "temperature_p95_raw": 9.160000000000036,
+      "why_macro_blocked": [
+        "rectangles_not_species_accessible_area_M",
+        "nonindependent_and_uncalibrated_effort",
+        "planted_or_introduced_individuals_not_record-level_excluded",
+        "spatial_block_and_effect_size_calibration_not_frozen",
+        "source_diagnostic_only_no_predeclared_real_effect_test"
+      ]
+    },
+    {
+      "climate_moisture_percentiles_raw": [
+        749.45,
+        902.0,
+        1147.5249999999999
+      ],
+      "climate_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "climate_temperature_percentiles_raw": [
+        6.050000000000011,
+        6.550000000000011,
+        6.750000000000057
+      ],
+      "country": "SE",
+      "environmental_source_status": "climate_complete",
+      "focal_climate_cell_coverage_fraction": 1.0,
+      "focal_source": {
+        "accepted_name": "Quercus robur",
+        "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+        "count_query_sha256": "1b1dcbf9932697077525352b49ba7ef5e874edaddc2a537ae76333cf2716eac2",
+        "country": "SE",
+        "full_query_sha256": "cab1ff199caca62d08728538bbb5612accb1a275e17f6a7322e979d45464f7c9",
+        "indexed_count": 3660,
+        "n_retrieved": 3660,
+        "qc": {
+          "n_accepted": 3650,
+          "n_raw": 3660,
+          "rejection_reasons": {
+            "coordinate_uncertainty_out_of_scope": 8,
+            "missing_coordinates_or_reported_uncertainty": 2
+          }
+        },
+        "region": "quercus_SE_south",
+        "requested_taxon": "Quercus robur",
+        "search_truncated": false,
+        "status": "complete_diagnostic_search_archive",
+        "taxon_key": "4R5YN",
+        "taxon_status": "ACCEPTED"
+      },
+      "focal_taxon": "Quercus robur",
+      "grid_cell_km": 25,
+      "macro_inference_allowed": false,
+      "moisture_p05_raw": 749.45,
+      "moisture_p50_raw": 902.0,
+      "moisture_p95_raw": 1147.5249999999999,
+      "n_admitted_focal_records_in_climate_cells": 3310,
+      "n_admitted_focal_records_outside_grid": 340,
+      "n_climate_cells_with_focal_records": 24,
+      "n_climate_cells_with_target_group_records": 24,
+      "n_climate_complete_cells": 24,
+      "n_equal_area_rectangle_cells": 24,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "region": "quercus_SE_south",
+      "status": "source_diagnostic_only",
+      "target_group_all_archives_complete": true,
+      "target_group_effort_cell_coverage_fraction": 1.0,
+      "target_group_effort_status": "candidate_proxy_only_not_calibrated",
+      "target_group_sources": [
+        {
+          "accepted_name": "Betula pendula",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "d17f3d4f0be4b609674a897917afb20b86da0063b18b6be7db570ed292e96808",
+          "country": "SE",
+          "full_query_sha256": "2f641c0c194d7dd0c2c804b0155fc57aeeb7e547ce55fb79b85d0cd2742e2eb2",
+          "indexed_count": 1486,
+          "n_retrieved": 1486,
+          "qc": {
+            "n_accepted": 923,
+            "n_raw": 1486,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 563
+            }
+          },
+          "region": "quercus_SE_south",
+          "requested_taxon": "Betula pendula",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "LPCQ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Salix caprea",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "7127dd69a15510061919137e4ee1e7abd4ac15ea59a4c5baeeaa5ac83713c476",
+          "country": "SE",
+          "full_query_sha256": "71c593aa85d69de68768f8ddaa54b9e8dad29bc53ec22bacdf95adb5c2d45cad",
+          "indexed_count": 1157,
+          "n_retrieved": 1157,
+          "qc": {
+            "n_accepted": 1108,
+            "n_raw": 1157,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 47,
+              "missing_coordinates_or_reported_uncertainty": 2
+            }
+          },
+          "region": "quercus_SE_south",
+          "requested_taxon": "Salix caprea",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "6XCBJ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Sorbus aucuparia",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "8da8e346fa8dd0baa4296c7913ecf45b2429c22a373d98028991622aeca9f05a",
+          "country": "SE",
+          "full_query_sha256": "a4142a0befa0a51bdb3feb0c70320ef56416253385d99803891d87ef8734112b",
+          "indexed_count": 1908,
+          "n_retrieved": 1908,
+          "qc": {
+            "n_accepted": 1034,
+            "n_raw": 1908,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 852,
+              "missing_coordinates_or_reported_uncertainty": 22
+            }
+          },
+          "region": "quercus_SE_south",
+          "requested_taxon": "Sorbus aucuparia",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "4YB93",
+          "taxon_status": "ACCEPTED"
+        }
+      ],
+      "temperature_p05_raw": 6.050000000000011,
+      "temperature_p50_raw": 6.550000000000011,
+      "temperature_p95_raw": 6.750000000000057,
+      "why_macro_blocked": [
+        "rectangles_not_species_accessible_area_M",
+        "nonindependent_and_uncalibrated_effort",
+        "planted_or_introduced_individuals_not_record-level_excluded",
+        "spatial_block_and_effect_size_calibration_not_frozen",
+        "source_diagnostic_only_no_predeclared_real_effect_test"
+      ]
+    },
+    {
+      "climate_moisture_percentiles_raw": [
+        462.3,
+        570.8000000000001,
+        822.7750000000001
+      ],
+      "climate_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "climate_temperature_percentiles_raw": [
+        9.825000000000031,
+        11.750000000000057,
+        14.350000000000023
+      ],
+      "country": "ES",
+      "environmental_source_status": "climate_complete",
+      "focal_climate_cell_coverage_fraction": 0.44642857142857145,
+      "focal_source": {
+        "accepted_name": "Pinus sylvestris",
+        "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+        "count_query_sha256": "b36483f8897b0b3772f30fb9e0a25bc19d1a789474a9f5123e97444e97c586f4",
+        "country": "ES",
+        "full_query_sha256": "0cc9449425c478a29bc794b1a03873a2f1ed4f543763b2eea5efaaddd6a171e3",
+        "indexed_count": 1496,
+        "n_retrieved": 1496,
+        "qc": {
+          "n_accepted": 537,
+          "n_raw": 1496,
+          "rejection_reasons": {
+            "coordinate_uncertainty_out_of_scope": 43,
+            "missing_coordinates_or_reported_uncertainty": 916
+          }
+        },
+        "region": "pinus_ES_central",
+        "requested_taxon": "Pinus sylvestris",
+        "search_truncated": false,
+        "status": "complete_diagnostic_search_archive",
+        "taxon_key": "4J2J5",
+        "taxon_status": "ACCEPTED"
+      },
+      "focal_taxon": "Pinus sylvestris",
+      "grid_cell_km": 25,
+      "macro_inference_allowed": false,
+      "moisture_p05_raw": 462.3,
+      "moisture_p50_raw": 570.8000000000001,
+      "moisture_p95_raw": 822.7750000000001,
+      "n_admitted_focal_records_in_climate_cells": 529,
+      "n_admitted_focal_records_outside_grid": 8,
+      "n_climate_cells_with_focal_records": 25,
+      "n_climate_cells_with_target_group_records": 29,
+      "n_climate_complete_cells": 56,
+      "n_equal_area_rectangle_cells": 56,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "region": "pinus_ES_central",
+      "status": "source_diagnostic_only",
+      "target_group_all_archives_complete": true,
+      "target_group_effort_cell_coverage_fraction": 0.5178571428571429,
+      "target_group_effort_status": "candidate_proxy_only_not_calibrated",
+      "target_group_sources": [
+        {
+          "accepted_name": "Betula pendula",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "9172c1414754cdb1919336c722834caeeb931f5275321bb5eeb5414e4ef1390f",
+          "country": "ES",
+          "full_query_sha256": "287d07a66359607122495a8cb292acd8bbbbe261522dc5d21f7437dfdfc2d2c8",
+          "indexed_count": 71,
+          "n_retrieved": 71,
+          "qc": {
+            "n_accepted": 25,
+            "n_raw": 71,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 3,
+              "missing_coordinates_or_reported_uncertainty": 43
+            }
+          },
+          "region": "pinus_ES_central",
+          "requested_taxon": "Betula pendula",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "LPCQ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Salix caprea",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "88cc5f40ab38a4a0424e3d4d829d9bec93b9c05163d0e3d2ab891a54e3d5b5be",
+          "country": "ES",
+          "full_query_sha256": "7f7c2d4d1366a4e3c5b8153726d6e3529b02ff3aaff6088ca00f19854d78bdec",
+          "indexed_count": 15,
+          "n_retrieved": 15,
+          "qc": {
+            "n_accepted": 10,
+            "n_raw": 15,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 1,
+              "missing_coordinates_or_reported_uncertainty": 4
+            }
+          },
+          "region": "pinus_ES_central",
+          "requested_taxon": "Salix caprea",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "6XCBJ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Sorbus aucuparia",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "1d61613a896ef291c8f23ab19a467120de82169bac48b7c2878e8571131d92ea",
+          "country": "ES",
+          "full_query_sha256": "d0fef06ad783570de01dba897c58d2d2fb61eb4b5c2227c0397940239cf638f9",
+          "indexed_count": 407,
+          "n_retrieved": 407,
+          "qc": {
+            "n_accepted": 236,
+            "n_raw": 407,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 16,
+              "missing_coordinates_or_reported_uncertainty": 155
+            }
+          },
+          "region": "pinus_ES_central",
+          "requested_taxon": "Sorbus aucuparia",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "4YB93",
+          "taxon_status": "ACCEPTED"
+        }
+      ],
+      "temperature_p05_raw": 9.825000000000031,
+      "temperature_p50_raw": 11.750000000000057,
+      "temperature_p95_raw": 14.350000000000023,
+      "why_macro_blocked": [
+        "rectangles_not_species_accessible_area_M",
+        "nonindependent_and_uncalibrated_effort",
+        "planted_or_introduced_individuals_not_record-level_excluded",
+        "spatial_block_and_effect_size_calibration_not_frozen",
+        "source_diagnostic_only_no_predeclared_real_effect_test"
+      ]
+    },
+    {
+      "climate_moisture_percentiles_raw": [
+        643.2600000000001,
+        707.1,
+        771.32
+      ],
+      "climate_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "climate_temperature_percentiles_raw": [
+        2.9500000000000455,
+        3.650000000000034,
+        4.550000000000011
+      ],
+      "country": "FI",
+      "environmental_source_status": "climate_complete",
+      "focal_source": {
+        "accepted_name": "Pinus sylvestris",
+        "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+        "count_query_sha256": "dc4ce4c25e8e937baf2b2ae48f9bbe6ccd209ffed700ba0e15c5cb9aa95c15bd",
+        "country": "FI",
+        "indexed_count": 11340,
+        "region": "pinus_FI_central",
+        "requested_taxon": "Pinus sylvestris",
+        "status": "bulk_required_count_over_diagnostic_cap",
+        "taxon_key": "4J2J5",
+        "taxon_status": "ACCEPTED"
+      },
+      "focal_taxon": "Pinus sylvestris",
+      "grid_cell_km": 25,
+      "macro_inference_allowed": false,
+      "moisture_p05_raw": 643.2600000000001,
+      "moisture_p50_raw": 707.1,
+      "moisture_p95_raw": 771.32,
+      "n_climate_complete_cells": 77,
+      "n_equal_area_rectangle_cells": 77,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "region": "pinus_FI_central",
+      "status": "source_diagnostic_only",
+      "target_group_all_archives_complete": false,
+      "target_group_effort_status": "incomplete_source_or_climate",
+      "target_group_sources": [
+        {
+          "accepted_name": "Betula pendula",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "0da7ab632f9b63885444e7a2f227a2b638974d54e3cf9d980e75b77dfce5a5ee",
+          "country": "FI",
+          "full_query_sha256": "47a4c818995094a5431ea37053c6ce6f0247496240065a807599291b0bc59618",
+          "indexed_count": 2122,
+          "n_retrieved": 2122,
+          "qc": {
+            "n_accepted": 2077,
+            "n_raw": 2122,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 17,
+              "disallowed_basis_of_record": 4,
+              "missing_coordinates_or_reported_uncertainty": 24
+            }
+          },
+          "region": "pinus_FI_central",
+          "requested_taxon": "Betula pendula",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "LPCQ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Salix caprea",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "8ae490d0a916973a0c4ead8cf621fac3b66f25a9d594719b73f5e40d992f84ab",
+          "country": "FI",
+          "full_query_sha256": "d164de730b66b86ec4b39eca000febb3a758ded8dcfe0099421e90c8e409772b",
+          "indexed_count": 3530,
+          "n_retrieved": 3530,
+          "qc": {
+            "n_accepted": 3508,
+            "n_raw": 3530,
+            "rejection_reasons": {
+              "coordinate_uncertainty_out_of_scope": 8,
+              "disallowed_basis_of_record": 6,
+              "missing_coordinates_or_reported_uncertainty": 8
+            }
+          },
+          "region": "pinus_FI_central",
+          "requested_taxon": "Salix caprea",
+          "search_truncated": false,
+          "status": "complete_diagnostic_search_archive",
+          "taxon_key": "6XCBJ",
+          "taxon_status": "ACCEPTED"
+        },
+        {
+          "accepted_name": "Sorbus aucuparia",
+          "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+          "count_query_sha256": "27eef77b3721fffb25a15218ee6981870602016ba9f489047a03695fac25bddb",
+          "country": "FI",
+          "indexed_count": 5582,
+          "region": "pinus_FI_central",
+          "requested_taxon": "Sorbus aucuparia",
+          "status": "bulk_required_count_over_diagnostic_cap",
+          "taxon_key": "4YB93",
+          "taxon_status": "ACCEPTED"
+        }
+      ],
+      "temperature_p05_raw": 2.9500000000000455,
+      "temperature_p50_raw": 3.650000000000034,
+      "temperature_p95_raw": 4.550000000000011,
+      "why_macro_blocked": [
+        "rectangles_not_species_accessible_area_M",
+        "nonindependent_and_uncalibrated_effort",
+        "planted_or_introduced_individuals_not_record-level_excluded",
+        "spatial_block_and_effect_size_calibration_not_frozen",
+        "source_diagnostic_only_no_predeclared_real_effect_test"
+      ]
+    }
+  ]
+}
