@@ -122,4 +122,20 @@ def test_current_result_exact_regeneration():
     df,sha=real_inputs()
     observed=mod.study(df,source_sha256=sha)
     path=ROOT/'results/geographic_constraint_switch_geometry_v1.json'
-    assert observed==json.loads(path.read_text())
+    # The scientific labels and schema must remain exact; floating-point
+    # reductions may differ by machine/Python/NumPy at ~1e-15.
+    def compare(a, b):
+        if isinstance(a, dict):
+            assert isinstance(b, dict) and a.keys() == b.keys()
+            for k in a:
+                compare(a[k], b[k])
+        elif isinstance(a, list):
+            assert isinstance(b, list) and len(a) == len(b)
+            for x, y in zip(a, b):
+                compare(x, y)
+        elif isinstance(a, (int, float)) and not isinstance(a, bool):
+            assert isinstance(b, (int, float)) and not isinstance(b, bool)
+            assert a == pytest.approx(b, abs=1e-9, rel=1e-9)
+        else:
+            assert a == b
+    compare(observed, json.loads(path.read_text()))
