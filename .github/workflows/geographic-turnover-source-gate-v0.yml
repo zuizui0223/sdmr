@@ -1,11 +1,7 @@
 name: geographic-turnover-source-gate-v0
 
+# Source acquisition is intentionally one-shot/manual; routine PR tests run in tests.yml.
 on:
-  pull_request:
-    paths:
-      - 'experiments/geographic_turnover_gbif_gate_v0.py'
-      - 'tests/test_geographic_turnover_gbif_gate_v0.py'
-      - '.github/workflows/geographic-turnover-source-gate-v0.yml'
   workflow_dispatch:
 
 permissions:
