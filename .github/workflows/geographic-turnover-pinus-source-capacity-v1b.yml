@@ -1,0 +1,36 @@
+name: geographic-turnover-pinus-source-capacity-v1b
+
+on:
+  pull_request:
+    paths:
+      - 'configs/geographic_turnover_pinus_fi_source_capacity_v1b.json'
+      - '.github/workflows/geographic-turnover-pinus-source-capacity-v1b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  complete-finnish-source-only:
+    name: pinus-finland-data-completeness-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install read-only geo environment
+        run: python -m pip install -e '.[test,geo]' 'pyproj>=3.5' 'scipy>=1.10'
+      - name: Fixed-window source-only acquisition; no model fitting
+        run: >-
+          python experiments/geographic_turnover_native_windows_v1.py
+          --config configs/geographic_turnover_pinus_fi_source_capacity_v1b.json
+          --output-dir artifacts/pinus_fi_source_capacity_v1b
+      - name: Preserve all source receipts and failure reasons
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geographic-turnover-pinus-fi-source-v1b
+          path: artifacts/pinus_fi_source_capacity_v1b/
+          if-no-files-found: warn
