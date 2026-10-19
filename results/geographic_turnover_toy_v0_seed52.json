@@ -1,0 +1,101 @@
+{
+  "evidence": "synthetic_only",
+  "worlds": {
+    "constant_surface": {
+      "minimum_contrast": 0.01,
+      "minimum_pairwise_available_environment_overlap": 0.21666666666666665,
+      "mode": "exploratory_presence_record_information_not_causal_limits",
+      "n_available_cells": 360,
+      "n_records": 1000,
+      "n_regions": 2,
+      "null_direction_reversal_rate": 1.0,
+      "null_shared_response_beta": {
+        "moisture": -0.11940065746972958,
+        "moisture_sq": -0.40220384868980447,
+        "temperature": -0.1645738035195264,
+        "temperature_sq": -0.4231994585794298,
+        "temperature_x_moisture": 0.13357178870541528
+      },
+      "null_spread_median": 0.3784604589414393,
+      "null_spread_q95": 0.42800119435794776,
+      "observed": {
+        "direction_reversal": true,
+        "spread_nats_per_record": 0.38534852306996525
+      },
+      "one_sided_bootstrap_p": 0.39,
+      "pairwise_available_environment_overlap": {
+        "alpine :: arid": 0.21666666666666665
+      },
+      "regions": {
+        "alpine": {
+          "blocks": 6,
+          "cells": 180,
+          "moisture_gain_nats_per_record": -0.004381639912241554,
+          "records": 500,
+          "temperature_gain_nats_per_record": 0.1821754435292514,
+          "thermal_minus_moisture": 0.18655708344149297
+        },
+        "arid": {
+          "blocks": 6,
+          "cells": 180,
+          "moisture_gain_nats_per_record": 0.19177409278334925,
+          "records": 500,
+          "temperature_gain_nats_per_record": -0.0070173468451230295,
+          "thermal_minus_moisture": -0.1987914396284723
+        }
+      },
+      "replicates": 99,
+      "ridge": 0.02,
+      "seed": 52,
+      "taxon": "simulated_taxon"
+    },
+    "region_shifted_surface": {
+      "minimum_contrast": 0.01,
+      "minimum_pairwise_available_environment_overlap": 0.34166666666666673,
+      "mode": "exploratory_presence_record_information_not_causal_limits",
+      "n_available_cells": 240,
+      "n_records": 840,
+      "n_regions": 2,
+      "null_direction_reversal_rate": 1.0,
+      "null_shared_response_beta": {
+        "moisture": 0.4281248416682443,
+        "moisture_sq": 0.007979028175433472,
+        "temperature": 1.4056268425462257,
+        "temperature_sq": -0.44290587735009723,
+        "temperature_x_moisture": 0.549343516607903
+      },
+      "null_spread_median": 0.7194213034109486,
+      "null_spread_q95": 0.8296073950370166,
+      "observed": {
+        "direction_reversal": true,
+        "spread_nats_per_record": 2.021972691432493
+      },
+      "one_sided_bootstrap_p": 0.01,
+      "pairwise_available_environment_overlap": {
+        "alpine :: arid": 0.34166666666666673
+      },
+      "regions": {
+        "alpine": {
+          "blocks": 6,
+          "cells": 120,
+          "moisture_gain_nats_per_record": -0.009326676540334639,
+          "records": 420,
+          "temperature_gain_nats_per_record": 0.8708819432316448,
+          "thermal_minus_moisture": 0.8802086197719794
+        },
+        "arid": {
+          "blocks": 6,
+          "cells": 120,
+          "moisture_gain_nats_per_record": 1.0559310684153247,
+          "records": 420,
+          "temperature_gain_nats_per_record": -0.0858330032451888,
+          "thermal_minus_moisture": -1.1417640716605135
+        }
+      },
+      "replicates": 99,
+      "ridge": 0.02,
+      "seed": 52,
+      "taxon": "simulated_taxon"
+    }
+  }
+}
