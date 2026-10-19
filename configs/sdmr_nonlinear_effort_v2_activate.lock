@@ -1,0 +1,6 @@
+study=sdmr.nonlinear_effort_known_truth.v2
+stage=one_shot_prospective_18_cases
+source_commit=992f35dc4eb8909ac0d65de05bc1c87c4aa4e6b3
+seeds=92001,92002,92003
+worlds=unique_process,interaction,observation_confounded,omitted_driver,null_correlated,geographic_shift
+allowed_success=complete_archival_not_empirical_promotion

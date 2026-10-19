@@ -1,0 +1,179 @@
+{
+  "schema": "sdmr.nonlinear_effort_known_truth.v2",
+  "status": "design_frozen_before_new_seed_opening",
+  "date_frozen": "2026-10-13",
+  "scope": "new exploratory prospective simulation, not M5 or real-v5 re-promotion",
+  "seed_selection": "new unused confirmed by main-branch code search; no replacement after first opening",
+  "seeds": [
+    92001,
+    92002,
+    92003
+  ],
+  "worlds": [
+    "unique_process",
+    "interaction",
+    "observation_confounded",
+    "omitted_driver",
+    "null_correlated",
+    "geographic_shift"
+  ],
+  "n_cases": 18,
+  "generator": {
+    "function": "simulate_process_world",
+    "cells": 1600,
+    "occurrences": 180,
+    "background": 600,
+    "unchanged_code": true
+  },
+  "split_modes": {
+    "random_cell": {
+      "folds": 3,
+      "grouping": "sampled unique cell_id KFold shuffled random_state=0"
+    },
+    "spatial": {
+      "folds": 3,
+      "grouping": "original frozen spatial_groups GroupKFold"
+    }
+  },
+  "ecological_processes": [
+    "thermal",
+    "water",
+    "seasonality",
+    "radiation_energy",
+    "soil_substrate",
+    "productivity"
+  ],
+  "learner_routes": {
+    "standardized_isotropic_l2": {
+      "source": "frozen matched_kt_split_v1.py learner_predict",
+      "C": 1,
+      "scaler": "StandardScaler fit only on fold training data",
+      "solver": "newton-cholesky",
+      "max_iter": 100,
+      "tol": 1e-10,
+      "class_weight": "balanced",
+      "nonconvergence": "unavailable"
+    },
+    "shallow3_hgb": {
+      "source": "frozen matched_kt_split_v1.py learner_predict",
+      "learning_rate": 0.05,
+      "max_iter": 100,
+      "max_leaf_nodes": 3,
+      "min_samples_leaf": 40,
+      "l2_regularization": 1,
+      "early_stopping": false,
+      "random_state": 0
+    },
+    "random_forest_leaf7": {
+      "algorithm": "RandomForestClassifier",
+      "n_estimators": 256,
+      "max_leaf_nodes": 7,
+      "min_samples_leaf": 20,
+      "max_features": 1,
+      "bootstrap": true,
+      "class_weight": "balanced_subsample",
+      "random_state": 0,
+      "n_jobs": 1
+    }
+  },
+  "comparisons": {
+    "baseline_pair": [
+      "shallow3_hgb",
+      "standardized_isotropic_l2"
+    ],
+    "nonlinear_pair": [
+      "shallow3_hgb",
+      "random_forest_leaf7"
+    ],
+    "consensus": "same identical sharp state or abstain; unavailable if either unavailable"
+  },
+  "effort_regimes": {
+    "unavailable": {
+      "sampled_effort_supplied": false,
+      "ecological_features": "all registered ecological predictors only"
+    },
+    "known_effort_upper_bound": {
+      "sampled_effort_supplied": true,
+      "extra_covariate": "log(sampled-cell sampling_effort), simulation-privileged but not suitability or process-state truth",
+      "knockout": "retain known_effort covariate in all full and process knockouts",
+      "estimand_note": "different representation universe; safety sensitivity not like-for-like identification accuracy against no-effort ODO"
+    }
+  },
+  "full_system_gate": {
+    "score": "spatial or random-cell cross-validated balanced presence/background log score",
+    "adequacy_floor": -0.75,
+    "gain_over_uniform": 0.01,
+    "permutations": 999,
+    "permutation_seed": 0,
+    "alpha": 0.001
+  },
+  "state_rule": {
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "knockouts": "every registered carrier in the named process closure removed together, other ecological features retained",
+    "classifier": "frozen classify_process_state then identical closure abstention",
+    "numerically_invalid": "unavailable or unresolved as appropriate, never sharp"
+  },
+  "oracle": {
+    "source": "frozen evaluate_occurrence_oracle_states",
+    "n_splits": 3,
+    "split_mode": "random",
+    "margin": 0.01,
+    "sem_multiplier": 1,
+    "adequacy_floor": -0.75,
+    "approximation_tolerance": 0.01,
+    "max_iter": 250,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 20,
+    "learning_rate": 0.08,
+    "l2_regularization": 0.001,
+    "open": "after sha256-hashed finite receipt persisted, never used by learner",
+    "state_meaning": "approximate occurrence-distribution information state conditioned on simulator observation effort, not causal biological-process truth"
+  },
+  "primary_estimands": [
+    "both learners authorized across all 18 cases by split",
+    "positive ODO-state recovery under effort-unavailable baseline versus nonlinear-pair among all ODO positives",
+    "false positive among ODO-replaceable",
+    "overresolution among ODO-unresolved, especially observation_confounded",
+    "unavailable reference sharp violations",
+    "stable sharp coverage across all declared process cells"
+  ],
+  "secondary_estimands": [
+    "effort-known upper-bound sensitivity separately per learner pair; cannot claim like-for-like oracle accuracy because effort feature changes process information universe",
+    "per-world results incl interaction and observed confounding",
+    "random-cell vs spatial contrast within each identical world+seed",
+    "single-learner HGB and Random Forest performance, descriptive only"
+  ],
+  "denominators": {
+    "cases": 18,
+    "processes_per_case": 6,
+    "oracle_target_cells": 108,
+    "cells_per_policy_split": 108,
+    "finite_fit_records": 4536,
+    "joint_pairs_per_case_split_effort": 2,
+    "declared_splits": 2,
+    "declared_effort_regimes": 2,
+    "declared_learners": 3,
+    "declared_model_routes_per_learner": 7,
+    "declared_folds": 3
+  },
+  "barriers": {
+    "real_plant_data_access": false,
+    "sealed_real_v5_holdout_access": false,
+    "original_v5_promotion": "failed_closed",
+    "original_M5_unchanged": true,
+    "strict_prespecified_seed_set": true,
+    "no_retroactive_design_change": true,
+    "no_model_selection_based_on_outcomes": true,
+    "pilot": "old seed 91001 allowed in a clearly development-only smoke; 92001-92003 never opened before source hash and final CI"
+  },
+  "analysis_limits": [
+    "HGB and RandomForest are both nonlinear but NOT capacity-equivalent; leaf budgets, ensembling and learning objectives differ",
+    "agreement does not imply independent errors because same occurrence/background and observation effort",
+    "observation-effort covariate is privileged from simulation and not generally measured in GBIF; effort-known results are only diagnostic bounds",
+    "simulator oracle reference is approximated and deliberately abstains under observation confounding; generating membership is a separate notion",
+    "6 worlds × 3 seeds is not sufficient for general plant ecology validation",
+    "DO NOT compare raw M5 71/80 or fresh-v5 16/300 as same estimand"
+  ],
+  "activation": "burned-seed smoke + tests; exact source SHA receipt; only then one-shot fresh seed opening and independent no-refit audit"
+}

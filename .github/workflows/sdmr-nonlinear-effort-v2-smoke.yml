@@ -1,0 +1,77 @@
+name: SDMR v2 nonlinear-effort burned-seed smoke
+on:
+  push:
+    branches: [development/sdmr-nonlinear-effort-v2]
+    paths: ['configs/sdmr_nonlinear_effort_v2_smoke.lock']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: sdmr-v2-nonlinear-effort-smoke
+  cancel-in-progress: false
+jobs:
+  burned_seed_smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        world: [interaction, observation_confounded]
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -e '.[test,parquet]'
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scipy==1.17.0 scikit-learn==1.8.0
+      - name: Run truth-blind unit tests and compile worker
+        run: |
+          python -m pytest -q tests/test_nonlinear_effort_core_v2.py tests/test_nonlinear_effort_aggregate_v2.py
+          python -m compileall -q experiments/nonlinear_effort_*.py
+      - name: Run burned seed 91001 only
+        run: >-
+          python experiments/nonlinear_effort_case_v2.py
+          --contract configs/sdmr_nonlinear_effort_v2_contract.json
+          --world ${{ matrix.world }}
+          --seed 91001
+          --output-dir build/case
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdmr-matched-kt-case-${{ matrix.world }}-91001
+          run-id: 38192262406
+          github-token: ${{ github.token }}
+          path: build/prior
+      - name: Require exact unchanged v1 baseline case and ODO identities
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('build/case/case.json').read_text())
+          f=json.loads(Path('build/case/finite_before_oracle.json').read_text())
+          b=json.loads(Path('build/prior/case.json').read_text())
+          assert a['prospective'] is False and a['seed']==b['seed']==91001
+          assert a['oracle']==b['oracle'], 'oracle reference changed from original known v1 case'
+          for mode in ('random_cell','spatial'):
+              for learner in ('shallow3_hgb','standardized_isotropic_l2'):
+                  route=f['learners'][mode]['unavailable'][learner]
+                  assert route['authorization']['authorized']==b['per_learner_authorization'][mode][learner],(mode,learner,'authorization mismatch')
+                  states={p['process']:p['state'] for p in route['states']}
+                  assert states==b['per_learner_states'][mode][learner],(mode,learner,'state mismatch')
+              assert a['consensus'][mode]['unavailable']['baseline_pair']==b['consensus'][mode]
+          assert not f['oracle_reference_read']
+          print('PASS: original v1 baseline reproduced on burned 91001, no new prospective seeds opened')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdmr-nonlinear-effort-v2-smoke-${{ matrix.world }}-91001
+          path: build/case/
+          retention-days: 90
+          if-no-files-found: warn
