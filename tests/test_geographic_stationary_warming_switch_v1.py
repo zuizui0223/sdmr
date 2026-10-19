@@ -58,4 +58,18 @@ def test_result_snapshot_exact():
     df=pd.read_csv(SOURCE)
     actual=mod.analyze(df,hashlib.sha256(SOURCE.read_bytes()).hexdigest())
     path=ROOT/"results/geographic_stationary_warming_switch_v1.json"
-    assert actual==json.loads(path.read_text())
+    # Different NumPy reduction orders can move only the final floating bits.
+    # Require exact scientific categories and schema, tolerant numerical equality.
+    def check(a, b):
+        if isinstance(a, dict):
+            assert isinstance(b, dict) and a.keys() == b.keys()
+            for key in a: check(a[key], b[key])
+        elif isinstance(a, list):
+            assert isinstance(b, list) and len(a) == len(b)
+            for x, y in zip(a, b): check(x, y)
+        elif isinstance(a, (float, int)) and not isinstance(a, bool):
+            assert isinstance(b, (float, int)) and not isinstance(b, bool)
+            assert a == pytest.approx(b, abs=1e-9, rel=1e-9)
+        else:
+            assert a == b
+    check(actual, json.loads(path.read_text()))
