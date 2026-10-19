@@ -40,3 +40,27 @@ python experiments/geographic_turnover_native_windows_v1.py \
 ```
 
 This study's output cannot be added to the completed Product-A/M5 denominators or used to re-promote Product B.
+
+## Executed 19 October 2026 — first public-data source receipts
+
+GitHub Actions run `39217679310` completed source extraction; archive artifact `12171000234`. The raw (unmodified) source receipt and 25-km sampled environmental-cell file are preserved under `evidence/geographic_turnover_native_source_v1/` so the exact biological *non-claim* is auditable. CHELSA returned **187/187** finite BIO1+BIO12 raster cells across all four fixed rectangles. GBIF source query statuses (source window counts, not populations):
+
+| Source rectangle | climate cells | GBIF focal indexed | full focal Search archive | accepted focal QC | matched 25-km cells | fixed sentinel archive status |
+|---|---:|---:|---|---:|---:|---|
+| *Quercus robur* DE | 30 | 329 | complete | 292 | 264 records | complete for all 3; sentinel cell coverage 30/30 |
+| *Quercus robur* SE | 24 | 3,660 | complete | 3,650 | 3,310 records | complete for all 3; coverage 24/24 |
+| *Pinus sylvestris* ES | 56 | 1,496 | complete | 537 | 529 records | complete for all 3; coverage 29/56 |
+| *Pinus sylvestris* FI | 77 | 11,340 | **not fetched; exceeds prereported 4,000 cap** | unavailable | unavailable | *Sorbus* 5,582 exceeds cap; other 2 archives complete |
+
+The 3/4 record archives are the **entire Search API result for that finite WKT×country×taxon×year query**, not a full GBIF global bulk download. GBIF record-level native versus planted origin is not known. `n_occ` zero was never inferred for *Pinus* Finland. The donor/source phenology mismatch (2010–2025 occurrences versus 1981–2010 long-term CHELSA climate) further bounds inference.
+
+The reproducible rectangular opportunity audit (`experiments/geographic_turnover_opportunity_receipt_v1.py`) shows:
+
+- *Quercus robur* source windows: Germany median BIO1 **8.45 °C** vs Sweden **6.55 °C**; raw temperature-range overlap **0.40 °C**; 6×6 pooled quantile climate-bin intersection **0.10**.
+- *Pinus sylvestris* source windows: Spain median BIO1 **11.75 °C** vs Finland **3.65 °C**; **no overlap** in observed window BIO1 ranges (Spain 8.55–14.95 °C, Finland 2.75–4.55 °C). Bin overlap is coarse and should *not* be interpreted as literal axis intersection.
+
+All values describe environmental **availability within arbitrarily fixed survey rectangles**, not sampled thermal niches or biological tolerances. The result proves that a strict cross-region common-thermal-support requirement would exclude the fixed *Pinus* ES/FI pair, even though both regions are in the species' native range. This is a concrete **source-geometry eligibility** result, not a test of evolution.
+
+A **post-source diagnostic** was also run on the fully retrieved *Quercus* windows using the fixed three-sentinel plant record density as a candidate effort proxy. It returned **no observed direction reversal** of temperature-versus-moisture held-out information gain; raw contrast spread `0.10156 nats/record`, null median `0.44626`, uncalibrated bootstrap tail `1.0` (99 replicates). Because process ablations had negative held-out gains, the joint climate-bin overlap was only 0.10, and effort/wild-origin/M assumptions are not validated, this cannot support biological process constancy or reject a niche change. The result is **post-source, not confirmatory**, with all caveats in `results/geographic_turnover_quercus_real_postsource_v1.json`.
+
+The single Finnish source capacity issue is pursued in a separately recorded, source-only `v1b` retrieval contract, **not** by changing the original v1 evidence or any ecological model after observing an effect. The v1b contract retains the exact original *Pinus* Finland rectangle and only raises the API finite-diagnostic retrieval cap to 15,000; the first v1 scientific conclusion remains `macro_inference_blocked=true`.
