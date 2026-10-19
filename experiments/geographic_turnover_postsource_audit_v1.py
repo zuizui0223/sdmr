@@ -9,6 +9,7 @@ as a prospective biological finding.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import hashlib
 import json
 from pathlib import Path
@@ -17,7 +18,16 @@ import numpy as np
 import pandas as pd
 from scipy.special import logsumexp
 
-from experiments import geographic_driver_turnover_v0 as model
+# `experiments/` is deliberately not an installed Python package. Load the
+# sibling module by path so both `pytest` and `python -m pytest` work in CI.
+_spec = importlib.util.spec_from_file_location(
+    "geographic_driver_turnover_v0_postsource",
+    Path(__file__).with_name("geographic_driver_turnover_v0.py"),
+)
+if _spec is None or _spec.loader is None:
+    raise ImportError("Cannot locate frozen geographic_driver_turnover_v0.py")
+model = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(model)
 
 # Sensitivity alternatives, NOT estimators of true collection effort.
 EFFORT_EXPONENTS = (0.0, 0.5, 1.0)

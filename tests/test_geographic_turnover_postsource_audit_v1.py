@@ -2,15 +2,22 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from experiments import geographic_turnover_postsource_audit_v1 as post
-
 ROOT = Path(__file__).resolve().parents[1]
+_spec = importlib.util.spec_from_file_location(
+    "geographic_turnover_postsource_audit_v1_tests",
+    ROOT / "experiments" / "geographic_turnover_postsource_audit_v1.py",
+)
+if _spec is None or _spec.loader is None:
+    raise ImportError("Missing postsource audit module")
+post = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(post)
 SOURCE = ROOT / "evidence" / "geographic_turnover_native_source_v1"
 
 
