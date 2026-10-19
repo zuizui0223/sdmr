@@ -7,9 +7,15 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from experiments import geographic_constraint_switch_geometry_v1 as mod
+import importlib.util
 
 ROOT=Path(__file__).resolve().parents[1]
+_spec=importlib.util.spec_from_file_location(
+    "geographic_constraint_switch_geometry_v1",
+    ROOT / "experiments" / "geographic_constraint_switch_geometry_v1.py",
+)
+mod=importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(mod)
 SOURCE=ROOT/'evidence/geographic_turnover_native_source_v1/available_climate_cells.csv'
 
 
