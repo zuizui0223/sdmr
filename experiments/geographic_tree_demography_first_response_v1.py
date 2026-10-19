@@ -53,7 +53,9 @@ def validate_contract(contract:dict,successor:dict,crosswalk:dict)->dict:
     req=sorted(ref.canonical_code(x) for x in contract['nominated_species_codes'])
     if elig!=req or len(req)!=13:raise ValueError('frozen response species cohort is not source-derived')
     names={ref.canonical_code(s['source_spcd_normalized']):s['scientific_name']
-           for s in crosswalk['candidate_crosswalk']['taxa'] if s['status']=='official_reference_matched'}
+           for s in crosswalk['candidate_crosswalk']['taxa']
+           if s['status']=='official_reference_matched' and
+           ref.canonical_code(s['source_spcd_normalized']) in req}
     if any(s not in names for s in req):raise ValueError('missing official taxon name crosswalk')
     return {"species_codes":req,"official_names":names,"sha_by_state":expected}
 
