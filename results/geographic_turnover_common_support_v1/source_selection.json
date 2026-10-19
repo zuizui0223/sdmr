@@ -1,0 +1,945 @@
+{
+  "analysis": "geographic_turnover_common_support_v1",
+  "candidates": [
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.44126984126984126,
+      "environment_overlap_bins8": 0.4126984126984127,
+      "geographic_separation_km": 254.71098647894317,
+      "n_available_cells_a": 63,
+      "n_available_cells_b": 70,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.8571428571428571,
+        "from_b": 0.5857142857142857,
+        "minimum": 0.5857142857142857,
+        "status": "ok"
+      },
+      "reasons": [
+        "geographic_distance_below_minimum"
+      ],
+      "region_a": "quercus_FR_NE",
+      "region_b": "quercus_DE_SW",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 617.4844758583171,
+      "n_available_cells_a": 63,
+      "n_available_cells_b": 40,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_FR_NE",
+      "region_b": "quercus_CZ_NW",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 807.9632326086868,
+      "n_available_cells_a": 63,
+      "n_available_cells_b": 60,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_FR_NE",
+      "region_b": "quercus_PL_W",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.19444444444444442,
+      "environment_overlap_bins8": 0.1259920634920635,
+      "geographic_separation_km": 333.4287890425316,
+      "n_available_cells_a": 63,
+      "n_available_cells_b": 48,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.30158730158730157,
+        "from_b": 0.9583333333333334,
+        "minimum": 0.30158730158730157,
+        "status": "ok"
+      },
+      "reasons": [
+        "geographic_distance_below_minimum",
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_FR_NE",
+      "region_b": "quercus_NL_E",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.1392857142857143,
+      "environment_overlap_bins8": 0.07857142857142857,
+      "geographic_separation_km": 373.2801631379451,
+      "n_available_cells_a": 70,
+      "n_available_cells_b": 40,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.2,
+        "from_b": 0.475,
+        "minimum": 0.2,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_DE_SW",
+      "region_b": "quercus_CZ_NW",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.11428571428571428,
+      "environment_overlap_bins8": 0.04285714285714286,
+      "geographic_separation_km": 590.2185148221259,
+      "n_available_cells_a": 70,
+      "n_available_cells_b": 60,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.17142857142857143,
+        "from_b": 0.43333333333333335,
+        "minimum": 0.17142857142857143,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_DE_SW",
+      "region_b": "quercus_PL_W",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.1988095238095238,
+      "environment_overlap_bins8": 0.14821428571428572,
+      "geographic_separation_km": 362.65430753727736,
+      "n_available_cells_a": 70,
+      "n_available_cells_b": 48,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.4,
+        "from_b": 1.0,
+        "minimum": 0.4,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum"
+      ],
+      "region_a": "quercus_DE_SW",
+      "region_b": "quercus_NL_E",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.11666666666666667,
+      "environment_overlap_bins8": 0.11666666666666667,
+      "geographic_separation_km": 252.27981743357302,
+      "n_available_cells_a": 40,
+      "n_available_cells_b": 60,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.3,
+        "from_b": 0.55,
+        "minimum": 0.3,
+        "status": "ok"
+      },
+      "reasons": [
+        "geographic_distance_below_minimum",
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_CZ_NW",
+      "region_b": "quercus_PL_W",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 547.1578838835421,
+      "n_available_cells_a": 40,
+      "n_available_cells_b": 48,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_CZ_NW",
+      "region_b": "quercus_NL_E",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 638.2451711494392,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 48,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "quercus_PL_W",
+      "region_b": "quercus_NL_E",
+      "taxon": "Quercus robur"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.35,
+      "environment_overlap_bins8": 0.25,
+      "geographic_separation_km": 232.9029345247501,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 60,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.48333333333333334,
+        "from_b": 0.65,
+        "minimum": 0.48333333333333334,
+        "status": "ok"
+      },
+      "reasons": [
+        "geographic_distance_below_minimum"
+      ],
+      "region_a": "pinus_DE_NE",
+      "region_b": "pinus_PL_NW",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.03666666666666667,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 515.7179827997446,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 50,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.03333333333333333,
+        "from_b": 0.02,
+        "minimum": 0.02,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_DE_NE",
+      "region_b": "pinus_SE_S",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.03333333333333333,
+      "environment_overlap_bins8": 0.03333333333333333,
+      "geographic_separation_km": 1115.4260265598234,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 50,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_DE_NE",
+      "region_b": "pinus_FI_SW",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 723.4519239194938,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 70,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_DE_NE",
+      "region_b": "pinus_FR_NE",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.02,
+      "environment_overlap_bins8": 0.016666666666666666,
+      "geographic_separation_km": 423.05192117742683,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 50,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.2833333333333333,
+        "from_b": 0.02,
+        "minimum": 0.02,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_PL_NW",
+      "region_b": "pinus_SE_S",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.05,
+      "environment_overlap_bins8": 0.03666666666666667,
+      "geographic_separation_km": 917.040276610566,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 50,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_PL_NW",
+      "region_b": "pinus_FI_SW",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 946.650242473036,
+      "n_available_cells_a": 60,
+      "n_available_cells_b": 70,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_PL_NW",
+      "region_b": "pinus_FR_NE",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 687.5857914883677,
+      "n_available_cells_a": 50,
+      "n_available_cells_b": 50,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_SE_S",
+      "region_b": "pinus_FI_SW",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.054285714285714284,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 1183.4061364610268,
+      "n_available_cells_a": 50,
+      "n_available_cells_b": 70,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_SE_S",
+      "region_b": "pinus_FR_NE",
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible": false,
+      "environment_overlap_bins6": 0.0,
+      "environment_overlap_bins8": 0.0,
+      "geographic_separation_km": 1833.0760353818107,
+      "n_available_cells_a": 50,
+      "n_available_cells_b": 70,
+      "n_spatial_blocks_a": 4,
+      "n_spatial_blocks_b": 4,
+      "nearest_shared_environment": {
+        "from_a": 0.0,
+        "from_b": 0.0,
+        "minimum": 0.0,
+        "status": "ok"
+      },
+      "reasons": [
+        "primary_environment_overlap_below_minimum",
+        "sensitivity_environment_overlap_below_minimum",
+        "nearest_environment_coverage_below_minimum"
+      ],
+      "region_a": "pinus_FI_SW",
+      "region_b": "pinus_FR_NE",
+      "taxon": "Pinus sylvestris"
+    }
+  ],
+  "config_file_sha256": "4ea1cd4cd76ef3886027e5a182e8e48f0e7c909add04d9d9246149cb6ac6f0c0",
+  "n_declared_windows": 10,
+  "n_eligible_pairs": 0,
+  "n_pairs": 20,
+  "paired_environment_only": true,
+  "selected_per_taxon": [
+    {
+      "eligible_pair_count": 0,
+      "selected_pair": null,
+      "source_only": true,
+      "taxon": "Pinus sylvestris"
+    },
+    {
+      "eligible_pair_count": 0,
+      "selected_pair": null,
+      "source_only": true,
+      "taxon": "Quercus robur"
+    }
+  ],
+  "selection_uses_occurrence_or_effort": false,
+  "source_boundary": "available-climate rectangles only; not taxon accessible M or ecological drivers",
+  "source_windows": [
+    {
+      "country": "FR",
+      "n_climate_complete_cells": 63,
+      "n_geometry_cells": 63,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "quercus_FR_NE",
+      "status": "climate_complete",
+      "taxon": "Quercus robur",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "DE",
+      "n_climate_complete_cells": 70,
+      "n_geometry_cells": 70,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "quercus_DE_SW",
+      "status": "climate_complete",
+      "taxon": "Quercus robur",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "CZ",
+      "n_climate_complete_cells": 40,
+      "n_geometry_cells": 40,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "quercus_CZ_NW",
+      "status": "climate_complete",
+      "taxon": "Quercus robur",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "PL",
+      "n_climate_complete_cells": 60,
+      "n_geometry_cells": 60,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "quercus_PL_W",
+      "status": "climate_complete",
+      "taxon": "Quercus robur",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "NL",
+      "n_climate_complete_cells": 48,
+      "n_geometry_cells": 48,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "quercus_NL_E",
+      "status": "climate_complete",
+      "taxon": "Quercus robur",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "DE",
+      "n_climate_complete_cells": 60,
+      "n_geometry_cells": 60,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "pinus_DE_NE",
+      "status": "climate_complete",
+      "taxon": "Pinus sylvestris",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "PL",
+      "n_climate_complete_cells": 60,
+      "n_geometry_cells": 60,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "pinus_PL_NW",
+      "status": "climate_complete",
+      "taxon": "Pinus sylvestris",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "SE",
+      "n_climate_complete_cells": 50,
+      "n_geometry_cells": 50,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "pinus_SE_S",
+      "status": "climate_complete",
+      "taxon": "Pinus sylvestris",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "FI",
+      "n_climate_complete_cells": 50,
+      "n_geometry_cells": 50,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "pinus_FI_SW",
+      "status": "climate_complete",
+      "taxon": "Pinus sylvestris",
+      "uses_gbif_occurrences": false
+    },
+    {
+      "country": "FR",
+      "n_climate_complete_cells": 70,
+      "n_geometry_cells": 70,
+      "native_country_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1",
+      "raster_provenance": [
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": -273.15,
+          "predictor": "temperature",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio1_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        },
+        {
+          "crs": "EPSG:4326",
+          "height": 20880,
+          "nodata": null,
+          "offset": 0.0,
+          "predictor": "moisture",
+          "resolution_x": 0.0083333333,
+          "resolution_y": 0.0083333333,
+          "sampling_engine": "native_block_grouped_exact_pixel",
+          "scale": 0.1,
+          "sha256": "",
+          "source": "CHELSA-bioclim",
+          "uri": "https://os.zhdk.cloud.switch.ch/chelsav2/GLOBAL/climatologies/1981-2010/bio/CHELSA_bio12_1981-2010_V.2.1.tif",
+          "version": "2.1",
+          "width": 43200
+        }
+      ],
+      "region": "pinus_FR_NE",
+      "status": "climate_complete",
+      "taxon": "Pinus sylvestris",
+      "uses_gbif_occurrences": false
+    }
+  ]
+}
