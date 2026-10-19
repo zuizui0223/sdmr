@@ -39,6 +39,8 @@ def test_frozen_species_and_verified_sha_from_source_receipts():
     out=mod.validate_contract(c,wi,cw)
     assert len(out['species_codes'])==13
     assert out['official_names']['316']=='Acer rubrum'
+    assert len(out['official_names'])==13
+    assert set(out['species_codes']) == set(out['official_names'])
     assert out['sha_by_state']['RI'].startswith('222098c7')
     assert c['min_interval_years']==1
 
