@@ -1,10 +1,6 @@
 name: fia-plot-condition-source-v1
+# Preserved source-opening workflow. External DataMart ZIPs can drift; run manually only.
 on:
-  pull_request:
-    paths:
-      - 'experiments/fia_plot_condition_source_gate_v1.py'
-      - 'tests/test_fia_plot_condition_source_gate_v1.py'
-      - '.github/workflows/fia-plot-condition-source-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read
