@@ -1,0 +1,36 @@
+name: fia-habitat-structure-extension-v1
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_basaldensity_moisture_context_v1.py'
+      - 'tests/test_fia_basaldensity_moisture_context_v1.py'
+      - 'configs/fia_habitat_structure_extension_v1.json'
+      - '.github/workflows/fia-habitat-structure-extension-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-identical-habitat-extension:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline structural/physiography test and source freeze
+        run: python -m pip install pytest && python -m pytest -q tests/test_fia_basaldensity_moisture_context_v1.py
+      - name: Reuse only source-identical 9 USDA state ZIPs
+        run: |
+          python experiments/fia_basaldensity_moisture_context_v1.py \
+            --config configs/fia_habitat_structure_extension_v1.json \
+            --plot-cond evidence/fia_plot_condition_source_v1.json \
+            --first-tree evidence/fia_new_source_stand_context_v1/aggregate.json \
+            --output artifacts/fia_habitat_structure_extension_v1.json
+      - name: Store bounded ecological context aggregate and source-identity failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-habitat-structure-extension-v1
+          path: artifacts/fia_habitat_structure_extension_v1.json
+          if-no-files-found: warn
