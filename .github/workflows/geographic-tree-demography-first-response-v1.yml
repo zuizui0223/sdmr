@@ -1,15 +1,8 @@
 name: geographic-tree-demography-first-response-v1
 
+# Historical source re-download is MANUAL ONLY: mutable upstream ZIPs may drift.
+# Normal PR CI uses the committed, source-hash-pinned aggregate and synthesis.
 on:
-  pull_request:
-    paths:
-      - 'experiments/geographic_tree_demography_first_response_v1.py'
-      - 'tests/test_geographic_tree_demography_first_response_v1.py'
-      - 'configs/geographic_tree_demography_first_response_v1.json'
-      - 'evidence/geographic_tree_demography_source_gate_v1/fia_wi_size_cap_successor_v2.json'
-      - 'evidence/geographic_tree_demography_source_gate_v1/fia_official_species_crosswalk.json'
-      - 'docs/GEOGRAPHIC_TREE_DEMOGRAPHY_FIRST_RESPONSE_V1.md'
-      - '.github/workflows/geographic-tree-demography-first-response-v1.yml'
   workflow_dispatch:
 
 permissions:
