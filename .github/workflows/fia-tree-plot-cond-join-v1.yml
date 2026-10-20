@@ -1,12 +1,6 @@
 name: fia-tree-plot-cond-join-v1
+# Preserved source-opening workflow. External DataMart ZIPs can drift; run manually only.
 on:
-  pull_request:
-    paths:
-      - 'experiments/fia_tree_plot_condition_join_v1.py'
-      - 'tests/test_fia_tree_plot_condition_join_v1.py'
-      - 'configs/fia_tree_plot_condition_join_v1.json'
-      - 'evidence/fia_plot_condition_source_v1.json'
-      - '.github/workflows/fia-tree-plot-cond-join-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read
