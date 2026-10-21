@@ -61,4 +61,22 @@ def test_schema_hash_and_denominator_do_not_allow_silent_rescue():
 def test_snapshot_reproduction_exact():
     raw=DATA.read_bytes();observed=mod.inspect(json.loads(raw),byte_sha=hashlib.sha256(raw).hexdigest())
     expected=json.loads((ROOT/'results/fia_new_source_stand_context_synthesis_v1.json').read_text())
-    assert observed==expected
+    # Preserve every categorical label, count, schema key and denominator
+    # exactly; only tolerate machine-dependent last-bit floating reductions.
+    def compare(actual, archived):
+        if isinstance(actual, dict):
+            assert isinstance(archived, dict) and actual.keys() == archived.keys()
+            for key in actual:
+                compare(actual[key], archived[key])
+        elif isinstance(actual, list):
+            assert isinstance(archived, list) and len(actual) == len(archived)
+            for left, right in zip(actual, archived):
+                compare(left, right)
+        elif isinstance(actual, float) or isinstance(archived, float):
+            assert isinstance(actual, (float, int)) and not isinstance(actual, bool)
+            assert isinstance(archived, (float, int)) and not isinstance(archived, bool)
+            assert actual == pytest.approx(archived, rel=1e-10, abs=1e-12)
+        else:
+            assert type(actual) is type(archived) and actual == archived
+
+    compare(observed, expected)
