@@ -23,6 +23,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install test runner
+        run: python -m pip install 'pytest>=8,<10'
       - name: Run archive-only biological-denominator and sensitivity tests
         run: python -m pytest -q tests/test_fia_habitat_archived_synthesis_v1.py
       - name: Recompute from SHA-256-pinned aggregate, without external source requests
