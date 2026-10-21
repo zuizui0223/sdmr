@@ -1,11 +1,7 @@
 name: fia-habitat-structure-extension-v1
+# Original live-source nine-ZIP replay is intentionally manual-only.
+# Current DataMart files may change; CI uses the SHA-256-pinned archive above.
 on:
-  pull_request:
-    paths:
-      - 'experiments/fia_basaldensity_moisture_context_v1.py'
-      - 'tests/test_fia_basaldensity_moisture_context_v1.py'
-      - 'configs/fia_habitat_structure_extension_v1.json'
-      - '.github/workflows/fia-habitat-structure-extension-v1.yml'
   workflow_dispatch:
 permissions:
   contents: read
