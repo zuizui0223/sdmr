@@ -79,3 +79,39 @@ def test_no_rhode_island_mesic_xeric_support():
     assert x['species_with_sign_reversal_VA_WI']==4
     assert x['region_counts']['VA']=={'estimable':11,'positive':6}
     assert x['region_counts']['WI']=={'estimable':10,'positive':6}
+
+
+def test_within_state_density_gradient_contrasts_are_recomputed():
+    source=mod.verify_source(SRC)
+    d=mod.matched_density_gradient(source['states'],minimum=10)
+    a,b,c=d['contrast_groups']
+    assert (a['n_species_states_higher_density_growth_lower'],a['n_species_states'])==(27,27)
+    assert (b['n_species_states_higher_density_growth_lower'],b['n_species_states'])==(33,33)
+    assert (c['n_species_states_higher_density_growth_lower'],c['n_species_states'])==(27,27)
+    assert (a['n_strata_higher_density_growth_lower'],a['n_matched_strata'])==(225,244)
+    assert (b['n_strata_higher_density_growth_lower'],b['n_matched_strata'])==(337,385)
+    assert d['three_density_classes']['n_strict_monotone_decreases']==184
+    assert d['three_density_classes']['n_strata_with_all_three']==205
+
+
+def test_denser_strata_support_does_not_invent_independent_experiments():
+    x=mod.summarize(mod.verify_source(SRC))
+    d=x['within_state_density_gradient_sensitivity']
+    assert [r['minimum_live_to_live_pairs_per_density_group'] for r in d]==list(mod.THRESHOLDS)
+    assert [r['three_density_classes']['n_strata_with_all_three'] for r in d]==[205,140,118,83,43]
+    assert [r['three_density_classes']['n_strict_monotone_decreases'] for r in d]==[184,130,112,81,43]
+    assert all(q['n_strata_higher_density_growth_lower']<=q['n_matched_strata']
+               for z in d for q in z['contrast_groups'])
+
+
+def test_synthetic_density_strata_strictly_compares_source_classes():
+    states=[]
+    for st in mod.STATES:
+        classes={'1-<5|40-<80|0-<60|mesic':{'n':20,'mean_growth':.025},
+                 '1-<5|40-<80|60-<120|mesic':{'n':25,'mean_growth':.015},
+                 '1-<5|40-<80|120+|mesic':{'n':28,'mean_growth':.009}}
+        states.append({'state':st,'species':[{'spcd':'316','size_age_density_physio':classes}]})
+    z=mod.matched_density_gradient(states,minimum=10)
+    assert z['three_density_classes']['n_strict_monotone_decreases']==3
+    assert all(c['n_species_states_higher_density_growth_lower']==3 for c in z['contrast_groups'])
+    assert mod.matched_density_gradient(states,minimum=30)['three_density_classes']['n_strata_with_all_three']==0

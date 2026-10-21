@@ -4929,5 +4929,3440 @@
     ]
   },
   "source_file_sha256": "2534ee724e177c15a9399b6d538f0cbdb765bfe018d21cc73ee2a9575917bb62",
-  "study": "fia_habitat_archived_synthesis_v1"
+  "study": "fia_habitat_archived_synthesis_v1",
+  "within_state_density_gradient_sensitivity": [
+    {
+      "contrast_groups": [
+        {
+          "higher_density_class": "60-<120",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 149543,
+          "n_matched_strata": 244,
+          "n_species_states": 27,
+          "n_species_states_higher_density_growth_lower": 27,
+          "n_strata_higher_density_growth_lower": 225,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.00895975205495479,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 461,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.005684507100417111,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 108,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0053741212269747575,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 84,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.015621221244344554,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 2682,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.020743896165170573,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1160,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.015233975126866897,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 45,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009966717467242266,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 18,
+              "n_pairs": 13523,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007663261434243588,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 1308,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01204710890213032,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 1808,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004459407230005881,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 837,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.014182673681756224,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 2167,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006796085483450632,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 8220,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0033570077079335863,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1557,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009946194802632344,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1400,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002646756034280538,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 716,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.017701861485260123,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 25,
+              "n_pairs": 7155,
+              "n_strata_higher_density_growth_lower": 21,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008229849162814249,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1448,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007000329641289249,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 23,
+              "n_pairs": 37462,
+              "n_strata_higher_density_growth_lower": 21,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007554740193522803,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 28707,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004441725156241407,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 3668,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009083236738772437,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 115,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010083108357878744,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 3682,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.013665682928887507,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 7422,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007406069714144301,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 6985,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005097354033044124,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 4952,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007469647347671874,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 8340,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005931284345490111,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 3531,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "60-<120",
+          "n_matched_source_pairs": 265460,
+          "n_matched_strata": 385,
+          "n_species_states": 33,
+          "n_species_states_higher_density_growth_lower": 33,
+          "n_strata_higher_density_growth_lower": 337,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.00335370886210656,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 621,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "129",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.005384227045513494,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 36,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0023454938526282737,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 2072,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.009688278667690503,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 73,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "371",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0012095685714938018,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 330,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0009166209703018112,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 465,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "833",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0020358261066300274,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 335,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.004467172663798579,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 4054,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006257246428594157,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 18,
+              "n_pairs": 5984,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0031227549855415886,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 1558,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0025018994840631786,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 27,
+              "n_pairs": 29771,
+              "n_strata_higher_density_growth_lower": 24,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0024581029159299883,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 3957,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.011969292719709118,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 177,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "371",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0021990173935842383,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 5837,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0029730808091470514,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 2445,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006370729453380996,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 60,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "743",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004785719111326799,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 3037,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001879454669783112,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 16962,
+              "n_strata_higher_density_growth_lower": 19,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001966316134942038,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 7650,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001434378782490796,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 17,
+              "n_pairs": 4949,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.003443109608475062,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 567,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008093754965489364,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 26,
+              "n_pairs": 11200,
+              "n_strata_higher_density_growth_lower": 23,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0037883770758602017,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 6781,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0034639150427514696,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 24,
+              "n_pairs": 52857,
+              "n_strata_higher_density_growth_lower": 22,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0032024502728864516,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 13,
+              "n_pairs": 47252,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002853842364482645,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 7000,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005582806172561645,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 708,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003589942880232342,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 5865,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005698831233362833,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 13,
+              "n_pairs": 10634,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0034614753601065642,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 6567,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0014666534106209203,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 7085,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0036164335993919064,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 15063,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0026061174109322928,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 3508,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 127189,
+          "n_matched_strata": 205,
+          "n_species_states": 27,
+          "n_species_states_higher_density_growth_lower": 27,
+          "n_strata_higher_density_growth_lower": 196,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.012191314492701544,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 317,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.007522334335807903,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 83,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.009730216829881181,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 54,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.020478400240599316,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2173,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.023083802428577903,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 1316,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.02684067258899476,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 50,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.010838674676840344,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 18,
+              "n_pairs": 17314,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009927850888213664,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 989,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.015399514494970663,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 1925,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.008595409336972672,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 873,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01881913703931854,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 1705,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007502629105487976,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 8019,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00542640724257046,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1921,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.010932619235202303,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1052,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0065499492065055264,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 396,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.02306178123163698,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 6480,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01417511513990899,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 4213,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01032688878301757,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 19,
+              "n_pairs": 27478,
+              "n_strata_higher_density_growth_lower": 19,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010525905594962257,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 22979,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.006888370972964215,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 3532,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01264412911655728,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 77,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012821880591903775,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2627,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.016995145751656553,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 5582,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.011019289386116574,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 3522,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005278791519284901,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 3165,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010230692881750476,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 7906,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007788321497780055,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 1441,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        }
+      ],
+      "interpretation_boundary": "post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments",
+      "minimum_live_to_live_pairs_per_density_group": 10,
+      "three_density_classes": {
+        "n_strata_with_all_three": 205,
+        "n_strict_monotone_decreases": 184,
+        "species_states_with_all_three": 27
+      }
+    },
+    {
+      "contrast_groups": [
+        {
+          "higher_density_class": "60-<120",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 139381,
+          "n_matched_strata": 169,
+          "n_species_states": 22,
+          "n_species_states_higher_density_growth_lower": 22,
+          "n_strata_higher_density_growth_lower": 161,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.01631164100952366,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 2241,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.019615158461538374,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 696,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00997588513131253,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 13,
+              "n_pairs": 12508,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.008418662441764226,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 785,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.010215205732123688,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1563,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004459407230005881,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 837,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.013878108634011696,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 1906,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0066603965015994025,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7554,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0043439235577616645,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 972,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.005590392029130274,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 239,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0033450661477391615,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 601,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01721025534633958,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 19,
+              "n_pairs": 6703,
+              "n_strata_higher_density_growth_lower": 18,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008936796286444115,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 493,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007009632605137421,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 22,
+              "n_pairs": 37429,
+              "n_strata_higher_density_growth_lower": 21,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007554740193522803,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 28707,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.00442235074585494,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3030,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010083108357878744,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 3682,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.013825360136288094,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7133,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007329590988776749,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 6921,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004932083559303448,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 4201,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007191690149102887,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7987,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0064989438222004285,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 3193,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "60-<120",
+          "n_matched_source_pairs": 262347,
+          "n_matched_strata": 328,
+          "n_species_states": 30,
+          "n_species_states_higher_density_growth_lower": 30,
+          "n_strata_higher_density_growth_lower": 294,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.00335370886210656,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 621,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "129",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.002441508060602431,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 1963,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.009688278667690503,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 73,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "371",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0012095685714938018,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 330,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0009573280257074472,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 424,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "833",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0024567507058301154,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 276,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.004459103357733364,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 4011,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006257246428594157,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 18,
+              "n_pairs": 5984,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.003065074615642568,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 1497,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002466599548483352,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 22,
+              "n_pairs": 29297,
+              "n_strata_higher_density_growth_lower": 20,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0024652460142156767,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 3852,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0022322140900643533,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 5687,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002981733372319966,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 2377,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004938958464445725,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 2919,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0018549746565602184,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 17,
+              "n_pairs": 16857,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0017581279429910739,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 17,
+              "n_pairs": 7446,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0014797669740154327,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 4844,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0034918468370977065,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 478,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007810534714640198,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 24,
+              "n_pairs": 11047,
+              "n_strata_higher_density_growth_lower": 21,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0037883770758602017,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 6781,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0034647956177947547,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 23,
+              "n_pairs": 52824,
+              "n_strata_higher_density_growth_lower": 21,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003212101939139719,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 47069,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002878356246864647,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 6954,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005582806172561645,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 708,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0036048956673706534,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 5751,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005652285211990662,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 10557,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0035516177338385233,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 6521,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0014997841848951707,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 6792,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0036674104385635417,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 14965,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002609935902434024,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 3442,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 113910,
+          "n_matched_strata": 140,
+          "n_species_states": 22,
+          "n_species_states_higher_density_growth_lower": 22,
+          "n_strata_higher_density_growth_lower": 138,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.02033667211033348,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1691,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.022668936991915675,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 658,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.011017473115412,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 13,
+              "n_pairs": 15460,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01145844875514615,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 559,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01274166748410574,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1550,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.008595409336972672,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 873,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.019414616390380057,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1368,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0074074622328372435,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7522,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.005467952037718747,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 836,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.012508256274638179,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 141,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007087380132026944,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 326,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.022461877720145743,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 6210,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012586865621003892,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 886,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01032688878301757,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 19,
+              "n_pairs": 27478,
+              "n_strata_higher_density_growth_lower": 19,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010552608036181665,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 22931,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007759864047470835,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2568,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012821880591903775,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2627,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.016969123196370135,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 5256,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.011274185908646749,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3459,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004951774392067201,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 2655,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009973294869349336,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7654,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.00800971859461299,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 1202,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        }
+      ],
+      "interpretation_boundary": "post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments",
+      "minimum_live_to_live_pairs_per_density_group": 20,
+      "three_density_classes": {
+        "n_strata_with_all_three": 140,
+        "n_strict_monotone_decreases": 130,
+        "species_states_with_all_three": 22
+      }
+    },
+    {
+      "contrast_groups": [
+        {
+          "higher_density_class": "60-<120",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 134284,
+          "n_matched_strata": 137,
+          "n_species_states": 22,
+          "n_species_states_higher_density_growth_lower": 22,
+          "n_strata_higher_density_growth_lower": 132,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.01631164100952366,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 2241,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0264237256824741,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 455,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009786006015773199,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 12430,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.008418662441764226,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 785,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.010215205732123688,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1563,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004900299395960058,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 670,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01468525626743732,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1639,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006300325670928246,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 6520,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0013065328907688953,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 269,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.005590392029130274,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 239,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00290625896922505,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 457,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.016975193190719495,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 15,
+              "n_pairs": 6330,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009479890296529205,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 433,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.006983872040074942,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 37286,
+              "n_strata_higher_density_growth_lower": 19,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007554740193522803,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 28707,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0039585520949715755,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 2550,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010231665353568276,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3627,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01395750581639894,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 7039,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007446078203575872,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 6653,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004888817154480251,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 4008,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007191690149102887,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7987,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.006884945326545358,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2396,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "60-<120",
+          "n_matched_source_pairs": 259211,
+          "n_matched_strata": 290,
+          "n_species_states": 30,
+          "n_species_states_higher_density_growth_lower": 30,
+          "n_strata_higher_density_growth_lower": 265,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.00335370886210656,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 621,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "129",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.002685173804270034,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 1874,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.009688278667690503,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 73,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "371",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0013474870046095491,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 271,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0009573280257074472,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 424,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "833",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0024567507058301154,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 276,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0044131895678642934,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 3842,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006479616336241912,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 5805,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0022515253003740367,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 1381,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002466599548483352,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 22,
+              "n_pairs": 29297,
+              "n_strata_higher_density_growth_lower": 20,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0024678494715551966,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 3608,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0022768156778486914,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 5580,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0029082394149443106,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 2187,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004927757141472687,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2836,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001841865095666026,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 16803,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0016878045309390297,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 7281,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001495848836165083,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 4592,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0037437326626436197,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 425,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007730475516841948,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 10753,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002872849059074737,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 6418,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003448716491125907,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 22,
+              "n_pairs": 52617,
+              "n_strata_higher_density_growth_lower": 20,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003212101939139719,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 47069,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002878356246864647,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 6954,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005657520798850432,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 658,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0036048956673706534,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 5751,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005480290150719214,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 11,
+              "n_pairs": 10445,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0035516177338385233,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 6521,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.001478139686577696,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 6582,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003674601759804801,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 14922,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002108720929594859,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 3345,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 109468,
+          "n_matched_strata": 118,
+          "n_species_states": 22,
+          "n_species_states_higher_density_growth_lower": 22,
+          "n_strata_higher_density_growth_lower": 118,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.02033667211033348,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1691,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0336868809504057,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 358,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.010891168254339594,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 15393,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.011008627462677108,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 492,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01274166748410574,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1550,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009791819332434015,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 582,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.020527513016710564,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1274,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00664266048640437,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 6449,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007599689830278807,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 202,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.012508256274638179,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 141,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007080933920458721,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 260,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.024255554398113624,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 5528,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012586865621003892,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 886,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010161120458744713,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 27223,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010552608036181665,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 22931,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0069707863495475164,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 2016,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012821880591903775,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2627,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.017213834709561976,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 5147,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.011274185908646749,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3459,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004695236534565491,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 2571,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009973294869349336,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 7654,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008846722668002543,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1034,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        }
+      ],
+      "interpretation_boundary": "post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments",
+      "minimum_live_to_live_pairs_per_density_group": 30,
+      "three_density_classes": {
+        "n_strata_with_all_three": 118,
+        "n_strict_monotone_decreases": 112,
+        "species_states_with_all_three": 22
+      }
+    },
+    {
+      "contrast_groups": [
+        {
+          "higher_density_class": "60-<120",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 121780,
+          "n_matched_strata": 97,
+          "n_species_states": 19,
+          "n_species_states_higher_density_growth_lower": 19,
+          "n_strata_higher_density_growth_lower": 93,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.01687396836160198,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 2120,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.025760894201711602,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 314,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.009882416043861761,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 9329,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0143631433223043,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 727,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0021149162641094406,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 260,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.016276830666014982,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1287,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007157067998256716,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 5379,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00394300772084441,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 359,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.017084851221637616,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 5542,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009479890296529205,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 433,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007026075834754998,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 36519,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0075673859388326594,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 28584,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002670327491524703,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1811,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009788189177487258,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 3089,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01523553531765798,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 6167,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007422008955032588,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 6568,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004406520964363888,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 3701,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007046980125999547,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 7287,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.006625006678338167,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 2304,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "60-<120",
+          "n_matched_source_pairs": 252021,
+          "n_matched_strata": 234,
+          "n_species_states": 29,
+          "n_species_states_higher_density_growth_lower": 29,
+          "n_strata_higher_density_growth_lower": 222,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.003451679625179313,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 403,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "129",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.00256344866733342,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 1481,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0018378272353907921,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 167,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "802",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.001141923655481014,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 289,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "833",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.0010382526181402143,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 158,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.00449760510335925,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3702,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006627822680030725,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 5555,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0027749478227757692,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1000,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002493786460754774,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 20,
+              "n_pairs": 29031,
+              "n_strata_higher_density_growth_lower": 20,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0024355890240154144,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 3528,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0022768156778486914,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 5580,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0032370903868316077,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 1941,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004927757141472687,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 2836,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001766985557714827,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 16591,
+              "n_strata_higher_density_growth_lower": 13,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0016922919218564719,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 6963,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0016174577247325271,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 4355,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0031379261996143104,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 309,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008021786279170938,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 10313,
+              "n_strata_higher_density_growth_lower": 15,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002989071964738574,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 6104,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003443355502294444,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 18,
+              "n_pairs": 52246,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003212101939139719,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 47069,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0028197832897165933,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 6459,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004003087975714629,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 381,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "531",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0037457827198729737,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 5225,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005623245250648897,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 10198,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0035516177338385233,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 6521,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0014843847339673557,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 6292,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0035030834118114375,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 14533,
+              "n_strata_higher_density_growth_lower": 12,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0019665231973091087,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 2791,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 94664,
+          "n_matched_strata": 83,
+          "n_species_states": 19,
+          "n_species_states_higher_density_growth_lower": 19,
+          "n_strata_higher_density_growth_lower": 83,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.020909881627348147,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1612,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.033759832838956755,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 282,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01019611994863038,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 10598,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.019270029945869262,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 464,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007216361054754492,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 139,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.02343653709142089,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 907,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007753939453837549,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 4990,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007080933920458721,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 260,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.024343052663152516,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 4694,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.012586865621003892,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 886,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.01023615396854253,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 14,
+              "n_pairs": 26538,
+              "n_strata_higher_density_growth_lower": 14,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010552608036181665,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 22931,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005041749006560703,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1204,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009856448326319036,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 1744,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.020036174468944994,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 3989,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.011274185908646749,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 3459,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004088192525328144,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 2404,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008802275818002518,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 6674,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007865896397721511,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 889,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        }
+      ],
+      "interpretation_boundary": "post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments",
+      "minimum_live_to_live_pairs_per_density_group": 50,
+      "three_density_classes": {
+        "n_strata_with_all_three": 83,
+        "n_strict_monotone_decreases": 81,
+        "species_states_with_all_three": 19
+      }
+    },
+    {
+      "contrast_groups": [
+        {
+          "higher_density_class": "60-<120",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 99380,
+          "n_matched_strata": 52,
+          "n_species_states": 15,
+          "n_species_states_higher_density_growth_lower": 15,
+          "n_strata_higher_density_growth_lower": 52,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.0204876828682929,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1539,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.012088499478339924,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 6440,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.016276830666014982,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1287,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006992799737886968,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 1131,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.00394300772084441,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 359,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.016071734284310364,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 4638,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007126052604886344,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 33653,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.006853924459604404,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 27241,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003001737227367896,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 1305,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010171099366005439,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1523,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.015296697481978058,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 6053,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008393394940505,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 5209,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0032922886311535942,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 2553,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.007529458512381659,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 5238,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008570458697128405,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1211,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "60-<120",
+          "n_matched_source_pairs": 235716,
+          "n_matched_strata": 163,
+          "n_species_states": 25,
+          "n_species_states_higher_density_growth_lower": 25,
+          "n_strata_higher_density_growth_lower": 160,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.00820121733484035,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 282,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "129",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.003659704743487472,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1002,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "316",
+              "state": "RI"
+            },
+            {
+              "high_minus_low_growth": -0.004831595531795686,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 2984,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.006801522804766395,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 4127,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "129",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0029372266216554656,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 807,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "261",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.002420575249388435,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 17,
+              "n_pairs": 28334,
+              "n_strata_higher_density_growth_lower": 17,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0024155082981675074,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 3028,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "318",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0019180518495315647,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 5212,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "531",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0046799501767654005,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1050,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "541",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.004915466764192011,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 2092,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0017888294509112578,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 12,
+              "n_pairs": 15922,
+              "n_strata_higher_density_growth_lower": 11,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001794256570267967,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 6196,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "833",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.001612948876302334,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 8,
+              "n_pairs": 4014,
+              "n_strata_higher_density_growth_lower": 8,
+              "spcd": "837",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.0031379261996143104,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 309,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008044171296010566,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 10,
+              "n_pairs": 8704,
+              "n_strata_higher_density_growth_lower": 10,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0033241972667077306,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 4,
+              "n_pairs": 5140,
+              "n_strata_higher_density_growth_lower": 4,
+              "spcd": "261",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0034516165176669876,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 16,
+              "n_pairs": 51848,
+              "n_strata_higher_density_growth_lower": 16,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.003211128754221861,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 46890,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.002499510087569162,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 5940,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0037457827198729737,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 5225,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005222284768770256,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 9523,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0034819651239299193,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 5114,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.001420385255454912,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 5,
+              "n_pairs": 5953,
+              "n_strata_higher_density_growth_lower": 5,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0035960007232983286,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 13971,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.0017979039749794125,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 2049,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        },
+        {
+          "higher_density_class": "120+",
+          "lower_density_class": "0-<60",
+          "n_matched_source_pairs": 71832,
+          "n_matched_strata": 43,
+          "n_species_states": 15,
+          "n_species_states_higher_density_growth_lower": 15,
+          "n_strata_higher_density_growth_lower": 43,
+          "species_states": [
+            {
+              "high_minus_low_growth": -0.02976864778176582,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 924,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "68",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01325151680088461,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 6886,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "316",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.01580447000757032,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 662,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "762",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.011471682547306463,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 790,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "802",
+              "state": "VA"
+            },
+            {
+              "high_minus_low_growth": -0.007080933920458721,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 260,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "68",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.023228128525303995,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 6,
+              "n_pairs": 4020,
+              "n_strata_higher_density_growth_lower": 6,
+              "spcd": "129",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010358036277926108,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 9,
+              "n_pairs": 23378,
+              "n_strata_higher_density_growth_lower": 9,
+              "spcd": "316",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009571949361327929,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 7,
+              "n_pairs": 21742,
+              "n_strata_higher_density_growth_lower": 7,
+              "spcd": "318",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.005704087991398946,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 967,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "371",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.008441051213134874,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 780,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "541",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.018891364309703812,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 3786,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "743",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.010386428080279415,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1628,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "762",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.004847901488004247,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 2,
+              "n_pairs": 1726,
+              "n_strata_higher_density_growth_lower": 2,
+              "spcd": "802",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009901791520644724,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 3,
+              "n_pairs": 3966,
+              "n_strata_higher_density_growth_lower": 3,
+              "spcd": "833",
+              "state": "WI"
+            },
+            {
+              "high_minus_low_growth": -0.009962208025797078,
+              "higher_density_growth_lower": true,
+              "n_common_strata": 1,
+              "n_pairs": 317,
+              "n_strata_higher_density_growth_lower": 1,
+              "spcd": "837",
+              "state": "WI"
+            }
+          ]
+        }
+      ],
+      "interpretation_boundary": "post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments",
+      "minimum_live_to_live_pairs_per_density_group": 100,
+      "three_density_classes": {
+        "n_strata_with_all_three": 43,
+        "n_strict_monotone_decreases": 43,
+        "species_states_with_all_three": 15
+      }
+    }
+  ]
 }

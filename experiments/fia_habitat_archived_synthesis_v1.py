@@ -123,6 +123,80 @@ def _assert_old_metrics(source: dict):
                 raise ValueError('original physiographic missingness differs')
 
 
+
+DENSITY_CONTRASTS = (('0-<60','60-<120'),('60-<120','120+'),('0-<60','120+'))
+
+
+def matched_density_gradient(states: list[dict], minimum: int = 10) -> dict:
+    """Within species x state x size x stand age x physiography, not climate.
+
+    Lower density is the reference. Positive high-minus-low means growth is
+    greater at higher BALIVE. Survival selection and forest composition remain.
+    """
+    contrasts = []
+    for low, high in DENSITY_CONTRASTS:
+        groups_all = []
+        species_states = []
+        for state in states:
+            for species in state['species']:
+                collapsed = defaultdict(dict)
+                for key, cell in species['size_age_density_physio'].items():
+                    fields = key.split('|')
+                    if len(fields) != 4:
+                        raise ValueError('unexpected density physiography bin schema')
+                    size, age, density, environment = fields
+                    collapsed[(size, age, environment)][density] = cell
+                groups = []
+                for key, bins in sorted(collapsed.items()):
+                    if low not in bins or high not in bins:
+                        continue
+                    a, b = bins[low], bins[high]
+                    if min(a['n'], b['n']) < minimum:
+                        continue
+                    count = int(a['n']+b['n'])
+                    diff = float(b['mean_growth']-a['mean_growth'])
+                    groups.append({'stratum': '|'.join(key), 'n': count, 'high_minus_low':diff})
+                    groups_all.append({'state':state['state'],'spcd':species['spcd'],
+                                       'stratum':'|'.join(key),'n':count,'high_minus_low':diff})
+                if groups:
+                    denominator = sum(x['n'] for x in groups)
+                    avg = sum(x['n']*x['high_minus_low'] for x in groups)/denominator
+                    species_states.append({'state':state['state'],'spcd':species['spcd'],
+                        'n_common_strata':len(groups),'n_pairs':denominator,
+                        'high_minus_low_growth':avg,'higher_density_growth_lower':avg<0,
+                        'n_strata_higher_density_growth_lower':sum(x['high_minus_low']<0 for x in groups)})
+        contrasts.append({'lower_density_class':low, 'higher_density_class':high,
+            'n_species_states':len(species_states),
+            'n_species_states_higher_density_growth_lower':sum(x['higher_density_growth_lower'] for x in species_states),
+            'n_matched_strata':len(groups_all),
+            'n_strata_higher_density_growth_lower':sum(x['high_minus_low']<0 for x in groups_all),
+            'n_matched_source_pairs':sum(x['n'] for x in groups_all),
+            'species_states': species_states})
+    n_strata_total = 0
+    n_strict = 0
+    n_species_states_total = 0
+    for state in states:
+        for species in state['species']:
+            collapsed = defaultdict(dict)
+            for key, cell in species['size_age_density_physio'].items():
+                size, age, density, environment = key.split('|')
+                collapsed[(size,age,environment)][density] = cell
+            eligible = []
+            for _,bins in sorted(collapsed.items()):
+                if all(d in bins and bins[d]['n'] >= minimum for d in ('0-<60','60-<120','120+')):
+                    vals = [float(bins[d]['mean_growth']) for d in ('0-<60','60-<120','120+')]
+                    eligible.append(vals)
+            if eligible:
+                n_species_states_total += 1
+                n_strata_total += len(eligible)
+                n_strict += sum(v[0] > v[1] > v[2] for v in eligible)
+    return {'minimum_live_to_live_pairs_per_density_group':minimum,
+            'contrast_groups':contrasts,
+            'three_density_classes':{'species_states_with_all_three':n_species_states_total,
+                'n_strata_with_all_three':n_strata_total,
+                'n_strict_monotone_decreases':n_strict},
+            'interpretation_boundary':'post-outcome survivor-conditioned associations: BALIVE is not randomized competition; groups and trees are dependent, not independent experiments'}
+
 def summarize(source: dict) -> dict:
     _assert_old_metrics(source)
     panels = {}
@@ -154,9 +228,11 @@ def summarize(source: dict) -> dict:
             cross.append({'spcd': code, 'VA_mesic_minus_xeric': va['mesic_minus_xeric'],
                           'WI_mesic_minus_xeric': wi['mesic_minus_xeric'],
                           'opposite_sign': va['mesic_minus_xeric']*wi['mesic_minus_xeric'] < 0})
+    density = [matched_density_gradient(source['states'],minimum=n) for n in THRESHOLDS]
     return {'study':'fia_habitat_archived_synthesis_v1',
             'source_file_sha256':SOURCE_SHA256,'n_fixed_species':len(SPECIES_CODES),'n_states':len(STATES),
             'regional_sensitivity':panels,
+            'within_state_density_gradient_sensitivity':density,
             'physiography':{'n_eligible_species_state':len(avail),
                  'mesic_greater_xeric':sum(x['mesic_minus_xeric'] > 0 for x in avail),
                  'region_counts': {s: {'estimable':sum(x['state']==s for x in avail),

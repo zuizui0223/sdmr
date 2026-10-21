@@ -30,6 +30,32 @@ The size/age/density-matched effect is positive in most, not all, taxa. Its exce
 
 Across all thresholds, weighting the matched bins by pooled tree observations, equally by stratum, or by minimum state count gives the **same within-species sign tallies**. This is directional robustness **among the shrinking eligible subsets**, not evidence that the pattern generalizes to all trees or species. No confidence interval, species-level independence or significance is claimed.
 
+## New positive gradient: the stand-density association is directionally consistent
+
+This separate, fully within-species-and-state contrast compares **prior stand basal area** bands, while holding **tree initial diameter band, prior stand-age band and dry/mesic/hydric physiographic class** fixed. Every source class has >=10 observed live-to-live tree intervals. The unit is a *species × state* descriptive contrast; multiple tree/plot strata are **dependent**. Higher-minus-lower contrasts refer to annualized log stem-diameter growth.
+
+| Higher vs lower stand density (ft²/acre) | Species×state with greater growth at lower density | Individual matched classes with greater growth at lower density |
+|---|---:|---:|
+| 60–<120 vs 0–<60 | **27/27** | **225/244** |
+| ≥120 vs 60–<120 | **33/33** | **337/385** |
+| ≥120 vs 0–<60 | **27/27** | **196/205** |
+
+Among 205 exact species×state×size×age×physiography combinations with adequate support in **all three** density categories, **184/205** exhibit strict decreases in growth with increasing stand density. Not every individual stratum is monotonic; none of these are independent replicated experiments.
+
+### Post-result support tightening
+
+| Required tree pairs in *each* matched density group | Low→middle: lower density higher growth | Middle→high: lower density higher growth | Strictly decreasing, all three |
+|---|---:|---:|---:|
+| 10 | 27/27 species×state | 33/33 | 184/205 strata |
+| 20 | 22/22 | 30/30 | 130/140 |
+| 30 | 22/22 | 30/30 | 112/118 |
+| 50 | 19/19 | 29/29 | 81/83 |
+| 100 | 15/15 | 25/25 | 43/43 |
+
+These are **strong, source-backed associations** between tree growth and basal-area crowding within the observed survivor cohort. They are compatible with competition restricting growth, but they are **not a causal competition experiment**: basal area may reflect stand/site quality, species mixture, prior mortality/harvest and sampling-selection processes, and it is not necessarily independent of focal-tree size. The stricter thresholds above were investigated **after outcomes were available**.
+
+Contrasting this strong density association with the mixed dry-versus-mesic source effect below is more informative than claiming every climate or site factor has a universal response: in this cohort, the local forest-structure gradient is consistently signed, while physiographic water-site contrasts are heterogeneous. This does not rank the causal strength of biotic competition against climatic drought.
+
 ## Moisture-related site context: no universal advantage
 
 A separate comparison holds **species + state + initial stem diameter + stand age + basal area** equal, and compares *mesic* versus *xeric* site-condition groups with >=10 surviving observations in both source classes. The dry/mesic contrast is **not a climatic drought experiment**.
