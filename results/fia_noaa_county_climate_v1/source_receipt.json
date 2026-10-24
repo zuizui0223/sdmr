@@ -1,0 +1,57 @@
+{
+  "NOAA_ordinal_state_to_FIA_FIPS_crosswalk_required_and_applied": true,
+  "climate_csv_rows": 43890,
+  "climate_csv_sha256": "623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8",
+  "coverage": {
+    "n_complete_counties_total": 209,
+    "n_counties_with_incomplete_baseline": 0,
+    "n_unpaired_variable_months": 0,
+    "states": {
+      "RI": {
+        "n_counties_baseline_complete_25years": 5,
+        "n_county_years_equivalent": 175.0,
+        "n_joined_growing_months": 1050
+      },
+      "VA": {
+        "n_counties_baseline_complete_25years": 132,
+        "n_county_years_equivalent": 4620.0,
+        "n_joined_growing_months": 27720
+      },
+      "WI": {
+        "n_counties_baseline_complete_25years": 72,
+        "n_county_years_equivalent": 2520.0,
+        "n_joined_growing_months": 15120
+      }
+    }
+  },
+  "crosswalk": {
+    "37": "44",
+    "44": "51",
+    "47": "55"
+  },
+  "downstream_plots_require_county_fips_and_pinned_measyear_measmon": true,
+  "no_climate_growth_interaction_or_causal_process_identified": true,
+  "no_tree_or_growth_data_opened": true,
+  "snapshot": "20261006",
+  "source_info": {
+    "precipitation": {
+      "bytes": 40923036,
+      "invalid_reasons": {},
+      "n_distinct_counties": 209,
+      "n_invalid_month_values": 0,
+      "n_matching_county_year_records": 7315,
+      "source_sha256": "739fc3e9b529e04d406e914be1add2736ca3129c1103246ccebc2e5c76fd9d3a",
+      "url": "https://www.ncei.noaa.gov/monitoring-content/data/us/climdiv/monthly/current/climdiv-pcpncy-v1.0.0-20261006"
+    },
+    "temperature": {
+      "bytes": 40923036,
+      "invalid_reasons": {},
+      "n_distinct_counties": 209,
+      "n_invalid_month_values": 0,
+      "n_matching_county_year_records": 7315,
+      "source_sha256": "edf9a954c7d7a5bed5ad32e448cfc78aacbf01261b94a4c5224094535108a489",
+      "url": "https://www.ncei.noaa.gov/monitoring-content/data/us/climdiv/monthly/current/climdiv-tmpccy-v1.0.0-20261006"
+    }
+  },
+  "study": "fia_noaa_county_climate_pre_response_v1"
+}
