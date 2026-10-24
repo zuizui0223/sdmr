@@ -15,37 +15,42 @@ spec.loader.exec_module(mod)
 CONF = json.loads((ROOT/'configs/fia_noaa_county_climate_source_v1.json').read_text())
 
 
-def fixture(fips, variable, year, monthly=None):
+def fixture(noaa_county, variable, year, monthly=None):
     code = '02' if variable=='temperature' else '01'
     vals=monthly if monthly is not None else ([68.0]*12 if variable=='temperature' else [4.0]*12)
-    return (f'{fips}{code}{year:04d}  '+ '  '.join(str(x) for x in vals)+'\n').encode('ascii')
+    return (f'{noaa_county}{code}{year:04d}  '+ '  '.join(str(x) for x in vals)+'\n').encode('ascii')
 
 
 def test_source_and_explicit_FIPS_separate_from_climdiv_state_ordinal():
     mod.verify_contract(CONF)
-    t,stats=mod.parse_climdiv_county(fixture('44007','temperature',2000),'temperature',CONF)
-    p,_=mod.parse_climdiv_county(fixture('44007','precipitation',2000),'precipitation',CONF)
+    t,stats=mod.parse_climdiv_county(fixture('37007','temperature',2000),'temperature',CONF)
+    p,_=mod.parse_climdiv_county(fixture('37007','precipitation',2000),'precipitation',CONF)
     assert stats['n_distinct_counties']==1
     assert ('44007',2000,4) in t
     assert t[('44007',2000,4)]==20.0
     assert p[('44007',2000,4)]==101.6
     assert not any(f[0]=='37007' for f in t)
+    # The same raw '44' prefix in NOAA means Virginia, NOT FIA Rhode Island.
+    va,_=mod.parse_climdiv_county(fixture('44059','temperature',2000),'temperature',CONF)
+    assert ('51059',2000,4) in va
+    wi,_=mod.parse_climdiv_county(fixture('47025','temperature',2000),'temperature',CONF)
+    assert ('55025',2000,4) in wi
 
 
 def test_missing_month_not_imputed_as_zero():
     raw=[68.0]*12
     raw[3]=-99.99
-    t,meta=mod.parse_climdiv_county(fixture('44007','temperature',2000,raw),'temperature',CONF)
+    t,meta=mod.parse_climdiv_county(fixture('37007','temperature',2000,raw),'temperature',CONF)
     assert ('44007',2000,4) not in t
     assert meta['n_invalid_month_values']==1
 
 
 def test_malformed_and_wrong_element_fail_closed():
     with pytest.raises(ValueError,match='element'):
-        mod.parse_climdiv_county(fixture('44007','precipitation',2000),'temperature',CONF)
+        mod.parse_climdiv_county(fixture('37007','precipitation',2000),'temperature',CONF)
     with pytest.raises(ValueError,match='malformed'):
         mod.parse_climdiv_county(b'44007022000 67 44\n','temperature',CONF)
-    doubled=fixture('44007','temperature',2000)*2
+    doubled=fixture('37007','temperature',2000)*2
     with pytest.raises(ValueError,match='duplicate'):
         mod.parse_climdiv_county(doubled,'temperature',CONF)
 
@@ -54,6 +59,9 @@ def test_frozen_source_change_and_bad_FIPS_rejected():
     modified=dict(CONF);modified['states_fips']=dict(CONF['states_fips']);modified['states_fips']['RI']='37'
     with pytest.raises(ValueError,match='FIPS'):
         mod.verify_contract(modified)
+    bad=dict(CONF);bad['ncei_ordinal_state_to_fips_state']={'37':'51','44':'44','47':'55'}
+    with pytest.raises(ValueError,match='crosswalk'):
+        mod.verify_contract(bad)
     another=dict(CONF);another['snapshot']='latest'
     with pytest.raises(ValueError,match='snapshot'):
         mod.verify_contract(another)
@@ -80,7 +88,7 @@ def test_source_coverage_and_csv_hash_excludes_tree_results(tmp_path):
     blobs={}
     for name in ('temperature','precipitation'):
         blob=b''
-        for county in ('44007','51059','55025'):
+        for county in ('37007','44059','47025'):
             for y in range(1991,2026):blob+=fixture(county,name,y)
         blobs[name]=blob
     def fetch(url):

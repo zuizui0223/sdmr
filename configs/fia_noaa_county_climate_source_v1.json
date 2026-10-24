@@ -3,14 +3,45 @@
   "source": "NOAA NCEI nClimDiv monthly county",
   "snapshot": "20261006",
   "archive_base": "https://www.ncei.noaa.gov/monitoring-content/data/us/climdiv/monthly/current",
-  "states_fips": {"RI": "44", "VA": "51", "WI": "55"},
-  "source_variables": {"temperature": {"file": "climdiv-tmpccy-v1.0.0-20261006", "element": "02", "source_units": "degree_fahrenheit"}, "precipitation": {"file": "climdiv-pcpncy-v1.0.0-20261006", "element": "01", "source_units": "inches_per_month"}},
+  "states_fips": {
+    "RI": "44",
+    "VA": "51",
+    "WI": "55"
+  },
+  "source_variables": {
+    "temperature": {
+      "file": "climdiv-tmpccy-v1.0.0-20261006",
+      "element": "02",
+      "source_units": "degree_fahrenheit"
+    },
+    "precipitation": {
+      "file": "climdiv-pcpncy-v1.0.0-20261006",
+      "element": "01",
+      "source_units": "inches_per_month"
+    }
+  },
   "year_start": 1991,
   "year_end": 2025,
   "baseline_start": 1991,
   "baseline_end": 2020,
-  "growing_season_months": [4,5,6,7,8,9],
+  "growing_season_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
   "maximum_single_source_bytes": 70000000,
-  "minimum_complete_counties": {"RI": 3, "VA": 60, "WI": 50},
-  "claim_level": "county_level_temperature_precipitation_metadata_only_not_tree_growth_or_causal_niche"
+  "minimum_complete_counties": {
+    "RI": 3,
+    "VA": 60,
+    "WI": 50
+  },
+  "claim_level": "county_level_temperature_precipitation_metadata_only_not_tree_growth_or_causal_niche",
+  "ncei_ordinal_state_to_fips_state": {
+    "37": "44",
+    "44": "51",
+    "47": "55"
+  }
 }

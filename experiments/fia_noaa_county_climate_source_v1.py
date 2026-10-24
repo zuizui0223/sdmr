@@ -1,7 +1,7 @@
 """FIA county climate preflight: fixed NOAA nClimDiv county monthly source.
 
-Never opens tree growth, survival or plot-level locations. NOAA county FIPS must not
-be confused with *different* nClimDiv state-series identification codes.
+Never opens tree growth, survival or plot-level locations. NOAA county STATE ORDINAL identifiers must be explicitly translated to FIA
+FIPS state identifiers before using the unchanged three-digit county codes.
 The resulting 1991-2025 Apr-Sep monthly temperature and rainfall data are
 pre-response ecological exposures, not a fitted effect of climate on growth.
 """
@@ -25,6 +25,8 @@ def verify_contract(c: dict) -> None:
         raise ValueError("unrecognized study")
     if c.get("states_fips") != {"RI": "44", "VA": "51", "WI": "55"}:
         raise ValueError("county FIPS states differ from predeclared geographic panel")
+    if c.get("ncei_ordinal_state_to_fips_state") != {"37":"44", "44":"51", "47":"55"}:
+        raise ValueError("NOAA ordinal-state to FIA FIPS crosswalk changed")
     if c.get("snapshot") != "20261006" or c.get("source_variables") != {
         "temperature": {"file": "climdiv-tmpccy-v1.0.0-20261006", "element": "02", "source_units": "degree_fahrenheit"},
         "precipitation": {"file": "climdiv-pcpncy-v1.0.0-20261006", "element": "01", "source_units": "inches_per_month"},
@@ -41,15 +43,16 @@ def verify_contract(c: dict) -> None:
 
 
 def parse_climdiv_county(data: bytes, variable: str, conf: dict):
-    """Read NOAA first token FIPS5 + variable element2 + YYYY4; then 12 months.
+    """Read NOAA code: NCEI ordinal state2 + county3 + element2 + YYYY4.
 
-    Reject missing/suspect values instead of zero-imputing, preserve full
-    denominator for all declared months/years/counties.  The county first two
-    chars are conventional FIPS codes (44/51/55), *not* NOAA state series IDs.
+    Translate ordinal state 37/44/47 to FIA FIPS 44/51/55, retain county3.
+    A native NOAA code starting 44 is Virginia, **not** FIA Rhode Island.
+    Reject missing values, duplicates or unknown state code, never zero-impute.
     """
     vars_ = conf["source_variables"]
     expected_el = vars_[variable]["element"]
-    statecodes = set(conf["states_fips"].values())
+    ordinal_to_fips = conf["ncei_ordinal_state_to_fips_state"]
+    statecodes = set(ordinal_to_fips)
     months = set(conf["growing_season_months"])
     values = {}
     problems = Counter()
@@ -66,11 +69,15 @@ def parse_climdiv_county(data: bytes, variable: str, conf: dict):
         key = words[0]
         if len(key) != 11 or not key.isdigit() or len(words) != 13:
             raise ValueError("malformed NOAA county fixed-width record")
-        fips, element, yeartext = key[:5], key[5:7], key[7:]
+        ordinal_state, county3, element, yeartext = key[:2], key[2:5], key[5:7], key[7:]
+        # NOAA county ID and FIA FIPS state prefix are NOT equivalent.
+        if ordinal_state not in statecodes:
+            continue
+        fips = ordinal_to_fips[ordinal_state] + county3
         if element != expected_el:
             raise ValueError("unexpected element code in "+variable)
         year = int(yeartext)
-        if fips[:2] not in statecodes or not conf["year_start"] <= year <= conf["year_end"]:
+        if not conf["year_start"] <= year <= conf["year_end"]:
             continue
         n_matching_records += 1
         if fips[2:] == "000":
@@ -190,7 +197,8 @@ def run(config_path: Path, output_dir: Path, *, fetcher=None):
         for row in rows:
             writer.writerow(row)
     receipt={"study":conf["study"],"no_tree_or_growth_data_opened":True,
-             "fips_codes_are_US_state_county_not_NCEI_ordinal_state_codes":True,
+             "NOAA_ordinal_state_to_FIA_FIPS_crosswalk_required_and_applied":True,
+             "crosswalk":conf["ncei_ordinal_state_to_fips_state"],
              "snapshot":conf["snapshot"],"source_info":sources,"coverage":coverage,
              "climate_csv_sha256":hashlib.sha256(climate_csv.read_bytes()).hexdigest(),
              "climate_csv_rows":len(rows),
