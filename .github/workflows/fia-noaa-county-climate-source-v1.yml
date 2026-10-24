@@ -1,0 +1,38 @@
+name: fia-noaa-county-climate-source-v1
+
+on:
+  pull_request:
+    paths:
+      - 'configs/fia_noaa_county_climate_source_v1.json'
+      - 'experiments/fia_noaa_county_climate_source_v1.py'
+      - 'tests/test_fia_noaa_county_climate_source_v1.py'
+      - '.github/workflows/fia-noaa-county-climate-source-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Source contract tests with no response opening
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_noaa_county_climate_source_v1.py
+      - name: Acquire the exact 20261006 NOAA county-month archive
+        run: |
+          python experiments/fia_noaa_county_climate_source_v1.py \
+            --config configs/fia_noaa_county_climate_source_v1.json \
+            --out artifacts/fia_noaa_county_climate_v1
+      - name: Preserve complete source or failure receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-noaa-county-climate-source-v1
+          path: artifacts/fia_noaa_county_climate_v1
+          if-no-files-found: warn

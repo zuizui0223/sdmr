@@ -1,0 +1,32 @@
+name: geographic-turnover-source-gate-v0
+
+# Source acquisition is intentionally one-shot/manual; routine PR tests run in tests.yml.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-only-gbif-count-gate:
+    name: source-count-diagnostic-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project and test tooling
+        run: python -m pip install -e '.[test]'
+      - name: Offline source gate tests
+        run: python -m pytest -q tests/test_geographic_turnover_gbif_gate_v0.py
+      - name: Read-only GBIF source volume checks (no occurrence outcome opening)
+        run: python experiments/geographic_turnover_gbif_gate_v0.py --output artifacts/geographic_turnover_gbif_source_gate_v0.json
+      - name: Keep complete positive and failed source checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geographic-turnover-source-gate-v0
+          path: artifacts/geographic_turnover_gbif_source_gate_v0.json
+          if-no-files-found: warn

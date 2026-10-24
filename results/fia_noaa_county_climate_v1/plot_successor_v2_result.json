@@ -1,0 +1,88 @@
+{
+  "NOAA_climate_source_sha256": "03c0a30c2ed3a1c3d9bb8f05f13e3c27cb3aca2bc1d8ccbe8460b106664d9506",
+  "claim": "FIA new-source PLOT-to-county-climate metadata coverage only; no tree growth, niche, competition, causal or mortality effect",
+  "n_new_source_complete_states": 3,
+  "original_frozen_FIA_plot_not_relabelled_or_recovered": true,
+  "original_frozen_TREE_growth_not_reanalysed": true,
+  "predecessor_stop_sha256": "00d84df76bfd71323f8efece09150b97d35b96ed0650107763fdb4cc04545221",
+  "source_history_changed": true,
+  "states": [
+    {
+      "climate_linkage": {
+        "exclusions": {
+          "climate_not_complete_in_two_census_interval": 5,
+          "n_exact_county_interval_climate_complete": 754,
+          "n_with_previous_plot_key": 759
+        },
+        "median_apr_sep_months": 32,
+        "minimum_apr_sep_months": 10,
+        "n_county_climate_eligible_plot_links": 754,
+        "n_distinct_plot_exposure_rows_not_trees": 754,
+        "n_plot_entries": 1408,
+        "n_previous_plot_records": 759,
+        "no_tree_growth_or_forest_dynamics_evaluated": true,
+        "state": "RI"
+      },
+      "new_plot_source_sha256": "8c5cad119151d3b11aa3524671612434dcb2f1704c200a18a274e5a681dcea6a",
+      "plot_source": {
+        "n_invalid_county_or_date": 0,
+        "n_plot_rows": 1408
+      },
+      "state": "RI",
+      "status": "successor_new_plot_climate_ready"
+    },
+    {
+      "climate_linkage": {
+        "exclusions": {
+          "climate_not_complete_in_two_census_interval": 13941,
+          "county_changed_between_censuses": 2,
+          "n_exact_county_interval_climate_complete": 20781,
+          "n_with_previous_plot_key": 34861,
+          "plot_county_or_date_invalid": 137
+        },
+        "median_apr_sep_months": 29,
+        "minimum_apr_sep_months": 6,
+        "n_county_climate_eligible_plot_links": 20781,
+        "n_distinct_plot_exposure_rows_not_trees": 20781,
+        "n_plot_entries": 48219,
+        "n_previous_plot_records": 34861,
+        "no_tree_growth_or_forest_dynamics_evaluated": true,
+        "state": "VA"
+      },
+      "new_plot_source_sha256": "32d222ca250337ce8d5cea3cc364b3205359e6a9234f23ab57a36cd3433c59e3",
+      "plot_source": {
+        "n_invalid_county_or_date": 283,
+        "n_plot_rows": 48219
+      },
+      "state": "VA",
+      "status": "successor_new_plot_climate_ready"
+    },
+    {
+      "climate_linkage": {
+        "exclusions": {
+          "county_changed_between_censuses": 1,
+          "n_exact_county_interval_climate_complete": 42671,
+          "n_with_previous_plot_key": 47445,
+          "plot_county_or_date_invalid": 12,
+          "prior_plot_not_in_source": 4761
+        },
+        "median_apr_sep_months": 32,
+        "minimum_apr_sep_months": 18,
+        "n_county_climate_eligible_plot_links": 42671,
+        "n_distinct_plot_exposure_rows_not_trees": 42671,
+        "n_plot_entries": 83955,
+        "n_previous_plot_records": 47445,
+        "no_tree_growth_or_forest_dynamics_evaluated": true,
+        "state": "WI"
+      },
+      "new_plot_source_sha256": "43641564cf8493fbb63b66460235799e8fe13f9d111bfe40766356ee8dd322a7",
+      "plot_source": {
+        "n_invalid_county_or_date": 12,
+        "n_plot_rows": 83955
+      },
+      "state": "WI",
+      "status": "successor_new_plot_climate_ready"
+    }
+  ],
+  "study": "fia_noaa_new_plot_version_successor_v2"
+}

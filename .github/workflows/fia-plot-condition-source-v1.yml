@@ -1,0 +1,26 @@
+name: fia-plot-condition-source-v1
+# Preserved source-opening workflow. External DataMart ZIPs can drift; run manually only.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plot-cond-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test fail-closed source audit
+        run: python -m pip install pytest && python -m pytest -q tests/test_fia_plot_condition_source_gate_v1.py
+      - name: Fetch current FIA PLOT and COND sources for fixed RI VA WI panel
+        run: python experiments/fia_plot_condition_source_gate_v1.py --output artifacts/fia_plot_condition_source_v1.json
+      - name: Archive complete three-state source receipt including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-plot-condition-source-v1
+          path: artifacts/fia_plot_condition_source_v1.json
+          if-no-files-found: error

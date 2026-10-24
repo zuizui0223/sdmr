@@ -1,0 +1,1025 @@
+{
+  "empirical_fitness_or_causal_claim_allowed": false,
+  "external_perturbation": "uniform_additive_temperature_only_0_to_6_c_not_a_climate_projection",
+  "n_fixed_cells": 571,
+  "n_fixed_regions": 10,
+  "note": "One shared illustrative response across all regions; does not infer actual survival, growth or species physiological limits",
+  "regions": [
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 0.015870370370371433,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 0.16290740740741635,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 0.5321666666666834,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 1.1236481481481728,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 1.937351851851884,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 2.973277777777818,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.3361092613333325,
+          "temperature_penalty": 4.231425925925974,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        3.2891718009781945
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2202876501523974,
+          "temperature_penalty": 0.012881097620119603,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2080761473036878,
+          "temperature_penalty": 0.1402339891339799,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.1965525241398827,
+          "temperature_penalty": 0.4796192264699425,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.1857799565188334,
+          "temperature_penalty": 1.0313981139522832,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.1758054276685217,
+          "temperature_penalty": 1.7960460072300242,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.1666593448951517,
+          "temperature_penalty": 2.7741297267941367,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.1583559762013527,
+          "temperature_penalty": 3.9662827398815867,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 60,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        3.223043776939784
+      ],
+      "region": "pinus_DE_NE",
+      "source_precipitation_mean_mm": 613.4483333333334,
+      "source_temperature_mean_c": 9.1616666666667,
+      "taxon_label_for_source": "Pinus sylvestris"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 2.015433333333302,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 1.185655555555532,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 0.5780999999999836,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 0.1927666666666576,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 0.029655555555553857,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 0.08876666666667236,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.43194829439999977,
+          "temperature_penalty": 0.37010000000001303,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        2.3168691621070496
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.3801404031247989,
+          "temperature_penalty": 1.8308892768690979,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.3813136924908416,
+          "temperature_penalty": 1.0785655661965377,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.3827604483304286,
+          "temperature_penalty": 0.5275408113823064,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.3842899881070623,
+          "temperature_penalty": 0.17760818066281722,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.38572794847256064,
+          "temperature_penalty": 0.028913484544298915,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.38692477800600084,
+          "temperature_penalty": 0.0819562808129453,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.38776174168983957,
+          "temperature_penalty": 0.3375647804471879,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 50,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        2.347105575650068
+      ],
+      "region": "pinus_FI_SW",
+      "source_precipitation_mean_mm": 741.7639999999999,
+      "source_temperature_mean_c": 4.766000000000033,
+      "taxon_label_for_source": "Pinus sylvestris"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 0.25005555555556563,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 0.6240238095238275,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 1.2202142857143115,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 2.038626984127018,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 3.0792619047619465,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 4.3421190476190965,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.8140529211428573,
+          "temperature_penalty": 5.827198412698472,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        2.7509866911929066
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.1829595453472143,
+          "temperature_penalty": 0.23086237629831724,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.18856037452387958,
+          "temperature_penalty": 0.6118166702356522,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.19477258093875258,
+          "temperature_penalty": 1.1943854384041295,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2017334467862297,
+          "temperature_penalty": 1.9809028789754946,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.20962614441165706,
+          "temperature_penalty": 2.9734106658176285,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2187196561912201,
+          "temperature_penalty": 4.173614706886338,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.22945153626132478,
+          "temperature_penalty": 5.582828471585463,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 70,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [],
+      "region": "pinus_FR_NE",
+      "source_precipitation_mean_mm": 1087.3614285714284,
+      "source_temperature_mean_c": 10.182857142857179,
+      "taxon_label_for_source": "Pinus sylvestris"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 0.023648148148145854,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 0.06068518518519003,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 0.31994444444445647,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 0.8014259259259452,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 1.5051296296296555,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 2.431055555555589,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9265979493333328,
+          "temperature_penalty": 3.5792037037037443,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        3.2034656163087343
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.7350668847815874,
+          "temperature_penalty": 0.030488621749029523,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.7182933859799658,
+          "temperature_penalty": 0.04863679149582252,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.7012324610061005,
+          "temperature_penalty": 0.27757999540586603,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.6839666576083305,
+          "temperature_penalty": 0.7164764083050619,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.6665946560186906,
+          "temperature_penalty": 1.364619017570093,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.6492287943756102,
+          "temperature_penalty": 2.2214817966262053,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.6319913528690965,
+          "temperature_penalty": 3.2867596468375813,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 60,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        2.9414055947898676
+      ],
+      "region": "pinus_PL_NW",
+      "source_precipitation_mean_mm": 667.8016666666667,
+      "source_temperature_mean_c": 8.666666666666698,
+      "taxon_label_for_source": "Pinus sylvestris"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.5614333333333192,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.19298888888888144,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.04676666666666589,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.12276666666667255,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.42098888888890146,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 0.9414333333333527,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.37701108479999995,
+          "temperature_penalty": 1.684100000000026,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        0.42676813707692507,
+        3.8892318629230154
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2393538369644725,
+          "temperature_penalty": 0.48884820450220706,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.24432611508663346,
+          "temperature_penalty": 0.1839992472697637,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.24597303505157136,
+          "temperature_penalty": 0.050977036453323105,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.24470190065591005,
+          "temperature_penalty": 0.10008366008642565,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.24104405659724829,
+          "temperature_penalty": 0.3402833406893015,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2355431900486844,
+          "temperature_penalty": 0.7785955085324909,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.22869067346586885,
+          "temperature_penalty": 1.420127385225642,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 50,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        0.7541598362404919,
+        3.6810036226689684
+      ],
+      "region": "pinus_SE_S",
+      "source_precipitation_mean_mm": 910.552,
+      "source_temperature_mean_c": 6.84200000000003,
+      "taxon_label_for_source": "Pinus sylvestris"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 0.25277777777776994,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 0.10166666666666577,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 0.17277777777778391,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 0.4661111111111243,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 0.981666666666687,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 1.7194444444444716,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.899205676,
+          "temperature_penalty": 2.6794444444444796,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        3.865191070296455
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.4541081975046172,
+          "temperature_penalty": 0.2883889159523684,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.3953427907656409,
+          "temperature_penalty": 0.0987843562882112,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.34572513757811374,
+          "temperature_penalty": 0.07532906662476424,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.3049060266724287,
+          "temperature_penalty": 0.22078756895564308,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2722196438101552,
+          "temperature_penalty": 0.5395546241932593,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.2467462745709163,
+          "temperature_penalty": 1.0371982049001316,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.22741510506273524,
+          "temperature_penalty": 1.719851071156013,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 40,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        3.2883150976308815
+      ],
+      "region": "quercus_CZ_NW",
+      "source_precipitation_mean_mm": 717.3225,
+      "source_temperature_mean_c": 7.820000000000031,
+      "taxon_label_for_source": "Quercus robur"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 0.1542460317460343,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 0.3425000000000098,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 0.7529761904762075,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 1.3856746031746272,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 2.24059523809527,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 3.317738095238134,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.797288982857143,
+          "temperature_penalty": 4.61710317460322,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        2.0834732629520354
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.1932458726624245,
+          "temperature_penalty": 0.12810499519500715,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.18932365321872338,
+          "temperature_penalty": 0.26424289041538745,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.18565521587433176,
+          "temperature_penalty": 0.5216012767343309,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.18224536146388753,
+          "temperature_penalty": 0.8992039363478007,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.17899868701685584,
+          "temperature_penalty": 1.4037486102202645,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.17574082776717423,
+          "temperature_penalty": 2.0477361071193783,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.1722642723054315,
+          "temperature_penalty": 2.8460793063681935,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 70,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        0.5731099266717928
+      ],
+      "region": "quercus_DE_SW",
+      "source_precipitation_mean_mm": 937.2628571428572,
+      "source_temperature_mean_c": 9.347142857142892,
+      "taxon_label_for_source": "Quercus robur"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 0.18518077601411675,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 0.5250396825396976,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 1.0871208112875006,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 1.8714241622575254,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 2.8779497354497727,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 4.106697530864244,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4525495517460317,
+          "temperature_penalty": 5.557667548500937,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        0.8323307734002032
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.31475233340547243,
+          "temperature_penalty": 0.18285743306466634,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.33925725767100356,
+          "temperature_penalty": 0.49116006508629423,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.36827348048570063,
+          "temperature_penalty": 0.9633717872262871,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.40097856156682304,
+          "temperature_penalty": 1.5870779190860036,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.4356926828007067,
+          "temperature_penalty": 2.3504682420351792,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.46990700251888806,
+          "temperature_penalty": 3.245641388742498,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.5006550758235758,
+          "temperature_penalty": 4.27226996315285,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 63,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        0.537012120289767
+      ],
+      "region": "quercus_FR_NE",
+      "source_precipitation_mean_mm": 947.4539682539684,
+      "source_temperature_mean_c": 10.029365079365112,
+      "taxon_label_for_source": "Quercus robur"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 0.14777777777778672,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 0.5084259259259427,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 1.0912962962963209,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 1.896388888888921,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 2.923703703703744,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 4.173240740740788,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.035591763333333276,
+          "temperature_penalty": 5.645000000000055,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.03226353057793979,
+          "temperature_penalty": 0.1423818159121863,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.030840940227215036,
+          "temperature_penalty": 0.4908375083489226,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.029442874578510227,
+          "temperature_penalty": 1.05407294121436,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.028074506196454845,
+          "temperature_penalty": 1.8317568259939865,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.026740998415060942,
+          "temperature_penalty": 2.8235953094911115,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.025447404466135602,
+          "temperature_penalty": 4.029341206296058,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.024198560662940502,
+          "temperature_penalty": 5.448802785178572,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 48,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [],
+      "region": "quercus_NL_E",
+      "source_precipitation_mean_mm": 866.3270833333335,
+      "source_temperature_mean_c": 10.122916666666702,
+      "taxon_label_for_source": "Quercus robur"
+    },
+    {
+      "equal_area": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 0.013685185185186674,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 0.17294444444445273,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 0.5544259259259408,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 1.1581296296296515,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 1.9840555555555839,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 3.032203703703739,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 1.2522708399999996,
+          "temperature_penalty": 4.3025740740741165,
+          "warming_c": 6.0
+        }
+      ],
+      "exact_equal_area_crossings_between_0_and_6_c": [
+        3.129109078624337
+      ],
+      "hypothetically_habitat_sorted": [
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 1.0169246021811524,
+          "temperature_penalty": 0.012718454603811229,
+          "warming_c": 0.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9981615134073879,
+          "temperature_penalty": 0.1515256208306583,
+          "warming_c": 1.0
+        },
+        {
+          "dominant_pressure": "moisture",
+          "moisture_penalty": 0.9786889159354266,
+          "temperature_penalty": 0.5034245124898036,
+          "warming_c": 2.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9585769852207016,
+          "temperature_penalty": 1.0684432697570947,
+          "warming_c": 3.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9379063876900566,
+          "temperature_penalty": 1.8466810638377362,
+          "warming_c": 4.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.9167665421458105,
+          "temperature_penalty": 2.838306089419003,
+          "warming_c": 5.0
+        },
+        {
+          "dominant_pressure": "temperature",
+          "moisture_penalty": 0.895253587790215,
+          "temperature_penalty": 4.043551471012304,
+          "warming_c": 6.0
+        }
+      ],
+      "n_equal_area_climate_cells": 60,
+      "numeric_habitat_sorted_crossings_between_0_and_6_c": [
+        2.837139601006394
+      ],
+      "region": "quercus_PL_W",
+      "source_precipitation_mean_mm": 626.5216666666668,
+      "source_temperature_mean_c": 9.216666666666697,
+      "taxon_label_for_source": "Quercus robur"
+    }
+  ],
+  "source_sha256": "4b7d5bb9a23e3ef6c4c74448698409be4174d9199765d3ba7bd4eb4f9eddb633",
+  "stationary_hypothetical_parameters": {
+    "precipitation_optimum_mm": 900.0,
+    "precipitation_scale_mm": 250.0,
+    "shape": "quadratic",
+    "thermal_optimum_c": 9.0,
+    "thermal_scale_c": 3.0,
+    "thermal_water_weight_ratio": 1.0
+  },
+  "study": "geographic_stationary_warming_switch_v1"
+}
