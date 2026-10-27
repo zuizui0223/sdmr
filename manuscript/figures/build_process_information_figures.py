@@ -66,6 +66,7 @@ def figure_denominator(data: dict, out: Path) -> None:
     ax.legend(frameon=False, loc="upper right")
     fig.tight_layout(pad=1.3)
     fig.savefig(out, format="svg")
+    fig.savefig(out.with_suffix(".png"), dpi=220)
     plt.close(fig)
 
 
@@ -90,6 +91,7 @@ def figure_authorization(data: dict, out: Path) -> None:
         ax.text(i, value + 0.028, f"{int(round(value * 20))}/20", ha="center", va="bottom")
     fig.tight_layout()
     fig.savefig(out, format="svg")
+    fig.savefig(out.with_suffix(".png"), dpi=220)
     plt.close(fig)
 
 
