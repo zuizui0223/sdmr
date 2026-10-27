@@ -39,9 +39,15 @@
 - [x] Pre-submission enquiry draft.
 - [x] Title-page template.
 - [ ] All four figures generated as editable SVGs and visually inspected as PNGs; promote as final when the Figure 3–4 headroom PR and latest full submission build pass.
-- [ ] Rebuild anonymous reviewer ZIP and DOCX after the October sensitivity disclosure; re-check identity scanning and manuscript layout.
+- [ ] Confirm final rebuild of the anonymous reviewer ZIP and DOCX after October sensitivity and AI-use disclosures; re-check anonymity and rendered page layout.
 - [x] Anonymous single-column double-spaced DOCX produced and visually rendered (17 pages after four figure captions); final footer-layout revision pending CI.
 - [ ] Permanent archive DOI for accepted/public version.
+
+## AI assistance declaration
+
+- [x] Declare OpenAI ChatGPT, including GPT-6 for October 2026 revisions, in Materials and Methods.
+- [x] Annotate newly AI-assisted submission-production code and include reviewer-bundle disclosure.
+- [ ] Corresponding author verifies all AI-assisted scientific text and code, including any historical AI-authored method modules, and checks annotations before submission.
 
 ## Human/admin blockers
 
