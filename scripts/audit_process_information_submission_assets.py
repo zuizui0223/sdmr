@@ -23,6 +23,7 @@ PAPER_ANCHORS = (
     "10/50",
     "0/12 to 4/12",
     "1/3",
+    "OpenAI ChatGPT",
     "neither field validation nor a new pass of the original M5 gates",
 )
 BUNDLE_FILES = (
@@ -49,6 +50,8 @@ def audit(root: Path, source: Path, revision: str) -> dict:
             raise ValueError(f"Current manuscript missing scientific boundary: {anchor!r}")
         if anchor not in text:
             raise ValueError(f"Rendered DOCX is stale or omitted: {anchor!r}")
+    if "Article type: Research Article" in text or "Target: Methods in Ecology and Evolution" in text:
+        raise ValueError("Anonymous DOCX contains internal manuscript routing metadata")
     if doc.core_properties.author or doc.core_properties.last_modified_by:
         raise ValueError("DOCX core metadata contains an author name")
 
@@ -92,6 +95,9 @@ def audit(root: Path, source: Path, revision: str) -> dict:
         si = z.read(member(BUNDLE_FILES[0])).decode("utf-8")
         if "4/12" not in si or "1/3" not in si or "0/75" not in si:
             raise ValueError("Reviewer SI does not include the nonlinear/effort sensitivity")
+        reviewers = z.read(member("README_REVIEWERS.md")).decode("utf-8")
+        if "OpenAI ChatGPT" not in reviewers:
+            raise ValueError("Reviewer bundle missing transparent AI-use disclosure")
         for name in names:
             if not name.endswith((".md", ".txt", ".json", ".csv", ".py")):
                 continue
