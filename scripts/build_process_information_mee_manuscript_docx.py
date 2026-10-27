@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# AI-assisted source revision (OpenAI ChatGPT, GPT-6, October 2026); author verification required before submission.
 """Render anonymous MEE DOCX with double spacing and continuous line numbering."""
 from __future__ import annotations
 import argparse
@@ -120,6 +121,10 @@ def render_manuscript(source: Path, output: Path) -> None:
     while i < len(lines):
         line = lines[i].strip()
         if not line or line == "---":
+            i += 1
+            continue
+        if line.startswith(("**Article type:**", "**Target:**")):
+            # Internal routing metadata belongs in the submission form, not the anonymous manuscript.
             i += 1
             continue
         if line.startswith("|") and i + 1 < len(lines) and TABLE_SEPARATOR.match(lines[i + 1]):

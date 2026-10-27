@@ -143,6 +143,10 @@ The method passed only if all six gates passed.
 
 The scientific endpoint was the strict conjunction of KT-A through KT-F.
 
+### 2.8 AI-assisted preparation and verification
+
+OpenAI ChatGPT (including GPT-6 for revisions in October 2026) assisted with drafting and reviewing portions of the manuscript and research software. All numerical results reported in this article are taken from recorded executable analyses and frozen result receipts rather than language-model estimates. The corresponding author is responsible for verifying AI-assisted text and code, and for checking that AI-generated source sections are appropriately documented, before submission.
+
 ## 3. Results
 
 ### 3.1 Positive process information was recovered
