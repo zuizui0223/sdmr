@@ -16,8 +16,9 @@ def test_all_four_figures_have_visual_png_previews():
     figures=(ROOT/"manuscript/figures/build_process_information_figures.py").read_text()
     conceptual=(ROOT/"manuscript/figures/build_process_information_conceptual_figures.py").read_text()
     assert figures.count('out.with_suffix(".png")') == 2
-    assert "figure1_process_information_closure.png" in conceptual
-    assert "figure2_known_truth_worlds.png" in conceptual
+    assert "figure1_process_information_closure.svg" in conceptual
+    assert "figure2_known_truth_worlds.svg" in conceptual
+    assert 'output.with_suffix(".png")' in conceptual
 
 
 def test_anonymized_science_disclosures_are_required_by_build():
