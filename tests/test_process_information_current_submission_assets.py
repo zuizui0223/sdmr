@@ -27,3 +27,14 @@ def test_anonymized_science_disclosures_are_required_by_build():
         assert anchor in code
     assert "REVIEW_RECEIPTS" in (ROOT/"scripts/build_process_information_anonymous_review_bundle.py").read_text()
     assert "continuous_line_numbers_present" in code
+
+
+def test_journal_ai_disclosure_is_not_treated_as_completed_author_review():
+    manuscript=(ROOT/"manuscript/PROCESS_INFORMATION_MEE_SUBMISSION_V1.md").read_text()
+    readiness=(ROOT/"manuscript/MEE_SUBMISSION_READINESS_V1.md").read_text()
+    builder=(ROOT/"scripts/build_process_information_mee_manuscript_docx.py").read_text()
+    assert "### 2.8 AI-assisted preparation and verification" in manuscript
+    assert "OpenAI ChatGPT" in manuscript
+    assert "before submission" in manuscript
+    assert "- [ ] Corresponding author verifies all AI-assisted" in readiness
+    assert "Internal routing metadata belongs in the submission form" in builder
