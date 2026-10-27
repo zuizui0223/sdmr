@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# AI-assisted source revision (OpenAI ChatGPT, GPT-6, October 2026); author verification required before submission.
 """Render anonymous MEE DOCX with double spacing and continuous line numbering."""
 from __future__ import annotations
 import argparse
