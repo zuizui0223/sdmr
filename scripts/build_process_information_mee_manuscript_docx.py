@@ -122,6 +122,10 @@ def render_manuscript(source: Path, output: Path) -> None:
         if not line or line == "---":
             i += 1
             continue
+        if line.startswith(("**Article type:**", "**Target:**")):
+            # Internal routing metadata belongs in the submission form, not the anonymous manuscript.
+            i += 1
+            continue
         if line.startswith("|") and i + 1 < len(lines) and TABLE_SEPARATOR.match(lines[i + 1]):
             rows = [line]
             i += 1
