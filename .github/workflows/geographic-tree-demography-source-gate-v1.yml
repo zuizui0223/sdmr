@@ -1,0 +1,53 @@
+name: geographic-tree-demography-source-gate-v1
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/geographic_tree_demography_source_gate_v1.py'
+      - 'tests/test_geographic_tree_demography_source_gate_v1.py'
+      - 'docs/GEOGRAPHIC_TREE_DEMOGRAPHY_SOURCE_GATE_V1.md'
+      - '.github/workflows/geographic-tree-demography-source-gate-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  neon-catalog-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Local tests for no-outcome source gate
+        run: python -m pip install pytest && python -m pytest -q tests/test_geographic_tree_demography_source_gate_v1.py
+      - name: Read-only NEON 2026 release site/years metadata and access status
+        run: |
+          python experiments/geographic_tree_demography_source_gate_v1.py \
+            --neon-only --cache artifacts --output artifacts/tree_neon_metadata_v1.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tree-neon-metadata-gate-v1
+          path: artifacts/tree_neon_metadata_v1.json
+          if-no-files-found: warn
+  fia-public-identity-linkage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read USDA DataMart ZIPs, count matching prior identity keys only
+        run: |
+          python experiments/geographic_tree_demography_source_gate_v1.py \
+            --fia-only --cache artifacts --output artifacts/tree_fia_linkage_v1.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tree-fia-identity-gate-v1
+          path: artifacts/tree_fia_linkage_v1.json
+          if-no-files-found: warn

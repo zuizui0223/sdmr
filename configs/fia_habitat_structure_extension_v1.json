@@ -1,0 +1,47 @@
+{
+  "basal_area_ft2_ac_bands": [
+    "0-<60",
+    "60-<120",
+    "120+"
+  ],
+  "diameter_bands_inches": [
+    "1-<5",
+    "5-<10",
+    "10-<20",
+    "20+"
+  ],
+  "minimum_eligible_source_pairs_per_state_stratum": 10,
+  "physiographic_source_FIADB_codes": {
+    "hydric": "31-39",
+    "mesic": "21-29",
+    "xeric": "11-19"
+  },
+  "prior_stand_age_bands_years": [
+    "0-<40",
+    "40-<80",
+    "80+"
+  ],
+  "species_codes": [
+    68,
+    129,
+    261,
+    316,
+    318,
+    371,
+    531,
+    541,
+    743,
+    762,
+    802,
+    833,
+    837
+  ],
+  "states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "status": "same-source-postoutcome-exploratory",
+  "study_id": "fia_habitat_structure_extension_v1",
+  "tree_result_sha256": "60de80f5b41a8eed94d13032a8176b857bc509017ace99ffa3ba4815cc2c8016"
+}

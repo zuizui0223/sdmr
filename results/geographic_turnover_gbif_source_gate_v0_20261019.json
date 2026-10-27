@@ -1,0 +1,155 @@
+{
+  "analysis_blocked": true,
+  "checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+  "claim_boundary": "Count-only support gate, not biological native status or any turnover outcome",
+  "count_threshold_diagnostic_only": 100,
+  "entries": [
+    {
+      "accepted_name": "Arabidopsis thaliana",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "DE",
+      "gbif_indexed_count": 4190,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "8e4035cf72a715bbc6ff5afa23d7e1f188058042878d065b2ea9d6854e42b5dd",
+      "status": "count_available",
+      "taxon": "Arabidopsis thaliana",
+      "taxon_key": "G26R"
+    },
+    {
+      "accepted_name": "Arabidopsis thaliana",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "ES",
+      "gbif_indexed_count": 463,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "94fdd1cc7e6b582cd3cf076a1a0d397f1379e27250bbbe2aa58d57ea59a1c348",
+      "status": "count_available",
+      "taxon": "Arabidopsis thaliana",
+      "taxon_key": "G26R"
+    },
+    {
+      "accepted_name": "Arabidopsis thaliana",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "GB",
+      "gbif_indexed_count": 22544,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "163585017a084a06b5f8e8d1f341cb8a3e7b0a42fad5e84fd5473b37be811d3c",
+      "status": "count_available",
+      "taxon": "Arabidopsis thaliana",
+      "taxon_key": "G26R"
+    },
+    {
+      "accepted_name": "Arabidopsis thaliana",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "SE",
+      "gbif_indexed_count": 6780,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "2d69754ef86028b6e3623f028804f85692d0cd084797e56b874167c3edd34333",
+      "status": "count_available",
+      "taxon": "Arabidopsis thaliana",
+      "taxon_key": "G26R"
+    },
+    {
+      "accepted_name": "Pinus sylvestris",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "ES",
+      "gbif_indexed_count": 4966,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "d72bcddf90ef02e35bcafde116f956b3440ddfd17f07f6f5a3c5147cc234fa17",
+      "status": "count_available",
+      "taxon": "Pinus sylvestris",
+      "taxon_key": "4J2J5"
+    },
+    {
+      "accepted_name": "Pinus sylvestris",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "FI",
+      "gbif_indexed_count": 91549,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "1db47e620364b13789882ed8b469d2741ba44da8dc8b7e8181c6f06b84244308",
+      "status": "count_available",
+      "taxon": "Pinus sylvestris",
+      "taxon_key": "4J2J5"
+    },
+    {
+      "accepted_name": "Pinus sylvestris",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "NO",
+      "gbif_indexed_count": 37119,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "eafbfee31d7f9828783a29a59603571ecec81fa4413f6c978cbd5d7cd7b52ba1",
+      "status": "count_available",
+      "taxon": "Pinus sylvestris",
+      "taxon_key": "4J2J5"
+    },
+    {
+      "accepted_name": "Pinus sylvestris",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "SE",
+      "gbif_indexed_count": 79946,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "b995c5c3c7371a3d7026980c6f7d39a11e865f4c0729174252ad9b894fe4a2a4",
+      "status": "count_available",
+      "taxon": "Pinus sylvestris",
+      "taxon_key": "4J2J5"
+    },
+    {
+      "accepted_name": "Quercus robur",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "DE",
+      "gbif_indexed_count": 101501,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "a9a8d5f65b04b74ff99919343e71b50ebc67223828f34e1e9125809815c76851",
+      "status": "count_available",
+      "taxon": "Quercus robur",
+      "taxon_key": "4R5YN"
+    },
+    {
+      "accepted_name": "Quercus robur",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "FR",
+      "gbif_indexed_count": 121035,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "0a5af499cd6d44d3dfd7ad1808e9d75651015168aadcf602fc13d03532776b79",
+      "status": "count_available",
+      "taxon": "Quercus robur",
+      "taxon_key": "4R5YN"
+    },
+    {
+      "accepted_name": "Quercus robur",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "GB",
+      "gbif_indexed_count": 90736,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "c396080f0f66646ce85580fff23e7d57dfd3f8032ff57b654bce0b586e2da624",
+      "status": "count_available",
+      "taxon": "Quercus robur",
+      "taxon_key": "4R5YN"
+    },
+    {
+      "accepted_name": "Quercus robur",
+      "count_pass_diagnostic": true,
+      "country_diagnostic_only": "SE",
+      "gbif_indexed_count": 101129,
+      "match_status": "ACCEPTED",
+      "search_query_sha256": "0c7cdba1bb3240984dbe5f4cc37d8308d82203a560812833728078f98c286b4c",
+      "status": "count_available",
+      "taxon": "Quercus robur",
+      "taxon_key": "4R5YN"
+    }
+  ],
+  "has_coordinate": true,
+  "has_geospatial_issue": false,
+  "missing_critical_sources": [
+    "native-range and taxon-status receipts",
+    "GBIF bulk DOI/download",
+    "complete equal-area accessible M × CHELSA cells",
+    "independent target-group effort"
+  ],
+  "n_count_available": 12,
+  "n_unavailable": 0,
+  "n_volume_checks_pass": 12,
+  "panel_scope": "3 predeclared diagnostic taxa × 4 country checks; NOT final taxon sampling frame",
+  "read_at_utc": "2026-10-19T07:23:29.080527+00:00",
+  "source": "GBIF public v1 occurrence search count, GBIF v2 taxon match (CoL XR)",
+  "years": "2010,2025"
+}

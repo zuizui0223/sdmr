@@ -1,0 +1,580 @@
+{
+  "analysis": "fia_archived_regional_growth_status_synthesis_v1",
+  "inferential_boundary": [
+    "Species/state counts are not independent tree-level replicates; no p-values or taxon-level generalization claimed.",
+    "Size-band-standardized means retain only trees observed live twice; survival selection bias is unresolved.",
+    "Diameter bands are broad and shared between states only when each band has >=30 pairs; four species cannot be compared.",
+    "Death fraction is conditional on observed prior-live links and lacks equal inventory intervals, plot weights or true hazard model.",
+    "No exact exposure/climate, plot design, management or demographic state-space model is available from this aggregate.",
+    "This post-outcome analysis is retrospective; it does not reopen historical SDMR Product A/B or M5 endpoints."
+  ],
+  "interpretation": "Within-species regionally heterogeneous observed live-tree diameter increments persist for the common available initial-diameter bands; linked death fractions do not form a common matching pattern. The data do NOT attribute the heterogeneity to climate, niche evolution, fitness optima, or physiological limits.",
+  "n_common_size_bands_WI_growth_higher": 19,
+  "n_pre_response_frozen_species": 13,
+  "n_species_with_2plus_bands_all_WI_above_RI": 6,
+  "n_species_with_2plus_shared_size_bins": 7,
+  "n_species_with_shared_size_bins": 9,
+  "n_states": 3,
+  "n_total_common_size_bands_across_species": 21,
+  "provenance": {
+    "reference": "evidence/geographic_tree_demography_first_response_v1/aggregate.json",
+    "source_artifact_id": 12183086705,
+    "source_github_actions_run": 39244950162,
+    "source_json_sha256": "57259fe905a610e311934b6cbc3a54143677629d2a87df7e7ee6bbe7cc64d414"
+  },
+  "species": [
+    {
+      "all_common_bands_WI_growth_higher": null,
+      "code": "68",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {},
+      "growth_direction_in_RI_VA_WI_order": "not_estimable_common_size_band",
+      "growth_pairs_by_state": {
+        "RI": 24,
+        "VA": 5259,
+        "WI": 1198
+      },
+      "n_common_bands_WI_growth_higher": 0,
+      "n_shared_size_bands": 0,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.14705882352941177,
+        "VA": 0.17657178604942134,
+        "WI": 0.06479313036690086
+      },
+      "shared_size_bands": [],
+      "size_standardized_log_growth_per_year": {
+        "RI": null,
+        "VA": null,
+        "WI": null
+      },
+      "species": "Juniperus virginiana"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "129",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "1-<5": 0.007566569399814552,
+        "10-<20": 0.0065800212067561575,
+        "20+": 0.001956093801033794,
+        "5-<10": 0.00851103386985902
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 933,
+        "VA": 7647,
+        "WI": 16715
+      },
+      "n_common_bands_WI_growth_higher": 4,
+      "n_shared_size_bands": 4,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.17838312829525482,
+        "VA": 0.10234741784037558,
+        "WI": 0.1053080821552414
+      },
+      "shared_size_bands": [
+        "1-<5",
+        "5-<10",
+        "10-<20",
+        "20+"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.015658828543405365,
+        "VA": 0.02047920155008089,
+        "WI": 0.023124384913189217
+      },
+      "species": "Pinus strobus"
+    },
+    {
+      "all_common_bands_WI_growth_higher": false,
+      "code": "261",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "10-<20": 0.0012484974318690521,
+        "5-<10": -0.002612727087227375
+      },
+      "growth_direction_in_RI_VA_WI_order": "mixed_or_tied",
+      "growth_pairs_by_state": {
+        "RI": 115,
+        "VA": 1811,
+        "WI": 7136
+      },
+      "n_common_bands_WI_growth_higher": 1,
+      "n_shared_size_bands": 2,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.10852713178294573,
+        "VA": 0.16157407407407406,
+        "WI": 0.05342701842768129
+      },
+      "shared_size_bands": [
+        "5-<10",
+        "10-<20"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.012336950541331633,
+        "VA": 0.00994721858535254,
+        "WI": 0.011283093804035893
+      },
+      "species": "Tsuga canadensis"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "316",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "1-<5": 0.017390367860615277,
+        "10-<20": 0.0035507728749703434,
+        "5-<10": 0.004726374727448201
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 2220,
+        "VA": 34262,
+        "WI": 60229
+      },
+      "n_common_bands_WI_growth_higher": 3,
+      "n_shared_size_bands": 3,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.0739202657807309,
+        "VA": 0.13318666868962728,
+        "WI": 0.11201167125952342
+      },
+      "shared_size_bands": [
+        "1-<5",
+        "5-<10",
+        "10-<20"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.009113863542627831,
+        "VA": 0.01286425314917384,
+        "WI": 0.01620888668833156
+      },
+      "species": "Acer rubrum"
+    },
+    {
+      "all_common_bands_WI_growth_higher": null,
+      "code": "318",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {},
+      "growth_direction_in_RI_VA_WI_order": "not_estimable_common_size_band",
+      "growth_pairs_by_state": {
+        "RI": 55,
+        "VA": 4398,
+        "WI": 50208
+      },
+      "n_common_bands_WI_growth_higher": 0,
+      "n_shared_size_bands": 0,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.0,
+        "VA": 0.05843321917808219,
+        "WI": 0.09600201427980505
+      },
+      "shared_size_bands": [],
+      "size_standardized_log_growth_per_year": {
+        "RI": null,
+        "VA": null,
+        "WI": null
+      },
+      "species": "Acer saccharum"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "371",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "1-<5": 0.010969088403314427,
+        "10-<20": 0.0011392056579177723,
+        "5-<10": 0.0014383407711749466
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 212,
+        "VA": 344,
+        "WI": 7560
+      },
+      "n_common_bands_WI_growth_higher": 3,
+      "n_shared_size_bands": 3,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.0782608695652174,
+        "VA": 0.09947643979057591,
+        "WI": 0.09923755063140338
+      },
+      "shared_size_bands": [
+        "1-<5",
+        "5-<10",
+        "10-<20"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.00942256655820594,
+        "VA": 0.009699527898196496,
+        "WI": 0.012094050841727823
+      },
+      "species": "Betula alleghaniensis"
+    },
+    {
+      "all_common_bands_WI_growth_higher": false,
+      "code": "531",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "5-<10": -0.0026381974883113654
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_decrease",
+      "growth_pairs_by_state": {
+        "RI": 72,
+        "VA": 6550,
+        "WI": 763
+      },
+      "n_common_bands_WI_growth_higher": 0,
+      "n_shared_size_bands": 1,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.06493506493506493,
+        "VA": 0.0639817195087118,
+        "WI": 0.07821901323706378
+      },
+      "shared_size_bands": [
+        "5-<10"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.018299241544608456,
+        "VA": 0.01722720482002899,
+        "WI": 0.01566104405629709
+      },
+      "species": "Fagus grandifolia"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "541",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "5-<10": 0.010422504629218052
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 78,
+        "VA": 2899,
+        "WI": 6764
+      },
+      "n_common_bands_WI_growth_higher": 1,
+      "n_shared_size_bands": 1,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.1875,
+        "VA": 0.2583781018163213,
+        "WI": 0.1677117914668634
+      },
+      "shared_size_bands": [
+        "5-<10"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.008380747365318728,
+        "VA": 0.015760856801822154,
+        "WI": 0.01880325199453678
+      },
+      "species": "Fraxinus americana"
+    },
+    {
+      "all_common_bands_WI_growth_higher": null,
+      "code": "743",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {},
+      "growth_direction_in_RI_VA_WI_order": "not_estimable_common_size_band",
+      "growth_pairs_by_state": {
+        "RI": 35,
+        "VA": 205,
+        "WI": 12626
+      },
+      "n_common_bands_WI_growth_higher": 0,
+      "n_shared_size_bands": 0,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.14634146341463414,
+        "VA": 0.3003412969283277,
+        "WI": 0.19911223842739378
+      },
+      "shared_size_bands": [],
+      "size_standardized_log_growth_per_year": {
+        "RI": null,
+        "VA": null,
+        "WI": null
+      },
+      "species": "Populus grandidentata"
+    },
+    {
+      "all_common_bands_WI_growth_higher": null,
+      "code": "762",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {},
+      "growth_direction_in_RI_VA_WI_order": "not_estimable_common_size_band",
+      "growth_pairs_by_state": {
+        "RI": 47,
+        "VA": 4363,
+        "WI": 9580
+      },
+      "n_common_bands_WI_growth_higher": 0,
+      "n_shared_size_bands": 0,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.24285714285714285,
+        "VA": 0.19757397537217422,
+        "WI": 0.19743204935801234
+      },
+      "shared_size_bands": [],
+      "size_standardized_log_growth_per_year": {
+        "RI": null,
+        "VA": null,
+        "WI": null
+      },
+      "species": "Prunus serotina"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "802",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "10-<20": 0.0012125799839114984,
+        "5-<10": 0.0037914108146899946
+      },
+      "growth_direction_in_RI_VA_WI_order": "mixed_or_tied",
+      "growth_pairs_by_state": {
+        "RI": 445,
+        "VA": 18812,
+        "WI": 8108
+      },
+      "n_common_bands_WI_growth_higher": 2,
+      "n_shared_size_bands": 2,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.15849056603773584,
+        "VA": 0.11760018748535271,
+        "WI": 0.11338066630256691
+      },
+      "shared_size_bands": [
+        "5-<10",
+        "10-<20"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.006867205054541024,
+        "VA": 0.010797916806424659,
+        "WI": 0.009419948703700873
+      },
+      "species": "Quercus alba"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "833",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "10-<20": 0.0022726827146588233,
+        "20+": 0.001326990570658106,
+        "5-<10": 0.006719786857285141
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 549,
+        "VA": 8135,
+        "WI": 16777
+      },
+      "n_common_bands_WI_growth_higher": 3,
+      "n_shared_size_bands": 3,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.12400635930047695,
+        "VA": 0.10712325760070245,
+        "WI": 0.10796901528013582
+      },
+      "shared_size_bands": [
+        "5-<10",
+        "10-<20",
+        "20+"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.011361943081464813,
+        "VA": 0.01335510433856466,
+        "WI": 0.01535633859335248
+      },
+      "species": "Quercus rubra"
+    },
+    {
+      "all_common_bands_WI_growth_higher": true,
+      "code": "837",
+      "common_size_band_WI_minus_RI_log_growth_per_year": {
+        "10-<20": 0.0021414409762460767,
+        "5-<10": 0.007534429889820069
+      },
+      "growth_direction_in_RI_VA_WI_order": "strict_increase",
+      "growth_pairs_by_state": {
+        "RI": 405,
+        "VA": 5504,
+        "WI": 5138
+      },
+      "n_common_bands_WI_growth_higher": 2,
+      "n_shared_size_bands": 2,
+      "observed_linked_dead_fraction_not_annual_hazard": {
+        "RI": 0.1749502982107356,
+        "VA": 0.1598048185422385,
+        "WI": 0.21488485587921305
+      },
+      "shared_size_bands": [
+        "5-<10",
+        "10-<20"
+      ],
+      "size_standardized_log_growth_per_year": {
+        "RI": 0.009785138098391245,
+        "VA": 0.012105956330648463,
+        "WI": 0.014676156354238556
+      },
+      "species": "Quercus velutina"
+    }
+  ],
+  "species_with_2plus_bands_all_WI_above_RI": [
+    "Pinus strobus",
+    "Acer rubrum",
+    "Betula alleghaniensis",
+    "Quercus alba",
+    "Quercus rubra",
+    "Quercus velutina"
+  ],
+  "state_pair_descriptive_comparisons": [
+    {
+      "among_growth_comparable_taxa": {
+        "higher_growth_and_higher_linked_dead_fraction": 3,
+        "higher_growth_and_lower_linked_dead_fraction": 4,
+        "lower_growth_and_higher_linked_dead_fraction": 1,
+        "lower_growth_and_lower_linked_dead_fraction": 1
+      },
+      "first_state": "RI",
+      "higher_growth_in_second_state": 7,
+      "lower_growth_in_second_state": 2,
+      "median_within_species_log_growth_difference_per_year": 0.0023208182322572175,
+      "n_taxa_observed_dead_fraction_higher_in_second_of_all_13": 7,
+      "n_taxa_observed_dead_fraction_lower_in_second_of_all_13": 6,
+      "n_taxa_with_common_size_growth": 9,
+      "n_taxa_without_common_size_growth": 4,
+      "second_state": "VA",
+      "shared_size_band_sensitivity": [
+        {
+          "growth_higher_in_second_state": 7,
+          "growth_lower_in_second_state": 2,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 1,
+          "taxa": 9
+        },
+        {
+          "growth_higher_in_second_state": 6,
+          "growth_lower_in_second_state": 1,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 2,
+          "taxa": 7
+        },
+        {
+          "growth_higher_in_second_state": 4,
+          "growth_lower_in_second_state": 0,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 3,
+          "taxa": 4
+        }
+      ]
+    },
+    {
+      "among_growth_comparable_taxa": {
+        "higher_growth_and_higher_linked_dead_fraction": 3,
+        "higher_growth_and_lower_linked_dead_fraction": 4,
+        "lower_growth_and_higher_linked_dead_fraction": 1,
+        "lower_growth_and_lower_linked_dead_fraction": 1
+      },
+      "first_state": "RI",
+      "higher_growth_in_second_state": 7,
+      "lower_growth_in_second_state": 2,
+      "median_within_species_log_growth_difference_per_year": 0.003994395511887667,
+      "n_taxa_observed_dead_fraction_higher_in_second_of_all_13": 6,
+      "n_taxa_observed_dead_fraction_lower_in_second_of_all_13": 7,
+      "n_taxa_with_common_size_growth": 9,
+      "n_taxa_without_common_size_growth": 4,
+      "second_state": "WI",
+      "shared_size_band_sensitivity": [
+        {
+          "growth_higher_in_second_state": 7,
+          "growth_lower_in_second_state": 2,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 1,
+          "taxa": 9
+        },
+        {
+          "growth_higher_in_second_state": 6,
+          "growth_lower_in_second_state": 1,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 2,
+          "taxa": 7
+        },
+        {
+          "growth_higher_in_second_state": 4,
+          "growth_lower_in_second_state": 0,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 3,
+          "taxa": 4
+        }
+      ]
+    },
+    {
+      "among_growth_comparable_taxa": {
+        "higher_growth_and_higher_linked_dead_fraction": 3,
+        "higher_growth_and_lower_linked_dead_fraction": 4,
+        "lower_growth_and_higher_linked_dead_fraction": 1,
+        "lower_growth_and_lower_linked_dead_fraction": 1
+      },
+      "first_state": "VA",
+      "higher_growth_in_second_state": 7,
+      "lower_growth_in_second_state": 2,
+      "median_within_species_log_growth_difference_per_year": 0.0023945229435313273,
+      "n_taxa_observed_dead_fraction_higher_in_second_of_all_13": 5,
+      "n_taxa_observed_dead_fraction_lower_in_second_of_all_13": 8,
+      "n_taxa_with_common_size_growth": 9,
+      "n_taxa_without_common_size_growth": 4,
+      "second_state": "WI",
+      "shared_size_band_sensitivity": [
+        {
+          "growth_higher_in_second_state": 7,
+          "growth_lower_in_second_state": 2,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 1,
+          "taxa": 9
+        },
+        {
+          "growth_higher_in_second_state": 6,
+          "growth_lower_in_second_state": 1,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 2,
+          "taxa": 7
+        },
+        {
+          "growth_higher_in_second_state": 4,
+          "growth_lower_in_second_state": 0,
+          "growth_tied": 0,
+          "minimum_shared_size_bands": 3,
+          "taxa": 4
+        }
+      ]
+    }
+  ],
+  "states": {
+    "RI": {
+      "growth_pairs": 5190,
+      "not_currently_tallied_excluded": 867,
+      "observed_linked_dead_fraction_pooled_not_design_weighted": 0.1202020202020202,
+      "observed_live_to_dead": 714,
+      "observed_live_to_live": 5226,
+      "prior_live_forward_linked": 6807
+    },
+    "VA": {
+      "growth_pairs": 100189,
+      "not_currently_tallied_excluded": 5277,
+      "observed_linked_dead_fraction_pooled_not_design_weighted": 0.1307805034555119,
+      "observed_live_to_dead": 15082,
+      "observed_live_to_live": 100241,
+      "prior_live_forward_linked": 120600
+    },
+    "WI": {
+      "growth_pairs": 202802,
+      "not_currently_tallied_excluded": 8124,
+      "observed_linked_dead_fraction_pooled_not_design_weighted": 0.11985020349958607,
+      "observed_live_to_dead": 27651,
+      "observed_live_to_live": 203062,
+      "prior_live_forward_linked": 238837
+    }
+  },
+  "status": "post_outcome_descriptive_no_confirmatory_promotion",
+  "strict_decreasing_growth_ri_va_wi_species": [
+    "Fagus grandifolia"
+  ],
+  "strict_increasing_growth_ri_va_wi_species": [
+    "Pinus strobus",
+    "Acer rubrum",
+    "Betula alleghaniensis",
+    "Fraxinus americana",
+    "Quercus rubra",
+    "Quercus velutina"
+  ]
+}

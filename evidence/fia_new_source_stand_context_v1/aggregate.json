@@ -1,0 +1,3764 @@
+{
+  "cross_state_size_stand_age_standardization": [
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.0034335063433847115,
+          "measyear": 0.003456013304014846
+        },
+        "VA": {
+          "invyr_same_pairs": 0.00975820374859151,
+          "measyear": 0.00952479328558957
+        },
+        "WI": {
+          "invyr_same_pairs": 0.009681345949936632,
+          "measyear": 0.009753823829311368
+        }
+      },
+      "n_observed_pairs_in_common_strata": 2037,
+      "n_shared_size_age_strata": 1,
+      "spcd": "68",
+      "strata": [
+        "5-<10|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.017685283027434048,
+          "measyear": 0.01797099799591129
+        },
+        "VA": {
+          "invyr_same_pairs": 0.019301949266551748,
+          "measyear": 0.01870950561599859
+        },
+        "WI": {
+          "invyr_same_pairs": 0.02311676150512128,
+          "measyear": 0.02320651041870824
+        }
+      },
+      "n_observed_pairs_in_common_strata": 19358,
+      "n_shared_size_age_strata": 10,
+      "spcd": "129",
+      "strata": [
+        "1-<5|0-<40",
+        "1-<5|40-<80",
+        "1-<5|80+",
+        "5-<10|0-<40",
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+",
+        "20+|40-<80",
+        "20+|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.009300549427304218,
+          "measyear": 0.009836696046534227
+        },
+        "VA": {
+          "invyr_same_pairs": 0.008771702973846296,
+          "measyear": 0.00863037453181779
+        },
+        "WI": {
+          "invyr_same_pairs": 0.010821767824821018,
+          "measyear": 0.010862891358901968
+        }
+      },
+      "n_observed_pairs_in_common_strata": 5294,
+      "n_shared_size_age_strata": 4,
+      "spcd": "261",
+      "strata": [
+        "5-<10|0-<40",
+        "5-<10|40-<80",
+        "10-<20|40-<80",
+        "10-<20|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.009474694503922956,
+          "measyear": 0.009585808365356802
+        },
+        "VA": {
+          "invyr_same_pairs": 0.011941123539858127,
+          "measyear": 0.011631449539523416
+        },
+        "WI": {
+          "invyr_same_pairs": 0.0160416777557711,
+          "measyear": 0.016105877708755267
+        }
+      },
+      "n_observed_pairs_in_common_strata": 91587,
+      "n_shared_size_age_strata": 9,
+      "spcd": "316",
+      "strata": [
+        "1-<5|0-<40",
+        "1-<5|40-<80",
+        "1-<5|80+",
+        "5-<10|0-<40",
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+",
+        "20+|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.00900386332029042,
+          "measyear": 0.008960384618991549
+        },
+        "VA": {
+          "invyr_same_pairs": 0.014603625313638357,
+          "measyear": 0.014185295844867158
+        },
+        "WI": {
+          "invyr_same_pairs": 0.012705548609711967,
+          "measyear": 0.012797596784125365
+        }
+      },
+      "n_observed_pairs_in_common_strata": 12149,
+      "n_shared_size_age_strata": 2,
+      "spcd": "318",
+      "strata": [
+        "1-<5|40-<80",
+        "10-<20|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.009316601579219217,
+          "measyear": 0.009450491177005273
+        },
+        "VA": {
+          "invyr_same_pairs": 0.00988377493968291,
+          "measyear": 0.009718414759247639
+        },
+        "WI": {
+          "invyr_same_pairs": 0.012060851307774121,
+          "measyear": 0.012095668363324591
+        }
+      },
+      "n_observed_pairs_in_common_strata": 7744,
+      "n_shared_size_age_strata": 7,
+      "spcd": "371",
+      "strata": [
+        "1-<5|0-<40",
+        "1-<5|40-<80",
+        "1-<5|80+",
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.028418943715989818,
+          "measyear": 0.02969549007020454
+        },
+        "VA": {
+          "invyr_same_pairs": 0.019093204030980162,
+          "measyear": 0.018562551420028855
+        },
+        "WI": {
+          "invyr_same_pairs": 0.018720818838094924,
+          "measyear": 0.01877078795268974
+        }
+      },
+      "n_observed_pairs_in_common_strata": 3652,
+      "n_shared_size_age_strata": 3,
+      "spcd": "531",
+      "strata": [
+        "1-<5|40-<80",
+        "5-<10|40-<80",
+        "5-<10|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.006510408336683533,
+          "measyear": 0.006623629985475828
+        },
+        "VA": {
+          "invyr_same_pairs": 0.01276207263362579,
+          "measyear": 0.012197074332978928
+        },
+        "WI": {
+          "invyr_same_pairs": 0.015470856604047642,
+          "measyear": 0.015503591992339664
+        }
+      },
+      "n_observed_pairs_in_common_strata": 5538,
+      "n_shared_size_age_strata": 3,
+      "spcd": "541",
+      "strata": [
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.008698556270869745,
+          "measyear": 0.008979586105305169
+        },
+        "VA": {
+          "invyr_same_pairs": 0.010652895894338084,
+          "measyear": 0.010273631396273
+        },
+        "WI": {
+          "invyr_same_pairs": 0.01169438130386173,
+          "measyear": 0.011746549415387633
+        }
+      },
+      "n_observed_pairs_in_common_strata": 1885,
+      "n_shared_size_age_strata": 1,
+      "spcd": "743",
+      "strata": [
+        "10-<20|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.007307233772888124,
+          "measyear": 0.006950911692845749
+        },
+        "VA": {
+          "invyr_same_pairs": 0.010803770093518633,
+          "measyear": 0.010523224693940103
+        },
+        "WI": {
+          "invyr_same_pairs": 0.01063026483628005,
+          "measyear": 0.010649757306508986
+        }
+      },
+      "n_observed_pairs_in_common_strata": 1336,
+      "n_shared_size_age_strata": 1,
+      "spcd": "762",
+      "strata": [
+        "10-<20|40-<80"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.007308889889016669,
+          "measyear": 0.007395360009602683
+        },
+        "VA": {
+          "invyr_same_pairs": 0.01045075134334414,
+          "measyear": 0.010126499450482605
+        },
+        "WI": {
+          "invyr_same_pairs": 0.010014710861474176,
+          "measyear": 0.010015126785444771
+        }
+      },
+      "n_observed_pairs_in_common_strata": 23849,
+      "n_shared_size_age_strata": 7,
+      "spcd": "802",
+      "strata": [
+        "1-<5|40-<80",
+        "5-<10|0-<40",
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+",
+        "20+|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.012643877294615814,
+          "measyear": 0.012644661970633858
+        },
+        "VA": {
+          "invyr_same_pairs": 0.013780001426790625,
+          "measyear": 0.013392097218667642
+        },
+        "WI": {
+          "invyr_same_pairs": 0.015888455210712336,
+          "measyear": 0.01596265065561035
+        }
+      },
+      "n_observed_pairs_in_common_strata": 23270,
+      "n_shared_size_age_strata": 8,
+      "spcd": "833",
+      "strata": [
+        "1-<5|40-<80",
+        "5-<10|0-<40",
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+",
+        "20+|40-<80",
+        "20+|80+"
+      ]
+    },
+    {
+      "by_state": {
+        "RI": {
+          "invyr_same_pairs": 0.009177147287985566,
+          "measyear": 0.00924026366863251
+        },
+        "VA": {
+          "invyr_same_pairs": 0.0108170201736781,
+          "measyear": 0.01048720678446167
+        },
+        "WI": {
+          "invyr_same_pairs": 0.013234138824172714,
+          "measyear": 0.013186604502434965
+        }
+      },
+      "n_observed_pairs_in_common_strata": 8328,
+      "n_shared_size_age_strata": 5,
+      "spcd": "837",
+      "strata": [
+        "5-<10|40-<80",
+        "5-<10|80+",
+        "10-<20|40-<80",
+        "10-<20|80+",
+        "20+|40-<80"
+      ]
+    }
+  ],
+  "names": {
+    "129": "Pinus strobus",
+    "261": "Tsuga canadensis",
+    "316": "Acer rubrum",
+    "318": "Acer saccharum",
+    "371": "Betula alleghaniensis",
+    "531": "Fagus grandifolia",
+    "541": "Fraxinus americana",
+    "68": "Juniperus virginiana",
+    "743": "Populus grandidentata",
+    "762": "Prunus serotina",
+    "802": "Quercus alba",
+    "833": "Quercus rubra",
+    "837": "Quercus velutina"
+  },
+  "no_causal_climate_or_niche_evolution_claim": true,
+  "no_design_weights_or_plot_cluster_intervals": true,
+  "not_equivalent_to_prior_308181_survivor_growth_pairs": true,
+  "plot_cond_source_receipt_sha256": "a0750b945cab7db53238827ffecce0d499d84ed9415a139561df35079eacb666",
+  "scope": "NEW source version, exploratory same 13 taxa and RI VA WI; original frozen FIA response unchanged",
+  "states": [
+    {
+      "n_conditions": 1821,
+      "n_plots": 1408,
+      "source_row_counts": {
+        "n_selected_source_tree_records": 17153,
+        "n_source_tree_records": 23307
+      },
+      "species": [
+        {
+          "counters": {
+            "eligible_measurement_interval": 48,
+            "exact_plot_chain": 48,
+            "forward_same_species_links": 48,
+            "height_comparable": 24,
+            "inventory_vs_measurement_interval_different": 46,
+            "live_live": 29,
+            "missing_diameter": 5,
+            "natural_age_height_matched": 24,
+            "natural_forest_both": 24,
+            "observed_dead": 5,
+            "prior_live_measurement_dates": 35,
+            "prior_not_live": 13,
+            "unknown_status_not_dead": 1,
+            "valid_growth_measured_year": 24
+          },
+          "mean_growth_invyr_same_pairs": 0.004543630076687428,
+          "mean_growth_measyear": 0.00485564481750265,
+          "n_growth_pairs": 24,
+          "n_natural_stand_age_pairs": 24,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013743273449669057,
+              "mean_measyear_normalized": 0.015931726911795393,
+              "n": 3
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0012903404835907825,
+              "mean_measyear_normalized": 0.00153802105419767,
+              "n": 2
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0034335063433847115,
+              "mean_measyear_normalized": 0.003456013304014846,
+              "n": 19
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            }
+          },
+          "spcd": "68"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 1320,
+            "exact_plot_chain": 1320,
+            "forward_same_species_links": 1320,
+            "height_comparable": 933,
+            "inventory_vs_measurement_interval_different": 1196,
+            "live_live": 935,
+            "missing_diameter": 2,
+            "natural_age_height_matched": 933,
+            "natural_forest_both": 933,
+            "observed_dead": 203,
+            "prior_live_measurement_dates": 1202,
+            "prior_not_live": 118,
+            "unknown_status_not_dead": 64,
+            "valid_growth_measured_year": 933
+          },
+          "mean_growth_invyr_same_pairs": 0.015918431016700547,
+          "mean_growth_measyear": 0.01605680323529969,
+          "n_growth_pairs": 933,
+          "n_natural_stand_age_pairs": 933,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.023081463732147645,
+              "mean_measyear_normalized": 0.02204607659103831,
+              "n": 15
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.041518564550068415,
+              "mean_measyear_normalized": 0.04185823974148121,
+              "n": 124
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0238451947978788,
+              "mean_measyear_normalized": 0.02377737633260971,
+              "n": 25
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.022062605371682135,
+              "mean_measyear_normalized": 0.02130483470128812,
+              "n": 5
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008452352423809862,
+              "mean_measyear_normalized": 0.008525509175664409,
+              "n": 220
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007856538227231702,
+              "mean_measyear_normalized": 0.007857242434292672,
+              "n": 86
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0062654533869249355,
+              "mean_measyear_normalized": 0.006354616142971793,
+              "n": 47
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006748516475459847,
+              "mean_measyear_normalized": 0.0069013494471866195,
+              "n": 32
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.035164357759926566,
+              "mean_measyear_normalized": 0.03665032350032085,
+              "n": 11
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.014529444849141602,
+              "mean_measyear_normalized": 0.014620843004100534,
+              "n": 299
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.012669691002213325,
+              "mean_measyear_normalized": 0.013236164263030589,
+              "n": 69
+            }
+          },
+          "spcd": "129"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 220,
+            "exact_plot_chain": 220,
+            "forward_same_species_links": 220,
+            "height_comparable": 115,
+            "inventory_vs_measurement_interval_different": 179,
+            "live_live": 115,
+            "natural_age_height_matched": 115,
+            "natural_forest_both": 115,
+            "observed_dead": 14,
+            "prior_live_measurement_dates": 146,
+            "prior_not_live": 74,
+            "unknown_status_not_dead": 17,
+            "valid_growth_measured_year": 115
+          },
+          "mean_growth_invyr_same_pairs": 0.014445487012010498,
+          "mean_growth_measyear": 0.014924717668269711,
+          "n_growth_pairs": 115,
+          "n_natural_stand_age_pairs": 115,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0479495426701573,
+              "mean_measyear_normalized": 0.047668086355014926,
+              "n": 6
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.012935425483766546,
+              "mean_measyear_normalized": 0.01478957281014173,
+              "n": 6
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.019671029424605413,
+              "mean_measyear_normalized": 0.018796333173578365,
+              "n": 2
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007655116055003942,
+              "mean_measyear_normalized": 0.007551718357282032,
+              "n": 24
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.003433065026828686,
+              "mean_measyear_normalized": 0.003542198132921925,
+              "n": 11
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00975803283388641,
+              "mean_measyear_normalized": 0.00975803283388641,
+              "n": 1
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006645716519270415,
+              "mean_measyear_normalized": 0.007066331488844329,
+              "n": 1
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01923494896084083,
+              "mean_measyear_normalized": 0.019038468082884955,
+              "n": 22
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.015220248048233366,
+              "mean_measyear_normalized": 0.016576099014617776,
+              "n": 38
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.004287646417180071,
+              "mean_measyear_normalized": 0.004559016443583768,
+              "n": 4
+            }
+          },
+          "spcd": "261"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 2992,
+            "exact_plot_chain": 2992,
+            "forward_same_species_links": 2992,
+            "height_comparable": 2220,
+            "inventory_vs_measurement_interval_different": 2723,
+            "live_live": 2230,
+            "missing_diameter": 10,
+            "natural_age_height_matched": 2220,
+            "natural_forest_both": 2220,
+            "observed_dead": 178,
+            "prior_live_measurement_dates": 2869,
+            "prior_not_live": 123,
+            "unknown_status_not_dead": 461,
+            "valid_growth_measured_year": 2220
+          },
+          "mean_growth_invyr_same_pairs": 0.00847222152775719,
+          "mean_growth_measyear": 0.008576843387566585,
+          "n_growth_pairs": 2220,
+          "n_natural_stand_age_pairs": 2220,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0058982709377235504,
+              "mean_measyear_normalized": 0.005751667530101946,
+              "n": 27
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013123669491114279,
+              "mean_measyear_normalized": 0.013249059768703872,
+              "n": 136
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.013632694337232135,
+              "mean_measyear_normalized": 0.013767276233791094,
+              "n": 41
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0183153678424885,
+              "mean_measyear_normalized": 0.01820532352770671,
+              "n": 6
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006819284087556522,
+              "mean_measyear_normalized": 0.006882402111189233,
+              "n": 404
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0054437137448308465,
+              "mean_measyear_normalized": 0.005546368382853101,
+              "n": 186
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.005555912821415134,
+              "mean_measyear_normalized": 0.0056500808353373375,
+              "n": 1
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": -6.695063693561772e-05,
+              "mean_measyear_normalized": 0.00019714807159172315,
+              "n": 16
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.002779831055842599,
+              "mean_measyear_normalized": 0.002925353309827038,
+              "n": 3
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02264751802761934,
+              "mean_measyear_normalized": 0.023190021798465858,
+              "n": 69
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008386068797987988,
+              "mean_measyear_normalized": 0.008567806786055189,
+              "n": 1000
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007451158565034351,
+              "mean_measyear_normalized": 0.007287375013894018,
+              "n": 331
+            }
+          },
+          "spcd": "316"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 58,
+            "exact_plot_chain": 58,
+            "forward_same_species_links": 58,
+            "height_comparable": 55,
+            "inventory_vs_measurement_interval_different": 55,
+            "live_live": 55,
+            "natural_age_height_matched": 55,
+            "natural_forest_both": 55,
+            "prior_live_measurement_dates": 58,
+            "unknown_status_not_dead": 3,
+            "valid_growth_measured_year": 55
+          },
+          "mean_growth_invyr_same_pairs": 0.010526580401863998,
+          "mean_growth_measyear": 0.01058513069397613,
+          "n_growth_pairs": 55,
+          "n_natural_stand_age_pairs": 55,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01556762389072835,
+              "mean_measyear_normalized": 0.015563981400966482,
+              "n": 20
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.00217559206002878,
+              "mean_measyear_normalized": 0.002304050061820548,
+              "n": 9
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.005084762424940203,
+              "mean_measyear_normalized": 0.005017498253311235,
+              "n": 11
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007204407660984557,
+              "mean_measyear_normalized": 0.008177976263820209,
+              "n": 1
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0027902975688874343,
+              "mean_measyear_normalized": 0.0028274102085283797,
+              "n": 3
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011026561483638073,
+              "mean_measyear_normalized": 0.010954383137464267,
+              "n": 8
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.029436312278866724,
+              "mean_measyear_normalized": 0.0302261189391432,
+              "n": 3
+            }
+          },
+          "spcd": "318"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 275,
+            "exact_plot_chain": 275,
+            "forward_same_species_links": 275,
+            "height_comparable": 212,
+            "inventory_vs_measurement_interval_different": 230,
+            "live_live": 212,
+            "natural_age_height_matched": 212,
+            "natural_forest_both": 212,
+            "observed_dead": 18,
+            "prior_live_measurement_dates": 269,
+            "prior_not_live": 6,
+            "unknown_status_not_dead": 39,
+            "valid_growth_measured_year": 212
+          },
+          "mean_growth_invyr_same_pairs": 0.010132949277102914,
+          "mean_growth_measyear": 0.01026977163474785,
+          "n_growth_pairs": 212,
+          "n_natural_stand_age_pairs": 212,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.004685016301969792,
+              "mean_measyear_normalized": 0.0045273361269354915,
+              "n": 15
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016709029486831947,
+              "mean_measyear_normalized": 0.01626086830638488,
+              "n": 23
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01703086160302146,
+              "mean_measyear_normalized": 0.018578701203905625,
+              "n": 16
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02693137702925144,
+              "mean_measyear_normalized": 0.02738784104669596,
+              "n": 1
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00488400492629539,
+              "mean_measyear_normalized": 0.004915060852973844,
+              "n": 22
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0051238623983496275,
+              "mean_measyear_normalized": 0.005078746056809893,
+              "n": 16
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.020585205420414886,
+              "mean_measyear_normalized": 0.01952018365075164,
+              "n": 2
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01070373216320952,
+              "mean_measyear_normalized": 0.010856079123071715,
+              "n": 76
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.00853885852060233,
+              "mean_measyear_normalized": 0.00871075260919847,
+              "n": 41
+            }
+          },
+          "spcd": "371"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 88,
+            "exact_plot_chain": 88,
+            "forward_same_species_links": 88,
+            "height_comparable": 72,
+            "inventory_vs_measurement_interval_different": 57,
+            "live_live": 72,
+            "natural_age_height_matched": 72,
+            "natural_forest_both": 72,
+            "observed_dead": 5,
+            "prior_live_measurement_dates": 87,
+            "prior_not_live": 1,
+            "unknown_status_not_dead": 10,
+            "valid_growth_measured_year": 72
+          },
+          "mean_growth_invyr_same_pairs": 0.02621884523966499,
+          "mean_growth_measyear": 0.0269975771691405,
+          "n_growth_pairs": 72,
+          "n_natural_stand_age_pairs": 72,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.06551626438924305,
+              "mean_measyear_normalized": 0.06917188384966717,
+              "n": 10
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.04023665793656348,
+              "mean_measyear_normalized": 0.04120708273355641,
+              "n": 6
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.030448919076816208,
+              "mean_measyear_normalized": 0.02890132217612993,
+              "n": 2
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007792263390618941,
+              "mean_measyear_normalized": 0.007915235874451518,
+              "n": 3
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005118400866382282,
+              "mean_measyear_normalized": 0.004901310274785048,
+              "n": 2
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.017750920010684988,
+              "mean_measyear_normalized": 0.016852008196944313,
+              "n": 4
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.019040556108370483,
+              "mean_measyear_normalized": 0.02008302067197189,
+              "n": 21
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.017741978223637253,
+              "mean_measyear_normalized": 0.017681740910655594,
+              "n": 24
+            }
+          },
+          "spcd": "531"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 137,
+            "exact_plot_chain": 137,
+            "forward_same_species_links": 137,
+            "height_comparable": 78,
+            "inventory_vs_measurement_interval_different": 130,
+            "live_live": 78,
+            "natural_age_height_matched": 78,
+            "natural_forest_both": 78,
+            "observed_dead": 18,
+            "prior_live_measurement_dates": 113,
+            "prior_not_live": 24,
+            "unknown_status_not_dead": 17,
+            "valid_growth_measured_year": 78
+          },
+          "mean_growth_invyr_same_pairs": 0.007109535035213648,
+          "mean_growth_measyear": 0.007171449265410156,
+          "n_growth_pairs": 78,
+          "n_natural_stand_age_pairs": 78,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.004763201153329052,
+              "mean_measyear_normalized": 0.005118663925965617,
+              "n": 2
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005293426582408702,
+              "mean_measyear_normalized": 0.005357202806293086,
+              "n": 2
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.004515014600498667,
+              "mean_measyear_normalized": 0.004530313033927447,
+              "n": 13
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0023724227812961136,
+              "mean_measyear_normalized": 0.002313562596635295,
+              "n": 4
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0026522456254959707,
+              "mean_measyear_normalized": 0.002693690225171962,
+              "n": 2
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01668057642616374,
+              "mean_measyear_normalized": 0.016915514122306675,
+              "n": 1
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006719789064102503,
+              "mean_measyear_normalized": 0.006984785868771959,
+              "n": 26
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009626643321417898,
+              "mean_measyear_normalized": 0.009513059366041259,
+              "n": 28
+            }
+          },
+          "spcd": "541"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 51,
+            "exact_plot_chain": 51,
+            "forward_same_species_links": 51,
+            "height_comparable": 35,
+            "inventory_vs_measurement_interval_different": 37,
+            "live_live": 35,
+            "natural_age_height_matched": 35,
+            "natural_forest_both": 35,
+            "observed_dead": 6,
+            "prior_live_measurement_dates": 49,
+            "prior_not_live": 2,
+            "unknown_status_not_dead": 8,
+            "valid_growth_measured_year": 35
+          },
+          "mean_growth_invyr_same_pairs": 0.013215630184244027,
+          "mean_growth_measyear": 0.013035674846500889,
+          "n_growth_pairs": 35,
+          "n_natural_stand_age_pairs": 35,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01170070977887476,
+              "mean_measyear_normalized": 0.011865508508154534,
+              "n": 1
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008698556270869745,
+              "mean_measyear_normalized": 0.008979586105305169,
+              "n": 18
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01180211190680054,
+              "mean_measyear_normalized": 0.011527644188037612,
+              "n": 3
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.030789736192237266,
+              "mean_measyear_normalized": 0.029279343213106972,
+              "n": 5
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013114664639052854,
+              "mean_measyear_normalized": 0.012721364074279477,
+              "n": 8
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            }
+          },
+          "spcd": "743"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 88,
+            "exact_plot_chain": 88,
+            "forward_same_species_links": 88,
+            "height_comparable": 47,
+            "inventory_vs_measurement_interval_different": 84,
+            "live_live": 53,
+            "missing_diameter": 6,
+            "natural_age_height_matched": 44,
+            "natural_forest_both": 44,
+            "not_confirmed_natural_both": 3,
+            "observed_dead": 17,
+            "prior_live_measurement_dates": 78,
+            "prior_not_live": 10,
+            "unknown_status_not_dead": 8,
+            "valid_growth_measured_year": 47
+          },
+          "mean_growth_invyr_same_pairs": 0.0161541024418707,
+          "mean_growth_measyear": 0.01642932033550948,
+          "n_growth_pairs": 47,
+          "n_natural_stand_age_pairs": 44,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.05570935676508454,
+              "mean_measyear_normalized": 0.05624521241686643,
+              "n": 5
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016243006012009495,
+              "mean_measyear_normalized": 0.01689490567132944,
+              "n": 8
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.018361509850624576,
+              "mean_measyear_normalized": 0.021601776294852444,
+              "n": 1
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007307233772888125,
+              "mean_measyear_normalized": 0.00695091169284575,
+              "n": 14
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.022889772681374255,
+              "mean_measyear_normalized": 0.023093991930131157,
+              "n": 6
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006814795087769966,
+              "mean_measyear_normalized": 0.006855780441404551,
+              "n": 8
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0017331182787947556,
+              "mean_measyear_normalized": 0.0016767180493778688,
+              "n": 2
+            }
+          },
+          "spcd": "762"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 709,
+            "exact_plot_chain": 709,
+            "forward_same_species_links": 709,
+            "height_comparable": 445,
+            "inventory_vs_measurement_interval_different": 620,
+            "live_live": 446,
+            "missing_diameter": 1,
+            "natural_age_height_matched": 445,
+            "natural_forest_both": 445,
+            "observed_dead": 84,
+            "prior_live_measurement_dates": 608,
+            "prior_not_live": 101,
+            "unknown_status_not_dead": 78,
+            "valid_growth_measured_year": 445
+          },
+          "mean_growth_invyr_same_pairs": 0.00708519386970761,
+          "mean_growth_measyear": 0.0072268320823106105,
+          "n_growth_pairs": 445,
+          "n_natural_stand_age_pairs": 445,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011861133973926451,
+              "mean_measyear_normalized": 0.012270138593716633,
+              "n": 3
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.015378832172442337,
+              "mean_measyear_normalized": 0.016313077415549163,
+              "n": 13
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.015051502236832336,
+              "mean_measyear_normalized": 0.017085489025593252,
+              "n": 1
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.00904112543644713,
+              "mean_measyear_normalized": 0.008853272229285742,
+              "n": 5
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0070890799167978346,
+              "mean_measyear_normalized": 0.007339338887027141,
+              "n": 115
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006156566919698864,
+              "mean_measyear_normalized": 0.006253442611832692,
+              "n": 60
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.004358078484385519,
+              "mean_measyear_normalized": 0.004444142805497823,
+              "n": 9
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005334223962220636,
+              "mean_measyear_normalized": 0.005546585916928796,
+              "n": 10
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01031233059997732,
+              "mean_measyear_normalized": 0.009757229926511048,
+              "n": 13
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0065244704444007776,
+              "mean_measyear_normalized": 0.0066273669175116534,
+              "n": 190
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007932041869464484,
+              "mean_measyear_normalized": 0.007883485683238513,
+              "n": 26
+            }
+          },
+          "spcd": "802"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 782,
+            "exact_plot_chain": 782,
+            "forward_same_species_links": 782,
+            "height_comparable": 549,
+            "inventory_vs_measurement_interval_different": 694,
+            "live_live": 551,
+            "missing_diameter": 2,
+            "natural_age_height_matched": 549,
+            "natural_forest_both": 549,
+            "observed_dead": 78,
+            "prior_live_measurement_dates": 720,
+            "prior_not_live": 62,
+            "unknown_status_not_dead": 91,
+            "valid_growth_measured_year": 549
+          },
+          "mean_growth_invyr_same_pairs": 0.011892282879844701,
+          "mean_growth_measyear": 0.011907027355762314,
+          "n_growth_pairs": 549,
+          "n_natural_stand_age_pairs": 549,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.039278316021031705,
+              "mean_measyear_normalized": 0.04002386139600545,
+              "n": 11
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008405785717561913,
+              "mean_measyear_normalized": 0.008306894120884537,
+              "n": 1
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011584441832566253,
+              "mean_measyear_normalized": 0.011655233072593732,
+              "n": 3
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011046633297433989,
+              "mean_measyear_normalized": 0.010954744860170179,
+              "n": 152
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008572388251180833,
+              "mean_measyear_normalized": 0.008749202648332734,
+              "n": 139
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007392282564443023,
+              "mean_measyear_normalized": 0.007603050400623167,
+              "n": 20
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008108261479372247,
+              "mean_measyear_normalized": 0.00815586448861951,
+              "n": 14
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03034251216385327,
+              "mean_measyear_normalized": 0.02908635893864901,
+              "n": 21
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.012941691580035426,
+              "mean_measyear_normalized": 0.012927037838808308,
+              "n": 147
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.00931731111604466,
+              "mean_measyear_normalized": 0.009630032972806837,
+              "n": 41
+            }
+          },
+          "spcd": "833"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 638,
+            "exact_plot_chain": 638,
+            "forward_same_species_links": 638,
+            "height_comparable": 405,
+            "inventory_vs_measurement_interval_different": 546,
+            "live_live": 415,
+            "missing_diameter": 10,
+            "natural_age_height_matched": 405,
+            "natural_forest_both": 405,
+            "observed_dead": 88,
+            "prior_live_measurement_dates": 573,
+            "prior_not_live": 65,
+            "unknown_status_not_dead": 70,
+            "valid_growth_measured_year": 405
+          },
+          "mean_growth_invyr_same_pairs": 0.009632390878718861,
+          "mean_growth_measyear": 0.009705581429905371,
+          "n_growth_pairs": 405,
+          "n_natural_stand_age_pairs": 405,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.012455985747237308,
+              "mean_measyear_normalized": 0.012355579282324511,
+              "n": 3
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.010586853164817405,
+              "mean_measyear_normalized": 0.01201750899790069,
+              "n": 1
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009629624784546783,
+              "mean_measyear_normalized": 0.009633843518846795,
+              "n": 164
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007445188714149676,
+              "mean_measyear_normalized": 0.007517289282742529,
+              "n": 61
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008906966014396183,
+              "mean_measyear_normalized": 0.00909234274747484,
+              "n": 13
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006406584821435835,
+              "mean_measyear_normalized": 0.005696026186323262,
+              "n": 2
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.043726797323632306,
+              "mean_measyear_normalized": 0.04547983722121311,
+              "n": 4
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009719629723211876,
+              "mean_measyear_normalized": 0.009829900635584138,
+              "n": 130
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009358731040878223,
+              "mean_measyear_normalized": 0.00939897441955639,
+              "n": 27
+            }
+          },
+          "spcd": "837"
+        }
+      ],
+      "state": "RI",
+      "total_forward_link_rows": 7406,
+      "tree_new_source": {
+        "member": "RI_TREE.csv",
+        "sha256": "cd451964b1a6f1a99b2add924056437972374b5ce8df00bf8c3837dafe7fe10d",
+        "status": "ready",
+        "zip_bytes": 2882149
+      }
+    },
+    {
+      "n_conditions": 57693,
+      "n_plots": 48219,
+      "source_row_counts": {
+        "n_selected_source_tree_records": 338594,
+        "n_source_tree_records": 1203753
+      },
+      "species": [
+        {
+          "counters": {
+            "eligible_measurement_interval": 7511,
+            "exact_plot_chain": 7515,
+            "forward_same_species_links": 7515,
+            "height_comparable": 5258,
+            "inventory_vs_measurement_interval_different": 7161,
+            "live_live": 5264,
+            "measured_interval_out_of_scope": 4,
+            "missing_diameter": 6,
+            "natural_age_height_matched": 4790,
+            "natural_forest_both": 4790,
+            "not_confirmed_natural_both": 429,
+            "not_forest_both_times": 39,
+            "observed_dead": 1129,
+            "prior_live_measurement_dates": 6756,
+            "prior_not_live": 755,
+            "unknown_status_not_dead": 363,
+            "valid_growth_measured_year": 5258
+          },
+          "mean_growth_invyr_same_pairs": 0.015467868186943604,
+          "mean_growth_measyear": 0.015074159668145617,
+          "n_growth_pairs": 5258,
+          "n_natural_stand_age_pairs": 4790,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03157744700797212,
+              "mean_measyear_normalized": 0.030903128090502024,
+              "n": 567
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016691603865707758,
+              "mean_measyear_normalized": 0.016081839846164663,
+              "n": 393
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.024552427463899643,
+              "mean_measyear_normalized": 0.023836684539164467,
+              "n": 83
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011429757449458712,
+              "mean_measyear_normalized": 0.011054882461156946,
+              "n": 171
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007426443134097596,
+              "mean_measyear_normalized": 0.007120028483458674,
+              "n": 302
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005674351400243804,
+              "mean_measyear_normalized": 0.005681522922543057,
+              "n": 61
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.007730430886855823,
+              "mean_measyear_normalized": 0.008282604521631104,
+              "n": 1
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010198844550570409,
+              "mean_measyear_normalized": 0.009440905915837383,
+              "n": 2
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.015387039158879456,
+              "mean_measyear_normalized": 0.015060272814622815,
+              "n": 1553
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00975820374859151,
+              "mean_measyear_normalized": 0.009524793285589568,
+              "n": 1411
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0070750247702241875,
+              "mean_measyear_normalized": 0.007135439736921972,
+              "n": 246
+            }
+          },
+          "spcd": "68"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 9503,
+            "exact_plot_chain": 9504,
+            "forward_same_species_links": 9504,
+            "height_comparable": 7646,
+            "inventory_vs_measurement_interval_different": 9070,
+            "live_live": 7647,
+            "measured_interval_out_of_scope": 1,
+            "missing_diameter": 1,
+            "natural_age_height_matched": 6356,
+            "natural_forest_both": 6356,
+            "not_confirmed_natural_both": 1268,
+            "not_forest_both_times": 22,
+            "observed_dead": 872,
+            "prior_live_measurement_dates": 8742,
+            "prior_not_live": 761,
+            "unknown_status_not_dead": 223,
+            "valid_growth_measured_year": 7646
+          },
+          "mean_growth_invyr_same_pairs": 0.020027153184253788,
+          "mean_growth_measyear": 0.019443390641737553,
+          "n_growth_pairs": 7646,
+          "n_natural_stand_age_pairs": 6356,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.04574001698322006,
+              "mean_measyear_normalized": 0.04240418025652256,
+              "n": 90
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.035866169220303744,
+              "mean_measyear_normalized": 0.03387325480413387,
+              "n": 278
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.032308079593355944,
+              "mean_measyear_normalized": 0.0320685412642039,
+              "n": 369
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.020577557450490124,
+              "mean_measyear_normalized": 0.019933497029934744,
+              "n": 503
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01286199614474663,
+              "mean_measyear_normalized": 0.01276640688239448,
+              "n": 801
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.012360435073220714,
+              "mean_measyear_normalized": 0.012276677978284118,
+              "n": 595
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.016028077738734003,
+              "mean_measyear_normalized": 0.01576586441183001,
+              "n": 14
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010145159942658268,
+              "mean_measyear_normalized": 0.009990953578047423,
+              "n": 112
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006607009407617847,
+              "mean_measyear_normalized": 0.0064706796999653305,
+              "n": 137
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.025707664872456244,
+              "mean_measyear_normalized": 0.02471964381535665,
+              "n": 720
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016609573350885302,
+              "mean_measyear_normalized": 0.016141968841969202,
+              "n": 1131
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.014027615670304569,
+              "mean_measyear_normalized": 0.013960188810633123,
+              "n": 1606
+            }
+          },
+          "spcd": "129"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 2750,
+            "exact_plot_chain": 2750,
+            "forward_same_species_links": 2750,
+            "height_comparable": 1811,
+            "inventory_vs_measurement_interval_different": 2571,
+            "live_live": 1811,
+            "natural_age_height_matched": 1791,
+            "natural_forest_both": 1791,
+            "not_confirmed_natural_both": 20,
+            "observed_dead": 349,
+            "prior_live_measurement_dates": 2266,
+            "prior_not_live": 484,
+            "unknown_status_not_dead": 106,
+            "valid_growth_measured_year": 1811
+          },
+          "mean_growth_invyr_same_pairs": 0.011392716216017375,
+          "mean_growth_measyear": 0.011177527822271457,
+          "n_growth_pairs": 1811,
+          "n_natural_stand_age_pairs": 1791,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01826940034494737,
+              "mean_measyear_normalized": 0.017465146743062897,
+              "n": 7
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.02637433405068688,
+              "mean_measyear_normalized": 0.025544394864230092,
+              "n": 81
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.018821355474518575,
+              "mean_measyear_normalized": 0.018238289149805877,
+              "n": 80
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.012663445826018142,
+              "mean_measyear_normalized": 0.011790415835698759,
+              "n": 42
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008335167650025318,
+              "mean_measyear_normalized": 0.008206747935533505,
+              "n": 216
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005027993124325063,
+              "mean_measyear_normalized": 0.00479610462848547,
+              "n": 199
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008054933778840586,
+              "mean_measyear_normalized": 0.008014008438600593,
+              "n": 27
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.001238202119356241,
+              "mean_measyear_normalized": 0.0012230524704902217,
+              "n": 27
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02202871375197602,
+              "mean_measyear_normalized": 0.022007978630353676,
+              "n": 85
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01164451048116846,
+              "mean_measyear_normalized": 0.011577878376386854,
+              "n": 508
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.010152303270647513,
+              "mean_measyear_normalized": 0.009925905949611428,
+              "n": 519
+            }
+          },
+          "spcd": "261"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 43161,
+            "exact_plot_chain": 43217,
+            "forward_same_species_links": 43217,
+            "height_comparable": 34219,
+            "inventory_vs_measurement_interval_different": 40721,
+            "live_live": 34236,
+            "measured_interval_out_of_scope": 56,
+            "missing_diameter": 17,
+            "natural_age_height_matched": 31637,
+            "natural_forest_both": 31637,
+            "not_confirmed_natural_both": 2509,
+            "not_forest_both_times": 73,
+            "observed_dead": 5267,
+            "prior_live_measurement_dates": 41945,
+            "prior_not_live": 1216,
+            "unknown_status_not_dead": 2442,
+            "valid_growth_measured_year": 34219
+          },
+          "mean_growth_invyr_same_pairs": 0.01298617749876732,
+          "mean_growth_measyear": 0.012643108532493055,
+          "n_growth_pairs": 34219,
+          "n_natural_stand_age_pairs": 31637,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.024072948309263237,
+              "mean_measyear_normalized": 0.023036195858707444,
+              "n": 2766
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016929040435350897,
+              "mean_measyear_normalized": 0.016269711972973153,
+              "n": 2044
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01619720503777388,
+              "mean_measyear_normalized": 0.016153630899512123,
+              "n": 1491
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011555938236443363,
+              "mean_measyear_normalized": 0.011276745179226597,
+              "n": 953
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00800116921088045,
+              "mean_measyear_normalized": 0.007863500442990617,
+              "n": 3503
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006931839382645671,
+              "mean_measyear_normalized": 0.0068276614637565475,
+              "n": 1794
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0026752170972325967,
+              "mean_measyear_normalized": 0.004250765066325678,
+              "n": 50
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0043098121582312255,
+              "mean_measyear_normalized": 0.003767264356970635,
+              "n": 199
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.004667668048906074,
+              "mean_measyear_normalized": 0.004556115848890829,
+              "n": 155
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.016474788861597513,
+              "mean_measyear_normalized": 0.016240496399844526,
+              "n": 4112
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010381796329102706,
+              "mean_measyear_normalized": 0.010129693716675079,
+              "n": 8657
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008596391048515284,
+              "mean_measyear_normalized": 0.008396965131192643,
+              "n": 5913
+            }
+          },
+          "spcd": "316"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 5002,
+            "exact_plot_chain": 5002,
+            "forward_same_species_links": 5002,
+            "height_comparable": 4398,
+            "inventory_vs_measurement_interval_different": 4662,
+            "live_live": 4399,
+            "missing_diameter": 1,
+            "natural_age_height_matched": 4382,
+            "natural_forest_both": 4382,
+            "not_confirmed_natural_both": 9,
+            "not_forest_both_times": 7,
+            "observed_dead": 273,
+            "prior_live_measurement_dates": 4900,
+            "prior_not_live": 102,
+            "unknown_status_not_dead": 228,
+            "valid_growth_measured_year": 4398
+          },
+          "mean_growth_invyr_same_pairs": 0.014620695599765457,
+          "mean_growth_measyear": 0.01424477054760987,
+          "n_growth_pairs": 4398,
+          "n_natural_stand_age_pairs": 4382,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.029125748937629283,
+              "mean_measyear_normalized": 0.028225030699893433,
+              "n": 155
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.020224073396594985,
+              "mean_measyear_normalized": 0.019707724126701662,
+              "n": 364
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.015074204426889934,
+              "mean_measyear_normalized": 0.015187987917126212,
+              "n": 340
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01754177240107717,
+              "mean_measyear_normalized": 0.016542778486320582,
+              "n": 84
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011247758980946229,
+              "mean_measyear_normalized": 0.010887955335324323,
+              "n": 561
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009309005845422078,
+              "mean_measyear_normalized": 0.009131637096329597,
+              "n": 432
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.006109786325769128,
+              "mean_measyear_normalized": 0.006480278587059922,
+              "n": 5
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.005205358261318336,
+              "mean_measyear_normalized": 0.005256710406373854,
+              "n": 39
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005128241466004717,
+              "mean_measyear_normalized": 0.005132081199700708,
+              "n": 47
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.028006683670180287,
+              "mean_measyear_normalized": 0.02681418639644048,
+              "n": 209
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.014467649001943361,
+              "mean_measyear_normalized": 0.013879419415909686,
+              "n": 1128
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.012444759283002177,
+              "mean_measyear_normalized": 0.012328341723956804,
+              "n": 1018
+            }
+          },
+          "spcd": "318"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 427,
+            "exact_plot_chain": 427,
+            "forward_same_species_links": 427,
+            "height_comparable": 344,
+            "inventory_vs_measurement_interval_different": 408,
+            "live_live": 344,
+            "natural_age_height_matched": 344,
+            "natural_forest_both": 344,
+            "observed_dead": 38,
+            "prior_live_measurement_dates": 389,
+            "prior_not_live": 38,
+            "unknown_status_not_dead": 7,
+            "valid_growth_measured_year": 344
+          },
+          "mean_growth_invyr_same_pairs": 0.009384126304500967,
+          "mean_growth_measyear": 0.009221000998424454,
+          "n_growth_pairs": 344,
+          "n_natural_stand_age_pairs": 344,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01949579164252078,
+              "mean_measyear_normalized": 0.019749017571006406,
+              "n": 13
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.024307651966350294,
+              "mean_measyear_normalized": 0.023352552928447744,
+              "n": 20
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.019076287068936954,
+              "mean_measyear_normalized": 0.01970059484270134,
+              "n": 12
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.003219030568893737,
+              "mean_measyear_normalized": 0.00302156196767967,
+              "n": 3
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0050905267964298385,
+              "mean_measyear_normalized": 0.004319051232207252,
+              "n": 51
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005878574896898595,
+              "mean_measyear_normalized": 0.0062157007132614085,
+              "n": 57
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.005074015466407916,
+              "mean_measyear_normalized": 0.004366866439578785,
+              "n": 5
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009148125422117414,
+              "mean_measyear_normalized": 0.00900253310342242,
+              "n": 90
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008672812693235306,
+              "mean_measyear_normalized": 0.008560595348883194,
+              "n": 93
+            }
+          },
+          "spcd": "371"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 7382,
+            "exact_plot_chain": 7388,
+            "forward_same_species_links": 7388,
+            "height_comparable": 6548,
+            "inventory_vs_measurement_interval_different": 6967,
+            "live_live": 6552,
+            "measured_interval_out_of_scope": 6,
+            "missing_diameter": 4,
+            "natural_age_height_matched": 6248,
+            "natural_forest_both": 6248,
+            "not_confirmed_natural_both": 290,
+            "not_forest_both_times": 10,
+            "observed_dead": 446,
+            "prior_live_measurement_dates": 7316,
+            "prior_not_live": 66,
+            "unknown_status_not_dead": 318,
+            "valid_growth_measured_year": 6548
+          },
+          "mean_growth_invyr_same_pairs": 0.01826313352023661,
+          "mean_growth_measyear": 0.017789148851827193,
+          "n_growth_pairs": 6548,
+          "n_natural_stand_age_pairs": 6248,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.033684257702057525,
+              "mean_measyear_normalized": 0.032568165001906936,
+              "n": 406
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03070354560412549,
+              "mean_measyear_normalized": 0.02960029230170003,
+              "n": 663
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.02668076787180913,
+              "mean_measyear_normalized": 0.026762697772110804,
+              "n": 365
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0110378894925995,
+              "mean_measyear_normalized": 0.010338727206392314,
+              "n": 282
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009741625951824269,
+              "mean_measyear_normalized": 0.009435131190736397,
+              "n": 753
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008879069540723473,
+              "mean_measyear_normalized": 0.008657596102328685,
+              "n": 431
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.006843608973083559,
+              "mean_measyear_normalized": 0.0071998574661180995,
+              "n": 24
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0050220528565202965,
+              "mean_measyear_normalized": 0.004848436172821633,
+              "n": 137
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.004930340703596861,
+              "mean_measyear_normalized": 0.0049494296991257035,
+              "n": 89
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02053318273745363,
+              "mean_measyear_normalized": 0.020154670345667855,
+              "n": 651
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.016584433409296252,
+              "mean_measyear_normalized": 0.016122336149728533,
+              "n": 1641
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.014994808764248592,
+              "mean_measyear_normalized": 0.014764212836965664,
+              "n": 806
+            }
+          },
+          "spcd": "531"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 4405,
+            "exact_plot_chain": 4407,
+            "forward_same_species_links": 4407,
+            "height_comparable": 2899,
+            "inventory_vs_measurement_interval_different": 4109,
+            "live_live": 2899,
+            "measured_interval_out_of_scope": 2,
+            "natural_age_height_matched": 2779,
+            "natural_forest_both": 2779,
+            "not_confirmed_natural_both": 110,
+            "not_forest_both_times": 10,
+            "observed_dead": 1010,
+            "prior_live_measurement_dates": 4111,
+            "prior_not_live": 294,
+            "unknown_status_not_dead": 202,
+            "valid_growth_measured_year": 2899
+          },
+          "mean_growth_invyr_same_pairs": 0.016323747740124687,
+          "mean_growth_measyear": 0.01563839599519019,
+          "n_growth_pairs": 2899,
+          "n_natural_stand_age_pairs": 2779,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.04143855429011329,
+              "mean_measyear_normalized": 0.03872447180991127,
+              "n": 127
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03018733114409446,
+              "mean_measyear_normalized": 0.029030067183124522,
+              "n": 183
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.018035207830595753,
+              "mean_measyear_normalized": 0.017955730951723488,
+              "n": 87
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.015712390710469586,
+              "mean_measyear_normalized": 0.014483549751914593,
+              "n": 116
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011012415880515313,
+              "mean_measyear_normalized": 0.010595572594345586,
+              "n": 476
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.00707134199117965,
+              "mean_measyear_normalized": 0.006787352905841292,
+              "n": 245
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.006116347929616442,
+              "mean_measyear_normalized": 0.006112982565801048,
+              "n": 2
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006849422802659849,
+              "mean_measyear_normalized": 0.005458166293937413,
+              "n": 26
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0058148022441879416,
+              "mean_measyear_normalized": 0.005454269593701621,
+              "n": 35
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.020889057124648516,
+              "mean_measyear_normalized": 0.019919076718534722,
+              "n": 397
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01433814162573921,
+              "mean_measyear_normalized": 0.013545592749945972,
+              "n": 764
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.011757647986122863,
+              "mean_measyear_normalized": 0.011530215738199895,
+              "n": 321
+            }
+          },
+          "spcd": "541"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 336,
+            "exact_plot_chain": 336,
+            "forward_same_species_links": 336,
+            "height_comparable": 205,
+            "inventory_vs_measurement_interval_different": 314,
+            "live_live": 205,
+            "natural_age_height_matched": 146,
+            "natural_forest_both": 146,
+            "not_confirmed_natural_both": 59,
+            "observed_dead": 88,
+            "prior_live_measurement_dates": 317,
+            "prior_not_live": 19,
+            "unknown_status_not_dead": 24,
+            "valid_growth_measured_year": 205
+          },
+          "mean_growth_invyr_same_pairs": 0.027701285603520524,
+          "mean_growth_measyear": 0.026708657956217616,
+          "n_growth_pairs": 205,
+          "n_natural_stand_age_pairs": 146,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.05576908332296704,
+              "mean_measyear_normalized": 0.05272972378566736,
+              "n": 18
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.10162492913351752,
+              "mean_measyear_normalized": 0.08170258535605537,
+              "n": 4
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.014163108898483242,
+              "mean_measyear_normalized": 0.013739684196837102,
+              "n": 6
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010652895894338084,
+              "mean_measyear_normalized": 0.010273631396273,
+              "n": 26
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.015188857650495652,
+              "mean_measyear_normalized": 0.015512794916509424,
+              "n": 4
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0016583884755280154,
+              "mean_measyear_normalized": 0.001925870487709925,
+              "n": 1
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03224024132893116,
+              "mean_measyear_normalized": 0.03053756473193435,
+              "n": 23
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.015546638201338859,
+              "mean_measyear_normalized": 0.014633204803260892,
+              "n": 60
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.020860891361562117,
+              "mean_measyear_normalized": 0.020253920191139373,
+              "n": 4
+            }
+          },
+          "spcd": "743"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 6188,
+            "exact_plot_chain": 6190,
+            "forward_same_species_links": 6190,
+            "height_comparable": 4362,
+            "inventory_vs_measurement_interval_different": 5852,
+            "live_live": 4365,
+            "measured_interval_out_of_scope": 2,
+            "missing_diameter": 3,
+            "natural_age_height_matched": 3827,
+            "natural_forest_both": 3827,
+            "not_confirmed_natural_both": 503,
+            "not_forest_both_times": 32,
+            "observed_dead": 1075,
+            "prior_live_measurement_dates": 5779,
+            "prior_not_live": 409,
+            "unknown_status_not_dead": 339,
+            "valid_growth_measured_year": 4362
+          },
+          "mean_growth_invyr_same_pairs": 0.0217202380568196,
+          "mean_growth_measyear": 0.021443316399801772,
+          "n_growth_pairs": 4362,
+          "n_natural_stand_age_pairs": 3827,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.045275217915954846,
+              "mean_measyear_normalized": 0.044273309062435096,
+              "n": 460
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03693609757802769,
+              "mean_measyear_normalized": 0.038393415141722925,
+              "n": 133
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.04918446862669274,
+              "mean_measyear_normalized": 0.0513050752888078,
+              "n": 41
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.014412937821117827,
+              "mean_measyear_normalized": 0.01406322593976883,
+              "n": 259
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010803770093518633,
+              "mean_measyear_normalized": 0.010523224693940103,
+              "n": 418
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008775639984639106,
+              "mean_measyear_normalized": 0.008832013150209612,
+              "n": 96
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.00932456717083617,
+              "mean_measyear_normalized": 0.009945675114614166,
+              "n": 4
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007946562719134314,
+              "mean_measyear_normalized": 0.007896014039560868,
+              "n": 17
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006411189822939285,
+              "mean_measyear_normalized": 0.005979691472729747,
+              "n": 9
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.022028697743883736,
+              "mean_measyear_normalized": 0.021772677219317412,
+              "n": 1460
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013499582879570834,
+              "mean_measyear_normalized": 0.013315449452417057,
+              "n": 730
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.013737311258663471,
+              "mean_measyear_normalized": 0.013898904355286497,
+              "n": 200
+            }
+          },
+          "spcd": "762"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 23123,
+            "exact_plot_chain": 23155,
+            "forward_same_species_links": 23155,
+            "height_comparable": 18788,
+            "inventory_vs_measurement_interval_different": 21873,
+            "live_live": 18802,
+            "measured_interval_out_of_scope": 32,
+            "missing_diameter": 14,
+            "natural_age_height_matched": 17756,
+            "natural_forest_both": 17756,
+            "not_confirmed_natural_both": 964,
+            "not_forest_both_times": 68,
+            "observed_dead": 2508,
+            "prior_live_measurement_dates": 21939,
+            "prior_not_live": 1184,
+            "unknown_status_not_dead": 629,
+            "valid_growth_measured_year": 18788
+          },
+          "mean_growth_invyr_same_pairs": 0.012014765325911192,
+          "mean_growth_measyear": 0.011615753233073923,
+          "n_growth_pairs": 18788,
+          "n_natural_stand_age_pairs": 17756,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.030548728039651862,
+              "mean_measyear_normalized": 0.02941531123480296,
+              "n": 618
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.019977619055634242,
+              "mean_measyear_normalized": 0.019310171461225305,
+              "n": 399
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01833376574865321,
+              "mean_measyear_normalized": 0.018183697843743945,
+              "n": 149
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.013855741966083133,
+              "mean_measyear_normalized": 0.013342317962634607,
+              "n": 666
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0099936762166564,
+              "mean_measyear_normalized": 0.009635137254444917,
+              "n": 3511
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007843779097205954,
+              "mean_measyear_normalized": 0.007638281407648411,
+              "n": 3222
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.006409406281386342,
+              "mean_measyear_normalized": 0.006344032391248599,
+              "n": 60
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006048073485707298,
+              "mean_measyear_normalized": 0.005815764283151887,
+              "n": 330
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006105196962754632,
+              "mean_measyear_normalized": 0.005942431639825777,
+              "n": 471
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01887790784435941,
+              "mean_measyear_normalized": 0.018278722376996435,
+              "n": 1786
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01060791548094595,
+              "mean_measyear_normalized": 0.01024536876177164,
+              "n": 4231
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008582911573902808,
+              "mean_measyear_normalized": 0.008425360154608827,
+              "n": 2313
+            }
+          },
+          "spcd": "802"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 10025,
+            "exact_plot_chain": 10035,
+            "forward_same_species_links": 10035,
+            "height_comparable": 8129,
+            "inventory_vs_measurement_interval_different": 9476,
+            "live_live": 8129,
+            "measured_interval_out_of_scope": 10,
+            "natural_age_height_matched": 7901,
+            "natural_forest_both": 7901,
+            "not_confirmed_natural_both": 217,
+            "not_forest_both_times": 11,
+            "observed_dead": 974,
+            "prior_live_measurement_dates": 9290,
+            "prior_not_live": 735,
+            "unknown_status_not_dead": 187,
+            "valid_growth_measured_year": 8129
+          },
+          "mean_growth_invyr_same_pairs": 0.014384699911438674,
+          "mean_growth_measyear": 0.01397903452200148,
+          "n_growth_pairs": 8129,
+          "n_natural_stand_age_pairs": 7901,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03913509875476558,
+              "mean_measyear_normalized": 0.038000727030309524,
+              "n": 138
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.028773747281880275,
+              "mean_measyear_normalized": 0.028014313027126914,
+              "n": 134
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.02745636134405047,
+              "mean_measyear_normalized": 0.02694598238989713,
+              "n": 112
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.018644664603529672,
+              "mean_measyear_normalized": 0.01798011857382371,
+              "n": 195
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.012876509627785696,
+              "mean_measyear_normalized": 0.01246063253109506,
+              "n": 1510
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01087041419253161,
+              "mean_measyear_normalized": 0.010596720190303093,
+              "n": 1784
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0111502545101825,
+              "mean_measyear_normalized": 0.011321489917562464,
+              "n": 36
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00958794759568907,
+              "mean_measyear_normalized": 0.00937494711122464,
+              "n": 273
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008353477465925243,
+              "mean_measyear_normalized": 0.008207742941249615,
+              "n": 621
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.025946409915511802,
+              "mean_measyear_normalized": 0.025021862765974855,
+              "n": 516
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.014560507255627063,
+              "mean_measyear_normalized": 0.014168336264494744,
+              "n": 1410
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01230067426138954,
+              "mean_measyear_normalized": 0.012018238305233755,
+              "n": 1172
+            }
+          },
+          "spcd": "833"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 7511,
+            "exact_plot_chain": 7519,
+            "forward_same_species_links": 7519,
+            "height_comparable": 5498,
+            "inventory_vs_measurement_interval_different": 7085,
+            "live_live": 5504,
+            "measured_interval_out_of_scope": 8,
+            "missing_diameter": 6,
+            "natural_age_height_matched": 5209,
+            "natural_forest_both": 5209,
+            "not_confirmed_natural_both": 267,
+            "not_forest_both_times": 22,
+            "observed_dead": 1048,
+            "prior_live_measurement_dates": 6733,
+            "prior_not_live": 778,
+            "unknown_status_not_dead": 181,
+            "valid_growth_measured_year": 5498
+          },
+          "mean_growth_invyr_same_pairs": 0.012936614071898144,
+          "mean_growth_measyear": 0.01250110314562125,
+          "n_growth_pairs": 5498,
+          "n_natural_stand_age_pairs": 5209,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0307337640493741,
+              "mean_measyear_normalized": 0.028868193817986325,
+              "n": 149
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.026876576975137546,
+              "mean_measyear_normalized": 0.025380086527112513,
+              "n": 86
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.02755249569653779,
+              "mean_measyear_normalized": 0.027026205928424873,
+              "n": 49
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.016342747760627722,
+              "mean_measyear_normalized": 0.01587103323563067,
+              "n": 178
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010789591217801266,
+              "mean_measyear_normalized": 0.010437525377484973,
+              "n": 1180
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008098567244110375,
+              "mean_measyear_normalized": 0.007919830105242758,
+              "n": 966
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.009309839771360106,
+              "mean_measyear_normalized": 0.008795094004086108,
+              "n": 12
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008003049240736249,
+              "mean_measyear_normalized": 0.007769337279328927,
+              "n": 157
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006888526315626487,
+              "mean_measyear_normalized": 0.006768348006690129,
+              "n": 196
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02211272492432524,
+              "mean_measyear_normalized": 0.021312090356588737,
+              "n": 419
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013288798443971985,
+              "mean_measyear_normalized": 0.012869675098313493,
+              "n": 1177
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.00912367087561866,
+              "mean_measyear_normalized": 0.008831577488421024,
+              "n": 640
+            }
+          },
+          "spcd": "837"
+        }
+      ],
+      "state": "VA",
+      "total_forward_link_rows": 127445,
+      "tree_new_source": {
+        "member": "VA_TREE.csv",
+        "sha256": "50cdcdaf8f7e133980d86928474d6410c2e296b2b357b7e5ad4b3685eb807932",
+        "status": "ready",
+        "zip_bytes": 115424906
+      }
+    },
+    {
+      "n_conditions": 103484,
+      "n_plots": 83955,
+      "source_row_counts": {
+        "n_selected_source_tree_records": 530190,
+        "n_source_tree_records": 1341108
+      },
+      "species": [
+        {
+          "counters": {
+            "eligible_measurement_interval": 1472,
+            "exact_plot_chain": 1472,
+            "forward_same_species_links": 1472,
+            "height_comparable": 1198,
+            "inventory_vs_measurement_interval_different": 1343,
+            "live_live": 1198,
+            "natural_age_height_matched": 1113,
+            "natural_forest_both": 1113,
+            "not_confirmed_natural_both": 85,
+            "observed_dead": 83,
+            "prior_live_measurement_dates": 1423,
+            "prior_not_live": 49,
+            "unknown_status_not_dead": 142,
+            "valid_growth_measured_year": 1198
+          },
+          "mean_growth_invyr_same_pairs": 0.013091329899385886,
+          "mean_growth_measyear": 0.013121119929962743,
+          "n_growth_pairs": 1198,
+          "n_natural_stand_age_pairs": 1113,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.04955021660722619,
+              "mean_measyear_normalized": 0.05066773991347496,
+              "n": 44
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.022028693421157056,
+              "mean_measyear_normalized": 0.021894777141610682,
+              "n": 79
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03001121652675283,
+              "mean_measyear_normalized": 0.028966094851530476,
+              "n": 22
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0072013960267337885,
+              "mean_measyear_normalized": 0.007720852591202674,
+              "n": 24
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0051468882229424254,
+              "mean_measyear_normalized": 0.005152346641014659,
+              "n": 90
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.004194564812742973,
+              "mean_measyear_normalized": 0.004007500893014111,
+              "n": 33
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.017926341352044472,
+              "mean_measyear_normalized": 0.017818178967666357,
+              "n": 127
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009681345949936632,
+              "mean_measyear_normalized": 0.009753823829311368,
+              "n": 607
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.012484609414472192,
+              "mean_measyear_normalized": 0.012152930783602463,
+              "n": 87
+            }
+          },
+          "spcd": "68"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 21022,
+            "exact_plot_chain": 21022,
+            "forward_same_species_links": 21022,
+            "height_comparable": 16715,
+            "inventory_vs_measurement_interval_different": 18522,
+            "live_live": 16771,
+            "missing_diameter": 56,
+            "natural_age_height_matched": 13278,
+            "natural_forest_both": 13278,
+            "not_confirmed_natural_both": 3436,
+            "not_forest_both_times": 1,
+            "observed_dead": 1974,
+            "prior_live_measurement_dates": 19642,
+            "prior_not_live": 1380,
+            "unknown_status_not_dead": 897,
+            "valid_growth_measured_year": 16715
+          },
+          "mean_growth_invyr_same_pairs": 0.02340146152547024,
+          "mean_growth_measyear": 0.023475198922490344,
+          "n_growth_pairs": 16715,
+          "n_natural_stand_age_pairs": 13278,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.057321792960406466,
+              "mean_measyear_normalized": 0.057248107194317145,
+              "n": 671
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03866431648781792,
+              "mean_measyear_normalized": 0.03899256052850186,
+              "n": 1212
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03129634608240406,
+              "mean_measyear_normalized": 0.03176972896748174,
+              "n": 433
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.021803334863399512,
+              "mean_measyear_normalized": 0.02200406013492354,
+              "n": 568
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.015479833524017134,
+              "mean_measyear_normalized": 0.015549755130244331,
+              "n": 2214
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.011967821494732868,
+              "mean_measyear_normalized": 0.011973710391274192,
+              "n": 931
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.010196254343021894,
+              "mean_measyear_normalized": 0.010314738867498311,
+              "n": 119
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009173021105912072,
+              "mean_measyear_normalized": 0.009179638283308417,
+              "n": 353
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007248525577766346,
+              "mean_measyear_normalized": 0.007316050770849516,
+              "n": 457
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.033065584105145665,
+              "mean_measyear_normalized": 0.03323711045357777,
+              "n": 1586
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.020854086526133752,
+              "mean_measyear_normalized": 0.020935792864522695,
+              "n": 3665
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.019408961413078924,
+              "mean_measyear_normalized": 0.019328129667307473,
+              "n": 1069
+            }
+          },
+          "spcd": "129"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 8135,
+            "exact_plot_chain": 8135,
+            "forward_same_species_links": 8135,
+            "height_comparable": 7136,
+            "inventory_vs_measurement_interval_different": 6803,
+            "live_live": 7140,
+            "missing_diameter": 4,
+            "natural_age_height_matched": 7123,
+            "natural_forest_both": 7123,
+            "not_confirmed_natural_both": 13,
+            "observed_dead": 403,
+            "prior_live_measurement_dates": 7709,
+            "prior_not_live": 426,
+            "unknown_status_not_dead": 166,
+            "valid_growth_measured_year": 7136
+          },
+          "mean_growth_invyr_same_pairs": 0.012233630016988049,
+          "mean_growth_measyear": 0.012302697237483687,
+          "n_growth_pairs": 7136,
+          "n_natural_stand_age_pairs": 7123,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.051390891434711726,
+              "mean_measyear_normalized": 0.05048575966703899,
+              "n": 6
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.030680716098195938,
+              "mean_measyear_normalized": 0.03121382706517299,
+              "n": 187
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.02778061099547508,
+              "mean_measyear_normalized": 0.02781832843320323,
+              "n": 355
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011244999665335955,
+              "mean_measyear_normalized": 0.011292471577521413,
+              "n": 46
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008236178289787358,
+              "mean_measyear_normalized": 0.008273336668046383,
+              "n": 793
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008249301316953051,
+              "mean_measyear_normalized": 0.008357239138085417,
+              "n": 1845
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.00609987918102715,
+              "mean_measyear_normalized": 0.005792164713370398,
+              "n": 5
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006599994170287824,
+              "mean_measyear_normalized": 0.006740114826889196,
+              "n": 86
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005422884623267016,
+              "mean_measyear_normalized": 0.005507046751741313,
+              "n": 290
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02145669040027588,
+              "mean_measyear_normalized": 0.021202004597453212,
+              "n": 67
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01382711041105591,
+              "mean_measyear_normalized": 0.013828009275203109,
+              "n": 1486
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.012644311921791312,
+              "mean_measyear_normalized": 0.012712834180947008,
+              "n": 1957
+            }
+          },
+          "spcd": "261"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 72753,
+            "exact_plot_chain": 72753,
+            "forward_same_species_links": 72753,
+            "height_comparable": 60229,
+            "inventory_vs_measurement_interval_different": 64445,
+            "live_live": 60258,
+            "missing_diameter": 29,
+            "natural_age_height_matched": 59518,
+            "natural_forest_both": 59518,
+            "not_confirmed_natural_both": 711,
+            "observed_dead": 7601,
+            "prior_live_measurement_dates": 70290,
+            "prior_not_live": 2463,
+            "unknown_status_not_dead": 2431,
+            "valid_growth_measured_year": 60229
+          },
+          "mean_growth_invyr_same_pairs": 0.016052670669357377,
+          "mean_growth_measyear": 0.016121460909913943,
+          "n_growth_pairs": 60229,
+          "n_natural_stand_age_pairs": 59518,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03302972710962899,
+              "mean_measyear_normalized": 0.033196096645617464,
+              "n": 4306
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.027111076924228348,
+              "mean_measyear_normalized": 0.02726961739151933,
+              "n": 5615
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.026768394378334216,
+              "mean_measyear_normalized": 0.026924139527521866,
+              "n": 1497
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.012926937088621913,
+              "mean_measyear_normalized": 0.013021355960074876,
+              "n": 499
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010303836257730625,
+              "mean_measyear_normalized": 0.010326777440145967,
+              "n": 7251
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009112163824711311,
+              "mean_measyear_normalized": 0.009125422280031515,
+              "n": 3427
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.008490134849727389,
+              "mean_measyear_normalized": 0.008860183137510802,
+              "n": 9
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006270114893317418,
+              "mean_measyear_normalized": 0.006300887146633916,
+              "n": 111
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.0067214270028794505,
+              "mean_measyear_normalized": 0.006742743185081514,
+              "n": 112
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.018124277309597887,
+              "mean_measyear_normalized": 0.018199934036404776,
+              "n": 3771
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013382928145783485,
+              "mean_measyear_normalized": 0.013438864361153057,
+              "n": 25562
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.011805430445430993,
+              "mean_measyear_normalized": 0.011811452424698676,
+              "n": 7358
+            }
+          },
+          "spcd": "316"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 58847,
+            "exact_plot_chain": 58847,
+            "forward_same_species_links": 58847,
+            "height_comparable": 50208,
+            "inventory_vs_measurement_interval_different": 51049,
+            "live_live": 50265,
+            "missing_diameter": 57,
+            "natural_age_height_matched": 50106,
+            "natural_forest_both": 50106,
+            "not_confirmed_natural_both": 102,
+            "observed_dead": 5338,
+            "prior_live_measurement_dates": 57082,
+            "prior_not_live": 1765,
+            "unknown_status_not_dead": 1479,
+            "valid_growth_measured_year": 50208
+          },
+          "mean_growth_invyr_same_pairs": 0.011764470512962968,
+          "mean_growth_measyear": 0.011851467482683379,
+          "n_growth_pairs": 50208,
+          "n_natural_stand_age_pairs": 50106,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.027849568078942177,
+              "mean_measyear_normalized": 0.02821469802974059,
+              "n": 1198
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.018454451278783566,
+              "mean_measyear_normalized": 0.018566061945740953,
+              "n": 4158
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.018368685164659396,
+              "mean_measyear_normalized": 0.018445825529569592,
+              "n": 2493
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011019143427858922,
+              "mean_measyear_normalized": 0.010978479309386927,
+              "n": 137
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.00927298440267592,
+              "mean_measyear_normalized": 0.009353352172049908,
+              "n": 7035
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008296891368358523,
+              "mean_measyear_normalized": 0.008371026534831022,
+              "n": 5651
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.008663461122216162,
+              "mean_measyear_normalized": 0.0088312135848571,
+              "n": 18
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.004790412192363533,
+              "mean_measyear_normalized": 0.004907784204260161,
+              "n": 182
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005680817354915254,
+              "mean_measyear_normalized": 0.005683354523705644,
+              "n": 362
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.018115575894093704,
+              "mean_measyear_normalized": 0.018312407258382884,
+              "n": 910
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010913675828372377,
+              "mean_measyear_normalized": 0.010988528273454647,
+              "n": 19101
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.010180285964826213,
+              "mean_measyear_normalized": 0.010256574947234429,
+              "n": 8861
+            }
+          },
+          "spcd": "318"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 9622,
+            "exact_plot_chain": 9622,
+            "forward_same_species_links": 9622,
+            "height_comparable": 7560,
+            "inventory_vs_measurement_interval_different": 8309,
+            "live_live": 7561,
+            "missing_diameter": 1,
+            "natural_age_height_matched": 7556,
+            "natural_forest_both": 7556,
+            "not_confirmed_natural_both": 4,
+            "observed_dead": 833,
+            "prior_live_measurement_dates": 8653,
+            "prior_not_live": 969,
+            "unknown_status_not_dead": 259,
+            "valid_growth_measured_year": 7560
+          },
+          "mean_growth_invyr_same_pairs": 0.01195806850863855,
+          "mean_growth_measyear": 0.01199860879025344,
+          "n_growth_pairs": 7560,
+          "n_natural_stand_age_pairs": 7556,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02460238885363645,
+              "mean_measyear_normalized": 0.02448212933558338,
+              "n": 150
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.022726788505567645,
+              "mean_measyear_normalized": 0.02289989168688871,
+              "n": 505
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.026830427667480377,
+              "mean_measyear_normalized": 0.026850751411699444,
+              "n": 349
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0067823894481518696,
+              "mean_measyear_normalized": 0.00679282413804298,
+              "n": 25
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.007150560760594903,
+              "mean_measyear_normalized": 0.007200432795968237,
+              "n": 918
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.006248235771048624,
+              "mean_measyear_normalized": 0.006291305016706612,
+              "n": 940
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.0,
+              "mean_measyear_normalized": 0.0,
+              "n": 1
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.0031679449367059682,
+              "mean_measyear_normalized": 0.003257056371671631,
+              "n": 35
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.002782998926781718,
+              "mean_measyear_normalized": 0.0026400632425457706,
+              "n": 49
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01372600236553358,
+              "mean_measyear_normalized": 0.013957427702201836,
+              "n": 247
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011521265946970656,
+              "mean_measyear_normalized": 0.0115626897122545,
+              "n": 2657
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.011306755050520602,
+              "mean_measyear_normalized": 0.01129491120000183,
+              "n": 1680
+            }
+          },
+          "spcd": "371"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 864,
+            "exact_plot_chain": 864,
+            "forward_same_species_links": 864,
+            "height_comparable": 763,
+            "inventory_vs_measurement_interval_different": 791,
+            "live_live": 766,
+            "missing_diameter": 3,
+            "natural_age_height_matched": 752,
+            "natural_forest_both": 752,
+            "not_confirmed_natural_both": 11,
+            "observed_dead": 65,
+            "prior_live_measurement_dates": 846,
+            "prior_not_live": 18,
+            "unknown_status_not_dead": 15,
+            "valid_growth_measured_year": 763
+          },
+          "mean_growth_invyr_same_pairs": 0.018938814456774374,
+          "mean_growth_measyear": 0.019006054171304486,
+          "n_growth_pairs": 763,
+          "n_natural_stand_age_pairs": 752,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.056890566829298,
+              "mean_measyear_normalized": 0.05887877728955785,
+              "n": 7
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03271101096128627,
+              "mean_measyear_normalized": 0.03287000684155115,
+              "n": 93
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.027725789132356175,
+              "mean_measyear_normalized": 0.027856565038728166,
+              "n": 101
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011820089393534527,
+              "mean_measyear_normalized": 0.011725625986432387,
+              "n": 54
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009976821727043823,
+              "mean_measyear_normalized": 0.010046978055212478,
+              "n": 86
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006894097023310772,
+              "mean_measyear_normalized": 0.0068838185926806406,
+              "n": 6
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007920173706401282,
+              "mean_measyear_normalized": 0.007988628122489492,
+              "n": 10
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03863360234288737,
+              "mean_measyear_normalized": 0.04279414413365925,
+              "n": 1
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01393684097422259,
+              "mean_measyear_normalized": 0.01392279922591173,
+              "n": 184
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.016908064963425458,
+              "mean_measyear_normalized": 0.01699135095342471,
+              "n": 210
+            }
+          },
+          "spcd": "531"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 8715,
+            "exact_plot_chain": 8715,
+            "forward_same_species_links": 8715,
+            "height_comparable": 6764,
+            "inventory_vs_measurement_interval_different": 7719,
+            "live_live": 6769,
+            "missing_diameter": 5,
+            "natural_age_height_matched": 6640,
+            "natural_forest_both": 6640,
+            "not_confirmed_natural_both": 124,
+            "observed_dead": 1364,
+            "prior_live_measurement_dates": 8392,
+            "prior_not_live": 323,
+            "unknown_status_not_dead": 259,
+            "valid_growth_measured_year": 6764
+          },
+          "mean_growth_invyr_same_pairs": 0.0208560270603376,
+          "mean_growth_measyear": 0.020895484242360405,
+          "n_growth_pairs": 6764,
+          "n_natural_stand_age_pairs": 6640,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.046831841816555274,
+              "mean_measyear_normalized": 0.04685643420074578,
+              "n": 385
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03282705343047176,
+              "mean_measyear_normalized": 0.03288664904138804,
+              "n": 777
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03435229305760429,
+              "mean_measyear_normalized": 0.034346928679973895,
+              "n": 434
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01469997427875113,
+              "mean_measyear_normalized": 0.014788533152815288,
+              "n": 65
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.011532223012176665,
+              "mean_measyear_normalized": 0.011612954298452872,
+              "n": 1358
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009763877407748508,
+              "mean_measyear_normalized": 0.00975851955776855,
+              "n": 630
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.010270047082355963,
+              "mean_measyear_normalized": 0.009285746006691116,
+              "n": 2
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.009342459245126822,
+              "mean_measyear_normalized": 0.009527627034066613,
+              "n": 44
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009073511113053087,
+              "mean_measyear_normalized": 0.009303889983122367,
+              "n": 38
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02713243482784773,
+              "mean_measyear_normalized": 0.02714223224741088,
+              "n": 355
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.017194117671215443,
+              "mean_measyear_normalized": 0.01720869971371061,
+              "n": 1899
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01810639276629463,
+              "mean_measyear_normalized": 0.018099373586992783,
+              "n": 653
+            }
+          },
+          "spcd": "541"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 17549,
+            "exact_plot_chain": 17549,
+            "forward_same_species_links": 17549,
+            "height_comparable": 12626,
+            "inventory_vs_measurement_interval_different": 15587,
+            "live_live": 12630,
+            "missing_diameter": 4,
+            "natural_age_height_matched": 12484,
+            "natural_forest_both": 12484,
+            "not_confirmed_natural_both": 142,
+            "observed_dead": 3140,
+            "prior_live_measurement_dates": 16105,
+            "prior_not_live": 1444,
+            "unknown_status_not_dead": 335,
+            "valid_growth_measured_year": 12626
+          },
+          "mean_growth_invyr_same_pairs": 0.025915509551328954,
+          "mean_growth_measyear": 0.02606802156965676,
+          "n_growth_pairs": 12626,
+          "n_natural_stand_age_pairs": 12484,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.04240295275054507,
+              "mean_measyear_normalized": 0.04275196371191731,
+              "n": 2159
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.044646837718471194,
+              "mean_measyear_normalized": 0.045044776829007975,
+              "n": 662
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.034002060783149164,
+              "mean_measyear_normalized": 0.03439372350240873,
+              "n": 139
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.015979704381865176,
+              "mean_measyear_normalized": 0.01579220841874716,
+              "n": 197
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01169438130386173,
+              "mean_measyear_normalized": 0.011746549415387633,
+              "n": 1841
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01005192606313841,
+              "mean_measyear_normalized": 0.010069351051041241,
+              "n": 561
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008549956107748365,
+              "mean_measyear_normalized": 0.008686789854226743,
+              "n": 22
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008799092609638516,
+              "mean_measyear_normalized": 0.008715356788228323,
+              "n": 18
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.027370018571833944,
+              "mean_measyear_normalized": 0.02754590037964586,
+              "n": 3409
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.02128023117911055,
+              "mean_measyear_normalized": 0.02133990755246164,
+              "n": 3061
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.02147016040402964,
+              "mean_measyear_normalized": 0.021444223965495116,
+              "n": 415
+            }
+          },
+          "spcd": "743"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 13877,
+            "exact_plot_chain": 13877,
+            "forward_same_species_links": 13877,
+            "height_comparable": 9580,
+            "inventory_vs_measurement_interval_different": 12129,
+            "live_live": 9626,
+            "missing_diameter": 46,
+            "natural_age_height_matched": 9098,
+            "natural_forest_both": 9098,
+            "not_confirmed_natural_both": 482,
+            "observed_dead": 2368,
+            "prior_live_measurement_dates": 12605,
+            "prior_not_live": 1272,
+            "unknown_status_not_dead": 611,
+            "valid_growth_measured_year": 9580
+          },
+          "mean_growth_invyr_same_pairs": 0.02180896396111001,
+          "mean_growth_measyear": 0.021858570049408114,
+          "n_growth_pairs": 9580,
+          "n_natural_stand_age_pairs": 9098,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.037500111861110734,
+              "mean_measyear_normalized": 0.037940983775853636,
+              "n": 1091
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.035402609828067394,
+              "mean_measyear_normalized": 0.03523725589885104,
+              "n": 1121
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03851500207387113,
+              "mean_measyear_normalized": 0.03846673115852241,
+              "n": 447
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011321578855194588,
+              "mean_measyear_normalized": 0.011365960632093467,
+              "n": 123
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01063026483628005,
+              "mean_measyear_normalized": 0.010649757306508986,
+              "n": 904
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.010828161726588629,
+              "mean_measyear_normalized": 0.010793192734018351,
+              "n": 215
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": null,
+              "mean_measyear_normalized": null,
+              "n": 0
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006536824981685254,
+              "mean_measyear_normalized": 0.006708757692432734,
+              "n": 9
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007474236372644583,
+              "mean_measyear_normalized": 0.007426066379085722,
+              "n": 13
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01831767014099828,
+              "mean_measyear_normalized": 0.018376468804568044,
+              "n": 1117
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.015716073398911196,
+              "mean_measyear_normalized": 0.01573413459038554,
+              "n": 3389
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01655268158349952,
+              "mean_measyear_normalized": 0.01644902257951916,
+              "n": 669
+            }
+          },
+          "spcd": "762"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 10374,
+            "exact_plot_chain": 10374,
+            "forward_same_species_links": 10374,
+            "height_comparable": 8108,
+            "inventory_vs_measurement_interval_different": 9248,
+            "live_live": 8117,
+            "missing_diameter": 9,
+            "natural_age_height_matched": 8049,
+            "natural_forest_both": 8049,
+            "not_confirmed_natural_both": 58,
+            "not_forest_both_times": 1,
+            "observed_dead": 1038,
+            "prior_live_measurement_dates": 9655,
+            "prior_not_live": 719,
+            "unknown_status_not_dead": 500,
+            "valid_growth_measured_year": 8108
+          },
+          "mean_growth_invyr_same_pairs": 0.010527713922512352,
+          "mean_growth_measyear": 0.010539168259063819,
+          "n_growth_pairs": 8108,
+          "n_natural_stand_age_pairs": 8049,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03818278072997286,
+              "mean_measyear_normalized": 0.038214782327090385,
+              "n": 208
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.02326426774793842,
+              "mean_measyear_normalized": 0.023328742102021974,
+              "n": 247
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.031140716202328077,
+              "mean_measyear_normalized": 0.03137147290504273,
+              "n": 75
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.011334056675665956,
+              "mean_measyear_normalized": 0.01146184582601425,
+              "n": 86
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.008307784357488633,
+              "mean_measyear_normalized": 0.008313150529236842,
+              "n": 2082
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.007506051794058144,
+              "mean_measyear_normalized": 0.007507947766772585,
+              "n": 1551
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.004606873770115694,
+              "mean_measyear_normalized": 0.004409778341741905,
+              "n": 4
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006280366857377473,
+              "mean_measyear_normalized": 0.006316615461711838,
+              "n": 187
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.005586988196467585,
+              "mean_measyear_normalized": 0.005566646601483033,
+              "n": 240
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.017286666153420716,
+              "mean_measyear_normalized": 0.017220256048081552,
+              "n": 232
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010355557767773176,
+              "mean_measyear_normalized": 0.010399511375100305,
+              "n": 2213
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009799539619221644,
+              "mean_measyear_normalized": 0.009733831500890511,
+              "n": 924
+            }
+          },
+          "spcd": "802"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 20630,
+            "exact_plot_chain": 20630,
+            "forward_same_species_links": 20630,
+            "height_comparable": 16777,
+            "inventory_vs_measurement_interval_different": 18333,
+            "live_live": 16813,
+            "missing_diameter": 36,
+            "natural_age_height_matched": 16468,
+            "natural_forest_both": 16468,
+            "not_confirmed_natural_both": 309,
+            "observed_dead": 2035,
+            "prior_live_measurement_dates": 19448,
+            "prior_not_live": 1182,
+            "unknown_status_not_dead": 600,
+            "valid_growth_measured_year": 16777
+          },
+          "mean_growth_invyr_same_pairs": 0.017631283918576792,
+          "mean_growth_measyear": 0.017715783593666882,
+          "n_growth_pairs": 16777,
+          "n_natural_stand_age_pairs": 16468,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.043277415617492064,
+              "mean_measyear_normalized": 0.04345995388808613,
+              "n": 529
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.04003300891597707,
+              "mean_measyear_normalized": 0.040275260592945075,
+              "n": 625
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03355280006428098,
+              "mean_measyear_normalized": 0.03356610460934597,
+              "n": 256
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.016475923095934663,
+              "mean_measyear_normalized": 0.016622903086864236,
+              "n": 323
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.013479263959285684,
+              "mean_measyear_normalized": 0.013502927833938286,
+              "n": 4196
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01028583263769553,
+              "mean_measyear_normalized": 0.01033694098909511,
+              "n": 3727
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.009551151806387662,
+              "mean_measyear_normalized": 0.009707845066088464,
+              "n": 55
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.010036793461562894,
+              "mean_measyear_normalized": 0.0099749500537772,
+              "n": 364
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008224690796398829,
+              "mean_measyear_normalized": 0.008261709300461217,
+              "n": 491
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.03053850252271531,
+              "mean_measyear_normalized": 0.030898634555539834,
+              "n": 1044
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01988303901247716,
+              "mean_measyear_normalized": 0.01995994173334901,
+              "n": 3355
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.01473505815640861,
+              "mean_measyear_normalized": 0.014795603967495387,
+              "n": 1503
+            }
+          },
+          "spcd": "833"
+        },
+        {
+          "counters": {
+            "eligible_measurement_interval": 8239,
+            "exact_plot_chain": 8239,
+            "forward_same_species_links": 8239,
+            "height_comparable": 5138,
+            "inventory_vs_measurement_interval_different": 7367,
+            "live_live": 5148,
+            "missing_diameter": 10,
+            "natural_age_height_matched": 4853,
+            "natural_forest_both": 4853,
+            "not_confirmed_natural_both": 285,
+            "observed_dead": 1409,
+            "prior_live_measurement_dates": 6987,
+            "prior_not_live": 1252,
+            "unknown_status_not_dead": 430,
+            "valid_growth_measured_year": 5138
+          },
+          "mean_growth_invyr_same_pairs": 0.01738728361415474,
+          "mean_growth_measyear": 0.017372574664122988,
+          "n_growth_pairs": 5138,
+          "n_natural_stand_age_pairs": 4853,
+          "size_age_strata": {
+            "1-<5|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.04345325995369771,
+              "mean_measyear_normalized": 0.04409283078848245,
+              "n": 273
+            },
+            "1-<5|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.03572262597098991,
+              "mean_measyear_normalized": 0.035394652681119985,
+              "n": 214
+            },
+            "1-<5|80+": {
+              "mean_invyr_normalized_same_pairs": 0.03904122380647446,
+              "mean_measyear_normalized": 0.037490315077071075,
+              "n": 22
+            },
+            "10-<20|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.015995881827775334,
+              "mean_measyear_normalized": 0.015924430800905005,
+              "n": 83
+            },
+            "10-<20|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.01140965121399349,
+              "mean_measyear_normalized": 0.011421687580612216,
+              "n": 1336
+            },
+            "10-<20|80+": {
+              "mean_invyr_normalized_same_pairs": 0.009983036795276146,
+              "mean_measyear_normalized": 0.010004700273287283,
+              "n": 604
+            },
+            "20+|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.01111925674276978,
+              "mean_measyear_normalized": 0.010976245470284389,
+              "n": 4
+            },
+            "20+|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.006952948984736953,
+              "mean_measyear_normalized": 0.006971286050156253,
+              "n": 104
+            },
+            "20+|80+": {
+              "mean_invyr_normalized_same_pairs": 0.008646193918836368,
+              "mean_measyear_normalized": 0.008739132098891923,
+              "n": 61
+            },
+            "5-<10|0-<40": {
+              "mean_invyr_normalized_same_pairs": 0.02409255935514819,
+              "mean_measyear_normalized": 0.024075532125873905,
+              "n": 383
+            },
+            "5-<10|40-<80": {
+              "mean_invyr_normalized_same_pairs": 0.017235975471807025,
+              "mean_measyear_normalized": 0.01714797263211426,
+              "n": 1482
+            },
+            "5-<10|80+": {
+              "mean_invyr_normalized_same_pairs": 0.014022501308621286,
+              "mean_measyear_normalized": 0.013788705855132692,
+              "n": 287
+            }
+          },
+          "spcd": "837"
+        }
+      ],
+      "state": "WI",
+      "total_forward_link_rows": 252099,
+      "tree_new_source": {
+        "member": "WI_TREE.csv",
+        "sha256": "fc6fa68e51cab310458de3ad5ab168a8ee9c6fd3cd766df7e899c6a5c7ab9a8b",
+        "status": "ready",
+        "zip_bytes": 159609912
+      }
+    }
+  ],
+  "study": "fia_new_source_measyear_stand_context_v1",
+  "tree_source_is_new_and_not_identical_to_historical_by_assumption": true
+}

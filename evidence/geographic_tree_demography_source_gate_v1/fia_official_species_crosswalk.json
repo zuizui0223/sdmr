@@ -1,0 +1,352 @@
+{
+  "analysis": "fia_official_taxon_crosswalk_v1",
+  "candidate_crosswalk": {
+    "n_candidates": 22,
+    "n_matched": 22,
+    "not_response_inference": true,
+    "taxa": [
+      {
+        "common_name": "red maple",
+        "links_by_state": {
+          "RI": 2992,
+          "VA": 43217
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Acer rubrum",
+        "source_spcd_normalized": "316",
+        "source_spcd_raw": "316.0",
+        "source_species_code": "316",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "chestnut oak",
+        "links_by_state": {
+          "RI": 155,
+          "VA": 31497
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Quercus prinus",
+        "source_spcd_normalized": "832",
+        "source_spcd_raw": "832.0",
+        "source_species_code": "832",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "white oak",
+        "links_by_state": {
+          "RI": 709,
+          "VA": 23155
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Quercus alba",
+        "source_spcd_normalized": "802",
+        "source_spcd_raw": "802.0",
+        "source_species_code": "802",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "blackgum",
+        "links_by_state": {
+          "RI": 146,
+          "VA": 13219
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Nyssa sylvatica",
+        "source_spcd_normalized": "693",
+        "source_spcd_raw": "693.0",
+        "source_species_code": "693",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "scarlet oak",
+        "links_by_state": {
+          "RI": 962,
+          "VA": 11051
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Quercus coccinea",
+        "source_spcd_normalized": "806",
+        "source_spcd_raw": "806.0",
+        "source_species_code": "806",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "eastern white pine",
+        "links_by_state": {
+          "RI": 1320,
+          "VA": 9504
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Pinus strobus",
+        "source_spcd_normalized": "129",
+        "source_spcd_raw": "129.0",
+        "source_species_code": "129",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "northern red oak",
+        "links_by_state": {
+          "RI": 782,
+          "VA": 10035
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Quercus rubra",
+        "source_spcd_normalized": "833",
+        "source_spcd_raw": "833.0",
+        "source_species_code": "833",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "black oak",
+        "links_by_state": {
+          "RI": 638,
+          "VA": 7519
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Quercus velutina",
+        "source_spcd_normalized": "837",
+        "source_spcd_raw": "837.0",
+        "source_species_code": "837",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "pignut hickory",
+        "links_by_state": {
+          "RI": 104,
+          "VA": 7629
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Carya glabra",
+        "source_spcd_normalized": "403",
+        "source_spcd_raw": "403.0",
+        "source_species_code": "403",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "mockernut hickory",
+        "links_by_state": {
+          "RI": 37,
+          "VA": 7655
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Carya alba",
+        "source_spcd_normalized": "409",
+        "source_spcd_raw": "409.0",
+        "source_species_code": "409",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "eastern redcedar",
+        "links_by_state": {
+          "RI": 48,
+          "VA": 7515
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Juniperus virginiana",
+        "source_spcd_normalized": "68",
+        "source_spcd_raw": "68.0",
+        "source_species_code": "68",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "American beech",
+        "links_by_state": {
+          "RI": 88,
+          "VA": 7388
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Fagus grandifolia",
+        "source_spcd_normalized": "531",
+        "source_spcd_raw": "531.0",
+        "source_species_code": "531",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "black cherry",
+        "links_by_state": {
+          "RI": 88,
+          "VA": 6190
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Prunus serotina",
+        "source_spcd_normalized": "762",
+        "source_spcd_raw": "762.0",
+        "source_species_code": "762",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "sweet birch",
+        "links_by_state": {
+          "RI": 595,
+          "VA": 4755
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Betula lenta",
+        "source_spcd_normalized": "372",
+        "source_spcd_raw": "372.0",
+        "source_species_code": "372",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "sugar maple",
+        "links_by_state": {
+          "RI": 58,
+          "VA": 5002
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Acer saccharum",
+        "source_spcd_normalized": "318",
+        "source_spcd_raw": "318.0",
+        "source_species_code": "318",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "white ash",
+        "links_by_state": {
+          "RI": 137,
+          "VA": 4407
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Fraxinus americana",
+        "source_spcd_normalized": "541",
+        "source_spcd_raw": "541.0",
+        "source_species_code": "541",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "sassafras",
+        "links_by_state": {
+          "RI": 83,
+          "VA": 3421
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Sassafras albidum",
+        "source_spcd_normalized": "931",
+        "source_spcd_raw": "931.0",
+        "source_species_code": "931",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "eastern hemlock",
+        "links_by_state": {
+          "RI": 220,
+          "VA": 2750
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Tsuga canadensis",
+        "source_spcd_normalized": "261",
+        "source_spcd_raw": "261.0",
+        "source_species_code": "261",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "pitch pine",
+        "links_by_state": {
+          "RI": 215,
+          "VA": 2463
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Pinus rigida",
+        "source_spcd_normalized": "126",
+        "source_spcd_raw": "126.0",
+        "source_species_code": "126",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "yellow birch",
+        "links_by_state": {
+          "RI": 275,
+          "VA": 427
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Betula alleghaniensis",
+        "source_spcd_normalized": "371",
+        "source_spcd_raw": "371.0",
+        "source_species_code": "371",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "bigtooth aspen",
+        "links_by_state": {
+          "RI": 51,
+          "VA": 336
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Populus grandidentata",
+        "source_spcd_normalized": "743",
+        "source_spcd_raw": "743.0",
+        "source_species_code": "743",
+        "status": "official_reference_matched"
+      },
+      {
+        "common_name": "Atlantic white-cedar",
+        "links_by_state": {
+          "RI": 80,
+          "VA": 56
+        },
+        "n_supported_states": 2,
+        "scientific_name": "Chamaecyparis thyoides",
+        "source_spcd_normalized": "43",
+        "source_spcd_raw": "43.0",
+        "source_species_code": "43",
+        "status": "official_reference_matched"
+      }
+    ]
+  },
+  "n_raw_tree_growth_outcomes_opened": 0,
+  "no_fitness_or_limiting_driver_claim": true,
+  "reference_download": {
+    "sha256": "8376ca38df6b1fc14a30ab8e0c1fb10810343cd0cc8f1c1029a30116d8bcc9a4",
+    "size_bytes": 5859295,
+    "status": "ready"
+  },
+  "reference_source": "https://apps.fs.usda.gov/fia/datamart/CSV/FIADB_REFERENCE.zip",
+  "reference_table": {
+    "columns": [
+      "BARK_SPGR_GREENVOL_DRYWT",
+      "BARK_SPGR_GREENVOL_DRYWT_CIT",
+      "BARK_VOL_PCT",
+      "BARK_VOL_PCT_CIT",
+      "CARBON_RATIO_LIVE",
+      "COMMON_NAME",
+      "CREATED_DATE",
+      "CWD_DECAY_RATIO1",
+      "CWD_DECAY_RATIO2",
+      "CWD_DECAY_RATIO3",
+      "CWD_DECAY_RATIO4",
+      "CWD_DECAY_RATIO5",
+      "C_SPGRPCD",
+      "DRYWT_TO_GREENWT_CONVERSION",
+      "DWM_CARBON_RATIO",
+      "E_SPGRPCD",
+      "FOREST_TYPE_SPGRPCD",
+      "GENUS",
+      "JENKINS_SAPLING_ADJUSTMENT",
+      "JENKINS_SPGRPCD",
+      "MAJOR_SPGRPCD",
+      "MC_PCT_GREEN_BARK",
+      "MC_PCT_GREEN_BARK_CIT",
+      "MC_PCT_GREEN_WOOD",
+      "MC_PCT_GREEN_WOOD_CIT",
+      "MODIFIED_DATE",
+      "P_SPGRPCD",
+      "SCIENTIFIC_NAME",
+      "SFTWD_HRDWD",
+      "SHARED_COMMON_NAME_IND",
+      "SPCD",
+      "SPECIES",
+      "SPECIES_SYMBOL",
+      "STOCKING_SPGRPCD",
+      "SUBSPECIES",
+      "VARIETY",
+      "WOODLAND",
+      "WOOD_SPGR_GREENVOL_DRYWT",
+      "WOOD_SPGR_GREENVOL_DRYWT_CIT",
+      "W_SPGRPCD"
+    ],
+    "member": "REF_SPECIES.csv",
+    "n_named_species_codes": 2697,
+    "n_raw_reference_rows": 2697
+  },
+  "source_receipt_sha256": "ad020b33f22cc0eb4d96513d9b36c98d63e38e9560d60fac1a32eba1ef6e48cb"
+}

@@ -1,0 +1,2822 @@
+{
+  "analysis": "fia_wi_source_cap_successor_v2",
+  "eligible_species": {
+    "candidate_spcd": [
+      {
+        "links_by_state": {
+          "RI": 2992,
+          "VA": 43217,
+          "WI": 72753
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 118962,
+        "spcd": "316.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 58,
+          "VA": 5002,
+          "WI": 58847
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 63907,
+        "spcd": "318.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 709,
+          "VA": 23155,
+          "WI": 10374
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 34238,
+        "spcd": "802.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 1320,
+          "VA": 9504,
+          "WI": 21022
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 31846,
+        "spcd": "129.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 782,
+          "VA": 10035,
+          "WI": 20630
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 31447,
+        "spcd": "833.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 88,
+          "VA": 6190,
+          "WI": 13877
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 20155,
+        "spcd": "762.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 51,
+          "VA": 336,
+          "WI": 17549
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 17936,
+        "spcd": "743.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 638,
+          "VA": 7519,
+          "WI": 8239
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 16396,
+        "spcd": "837.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 137,
+          "VA": 4407,
+          "WI": 8715
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 13259,
+        "spcd": "541.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 220,
+          "VA": 2750,
+          "WI": 8135
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 11105,
+        "spcd": "261.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 275,
+          "VA": 427,
+          "WI": 9622
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 10324,
+        "spcd": "371.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 48,
+          "VA": 7515,
+          "WI": 1472
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 9035,
+        "spcd": "68.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 88,
+          "VA": 7388,
+          "WI": 864
+        },
+        "n_supported_states": 3,
+        "n_total_links_across_qualifying_states": 8340,
+        "spcd": "531.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 155,
+          "VA": 31497
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 31652,
+        "spcd": "832.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1508,
+          "WI": 21413
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 22921,
+        "spcd": "951.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1630,
+          "WI": 17199
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 18829,
+        "spcd": "972.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 146,
+          "VA": 13219
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 13365,
+        "spcd": "693.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 2672,
+          "WI": 10351
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 13023,
+        "spcd": "544.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 962,
+          "VA": 11051
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 12013,
+        "spcd": "806.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 723,
+          "WI": 9357
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 10080,
+        "spcd": "701.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 6997,
+          "WI": 1203
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 8200,
+        "spcd": "901.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 104,
+          "VA": 7629
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 7733,
+        "spcd": "403.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 37,
+          "VA": 7655
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 7692,
+        "spcd": "409.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 665,
+          "WI": 6633
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 7298,
+        "spcd": "313.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 3963,
+          "WI": 2895
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 6858,
+        "spcd": "391.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1108,
+          "WI": 4517
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 5625,
+        "spcd": "407.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1088,
+          "WI": 4351
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 5439,
+        "spcd": "402.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 595,
+          "VA": 4755
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 5350,
+        "spcd": "372.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1725,
+          "WI": 1875
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 3600,
+        "spcd": "602.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 83,
+          "VA": 3421
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 3504,
+        "spcd": "931.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 826,
+          "WI": 2268
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 3094,
+        "spcd": "975.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 215,
+          "VA": 2463
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 2678,
+        "spcd": "126.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1397,
+          "WI": 955
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 2352,
+        "spcd": "356.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 1388,
+          "WI": 344
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 1732,
+        "spcd": "373.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 565,
+          "WI": 821
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 1386,
+        "spcd": "462.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 322,
+          "WI": 1014
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 1336,
+        "spcd": "500.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 145,
+          "WI": 679
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 824,
+        "spcd": "660.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 153,
+          "WI": 629
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 782,
+        "spcd": "922.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 36,
+          "WI": 721
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 757,
+        "spcd": "130.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 177,
+          "WI": 549
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 726,
+        "spcd": "761.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 94,
+          "WI": 466
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 560,
+        "spcd": "601.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 412,
+          "WI": 46
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 458,
+        "spcd": "826.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 135,
+          "WI": 240
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 375,
+        "spcd": "682.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 35,
+          "WI": 149
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 184,
+        "spcd": "681.0"
+      },
+      {
+        "links_by_state": {
+          "RI": 80,
+          "VA": 56
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 136,
+        "spcd": "43.0"
+      },
+      {
+        "links_by_state": {
+          "VA": 60,
+          "WI": 52
+        },
+        "n_supported_states": 2,
+        "n_total_links_across_qualifying_states": 112,
+        "spcd": "552.0"
+      }
+    ],
+    "n_candidate_spcd": 46,
+    "nomination_rule": {
+      "minimum_prior_links_per_state": 30,
+      "minimum_states": 2
+    },
+    "not_proof_of_survival_growth_or_native_species": true
+  },
+  "new_archive_byte_cap": 310000000,
+  "new_result_does_not_rewrite_v1": true,
+  "no_selected_state_or_species_replacement": true,
+  "old_archive_byte_cap": 135000000,
+  "preserved_same_states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "source_receipt_sha256": "ad020b33f22cc0eb4d96513d9b36c98d63e38e9560d60fac1a32eba1ef6e48cb",
+  "states": [
+    {
+      "growth_or_mortality_evaluated": false,
+      "identity_rejection_reasons": {},
+      "member": "RI_TREE.csv",
+      "member_uncompressed_bytes": 11700082,
+      "n_admitted_identity_rows": 23307,
+      "n_bytes": 2882156,
+      "n_raw_rows": 23307,
+      "n_rejected_identity_rows": 0,
+      "n_strict_forward_same_species_links": 10112,
+      "n_with_internal_same_species_prior": 10112,
+      "n_with_prior_key": 10183,
+      "per_species": [
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 306,
+          "n_current_years": 18,
+          "n_linked_trees": 2992,
+          "spcd": "316.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 167,
+          "n_current_years": 18,
+          "n_linked_trees": 1320,
+          "spcd": "129.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 149,
+          "n_current_years": 18,
+          "n_linked_trees": 962,
+          "spcd": "806.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 183,
+          "n_current_years": 18,
+          "n_linked_trees": 782,
+          "spcd": "833.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 215,
+          "n_current_years": 18,
+          "n_linked_trees": 709,
+          "spcd": "802.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 154,
+          "n_current_years": 18,
+          "n_linked_trees": 638,
+          "spcd": "837.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 104,
+          "n_current_years": 18,
+          "n_linked_trees": 595,
+          "spcd": "372.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 59,
+          "n_current_years": 18,
+          "n_linked_trees": 275,
+          "spcd": "371.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 19,
+          "n_current_years": 15,
+          "n_linked_trees": 220,
+          "spcd": "261.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 29,
+          "n_current_years": 15,
+          "n_linked_trees": 215,
+          "spcd": "126.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 15,
+          "n_current_years": 8,
+          "n_linked_trees": 155,
+          "spcd": "832.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 68,
+          "n_current_years": 18,
+          "n_linked_trees": 146,
+          "spcd": "693.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 64,
+          "n_current_years": 16,
+          "n_linked_trees": 137,
+          "spcd": "541.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 40,
+          "n_current_years": 14,
+          "n_linked_trees": 104,
+          "spcd": "403.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 34,
+          "n_current_years": 12,
+          "n_linked_trees": 89,
+          "spcd": "379.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 31,
+          "n_current_years": 17,
+          "n_linked_trees": 88,
+          "spcd": "531.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 45,
+          "n_current_years": 18,
+          "n_linked_trees": 88,
+          "spcd": "762.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 54,
+          "n_current_years": 15,
+          "n_linked_trees": 83,
+          "spcd": "931.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 8,
+          "n_current_years": 7,
+          "n_linked_trees": 80,
+          "spcd": "43.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 27,
+          "n_current_years": 16,
+          "n_linked_trees": 58,
+          "spcd": "318.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 27,
+          "n_current_years": 14,
+          "n_linked_trees": 51,
+          "spcd": "743.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 23,
+          "n_current_years": 15,
+          "n_linked_trees": 48,
+          "spcd": "68.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 23,
+          "n_current_years": 13,
+          "n_linked_trees": 37,
+          "spcd": "409.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 10,
+          "n_current_years": 9,
+          "n_linked_trees": 28,
+          "spcd": "544.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 15,
+          "n_current_years": 12,
+          "n_linked_trees": 26,
+          "spcd": "972.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 20,
+          "n_current_years": 10,
+          "n_linked_trees": 23,
+          "spcd": "407.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 13,
+          "n_current_years": 8,
+          "n_linked_trees": 18,
+          "spcd": "421.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 6,
+          "n_current_years": 5,
+          "n_linked_trees": 16,
+          "spcd": "761.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 5,
+          "n_current_years": 3,
+          "n_linked_trees": 14,
+          "spcd": "804.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2011,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 13,
+          "spcd": "341.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 6,
+          "n_current_years": 5,
+          "n_linked_trees": 11,
+          "spcd": "746.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 9,
+          "spcd": "591.0"
+        },
+        {
+          "earliest_previous_year": 2010,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 7,
+          "spcd": "317.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2017,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 7,
+          "spcd": "920.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 6,
+          "spcd": "12.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 6,
+          "spcd": "462.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 6,
+          "spcd": "621.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 6,
+          "spcd": "660.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 6,
+          "spcd": "901.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 5,
+          "n_current_years": 3,
+          "n_linked_trees": 5,
+          "spcd": "391.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 5,
+          "spcd": "701.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 4,
+          "spcd": "375.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 4,
+          "spcd": "491.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "313.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "760.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "130.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2008,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 2,
+          "spcd": "800.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2008,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 2,
+          "spcd": "998.0"
+        },
+        {
+          "earliest_previous_year": 2016,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "320.0"
+        },
+        {
+          "earliest_previous_year": 2013,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "543.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "602.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2011,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "731.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2008,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "741.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "742.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "809.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2014,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "96.0"
+        }
+      ],
+      "sha256": "222098c72977840e512822734bef551a37c5021dde489157f9e408f482d1cc02",
+      "state": "RI",
+      "status": "ready",
+      "url": "https://apps.fs.usda.gov/fia/datamart/CSV/RI_TREE.zip"
+    },
+    {
+      "growth_or_mortality_evaluated": false,
+      "identity_rejection_reasons": {},
+      "member": "VA_TREE.csv",
+      "member_uncompressed_bytes": 569269744,
+      "n_admitted_identity_rows": 1203753,
+      "n_bytes": 115425812,
+      "n_raw_rows": 1203753,
+      "n_rejected_identity_rows": 0,
+      "n_strict_forward_same_species_links": 441063,
+      "n_with_internal_same_species_prior": 441063,
+      "n_with_prior_key": 445787,
+      "per_species": [
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3732,
+          "n_current_years": 23,
+          "n_linked_trees": 72389,
+          "spcd": "131.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 8840,
+          "n_current_years": 23,
+          "n_linked_trees": 43217,
+          "spcd": "316.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 7035,
+          "n_current_years": 23,
+          "n_linked_trees": 37782,
+          "spcd": "621.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3968,
+          "n_current_years": 23,
+          "n_linked_trees": 31497,
+          "spcd": "832.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5854,
+          "n_current_years": 23,
+          "n_linked_trees": 23155,
+          "spcd": "802.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3560,
+          "n_current_years": 23,
+          "n_linked_trees": 22993,
+          "spcd": "132.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3741,
+          "n_current_years": 23,
+          "n_linked_trees": 19983,
+          "spcd": "611.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5014,
+          "n_current_years": 23,
+          "n_linked_trees": 13219,
+          "spcd": "693.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3138,
+          "n_current_years": 23,
+          "n_linked_trees": 11051,
+          "spcd": "806.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3748,
+          "n_current_years": 23,
+          "n_linked_trees": 10035,
+          "spcd": "833.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1679,
+          "n_current_years": 23,
+          "n_linked_trees": 9504,
+          "spcd": "129.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2488,
+          "n_current_years": 23,
+          "n_linked_trees": 8772,
+          "spcd": "711.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3435,
+          "n_current_years": 23,
+          "n_linked_trees": 7655,
+          "spcd": "409.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3482,
+          "n_current_years": 23,
+          "n_linked_trees": 7629,
+          "spcd": "403.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3302,
+          "n_current_years": 23,
+          "n_linked_trees": 7519,
+          "spcd": "837.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2297,
+          "n_current_years": 23,
+          "n_linked_trees": 7515,
+          "spcd": "68.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2290,
+          "n_current_years": 23,
+          "n_linked_trees": 7388,
+          "spcd": "531.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1941,
+          "n_current_years": 23,
+          "n_linked_trees": 7300,
+          "spcd": "591.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2598,
+          "n_current_years": 23,
+          "n_linked_trees": 6997,
+          "spcd": "901.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2599,
+          "n_current_years": 23,
+          "n_linked_trees": 6190,
+          "spcd": "762.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1251,
+          "n_current_years": 23,
+          "n_linked_trees": 5002,
+          "spcd": "318.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1958,
+          "n_current_years": 23,
+          "n_linked_trees": 4882,
+          "spcd": "812.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1478,
+          "n_current_years": 23,
+          "n_linked_trees": 4755,
+          "spcd": "372.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1653,
+          "n_current_years": 23,
+          "n_linked_trees": 4407,
+          "spcd": "541.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1323,
+          "n_current_years": 23,
+          "n_linked_trees": 3963,
+          "spcd": "391.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2071,
+          "n_current_years": 23,
+          "n_linked_trees": 3553,
+          "spcd": "491.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1368,
+          "n_current_years": 23,
+          "n_linked_trees": 3421,
+          "spcd": "931.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 863,
+          "n_current_years": 23,
+          "n_linked_trees": 2815,
+          "spcd": "110.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 628,
+          "n_current_years": 23,
+          "n_linked_trees": 2750,
+          "spcd": "261.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 871,
+          "n_current_years": 23,
+          "n_linked_trees": 2672,
+          "spcd": "544.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 847,
+          "n_current_years": 23,
+          "n_linked_trees": 2463,
+          "spcd": "126.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 706,
+          "n_current_years": 23,
+          "n_linked_trees": 2388,
+          "spcd": "341.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 334,
+          "n_current_years": 23,
+          "n_linked_trees": 1975,
+          "spcd": "694.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 778,
+          "n_current_years": 23,
+          "n_linked_trees": 1846,
+          "spcd": "471.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 757,
+          "n_current_years": 23,
+          "n_linked_trees": 1791,
+          "spcd": "831.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 857,
+          "n_current_years": 23,
+          "n_linked_trees": 1725,
+          "spcd": "602.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 864,
+          "n_current_years": 23,
+          "n_linked_trees": 1630,
+          "spcd": "972.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 757,
+          "n_current_years": 23,
+          "n_linked_trees": 1629,
+          "spcd": "731.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 356,
+          "n_current_years": 23,
+          "n_linked_trees": 1614,
+          "spcd": "123.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 538,
+          "n_current_years": 23,
+          "n_linked_trees": 1508,
+          "spcd": "951.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 782,
+          "n_current_years": 23,
+          "n_linked_trees": 1397,
+          "spcd": "356.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 441,
+          "n_current_years": 23,
+          "n_linked_trees": 1388,
+          "spcd": "373.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 496,
+          "n_current_years": 23,
+          "n_linked_trees": 1262,
+          "spcd": "315.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 547,
+          "n_current_years": 23,
+          "n_linked_trees": 1253,
+          "spcd": "971.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 436,
+          "n_current_years": 23,
+          "n_linked_trees": 1113,
+          "spcd": "827.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 671,
+          "n_current_years": 23,
+          "n_linked_trees": 1108,
+          "spcd": "407.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 516,
+          "n_current_years": 23,
+          "n_linked_trees": 1088,
+          "spcd": "402.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 631,
+          "n_current_years": 23,
+          "n_linked_trees": 1087,
+          "spcd": "651.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 670,
+          "n_current_years": 23,
+          "n_linked_trees": 1085,
+          "spcd": "835.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 428,
+          "n_current_years": 23,
+          "n_linked_trees": 826,
+          "spcd": "975.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 274,
+          "n_current_years": 23,
+          "n_linked_trees": 800,
+          "spcd": "655.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 334,
+          "n_current_years": 23,
+          "n_linked_trees": 723,
+          "spcd": "701.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 224,
+          "n_current_years": 23,
+          "n_linked_trees": 665,
+          "spcd": "313.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 240,
+          "n_current_years": 23,
+          "n_linked_trees": 662,
+          "spcd": "332.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 396,
+          "n_current_years": 23,
+          "n_linked_trees": 609,
+          "spcd": "521.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 339,
+          "n_current_years": 23,
+          "n_linked_trees": 565,
+          "spcd": "462.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 122,
+          "n_current_years": 23,
+          "n_linked_trees": 427,
+          "spcd": "371.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 109,
+          "n_current_years": 23,
+          "n_linked_trees": 412,
+          "spcd": "826.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 162,
+          "n_current_years": 23,
+          "n_linked_trees": 392,
+          "spcd": "653.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 175,
+          "n_current_years": 23,
+          "n_linked_trees": 387,
+          "spcd": "825.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 31,
+          "n_current_years": 18,
+          "n_linked_trees": 385,
+          "spcd": "691.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 150,
+          "n_current_years": 18,
+          "n_linked_trees": 369,
+          "spcd": "367.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 128,
+          "n_current_years": 23,
+          "n_linked_trees": 336,
+          "spcd": "743.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 81,
+          "n_current_years": 22,
+          "n_linked_trees": 322,
+          "spcd": "500.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 23,
+          "n_current_years": 14,
+          "n_linked_trees": 284,
+          "spcd": "97.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 148,
+          "n_current_years": 23,
+          "n_linked_trees": 280,
+          "spcd": "712.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 184,
+          "n_current_years": 23,
+          "n_linked_trees": 229,
+          "spcd": "421.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 93,
+          "n_current_years": 22,
+          "n_linked_trees": 218,
+          "spcd": "830.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 67,
+          "n_current_years": 22,
+          "n_linked_trees": 203,
+          "spcd": "221.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 96,
+          "n_current_years": 23,
+          "n_linked_trees": 198,
+          "spcd": "311.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 49,
+          "n_current_years": 19,
+          "n_linked_trees": 184,
+          "spcd": "721.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 70,
+          "n_current_years": 21,
+          "n_linked_trees": 177,
+          "spcd": "761.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 103,
+          "n_current_years": 23,
+          "n_linked_trees": 166,
+          "spcd": "813.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 67,
+          "n_current_years": 18,
+          "n_linked_trees": 153,
+          "spcd": "922.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 67,
+          "n_current_years": 23,
+          "n_linked_trees": 145,
+          "spcd": "660.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 102,
+          "n_current_years": 23,
+          "n_linked_trees": 135,
+          "spcd": "682.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 19,
+          "n_current_years": 14,
+          "n_linked_trees": 118,
+          "spcd": "641.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 39,
+          "n_current_years": 21,
+          "n_linked_trees": 108,
+          "spcd": "824.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 59,
+          "n_current_years": 14,
+          "n_linked_trees": 96,
+          "spcd": "771.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 46,
+          "n_current_years": 19,
+          "n_linked_trees": 94,
+          "spcd": "601.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 33,
+          "n_current_years": 16,
+          "n_linked_trees": 93,
+          "spcd": "658.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 43,
+          "n_current_years": 22,
+          "n_linked_trees": 60,
+          "spcd": "552.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 10,
+          "n_current_years": 7,
+          "n_linked_trees": 56,
+          "spcd": "43.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 20,
+          "n_current_years": 10,
+          "n_linked_trees": 52,
+          "spcd": "128.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 25,
+          "n_current_years": 18,
+          "n_linked_trees": 47,
+          "spcd": "816.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 30,
+          "n_current_years": 17,
+          "n_linked_trees": 44,
+          "spcd": "820.0"
+        },
+        {
+          "earliest_previous_year": 2013,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 36,
+          "spcd": "130.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 10,
+          "n_current_years": 9,
+          "n_linked_trees": 36,
+          "spcd": "546.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 21,
+          "n_current_years": 14,
+          "n_linked_trees": 35,
+          "spcd": "681.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 19,
+          "n_current_years": 15,
+          "n_linked_trees": 29,
+          "spcd": "822.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2017,
+          "n_current_plot_visits": 18,
+          "n_current_years": 12,
+          "n_linked_trees": 29,
+          "spcd": "998.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2018,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 27,
+          "spcd": "742.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 19,
+          "n_current_years": 12,
+          "n_linked_trees": 26,
+          "spcd": "654.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 26,
+          "spcd": "935.0"
+        },
+        {
+          "earliest_previous_year": 2008,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 25,
+          "spcd": "16.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 15,
+          "n_current_years": 7,
+          "n_linked_trees": 25,
+          "spcd": "920.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 12,
+          "n_current_years": 8,
+          "n_linked_trees": 25,
+          "spcd": "927.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 9,
+          "n_current_years": 7,
+          "n_linked_trees": 24,
+          "spcd": "404.0"
+        },
+        {
+          "earliest_previous_year": 2012,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 15,
+          "n_current_years": 3,
+          "n_linked_trees": 23,
+          "spcd": "100.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 15,
+          "n_current_years": 13,
+          "n_linked_trees": 23,
+          "spcd": "262.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 15,
+          "n_current_years": 12,
+          "n_linked_trees": 21,
+          "spcd": "345.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2014,
+          "n_current_plot_visits": 9,
+          "n_current_years": 6,
+          "n_linked_trees": 19,
+          "spcd": "760.0"
+        },
+        {
+          "earliest_previous_year": 2012,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5,
+          "n_current_years": 3,
+          "n_linked_trees": 19,
+          "spcd": "91.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2016,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 18,
+          "spcd": "548.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 12,
+          "n_current_years": 10,
+          "n_linked_trees": 17,
+          "spcd": "422.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 11,
+          "n_current_years": 9,
+          "n_linked_trees": 17,
+          "spcd": "502.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 7,
+          "n_current_years": 5,
+          "n_linked_trees": 14,
+          "spcd": "662.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 10,
+          "n_current_years": 9,
+          "n_linked_trees": 14,
+          "spcd": "999.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 5,
+          "n_current_years": 4,
+          "n_linked_trees": 13,
+          "spcd": "424.0"
+        },
+        {
+          "earliest_previous_year": 2012,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 12,
+          "n_current_years": 3,
+          "n_linked_trees": 12,
+          "spcd": "800.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 11,
+          "n_current_years": 10,
+          "n_linked_trees": 11,
+          "spcd": "817.0"
+        },
+        {
+          "earliest_previous_year": 2016,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 10,
+          "spcd": "121.0"
+        },
+        {
+          "earliest_previous_year": 2001,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 8,
+          "n_current_years": 6,
+          "n_linked_trees": 10,
+          "spcd": "652.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 7,
+          "n_current_years": 7,
+          "n_linked_trees": 9,
+          "spcd": "834.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2018,
+          "n_current_plot_visits": 6,
+          "n_current_years": 4,
+          "n_linked_trees": 8,
+          "spcd": "400.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 8,
+          "n_current_years": 7,
+          "n_linked_trees": 8,
+          "spcd": "405.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 8,
+          "n_current_years": 7,
+          "n_linked_trees": 8,
+          "spcd": "804.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2017,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 6,
+          "spcd": "819.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2014,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 4,
+          "spcd": "355.0"
+        },
+        {
+          "earliest_previous_year": 2010,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 4,
+          "n_current_years": 2,
+          "n_linked_trees": 4,
+          "spcd": "451.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2016,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 4,
+          "spcd": "545.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 4,
+          "spcd": "823.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "241.0"
+        },
+        {
+          "earliest_previous_year": 2008,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "452.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2015,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "520.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "977.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2003,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "222.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "319.0"
+        },
+        {
+          "earliest_previous_year": 2014,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "320.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "370.0"
+        },
+        {
+          "earliest_previous_year": 2013,
+          "latest_current_year": 2023,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "412.0"
+        },
+        {
+          "earliest_previous_year": 1999,
+          "latest_current_year": 2003,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 2,
+          "spcd": "450.0"
+        },
+        {
+          "earliest_previous_year": 2017,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 2,
+          "spcd": "461.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2022,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "663.0"
+        },
+        {
+          "earliest_previous_year": 2011,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "744.0"
+        },
+        {
+          "earliest_previous_year": 2014,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "766.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2014,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 2,
+          "spcd": "929.0"
+        },
+        {
+          "earliest_previous_year": 2010,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "974.0"
+        },
+        {
+          "earliest_previous_year": 2016,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "317.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2009,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "379.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2014,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "543.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2009,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "680.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2009,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "763.0"
+        },
+        {
+          "earliest_previous_year": 2020,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "770.0"
+        },
+        {
+          "earliest_previous_year": 2019,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "809.0"
+        },
+        {
+          "earliest_previous_year": 1998,
+          "latest_current_year": 2003,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "840.0"
+        }
+      ],
+      "sha256": "6c79b569ca6e2c99d51946a23236b305842a730bd491e75ba31e9ecc408df36b",
+      "state": "VA",
+      "status": "ready",
+      "url": "https://apps.fs.usda.gov/fia/datamart/CSV/VA_TREE.zip"
+    },
+    {
+      "growth_or_mortality_evaluated": false,
+      "identity_rejection_reasons": {},
+      "member": "WI_TREE.csv",
+      "member_uncompressed_bytes": 671125520,
+      "n_admitted_identity_rows": 1341108,
+      "n_bytes": 159610960,
+      "n_raw_rows": 1341108,
+      "n_rejected_identity_rows": 0,
+      "n_strict_forward_same_species_links": 640345,
+      "n_with_internal_same_species_prior": 640345,
+      "n_with_prior_key": 648616,
+      "per_species": [
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 8468,
+          "n_current_years": 21,
+          "n_linked_trees": 74215,
+          "spcd": "746.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 10310,
+          "n_current_years": 21,
+          "n_linked_trees": 72753,
+          "spcd": "316.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 6280,
+          "n_current_years": 21,
+          "n_linked_trees": 58847,
+          "spcd": "318.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5203,
+          "n_current_years": 21,
+          "n_linked_trees": 39991,
+          "spcd": "12.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2586,
+          "n_current_years": 21,
+          "n_linked_trees": 32444,
+          "spcd": "125.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1757,
+          "n_current_years": 21,
+          "n_linked_trees": 27498,
+          "spcd": "241.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3659,
+          "n_current_years": 21,
+          "n_linked_trees": 24934,
+          "spcd": "543.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 6140,
+          "n_current_years": 21,
+          "n_linked_trees": 24454,
+          "spcd": "375.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 4596,
+          "n_current_years": 21,
+          "n_linked_trees": 21413,
+          "spcd": "951.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3731,
+          "n_current_years": 21,
+          "n_linked_trees": 21022,
+          "spcd": "129.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 4967,
+          "n_current_years": 21,
+          "n_linked_trees": 20630,
+          "spcd": "833.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3018,
+          "n_current_years": 21,
+          "n_linked_trees": 17549,
+          "spcd": "743.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5543,
+          "n_current_years": 21,
+          "n_linked_trees": 17199,
+          "spcd": "972.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1659,
+          "n_current_years": 21,
+          "n_linked_trees": 14530,
+          "spcd": "95.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1633,
+          "n_current_years": 21,
+          "n_linked_trees": 14383,
+          "spcd": "105.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5625,
+          "n_current_years": 21,
+          "n_linked_trees": 13877,
+          "spcd": "762.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1773,
+          "n_current_years": 21,
+          "n_linked_trees": 13785,
+          "spcd": "71.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2368,
+          "n_current_years": 21,
+          "n_linked_trees": 12733,
+          "spcd": "809.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2955,
+          "n_current_years": 21,
+          "n_linked_trees": 10374,
+          "spcd": "802.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2323,
+          "n_current_years": 21,
+          "n_linked_trees": 10351,
+          "spcd": "544.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2959,
+          "n_current_years": 21,
+          "n_linked_trees": 9622,
+          "spcd": "371.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3248,
+          "n_current_years": 21,
+          "n_linked_trees": 9357,
+          "spcd": "701.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2790,
+          "n_current_years": 21,
+          "n_linked_trees": 8715,
+          "spcd": "541.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1542,
+          "n_current_years": 21,
+          "n_linked_trees": 8239,
+          "spcd": "837.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1556,
+          "n_current_years": 21,
+          "n_linked_trees": 8135,
+          "spcd": "261.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1880,
+          "n_current_years": 21,
+          "n_linked_trees": 6740,
+          "spcd": "94.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1661,
+          "n_current_years": 21,
+          "n_linked_trees": 6633,
+          "spcd": "313.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 2006,
+          "n_current_years": 21,
+          "n_linked_trees": 6264,
+          "spcd": "823.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1251,
+          "n_current_years": 21,
+          "n_linked_trees": 4517,
+          "spcd": "407.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1438,
+          "n_current_years": 21,
+          "n_linked_trees": 4351,
+          "spcd": "402.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 426,
+          "n_current_years": 21,
+          "n_linked_trees": 3034,
+          "spcd": "317.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1009,
+          "n_current_years": 21,
+          "n_linked_trees": 2895,
+          "spcd": "391.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 1041,
+          "n_current_years": 21,
+          "n_linked_trees": 2268,
+          "spcd": "975.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 563,
+          "n_current_years": 21,
+          "n_linked_trees": 1875,
+          "spcd": "602.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 369,
+          "n_current_years": 21,
+          "n_linked_trees": 1472,
+          "spcd": "68.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 144,
+          "n_current_years": 21,
+          "n_linked_trees": 1203,
+          "spcd": "901.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 328,
+          "n_current_years": 21,
+          "n_linked_trees": 1095,
+          "spcd": "741.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 437,
+          "n_current_years": 21,
+          "n_linked_trees": 1014,
+          "spcd": "500.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 545,
+          "n_current_years": 19,
+          "n_linked_trees": 955,
+          "spcd": "356.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 267,
+          "n_current_years": 21,
+          "n_linked_trees": 864,
+          "spcd": "531.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 381,
+          "n_current_years": 21,
+          "n_linked_trees": 821,
+          "spcd": "462.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 146,
+          "n_current_years": 21,
+          "n_linked_trees": 721,
+          "spcd": "130.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 252,
+          "n_current_years": 21,
+          "n_linked_trees": 679,
+          "spcd": "660.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 464,
+          "n_current_years": 21,
+          "n_linked_trees": 673,
+          "spcd": "763.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 165,
+          "n_current_years": 21,
+          "n_linked_trees": 629,
+          "spcd": "922.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 179,
+          "n_current_years": 21,
+          "n_linked_trees": 565,
+          "spcd": "804.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 292,
+          "n_current_years": 21,
+          "n_linked_trees": 549,
+          "spcd": "761.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 217,
+          "n_current_years": 21,
+          "n_linked_trees": 541,
+          "spcd": "742.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 63,
+          "n_current_years": 19,
+          "n_linked_trees": 503,
+          "spcd": "91.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 306,
+          "n_current_years": 21,
+          "n_linked_trees": 466,
+          "spcd": "601.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 103,
+          "n_current_years": 21,
+          "n_linked_trees": 344,
+          "spcd": "373.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 134,
+          "n_current_years": 21,
+          "n_linked_trees": 284,
+          "spcd": "319.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 115,
+          "n_current_years": 21,
+          "n_linked_trees": 240,
+          "spcd": "682.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 43,
+          "n_current_years": 19,
+          "n_linked_trees": 173,
+          "spcd": "974.0"
+        },
+        {
+          "earliest_previous_year": 2011,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 61,
+          "n_current_years": 10,
+          "n_linked_trees": 149,
+          "spcd": "681.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 74,
+          "n_current_years": 21,
+          "n_linked_trees": 140,
+          "spcd": "977.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 58,
+          "n_current_years": 19,
+          "n_linked_trees": 115,
+          "spcd": "921.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 46,
+          "n_current_years": 18,
+          "n_linked_trees": 94,
+          "spcd": "766.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 34,
+          "n_current_years": 7,
+          "n_linked_trees": 82,
+          "spcd": "923.0"
+        },
+        {
+          "earliest_previous_year": 2001,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 18,
+          "n_current_years": 9,
+          "n_linked_trees": 53,
+          "spcd": "920.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 11,
+          "n_current_years": 9,
+          "n_linked_trees": 52,
+          "spcd": "314.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 24,
+          "n_current_years": 17,
+          "n_linked_trees": 52,
+          "spcd": "552.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 12,
+          "n_current_years": 8,
+          "n_linked_trees": 46,
+          "spcd": "826.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 14,
+          "n_current_years": 3,
+          "n_linked_trees": 33,
+          "spcd": "501.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 12,
+          "n_current_years": 2,
+          "n_linked_trees": 15,
+          "spcd": "357.0"
+        },
+        {
+          "earliest_previous_year": 2011,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 7,
+          "n_current_years": 5,
+          "n_linked_trees": 13,
+          "spcd": "765.0"
+        },
+        {
+          "earliest_previous_year": 2002,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 11,
+          "n_current_years": 6,
+          "n_linked_trees": 11,
+          "spcd": "998.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2021,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 10,
+          "spcd": "752.0"
+        },
+        {
+          "earliest_previous_year": 2006,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 5,
+          "n_current_years": 3,
+          "n_linked_trees": 9,
+          "spcd": "96.0"
+        },
+        {
+          "earliest_previous_year": 2008,
+          "latest_current_year": 2013,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 6,
+          "spcd": "997.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 5,
+          "spcd": "299.0"
+        },
+        {
+          "earliest_previous_year": 2009,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 4,
+          "n_current_years": 4,
+          "n_linked_trees": 5,
+          "spcd": "320.0"
+        },
+        {
+          "earliest_previous_year": 2000,
+          "latest_current_year": 2017,
+          "n_current_plot_visits": 5,
+          "n_current_years": 5,
+          "n_linked_trees": 5,
+          "spcd": "935.0"
+        },
+        {
+          "earliest_previous_year": 2008,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 4,
+          "spcd": "452.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 4,
+          "n_current_years": 2,
+          "n_linked_trees": 4,
+          "spcd": "502.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2015,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 4,
+          "spcd": "600.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2025,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 4,
+          "spcd": "70.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2020,
+          "n_current_plot_visits": 3,
+          "n_current_years": 3,
+          "n_linked_trees": 3,
+          "spcd": "202.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2016,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "10.0"
+        },
+        {
+          "earliest_previous_year": 2007,
+          "latest_current_year": 2019,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "331.0"
+        },
+        {
+          "earliest_previous_year": 2011,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "491.0"
+        },
+        {
+          "earliest_previous_year": 2015,
+          "latest_current_year": 2024,
+          "n_current_plot_visits": 2,
+          "n_current_years": 2,
+          "n_linked_trees": 2,
+          "spcd": "937.0"
+        },
+        {
+          "earliest_previous_year": 2005,
+          "latest_current_year": 2010,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "358.0"
+        },
+        {
+          "earliest_previous_year": 2004,
+          "latest_current_year": 2009,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "57.0"
+        },
+        {
+          "earliest_previous_year": 2001,
+          "latest_current_year": 2006,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "760.0"
+        },
+        {
+          "earliest_previous_year": 2003,
+          "latest_current_year": 2008,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "927.0"
+        },
+        {
+          "earliest_previous_year": 2012,
+          "latest_current_year": 2018,
+          "n_current_plot_visits": 1,
+          "n_current_years": 1,
+          "n_linked_trees": 1,
+          "spcd": "934.0"
+        }
+      ],
+      "sha256": "18c55e9d0568879ce4a88b7763af9b86743a2d47945671d41d020bec4b4e3274",
+      "state": "WI",
+      "status": "ready",
+      "url": "https://apps.fs.usda.gov/fia/datamart/CSV/WI_TREE.zip"
+    }
+  ],
+  "technical_only_successor_no_demographic_outcome": true
+}

@@ -1,0 +1,31 @@
+{
+  "n_states_join_complete": 0,
+  "n_tree_growth_observations_opened": 0,
+  "no_climate_density_effect_or_causal_inference": true,
+  "original_fia_plot_source_sha256": "a0750b945cab7db53238827ffecce0d499d84ed9415a139561df35079eacb666",
+  "original_noaa_climate_source_sha256": "03c0a30c2ed3a1c3d9bb8f05f13e3c27cb3aca2bc1d8ccbe8460b106664d9506",
+  "states": [
+    {
+      "actual_sha256": "8c5cad119151d3b11aa3524671612434dcb2f1704c200a18a274e5a681dcea6a",
+      "no_outcomes_accessed": true,
+      "source_expected_sha256": "68c98c714c12ddd33db62f1ef8313606d1129fc32418cf15fab7babbc04a7c89",
+      "state": "RI",
+      "status": "source_unavailable_or_changed"
+    },
+    {
+      "actual_sha256": "32d222ca250337ce8d5cea3cc364b3205359e6a9234f23ab57a36cd3433c59e3",
+      "no_outcomes_accessed": true,
+      "source_expected_sha256": "9f082d939ed78190e68fe849df70a6971d1e12867fba75de1d460a04e1cf9e3b",
+      "state": "VA",
+      "status": "source_unavailable_or_changed"
+    },
+    {
+      "actual_sha256": "43641564cf8493fbb63b66460235799e8fe13f9d111bfe40766356ee8dd322a7",
+      "no_outcomes_accessed": true,
+      "source_expected_sha256": "095d544f360d283e7a84a43f4fd2d1c4ecea2daaec963cf462d5e51ae9d4fe68",
+      "state": "WI",
+      "status": "source_unavailable_or_changed"
+    }
+  ],
+  "study": "fia_noaa_county_plot_chain_coverage_v1"
+}

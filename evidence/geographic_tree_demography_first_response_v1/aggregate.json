@@ -1,0 +1,2073 @@
+{
+  "analysis": "fia_three_state_named_taxa_first_observed_demography_v1",
+  "analysis_type": "post_source_exploratory_observed_demographic_association",
+  "data_limits": [
+    "FIA publicly perturbed coordinates, no calibrated exact environmental exposure",
+    "Only repeat-observed trees are included, plot design weights not applied",
+    "Records sharing plots and trees are dependent; no interval-censored hazard model fitted",
+    "Missing links are not deaths; code 3 removals and status 0 excluded",
+    "Stem diameter measurement height comparability only partially checked",
+    "No species-specific physiological/causal process inferred; no prospective external confirmation"
+  ],
+  "n_predeclared_taxa": 13,
+  "no_claim_about_niche_evolution_or_constraint_switch": true,
+  "raw_study_response_frozen_before_download": true,
+  "size_standardized": {
+    "min_growth_pairs_per_band_per_state": 30,
+    "taxa": [
+      {
+        "eligible_size_bands": [
+          "1-<5",
+          "5-<10",
+          "10-<20",
+          "20+"
+        ],
+        "n_shared_size_bands": 4,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.015658828543405365,
+          "VA": 0.02047920155008089,
+          "WI": 0.023124384913189217
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "129"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10",
+          "10-<20"
+        ],
+        "n_shared_size_bands": 2,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.012336950541331633,
+          "VA": 0.00994721858535254,
+          "WI": 0.011283093804035893
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "261"
+      },
+      {
+        "eligible_size_bands": [
+          "1-<5",
+          "5-<10",
+          "10-<20"
+        ],
+        "n_shared_size_bands": 3,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.009113863542627831,
+          "VA": 0.01286425314917384,
+          "WI": 0.01620888668833156
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "316"
+      },
+      {
+        "eligible_size_bands": [],
+        "n_shared_size_bands": 0,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": null,
+          "VA": null,
+          "WI": null
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "318"
+      },
+      {
+        "eligible_size_bands": [
+          "1-<5",
+          "5-<10",
+          "10-<20"
+        ],
+        "n_shared_size_bands": 3,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.00942256655820594,
+          "VA": 0.009699527898196496,
+          "WI": 0.012094050841727823
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "371"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10"
+        ],
+        "n_shared_size_bands": 1,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.018299241544608456,
+          "VA": 0.01722720482002899,
+          "WI": 0.01566104405629709
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "531"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10"
+        ],
+        "n_shared_size_bands": 1,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.008380747365318728,
+          "VA": 0.015760856801822154,
+          "WI": 0.01880325199453678
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "541"
+      },
+      {
+        "eligible_size_bands": [],
+        "n_shared_size_bands": 0,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": null,
+          "VA": null,
+          "WI": null
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "68"
+      },
+      {
+        "eligible_size_bands": [],
+        "n_shared_size_bands": 0,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": null,
+          "VA": null,
+          "WI": null
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "743"
+      },
+      {
+        "eligible_size_bands": [],
+        "n_shared_size_bands": 0,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": null,
+          "VA": null,
+          "WI": null
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "762"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10",
+          "10-<20"
+        ],
+        "n_shared_size_bands": 2,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.006867205054541024,
+          "VA": 0.010797916806424659,
+          "WI": 0.009419948703700873
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "802"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10",
+          "10-<20",
+          "20+"
+        ],
+        "n_shared_size_bands": 3,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.011361943081464813,
+          "VA": 0.01335510433856466,
+          "WI": 0.01535633859335248
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "833"
+      },
+      {
+        "eligible_size_bands": [
+          "5-<10",
+          "10-<20"
+        ],
+        "n_shared_size_bands": 2,
+        "observed_size_standardized_mean_log_diameter_change_by_state": {
+          "RI": 0.009785138098391245,
+          "VA": 0.012105956330648463,
+          "WI": 0.014676156354238556
+        },
+        "shared_size_weight_basis": "pooled observed matched-pair counts",
+        "size_standardization_diagnostic_only": true,
+        "spcd": "837"
+      }
+    ]
+  },
+  "sources": {
+    "name_crosswalk_sha256": "8ca8f874abcf35d64d5d35ef7592340af702b205e0871547d93e02b2365fe3e9",
+    "original_source_zip_sha_by_state": {
+      "RI": "222098c72977840e512822734bef551a37c5021dde489157f9e408f482d1cc02",
+      "VA": "6c79b569ca6e2c99d51946a23236b305842a730bd491e75ba31e9ecc408df36b",
+      "WI": "18c55e9d0568879ce4a88b7763af9b86743a2d47945671d41d020bec4b4e3274"
+    },
+    "response_contract_sha256": "c5805410a68a25ac0ad52bc63f329ab25c630d190bf770f8e57ebe97b3b24a1c",
+    "wi_successor_sha256": "09a47db5b927fe6dafd5059d76ff69631101cd54d3e547befeb34d9d71986f70"
+  },
+  "state_summaries": [
+    {
+      "outcome_opened_for_exploratory_development_only": true,
+      "source_rows_qc": {
+        "diameter_height_field_present": true,
+        "n_selected_identity_rows": 17153,
+        "n_source_rows": 23307,
+        "qc_exclusions": {}
+      },
+      "state": "RI",
+      "taxa": [
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 24,
+            "height_code_matched_growth_pairs": 24,
+            "live_pair_missing_or_ineligible_diameter": 5,
+            "not_currently_tallied_not_mortality": 1,
+            "observed_live_to_dead": 5,
+            "observed_live_to_live": 29,
+            "prior_live_linked": 35,
+            "prior_not_confirmed_live": 13,
+            "valid_forward_same_species_links": 48
+          },
+          "mean_annual_log_diameter_change": 0.0045436300766874315,
+          "median_annual_log_diameter_change": 0.0026195712374135873,
+          "median_initial_diameter_inch": 6.45,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.14705882352941177,
+          "n_growth_pairs_matching_diameter_height_code": 24,
+          "n_growth_pairs_with_diameter": 24,
+          "n_not_tallied_excluded": 1,
+          "n_observed_live_to_dead": 5,
+          "n_observed_live_to_live": 29,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 35,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 48,
+          "official_scientific_name": "Juniperus virginiana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.013743273449669054,
+              "n": 3
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.003229395309118628,
+              "n": 21
+            }
+          },
+          "spcd": "68",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 933,
+            "height_code_matched_growth_pairs": 933,
+            "live_pair_missing_or_ineligible_diameter": 2,
+            "not_currently_tallied_not_mortality": 64,
+            "observed_live_to_dead": 203,
+            "observed_live_to_live": 935,
+            "prior_live_linked": 1202,
+            "prior_not_confirmed_live": 118,
+            "valid_forward_same_species_links": 1320
+          },
+          "mean_annual_log_diameter_change": 0.015918431016700547,
+          "median_annual_log_diameter_change": 0.009304003126978566,
+          "median_initial_diameter_inch": 8.3,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.17838312829525482,
+          "n_growth_pairs_matching_diameter_height_code": 933,
+          "n_growth_pairs_with_diameter": 933,
+          "n_not_tallied_excluded": 64,
+          "n_observed_live_to_dead": 203,
+          "n_observed_live_to_live": 935,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 1202,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 1320,
+          "official_scientific_name": "Pinus strobus",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.037138133110595536,
+              "n": 164
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008506407870220277,
+              "n": 311
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.006461124511394778,
+              "n": 79
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.014789764180488784,
+              "n": 379
+            }
+          },
+          "spcd": "129",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 115,
+            "height_code_matched_growth_pairs": 115,
+            "not_currently_tallied_not_mortality": 17,
+            "observed_live_to_dead": 14,
+            "observed_live_to_live": 115,
+            "prior_live_linked": 146,
+            "prior_not_confirmed_live": 74,
+            "valid_forward_same_species_links": 220
+          },
+          "mean_annual_log_diameter_change": 0.0144454870120105,
+          "median_annual_log_diameter_change": 0.011113970230962167,
+          "median_initial_diameter_inch": 7.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.10852713178294573,
+          "n_growth_pairs_matching_diameter_height_code": 115,
+          "n_growth_pairs_with_diameter": 115,
+          "n_not_tallied_excluded": 17,
+          "n_observed_live_to_dead": 14,
+          "n_observed_live_to_live": 115,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 146,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 220,
+          "official_scientific_name": "Tsuga canadensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03044248407696192,
+              "n": 12
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.007049420526065433,
+              "n": 37
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008201874676578434,
+              "n": 2
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.015917013885001354,
+              "n": 64
+            }
+          },
+          "spcd": "261",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 2220,
+            "height_code_matched_growth_pairs": 2220,
+            "live_pair_missing_or_ineligible_diameter": 10,
+            "not_currently_tallied_not_mortality": 461,
+            "observed_live_to_dead": 178,
+            "observed_live_to_live": 2230,
+            "prior_live_linked": 2869,
+            "prior_not_confirmed_live": 123,
+            "valid_forward_same_species_links": 2992
+          },
+          "mean_annual_log_diameter_change": 0.00847222152775719,
+          "median_annual_log_diameter_change": 0.005906247456351641,
+          "median_initial_diameter_inch": 7.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.0739202657807309,
+          "n_growth_pairs_matching_diameter_height_code": 2220,
+          "n_growth_pairs_with_diameter": 2220,
+          "n_not_tallied_excluded": 461,
+          "n_observed_live_to_dead": 178,
+          "n_observed_live_to_live": 2230,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 2869,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 2992,
+          "official_scientific_name": "Acer rubrum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.012269670754591153,
+              "n": 204
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.006505727743232052,
+              "n": 596
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0006412097898986516,
+              "n": 20
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.008867915019228638,
+              "n": 1400
+            }
+          },
+          "spcd": "316",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 55,
+            "height_code_matched_growth_pairs": 55,
+            "not_currently_tallied_not_mortality": 3,
+            "observed_live_to_live": 55,
+            "prior_live_linked": 58,
+            "valid_forward_same_species_links": 58
+          },
+          "mean_annual_log_diameter_change": 0.010526580401863996,
+          "median_annual_log_diameter_change": 0.006897235214233843,
+          "median_initial_diameter_inch": 3.9,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.0,
+          "n_growth_pairs_matching_diameter_height_code": 55,
+          "n_growth_pairs_with_diameter": 55,
+          "n_not_tallied_excluded": 3,
+          "n_observed_live_to_dead": 0,
+          "n_observed_live_to_live": 55,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 58,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 58,
+          "official_scientific_name": "Acer saccharum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.011411476081200893,
+              "n": 29
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.005261399527943901,
+              "n": 12
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0027902975688874243,
+              "n": 3
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01604740260960952,
+              "n": 11
+            }
+          },
+          "spcd": "318",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 212,
+            "height_code_matched_growth_pairs": 212,
+            "not_currently_tallied_not_mortality": 39,
+            "observed_live_to_dead": 18,
+            "observed_live_to_live": 212,
+            "prior_live_linked": 269,
+            "prior_not_confirmed_live": 6,
+            "valid_forward_same_species_links": 275
+          },
+          "mean_annual_log_diameter_change": 0.010132949277102914,
+          "median_annual_log_diameter_change": 0.006349739662916054,
+          "median_initial_diameter_inch": 6.05,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.0782608695652174,
+          "n_growth_pairs_matching_diameter_height_code": 212,
+          "n_growth_pairs_with_diameter": 212,
+          "n_not_tallied_excluded": 39,
+          "n_observed_live_to_dead": 18,
+          "n_observed_live_to_live": 212,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 269,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 275,
+          "official_scientific_name": "Betula alleghaniensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.013464383488426388,
+              "n": 54
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.005547725225162664,
+              "n": 39
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.010123926509155032,
+              "n": 119
+            }
+          },
+          "spcd": "371",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 72,
+            "height_code_matched_growth_pairs": 72,
+            "not_currently_tallied_not_mortality": 10,
+            "observed_live_to_dead": 5,
+            "observed_live_to_live": 72,
+            "prior_live_linked": 87,
+            "prior_not_confirmed_live": 1,
+            "valid_forward_same_species_links": 88
+          },
+          "mean_annual_log_diameter_change": 0.026218845239664994,
+          "median_annual_log_diameter_change": 0.01928259578011382,
+          "median_initial_diameter_inch": 6.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.06493506493506493,
+          "n_growth_pairs_matching_diameter_height_code": 72,
+          "n_growth_pairs_with_diameter": 72,
+          "n_not_tallied_excluded": 10,
+          "n_observed_live_to_dead": 5,
+          "n_observed_live_to_live": 72,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 87,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 88,
+          "official_scientific_name": "Fagus grandifolia",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.05603641196948821,
+              "n": 16
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.013501632865464826,
+              "n": 7
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.018299241544608456,
+              "n": 49
+            }
+          },
+          "spcd": "531",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 78,
+            "height_code_matched_growth_pairs": 78,
+            "not_currently_tallied_not_mortality": 17,
+            "observed_live_to_dead": 18,
+            "observed_live_to_live": 78,
+            "prior_live_linked": 113,
+            "prior_not_confirmed_live": 24,
+            "valid_forward_same_species_links": 137
+          },
+          "mean_annual_log_diameter_change": 0.007109535035213647,
+          "median_annual_log_diameter_change": 0.004701777625870385,
+          "median_initial_diameter_inch": 7.95,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.1875,
+          "n_growth_pairs_matching_diameter_height_code": 78,
+          "n_growth_pairs_with_diameter": 78,
+          "n_not_tallied_excluded": 17,
+          "n_observed_live_to_dead": 18,
+          "n_observed_live_to_live": 78,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 113,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 137,
+          "official_scientific_name": "Fraxinus americana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.00502831386786888,
+              "n": 4
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.00401087534892159,
+              "n": 17
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.002652245625495945,
+              "n": 2
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.008380747365318728,
+              "n": 55
+            }
+          },
+          "spcd": "541",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 35,
+            "height_code_matched_growth_pairs": 35,
+            "not_currently_tallied_not_mortality": 8,
+            "observed_live_to_dead": 6,
+            "observed_live_to_live": 35,
+            "prior_live_linked": 49,
+            "prior_not_confirmed_live": 2,
+            "valid_forward_same_species_links": 51
+          },
+          "mean_annual_log_diameter_change": 0.013215630184244022,
+          "median_annual_log_diameter_change": 0.011212641541337942,
+          "median_initial_diameter_inch": 11.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.14634146341463414,
+          "n_growth_pairs_matching_diameter_height_code": 35,
+          "n_growth_pairs_with_diameter": 35,
+          "n_not_tallied_excluded": 8,
+          "n_observed_live_to_dead": 6,
+          "n_observed_live_to_live": 35,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 49,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 51,
+          "official_scientific_name": "Populus grandidentata",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.009258229926133257,
+              "n": 22
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01991276908258532,
+              "n": 13
+            }
+          },
+          "spcd": "743",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 47,
+            "height_code_matched_growth_pairs": 47,
+            "live_pair_missing_or_ineligible_diameter": 6,
+            "not_currently_tallied_not_mortality": 8,
+            "observed_live_to_dead": 17,
+            "observed_live_to_live": 53,
+            "prior_live_linked": 78,
+            "prior_not_confirmed_live": 10,
+            "valid_forward_same_species_links": 88
+          },
+          "mean_annual_log_diameter_change": 0.016154102441870696,
+          "median_annual_log_diameter_change": 0.006780310335136352,
+          "median_initial_diameter_inch": 7.3,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.24285714285714285,
+          "n_growth_pairs_matching_diameter_height_code": 47,
+          "n_growth_pairs_with_diameter": 47,
+          "n_not_tallied_excluded": 8,
+          "n_observed_live_to_dead": 17,
+          "n_observed_live_to_live": 53,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 78,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 88,
+          "official_scientific_name": "Prunus serotina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03142237168626913,
+              "n": 13
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008044185511403882,
+              "n": 15
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.012109957903966625,
+              "n": 19
+            }
+          },
+          "spcd": "762",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 445,
+            "height_code_matched_growth_pairs": 445,
+            "live_pair_missing_or_ineligible_diameter": 1,
+            "not_currently_tallied_not_mortality": 78,
+            "observed_live_to_dead": 84,
+            "observed_live_to_live": 446,
+            "prior_live_linked": 608,
+            "prior_not_confirmed_live": 101,
+            "valid_forward_same_species_links": 709
+          },
+          "mean_annual_log_diameter_change": 0.007085193869707606,
+          "median_annual_log_diameter_change": 0.006173153147592925,
+          "median_initial_diameter_inch": 9.4,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.15849056603773584,
+          "n_growth_pairs_matching_diameter_height_code": 445,
+          "n_growth_pairs_with_diameter": 445,
+          "n_not_tallied_excluded": 78,
+          "n_observed_live_to_dead": 84,
+          "n_observed_live_to_live": 446,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 608,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 709,
+          "official_scientific_name": "Quercus alba",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.014738807200021294,
+              "n": 17
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.006832465737755099,
+              "n": 180
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.004871839262193472,
+              "n": 19
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.006899313409790083,
+              "n": 229
+            }
+          },
+          "spcd": "802",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 549,
+            "height_code_matched_growth_pairs": 549,
+            "live_pair_missing_or_ineligible_diameter": 2,
+            "not_currently_tallied_not_mortality": 91,
+            "observed_live_to_dead": 78,
+            "observed_live_to_live": 551,
+            "prior_live_linked": 720,
+            "prior_not_confirmed_live": 62,
+            "valid_forward_same_species_links": 782
+          },
+          "mean_annual_log_diameter_change": 0.011892282879844701,
+          "median_annual_log_diameter_change": 0.009261641859135139,
+          "median_initial_diameter_inch": 11.5,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.12400635930047695,
+          "n_growth_pairs_matching_diameter_height_code": 549,
+          "n_growth_pairs_with_diameter": 549,
+          "n_not_tallied_excluded": 91,
+          "n_observed_live_to_dead": 78,
+          "n_observed_live_to_live": 551,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 720,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 782,
+          "official_scientific_name": "Quercus rubra",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03670560516240922,
+              "n": 12
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.00988232501231905,
+              "n": 294
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.007687097411766819,
+              "n": 34
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01397909652375099,
+              "n": 209
+            }
+          },
+          "spcd": "833",
+          "state": "RI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 405,
+            "height_code_matched_growth_pairs": 405,
+            "live_pair_missing_or_ineligible_diameter": 10,
+            "not_currently_tallied_not_mortality": 70,
+            "observed_live_to_dead": 88,
+            "observed_live_to_live": 415,
+            "prior_live_linked": 573,
+            "prior_not_confirmed_live": 65,
+            "valid_forward_same_species_links": 638
+          },
+          "mean_annual_log_diameter_change": 0.009632390878718861,
+          "median_annual_log_diameter_change": 0.008548882397925062,
+          "median_initial_diameter_inch": 11.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.1749502982107356,
+          "n_growth_pairs_matching_diameter_height_code": 405,
+          "n_growth_pairs_with_diameter": 405,
+          "n_not_tallied_excluded": 70,
+          "n_observed_live_to_dead": 88,
+          "n_observed_live_to_live": 415,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 573,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 638,
+          "official_scientific_name": "Quercus velutina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.011988702601632335,
+              "n": 4
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.009037399894350234,
+              "n": 225
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008573581855334798,
+              "n": 15
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01050400491562599,
+              "n": 161
+            }
+          },
+          "spcd": "837",
+          "state": "RI"
+        }
+      ]
+    },
+    {
+      "outcome_opened_for_exploratory_development_only": true,
+      "source_rows_qc": {
+        "diameter_height_field_present": true,
+        "n_selected_identity_rows": 338594,
+        "n_source_rows": 1203753,
+        "qc_exclusions": {}
+      },
+      "state": "VA",
+      "taxa": [
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 5259,
+            "height_code_matched_growth_pairs": 5259,
+            "live_pair_missing_or_ineligible_diameter": 6,
+            "not_currently_tallied_not_mortality": 366,
+            "observed_live_to_dead": 1129,
+            "observed_live_to_live": 5265,
+            "prior_live_linked": 6760,
+            "prior_not_confirmed_live": 755,
+            "valid_forward_same_species_links": 7515
+          },
+          "mean_annual_log_diameter_change": 0.015462339850711864,
+          "median_annual_log_diameter_change": 0.010621965062789673,
+          "median_initial_diameter_inch": 6.1,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.17657178604942134,
+          "n_growth_pairs_matching_diameter_height_code": 5259,
+          "n_growth_pairs_with_diameter": 5259,
+          "n_not_tallied_excluded": 366,
+          "n_observed_live_to_dead": 1129,
+          "n_observed_live_to_live": 5265,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 6760,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 7515,
+          "official_scientific_name": "Juniperus virginiana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.02666013391591424,
+              "n": 1306
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008431885611433836,
+              "n": 570
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.009376039995998885,
+              "n": 3
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.012326629426687696,
+              "n": 3380
+            }
+          },
+          "spcd": "68",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 7647,
+            "height_code_matched_growth_pairs": 7647,
+            "live_pair_missing_or_ineligible_diameter": 1,
+            "not_currently_tallied_not_mortality": 223,
+            "observed_live_to_dead": 872,
+            "observed_live_to_live": 7648,
+            "prior_live_linked": 8743,
+            "prior_not_confirmed_live": 761,
+            "valid_forward_same_species_links": 9504
+          },
+          "mean_annual_log_diameter_change": 0.02002453422869157,
+          "median_annual_log_diameter_change": 0.014551870856485705,
+          "median_initial_diameter_inch": 7.9,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.10234741784037558,
+          "n_growth_pairs_matching_diameter_height_code": 7647,
+          "n_growth_pairs_with_diameter": 7647,
+          "n_not_tallied_excluded": 223,
+          "n_observed_live_to_dead": 872,
+          "n_observed_live_to_live": 7648,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 8743,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 9504,
+          "official_scientific_name": "Pinus strobus",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03647427114191429,
+              "n": 782
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.015585659963790214,
+              "n": 2257
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008677733433892344,
+              "n": 277
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.020093319444554326,
+              "n": 4331
+            }
+          },
+          "spcd": "129",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 1811,
+            "height_code_matched_growth_pairs": 1811,
+            "not_currently_tallied_not_mortality": 106,
+            "observed_live_to_dead": 349,
+            "observed_live_to_live": 1811,
+            "prior_live_linked": 2266,
+            "prior_not_confirmed_live": 484,
+            "valid_forward_same_species_links": 2750
+          },
+          "mean_annual_log_diameter_change": 0.011392716216017375,
+          "median_annual_log_diameter_change": 0.008248591706809805,
+          "median_initial_diameter_inch": 7.3,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.16157407407407406,
+          "n_growth_pairs_matching_diameter_height_code": 1811,
+          "n_growth_pairs_with_diameter": 1811,
+          "n_not_tallied_excluded": 106,
+          "n_observed_live_to_dead": 349,
+          "n_observed_live_to_live": 1811,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 2266,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 2750,
+          "official_scientific_name": "Tsuga canadensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.02243997201477235,
+              "n": 168
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.007287371561289729,
+              "n": 461
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0046465679490984195,
+              "n": 54
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.011748139015709069,
+              "n": 1128
+            }
+          },
+          "spcd": "261",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 34262,
+            "height_code_matched_growth_pairs": 34262,
+            "live_pair_missing_or_ineligible_diameter": 17,
+            "not_currently_tallied_not_mortality": 2454,
+            "observed_live_to_dead": 5267,
+            "observed_live_to_live": 34279,
+            "prior_live_linked": 42000,
+            "prior_not_confirmed_live": 1217,
+            "valid_forward_same_species_links": 43217
+          },
+          "mean_annual_log_diameter_change": 0.012977307028683044,
+          "median_annual_log_diameter_change": 0.008929520650519829,
+          "median_initial_diameter_inch": 6.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.13318666868962728,
+          "n_growth_pairs_matching_diameter_height_code": 34262,
+          "n_growth_pairs_with_diameter": 34262,
+          "n_not_tallied_excluded": 2454,
+          "n_observed_live_to_dead": 5267,
+          "n_observed_live_to_live": 34279,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 42000,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 43217,
+          "official_scientific_name": "Acer rubrum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.021529945689529855,
+              "n": 7672
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008263742614277937,
+              "n": 6500
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.004332911869127353,
+              "n": 412
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.011380793952829473,
+              "n": 19678
+            }
+          },
+          "spcd": "316",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 4398,
+            "height_code_matched_growth_pairs": 4398,
+            "live_pair_missing_or_ineligible_diameter": 1,
+            "not_currently_tallied_not_mortality": 228,
+            "observed_live_to_dead": 273,
+            "observed_live_to_live": 4399,
+            "prior_live_linked": 4900,
+            "prior_not_confirmed_live": 102,
+            "valid_forward_same_species_links": 5002
+          },
+          "mean_annual_log_diameter_change": 0.014620695599765457,
+          "median_annual_log_diameter_change": 0.011653781624795112,
+          "median_initial_diameter_inch": 7.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.05843321917808219,
+          "n_growth_pairs_matching_diameter_height_code": 4398,
+          "n_growth_pairs_with_diameter": 4398,
+          "n_not_tallied_excluded": 228,
+          "n_observed_live_to_dead": 273,
+          "n_observed_live_to_live": 4399,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 4900,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 5002,
+          "official_scientific_name": "Acer saccharum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.019831254135518266,
+              "n": 864
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.010943970152640304,
+              "n": 1079
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005170027156262808,
+              "n": 92
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.014762348447569035,
+              "n": 2363
+            }
+          },
+          "spcd": "318",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 344,
+            "height_code_matched_growth_pairs": 344,
+            "not_currently_tallied_not_mortality": 7,
+            "observed_live_to_dead": 38,
+            "observed_live_to_live": 344,
+            "prior_live_linked": 389,
+            "prior_not_confirmed_live": 38,
+            "valid_forward_same_species_links": 427
+          },
+          "mean_annual_log_diameter_change": 0.009384126304500967,
+          "median_annual_log_diameter_change": 0.005868350406285572,
+          "median_initial_diameter_inch": 8.5,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.09947643979057591,
+          "n_growth_pairs_matching_diameter_height_code": 344,
+          "n_growth_pairs_with_diameter": 344,
+          "n_not_tallied_excluded": 7,
+          "n_observed_live_to_dead": 38,
+          "n_observed_live_to_live": 344,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 389,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 427,
+          "official_scientific_name": "Betula alleghaniensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.02152252834460043,
+              "n": 45
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.005444619166196599,
+              "n": 111
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.00880464332868878,
+              "n": 188
+            }
+          },
+          "spcd": "371",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 6550,
+            "height_code_matched_growth_pairs": 6550,
+            "live_pair_missing_or_ineligible_diameter": 4,
+            "not_currently_tallied_not_mortality": 320,
+            "observed_live_to_dead": 448,
+            "observed_live_to_live": 6554,
+            "prior_live_linked": 7322,
+            "prior_not_confirmed_live": 66,
+            "valid_forward_same_species_links": 7388
+          },
+          "mean_annual_log_diameter_change": 0.018259887902693145,
+          "median_annual_log_diameter_change": 0.013702466838927186,
+          "median_initial_diameter_inch": 6.8,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.0639817195087118,
+          "n_growth_pairs_matching_diameter_height_code": 6550,
+          "n_growth_pairs_with_diameter": 6550,
+          "n_not_tallied_excluded": 320,
+          "n_observed_live_to_dead": 448,
+          "n_observed_live_to_live": 6554,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 7322,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 7388,
+          "official_scientific_name": "Fagus grandifolia",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.030870709068079857,
+              "n": 1556
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.00977639938130486,
+              "n": 1530
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005158361917395136,
+              "n": 254
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01722720482002899,
+              "n": 3210
+            }
+          },
+          "spcd": "531",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 2899,
+            "height_code_matched_growth_pairs": 2899,
+            "not_currently_tallied_not_mortality": 204,
+            "observed_live_to_dead": 1010,
+            "observed_live_to_live": 2899,
+            "prior_live_linked": 4113,
+            "prior_not_confirmed_live": 294,
+            "valid_forward_same_species_links": 4407
+          },
+          "mean_annual_log_diameter_change": 0.016323747740124687,
+          "median_annual_log_diameter_change": 0.011907012247313609,
+          "median_initial_diameter_inch": 7.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.2583781018163213,
+          "n_growth_pairs_matching_diameter_height_code": 2899,
+          "n_growth_pairs_with_diameter": 2899,
+          "n_not_tallied_excluded": 204,
+          "n_observed_live_to_dead": 1010,
+          "n_observed_live_to_live": 2899,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 4113,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 4407,
+          "official_scientific_name": "Fraxinus americana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.030740106690029988,
+              "n": 447
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.010532071438876621,
+              "n": 845
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005979338041202815,
+              "n": 66
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.015760856801822154,
+              "n": 1541
+            }
+          },
+          "spcd": "541",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 205,
+            "height_code_matched_growth_pairs": 205,
+            "not_currently_tallied_not_mortality": 24,
+            "observed_live_to_dead": 88,
+            "observed_live_to_live": 205,
+            "prior_live_linked": 317,
+            "prior_not_confirmed_live": 19,
+            "valid_forward_same_species_links": 336
+          },
+          "mean_annual_log_diameter_change": 0.027701285603520524,
+          "median_annual_log_diameter_change": 0.017402275397925937,
+          "median_initial_diameter_inch": 7.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.3003412969283277,
+          "n_growth_pairs_matching_diameter_height_code": 205,
+          "n_growth_pairs_with_diameter": 205,
+          "n_not_tallied_excluded": 24,
+          "n_observed_live_to_dead": 88,
+          "n_observed_live_to_live": 205,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 317,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 336,
+          "official_scientific_name": "Populus grandidentata",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.0547630481129851,
+              "n": 39
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.011894909530908054,
+              "n": 37
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0016583884755280536,
+              "n": 1
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.024228395556220018,
+              "n": 128
+            }
+          },
+          "spcd": "743",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 4363,
+            "height_code_matched_growth_pairs": 4363,
+            "live_pair_missing_or_ineligible_diameter": 3,
+            "not_currently_tallied_not_mortality": 340,
+            "observed_live_to_dead": 1075,
+            "observed_live_to_live": 4366,
+            "prior_live_linked": 5781,
+            "prior_not_confirmed_live": 409,
+            "valid_forward_same_species_links": 6190
+          },
+          "mean_annual_log_diameter_change": 0.02170897992886981,
+          "median_annual_log_diameter_change": 0.013991717721382102,
+          "median_initial_diameter_inch": 6.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.19757397537217422,
+          "n_growth_pairs_matching_diameter_height_code": 4363,
+          "n_growth_pairs_with_diameter": 4363,
+          "n_not_tallied_excluded": 340,
+          "n_observed_live_to_dead": 1075,
+          "n_observed_live_to_live": 4366,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 5781,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 6190,
+          "official_scientific_name": "Prunus serotina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.04253464349554234,
+              "n": 852
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.011626848582338556,
+              "n": 804
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.007499265127232459,
+              "n": 31
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.018272159825228892,
+              "n": 2676
+            }
+          },
+          "spcd": "762",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 18812,
+            "height_code_matched_growth_pairs": 18812,
+            "live_pair_missing_or_ineligible_diameter": 14,
+            "not_currently_tallied_not_mortality": 635,
+            "observed_live_to_dead": 2509,
+            "observed_live_to_live": 18826,
+            "prior_live_linked": 21970,
+            "prior_not_confirmed_live": 1185,
+            "valid_forward_same_species_links": 23155
+          },
+          "mean_annual_log_diameter_change": 0.01201099962808871,
+          "median_annual_log_diameter_change": 0.009203493280679154,
+          "median_initial_diameter_inch": 9.2,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.11760018748535271,
+          "n_growth_pairs_matching_diameter_height_code": 18812,
+          "n_growth_pairs_with_diameter": 18812,
+          "n_not_tallied_excluded": 635,
+          "n_observed_live_to_dead": 2509,
+          "n_observed_live_to_live": 18826,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 21970,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 23155,
+          "official_scientific_name": "Quercus alba",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.027443382600820024,
+              "n": 1573
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.009391017652753648,
+              "n": 7570
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.006043687365309385,
+              "n": 873
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.012098265287773385,
+              "n": 8796
+            }
+          },
+          "spcd": "802",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 8135,
+            "height_code_matched_growth_pairs": 8135,
+            "not_currently_tallied_not_mortality": 188,
+            "observed_live_to_dead": 976,
+            "observed_live_to_live": 8135,
+            "prior_live_linked": 9299,
+            "prior_not_confirmed_live": 736,
+            "valid_forward_same_species_links": 10035
+          },
+          "mean_annual_log_diameter_change": 0.014383571499647745,
+          "median_annual_log_diameter_change": 0.011452384007823557,
+          "median_initial_diameter_inch": 10.7,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.10712325760070245,
+          "n_growth_pairs_matching_diameter_height_code": 8135,
+          "n_growth_pairs_with_diameter": 8135,
+          "n_not_tallied_excluded": 188,
+          "n_observed_live_to_dead": 976,
+          "n_observed_live_to_live": 8135,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 9299,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 10035,
+          "official_scientific_name": "Quercus rubra",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.032532260505223114,
+              "n": 475
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.012204565045813793,
+              "n": 3530
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008789917194804105,
+              "n": 935
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.015729841383658495,
+              "n": 3195
+            }
+          },
+          "spcd": "833",
+          "state": "VA"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 5504,
+            "height_code_matched_growth_pairs": 5504,
+            "live_pair_missing_or_ineligible_diameter": 6,
+            "not_currently_tallied_not_mortality": 182,
+            "observed_live_to_dead": 1048,
+            "observed_live_to_live": 5510,
+            "prior_live_linked": 6740,
+            "prior_not_confirmed_live": 779,
+            "valid_forward_same_species_links": 7519
+          },
+          "mean_annual_log_diameter_change": 0.012926308627249096,
+          "median_annual_log_diameter_change": 0.009798054405418078,
+          "median_initial_diameter_inch": 9.9,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.1598048185422385,
+          "n_growth_pairs_matching_diameter_height_code": 5504,
+          "n_growth_pairs_with_diameter": 5504,
+          "n_not_tallied_excluded": 182,
+          "n_observed_live_to_dead": 1048,
+          "n_observed_live_to_live": 5510,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 6740,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 7519,
+          "official_scientific_name": "Quercus velutina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03053056806211159,
+              "n": 347
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.010066855968232712,
+              "n": 2376
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.007386214935083126,
+              "n": 372
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.014066323715423186,
+              "n": 2409
+            }
+          },
+          "spcd": "837",
+          "state": "VA"
+        }
+      ]
+    },
+    {
+      "outcome_opened_for_exploratory_development_only": true,
+      "source_rows_qc": {
+        "diameter_height_field_present": true,
+        "n_selected_identity_rows": 530190,
+        "n_source_rows": 1341108,
+        "qc_exclusions": {}
+      },
+      "state": "WI",
+      "taxa": [
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 1198,
+            "height_code_matched_growth_pairs": 1198,
+            "not_currently_tallied_not_mortality": 142,
+            "observed_live_to_dead": 83,
+            "observed_live_to_live": 1198,
+            "prior_live_linked": 1423,
+            "prior_not_confirmed_live": 49,
+            "valid_forward_same_species_links": 1472
+          },
+          "mean_annual_log_diameter_change": 0.013091329899385886,
+          "median_annual_log_diameter_change": 0.009525609797850887,
+          "median_initial_diameter_inch": 6.5,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.06479313036690086,
+          "n_growth_pairs_matching_diameter_height_code": 1198,
+          "n_growth_pairs_with_diameter": 1198,
+          "n_not_tallied_excluded": 142,
+          "n_observed_live_to_dead": 83,
+          "n_observed_live_to_live": 1198,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 1423,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 1472,
+          "official_scientific_name": "Juniperus virginiana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.031234411787005138,
+              "n": 149
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.005268531180455423,
+              "n": 147
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": null,
+              "n": 0
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.011369192660391991,
+              "n": 902
+            }
+          },
+          "spcd": "68",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 16715,
+            "height_code_matched_growth_pairs": 16715,
+            "live_pair_missing_or_ineligible_diameter": 56,
+            "not_currently_tallied_not_mortality": 897,
+            "observed_live_to_dead": 1974,
+            "observed_live_to_live": 16771,
+            "prior_live_linked": 19642,
+            "prior_not_confirmed_live": 1380,
+            "valid_forward_same_species_links": 21022
+          },
+          "mean_annual_log_diameter_change": 0.02340146152547024,
+          "median_annual_log_diameter_change": 0.016137782250028553,
+          "median_initial_diameter_inch": 7.9,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.1053080821552414,
+          "n_growth_pairs_matching_diameter_height_code": 16715,
+          "n_growth_pairs_with_diameter": 16715,
+          "n_not_tallied_excluded": 897,
+          "n_observed_live_to_dead": 1974,
+          "n_observed_live_to_live": 16771,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 19642,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 21022,
+          "official_scientific_name": "Pinus strobus",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.04470470251041009,
+              "n": 2622
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.015086429076976434,
+              "n": 4857
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008417218312428571,
+              "n": 977
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.023300798050347803,
+              "n": 8259
+            }
+          },
+          "spcd": "129",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 7136,
+            "height_code_matched_growth_pairs": 7136,
+            "live_pair_missing_or_ineligible_diameter": 4,
+            "not_currently_tallied_not_mortality": 166,
+            "observed_live_to_dead": 403,
+            "observed_live_to_live": 7140,
+            "prior_live_linked": 7709,
+            "prior_not_confirmed_live": 426,
+            "valid_forward_same_species_links": 8135
+          },
+          "mean_annual_log_diameter_change": 0.012233630016988047,
+          "median_annual_log_diameter_change": 0.009304003126978566,
+          "median_initial_diameter_inch": 9.0,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.05342701842768129,
+          "n_growth_pairs_matching_diameter_height_code": 7136,
+          "n_growth_pairs_with_diameter": 7136,
+          "n_not_tallied_excluded": 166,
+          "n_observed_live_to_dead": 403,
+          "n_observed_live_to_live": 7140,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 7709,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 8135,
+          "official_scientific_name": "Tsuga canadensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.02913027020484214,
+              "n": 551
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008297917957934485,
+              "n": 2689
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005697468334113711,
+              "n": 381
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.013304286797773979,
+              "n": 3515
+            }
+          },
+          "spcd": "261",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 60229,
+            "height_code_matched_growth_pairs": 60229,
+            "live_pair_missing_or_ineligible_diameter": 29,
+            "not_currently_tallied_not_mortality": 2431,
+            "observed_live_to_dead": 7601,
+            "observed_live_to_live": 60258,
+            "prior_live_linked": 70290,
+            "prior_not_confirmed_live": 2463,
+            "valid_forward_same_species_links": 72753
+          },
+          "mean_annual_log_diameter_change": 0.016052670669357373,
+          "median_annual_log_diameter_change": 0.011943846940324488,
+          "median_initial_diameter_inch": 6.8,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.11201167125952342,
+          "n_growth_pairs_matching_diameter_height_code": 60229,
+          "n_growth_pairs_with_diameter": 60229,
+          "n_not_tallied_excluded": 2431,
+          "n_observed_live_to_dead": 7601,
+          "n_observed_live_to_live": 60258,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 70290,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 72753,
+          "official_scientific_name": "Acer rubrum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.02966003861520643,
+              "n": 11789
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.010056500618202395,
+              "n": 11223
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.006574111168656373,
+              "n": 232
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01359428974667684,
+              "n": 36985
+            }
+          },
+          "spcd": "316",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 50208,
+            "height_code_matched_growth_pairs": 50208,
+            "live_pair_missing_or_ineligible_diameter": 57,
+            "not_currently_tallied_not_mortality": 1479,
+            "observed_live_to_dead": 5338,
+            "observed_live_to_live": 50265,
+            "prior_live_linked": 57082,
+            "prior_not_confirmed_live": 1765,
+            "valid_forward_same_species_links": 58847
+          },
+          "mean_annual_log_diameter_change": 0.011764470512962968,
+          "median_annual_log_diameter_change": 0.009134007366637675,
+          "median_initial_diameter_inch": 7.5,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.09600201427980505,
+          "n_growth_pairs_matching_diameter_height_code": 50208,
+          "n_growth_pairs_with_diameter": 50208,
+          "n_not_tallied_excluded": 1479,
+          "n_observed_live_to_dead": 5338,
+          "n_observed_live_to_live": 50265,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 57082,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 58847,
+          "official_scientific_name": "Acer saccharum",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.020003584786886065,
+              "n": 7897
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.00886232821715207,
+              "n": 12836
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005462515132329693,
+              "n": 567
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01092597673230284,
+              "n": 28908
+            }
+          },
+          "spcd": "318",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 7560,
+            "height_code_matched_growth_pairs": 7560,
+            "live_pair_missing_or_ineligible_diameter": 1,
+            "not_currently_tallied_not_mortality": 259,
+            "observed_live_to_dead": 833,
+            "observed_live_to_live": 7561,
+            "prior_live_linked": 8653,
+            "prior_not_confirmed_live": 969,
+            "valid_forward_same_species_links": 9622
+          },
+          "mean_annual_log_diameter_change": 0.01195806850863855,
+          "median_annual_log_diameter_change": 0.008697022387947761,
+          "median_initial_diameter_inch": 7.2,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.09923755063140338,
+          "n_growth_pairs_matching_diameter_height_code": 7560,
+          "n_growth_pairs_with_diameter": 7560,
+          "n_not_tallied_excluded": 259,
+          "n_observed_live_to_dead": 833,
+          "n_observed_live_to_live": 7561,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 8653,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 9622,
+          "official_scientific_name": "Betula alleghaniensis",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.024433471891740815,
+              "n": 1004
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.006686930883080437,
+              "n": 1886
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0029087649434942696,
+              "n": 85
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.011562267280329979,
+              "n": 4585
+            }
+          },
+          "spcd": "371",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 763,
+            "height_code_matched_growth_pairs": 763,
+            "live_pair_missing_or_ineligible_diameter": 3,
+            "not_currently_tallied_not_mortality": 15,
+            "observed_live_to_dead": 65,
+            "observed_live_to_live": 766,
+            "prior_live_linked": 846,
+            "prior_not_confirmed_live": 18,
+            "valid_forward_same_species_links": 864
+          },
+          "mean_annual_log_diameter_change": 0.018938814456774374,
+          "median_annual_log_diameter_change": 0.01406329968349187,
+          "median_initial_diameter_inch": 6.3,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.07821901323706378,
+          "n_growth_pairs_matching_diameter_height_code": 763,
+          "n_growth_pairs_with_diameter": 763,
+          "n_not_tallied_excluded": 15,
+          "n_observed_live_to_dead": 65,
+          "n_observed_live_to_live": 766,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 846,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 864,
+          "official_scientific_name": "Fagus grandifolia",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03142978279262885,
+              "n": 211
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.010687796398404524,
+              "n": 140
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.007535394950242344,
+              "n": 16
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01566104405629709,
+              "n": 396
+            }
+          },
+          "spcd": "531",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 6764,
+            "height_code_matched_growth_pairs": 6764,
+            "live_pair_missing_or_ineligible_diameter": 5,
+            "not_currently_tallied_not_mortality": 259,
+            "observed_live_to_dead": 1364,
+            "observed_live_to_live": 6769,
+            "prior_live_linked": 8392,
+            "prior_not_confirmed_live": 323,
+            "valid_forward_same_species_links": 8715
+          },
+          "mean_annual_log_diameter_change": 0.020856027060337592,
+          "median_annual_log_diameter_change": 0.014501896164938277,
+          "median_initial_diameter_inch": 7.3,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.1677117914668634,
+          "n_growth_pairs_matching_diameter_height_code": 6764,
+          "n_growth_pairs_with_diameter": 6764,
+          "n_not_tallied_excluded": 259,
+          "n_observed_live_to_dead": 1364,
+          "n_observed_live_to_live": 6769,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 8392,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 8715,
+          "official_scientific_name": "Fraxinus americana",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.037123181144634726,
+              "n": 1673
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.011073857573838289,
+              "n": 2065
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.009242877657694163,
+              "n": 84
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01880325199453678,
+              "n": 2942
+            }
+          },
+          "spcd": "541",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 12626,
+            "height_code_matched_growth_pairs": 12626,
+            "live_pair_missing_or_ineligible_diameter": 4,
+            "not_currently_tallied_not_mortality": 335,
+            "observed_live_to_dead": 3140,
+            "observed_live_to_live": 12630,
+            "prior_live_linked": 16105,
+            "prior_not_confirmed_live": 1444,
+            "valid_forward_same_species_links": 17549
+          },
+          "mean_annual_log_diameter_change": 0.025915509551328954,
+          "median_annual_log_diameter_change": 0.021072103131565267,
+          "median_initial_diameter_inch": 6.4,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.19911223842739378,
+          "n_growth_pairs_matching_diameter_height_code": 12626,
+          "n_growth_pairs_with_diameter": 12626,
+          "n_not_tallied_excluded": 335,
+          "n_observed_live_to_dead": 3140,
+          "n_observed_live_to_live": 12630,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 16105,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 17549,
+          "official_scientific_name": "Populus grandidentata",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.04233434709625781,
+              "n": 3014
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.011673380449915088,
+              "n": 2620
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.008662067533598928,
+              "n": 40
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.02426391857980967,
+              "n": 6952
+            }
+          },
+          "spcd": "743",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 9580,
+            "height_code_matched_growth_pairs": 9580,
+            "live_pair_missing_or_ineligible_diameter": 46,
+            "not_currently_tallied_not_mortality": 611,
+            "observed_live_to_dead": 2368,
+            "observed_live_to_live": 9626,
+            "prior_live_linked": 12605,
+            "prior_not_confirmed_live": 1272,
+            "valid_forward_same_species_links": 13877
+          },
+          "mean_annual_log_diameter_change": 0.02180896396111001,
+          "median_annual_log_diameter_change": 0.015515070511001983,
+          "median_initial_diameter_inch": 6.1,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.19743204935801234,
+          "n_growth_pairs_matching_diameter_height_code": 9580,
+          "n_growth_pairs_with_diameter": 9580,
+          "n_not_tallied_excluded": 611,
+          "n_observed_live_to_dead": 2368,
+          "n_observed_live_to_live": 9626,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 12605,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 13877,
+          "official_scientific_name": "Prunus serotina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03721762421181497,
+              "n": 2842
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.01079932336850815,
+              "n": 1286
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.007090749894524858,
+              "n": 22
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.016411318671800134,
+              "n": 5430
+            }
+          },
+          "spcd": "762",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 8108,
+            "height_code_matched_growth_pairs": 8108,
+            "live_pair_missing_or_ineligible_diameter": 9,
+            "not_currently_tallied_not_mortality": 500,
+            "observed_live_to_dead": 1038,
+            "observed_live_to_live": 8117,
+            "prior_live_linked": 9655,
+            "prior_not_confirmed_live": 719,
+            "valid_forward_same_species_links": 10374
+          },
+          "mean_annual_log_diameter_change": 0.01052771392251235,
+          "median_annual_log_diameter_change": 0.007917969480203745,
+          "median_initial_diameter_inch": 10.2,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.11338066630256691,
+          "n_growth_pairs_matching_diameter_height_code": 8108,
+          "n_growth_pairs_with_diameter": 8108,
+          "n_not_tallied_excluded": 500,
+          "n_observed_live_to_dead": 1038,
+          "n_observed_live_to_live": 8117,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 9655,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 10374,
+          "official_scientific_name": "Quercus alba",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.03026944407225144,
+              "n": 543
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.008045045721666597,
+              "n": 3734
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.005878731472302251,
+              "n": 431
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.010690724224480077,
+              "n": 3400
+            }
+          },
+          "spcd": "802",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 16777,
+            "height_code_matched_growth_pairs": 16777,
+            "live_pair_missing_or_ineligible_diameter": 36,
+            "not_currently_tallied_not_mortality": 600,
+            "observed_live_to_dead": 2035,
+            "observed_live_to_live": 16813,
+            "prior_live_linked": 19448,
+            "prior_not_confirmed_live": 1182,
+            "valid_forward_same_species_links": 20630
+          },
+          "mean_annual_log_diameter_change": 0.017631283918576792,
+          "median_annual_log_diameter_change": 0.012673922786517888,
+          "median_initial_diameter_inch": 10.6,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.10796901528013582,
+          "n_growth_pairs_matching_diameter_height_code": 16777,
+          "n_growth_pairs_with_diameter": 16777,
+          "n_not_tallied_excluded": 600,
+          "n_observed_live_to_dead": 2035,
+          "n_observed_live_to_live": 16813,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 19448,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 20630,
+          "official_scientific_name": "Quercus rubra",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.040565668011385746,
+              "n": 1506
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.012155007726977873,
+              "n": 8270
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.009014087982424925,
+              "n": 918
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.02069888338103613,
+              "n": 6083
+            }
+          },
+          "spcd": "833",
+          "state": "WI"
+        },
+        {
+          "all_status_counts": {
+            "growth_diameter_pairs": 5138,
+            "height_code_matched_growth_pairs": 5138,
+            "live_pair_missing_or_ineligible_diameter": 10,
+            "not_currently_tallied_not_mortality": 430,
+            "observed_live_to_dead": 1409,
+            "observed_live_to_live": 5148,
+            "prior_live_linked": 6987,
+            "prior_not_confirmed_live": 1252,
+            "valid_forward_same_species_links": 8239
+          },
+          "mean_annual_log_diameter_change": 0.01738728361415474,
+          "median_annual_log_diameter_change": 0.01280437175298621,
+          "median_initial_diameter_inch": 9.2,
+          "mortality_fraction_among_live_to_live_or_dead_links": 0.21488485587921305,
+          "n_growth_pairs_matching_diameter_height_code": 5138,
+          "n_growth_pairs_with_diameter": 5138,
+          "n_not_tallied_excluded": 430,
+          "n_observed_live_to_dead": 1409,
+          "n_observed_live_to_live": 5148,
+          "n_other_unknown_status_excluded": 0,
+          "n_prior_live_linked": 6987,
+          "n_removed_excluded": 0,
+          "n_valid_forward_links": 8239,
+          "official_scientific_name": "Quercus velutina",
+          "size_band_growth_log_means": {
+            "1-<5": {
+              "mean_annual_log_diameter_change": 0.039824698804195764,
+              "n": 584
+            },
+            "10-<20": {
+              "mean_annual_log_diameter_change": 0.011178840870596311,
+              "n": 2080
+            },
+            "20+": {
+              "mean_annual_log_diameter_change": 0.0077479341675194885,
+              "n": 175
+            },
+            "5-<10": {
+              "mean_annual_log_diameter_change": 0.01803843480544606,
+              "n": 2299
+            }
+          },
+          "spcd": "837",
+          "state": "WI"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+name: geographic-tree-demography-first-response-v1
+
+# Historical source re-download is MANUAL ONLY: mutable upstream ZIPs may drift.
+# Normal PR CI uses the committed, source-hash-pinned aggregate and synthesis.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-fia-measured-response:
+    name: fia-first-actual-tree-measurements
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project and test runner
+        run: python -m pip install -e '.[test]'
+      - name: Offline same-tree identity/status and source-contract tests
+        run: python -m pytest -q tests/test_geographic_tree_demography_first_response_v1.py
+      - name: Open measured status/diameter only after pinned state-ZIP source checks
+        run: |
+          python experiments/geographic_tree_demography_first_response_v1.py \
+            --config configs/geographic_tree_demography_first_response_v1.json \
+            --source evidence/geographic_tree_demography_source_gate_v1/fia_wi_size_cap_successor_v2.json \
+            --crosswalk evidence/geographic_tree_demography_source_gate_v1/fia_official_species_crosswalk.json \
+            --output artifacts/fia_three_state_first_measured_response_v1.json
+      - name: Archive aggregate-only source-verified exploratory measured outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-first-measured-tree-responses-v1
+          path: artifacts/fia_three_state_first_measured_response_v1.json
+          if-no-files-found: warn
