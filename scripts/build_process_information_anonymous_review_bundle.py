@@ -153,7 +153,7 @@ def main():
             "assisted with manuscript and research-software preparation. Authors retain "
             "responsibility for verifying generated text and code prior to submission. "
             "The validation numerators and denominators come from frozen executable receipts, "
-            "not language-model generated outcomes.\\n\\n"
+            "not language-model generated outcomes.\n\n"
             "These compact receipts are not a rerunnable real-data fit: GBIF inputs, "
             "environmental rasters and fitted models are not bundled. The original "
             "failed empirical promotion remains closed and cannot be reinterpreted "
