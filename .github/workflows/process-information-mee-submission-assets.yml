@@ -12,6 +12,7 @@ on:
       - paper/m5-figures-1-2-complete-v1
       - paper/m5-final-limitations-2026-10-13
       - paper/m5-postprospective-boundary-oct19
+      - paper/m5-oct28-submission-assets-refresh
     paths:
       - 'configs/process_information_submission_assets_execute.lock'
   workflow_dispatch:
@@ -49,6 +50,13 @@ jobs:
         run: |
           python scripts/build_process_information_anonymous_review_bundle.py \
             --output build/process_information_submission/anonymous_process_information_review_bundle.zip
+      - name: Verify latest source, DOCX, figures and anonymous reviewer bundle
+        run: |
+          python scripts/audit_process_information_submission_assets.py \
+            --root build/process_information_submission \
+            --source manuscript/PROCESS_INFORMATION_MEE_SUBMISSION_V1.md \
+            --revision "$GITHUB_SHA" \
+            --output build/process_information_submission/current_source_audit.json
       - name: Build manuscript audit
         run: |
           python - <<'PY'
