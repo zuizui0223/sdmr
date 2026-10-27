@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# AI-assisted source revision (OpenAI ChatGPT, GPT-6, October 2026); author verification required before submission.
 """Audit M5 submission assets against the CURRENT manuscript and sensitivity receipts.
 
 Production-only QA: this never runs ecological models or changes scientific endpoints.
