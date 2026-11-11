@@ -1,0 +1,4 @@
+scenario,seed,canonical_candidate,robust_candidate,canonical_processes,robust_processes,stable_process_core,contested_processes,true_processes,interpretation
+asymmetric,3103,climate_soil_quadratic,tw_quadratic,"soil;temperature;water","temperature;water","temperature;water",soil,"temperature;water","different fitted models; spurious soil isolated as contested; stable core exactly equals truth"
+omitted_driver,3101,climate_soil_quadratic,tw_quadratic,"soil;temperature;water","temperature;water","temperature;water",soil,"soil;temperature;water","true soil driver downgraded to contested rather than stable; illustrates false-negative boundary"
+soft_threshold,3106,climate_soil_quadratic,climate_soil_quadratic,"soil;temperature;water","soil;temperature;water","soil;temperature;water",,"temperature;water","soil incorrectly survives in stable core; illustrates false-positive boundary"

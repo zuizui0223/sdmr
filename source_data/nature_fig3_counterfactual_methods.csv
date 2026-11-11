@@ -1,0 +1,7 @@
+phase,n,method,exact_n,exact_rate,model_disagreement_n,exact_when_models_disagree_n,exact_when_models_disagree_rate
+fresh_validation_4301_4305,35,counterfactual,30,0.8571428571428571,18,15,0.8333333333333334
+fresh_validation_4301_4305,35,old_stable_core,23,0.6571428571428571,,,
+fresh_validation_4301_4305,35,auc_winner,25,0.7142857142857143,,,
+independent_replication_4401_4410,70,counterfactual,65,0.9285714285714286,30,27,0.9
+independent_replication_4401_4410,70,old_stable_core,49,0.7,,,
+independent_replication_4401_4410,70,auc_winner,56,0.8,,,

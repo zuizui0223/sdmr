@@ -1,0 +1,139 @@
+name: Product A real positive control us-east endpoint
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/product-a-real-positive-us-east-endpoint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  focal-chunk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install exact snapshot transport dependencies
+        run: python -m pip install -e '.[cloud,parquet]'
+      - name: Verify pre-outcome immutable focal panel
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          p = Path('configs/product_a_real_positive_control_taxa_v1.csv')
+          actual = hashlib.sha256(p.read_bytes()).hexdigest()
+          expected = 'b55e861e5083cf34aedf1c509f5e3cb42d30a3ed55f7a68ae985b1c2936d5fa9'
+          print('taxon_panel_sha256', actual)
+          if actual != expected:
+              raise SystemExit(f'frozen focal panel SHA mismatch: {actual}')
+          PY
+      - name: Materialize disjoint us-east snapshot shard chunk
+        run: |
+          mkdir -p focal_part
+          python -m sdmr.fresh_focal_parallel chunk \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --region 'us-east-1' \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --chunk-index '${{ matrix.chunk }}' \
+            --chunk-count 16 \
+            --output focal_part/partial.parquet \
+            --metadata focal_part/metadata.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-positive-us-east-focal-chunk-${{ matrix.chunk }}-${{ github.sha }}
+          path: focal_part/
+          retention-days: 30
+          if-no-files-found: error
+
+  aggregate-and-endpoint:
+    needs: focal-chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      SDMR_RASTER_LAYER_JOBS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install citable endpoint dependencies
+        run: python -m pip install -e '.[cloud,geo,parquet,test]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: real-positive-us-east-focal-chunk-*-${{ github.sha }}
+          path: focal_parts
+      - name: Aggregate complete frozen snapshot evidence without row deduplication
+        run: |
+          python -m sdmr.fresh_focal_parallel aggregate \
+            --parts-root focal_parts \
+            --snapshot-date '2026-08-01' \
+            --snapshot-doi '10.15468/dl.fs3btq' \
+            --citation-sha256 '022a524b59c4c037b28f252c08294e0f22c5eb7b3bce5c52a0a5fc6016f17050' \
+            --region 'us-east-1' \
+            --taxa configs/product_a_real_positive_control_taxa_v1.csv \
+            --output-dir focal_bundle
+          test -s focal_bundle/focal.parquet
+          test -s focal_bundle/focal.provenance.csv
+          test -s focal_bundle/focal_source_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          m = json.loads(Path('focal_bundle/focal_source_manifest.json').read_text())
+          assert m['snapshot_date'] == '2026-08-01'
+          assert m['snapshot_doi'] == '10.15468/dl.fs3btq'
+          assert int(m['focal_taxa']) == 4
+          assert int(m['parallel_chunk_count']) == 16
+          assert int(m['snapshot_shard_count']) == 9705
+          assert m['environmental_values_read'] is False
+          assert m['candidate_model_fitting_performed'] is False
+          assert m['sealed_confirmation_outcomes_read'] is False
+          print(json.dumps(m, indent=2, sort_keys=True))
+          PY
+      - name: Preflight frozen leakage-safe environmental registry
+        run: |
+          sdmr-chelsa \
+            --manifest configs/product_a_real_positive_control_manifest_v1.csv \
+            --output-dir positive_control_preflight \
+            --probe \
+            --require-probe-success
+      - name: Download frozen global Plantae target-group cache
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 31859498088
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: product-a-v1-target-cache-parallel-2026-08-01
+          path: positive_control_target_source
+      - name: Run frozen truth-blind endpoint then open external positive labels
+        run: |
+          python scripts/run_real_positive_control_endpoint.py \
+            --focal-parquet focal_bundle/focal.parquet \
+            --target-parquet positive_control_target_source/target_group.parquet \
+            --contract configs/product_a_real_positive_control_contract_v1.json \
+            --output-root positive_control_endpoint
+          cat positive_control_endpoint/result/real_positive_control_decision.json
+          cat positive_control_endpoint/result/real_positive_control_taxon_results.csv
+          cat positive_control_endpoint/result/real_positive_control_process_scores.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-a-real-positive-us-east-endpoint-${{ github.sha }}
+          path: |
+            focal_bundle/
+            positive_control_preflight/
+            positive_control_endpoint/
+          retention-days: 90
+          if-no-files-found: error

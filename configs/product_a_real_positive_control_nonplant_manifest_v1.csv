@@ -1,0 +1,11 @@
+predictor,source,version,candidate_class,process,mechanism,unit,retrieval,remote_name,summary,availability,notes,validation_process
+bio1,CHELSA-bioclim,2.1,core_climate,temperature,annual_mean_temperature,C,annual_bio_cog,bio1,,current,generic annual temperature,temperature
+bio5,CHELSA-bioclim,2.1,core_climate,thermal_extremes,warmest_month_max_temperature,C,annual_bio_cog,bio5,,current,generic warm extreme,temperature
+bio6,CHELSA-bioclim,2.1,core_climate,thermal_extremes,coldest_month_min_temperature,C,annual_bio_cog,bio6,,current,generic cold extreme,temperature
+bio7,CHELSA-bioclim,2.1,core_climate,seasonality,annual_temperature_range,C,annual_bio_cog,bio7,,current,generic annual thermal amplitude,temperature
+bio12,CHELSA-bioclim,2.1,core_climate,water,annual_precipitation,kg_m-2_yr-1,annual_bio_cog,bio12,,current,generic annual precipitation,water
+bio13,CHELSA-bioclim,2.1,core_climate,water,wettest_month_precipitation,kg_m-2_month-1,annual_bio_cog,bio13,,current,generic wet extreme,water
+bio14,CHELSA-bioclim,2.1,core_climate,drought,driest_month_precipitation,kg_m-2_month-1,annual_bio_cog,bio14,,current,generic dry extreme,water
+bio17,CHELSA-bioclim,2.1,core_climate,drought,driest_quarter_precipitation,kg_m-2_month-1,annual_bio_cog,bio17,,current,generic dry-quarter water supply,water
+rsds,CHELSA-BIOCLIM+-archive,2.1,extended_climate,radiation,downwelling_shortwave_radiation,W_m-2,annual_bio_summary_cog,rsds,mean,current,1981-2010 mean shortwave radiation,neutral
+sfcWind,CHELSA-BIOCLIM+-archive,2.1,extended_climate,wind,near_surface_wind_speed,m_s-1,annual_bio_summary_cog,sfcWind,mean,current,1981-2010 mean near-surface wind speed,neutral

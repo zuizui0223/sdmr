@@ -1,0 +1,5 @@
+scientific_name,expected_process,target_group,evidence_type,evidence_doi,evidence_summary
+Bombus terrestris,temperature,Insecta,thermal_flight_experiment,10.1111/1365-2435.13887,Tethered-flight experiment quantified temperature-dependent flight performance across 12-30 C.
+Ochotona princeps,temperature,Mammalia,thermal_physiology_experiment,10.1139/z73-002,Laboratory and field thermoregulation study reported hyperthermia and mortality after high ambient-temperature exposure.
+Plethodon cinereus,water,Amphibia,substrate_moisture_water_balance_experiment,10.2307/1933512,Experimental substrate-moisture study quantified water absorption and loss in a lungless salamander.
+Cepaea nemoralis,water,Gastropoda,low_humidity_survival_water_loss_experiment,10.1111/j.1469-7998.1970.tb02900.x,Laboratory low-humidity experiment quantified survival water loss and behavior and linked interspecific differences to distribution.

@@ -1,0 +1,5 @@
+seed,n_cells,candidate_identity_count,predictor_identity_count,max_abs_presence_rank_delta,common_candidate
+2026082201,36,36,36,0.0,all|logit_l2_C0.1_degree1_rs0
+2026082202,36,36,36,0.0,all|logit_l2_C0.1_degree1_rs0
+2026082203,36,36,36,0.0,all|logit_l2_C0.1_degree1_rs0
+ALL,108,108,108,0.0,all|logit_l2_C0.1_degree1_rs0

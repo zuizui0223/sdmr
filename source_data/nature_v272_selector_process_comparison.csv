@@ -1,0 +1,8 @@
+scenario,n,stable_core_exact_n,auc_process_exact_n,canonical_ecological_exact_n,robust_ecological_exact_n
+asymmetric,10,10,9,8,10
+gaussian,10,10,9,10,9
+interaction,10,10,9,8,10
+observation_confounded,10,10,5,10,10
+omitted_driver,10,7,10,10,7
+soft_threshold,10,8,8,6,8
+ALL,60,55,50,52,54

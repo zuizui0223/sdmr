@@ -1,0 +1,85 @@
+{
+  "purpose": "product_a_factorial_process_recovery_preoutcome_contract",
+  "frozen_before_factorial_outcome": true,
+  "scientific_question": "Can Product A recover which of temperature, water and soil truly generate a niche when all three process identities vary independently, rather than only retaining invariant temperature/water truth?",
+  "process_sets": [
+    ["temperature"],
+    ["water"],
+    ["soil"],
+    ["temperature", "water"],
+    ["temperature", "soil"],
+    ["water", "soil"],
+    ["temperature", "water", "soil"]
+  ],
+  "seeds": [4201, 4202, 4203, 4204, 4205],
+  "n_cases": 35,
+  "simulation": {
+    "n_cells": 3000,
+    "n_occurrences": 260,
+    "n_target_group": 950,
+    "sampling_bias_strength_canonical": 1.15,
+    "outer_holdout_fraction": 0.20,
+    "n_spatial_blocks": 6,
+    "inner_folds": 3,
+    "minimum_background": 70
+  },
+  "perturbations": [
+    {"name": "sampling_low", "sampling_bias_strength": 0.50, "access_radius": 0.35},
+    {"name": "sampling_standard", "sampling_bias_strength": 1.15, "access_radius": 0.35},
+    {"name": "sampling_high", "sampling_bias_strength": 2.00, "access_radius": 0.35},
+    {"name": "background_tight", "sampling_bias_strength": 1.15, "access_radius": 0.20},
+    {"name": "background_broad", "sampling_bias_strength": 1.15, "access_radius": 0.80}
+  ],
+  "candidate_library": [
+    "temperature_quadratic",
+    "temp_proxy_quadratic",
+    "water_quadratic",
+    "soil_quadratic",
+    "temperature_water_quadratic",
+    "temp_proxy_water_quadratic",
+    "temperature_soil_quadratic",
+    "temp_proxy_soil_quadratic",
+    "water_soil_quadratic",
+    "temperature_water_soil_quadratic",
+    "temp_proxy_water_soil_quadratic",
+    "broad_linear"
+  ],
+  "process_aliases": {
+    "temperature": "temperature",
+    "temp_proxy": "temperature",
+    "water": "water",
+    "soil": "soil",
+    "seasonality": "seasonality",
+    "noise": "noise"
+  },
+  "selectors": {
+    "auc": "canonical_auc",
+    "canonical_ecological": "canonical_replicated_observation_niche_recovery",
+    "robust_ecological": "replicated_observation_perturbation_robust_niche_recovery",
+    "stable_process_core": "intersection(canonical_ecological_processes, robust_ecological_processes)"
+  },
+  "primary_reporting": {
+    "overall_exact_process_set_recovery": true,
+    "per_process_sensitivity_specificity": true,
+    "exact_recovery_when_ecological_models_disagree": true,
+    "auc_exact_process_set_recovery_comparator": true,
+    "family_by_process_set_results": true
+  },
+  "support_gate": {
+    "robust_selector_coverage_min": 0.90,
+    "stable_exact_process_set_recovery_min": 0.80,
+    "per_process_sensitivity_min": 0.70,
+    "per_process_specificity_min": 0.80
+  },
+  "comparison_gate": {
+    "stable_minus_auc_exact_recovery_min": 0.00,
+    "description": "Separate descriptive/non-inferiority-style comparator gate; failure does not invalidate process-identification support."
+  },
+  "governance": {
+    "no_threshold_change_after_outcome": true,
+    "no_seed_or_process_set_drop_after_outcome": true,
+    "no_candidate_addition_after_outcome": true,
+    "outcome_may_be_supported_not_supported_or_unavailable": true,
+    "existing_v2_8_4_empirical_endpoint_unchanged": true
+  }
+}

@@ -1,0 +1,7 @@
+output,rows,floating_cells_compared,max_absolute_difference,max_relative_difference
+candidate_fold_metrics,7140,173880,0.0,0.0
+ecological_inference_certificates,60,360,0.0,0.0
+observation_signal_summary,420,2100,0.0,0.0
+selector_choices,180,540,0.0,0.0
+selector_truth_summary,3,42,0.0,0.0
+truth_evaluation,180,5220,0.0,0.0
