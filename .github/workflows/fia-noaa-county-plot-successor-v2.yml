@@ -1,13 +1,8 @@
 name: fia-noaa-county-plot-successor-v2
 
+# Historical live-source acquisition is manual-only. PR path filters re-run on
+# the entire changed-file set and must not reopen mutable external inputs.
 on:
-  pull_request:
-    paths:
-      - 'results/fia_noaa_county_climate_v1/**'
-      - 'experiments/fia_noaa_county_plot_successor_v2.py'
-      - 'tests/test_fia_noaa_county_plot_successor_v2.py'
-      - 'docs/FIA_NOAA_COUNTY_PLOT_SUCCESSOR_V2.md'
-      - '.github/workflows/fia-noaa-county-plot-successor-v2.yml'
   workflow_dispatch:
 
 permissions:

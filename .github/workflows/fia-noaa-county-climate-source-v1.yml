@@ -1,12 +1,8 @@
 name: fia-noaa-county-climate-source-v1
 
+# Historical live-source acquisition is manual-only. PR path filters re-run on
+# the entire changed-file set and must not reopen mutable external inputs.
 on:
-  pull_request:
-    paths:
-      - 'configs/fia_noaa_county_climate_source_v1.json'
-      - 'experiments/fia_noaa_county_climate_source_v1.py'
-      - 'tests/test_fia_noaa_county_climate_source_v1.py'
-      - '.github/workflows/fia-noaa-county-climate-source-v1.yml'
   workflow_dispatch:
 
 permissions:

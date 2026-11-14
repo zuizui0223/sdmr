@@ -1,12 +1,8 @@
 name: fia-county-climate-tree-source-v3
 
+# Historical live-source acquisition is manual-only. PR path filters re-run on
+# the entire changed-file set and must not reopen mutable external inputs.
 on:
-  pull_request:
-    paths:
-      - 'experiments/fia_climate_tree_source_gate_v3.py'
-      - 'tests/test_fia_climate_tree_source_gate_v3.py'
-      - 'docs/FIA_CLIMATE_TREE_SOURCE_GATE_V3.md'
-      - '.github/workflows/fia-county-climate-tree-source-v3.yml'
   workflow_dispatch:
 
 permissions:

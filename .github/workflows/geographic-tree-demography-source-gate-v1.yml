@@ -1,12 +1,8 @@
 name: geographic-tree-demography-source-gate-v1
 
+# Historical live-source acquisition is manual-only. PR path filters re-run on
+# the entire changed-file set and must not reopen mutable external inputs.
 on:
-  pull_request:
-    paths:
-      - 'experiments/geographic_tree_demography_source_gate_v1.py'
-      - 'tests/test_geographic_tree_demography_source_gate_v1.py'
-      - 'docs/GEOGRAPHIC_TREE_DEMOGRAPHY_SOURCE_GATE_V1.md'
-      - '.github/workflows/geographic-tree-demography-source-gate-v1.yml'
   workflow_dispatch:
 
 permissions:

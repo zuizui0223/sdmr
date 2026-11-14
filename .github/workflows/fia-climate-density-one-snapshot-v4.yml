@@ -1,14 +1,8 @@
 name: fia-climate-density-one-snapshot-v4
 
+# Historical live-source acquisition is manual-only. PR path filters re-run on
+# the entire changed-file set and must not reopen mutable external inputs.
 on:
-  pull_request:
-    paths:
-      - 'experiments/fia_climate_density_one_snapshot_v4.py'
-      - 'experiments/fia_climate_density_growth_v1.py'
-      - 'tests/test_fia_climate_density_one_snapshot_v4.py'
-      - 'tests/test_fia_climate_density_growth_v1.py'
-      - 'docs/FIA_CLIMATE_DENSITY_ONE_SNAPSHOT_V4.md'
-      - '.github/workflows/fia-climate-density-one-snapshot-v4.yml'
   workflow_dispatch:
 
 permissions:
