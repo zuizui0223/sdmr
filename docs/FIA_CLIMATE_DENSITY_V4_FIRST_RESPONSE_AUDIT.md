@@ -45,6 +45,14 @@ All values are `100 × (baseline RMSE − candidate RMSE) / baseline RMSE`; the 
 
 Names are from the official FIA taxon crosswalk already archived in this branch. Values are rounded for display only; exact results are in the hashed artifact.
 
+## Post-outcome regional-support diagnostic (not a new selection rule)
+
+The archived per-taxon `relative_climate_support` summaries were inspected *after* the v4 response was opened. In all **13/13** taxa, the separately calculated minimum–maximum intervals of both temperature and precipitation anomalies overlap among RI, VA and WI. **Two overlapping one-dimensional bounding intervals do not prove occupied bivariate climate support**, let alone matched plots or common physiological exposure. No intersection of actual T–P pairs has been established by these summary endpoints.
+
+The RI reference state is unusually thin: just **3–5 climate counties per taxon (median 4)** and **24–2,220 linked survivors (median 115)**; **9/13** taxa have fewer than five RI counties and **6/13** have fewer than 100 RI-linked growth observations. The five-fold county hash is outcome-blind, but five folds cannot manufacture geographic independence or make three RI counties representative of a broad climatic population. Most survivor pairs lie in VA/WI, and site/management/calendar confounding remains. Consequently the apparent region-specific interaction advantage is **particularly weak evidence of regional biological response differences**.
+
+These denominators were not used to delete unfavorable taxa, adjust thresholds, rerun the four models or revise the first-run result. They are a post-outcome **diagnosis of estimability**, not a newly passed biological gate. A future predeclared common-support design requires access to the actual bivariate county/plot exposures and independent observations, not just the published min–max envelopes.
+
 ## Scientific interpretation and non-support
 
 **What is positive:** The frozen nine-source acquisition succeeded and produced measurable, auditably screened cross-county comparisons for all 13 predeclared taxa. Some species gain out-of-county predictive information from climatic anomalies; regional changes in fitted interactions sometimes improve this *particular* holdout criterion.
