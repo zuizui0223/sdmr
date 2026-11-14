@@ -1,8 +1,8 @@
 name: real-api-smoke
 
+# GBIF search-API source is mutable and noncitable; this diagnostic cannot
+# be a required PR scientific gate. Run manually only; offline CI remains.
 on:
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
