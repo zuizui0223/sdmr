@@ -1,0 +1,77 @@
+name: FIA first-source-only artifact reconciliation v2 (no new FIA downloads)
+
+# Exactly one immutable artifact-reconciliation dispatch. Source DataMart is
+# NOT accessed; the first failed joint-support gate is preserved as history.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_joint_source_reconcile_once_v2.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  fixed-source-offline-reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm exact unchanged first source artifact identity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_joint_source_reconcile_once_v2.lock').read_text()
+          for item in ('source_run=43696751589',
+                       'source_artifact=14155086669',
+                       'original_source_rows=89630',
+                       'source_zip_sha256=85d8cc0b6efb120736166a581f608ad10d7de70dd3732bd68a8c7b3fc44acff3',
+                       'reacquire_FIA=forbidden',
+                       'biological_outcome=forbidden'):
+              assert item in s
+          PY
+      - name: Verify offline source-integrity and QA controls
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_joint_source_reconcile_v2.py tests/test_fia_joint_support_gate_v1.py tests/test_fia_joint_source_only_v1.py
+      - name: Download only the first opened source-only artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43696751589
+          name: fia-joint-source-only-new-cohort-v1
+          github-token: ${{ github.token }}
+          path: build/frozen_source_only
+      - name: County-stability whole-chain exclusion and fixed climate-support evaluation
+        run: |
+          python experiments/fia_joint_source_reconcile_v2.py \
+            --source-dir build/frozen_source_only \
+            --config configs/fia_joint_climate_support_gate_v1.json \
+            --output-dir artifacts/fia_joint_source_reconcile_v2
+      - name: Validate complete denominators and no ecological promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=Path('artifacts/fia_joint_source_reconcile_v2')
+          report=json.loads((a/'quality_audit_v2.json').read_text())
+          support=json.loads((a/'joint_time_support_v2.json').read_text())
+          assert report['n_original_rows']==89630
+          assert report['n_original_rows']==report['n_kept_rows']+report['n_rejected_rows']
+          assert support['n_species_declared']==13
+          assert support['biological_promotion_authorized'] is False
+          assert report['no_new_FIA_download_or_growth_or_survival_opening'] is True
+          assert support['no_growth_or_survival_or_refitting'] is True
+          print('Source QC:',report['n_kept_rows'],'kept',report['n_rejected_rows'],'excluded; eligible source-only species:',support['source_eligible_species'])
+          PY
+      - name: Retain source-only quality and failure audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-first-source-only-reconciliation-v2
+          path: artifacts/fia_joint_source_reconcile_v2/
+          if-no-files-found: warn
+          retention-days: 90
