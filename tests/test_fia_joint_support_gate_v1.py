@@ -111,3 +111,24 @@ def test_thresholds_not_silent_defaults():
     conf=config();del conf["min_shared_bins"]
     with pytest.raises(ValueError,match="threshold"):
         gate.verify_config(conf)
+
+
+
+def test_archived_boundary_denominator_and_receipt_are_not_reinterpreted():
+    import csv as csvmod
+    result=json.loads((ROOT/"results/fia_joint_climate_support_legacy_v4_boundary_v1.json").read_text())
+    with (ROOT/"results/fia_joint_climate_support_legacy_v4_marginal_intervals_v1.csv").open(newline="") as f:
+        cells=list(csvmod.DictReader(f))
+    assert result["source_artifact_zip_sha256"]==gate.LEGACY_ARCHIVE_SHA
+    assert result["source_response_json_sha256"]==gate.LEGACY_RESPONSE_SHA
+    assert result["frozen_species_count"]==len(config()["species_codes"])==13
+    assert result["marginal_temperature_and_precipitation_intersection_count"]==13
+    assert result["measured_joint_support_count"]==0
+    assert result["joint_support_unavailable_count"]==13
+    assert result["measured_joint_support_count_means_data_absent_not_negative"] is True
+    assert result["biological_promotion_authorized"] is False
+    assert {s["species_code"] for s in cells}==set(config()["species_codes"])
+    assert all(s["joint_status"]=="unavailable" for s in cells)
+    assert all(float(s["marginal_tanom3_lo"])<float(s["marginal_tanom3_hi"])
+               and float(s["marginal_panom200_lo"])<float(s["marginal_panom200_hi"]) for s in cells)
+    assert all(3<=int(s["RI_counties"])<=5 for s in cells)
