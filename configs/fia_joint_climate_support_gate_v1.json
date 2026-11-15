@@ -2,14 +2,35 @@
   "stage": "future_source_only_design_not_frozen_empirical",
   "biological_promotion_authorized": false,
   "climate_source": "NOAA_20261006_county_interval_anomalies",
-  "regions": ["RI", "VA", "WI"],
-  "species_codes": ["68", "129", "261", "316", "318", "371", "531", "541", "743", "762", "802", "833", "837"],
-  "temperature_bin_c": 1.0,
-  "precipitation_bin_mm": 100.0,
+  "regions": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "species_codes": [
+    "68",
+    "129",
+    "261",
+    "316",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762",
+    "802",
+    "833",
+    "837"
+  ],
+  "temperature_bin_c": 1,
+  "precipitation_bin_mm": 100,
   "min_region_counties": 5,
   "min_region_plots": 25,
   "min_bin_counties": 2,
   "min_bin_plots": 5,
   "min_shared_bins": 2,
-  "min_region_covered_fraction": 0.2
+  "min_region_covered_fraction": 0.2,
+  "period_origin_year": 1990,
+  "period_bin_years": 5,
+  "temporal_joint_support_required": true
 }

@@ -27,7 +27,7 @@ def rows_for(tax="68", disjoint=False):
                 temp = 0.2 + 2 * k
                 prec = 10.2 + 200 * (1-k if (disjoint and state == "VA") else k)
                 out.append(dict(species_code=tax, state=state, county_fips=county,
-                                plot_chain_id=f"{state}-{i}-{j}", interval_id="window1",
+                                plot_chain_id=f"{state}-{i}-{j}", interval_id="window1", interval_end_year=2010,
                                 temperature_anomaly_c=temp, precipitation_anomaly_mm=prec))
     return out
 
@@ -37,8 +37,9 @@ def test_same_joint_support_enough_independent_counties():
     result=gate.evaluate_source_only(rows_for(),conf)
     sp=result["species"][0]
     assert sp["status"]=="descriptive_source_support_eligible"
-    assert sp["n_shared_joint_bins"]==2
-    assert all(z["shared_cell_coverage_fraction"]==1 for z in sp["regions"].values())
+    assert sp["n_shared_joint_bins_ignoring_time"]==2
+    assert sp["n_shared_time_aligned_joint_bins"]==2
+    assert all(z["shared_joint_time_plot_fraction"]==1 for z in sp["regions"].values())
     assert not result["biological_promotion_authorized"]
 
 
@@ -53,7 +54,7 @@ def test_identical_marginal_bounds_do_not_prove_joint_support():
     sp=gate.evaluate_source_only(rows,conf)["species"][0]
     assert sp["status"]=="not_eligible_design_support"
     assert "insufficient_shared_joint_bins" in sp["reasons"]
-    assert sp["n_shared_joint_bins"]==0
+    assert sp["n_shared_time_aligned_joint_bins"]==0
 
 
 def test_no_missing_taxa_silently_dropped_and_negative_bins():
@@ -80,7 +81,7 @@ def test_source_receipt_hash_and_whitelist_required(tmp_path):
     with pytest.raises(ValueError,match="receipt"):
         gate.read_source_only_csv(p,rc,conf)
     receipt["sha256"]=hashlib.sha256(p.read_bytes()).hexdigest();rc.write_text(json.dumps(receipt))
-    with p.open("a") as f: f.write("68,RI,44001,BAD,window1,1,1\n")
+    with p.open("a") as f: f.write("68,RI,44001,BAD,window1,2010,1,1\n")
     with pytest.raises(ValueError,match="receipt"):
         gate.read_source_only_csv(p,rc,conf)
 
@@ -132,3 +133,75 @@ def test_archived_boundary_denominator_and_receipt_are_not_reinterpreted():
     assert all(float(s["marginal_tanom3_lo"])<float(s["marginal_tanom3_hi"])
                and float(s["marginal_panom200_lo"])<float(s["marginal_panom200_hi"]) for s in cells)
     assert all(3<=int(s["RI_counties"])<=5 for s in cells)
+
+def test_temporally_disjoint_regions_cannot_claim_common_support():
+    conf=config();conf["species_codes"]=["68"]
+    rows=rows_for()
+    # Marginal and bivariate cells match, but VA is sampled 15y later.
+    for row in rows:
+        if row["state"]=="VA":row["interval_end_year"]=2025
+    sp=gate.evaluate_source_only(rows,conf)["species"][0]
+    assert sp["n_shared_joint_bins_ignoring_time"]==2
+    assert sp["n_shared_time_aligned_joint_bins"]==0
+    assert "insufficient_time_aligned_joint_bins" in sp["reasons"]
+
+
+def test_repeated_plot_intervals_cannot_inflate_coverage():
+    conf=config();conf["species_codes"]=["68"]
+    rows=[]
+    for state, prefix in gate.STATES.items():
+        for county_i in range(6):
+            for plot_i in range(5):
+                # Only 5/30 plots occupy the shared T-P cell.
+                selected=(plot_i==0 and county_i < 5)
+                r=dict(species_code="68",state=state,
+                       county_fips=prefix+f"{county_i+1:03d}",
+                       plot_chain_id=f"{state}-{county_i}-{plot_i}",
+                       interval_id="interval-2008",interval_end_year=2008,
+                       temperature_anomaly_c=0.4 if selected else (2.1 if state!="WI" else 4.1),
+                       precipitation_anomaly_mm=10 if selected else (250 if state!="WI" else 450))
+                rows.append(r)
+                if selected:
+                    for year in (2009,2010,2011,2012):
+                        rows.append({**r,"interval_id":f"interval-{year}","interval_end_year":year})
+    sp=gate.evaluate_source_only(rows,conf)["species"][0]
+    assert sp["n_shared_joint_bins_ignoring_time"]>=1
+    assert all(v["plot_count"]==30 for v in sp["regions"].values())
+    assert sp["status"]=="not_eligible_design_support"
+    assert "RI:insufficient_joint_time_unique_plot_coverage" in sp["reasons"]
+    assert sp["regions"]["RI"]["shared_joint_time_plot_fraction"]==pytest.approx(5/30)
+
+
+def test_plot_chain_cannot_move_county_between_measurements(tmp_path):
+    conf=config();conf["species_codes"]=["68"]
+    rows=rows_for()
+    rows.append({**rows[0],"county_fips":"44099","interval_id":"window2","interval_end_year":2015})
+    p=tmp_path/"s.csv";rec=tmp_path/"r.json"
+    with p.open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=sorted(gate.FIELDS));w.writeheader();w.writerows(rows)
+    rec.write_text(json.dumps({"status":"source_only_pre_response", "no_status_diameter_growth_read":True,
+          "species_identity_only_not_survivor_selected":True,"climate_source":conf["climate_source"],
+          "sha256":hashlib.sha256(p.read_bytes()).hexdigest()}))
+    with pytest.raises(ValueError,match="plot county identity changed"):
+        gate.read_source_only_csv(p,rec,conf)
+
+
+def test_invalid_interval_year_and_time_contract_fail_closed(tmp_path):
+    conf=config();conf["species_codes"]=["68"]
+    assert gate.period_bin({"interval_end_year":2009},conf)==3
+    assert gate.period_bin({"interval_end_year":2010},conf)==4
+    wrong=conf.copy();wrong["period_bin_years"]=0
+    with pytest.raises(ValueError,match="period width"):
+        gate.verify_config(wrong)
+    wrong=conf.copy();wrong["temporal_joint_support_required"]=False
+    with pytest.raises(ValueError,match="time-aligned"):
+        gate.verify_config(wrong)
+    rows=rows_for();rows[0]["interval_end_year"]="20XX"
+    p=tmp_path/"s.csv";rec=tmp_path/"r.json"
+    with p.open("w",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=sorted(gate.FIELDS));w.writeheader();w.writerows(rows)
+    rec.write_text(json.dumps({"status":"source_only_pre_response", "no_status_diameter_growth_read":True,
+          "species_identity_only_not_survivor_selected":True,"climate_source":conf["climate_source"],
+          "sha256":hashlib.sha256(p.read_bytes()).hexdigest()}))
+    with pytest.raises(ValueError,match="invalid interval end year"):
+        gate.read_source_only_csv(p,rec,conf)

@@ -17,7 +17,7 @@ from pathlib import Path
 
 STATES = {"RI": "44", "VA": "51", "WI": "55"}
 FIELDS = {"species_code", "state", "county_fips", "plot_chain_id",
-          "interval_id", "temperature_anomaly_c", "precipitation_anomaly_mm"}
+          "interval_id", "interval_end_year", "temperature_anomaly_c", "precipitation_anomaly_mm"}
 LEGACY_ARCHIVE_SHA = "66fe0e81815f99b0112b991f1ee6f766f968889fc858989e4a2f878993cfcaa3"
 LEGACY_RESPONSE_SHA = "a336e0da49588dc81d89ef5e87826285d8d3afeaa80b6bf013c72599abce7512"
 LEGACY_SOURCE_SHA = "5ace92c42a912fdd9d1a720849a458b28821c16764b088defdfc2ce1488c83b5"
@@ -46,6 +46,14 @@ def verify_config(config: dict) -> None:
             raise ValueError("invalid future design threshold: " + name)
     if not 0 < config.get("min_region_covered_fraction", -1) <= 1:
         raise ValueError("invalid coverage threshold")
+    # Calendar cohorts must also overlap. Climate cells from distinct decades
+    # cannot stand in for shared observational opportunity.
+    if config.get("period_origin_year") != 1990:
+        raise ValueError("invalid fixed period origin")
+    if config.get("period_bin_years") != 5:
+        raise ValueError("invalid fixed period width")
+    if config.get("temporal_joint_support_required") is not True:
+        raise ValueError("time-aligned joint support must be required")
     if config.get("climate_source") != "NOAA_20261006_county_interval_anomalies":
         raise ValueError("climate identity missing")
 
@@ -115,6 +123,7 @@ def read_source_only_csv(path: Path, receipt_path: Path, config: dict) -> list[d
             raise ValueError("incorrect source-only schema or outcome columns present")
         rows = []
         ids = set()
+        plot_counties = {}
         for row in reader:
             if (row["state"] not in STATES or row["species_code"] not in config["species_codes"] or
                 len(row["county_fips"]) != 5 or not row["county_fips"].isdigit() or
@@ -122,6 +131,18 @@ def read_source_only_csv(path: Path, receipt_path: Path, config: dict) -> list[d
                 raise ValueError("invalid taxon/state/county identity")
             if not row["plot_chain_id"] or not row["interval_id"]:
                 raise ValueError("invalid plot or interval")
+            # One plot-chain must have a stable county across species/periods.
+            plot_key = (row["state"], row["plot_chain_id"])
+            previous_county = plot_counties.setdefault(plot_key, row["county_fips"])
+            if previous_county != row["county_fips"]:
+                raise ValueError("plot county identity changed between source intervals")
+            raw_year = row["interval_end_year"]
+            if len(raw_year) != 4 or not raw_year.isdigit():
+                raise ValueError("invalid interval end year")
+            year = int(raw_year)
+            if not 1991 <= year <= 2026:
+                raise ValueError("interval end year outside fixed FIA/NOAA study window")
+            row["interval_end_year"] = year
             identity = (row["species_code"], row["state"], row["plot_chain_id"], row["interval_id"])
             if identity in ids:
                 raise ValueError("tree-level duplicates must first be collapsed to plot-interval clusters")
@@ -144,10 +165,19 @@ def grid_cell(row: dict, config: dict) -> tuple[int, int]:
             math.floor(row["precipitation_anomaly_mm"] / config["precipitation_bin_mm"]))
 
 
+def period_bin(row: dict, config: dict) -> int:
+    """Predeclared calendar cohort; year precision is not a PLOT date check."""
+    year = int(row["interval_end_year"])
+    return (year - config["period_origin_year"]) // config["period_bin_years"]
+
+
 def evaluate_source_only(rows: list[dict], config: dict) -> dict:
+    """Joint T-P + shared calendar-period support; never estimates tree fitness."""
     verify_config(config)
     by_sp_state = defaultdict(list)
     for r in rows:
+        if r["state"] not in config["regions"] or r["species_code"] not in config["species_codes"]:
+            raise ValueError("unregistered source-only observation")
         by_sp_state[(r["species_code"], r["state"])].append(r)
     output = []
     for sp in config["species_codes"]:
@@ -156,46 +186,75 @@ def evaluate_source_only(rows: list[dict], config: dict) -> dict:
         for state in config["regions"]:
             items = by_sp_state[(sp, state)]
             counties = {r["county_fips"] for r in items}
-            plots = {r["plot_chain_id"] for r in items}
+            # Plot chains are independent only by physical county + ID, not year.
+            plot_keys = {(r["county_fips"], r["plot_chain_id"]) for r in items}
             if len(counties) < config["min_region_counties"]:
                 reasons.append(state + ":insufficient_counties")
-            if len(plots) < config["min_region_plots"]:
+            if len(plot_keys) < config["min_region_plots"]:
                 reasons.append(state + ":insufficient_plots")
-            bins = defaultdict(lambda: {"counties": set(), "plots": set(), "intervals": 0})
+            joint = defaultdict(lambda: {"counties": set(), "plots": set(), "intervals": 0})
+            joint_time = defaultdict(lambda: {"counties": set(), "plots": set(), "intervals": 0})
             for r in items:
-                b = bins[grid_cell(r, config)]
-                b["counties"].add(r["county_fips"])
-                b["plots"].add(r["plot_chain_id"])
-                b["intervals"] += 1
-            qualified = {cell for cell, v in bins.items()
-                         if len(v["counties"]) >= config["min_bin_counties"]
-                         and len(v["plots"]) >= config["min_bin_plots"]}
-            buckets[state] = {"bins": bins, "qualified": qualified, "n_counties": len(counties),
-                              "n_plots": len(plots), "n_plot_intervals": len(items)}
-        shared = set.intersection(*(buckets[s]["qualified"] for s in config["regions"]))
-        if len(shared) < config["min_shared_bins"]:
+                cell = grid_cell(r, config)
+                time_cell = (*cell, period_bin(r, config))
+                plot = (r["county_fips"], r["plot_chain_id"])
+                for bucket in (joint[cell], joint_time[time_cell]):
+                    bucket["counties"].add(r["county_fips"])
+                    bucket["plots"].add(plot)
+                    bucket["intervals"] += 1
+            def qualified(source):
+                return {cell for cell, v in source.items()
+                        if len(v["counties"]) >= config["min_bin_counties"]
+                        and len(v["plots"]) >= config["min_bin_plots"]}
+            buckets[state] = {"joint": joint, "joint_time": joint_time,
+                              "joint_qualified": qualified(joint),
+                              "joint_time_qualified": qualified(joint_time),
+                              "counties": counties, "plots": plot_keys,
+                              "n_plot_intervals": len(items)}
+        # Both contrasts are reported, but ONLY the time-aligned one passes.
+        shared_joint = set.intersection(*(buckets[s]["joint_qualified"] for s in config["regions"]))
+        shared_joint_time = set.intersection(*(buckets[s]["joint_time_qualified"] for s in config["regions"]))
+        if len(shared_joint) < config["min_shared_bins"]:
             reasons.append("insufficient_shared_joint_bins")
+        if len(shared_joint_time) < config["min_shared_bins"]:
+            reasons.append("insufficient_time_aligned_joint_bins")
         coverage = {}
-        for s in config["regions"]:
-            v = buckets[s]
-            n = sum(v["bins"][cell]["intervals"] for cell in shared)
-            fraction = (n / v["n_plot_intervals"]) if v["n_plot_intervals"] else 0.0
-            coverage[s] = {"county_count": v["n_counties"], "plot_count": v["n_plots"],
-                           "plot_interval_count": v["n_plot_intervals"],
-                           "shared_cell_coverage_fraction": fraction}
-            if fraction < config["min_region_covered_fraction"]:
-                reasons.append(s + ":insufficient_joint_coverage")
+        for state in config["regions"]:
+            x = buckets[state]
+            selected = [r for r in by_sp_state[(sp, state)]
+                        if (*grid_cell(r, config), period_bin(r, config)) in shared_joint_time]
+            selected_plots = {(r["county_fips"], r["plot_chain_id"]) for r in selected}
+            selected_counties = {r["county_fips"] for r in selected}
+            # Repeated intervals do NOT increase primary unique-plot coverage.
+            plot_fraction = len(selected_plots)/len(x["plots"]) if x["plots"] else 0.0
+            interval_fraction = len(selected)/x["n_plot_intervals"] if x["n_plot_intervals"] else 0.0
+            coverage[state] = {"county_count": len(x["counties"]),
+                               "plot_count": len(x["plots"]),
+                               "plot_interval_count": x["n_plot_intervals"],
+                               "shared_joint_time_county_count": len(selected_counties),
+                               "shared_joint_time_plot_count": len(selected_plots),
+                               "shared_joint_time_plot_fraction": plot_fraction,
+                               "shared_joint_time_plot_interval_fraction": interval_fraction}
+            if plot_fraction < config["min_region_covered_fraction"]:
+                reasons.append(state + ":insufficient_joint_time_unique_plot_coverage")
         output.append({"species_code": sp,
                        "status": "descriptive_source_support_eligible" if not reasons else "not_eligible_design_support",
-                       "reasons": reasons, "n_shared_joint_bins": len(shared),
-                       "shared_joint_bins": [list(z) for z in sorted(shared)],
+                       "reasons": reasons,
+                       "n_shared_joint_bins_ignoring_time": len(shared_joint),
+                       "n_shared_time_aligned_joint_bins": len(shared_joint_time),
+                       "shared_time_aligned_joint_bins": [list(z) for z in sorted(shared_joint_time)],
                        "regions": coverage})
-    return {"program": "fia_joint_climate_support_future_source_gate_v1",
+    return {"program": "fia_joint_climate_support_future_source_gate_v1_1",
             "status": "design_only_no_fitted_biological_response",
             "source_eligible_species": sum(x["status"] == "descriptive_source_support_eligible" for x in output),
             "n_species_declared": len(config["species_codes"]),
             "species": output,
-            "grid_origin": [0, 0], "grid_widths": [config["temperature_bin_c"], config["precipitation_bin_mm"]],
+            "grid_origin": [0, 0],
+            "grid_widths": [config["temperature_bin_c"], config["precipitation_bin_mm"]],
+            "time_origin_year": config["period_origin_year"],
+            "time_bin_years": config["period_bin_years"],
+            "primary_coverage_unit": "distinct_county_plus_plot_chain_not_plot_intervals",
+            "time_aligned_joint_support_required": True,
             "grid_discretization_cannot_establish_physiological_equivalence": True,
             "unmeasured_climate_space_not_assumed_absent": True,
             "no_growth_or_survival_or_refitting": True,
