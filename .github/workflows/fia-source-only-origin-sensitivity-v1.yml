@@ -1,0 +1,61 @@
+name: FIA frozen source-only bin-origin sensitivity v1
+
+# One-time offline sensitivity against a SHA-locked source-only artifact.
+# No FIA/NOAA downloads, no biological response, no automatic retry.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_joint_origin_sensitivity_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  fixed-source-origin-sensitivity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact artifact and no-biological-outcome lock
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_joint_origin_sensitivity_once_v1.lock').read_text()
+          for s in ('reconciliation_run=43711159676',
+                    'reconciliation_artifact=14160283759',
+                    'derived_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7',
+                    'read_growth_or_survival=forbidden',
+                    'FIA_NOAA_refetch=forbidden',
+                    'scientific_claim=postsource_opportunity_sensitivity_only'):
+              assert s in t
+          PY
+      - name: Offline tests including canonical-gate comparison
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_source_only_origin_sensitivity_v1.py tests/test_fia_joint_support_gate_v1.py
+      - name: Download one immutable previous source-only reconciliation artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/frozen_source_only
+      - name: Recompute only fixed-bin-origin source-support sensitivity
+        run: |
+          python experiments/fia_source_only_origin_sensitivity_v1.py \
+            --source-dir build/frozen_source_only \
+            --config configs/fia_joint_climate_support_gate_v1.json \
+            --output artifacts/fia_joint_origin_sensitivity_v1.json
+      - name: Save full eight-phase source opportunity result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-source-only-origin-sensitivity-v1
+          path: artifacts/fia_joint_origin_sensitivity_v1.json
+          if-no-files-found: warn
+          retention-days: 90
