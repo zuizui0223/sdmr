@@ -49,7 +49,7 @@ def effective_counties(ri: list[dict]) -> dict:
             "largest_county_plot_share": max(counts)/n if n else None,
             "county_plot_count_sorted": counts,
             "RI_leave_one_county_out_training_cannot_meet_original_five_county_floor":
-                len(counts) > 0 and len(counts)-1 < 5}
+                len(counts)-1 < 5}
 
 
 def phase_projection(rows: list[dict], cfg: dict,
@@ -140,7 +140,7 @@ def summarize(phases: list[dict], cfg: dict) -> dict:
             "n_source_rows": ORIGINAL_SOURCE_ROWS,
             "source_panel_species": len(cfg["species_codes"]),
             "training_regions": list(TRAIN_REGIONS), "test_region": TEST_REGION,
-            "n_phases": len(PHASES), "projection_phase_options": [list(x) for x in PHASES],
+            "n_phases": len(phases), "projection_phase_options": [z["phase"] for z in phases],
             "original_source_support_method_unchanged": True,
             "postsource_exploratory_design_not_prospective_validation": True,
             "no_biological_outcomes_read": True, "biological_promotion_authorized": False,

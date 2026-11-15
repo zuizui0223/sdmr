@@ -116,3 +116,11 @@ def test_source_provenance_and_postsource_eight_phases():
     assert probe.SOURCE_ARTIFACT == 14160283759
     assert len(probe.SOURCE_CSV_SHA256) == len(probe.SOURCE_RECEIPT_SHA256) == 64
     assert probe.PRIOR_ORIGIN_STABLE_TAXA == ("129", "316", "802", "833", "837")
+
+
+def test_missing_RI_cannot_be_labelled_as_valid_county_holdout():
+    result = probe.effective_counties([])
+    assert result["n_counties"] == 0
+    assert result["effective_counties_plot_HHI"] is None
+    assert result["RI_leave_one_county_out_training_cannot_meet_original_five_county_floor"] is True
+
