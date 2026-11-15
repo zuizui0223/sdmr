@@ -172,7 +172,13 @@
       5,
       6
     ],
-    "status": "exploratory_not_biological_confirmation"
+    "status": "exploratory_not_biological_confirmation",
+    "run_id": 43711684836,
+    "artifact_id": 14160179900,
+    "artifact_zip_sha256": "7c12159bb24790ebcd874dcc1eda637be34e68f39c26431b80e9041ff6be34af",
+    "internal_json_sha256": "8d9118a105c680d2679c28a78e97d4573f20dd716c12b31cc5a84f8105c81f2b",
+    "canonical_zero_zero_1990_match_verified": true,
+    "github_actions_conclusion": "success"
   },
   "original_stop_preserved": true,
   "biological_outcomes_read_for_this_analysis": false,
