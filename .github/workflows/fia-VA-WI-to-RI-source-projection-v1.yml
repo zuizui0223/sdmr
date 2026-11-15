@@ -1,0 +1,79 @@
+name: FIA VA-WI to RI external-region source-only projection v1
+
+# Exact frozen original source-only artifact; no FIA GET, no demographic outcome.
+# One explicit lock dispatch, not a routine PR rerun.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_VA_WI_to_RI_source_projection_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline-source-projection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify fixed source-only cohort and comparison direction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_VA_WI_to_RI_source_projection_once_v1.lock').read_text()
+          for s in ('source_run=43711159676',
+                    'source_artifact=14160283759',
+                    'source_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7',
+                    'training_regions=VA_WI',
+                    'external_test_region=RI',
+                    'source_only_not_demographic_validation=true',
+                    'no_FIA_download=true',
+                    'no_growth_or_status_read=true'):
+              assert s in t
+          PY
+      - name: Run source-identity and transfer-only controls
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_external_region_support_v1.py tests/test_fia_joint_support_gate_v1.py
+      - name: Read only the previously archived county-stable source-only artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fia-first-source-only-reconciliation-v2
+          run-id: 43711159676
+          github-token: ${{ github.token }}
+          path: build/fia_source
+      - name: VA/WI source opportunity projected onto held-out RI
+        run: |
+          python experiments/fia_external_region_support_v1.py \
+            --source-dir build/fia_source \
+            --config configs/fia_joint_climate_support_gate_v1.json \
+            --output artifacts/VA_WI_to_RI_source_projection_v1.json
+      - name: Confirm full denominator and scientific refusal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('artifacts/VA_WI_to_RI_source_projection_v1.json').read_text())
+          assert a['source_panel_species']==13
+          assert len(a['phases'])==8
+          assert a['n_source_rows']==89616
+          assert a['training_regions']==['VA','WI']
+          assert a['test_region']=='RI'
+          assert all(not z['training_bin_selection_uses_RI'] for z in a['phases'])
+          assert not a['biological_promotion_authorized']
+          assert a['no_biological_outcomes_read']
+          print('Source-only transfer projection completed on all 13 taxa')
+          PY
+      - name: Retain full source-only transfer feasibility output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-VA-WI-to-RI-source-projection-v1
+          path: artifacts/VA_WI_to_RI_source_projection_v1.json
+          if-no-files-found: warn
+          retention-days: 90
