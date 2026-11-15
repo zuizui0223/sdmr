@@ -1,0 +1,189 @@
+{
+  "program": "fia_VA_WI_to_RI_environment_projection_verified_summary_v1",
+  "status": "source_only_postsource_exploratory_result_not_demographic_validation",
+  "source_run": 43711159676,
+  "source_artifact": 14160283759,
+  "source_csv_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "source_receipt_sha256": "f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453",
+  "n_source_rows": 89616,
+  "workflow_run": 43713287766,
+  "workflow_conclusion": "success",
+  "workflow_artifact": 14161512814,
+  "artifact_zip_sha256": "512ac000ef8edf00407bf12d0a1b5aa287ed78001cc62e2fc560cbc95c7c107f",
+  "full_result_json_sha256": "a92e3cf9e06010a0f8cca66a15a9841a7843526879cbcabdfdba2b6386a2c006",
+  "training_regions": [
+    "VA",
+    "WI"
+  ],
+  "external_projection_region": "RI",
+  "training_support_definition_uses_RI": false,
+  "species_denominator": 13,
+  "n_phase_origins": 8,
+  "unit": "prior_visit_species_x_county_plot_chain_x_revisit_period",
+  "note": "Unique-plot fractions are source environment coverage, not independent sample size, SDM performance or demographic effect.",
+  "previous_origin_stable_taxa": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "five_previously_stable_species_min_projected_fraction_percent_range": [
+    95.8,
+    100
+  ],
+  "five_previously_stable_species_RI_effective_counties_range_rounded": [
+    2.422,
+    2.945
+  ],
+  "per_species": [
+    {
+      "species_code": "68",
+      "RI_unique_plot_chains": 13,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 11,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 13,
+      "RI_counties": 4,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.68254,
+      "VA_WI_common_training_bins_min": 14,
+      "VA_WI_common_training_bins_max": 18,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "129",
+      "RI_unique_plot_chains": 72,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 69,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 72,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.945455,
+      "VA_WI_common_training_bins_min": 17,
+      "VA_WI_common_training_bins_max": 25,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "261",
+      "RI_unique_plot_chains": 9,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 8,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 9,
+      "RI_counties": 4,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.076923,
+      "VA_WI_common_training_bins_min": 13,
+      "VA_WI_common_training_bins_max": 21,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "316",
+      "RI_unique_plot_chains": 131,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 131,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 131,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.876949,
+      "VA_WI_common_training_bins_min": 20,
+      "VA_WI_common_training_bins_max": 28,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "318",
+      "RI_unique_plot_chains": 12,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 11,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 12,
+      "RI_counties": 3,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.181818,
+      "VA_WI_common_training_bins_min": 18,
+      "VA_WI_common_training_bins_max": 25,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "371",
+      "RI_unique_plot_chains": 28,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 13,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 28,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 3.531532,
+      "VA_WI_common_training_bins_min": 8,
+      "VA_WI_common_training_bins_max": 13,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "531",
+      "RI_unique_plot_chains": 13,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 6,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 13,
+      "RI_counties": 3,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.449275,
+      "VA_WI_common_training_bins_min": 10,
+      "VA_WI_common_training_bins_max": 14,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "541",
+      "RI_unique_plot_chains": 27,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 26,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 27,
+      "RI_counties": 3,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.299685,
+      "VA_WI_common_training_bins_min": 18,
+      "VA_WI_common_training_bins_max": 23,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "743",
+      "RI_unique_plot_chains": 14,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 10,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 14,
+      "RI_counties": 3,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.882353,
+      "VA_WI_common_training_bins_min": 8,
+      "VA_WI_common_training_bins_max": 14,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "762",
+      "RI_unique_plot_chains": 26,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 26,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 26,
+      "RI_counties": 4,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.522388,
+      "VA_WI_common_training_bins_min": 19,
+      "VA_WI_common_training_bins_max": 28,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "802",
+      "RI_unique_plot_chains": 95,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 94,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 95,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.902863,
+      "VA_WI_common_training_bins_min": 19,
+      "VA_WI_common_training_bins_max": 27,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "833",
+      "RI_unique_plot_chains": 80,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 79,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 80,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.422407,
+      "VA_WI_common_training_bins_min": 19,
+      "VA_WI_common_training_bins_max": 28,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    },
+    {
+      "species_code": "837",
+      "RI_unique_plot_chains": 72,
+      "RI_plots_in_VA_WI_train_supported_bins_min": 70,
+      "RI_plots_in_VA_WI_train_supported_bins_max": 72,
+      "RI_counties": 5,
+      "RI_effective_counties_plot_HHI_rounded_6dp": 2.739958,
+      "VA_WI_common_training_bins_min": 18,
+      "VA_WI_common_training_bins_max": 21,
+      "RI_leave_one_county_out_fails_original_five_county_training_floor": true
+    }
+  ],
+  "unable_to_validate_growth_or_survival_due_to_no_joint_immutable_new_cohort_response": true,
+  "no_new_FIA_retrieval_or_biological_outcome_read": true,
+  "biological_promotion_authorized": false,
+  "product_A_or_M5_claim_changed": false,
+  "product_B_remains_blocked": true
+}
