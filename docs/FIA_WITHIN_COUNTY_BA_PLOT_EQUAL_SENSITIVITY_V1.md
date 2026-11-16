@@ -18,7 +18,7 @@ Thus each state totals 50% of fitted weight, every county within a state has equ
 
 The five candidate families are reduced to four for this sensitivity: nuisance variables without BA; original single BA; county mean BA only; county mean + within-county deviation BA. Both mean and within-county BA coefficients are learned only on heldout-county-disjoint training rows. Target-climate cells are precomputed from **training source-only rows**, never from test response.
 
-## Exploratory independent calculation (fixed original input, before GitHub replay)
+## Independent archived calculation (confirmed by GitHub replay)
 
 | Taxon | Within-county BA increment after county mean (equal plots) | 95% postfit county-resampled interval |
 |---|---:|---:|
@@ -44,3 +44,12 @@ python experiments/fia_plot_equal_BA_sensitivity_v1.py \
   --source-dir build/frozen_first_open_derived \
   --out-dir build/fia_BA_plot_equal_v1
 \`\`\`
+
+
+## Independent GitHub validation complete (2026-11-17)
+
+The no-source-retrieval [GitHub Actions run #43904077432](https://github.com/zuizui0223/sdmr/actions/runs/43904077432) completed **SUCCESS**, after synthetic tests and exact original 170,994-row growth/88,145-row prior-source hash checks. [Artifact #14243787935](https://github.com/zuizui0223/sdmr/actions/runs/43904077432/artifacts/14243787935) ZIP SHA-256 \`ec551f685cc7c8b1bc4c5c9dc9b5723a51627d4db070dd60025d03088bbe6eb9\`; its full JSON SHA-256 \`ad420b6eb1f84886de9c0bdf944b12c1cf40c70e2c3a12ed998bdda283e9a278\` and per-county ledger SHA-256 \`8c67e91d43a91528ef9481d840aaa638e7a5e53bfd44994efe8d4a4bed5acd13\`.
+
+The result contains **714 taxon × heldout-county score records**, not 714 globally distinct counties; the same county can contribute a separate score to each species. Every species, mean-within decomposition and 999-draw postfit confidence bound reproduced the independent local calculation to machine precision. The incremental within-county BA predictor gain remains **positive for 5/5 taxa**, with the lower end of each postfit 95% county bootstrap interval above zero.
+
+The compact [five-taxon checkpoint](../results/fia_plot_equal_BA_sensitivity_checkpoint_v1.json) pins all exact source/run/artifact digests, point effects, confidence intervals and response ceilings. **This remains a post-outcome sensitivity within the same selected-survivor data, and is not a new source-independent or causal experiment.**
