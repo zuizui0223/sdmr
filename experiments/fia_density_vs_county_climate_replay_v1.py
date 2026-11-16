@@ -123,9 +123,14 @@ def source_and_growth_cells(grow: pd.DataFrame, source: pd.DataFrame) -> tuple[p
     return y, src
 
 
-def one_county_ledger(grow: pd.DataFrame, src: pd.DataFrame) -> list[dict]:
+def one_county_ledger(grow: pd.DataFrame, src: pd.DataFrame,
+                      species_codes: tuple[str,...] = PRIMARY) -> list[dict]:
+    # Real replay keeps all five PRIMARY; synthetic tests may specify a strict
+    # subset without relabeling an absent taxon as a failed fit.
+    if not set(species_codes).issubset(PRIMARY) or len(set(species_codes)) != len(species_codes):
+        raise ValueError("unsupported fixed-taxon synthetic replay")
     rows=[]
-    for sp in PRIMARY:
+    for sp in species_codes:
         source_sp = src.loc[src.species_code==sp]
         observed = grow.loc[grow.sp==sp]
         for fold in range(FOLDS):

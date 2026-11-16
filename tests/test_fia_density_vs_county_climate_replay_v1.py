@@ -57,7 +57,7 @@ def test_model_family_is_fixed_and_nested():
 def test_synthetic_density_signal_recovered_not_given_climate_causal_label():
     df,src=sample_data()
     y,s=m.source_and_growth_cells(df,src)
-    counties=m.one_county_ledger(y,s)
+    counties=m.one_county_ledger(y,s,("129",))
     assert len(counties)>=80
     assert set(x["species_code"] for x in counties)=={"129"}
     result=m.summarize("129",counties)
