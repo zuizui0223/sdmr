@@ -1,0 +1,82 @@
+name: FIA VA-WI county-block source-only response-readiness v1
+
+# Single frozen-source, offline, no tree outcome, no mutable FIA/NOAA downloads.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_VA_WI_county_source_folds_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen-county-source-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require immutable source and scientific boundary lock
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/fia_VA_WI_county_source_folds_once_v1.lock').read_text()
+          for s in (
+            'source_run=43711159676',
+            'source_artifact=14160283759',
+            'source_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7',
+            'source_rows=89616',
+            'source_regions=VA_WI',
+            'folds=5',
+            'fixed_primary_species=129_316_802_833_837',
+            'no_FIA_refetch=true',
+            'no_growth_or_survival_read=true',
+            'no_biological_promotion=true'):
+              assert s in lock, s
+          PY
+      - name: Test source-only fold eligibility and no-leakage invariants
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_VA_WI_county_source_folds_v1.py tests/test_fia_joint_support_gate_v1.py
+      - name: Retrieve original SHA-locked source-only cohort, not current DataMart
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/frozen_source_only
+      - name: Evaluate all 13 species across all 5 heldout-county folds
+        run: |
+          python experiments/fia_VA_WI_county_source_folds_v1.py \
+            --source-dir build/frozen_source_only \
+            --config configs/fia_joint_climate_support_gate_v1.json \
+            --output artifacts/fia_VA_WI_county_source_folds_v1.json
+      - name: Verify all source-only denominators and refusal boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('artifacts/fia_VA_WI_county_source_folds_v1.json').read_text())
+          assert x['source_rows']==89616
+          assert x['n_taxa_declared']==13 and x['n_taxon_fold_cells']==65
+          assert x['n_folds']==5
+          assert x['n_primary_source_taxa']==5
+          assert not x['new_growth_or_survival_outcome_read']
+          assert not x['biological_promotion_authorized']
+          assert all(a['training_source_bins_use_test_counties'] is False for a in x['folds'])
+          assert all(a['withheld_counties_fully_excluded_from_train'] for a in x['folds'])
+          print('response-readiness source-only cells:',x['source_ready_taxon_fold_cells'],
+                'primary subset:',x['source_ready_primary_taxon_fold_cells'])
+          PY
+      - name: Retain result even when source contract fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-VA-WI-county-source-folds-v1
+          path: artifacts/fia_VA_WI_county_source_folds_v1.json
+          if-no-files-found: warn
+          retention-days: 90
