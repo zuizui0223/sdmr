@@ -1,0 +1,84 @@
+name: FIA archived plot-equal within-county basal-area sensitivity v1
+
+# One-shot frozen first-open derived response; NEVER re-acquire mutable FIA.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_plot_equal_BA_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  fixed_source_plot_equal_weight_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact initial source and noncausal research boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/fia_plot_equal_BA_once_v1.lock').read_text()
+          for s in (
+            'input_run=43886130089',
+            'input_artifact=14234926861',
+            'input_ZIP_SHA256=ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24',
+            'prior_county_decomposition_run=43902252927',
+            'prior_county_decomposition_artifact=14241722502',
+            'species=129_316_802_833_837',
+            'new_FIA_get=forbidden',
+            'new_tree_response_open=forbidden',
+            'changed_only_plot_weighting_and_heldout_scoring=true',
+            'postoutcome_exploratory_only=true',
+            'causal_and_niche_promotion=forbidden'):
+              assert s in lock,s
+          PY
+      - name: Install numeric and unit test dependencies
+        run: python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+      - name: Test equal plot weights and no source/outcome admission
+        run: |
+          python -m pytest -q \
+            tests/test_fia_plot_equal_BA_sensitivity_v1.py \
+            tests/test_fia_county_within_basal_area_audit_v1.py
+      - name: Download ONLY the original frozen derived survivor-growth input
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43886130089
+          name: fia-VA-WI-growth-first-open-v1
+          github-token: ${{ github.token }}
+          path: build/frozen_first_open_derived
+      - name: Compare within-county BA gain under plot-equal inference
+        run: |
+          python experiments/fia_plot_equal_BA_sensitivity_v1.py \
+            --source-dir build/frozen_first_open_derived \
+            --out-dir artifacts/fia_plot_equal_BA_v1
+      - name: Validate complete denominators, no causal promotion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('artifacts/fia_plot_equal_BA_v1/plot_equal_BA_summary.json')
+          a=json.loads(p.read_text())
+          assert a['n_live_to_live_growth_rows']==170994
+          assert a['n_prior_species_source_rows']==88145
+          assert a['n_scored_counties']==714
+          assert a['n_taxa']==5 and len(a['species'])==5
+          assert a['changed_training_weight_and_scoring_to_plot_chain_equal']
+          assert a['county_mean_transductive_conditional_survivor_information']
+          assert a['biological_promotion_authorized'] is False
+          print('postoutcome plot-equal sensitivity',a['n_positive_within_county_increment'],'/5')
+          PY
+      - name: Preserve all five taxa and every heldout county, including unfavorable effects
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-archived-plot-equal-BA-v1
+          path: artifacts/fia_plot_equal_BA_v1/
+          if-no-files-found: warn
+          retention-days: 90

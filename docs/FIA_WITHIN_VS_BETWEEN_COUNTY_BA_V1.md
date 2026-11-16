@@ -24,7 +24,7 @@ Keep the **exact same 5 county folds** (hash of county FIPS), training-only sour
 
 Report the **incremental heldout percent RMSE gain of model 5 versus model 3** as the within-county information estimand. The split models do not causally separate competitive crowding from fertility, management, soil, neighborhood composition or stand age/measurement errors.
 
-## First independent same-artifact result, to be checked by GitHub
+## Source-verified first-open result (postresponse exploratory)
 
 The original **five** baseline RMSEs reproduced exactly before any new model comparison. **Every** species has a positive within-county increment conditional on county mean:
 
@@ -47,3 +47,12 @@ Calculated on unique plot-chain means, only **11.7–20.4%** of the observed acr
 If an independent biological test is later attempted, source-frozen raw PLOT/TREE/COND and prior-visit COND predictors must be acquired in a distinct protocol; historical selected-survivor county means may not be used to design or calibrate the new test. To distinguish *competition* from confounding, measure tree neighborhoods, independent microclimate/soil or manipulation, stand management and survival together. Merely improving RMSE or lowering BA with age/site controls remains associational.
 
 **Claim ceiling:** local *measured stand-structure predictive information* remains after county-context separation, in the previously selected survivor cohort. No inference to genetic niche conservation, regional limiting-factor switching or causal density-dependent growth.
+
+
+## Source-frozen GitHub execution confirmed (2026-11-17)
+
+The independent [GitHub workflow run #43902252927](https://github.com/zuizui0223/sdmr/actions/runs/43902252927) completed **SUCCESS**, with original response/source SHA checks, synthetic tests, five restored original single-BALIVE baseline RMSEs, and the complete 714 scored out-of-county county MSE rows. Its [artifact #14241722502](https://github.com/zuizui0223/sdmr/actions/runs/43902252927/artifacts/14241722502) has ZIP SHA-256 \`d847d81d5ad6f184be7782e888aa8d9ca6c9550afc8e2d9a41cd67ed968cb6a3\`; inner JSON SHA-256 \`460dc2e86b3fdd4491b054d4cc0b9636a34b33dff29fbc748a69bd1e9c796d82\`; full county-error CSV SHA-256 \`80c6a1c10a9025e39e0f361387841202bb56d71f1e1a5289041b0e443c4f0f4c\`.
+
+An independent implementation recomputed all five within-county RMSE increments and every state-stratified postfit county-bootstrap bound to machine precision from the same exact source bytes. The within-county gain is positive in **both** VA and WI for each of five taxa; all five cross-county 95% postfit bootstrap intervals have positive lower bounds. This is not prospectively confirmatory and cannot be interpreted as causal competition.
+
+The compact machine-readable [checkpoint](../results/fia_within_county_BA_information_checkpoint_v1.json) records both state values, all five taxa, observed plot-level BA between-county variance shares and immutable original/replay digests. This record does not change the original climate-specific false-promotion criteria (still **0/5**).

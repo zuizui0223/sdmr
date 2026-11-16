@@ -11,6 +11,8 @@ on:
       - 'tests/test_fia_density_vs_county_climate_replay_v1.py'
       - 'experiments/fia_county_within_basal_area_audit_v1.py'
       - 'tests/test_fia_county_within_basal_area_audit_v1.py'
+      - 'experiments/fia_plot_equal_BA_sensitivity_v1.py'
+      - 'tests/test_fia_plot_equal_BA_sensitivity_v1.py'
       - 'configs/fia_VA_WI_shared_regional_growth_v1.json'
       - 'docs/FIA_VA_WI_CONDITIONAL_GROWTH_V1.md'
       - '.github/workflows/fia-VA-WI-growth-contract-tests-v1.yml'
@@ -37,7 +39,8 @@ jobs:
             tests/test_fia_VA_WI_new_source_growth_v1.py \
             tests/test_fia_VA_WI_county_source_folds_v1.py \
             tests/test_fia_density_vs_county_climate_replay_v1.py \
-            tests/test_fia_county_within_basal_area_audit_v1.py
+            tests/test_fia_county_within_basal_area_audit_v1.py \
+            tests/test_fia_plot_equal_BA_sensitivity_v1.py
       - name: Verify model output is not prospectively biological-confirmatory
         run: |
           python - <<'PY'
