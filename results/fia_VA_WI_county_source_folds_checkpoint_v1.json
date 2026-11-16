@@ -1,0 +1,143 @@
+{
+  "program": "fia_VA_WI_county_holdout_source_readiness_checkpoint_v1",
+  "first_observed_at": "2026-11-16",
+  "scientific_status": "postsource_design_feasibility_not_growth_survival_or_niche_validation",
+  "frozen_input_run_id": 43711159676,
+  "frozen_input_artifact_id": 14160283759,
+  "frozen_input_csv_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "frozen_input_receipt_sha256": "f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453",
+  "n_input_species_site_intervals": 89616,
+  "verification_run_id": 43883371062,
+  "verification_run_url": "https://github.com/zuizui0223/sdmr/actions/runs/43883371062",
+  "verification_artifact_id": 14233766780,
+  "verification_artifact_zip_sha256": "b2f2e36e285fea2bb6860a661cf8d8669d061854811943d22198589cdf6cd3a3",
+  "verification_full_json_sha256": "070b468d04886eca9a7e1308e77d9ac10f799b64125a62ec00a903ed0791871b",
+  "n_declared_taxa": 13,
+  "n_outer_county_folds": 5,
+  "minimum_environment_only_sufficient_taxon_folds": 65,
+  "minimum_environment_only_total_taxon_folds": 65,
+  "strict_response_readiness_sufficient_folds": 47,
+  "strict_response_readiness_total_folds": 65,
+  "prior_primary_panel": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "prior_primary_panel_strict_sufficient_folds": 25,
+  "prior_primary_panel_total_folds": 25,
+  "readiness_contract": {
+    "train_states": [
+      "VA",
+      "WI"
+    ],
+    "test_state_for_this_gate": "both_VA_WI_county_heldout",
+    "county_fold": "first4_sha256_bytes_of_FIPS_mod5",
+    "min_train_counties_each_state": 20,
+    "min_test_counties_each_state": 3,
+    "min_test_unique_plot_chains_each_state": 20,
+    "min_environment_time_cells_shared": 2,
+    "min_source_test_plot_fraction_each_state": 0.2,
+    "train_source_environment_only_no_heldout_bin_discovery": true
+  },
+  "species": [
+    {
+      "species_code": "68",
+      "n_source_ready_county_folds": 4,
+      "min_VA_source_only_holdout_coverage_approx": 0.875,
+      "min_WI_source_only_holdout_coverage_approx": 0.941,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "129",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.935,
+      "min_WI_source_only_holdout_coverage_approx": 0.995,
+      "primary_prior_robust_source_panel": true
+    },
+    {
+      "species_code": "261",
+      "n_source_ready_county_folds": 3,
+      "min_VA_source_only_holdout_coverage_approx": 0.897,
+      "min_WI_source_only_holdout_coverage_approx": 0.975,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "316",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.98,
+      "min_WI_source_only_holdout_coverage_approx": 0.997,
+      "primary_prior_robust_source_panel": true
+    },
+    {
+      "species_code": "318",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.968,
+      "min_WI_source_only_holdout_coverage_approx": 0.997,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "371",
+      "n_source_ready_county_folds": 0,
+      "min_VA_source_only_holdout_coverage_approx": 0.75,
+      "min_WI_source_only_holdout_coverage_approx": 0.905,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "531",
+      "n_source_ready_county_folds": 0,
+      "min_VA_source_only_holdout_coverage_approx": 0.887,
+      "min_WI_source_only_holdout_coverage_approx": 0.933,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "541",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.925,
+      "min_WI_source_only_holdout_coverage_approx": 0.988,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "743",
+      "n_source_ready_county_folds": 0,
+      "min_VA_source_only_holdout_coverage_approx": 0.636,
+      "min_WI_source_only_holdout_coverage_approx": 0.87,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "762",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.984,
+      "min_WI_source_only_holdout_coverage_approx": 0.988,
+      "primary_prior_robust_source_panel": false
+    },
+    {
+      "species_code": "802",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.982,
+      "min_WI_source_only_holdout_coverage_approx": 0.99,
+      "primary_prior_robust_source_panel": true
+    },
+    {
+      "species_code": "833",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.972,
+      "min_WI_source_only_holdout_coverage_approx": 0.995,
+      "primary_prior_robust_source_panel": true
+    },
+    {
+      "species_code": "837",
+      "n_source_ready_county_folds": 5,
+      "min_VA_source_only_holdout_coverage_approx": 0.927,
+      "min_WI_source_only_holdout_coverage_approx": 0.976,
+      "primary_prior_robust_source_panel": true
+    }
+  ],
+  "full_fold_level_evidence": "GitHub Actions 14233766780",
+  "biological_outcome_accessed": false,
+  "n_biological_response_models_fitted": 0,
+  "cannot_promote_biological_response_transfer": true,
+  "cannot_infer_local_adaptation_or_physiology": true,
+  "maintain_product_A_not_promoted_and_product_B_blocked": true
+}

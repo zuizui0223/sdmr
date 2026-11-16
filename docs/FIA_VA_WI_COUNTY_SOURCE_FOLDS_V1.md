@@ -53,3 +53,12 @@ python experiments/fia_VA_WI_county_source_folds_v1.py \
 \`\`\`
 
 The one-shot workflow reads only archive 14160283759 and emits the full 13 × five-fold numerical and exclusion-reason audit. The output is a *source-readiness ledger*, not a fitted ecological result.
+
+
+## Source-hash-verifiable GitHub confirmation (2026-11-16)
+
+The one-shot immutable-source job [run 43883371062](https://github.com/zuizui0223/sdmr/actions/runs/43883371062) **completed successfully**. Artifact [14233766780](https://github.com/zuizui0223/sdmr/actions/runs/43883371062/artifacts/14233766780) is SHA-256 \`b2f2e36e285fea2bb6860a661cf8d8669d061854811943d22198589cdf6cd3a3\` (GitHub ZIP), containing \`fia_VA_WI_county_source_folds_v1.json\` SHA-256 \`070b468d04886eca9a7e1308e77d9ac10f799b64125a62ec00a903ed0791871b\` (94,010 uncompressed bytes). This is a verified result, not a planned calculation.
+
+The exact source-only 89,616-record denominator and 13 × 5 original county folds were retained. **47/65** cells met the *stricter development-defined response-readiness* gate, including **25/25** across the previously identified five priority source taxa. No one of those 25 cells relied on fewer than three held-out counties in either region or fewer than 20 held-out unique plot chains per region.
+
+The full species denominator, counts of ready folds and minimum source-only heldout plot fractions is committed at \`results/fia_VA_WI_county_source_folds_checkpoint_v1.json\`; the complete cell-by-cell evidence remains attached to the Actions run. This cannot demonstrate that even **one** of those folds has enough matched live-to-live growth observations, death transitions or valid independent sampling weights. A new source-consistent response must be fetched and the source geometry requalified before outcome opening.
