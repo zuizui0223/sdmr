@@ -34,7 +34,7 @@ The *fixed baseline* predicts \`g1\` using earlier \`g0\`, initial \`B0\`, earli
 
 Both variants use linear least squares weighted equally over VA and WI and over counties within states. Every plot pair appears at most once. County-heldout mean squared errors are averaged with equal county weights inside each state and then equal state weights before square-root RMSE. Positive \`100 × (RMSE_baseline − RMSE_ΔBA) / RMSE_baseline\` means an improvement. The 999-draw state-stratified county bootstrap resamples **postfit county errors**, not full model refits, and is not a calibrated ecological selection test. A zero-crossing interval is explicitly inconclusive.
 
-## First development calculation before GitHub verification
+## Preliminary calculations (superseded by fixed GitHub archived replay)
 
 A simpler earlier difference-of-growth model produced positive point gains for 5/5 taxa, but **all five postfit 95% intervals included zero**. It is a different estimand and cannot be used as a success criterion.
 
@@ -49,3 +49,26 @@ This materially limits the original positive stand-density **spatial** associati
 A future mechanism study must independently freeze tree identity, mortality/harvest/attrition, true site climate and soil, disturbance/management and forest condition before looking at later growth outcomes. Within-plot fixed-effects or first-difference associations alone still do not prove that density **causes** growth suppression; the present derived data cannot establish that repeated records represent identical surviving stems.
 
 **No changes authorized:** prior FIA v4, Product A not promoted, Product B blocked, M5 endpoints or the original 0/5 practical region-specific climate winner count.
+
+
+## Completed immutable-source GitHub validation (2026-11-17)
+
+The synthetic test gate [run #44005063857](https://github.com/zuizui0223/sdmr/actions/runs/44005063857) **passed** before the first archived replay was dispatched. The SHA-frozen **no-network/no-new-outcome** [GitHub Actions run #44005163621](https://github.com/zuizui0223/sdmr/actions/runs/44005163621) then **completed successfully**. Artifact [#14293388090](https://github.com/zuizui0223/sdmr/actions/runs/44005163621/artifacts/14293388090) has ZIP SHA-256 \`6feaf9595b8b42f28958bfb0a18307f877a650bfa37f0a330955cfc8f2165379\`. Within the ZIP: full JSON SHA-256 \`68bdcacfd859870c0e131f93ffb40571101d32487d23ed9d021c6a1a07d5b164\`, complete species×heldout-county error ledger SHA-256 \`c6a003a36bec4883cc87f1fc34a821f8ea5b9ad6e5f567e32601d167a470b1b5\`, and derived, SHA-hashed plot-chain numeric input CSV SHA-256 \`32df354dd13214861c1bfffc943ee26c780249091da388883f48a5e819b8474a\`.
+
+The original 170,994 selected survivor-growth records and 88,145 prior-taxonomy source records yielded **39,659** source-matched plot-events, **18,759** with at least three selected growth records and one unambiguous prior BA, **4,744 first-two eligible plot-chain pairs** (exact five-taxon denominator), and **4,501 source-supported out-of-county test plot pairs** across the five heldout county folds. These create **568 species×heldout-county score records**, not 568 independent globally unique counties.
+
+| Taxon | Candidate pairs | Evaluated heldout pairs | Incremental RMSE benefit of ΔBALIVE after earlier plot growth | 95% *postfit* county-resample interval |
+|---|---:|---:|---:|---:|
+| *Pinus strobus* (129) | 519 | 473 | +2.125% | −0.254 to +4.596% |
+| *Acer rubrum* (316) | 2,448 | 2,364 | +2.491% | +0.466 to +4.305% |
+| *Quercus alba* (802) | 767 | 719 | −0.316% | −1.362 to +0.501% |
+| *Quercus rubra* (833) | 741 | 719 | −0.155% | −0.621 to +0.230% |
+| *Quercus velutina* (837) | 269 | 226 | −0.449% | −2.772 to +2.233% |
+
+The **999-draw** official county score intervals above replace the earlier *preliminary 499-draw* values; point estimates are unchanged. Independent re-aggregation of the artifact's country/state-averaged county MSE reproduced every point gain within 4×10⁻¹² percentage points. All five species passed all five source-restricted county folds, so non-positive results are not being hidden as non-estimable taxa.
+
+**Falsification result:** *Across-plot within-county stand structure* had positive prediction increments in all five taxa in the earlier same-cohort spatial audit. But *within-plot temporal BA changes* in this more controlled lagged-growth and common-source-support comparison have only **2/5 positive point increments** and **1/5 nominally zero-excluding postfit intervals**. The *Acer rubrum* interval is exploratory, unadjusted for multiple testing, and not a calibrated whole-model/whole-county causal inference interval. It cannot be promoted as a repeatable physiologic mechanism. Stronger claims that competition generally causes lower growth across all five taxa are not supported by this longitudinal diagnostic.
+
+These results are compatible with a strong, persistent local **site/stand context predictor** that does not reliably translate into a universal short-to-midterm density-change effect. They do not distinguish soil/site fertility, stand structure, repeated tree survival selection, growth feedback into subsequent BA, forest operations or actual inter-tree competition.
+
+The compact, hash-pinned checkpoint \`results/fia_temporal_within_plot_BA_checkpoint_v1.json\` preserves this complete positive-and-negative result. **Original regional climate model practical promotion remains 0/5 and Product B blocked.** The research PR remains draft.

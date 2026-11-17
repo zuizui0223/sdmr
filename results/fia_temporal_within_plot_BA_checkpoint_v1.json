@@ -1,0 +1,131 @@
+{
+  "program": "fia_archived_temporal_within_plot_BA_lagged_growth_checkpoint_v1",
+  "date": "2026-11-17",
+  "status": "source_pinned_postoutcome_temporal_plot_growth_diagnostic_verified",
+  "prior_first_open_run": 43886130089,
+  "prior_first_open_artifact_id": 14234926861,
+  "prior_first_open_artifact_ZIP_sha256": "ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24",
+  "prior_growth_input_sha256": "ee98608ca4e7582144a886d96c9c908a5a5cd25533e1b74ad2e786b20710db4e",
+  "prior_source_input_sha256": "cd306e559a663c1ddf65259b2fc5298d426f931c272b4cd1ec15ec17da21e402",
+  "prior_response_json_sha256": "a768b17684ee712e00187fdfd24b3e929139bc1fe4b11e96aed475bb3c03d482",
+  "source_closed_workflow_run": 44005163621,
+  "workflow_conclusion": "success",
+  "source_closed_artifact_id": 14293388090,
+  "source_closed_artifact_ZIP_sha256": "6feaf9595b8b42f28958bfb0a18307f877a650bfa37f0a330955cfc8f2165379",
+  "full_result_json_sha256": "68bdcacfd859870c0e131f93ffb40571101d32487d23ed9d021c6a1a07d5b164",
+  "county_ledger_csv_sha256": "c6a003a36bec4883cc87f1fc34a821f8ea5b9ad6e5f567e32601d167a470b1b5",
+  "derived_plot_pair_numeric_csv_sha256": "32df354dd13214861c1bfffc943ee26c780249091da388883f48a5e819b8474a",
+  "original_selected_survivor_growth_rows": 170994,
+  "original_source_prior_visit_taxon_plot_intervals": 88145,
+  "all_source_matched_plot_events": 39659,
+  "eligible_plot_events_single_BA_at_least_three_tree_growth_rows": 18759,
+  "n_first_two_eligible_event_plot_pair_candidates": 4744,
+  "n_source_supported_heldout_evaluated_plot_pairs": 4501,
+  "n_scored_species_by_county_records": 568,
+  "n_frozen_prior_species": 13,
+  "n_primary_modeled_species": 5,
+  "primary_species_codes": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "secondary_species_not_modelled": [
+    "68",
+    "261",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762"
+  ],
+  "n_full_five_county_fold_primary_taxa": 5,
+  "n_density_change_point_gain_positive_taxa": 2,
+  "n_density_change_postfit_county95_lower_above_zero_taxa": 1,
+  "n_bootstrap_county_state_stratified_postfit_resamples": 999,
+  "source_support_uses_only_training_VA_WI_counties_each_fold": true,
+  "both_temporal_events_required_in_training_qualified_T_P_fiveyear_cells": true,
+  "model_later_growth_conditioned_on_prior_observed_plot_growth": true,
+  "time_pair_generation_first_two_eligible_events_4_to_15_year_gap": true,
+  "does_not_guarantee_consecutive_censuses_or_same_individual_trees": true,
+  "same_source_not_independent_biological_replication": true,
+  "post_prior_opening_model_and_thresholds_exploratory": true,
+  "county_postfit_bootstrap_not_refit_and_CIs_unadjusted_for_multiple_species": true,
+  "BA_change_may_follow_prior_growth_and_management_and_survivor_turnover": true,
+  "n_calibrated_biological_causal_competition_claims": 0,
+  "n_prospective_confirmatory_effects": 0,
+  "species": [
+    {
+      "species_code": "129",
+      "name": "Pinus strobus",
+      "n_candidate_first_two_event_plot_chains": 519,
+      "n_source_supported_test_plot_pairs": 473,
+      "n_scored_taxon_counties": 87,
+      "incremental_density_change_relative_RMSE_gain_percent": 2.1252288128893566,
+      "postfit_county_bootstrap_95pct": [
+        -0.2542100973911825,
+        4.596049544023227
+      ],
+      "CI_crosses_zero": true
+    },
+    {
+      "species_code": "316",
+      "name": "Acer rubrum",
+      "n_candidate_first_two_event_plot_chains": 2448,
+      "n_source_supported_test_plot_pairs": 2364,
+      "n_scored_taxon_counties": 156,
+      "incremental_density_change_relative_RMSE_gain_percent": 2.490881579902011,
+      "postfit_county_bootstrap_95pct": [
+        0.4661808032618724,
+        4.305022814173009
+      ],
+      "CI_crosses_zero": true
+    },
+    {
+      "species_code": "802",
+      "name": "Quercus alba",
+      "n_candidate_first_two_event_plot_chains": 767,
+      "n_source_supported_test_plot_pairs": 719,
+      "n_scored_taxon_counties": 131,
+      "incremental_density_change_relative_RMSE_gain_percent": -0.31566962645550145,
+      "postfit_county_bootstrap_95pct": [
+        -1.3618018296763508,
+        0.5005606168387738
+      ],
+      "CI_crosses_zero": false
+    },
+    {
+      "species_code": "833",
+      "name": "Quercus rubra",
+      "n_candidate_first_two_event_plot_chains": 741,
+      "n_source_supported_test_plot_pairs": 719,
+      "n_scored_taxon_counties": 121,
+      "incremental_density_change_relative_RMSE_gain_percent": -0.1554405442887374,
+      "postfit_county_bootstrap_95pct": [
+        -0.6210524969262223,
+        0.23047593080125503
+      ],
+      "CI_crosses_zero": false
+    },
+    {
+      "species_code": "837",
+      "name": "Quercus velutina",
+      "n_candidate_first_two_event_plot_chains": 269,
+      "n_source_supported_test_plot_pairs": 226,
+      "n_scored_taxon_counties": 73,
+      "incremental_density_change_relative_RMSE_gain_percent": -0.44898543916599587,
+      "postfit_county_bootstrap_95pct": [
+        -2.7723993531744417,
+        2.232917784838614
+      ],
+      "CI_crosses_zero": true
+    }
+  ],
+  "independent_recomputation_from_county_MSE": "yes, within 4e-12 percentage points for five taxa",
+  "historical_spatial_within_county_BA_predictor_gains_positive_5_of_5_unchanged": true,
+  "historical_region_climate_practical_gate_positive_0_of_5_unchanged": true,
+  "product_A_M5_endpoints_unchanged_product_B_blocked": true,
+  "biological_promotion_authorized": false
+}
