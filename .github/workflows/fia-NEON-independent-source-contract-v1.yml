@@ -1,4 +1,4 @@
-name: NEON independent source preflight: manifest and identity synthetic tests v1
+name: "NEON independent source preflight: manifest and identity synthetic tests v1"
 
 on:
   pull_request:
