@@ -1,0 +1,51 @@
+{
+  "program": "sdmr_NEON_2026_manifest_pilot_first_attempt_checkpoint_v1",
+  "as_of_utc": "2026-11-17T11:37:39Z",
+  "research_status": "source_only_authentication_stop_no_neon_raw_data",
+  "preceding_public_catalog_run": 44034394812,
+  "preceding_public_catalog_artifact": 14306711443,
+  "original_public_catalog_json_sha256": "0ba89ff5835ea54071e7a8f12f05b5ca928cec05a1dd424660727de4f94d9bcf",
+  "original_public_catalog_receipt_sha256": "29699a799b5fc09411b952548f371b7f27545d4b0f73d479590576f63937021f",
+  "synthetic_source_contract_run": 44075557509,
+  "synthetic_source_contract_conclusion": "success",
+  "manifest_first_attempt_run": 44075687516,
+  "manifest_first_attempt_conclusion": "success_for_fail_closed_authentication_stop",
+  "manifest_first_attempt_artifact": 14325400964,
+  "manifest_artifact_zip_sha256": "3813347d3e9eee815a79062d53cb9127d4b6203ac3d0ee77cfcb3618d78f7852",
+  "manifest_stop_receipt_json_sha256": "c51023e853210e2312e5276c1f66cff3b58f6126cfbe4b308fc9fa85502192ef",
+  "manifest_status": "no_NEON_API_TOKEN_secret_configured_no_network_data_request",
+  "fixed_pilot_site_months": [
+    {
+      "site": "HARV",
+      "month": "2014-08"
+    },
+    {
+      "site": "HARV",
+      "month": "2024-08"
+    },
+    {
+      "site": "SCBI",
+      "month": "2014-08"
+    },
+    {
+      "site": "SCBI",
+      "month": "2024-09"
+    }
+  ],
+  "NEON_API_TOKEN_secret_present_in_that_runner": false,
+  "NEON_api_data_manifest_GET_requests_made": 0,
+  "NEON_required_three_table_manifest_sets_confirmed": null,
+  "NEON_actual_tagged_individual_repeat_count": null,
+  "NEON_actual_plot_sampling_area_count": null,
+  "NEON_actual_five_taxa_crosswalk_count": null,
+  "new_neon_tree_growth_or_survival_rows_downloaded": 0,
+  "n_independent_ecological_effect_tests_performed": 0,
+  "synthetic_normalized_identity_contract_only": true,
+  "RELEASE_2026_mappingandtagging_has_no_eventID": true,
+  "TEMP_and_multistem_source_identity_not_proven_longitudinal": true,
+  "old_FIA_growth_result_and_neon_first_public_catalog_unchanged": true,
+  "scientific_promotion_authorized": false,
+  "stop_reason": "NEON_API_TOKEN not supplied to GitHub Actions under the exact secret name; no network /data endpoint requested. 0 API calls is confirmed and repeat-tree counts are unknown, not zero.",
+  "next_required_user_control": "Configure NEON_API_TOKEN in GitHub repository Actions secret; never paste credential in ChatGPT or commit it.",
+  "future_procedure": "After user-controlled secret is configured, run a distinctly versioned fixed-manifest source-only successor; do not rewrite, rerun automatically, or claim the original stop was successful."
+}

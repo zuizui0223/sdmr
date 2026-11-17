@@ -50,3 +50,16 @@ python -m pytest -q \
 \`\`\`
 
 The lock-triggered Actions pilot downloads **only** the prior public 2026 catalog artifact and reads \`NEON_API_TOKEN\` from GitHub Secrets. It records token-absent and manifest errors as bounded source-only status receipts and never exposes a credential. It neither automatically retries nor uses actual tree measurements. **Scientific promotion prohibited throughout.**
+
+
+## First official preflight outcome: authorization STOP, not biological zero (2026-11-17)
+
+The newly added offline synthetic source-contract workflow initially had an invalid YAML name because its title contained an unquoted colon; it failed to start, with zero jobs. That was fixed at commit \`47b623f\`, and [source-only contract CI #44075557509](https://github.com/zuizui0223/sdmr/actions/runs/44075557509) **passed**. This correction changed no scientific logic, data or models.
+
+The **only** [manifest pilot run #44075687516](https://github.com/zuizui0223/sdmr/actions/runs/44075687516) then completed its workflow successfully **by failing closed**: the source catalog was SHA-verified, but the GitHub Actions runner had **no configured secret named \`NEON_API_TOKEN\`**. It issued **0 authenticated requests**, never accessed the NEON \`/data\` endpoint, and did not download any vegetation table. The [first-attempt artifact #14325400964](https://github.com/zuizui0223/sdmr/actions/runs/44075687516/artifacts/14325400964) has ZIP SHA-256 \`3813347d3e9eee815a79062d53cb9127d4b6203ac3d0ee77cfcb3618d78f7852\`; its sanitized \`neon_2026_file_manifest_source_gate.json\` SHA-256 is \`c51023e853210e2312e5276c1f66cff3b58f6126cfbe4b308fc9fa85502192ef\`.
+
+**Status is \`no_NEON_API_TOKEN_secret_configured_no_network_data_request\`**, not \`data unavailable\`, and certainly not \`zero repeated individual trees\`. The pilot site-months remain exactly HARV 2014-08/2024-08 and SCBI 2014-08/2024-09; all four requested file-manifest sets are still **unknown**, not false. The parallel synthetic normalized individual-ID tests use **fixture data only** and do not replace actual NEON files.
+
+A small [checkpoint](../results/fia_NEON_2026_manifest_pilot_first_attempt_checkpoint_v1.json) preserves the first-run STOP and SHA provenance. The prior independent NEON public catalog result, FIA growth results and Product A/M5, blocked Product B and zero biological confirmations are unchanged.
+
+**Next required external dependency:** the authorized user creates a personal NEON API token via the official NEON portal, then sets \`NEON_API_TOKEN\` in **GitHub repository → Settings → Secrets and variables → Actions**. Do not paste it into chat, GitHub source, a PR or an artifact. Once the secret exists, a **distinct versioned successor** may request the same four pinned **file metadata manifests** and audit their presence without opening growth/status records. Do not silently rerun or reinterpret the initial failed-closed source-check outcome.
