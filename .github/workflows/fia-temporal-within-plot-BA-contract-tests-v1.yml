@@ -1,0 +1,43 @@
+name: FIA archived within-plot BA temporal predictive controls v1
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_temporal_within_plot_density_audit_v1.py'
+      - 'tests/test_fia_temporal_within_plot_density_audit_v1.py'
+      - 'docs/FIA_TEMPORAL_WITHIN_PLOT_BA_V1.md'
+      - '.github/workflows/fia-temporal-within-plot-BA-contract-tests-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-closed-synthetic-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install offline test and numerical dependencies
+        run: python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+      - name: Test source/train/test isolation, temporal ordering and known-world calibration
+        run: |
+          python -m pytest -q \
+            tests/test_fia_temporal_within_plot_density_audit_v1.py \
+            tests/test_fia_density_vs_county_climate_replay_v1.py
+      - name: Verify declared postoutcome inferential ceiling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'experiments')
+          import fia_temporal_within_plot_density_audit_v1 as m
+          assert m.EXPECTED_CANDIDATE_PAIRS=={'129':519,'316':2448,'802':767,'833':741,'837':269}
+          assert m.MIN_EVENT_SURVIVOR_GROWTH_ROWS==3
+          assert m.MIN_PAIR_GAP_YEARS==4 and m.MAX_PAIR_GAP_YEARS==15
+          assert m.BOOTSTRAP_DRAWS==999
+          assert set(m.EXPECTED_ALL_SOURCE_TAXA)-set(m.PRIMARY)
+          PY
