@@ -1,0 +1,378 @@
+{
+  "program": "sdmr_independent_NEON_public_catalog_checkpoint_v1",
+  "as_of_UTC": "2026-11-17T06:52:19.480370+00:00",
+  "source_provider": "NSF_NEON_independent_field_network_from_FIA",
+  "release": "RELEASE-2026",
+  "product": "DP1.10098.001",
+  "DOI": "10.48443/pypa-qf12",
+  "source_metadata_url": "https://data.neonscience.org/api/v0/products/DP1.10098.001",
+  "public_catalog_metadata_canonical_json_sha256": "22334f2b9c6bc42563a74996e6e540636cd2183857e37768bd1f1e0c4109b5ee",
+  "raw_public_catalog_artifact_member_sha256": "0ba89ff5835ea54071e7a8f12f05b5ca928cec05a1dd424660727de4f94d9bcf",
+  "source_gate_json_sha256": "29699a799b5fc09411b952548f371b7f27545d4b0f73d479590576f63937021f",
+  "github_source_only_run_id": 44034394812,
+  "github_source_only_run_conclusion": "success",
+  "github_artifact_id": 14306711443,
+  "github_artifact_zip_sha256": "178009f2f30a4d64a27b71549524e275780873febde747deb697503bde123238",
+  "n_sites_public_catalog": 42,
+  "n_site_release_months": 928,
+  "n_sites_with_two_or_more_release_years": 39,
+  "n_sites_with_release_year_span_at_least_4": 37,
+  "n_sites_with_release_span_under_4_years": 5,
+  "source_year_max_latest_published": 2024,
+  "n_sites_latest_release_year_2024": 33,
+  "site_year_summary": [
+    {
+      "site": "ABBY",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 37,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "BART",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 11,
+      "n_release_months": 32,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "BLAN",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 31,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "BONA",
+      "earliest_release_year": 2016,
+      "latest_release_year": 2024,
+      "n_release_years": 7,
+      "n_release_months": 18,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "CLBJ",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 27,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "CPER",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2017,
+      "n_release_years": 4,
+      "n_release_months": 6,
+      "candidate_public_release_year_span_ge_4": false
+    },
+    {
+      "site": "DCFS",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2015,
+      "n_release_years": 1,
+      "n_release_months": 3,
+      "candidate_public_release_year_span_ge_4": false
+    },
+    {
+      "site": "DEJU",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 9,
+      "n_release_months": 15,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "DELA",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 22,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "DSNY",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2023,
+      "n_release_years": 6,
+      "n_release_months": 12,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "GRSM",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 23,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "GUAN",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 38,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "HARV",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 11,
+      "n_release_months": 46,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "HEAL",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 8,
+      "n_release_months": 15,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "JERC",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 11,
+      "n_release_months": 41,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "JORN",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2023,
+      "n_release_years": 6,
+      "n_release_months": 14,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "KONZ",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 24,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "LAJA",
+      "earliest_release_year": 2016,
+      "latest_release_year": 2019,
+      "n_release_years": 2,
+      "n_release_months": 4,
+      "candidate_public_release_year_span_ge_4": false
+    },
+    {
+      "site": "LENO",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 9,
+      "n_release_months": 14,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "MLBS",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 8,
+      "n_release_months": 22,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "MOAB",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2023,
+      "n_release_years": 7,
+      "n_release_months": 14,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "NIWO",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 8,
+      "n_release_months": 21,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "NOGP",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2015,
+      "n_release_years": 1,
+      "n_release_months": 4,
+      "candidate_public_release_year_span_ge_4": false
+    },
+    {
+      "site": "ONAQ",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 8,
+      "n_release_months": 25,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "ORNL",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 29,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "OSBS",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 11,
+      "n_release_months": 45,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "PUUM",
+      "earliest_release_year": 2018,
+      "latest_release_year": 2024,
+      "n_release_years": 7,
+      "n_release_months": 24,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "RMNP",
+      "earliest_release_year": 2017,
+      "latest_release_year": 2024,
+      "n_release_years": 8,
+      "n_release_months": 15,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "SCBI",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 11,
+      "n_release_months": 33,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "SERC",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 26,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "SJER",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 6,
+      "n_release_months": 18,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "SOAP",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2023,
+      "n_release_years": 6,
+      "n_release_months": 15,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "SRER",
+      "earliest_release_year": 2016,
+      "latest_release_year": 2024,
+      "n_release_years": 6,
+      "n_release_months": 22,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "STEI",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 25,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "TALL",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 21,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "TEAK",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 5,
+      "n_release_months": 13,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "TREE",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 28,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "UKFS",
+      "earliest_release_year": 2015,
+      "latest_release_year": 2024,
+      "n_release_years": 10,
+      "n_release_months": 31,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "UNDE",
+      "earliest_release_year": 2016,
+      "latest_release_year": 2024,
+      "n_release_years": 9,
+      "n_release_months": 29,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "WOOD",
+      "earliest_release_year": 2014,
+      "latest_release_year": 2014,
+      "n_release_years": 1,
+      "n_release_months": 2,
+      "candidate_public_release_year_span_ge_4": false
+    },
+    {
+      "site": "WREF",
+      "earliest_release_year": 2017,
+      "latest_release_year": 2024,
+      "n_release_years": 7,
+      "n_release_months": 26,
+      "candidate_public_release_year_span_ge_4": true
+    },
+    {
+      "site": "YELL",
+      "earliest_release_year": 2018,
+      "latest_release_year": 2024,
+      "n_release_years": 7,
+      "n_release_months": 18,
+      "candidate_public_release_year_span_ge_4": true
+    }
+  ],
+  "n_sites_with_verified_revisited_same_tree_individuals": null,
+  "n_sites_verified_containing_prior_five_FIA_species": null,
+  "n_plots_with_verified_repeated_design_area": null,
+  "n_usable_growth_intervals": null,
+  "n_usable_mortality_outcomes": null,
+  "n_genuinely_independent_biological_effect_reproductions": null,
+  "taxonomy_will_require_source_species_crosswalk": true,
+  "multi_stem_tempStemID_not_stable_longitudinal_key": true,
+  "cannot_access_NEON_raw_tables_without_API_token": true,
+  "no_API_token_requested_or_stored": true,
+  "no_raw_NEON_vegetation_tables_opened": true,
+  "no_existing_FIA_outcome_reopened": true,
+  "availability_months_not_actual_individual_repeated_census_events": true,
+  "hypothesis_specifications_prior_FIA_outcome_consumed": true,
+  "product_A_M5_unchanged_and_Product_B_blocked": true,
+  "biological_promotion_authorized": false,
+  "n_independent_biological_effect_tests_performed": 0
+}
