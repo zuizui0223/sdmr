@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: No external data: source ID and calendar controls
+      - name: "No external data: source ID and calendar controls"
         run: |
           python -m pip install 'pytest>=8,<10'
           python -m pytest -q \
