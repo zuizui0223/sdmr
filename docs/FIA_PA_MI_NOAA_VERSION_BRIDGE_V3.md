@@ -48,3 +48,20 @@ python experiments/fia_PA_MI_NOAA_version_bridge_v3.py \
 \`\`\`
 
 The source first-open workflow downloads only the two new, explicitly versioned NOAA raw ASCII sources. No rereading FIADB tree status, diameter or outcomes, no NEON token, no taxon or state selection by results.
+
+
+## Actual one-shot source result — November 18, 2026
+
+First-open [run #44290985125](https://github.com/zuizui0223/sdmr/actions/runs/44290985125) **SUCCESS**, including pre-outcome synthetic controls, source hashes and historical equality checks. [Derived source-only artifact #14420899193](https://github.com/zuizui0223/sdmr/actions/runs/44290985125/artifacts/14420899193) ZIP SHA 455bf84721b12f0c0cfd2b4bdff3648ea29abd4c45c5dd8bfe5190e55bda0269. [Original raw NOAA 20261105 artifact #14422420396](https://github.com/zuizui0223/sdmr/actions/runs/44290985125/artifacts/14422420396) ZIP SHA 44c100271f57afe4bc7811d171bf49382e2ebecc0cd435497d7f5da9948c6c2e. Raw sources temperature ea6a159d3ad9a25b60cce6e3889d79898e17cf4e29b3d2c2282d19d7fb073a4d, precipitation 1f21b2435a29cc40369a4666a69b4f6d851643bad2811f7b8f1bab6521217b27.
+
+**Revision present in historical months**: all 43,890 originally archived RI/VA/WI 1991–2025 Apr–Sep county-month values were found in the new source, but temperature/precipitation entries changed:
+
+| Original state | T entries changed | P entries changed | max abs T change (°C) | max abs monthly P change (mm) |
+|---|---:|---:|---:|---:|
+| RI | 27 | 5 | 0.333333 | 6.858 |
+| VA | 296 | 2 | 0.388889 | 0.254 |
+| WI | 130 | 8 | 0.277777 | 27.432 |
+
+So the old 20261006 VA/WI response-source anomalies **cannot be considered the same historical climate edition** as new 20261105 PA/MI source. The version bridge stored a **complete 75,390 county×month** five-state NOAA source and a new **83,046-row PA/MI prior-species×plot climate** table, but **explicitly refused mixed-edition common climate support**. There are still **zero new biological effects fitted**; this is a source-data revision finding.
+
+The hash-pinned checkpoint at results/fia_PA_MI_NOAA_version_bridge_checkpoint_v3.json records this result. A separate **source-only v4**, without any TREE or COND re-read, is authorized to rebuild exactly the original 89,616 old source-selected RI/VA/WI PLOT interval climate exposures from the 20261105 raw NOAA release and original byte-verified PLOT source ZIPs. If any original PLOT ZIP has changed, v4 must STOP rather than fabricate a comparable training denominator.

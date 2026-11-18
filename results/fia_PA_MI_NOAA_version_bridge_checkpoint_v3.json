@@ -1,0 +1,55 @@
+{
+  "program": "sdmr_external_PA_MI_NOAA_edition_first_open_checkpoint_v3",
+  "date": "2026-11-18",
+  "first_new_NOAA_run_id": 44290985125,
+  "first_new_NOAA_outcome": "source_only_success_historical_1991_2025_revisions_detected",
+  "new_NOAA_edition": "20261105",
+  "new_NOAA_temperature_raw_sha256": "ea6a159d3ad9a25b60cce6e3889d79898e17cf4e29b3d2c2282d19d7fb073a4d",
+  "new_NOAA_precip_raw_sha256": "1f21b2435a29cc40369a4666a69b4f6d851643bad2811f7b8f1bab6521217b27",
+  "new_raw_NOAA_artifact_id": 14422420396,
+  "new_raw_NOAA_zip_sha256": "44c100271f57afe4bc7811d171bf49382e2ebecc0cd435497d7f5da9948c6c2e",
+  "new_derived_source_artifact_id": 14420899193,
+  "new_derived_source_artifact_zip_sha256": "455bf84721b12f0c0cfd2b4bdff3648ea29abd4c45c5dd8bfe5190e55bda0269",
+  "new_source_only_PA_MI_climate_csv_sha256": "b83298bfd792b25e71d62ade38486979d37b7618b8dece5da5f071921949de85",
+  "new_bridge_receipt_sha256": "5d44b9315cf8125bd3a3abe544422abeee506b2e1814e88dced134defb3c3e2c",
+  "new_bridge_result_sha256": "78c42e52c56b05243fe466f6042b84acb3ae39abfd3f09e798830dac20e14639",
+  "original_NOAA_edition": "20261006",
+  "original_noaa_normalized_3state_csv_sha256": "623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8",
+  "n_original_three_state_months_compared": 43890,
+  "n_new_five_state_county_months": 75390,
+  "n_new_source_only_PA_MI_taxon_plot_intervals": 83046,
+  "n_PA_MI_forest_species_not_opened_for_growth": 13,
+  "old_NOAA_historical_months_identical": false,
+  "revision_counts": {
+    "RI": {
+      "n_original_months": 1050,
+      "changed_temperature": 27,
+      "changed_precipitation": 5,
+      "max_abs_temp_C": 0.33333299999999966,
+      "max_abs_precip_mm": 6.858000000000004
+    },
+    "VA": {
+      "n_original_months": 27720,
+      "changed_temperature": 296,
+      "changed_precipitation": 2,
+      "max_abs_temp_C": 0.38888899999999893,
+      "max_abs_precip_mm": 0.2539999999999907
+    },
+    "WI": {
+      "n_original_months": 15120,
+      "changed_temperature": 130,
+      "changed_precipitation": 8,
+      "max_abs_temp_C": 0.2777770000000004,
+      "max_abs_precip_mm": 27.432000000000002
+    }
+  },
+  "total_changed_temperature_variable_months": 453,
+  "total_changed_precipitation_variable_months": 15,
+  "n_old_county_months_missing_in_new": 0,
+  "common_support_under_mixed_editions_authorized": false,
+  "next_only_authorized_source_step": "Re-derive original RI/VA/WI source-only interval anomalies under the same 20261105 NOAA edition using original SHA-pinned PLOT visit metadata; do not read original tree outcomes.",
+  "future_PA_MI_biological_response_opened": false,
+  "n_ecological_effect_tests": 0,
+  "Product_A_M5_unchanged_Product_B_blocked": true,
+  "claim_ceiling": "NOAA source revision is a data-sourcing result, not an ecological process/response finding"
+}
