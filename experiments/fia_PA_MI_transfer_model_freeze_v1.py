@@ -91,10 +91,12 @@ def join_development_growth(growth:pd.DataFrame,old_src:pd.DataFrame,
     """No new response readings: old and new EXACT original site rows."""
     keys=["species_code","state","interval_id"]
     sub=rebased[rebased.state.isin(TRAIN)].copy()
-    if len(sub)!=EXPECTED_OLD_SOURCE_ROWS or set(sub.state)!=set(TRAIN):
-        raise ValueError("v5 VA/WI original source frame changed")
+    # Diagnose duplicate-source key inflation BEFORE the row-count gate;
+    # never accept either duplicate or a mismatched original denominator.
     if old_src.duplicated(keys).any() or sub.duplicated(keys).any():
         raise ValueError("duplicate old/new original taxon-state-plot-interval keys")
+    if len(sub)!=EXPECTED_OLD_SOURCE_ROWS or set(sub.state)!=set(TRAIN):
+        raise ValueError("v5 VA/WI original source frame changed")
     old_check=old_src.merge(sub,on=keys,how="outer",suffixes=("_old","_new"),
                             indicator=True,validate="one_to_one")
     if len(old_check)!=EXPECTED_OLD_SOURCE_ROWS or not (old_check["_merge"]=="both").all():
