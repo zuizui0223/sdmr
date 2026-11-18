@@ -1,0 +1,43 @@
+name: FIA PA MI untouched-state source-only contract tests
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_external_PA_MI_first_source_v1.py'
+      - 'tests/test_fia_external_PA_MI_first_source_v1.py'
+      - 'configs/fia_PA_MI_external_source_only_v1.json'
+      - 'docs/FIA_EXTERNAL_PA_MI_SOURCE_ONLY_V1.md'
+      - '.github/workflows/fia-PA-MI-external-source-contract-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-no-outcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline tests only; no FIA or NOAA download
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_external_PA_MI_first_source_v1.py \
+            tests/test_fia_joint_support_gate_v1.py
+      - name: Source-only 13-species and two untouched state assertion
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'experiments')
+          import fia_external_PA_MI_first_source_v1 as s
+          assert s.STATES==('PA','MI')
+          assert s.FIPS=={'PA':'42','MI':'26'}
+          assert s.NOAA_ORDINAL=={'36':'42','20':'26'}
+          assert len(s.PRIOR_13)==13 and len(s.PRIOR_5)==5
+          assert s.TRAIN_STATES==('VA','WI')
+          assert not any(x in s.OUTPUT_COLS for x in ('STATUSCD','DIA','mortality'))
+          PY

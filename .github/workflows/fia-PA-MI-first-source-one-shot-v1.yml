@@ -1,0 +1,107 @@
+name: FIA untouched PA MI source-only first acquisition v1
+
+# PLOT/COND/TREE ZIP raw files retrieved one time, tree responses SEALED.
+# Derived source-only rows read ONLY prior-visit SPCD and plot identifiers.
+# Reuses exact old NOAA October-06 raw source fingerprints.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_external_first_source_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  fresh-external-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reject unmatched source, species, time, region and reopening
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          x=Path('configs/fia_PA_MI_external_first_source_once_v1.lock').read_text()
+          for line in (
+            'program=fia_PA_MI_unopened_external_source_only_v1',
+            'first_external_holdout_states=PA_MI',
+            'development_states=VA_WI',
+            'fixed_five_species=129_316_802_833_837',
+            'original_training_source_run=43711159676',
+            'original_training_source_artifact=14160283759',
+            'original_training_source_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7',
+            'noaa_original_snapshot_date=20261006',
+            'NOAA_raw_temperature_sha256=edf9a954c7d7a5bed5ad32e448cfc78aacbf01261b94a4c5224094535108a489',
+            'NOAA_raw_precipitation_sha256=739fc3e9b529e04d406e914be1add2736ca3129c1103246ccebc2e5c76fd9d3a',
+            'read_TREE_DIA_STATUSCD_or_other_tree_outcomes=forbidden',
+            'store_original_FIA_ZIPs_outside_Git_source=true',
+            'do_not_retry_on_mutable_source_failure=true',
+            'not_a_biological_test=true',
+            'prior_FIA_Product_A_M5_unchanged_Product_B_blocked=true'
+          ):
+            assert line in x,line
+          PY
+      - name: Test all source-only identity and NOAA crosswalk invariants
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_external_PA_MI_first_source_v1.py
+      - name: Read only the archived SHA-locked original training source
+        uses: actions/download-artifact@v4
+        with:
+          name: fia-first-source-only-reconciliation-v2
+          run-id: 43711159676
+          github-token: ${{ github.token }}
+          path: build/frozen_training_source
+      - name: First SHA-locked external NOAA plus PA/MI FIA source-only retrieval
+        run: |
+          python experiments/fia_external_PA_MI_first_source_v1.py \
+            --out build/fia_external_PA_MI_source_v1 \
+            --training-source build/frozen_training_source \
+            --training-config configs/fia_joint_climate_support_gate_v1.json \
+            --holdout-config configs/fia_PA_MI_external_source_only_v1.json
+      - name: All thirteen taxa and both first-open external states retained
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('build/fia_external_PA_MI_source_v1')
+          x=json.loads((p/'PA_MI_external_source_gate_result_v1.json').read_text())
+          r=json.loads((p/'PA_MI_source_receipt_v1.json').read_text())
+          assert x['status']=='source_only_complete_not_biological_efficacy'
+          assert x['source_species_denominator']==13
+          assert len(x['source_species'])==13
+          assert x['holdout_states_present']==['MI','PA']
+          assert r['source_status']=='complete_source_only'
+          assert len(r['holdout_state_receipts'])==2
+          assert all(len(row['source_files'])==3 for row in r['holdout_state_receipts'])
+          assert not x['outcome_data_opened']
+          assert not x['biological_promotion_authorized']
+          assert x['n_independent_biological_effect_tests']==0
+          assert x['NEON_access_no_longer_required']
+          print('FIRST EXTERNAL SOURCE SUPPORT (not outcome):',
+                x['holdout_source_rows'],'prior-species plot intervals;',
+                x['n_primary_both_holdout_states_source_eligible'],'of 5 source-qualified in PA AND MI')
+          PY
+      - name: Save derived climate and taxon plot source with all STOP evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-external-PA-MI-source-only-v1
+          path: |
+            build/fia_external_PA_MI_source_v1/*.json
+            build/fia_external_PA_MI_source_v1/*.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Keep exact original six FIA source ZIP bytes out of Git repository
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-external-PA-MI-original-source-ZIPs-v1
+          path: build/fia_external_PA_MI_source_v1/*.zip
+          if-no-files-found: warn
+          retention-days: 45
