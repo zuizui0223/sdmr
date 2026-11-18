@@ -63,6 +63,14 @@ def test_retrospective_result_must_not_be_promoted_by_a_small_p():
     assert result.status == "retrospective_diagnostic_only"
 
 
+
+def test_synthetic_evidence_cannot_be_promoted_to_biological_support():
+    rows = _rows()
+    result = audit_contextual_structure(rows, _contract(rows, evidence_class="synthetic"))
+    assert result.signed_block_p == pytest.approx(2 / 64)
+    assert result.status == "synthetic_diagnostic_only"
+
+
 def test_equal_block_not_tree_count_weighted():
     rows = (
         [PairedHeldoutLoss("a_" + str(i), "a", 1, 0.8) for i in range(20)]
