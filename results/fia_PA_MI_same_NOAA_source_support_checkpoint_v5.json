@@ -1,0 +1,121 @@
+{
+  "program": "fia_PA_MI_external_same_NOAA_edition_source_support_v5_verified_checkpoint",
+  "as_of_utc": "2026-11-18T11:36:30Z",
+  "scientific_status": "no_biological_response_opened_source_comparability_only",
+  "first_attempt_old_NOAA_url_404_run": 44236792668,
+  "v3_NOAA_historical_revision_run": 44290985125,
+  "v4_original_PLOT_whole_archive_hash_stop_run": 44294243344,
+  "v5_first_event_equivalence_and_common_support_run": 44296141877,
+  "v5_workflow_conclusion": "success",
+  "v5_derived_artifact": 14423482128,
+  "v5_artifact_zip_sha256": "94fb77217fbfc0ff3a1e4f2ca2efabf3d8be85a032d53da3950b3a1d58d3eee5",
+  "v5_full_result_json_sha256": "c9c485be4a11e2c04ac12c58738feac02ba3cb4e33b9339a82a31dff5a8d6626",
+  "v5_full_receipt_json_sha256": "7802b1ed30486b23c13cee27c3141d99539d1ff4237cf1e4435661711c4eae67",
+  "v5_rebased_original_source_CSV_sha256": "e3c872f5b0f4fce7e97bef5f172a631d0f09f28ced663d8bb6580a5ab894c11c",
+  "old_original_89616_source_rows_preserved": true,
+  "v5_verified_original_sampled_PLOT_interval_ID_count": 89616,
+  "old_original_source_rows_by_state": {
+    "RI": 1471,
+    "VA": 38128,
+    "WI": 50017
+  },
+  "new_PA_MI_source_only_rows": 83046,
+  "same_NOAA_release": "20261105",
+  "v5_reused_RI_PLOT_sha256": "b409bb55766011401ee581ca7ad97f7c7d3e5a3876db630c6a7027e5ea7fcde0",
+  "v5_new_VA_PLOT_sha256": "91a1c62cd3ca44fd2edf33a81325cef6e4754b7aa7b2dd7740514f22c76b50fd",
+  "v5_new_WI_PLOT_sha256": "05d84d314397683ee9bef4f36c4467916555ab3e0e6f4ef93a79f1330083aa36",
+  "original_PLOT_whole_ZIP_sha_identical": false,
+  "full_original_selected_sample_year_county_plot_chain_and_prior_NOAA_anomalies_verified": true,
+  "old_NOAA_source_SHA": "623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8",
+  "new_NOAA_raw_sha256": {
+    "temperature": "ea6a159d3ad9a25b60cce6e3889d79898e17cf4e29b3d2c2282d19d7fb073a4d",
+    "precipitation": "1f21b2435a29cc40369a4666a69b4f6d851643bad2811f7b8f1bab6521217b27"
+  },
+  "all_13_original_taxa_both_external_states_source_eligible": 13,
+  "five_frozen_prior_primary_taxa_both_external_states_source_eligible": 5,
+  "priority_taxa": [
+    {
+      "spcd": "129",
+      "name": "Pinus strobus",
+      "n_VA_WI_qualified_TP_time_cells": 25,
+      "PA": {
+        "counties": 59,
+        "unique_plot_chains": 526,
+        "within_train_support_fraction": 0.9961977186311787
+      },
+      "MI": {
+        "counties": 75,
+        "unique_plot_chains": 1715,
+        "within_train_support_fraction": 1
+      }
+    },
+    {
+      "spcd": "316",
+      "name": "Acer rubrum",
+      "n_VA_WI_qualified_TP_time_cells": 28,
+      "PA": {
+        "counties": 65,
+        "unique_plot_chains": 2698,
+        "within_train_support_fraction": 0.9988880652335063
+      },
+      "MI": {
+        "counties": 83,
+        "unique_plot_chains": 4678,
+        "within_train_support_fraction": 0.9995724668661822
+      }
+    },
+    {
+      "spcd": "802",
+      "name": "Quercus alba",
+      "n_VA_WI_qualified_TP_time_cells": 27,
+      "PA": {
+        "counties": 64,
+        "unique_plot_chains": 839,
+        "within_train_support_fraction": 1
+      },
+      "MI": {
+        "counties": 66,
+        "unique_plot_chains": 928,
+        "within_train_support_fraction": 1
+      }
+    },
+    {
+      "spcd": "833",
+      "name": "Quercus rubra",
+      "n_VA_WI_qualified_TP_time_cells": 28,
+      "PA": {
+        "counties": 65,
+        "unique_plot_chains": 1409,
+        "within_train_support_fraction": 0.9992902767920511
+      },
+      "MI": {
+        "counties": 82,
+        "unique_plot_chains": 1614,
+        "within_train_support_fraction": 1
+      }
+    },
+    {
+      "spcd": "837",
+      "name": "Quercus velutina",
+      "n_VA_WI_qualified_TP_time_cells": 21,
+      "PA": {
+        "counties": 61,
+        "unique_plot_chains": 603,
+        "within_train_support_fraction": 0.9966832504145937
+      },
+      "MI": {
+        "counties": 62,
+        "unique_plot_chains": 691,
+        "within_train_support_fraction": 0.9913169319826338
+      }
+    }
+  ],
+  "same_environment_source_support_is_not_growth_transfer": true,
+  "no_PA_MI_tree_DIA_STATUSCD_survival_or_growth_read": true,
+  "no_PA_MI_response_parameters_fitted": true,
+  "no_biological_effect_or_niche_process_test_executed": true,
+  "PA_MI_are_postdevelopment_geographic_external_holdouts": true,
+  "pre_outcome_next_stage": "freeze VA WI model parameters and PA<-VA MI<-WI surrogate geographical transfer on same NOAA release before any new holdout growth opening",
+  "Product_A_M5_unchanged_Product_B_blocked": true,
+  "PR_stays_Draft": true
+}
