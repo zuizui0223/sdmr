@@ -125,7 +125,7 @@ def test_rebase_refuses_any_changed_plot_root_or_county(monkeypatch):
 def test_new_noaa_source_sha_missing_or_changed_is_a_hard_stop(tmp_path):
     for name in m.bridge.NOAA_FILES.values():
         (tmp_path/name).write_text("DRIFTED EDITION")
-    with pytest.raises(ValueError,match="source SHA mismatch"):
+    with pytest.raises(ValueError,match="original raw SHA mismatch"):
         m.read_saved_NOAA(tmp_path)
 
 

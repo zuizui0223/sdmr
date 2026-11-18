@@ -8,6 +8,7 @@ on:
     branches: [research/geographic-driver-turnover-macro-v0-20261019]
     paths:
       - 'configs/fia_PA_MI_NOAA_uniform_rebase_once_v4.lock'
+      - 'configs/fia_PA_MI_NOAA_uniform_rebase_contractfix_once_v4.lock'
 
 permissions:
   contents: read
