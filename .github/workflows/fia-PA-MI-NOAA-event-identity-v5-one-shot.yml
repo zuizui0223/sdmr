@@ -76,7 +76,7 @@ jobs:
           name: fia-RI-VA-WI-original-PLOT-immutable-source-v4
           github-token: ${{ github.token }}
           path: build/RI_updated_source
-      - name: Source ONLY: acquire VA WI PLOT once, reconstruct old 89,616 event anomalies, rebase v5
+      - name: "Source ONLY: acquire VA WI PLOT once, reconstruct old 89,616 event anomalies, rebase v5"
         run: |
           python experiments/fia_PA_MI_NOAA_event_identity_v5.py \
             --original-training build/original_training \
