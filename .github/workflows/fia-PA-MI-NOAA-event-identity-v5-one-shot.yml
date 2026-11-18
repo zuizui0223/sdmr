@@ -1,0 +1,127 @@
+name: FIA NOAA 20261105 source-only original event rebase v5 first VA WI PLOT
+
+# The v4 full PLOT ZIP version STOP is preserved.
+# Reuse RI PLOT source bytes from v4 failed original ZIP comparison.
+# Acquire VA and WI PLOT only, once each, no TREE/COND or biological outcomes.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_NOAA_event_identity_once_v5.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-only-original-event-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate strictly new-v5 acquisition and zero outcome contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_PA_MI_NOAA_event_identity_once_v5.lock').read_text()
+          for v in (
+            'program=fia_five_state_NOAA_20261105_event_identity_verified_source_only_v5',
+            'v4_failed_original_ZIP_run=44294243344',
+            'reuse_RI_PLOT_artifact=14421539704',
+            'RI_updated_PLOT_SHA256=b409bb55766011401ee581ca7ad97f7c7d3e5a3876db630c6a7027e5ea7fcde0',
+            'new_FIA_source_states=VA_WI_PLOT_only',
+            'original_training_rows=89616',
+            'heldout_PA_MI_rows=83046',
+            'old_NOAA_snapshot=20261006',
+            'new_NOAA_snapshot=20261105',
+            'all_old_event_T_P_anomalies_must_reproduce=true',
+            'no_original_training_selection_change=true',
+            'TREE_COND_status_DIA_growth_mortality_open=forbidden',
+            'no_autoretry_favorable_effect_search=true',
+            'Product_A_M5_unchanged_Product_B_blocked=true'):
+            assert v in s,v
+          PY
+      - name: Validate synthetic old-T/P+plot-source mutation guards before GET
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_PA_MI_NOAA_event_identity_v5.py
+      - name: Download exactly original source-only training sample (89,616 rows)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/original_training
+      - name: Download existing 20261105 NOAA raw files without another NOAA request
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44290985125
+          name: fia-PA-MI-NOAA-20261105-raw-source-v3
+          github-token: ${{ github.token }}
+          path: build/frozen_NOAA_20261105
+      - name: Download original PA MI 20261105 source-only climate
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44290985125
+          name: fia-PA-MI-NOAA-20261105-version-bridge-v3
+          github-token: ${{ github.token }}
+          path: build/frozen_PA_MI
+      - name: Reuse RI v4 one-shot updated PLOT first-opening; DO NOT GET again
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44294243344
+          name: fia-RI-VA-WI-original-PLOT-immutable-source-v4
+          github-token: ${{ github.token }}
+          path: build/RI_updated_source
+      - name: Source ONLY: acquire VA WI PLOT once, reconstruct old 89,616 event anomalies, rebase v5
+        run: |
+          python experiments/fia_PA_MI_NOAA_event_identity_v5.py \
+            --original-training build/original_training \
+            --old-NOAA-csv results/fia_noaa_county_climate_v1/noaa_county_growing_months_1991_2025.csv \
+            --new-NOAA-raw build/frozen_NOAA_20261105 \
+            --PA-MI-v3-source build/frozen_PA_MI \
+            --RI-updated-zip build/RI_updated_source/RI_PLOT.zip \
+            --out artifacts/fia_PA_MI_NOAA_source_v5
+      - name: Assert all 13 original taxa, full source rowset and no biological outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path('artifacts/fia_PA_MI_NOAA_source_v5')
+          x=json.loads((out/'PA_MI_same_NOAA_source_support_v5.json').read_text())
+          r=json.loads((out/'PA_MI_source_receipt_v5.json').read_text())
+          assert x['status']=='same_20261105_NOAA_v5_all_old_sampled_intervals_verified'
+          assert x['source_species_denominator']==13 and len(x['source_species'])==13
+          assert x['n_original_training_source_rebased_rows']==89616
+          assert x['n_PA_MI_source_only_holdout_rows']==83046
+          assert x['old_source_each_plot_and_date_reproduced_from_old_NOAA']
+          assert x['all_original_89616_source_rows_preserved']
+          assert not x['biological_promotion_authorized']
+          assert r['status']=='all_original_event_and_old_NOAA_source_verified_new_editions'
+          assert len(r['PLOT_versions'])==3
+          assert all(z['n_original_plot_interval_trees_species_identity_matched']>0
+                     for z in r['validated_original_identity_and_old_climate'].values())
+          print('NO BIOLOGICAL RESPONSE, source climate ready primary',
+                x['n_primary_both_holdout_states_source_eligible'],'/5')
+          PY
+      - name: Keep full derived 13-species and even failed STOP receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-five-state-NOAA-v5-event-identical-source-only
+          path: |
+            artifacts/fia_PA_MI_NOAA_source_v5/*.json
+            artifacts/fia_PA_MI_NOAA_source_v5/*.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Preserve exact new RI/VA/WI PLOT source bytes OUTSIDE Git repo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-PA-MI-v5-original-event-audit-raw-PLOT-archives
+          path: artifacts/fia_PA_MI_NOAA_source_v5/*_PLOT.zip
+          if-no-files-found: warn
+          retention-days: 45
