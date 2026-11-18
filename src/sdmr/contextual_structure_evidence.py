@@ -200,6 +200,8 @@ def audit_contextual_structure(
 
     if p is None:
         status = "not_estimable"
+    elif contract.evidence_class == "synthetic":
+        status = "synthetic_diagnostic_only"
     elif contract.evidence_class == "retrospective" or not contract.outcome_blind_design:
         status = "retrospective_diagnostic_only"
     elif gain > contract.minimum_gain and p <= contract.alpha:
