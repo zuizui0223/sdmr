@@ -1,0 +1,64 @@
+{
+  "program": "fia_PA_MI_unopened_holdout_identity_only_v2",
+  "holdout_states": [
+    "PA",
+    "MI"
+  ],
+  "holdout_fips": {
+    "PA": "42",
+    "MI": "26"
+  },
+  "training_states": [
+    "VA",
+    "WI"
+  ],
+  "species_13": [
+    "68",
+    "129",
+    "261",
+    "316",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762",
+    "802",
+    "833",
+    "837"
+  ],
+  "priority_5": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "historical_first_source_stop_run": 44236792668,
+  "historical_first_source_stop_artifact": 14397208729,
+  "old_NOAA_20261006_unavailable_not_replaced": true,
+  "source_only_no_NOAA_or_TREE_outcome_values_read": true,
+  "fixed_first_two_state_geographic_holdout": true,
+  "original_training_run": 43711159676,
+  "original_training_artifact": 14160283759,
+  "original_training_csv_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "original_training_receipt_sha256": "f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453",
+  "minimum_holdout_state_counties": 5,
+  "minimum_holdout_state_plot_chains": 25,
+  "minimum_shared_five_year_periods": 2,
+  "minimum_cohort_bin_counties": 2,
+  "minimum_cohort_bin_plots": 5,
+  "no_same_cohort_species_promotion": true,
+  "no_initial_TREE_DIA_STATUSCD_access": true,
+  "no_new_growth_mortality_effect": true,
+  "current_PLOT_year_must_be_1991_to_2025": true,
+  "source_revisit_gap_months": {
+    "min": 1,
+    "max": 252
+  },
+  "NOAA_climate_comparability_status": "not_evaluated_older_raw_source_URL_404",
+  "inference_ceiling": "identity-linked prior taxon × remeasured plot × calendar-year feasibility ONLY",
+  "archival_plan": "exact PLOT/COND/TREE source ZIPs in separate Actions artifact for 45 days, derive prior-species plot/time CSV + JSON for 90 days",
+  "Product_A_M5_unchanged_and_Product_B_blocked": true,
+  "prior_v1_stop_not_overwritten": true
+}
