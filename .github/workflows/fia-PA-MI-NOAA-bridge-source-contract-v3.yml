@@ -1,0 +1,43 @@
+name: FIA PA MI NOAA edition-bridge source-only contract v3
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_PA_MI_NOAA_version_bridge_v3.py'
+      - 'tests/test_fia_PA_MI_NOAA_version_bridge_v3.py'
+      - 'configs/fia_PA_MI_NOAA_version_bridge_v3.json'
+      - 'docs/FIA_PA_MI_NOAA_VERSION_BRIDGE_V3.md'
+      - '.github/workflows/fia-PA-MI-NOAA-bridge-source-contract-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: NOAA original historical rows revision refusal and site date checks
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_PA_MI_NOAA_version_bridge_v3.py \
+            tests/test_fia_external_PA_MI_identity_source_v2.py
+      - name: No biological outcomes and no implicit mixed edition inference
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"experiments")
+          import fia_PA_MI_NOAA_version_bridge_v3 as v
+          assert v.NOAA_SOURCE_DATE == "20261105"
+          assert v.HOLDOUT_STATES == ("PA","MI")
+          assert len(v.PRIMARY) == 5
+          assert v.EXPECTED_SOURCE_V2_ROWS == 83046
+          assert v.EXPECTED_OLD_ROWS == 43890
+          assert not {"growth","DIA","STATUSCD","mortality"} & set(v.SOURCE_FIELDS)
+          PY

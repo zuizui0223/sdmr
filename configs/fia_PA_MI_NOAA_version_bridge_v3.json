@@ -1,0 +1,51 @@
+{
+  "program": "fia_PA_MI_NOAA_20261105_version_bridge_source_only_v3",
+  "noaa_release": "20261105",
+  "NOAA_filenames": {
+    "temperature": "climdiv-tmpccy-v1.0.0-20261105",
+    "precipitation": "climdiv-pcpncy-v1.0.0-20261105"
+  },
+  "ordinal_to_FIPS": {
+    "20": "26",
+    "36": "42",
+    "37": "44",
+    "44": "51",
+    "47": "55"
+  },
+  "holdout_states": [
+    "PA",
+    "MI"
+  ],
+  "old_climate_states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "previous_source_v2_run": 44238110335,
+  "previous_source_v2_artifact": 14397884111,
+  "previous_source_v2_CSV_sha256": "70cf6e8db95c864d80e684ed7292606d6a8df64d71e8bd952ae1a1a2adc4d1c2",
+  "previous_source_v2_receipt_sha256": "1392858a521f466e0b39892202883cec4a645f39dad6b5ab7e5d2afa534b5e3c",
+  "previous_source_v2_gate_sha256": "7b54ee7a8a855c8a5db64498e5fb68c221de827bd1dcef29f3269e69e4afd4ee",
+  "old_NOAA_1991_2025_CSV_sha256": "623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8",
+  "original_training_source_CSV_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "original_training_source_receipt_sha256": "f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453",
+  "all_prior_FIA_growth_results_sealed": true,
+  "new_source_ONLY_no_TREE_status_diameter_growth": true,
+  "refuse_mixed_NOAA_versions_if_historical_values_change": true,
+  "four_states_niche_process_inference_blocked": true,
+  "do_not_rerun_mutable_NOAA_after_first_open": true,
+  "NEON_not_required": true,
+  "source_years": "1991–2025",
+  "baseline_years": "1991–2020",
+  "growing_months": "April–September",
+  "source_version_status": "pre-first-open_20261105_new_monthly_files_with_expected_URLs_and_unknown_sha",
+  "old_original_NOAA_raw_bytes_are_not_assumed_available": true,
+  "method": "Strict identical original RI+VA+WI normalized monthly check before old VA/WI source climate is comparable with new PA/MI source",
+  "exposure_cohort": "First 13 taxa, primary five codes 129/316/802/833/837; no tree outcome",
+  "new_measurement_window": "Exact PLOT previous/current year and month from source-only v2 derived table",
+  "sample_eligibility_post_original_FIA_response": true,
+  "no_auto_research_promotion": true,
+  "expected_outcome": "Audit exact new source sha, historical value equality count and PA/MI source-climate overlaps or refuse cross-version",
+  "raw_source_artifacts_retention_days": 45,
+  "derived_metrics_retention_days": 90
+}
