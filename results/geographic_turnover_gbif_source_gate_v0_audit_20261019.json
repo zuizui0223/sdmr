@@ -1,0 +1,13 @@
+{
+  "analysis_blocked": true,
+  "artifact_id": 12169356871,
+  "artifact_zip_sha256": "b8f0b052fb2bf773a30c57ef9bf126df8d0a321451fbc499eb504e5a46643de2",
+  "available_queries": 12,
+  "capture_utc": "2026-10-19T07:23:29.080527+00:00",
+  "count_threshold_pass": 12,
+  "query_country_units": 12,
+  "run_id": 39215149652,
+  "source_json_sha256": "fb621747c015187d27b26fa5f9a53c57996625c506df0a7078990906bead36c5",
+  "status": "source_volume_only_not_ecological_outcome",
+  "summed_index_counts_not_unique": 661958
+}

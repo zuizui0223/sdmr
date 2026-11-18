@@ -1,0 +1,35 @@
+name: geographic-turnover-native-source-v1
+
+# Source acquisition is intentionally one-shot/manual; routine PR tests run in tests.yml.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-source-only:
+    name: native-range-window-source-diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install read-only geo source environment
+        run: python -m pip install -e '.[test,geo]' 'pyproj>=3.5' 'scipy>=1.10'
+      - name: Verify offline source integrity
+        run: python -m pytest -q tests/test_geographic_turnover_native_windows_v1.py
+      - name: Read-only native-window, GBIF and CHELSA source assembly
+        run: >-
+          python experiments/geographic_turnover_native_windows_v1.py
+          --config configs/geographic_turnover_native_windows_v1.json
+          --output-dir artifacts/geographic_turnover_native_windows_v1
+      - name: Archive complete gate receipt, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geographic-turnover-native-source-v1
+          path: artifacts/geographic_turnover_native_windows_v1/
+          if-no-files-found: warn

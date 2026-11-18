@@ -1,0 +1,46 @@
+name: "NEON independent source preflight: manifest and identity synthetic tests v1"
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_neon_manifest_probe_v1.py'
+      - 'experiments/fia_neon_identity_contract_v1.py'
+      - 'tests/test_fia_neon_manifest_probe_v1.py'
+      - 'tests/test_fia_neon_identity_contract_v1.py'
+      - 'docs/FIA_NEON_FILE_MANIFEST_AND_IDENTITY_PREFLIGHT_V1.md'
+      - '.github/workflows/fia-NEON-independent-source-contract-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strict-source-only-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test runner ONLY; no NEON authentication or file download
+        run: python -m pip install 'pytest>=8,<10'
+      - name: Run synthetic source-only schema, invalid-key and credential-safety tests
+        run: |
+          python -m pytest -q \
+            tests/test_fia_neon_manifest_probe_v1.py \
+            tests/test_fia_neon_identity_contract_v1.py \
+            tests/test_fia_independent_neon_catalog_v1.py
+      - name: Confirm 2026-specific static mapping and no protected biology
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'experiments')
+          import fia_neon_identity_contract_v1 as m
+          import fia_neon_manifest_probe_v1 as p
+          assert 'eventID' not in m.ALLOWED_TABLE_FIELDS['mappingandtagging']
+          assert m.SITES == ('HARV','SCBI')
+          assert p.PILOT == (('HARV','2014-08'),('HARV','2024-08'),
+                             ('SCBI','2014-08'),('SCBI','2024-09'))
+          assert p.RELEASE=='RELEASE-2026'
+          PY

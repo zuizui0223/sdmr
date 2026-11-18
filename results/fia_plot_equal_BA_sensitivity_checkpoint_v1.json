@@ -1,0 +1,98 @@
+{
+  "program": "fia_plot_chain_equal_within_county_BA_robustness_checkpoint_v1",
+  "date": "2026-11-17",
+  "status": "verified_GitHub_success_independent_local_numeric_match_postoutcome_sensitivity",
+  "original_first_run": 43886130089,
+  "original_first_artifact": 14234926861,
+  "original_first_ZIP_SHA256": "ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24",
+  "original_growth_input_SHA256": "ee98608ca4e7582144a886d96c9c908a5a5cd25533e1b74ad2e786b20710db4e",
+  "original_source_csv_SHA256": "cd306e559a663c1ddf65259b2fc5298d426f931c272b4cd1ec15ec17da21e402",
+  "first_county_decomposition_run": 43902252927,
+  "first_county_decomposition_artifact": 14241722502,
+  "plot_equal_run": 43904077432,
+  "plot_equal_run_conclusion": "success",
+  "plot_equal_artifact": 14243787935,
+  "plot_equal_artifact_ZIP_SHA256": "ec551f685cc7c8b1bc4c5c9dc9b5723a51627d4db070dd60025d03088bbe6eb9",
+  "plot_equal_result_JSON_SHA256": "ad420b6eb1f84886de9c0bdf944b12c1cf40c70e2c3a12ed998bdda283e9a278",
+  "plot_equal_full_species_county_ledger_CSV_SHA256": "8c67e91d43a91528ef9481d840aaa638e7a5e53bfd44994efe8d4a4bed5acd13",
+  "n_frozen_growth_rows": 170994,
+  "n_source_only_rows": 88145,
+  "n_species": 5,
+  "n_species_x_heldout_county_score_records": 714,
+  "n_positive_plot_equal_within_county_increment_species": 5,
+  "n_plot_equal_postfit_CI_lower_above_zero": 5,
+  "data_identity_verified_against_original": true,
+  "numeric_result_verified_against_independent_local_implementation": true,
+  "training_and_scoring_weights": "equal_state_x_equal_county_x_equal_plot_chain_x_equal_tree_within_plot",
+  "source_only_training_climate_cells_and_county_holdout_unchanged": true,
+  "postfit_bootstrap_iterations": 999,
+  "postoutcome_new_weighting_not_preregistered": true,
+  "BA_county_means_from_eventually_surviving_selected_cohort": true,
+  "no_FIA_NOAA_raw_data_retrieval_or_new_growth_outcome": true,
+  "no_new_independent_biological_replication": true,
+  "not_causal_competition_or_niche_parameter_estimate": true,
+  "original_regional_climate_practical_winner_count_unchanged": 0,
+  "product_B_remains_blocked": true,
+  "species": [
+    {
+      "species_code": "129",
+      "name": "Pinus strobus",
+      "n_species_county_score_records": 106,
+      "single_BA_gain_percent": 3.2798727579146894,
+      "county_mean_only_gain_percent": 0.6522469051535772,
+      "within_increment_plot_equal_gain_percent": 2.502819273115224,
+      "within_increment_plot_equal_postfit_county95": [
+        1.3564111802524546,
+        3.594445173633915
+      ]
+    },
+    {
+      "species_code": "316",
+      "name": "Acer rubrum",
+      "n_species_county_score_records": 165,
+      "single_BA_gain_percent": 1.8661617933191788,
+      "county_mean_only_gain_percent": 0.782378694875799,
+      "within_increment_plot_equal_gain_percent": 1.0954668548932553,
+      "within_increment_plot_equal_postfit_county95": [
+        0.409254287445433,
+        1.829778341334597
+      ]
+    },
+    {
+      "species_code": "802",
+      "name": "Quercus alba",
+      "n_species_county_score_records": 152,
+      "single_BA_gain_percent": 0.7870593412133203,
+      "county_mean_only_gain_percent": -0.021814581098462626,
+      "within_increment_plot_equal_gain_percent": 0.8225245216684908,
+      "within_increment_plot_equal_postfit_county95": [
+        0.3638841402631807,
+        1.2082695168611752
+      ]
+    },
+    {
+      "species_code": "833",
+      "name": "Quercus rubra",
+      "n_species_county_score_records": 159,
+      "single_BA_gain_percent": 1.5679781535521493,
+      "county_mean_only_gain_percent": 0.06430861251433373,
+      "within_increment_plot_equal_gain_percent": 1.5209930501420759,
+      "within_increment_plot_equal_postfit_county95": [
+        0.8034853057889031,
+        2.222603367677458
+      ]
+    },
+    {
+      "species_code": "837",
+      "name": "Quercus velutina",
+      "n_species_county_score_records": 132,
+      "single_BA_gain_percent": 1.4401251220611198,
+      "county_mean_only_gain_percent": 0.5815910349578899,
+      "within_increment_plot_equal_gain_percent": 0.825402677477027,
+      "within_increment_plot_equal_postfit_county95": [
+        0.12145378638566443,
+        1.5464942696524517
+      ]
+    }
+  ]
+}

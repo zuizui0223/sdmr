@@ -1,0 +1,42 @@
+name: geographic-turnover-postsource-audit-v1
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/geographic_turnover_postsource_audit_v1.py'
+      - 'tests/test_geographic_turnover_postsource_audit_v1.py'
+      - 'evidence/geographic_turnover_native_source_v1/**'
+      - 'results/quercus_geographic_turnover_postsource_audit_v1.json'
+      - 'docs/GEOGRAPHIC_TURNOVER_POSTSOURCE_AUDIT_V1.md'
+      - '.github/workflows/geographic-turnover-postsource-audit-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  historical-source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install diagnostic dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify exact original source hashes, fail-closed eligibility and no ecological promotion
+        run: python -m pytest -q tests/test_geographic_turnover_postsource_audit_v1.py
+      - name: Recompute fixed post-source sensitivity audit from archived cells
+        run: |
+          python -m experiments.geographic_turnover_postsource_audit_v1 \
+            --source-cells evidence/geographic_turnover_native_source_v1/available_climate_cells.csv \
+            --source-receipt evidence/geographic_turnover_native_source_v1/source_receipt.json \
+            --config configs/geographic_turnover_native_windows_v1.json \
+            --output artifacts/quercus_geographic_turnover_postsource_audit_v1.json
+      - name: Save independent re-computation for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: geographic-turnover-postsource-audit-v1
+          path: artifacts/quercus_geographic_turnover_postsource_audit_v1.json
+          if-no-files-found: error

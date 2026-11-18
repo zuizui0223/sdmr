@@ -1,0 +1,17 @@
+{
+  "program": "fia_joint_climate_support_legacy_boundary_v1",
+  "status": "not_evaluable_joint_samples_not_archived",
+  "source_run_id": 40543320267,
+  "source_artifact_id": 12751849450,
+  "source_artifact_zip_sha256": "66fe0e81815f99b0112b991f1ee6f766f968889fc858989e4a2f878993cfcaa3",
+  "source_response_json_sha256": "a336e0da49588dc81d89ef5e87826285d8d3afeaa80b6bf013c72599abce7512",
+  "frozen_species_count": 13,
+  "marginal_temperature_and_precipitation_intersection_count": 13,
+  "measured_joint_support_count": 0,
+  "joint_support_unavailable_count": 13,
+  "measured_joint_support_count_means_data_absent_not_negative": true,
+  "no_growth_refitting_or_new_ecological_endpoint": true,
+  "biological_promotion_authorized": false,
+  "full_derived_receipt_sha256": "5b9711f23dad5c847bdbfd395599f8e45caa932347a790d9b667f4539d1e0bc6",
+  "derivation": "python experiments/fia_joint_support_gate_v1.py --config configs/fia_joint_climate_support_gate_v1.json --archive-v4 <original_zip> --output <local_result.json>"
+}

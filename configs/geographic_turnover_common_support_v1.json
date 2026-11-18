@@ -1,0 +1,123 @@
+{
+  "schema_version": "1",
+  "study_status": "climate_only_source_selection_not_process_identification",
+  "source_scope": "exploratory-new-regional-panel-distinct-from-frozen-Product-A-and-M5",
+  "climate_source": "CHELSA v2.1 1981-2010, BIO1/BIO12",
+  "raster_axes": {
+    "temperature": "bio1",
+    "moisture": "bio12"
+  },
+  "cell_side_km": 25,
+  "bins_primary": 6,
+  "bins_sensitivity": 8,
+  "minimum_cells_per_region": 35,
+  "minimum_spatial_blocks": 4,
+  "minimum_separation_km": 350,
+  "minimum_primary_overlap": 0.28,
+  "minimum_sensitivity_overlap": 0.2,
+  "minimum_symmetric_nn_coverage": 0.35,
+  "nn_radius_pooled_sd": 0.5,
+  "sampling_plan": "Climate screening only, no GBIF/presence or target-group records, no ecological outcomes opened. All candidates and exclusions reported; no adaptive relocation on source failure.",
+  "candidate_windows": [
+    {
+      "region": "quercus_FR_NE",
+      "taxon": "Quercus robur",
+      "country": "FR",
+      "west": 3.5,
+      "east": 6.0,
+      "south": 48.0,
+      "north": 50.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2"
+    },
+    {
+      "region": "quercus_DE_SW",
+      "taxon": "Quercus robur",
+      "country": "DE",
+      "west": 7.0,
+      "east": 9.5,
+      "south": 48.0,
+      "north": 50.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2"
+    },
+    {
+      "region": "quercus_CZ_NW",
+      "taxon": "Quercus robur",
+      "country": "CZ",
+      "west": 12.0,
+      "east": 14.5,
+      "south": 49.5,
+      "north": 50.75,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2"
+    },
+    {
+      "region": "quercus_PL_W",
+      "taxon": "Quercus robur",
+      "country": "PL",
+      "west": 14.0,
+      "east": 16.5,
+      "south": 51.0,
+      "north": 53.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2"
+    },
+    {
+      "region": "quercus_NL_E",
+      "taxon": "Quercus robur",
+      "country": "NL",
+      "west": 5.0,
+      "east": 7.0,
+      "south": 51.0,
+      "north": 53.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:304293-2"
+    },
+    {
+      "region": "pinus_DE_NE",
+      "taxon": "Pinus sylvestris",
+      "country": "DE",
+      "west": 11.0,
+      "east": 13.5,
+      "south": 52.0,
+      "north": 54.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    },
+    {
+      "region": "pinus_PL_NW",
+      "taxon": "Pinus sylvestris",
+      "country": "PL",
+      "west": 14.0,
+      "east": 16.5,
+      "south": 53.0,
+      "north": 55.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    },
+    {
+      "region": "pinus_SE_S",
+      "taxon": "Pinus sylvestris",
+      "country": "SE",
+      "west": 12.0,
+      "east": 14.5,
+      "south": 56.5,
+      "north": 58.5,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    },
+    {
+      "region": "pinus_FI_SW",
+      "taxon": "Pinus sylvestris",
+      "country": "FI",
+      "west": 22.0,
+      "east": 24.5,
+      "south": 60.0,
+      "north": 62.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    },
+    {
+      "region": "pinus_FR_NE",
+      "taxon": "Pinus sylvestris",
+      "country": "FR",
+      "west": 4.5,
+      "east": 7.0,
+      "south": 47.0,
+      "north": 49.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    }
+  ]
+}

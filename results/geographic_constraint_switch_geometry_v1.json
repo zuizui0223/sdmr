@@ -1,0 +1,386 @@
+{
+  "analysis": "stationary_niche_constraint_switch_geometry_v1",
+  "environmental_source": "CHELSA v2.1 BIO1 and BIO12, 1981-2010; four predeclared source rectangles",
+  "habitat_sorted_population_is_hypothetical_not_actual_occurrence": true,
+  "hypothetical_fitness_parameters_not_species_measured": {
+    "precipitation_optimum_mm": 900.0,
+    "precipitation_scale_mm": 250.0,
+    "relative_thermal_weight": 1.0,
+    "temperature_optimum_c": 9.0,
+    "thermal_scale_c": 3.0
+  },
+  "limits": [
+    "Hypothetical optima, scales, weights and penalty shapes are not measured plant traits",
+    "Equal-area geographic rectangles are not validated taxon accessible M",
+    "A regional mean penalty is not actual physiological limitation or realized niche adaptation",
+    "Model-implied habitat sorting assumes equal-area availability and density proportional to exp(-penalty), without population/detection validation",
+    "The sensitivity grid is post-source and does not represent a prior or ecological frequency",
+    "No claim that observed plants have different realized or fundamental niches",
+    "Disjoint temperature support prevents a within-shared-support empirical response comparison"
+  ],
+  "n_equal_area_climate_cells": 187,
+  "response_function": "loss = weight_T * abs((T-Topt)/Tscale)^p + weight_W * abs((P-Popt)/Pscale)^p",
+  "results": [
+    {
+      "climate_cell_counts": [
+        30,
+        24
+      ],
+      "fixed_hypothetical_response": {
+        "absolute": {
+          "critical_weight_open_interval": [
+            0.4794323001631377,
+            2.1330000000000697
+          ],
+          "fixed_weight_observed_opportunity_reversal": true,
+          "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 26.72647856388415,
+                "moisture_mean_penalty": 0.3845538968364959,
+                "thermal_mean_penalty": 0.19828450880171147,
+                "thermal_minus_moisture": -0.1862693880347844
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 22.435125244181172,
+                "moisture_mean_penalty": 0.3280580091981097,
+                "thermal_mean_penalty": 0.8559199075479836,
+                "thermal_minus_moisture": 0.527861898349874
+              }
+            ]
+          },
+          "penalty_power": 1,
+          "raw_temperature_overlap_c": 0.39999999999997726,
+          "regions": [
+            {
+              "critical_thermal_to_moisture_weight": 2.1330000000000697,
+              "dominant_hypothetical_penalty": "moisture",
+              "moisture_mean_penalty": 0.5024399999999999,
+              "thermal_mean_penalty": 0.2355555555555478,
+              "thermal_minus_moisture": -0.2668844444444521
+            },
+            {
+              "critical_thermal_to_moisture_weight": 0.4794323001631377,
+              "dominant_hypothetical_penalty": "thermal",
+              "moisture_mean_penalty": 0.4081833333333333,
+              "thermal_mean_penalty": 0.8513888888888789,
+              "thermal_minus_moisture": 0.4432055555555456
+            }
+          ],
+          "sensitivity_grid": {
+            "fraction_grid_points_driver_reversal_not_probability": 0.4117647058823529,
+            "n_driver_reversals_under_fixed_weight": 63,
+            "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 70,
+            "precipitation_optima_mm": [
+              700.0,
+              750.0,
+              800.0,
+              850.0,
+              900.0,
+              950.0,
+              1000.0,
+              1050.0,
+              1100.0
+            ],
+            "temperature_optima_c": [
+              5.0,
+              5.5,
+              6.0,
+              6.5,
+              7.0,
+              7.5,
+              8.0,
+              8.5,
+              9.0,
+              9.5,
+              10.0,
+              10.5,
+              11.0,
+              11.5,
+              12.0,
+              12.5,
+              13.0
+            ]
+          },
+          "switch_possible_for_fixed_identical_response_weights": true
+        },
+        "quadratic": {
+          "critical_weight_open_interval": [
+            0.37288975941555197,
+            4.120229072946756
+          ],
+          "fixed_weight_observed_opportunity_reversal": true,
+          "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 26.702635802832692,
+                "moisture_mean_penalty": 0.21700404501843762,
+                "thermal_mean_penalty": 0.06954729850158622,
+                "thermal_minus_moisture": -0.1474567465168514
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 22.202381069072818,
+                "moisture_mean_penalty": 0.18642566667078736,
+                "thermal_mean_penalty": 0.728970178381341,
+                "thermal_minus_moisture": 0.5425445117105536
+              }
+            ]
+          },
+          "penalty_power": 2,
+          "raw_temperature_overlap_c": 0.39999999999997726,
+          "regions": [
+            {
+              "critical_thermal_to_moisture_weight": 4.120229072946756,
+              "dominant_hypothetical_penalty": "moisture",
+              "moisture_mean_penalty": 0.39851771199999997,
+              "thermal_mean_penalty": 0.09672222222221813,
+              "thermal_minus_moisture": -0.3017954897777818
+            },
+            {
+              "critical_thermal_to_moisture_weight": 0.37288975941555197,
+              "dominant_hypothetical_penalty": "thermal",
+              "moisture_mean_penalty": 0.2741084999999999,
+              "thermal_mean_penalty": 0.7350925925925758,
+              "thermal_minus_moisture": 0.46098409259257583
+            }
+          ],
+          "sensitivity_grid": {
+            "fraction_grid_points_driver_reversal_not_probability": 0.39869281045751637,
+            "n_driver_reversals_under_fixed_weight": 61,
+            "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 69,
+            "precipitation_optima_mm": [
+              700.0,
+              750.0,
+              800.0,
+              850.0,
+              900.0,
+              950.0,
+              1000.0,
+              1050.0,
+              1100.0
+            ],
+            "temperature_optima_c": [
+              5.0,
+              5.5,
+              6.0,
+              6.5,
+              7.0,
+              7.5,
+              8.0,
+              8.5,
+              9.0,
+              9.5,
+              10.0,
+              10.5,
+              11.0,
+              11.5,
+              12.0,
+              12.5,
+              13.0
+            ]
+          },
+          "switch_possible_for_fixed_identical_response_weights": true
+        }
+      },
+      "regions": [
+        "quercus_DE_central",
+        "quercus_SE_south"
+      ],
+      "taxon_label_for_climate_source_only": "Quercus robur"
+    },
+    {
+      "climate_cell_counts": [
+        56,
+        77
+      ],
+      "fixed_hypothetical_response": {
+        "absolute": {
+          "critical_weight_open_interval": [
+            0.437897292703657,
+            1.2894517766497289
+          ],
+          "fixed_weight_observed_opportunity_reversal": true,
+          "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 29.141305987244998,
+                "moisture_mean_penalty": 0.8149609250411006,
+                "thermal_mean_penalty": 0.6177908877938052,
+                "thermal_minus_moisture": -0.19717003724729543
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 72.70204621519642,
+                "moisture_mean_penalty": 0.7540001163446857,
+                "thermal_mean_penalty": 1.7530185621921222,
+                "thermal_minus_moisture": 0.9990184458474365
+              }
+            ]
+          },
+          "penalty_power": 1,
+          "raw_temperature_overlap_c": 0.0,
+          "regions": [
+            {
+              "critical_thermal_to_moisture_weight": 1.2894517766497289,
+              "dominant_hypothetical_penalty": "moisture",
+              "moisture_mean_penalty": 1.2096285714285713,
+              "thermal_mean_penalty": 0.9380952380952505,
+              "thermal_minus_moisture": -0.27153333333332075
+            },
+            {
+              "critical_thermal_to_moisture_weight": 0.437897292703657,
+              "dominant_hypothetical_penalty": "thermal",
+              "moisture_mean_penalty": 0.7807272727272726,
+              "thermal_mean_penalty": 1.7829004329004214,
+              "thermal_minus_moisture": 1.002173160173149
+            }
+          ],
+          "sensitivity_grid": {
+            "fraction_grid_points_driver_reversal_not_probability": 0.6601307189542484,
+            "n_driver_reversals_under_fixed_weight": 101,
+            "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 103,
+            "precipitation_optima_mm": [
+              700.0,
+              750.0,
+              800.0,
+              850.0,
+              900.0,
+              950.0,
+              1000.0,
+              1050.0,
+              1100.0
+            ],
+            "temperature_optima_c": [
+              5.0,
+              5.5,
+              6.0,
+              6.5,
+              7.0,
+              7.5,
+              8.0,
+              8.5,
+              9.0,
+              9.5,
+              10.0,
+              10.5,
+              11.0,
+              11.5,
+              12.0,
+              12.5,
+              13.0
+            ]
+          },
+          "switch_possible_for_fixed_identical_response_weights": true
+        },
+        "quadratic": {
+          "critical_weight_open_interval": [
+            0.19810769288271,
+            1.568950751907516
+          ],
+          "fixed_weight_observed_opportunity_reversal": true,
+          "fixed_weight_within_switch_interval": true,
+          "hypothetically_habitat_sorted_population": {
+            "assumption": "equal-area cell density proportional to exp(-stationary loss), not GBIF counts",
+            "fixed_weight_dominant_pressure_reversal": true,
+            "regions": [
+              {
+                "dominant_hypothetical_penalty": "moisture",
+                "hypothetical_effective_occupied_cells": 19.99483386047627,
+                "moisture_mean_penalty": 0.5745590137137974,
+                "thermal_mean_penalty": 0.3419941534588535,
+                "thermal_minus_moisture": -0.23256486025494388
+              },
+              {
+                "dominant_hypothetical_penalty": "thermal",
+                "hypothetical_effective_occupied_cells": 53.698902192066505,
+                "moisture_mean_penalty": 0.5746893832411244,
+                "thermal_mean_penalty": 2.8560963865228968,
+                "thermal_minus_moisture": 2.2814070032817724
+              }
+            ]
+          },
+          "penalty_power": 2,
+          "raw_temperature_overlap_c": 0.0,
+          "regions": [
+            {
+              "critical_thermal_to_moisture_weight": 1.568950751907516,
+              "dominant_hypothetical_penalty": "moisture",
+              "moisture_mean_penalty": 1.680894142857143,
+              "thermal_mean_penalty": 1.0713492063492287,
+              "thermal_minus_moisture": -0.6095449365079142
+            },
+            {
+              "critical_thermal_to_moisture_weight": 0.19810769288271,
+              "dominant_hypothetical_penalty": "thermal",
+              "moisture_mean_penalty": 0.6355890825974022,
+              "thermal_mean_penalty": 3.208300865800824,
+              "thermal_minus_moisture": 2.5727117832034216
+            }
+          ],
+          "sensitivity_grid": {
+            "fraction_grid_points_driver_reversal_not_probability": 0.6535947712418301,
+            "n_driver_reversals_under_fixed_weight": 100,
+            "n_grid_points": 153,
+            "n_habitat_sorted_driver_reversals_under_fixed_weight": 104,
+            "precipitation_optima_mm": [
+              700.0,
+              750.0,
+              800.0,
+              850.0,
+              900.0,
+              950.0,
+              1000.0,
+              1050.0,
+              1100.0
+            ],
+            "temperature_optima_c": [
+              5.0,
+              5.5,
+              6.0,
+              6.5,
+              7.0,
+              7.5,
+              8.0,
+              8.5,
+              9.0,
+              9.5,
+              10.0,
+              10.5,
+              11.0,
+              11.5,
+              12.0,
+              12.5,
+              13.0
+            ]
+          },
+          "switch_possible_for_fixed_identical_response_weights": true
+        }
+      },
+      "regions": [
+        "pinus_ES_central",
+        "pinus_FI_central"
+      ],
+      "taxon_label_for_climate_source_only": "Pinus sylvestris"
+    }
+  ],
+  "same_response_in_both_regions": true,
+  "source_sha256": "42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa",
+  "uses_occurrence_or_effort_columns": false
+}

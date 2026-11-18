@@ -1,0 +1,119 @@
+{
+  "cautions": [
+    "region rectangles are not accessible M",
+    "GBIF record density is not population density",
+    "sentinel-record density is not calibrated observation effort",
+    "native-country does not imply each record is wild",
+    "long-term climate normals do not represent observation-year exposure"
+  ],
+  "climate_source_sha256": "42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa",
+  "inferential_status": "exploratory source support only; not species population, causal habitat selection, or process identification",
+  "n_climate_regions": 4,
+  "n_regions_with_both_record_sources": 3,
+  "type": "source_photographic_analogue_climate_assemblage_not_niche",
+  "windows": [
+    {
+      "focal_minus_equal_area": {
+        "moisture": 210.37196867404805,
+        "temperature": -1.3366830947880004
+      },
+      "focal_minus_sentinel": {
+        "moisture": 66.64552944163859,
+        "temperature": -0.2149613463871578
+      },
+      "n_cells_focal_positive": 25,
+      "n_cells_sentinel_positive": 29,
+      "n_climate_cells": 56,
+      "n_focal_records": 529,
+      "n_sentinel_records": 268,
+      "region": "pinus_ES_central",
+      "source_climate_means": {
+        "equal_area_available_cells": {
+          "moisture": 602.8571428571429,
+          "temperature": 11.798214285714323
+        },
+        "focal_record_weighted": {
+          "moisture": 813.2291115311909,
+          "temperature": 10.461531190926323
+        },
+        "independent_sentinel_record_weighted": {
+          "moisture": 746.5835820895524,
+          "temperature": 10.67649253731348
+        }
+      },
+      "source_complete": true,
+      "status": "diagnostic_only"
+    },
+    {
+      "n_climate_cells": 77,
+      "reason": "missing focal/independent sentinel archive; do not convert unavailable to zero",
+      "region": "pinus_FI_central",
+      "source_complete": false,
+      "status": "diagnostic_only"
+    },
+    {
+      "focal_minus_equal_area": {
+        "moisture": -26.707954545454868,
+        "temperature": 0.25750000000000917
+      },
+      "focal_minus_sentinel": {
+        "moisture": -51.083783515786195,
+        "temperature": 0.2530322862129175
+      },
+      "n_cells_focal_positive": 28,
+      "n_cells_sentinel_positive": 30,
+      "n_climate_cells": 30,
+      "n_focal_records": 264,
+      "n_sentinel_records": 1146,
+      "region": "quercus_DE_central",
+      "source_climate_means": {
+        "equal_area_available_cells": {
+          "moisture": 837.7166666666669,
+          "temperature": 8.346666666666698
+        },
+        "focal_record_weighted": {
+          "moisture": 811.008712121212,
+          "temperature": 8.604166666666707
+        },
+        "independent_sentinel_record_weighted": {
+          "moisture": 862.0924956369983,
+          "temperature": 8.35113438045379
+        }
+      },
+      "source_complete": true,
+      "status": "diagnostic_only"
+    },
+    {
+      "focal_minus_equal_area": {
+        "moisture": -63.986905840886266,
+        "temperature": 0.07032980866063188
+      },
+      "focal_minus_sentinel": {
+        "moisture": 5.571158629353931,
+        "temperature": 0.1089422474907149
+      },
+      "n_cells_focal_positive": 24,
+      "n_cells_sentinel_positive": 24,
+      "n_climate_cells": 24,
+      "n_focal_records": 3310,
+      "n_sentinel_records": 2929,
+      "region": "quercus_SE_south",
+      "source_climate_means": {
+        "equal_area_available_cells": {
+          "moisture": 912.5708333333333,
+          "temperature": 6.445833333333364
+        },
+        "focal_record_weighted": {
+          "moisture": 848.5839274924471,
+          "temperature": 6.516163141993996
+        },
+        "independent_sentinel_record_weighted": {
+          "moisture": 843.0127688630931,
+          "temperature": 6.407220894503281
+        }
+      },
+      "source_complete": true,
+      "status": "diagnostic_only"
+    }
+  ]
+}

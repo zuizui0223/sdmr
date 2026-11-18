@@ -1,0 +1,95 @@
+name: FIA PA MI external transfer VA WI training-coefficient archive first freeze
+
+# Strictly from OLD already-opened VA/WI growth and NEW source-only NOAA v5.
+# Never opens PA/MI biological records or fits PA/MI intercepts/slopes.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_external_predictor_freeze_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  preexternal-response-development-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require stable old response, v5 source and no holdout parameters
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_PA_MI_external_predictor_freeze_once_v1.lock').read_text()
+          for item in (
+            'program=fia_PA_MI_external_transfer_training_parameters_frozen_v1',
+            'old_VA_WI_response_run=43886130089',
+            'old_VA_WI_response_artifact=14234926861',
+            'new_same_NOAA_source_v5_run=44296141877',
+            'new_same_NOAA_source_v5_artifact=14423482128',
+            'new_source_training_CSV_sha256=e3c872f5b0f4fce7e97bef5f172a631d0f09f28ced663d8bb6580a5ab894c11c',
+            'fixed_primary=129_316_802_833_837',
+            'train_only_VA_WI=true',
+            'external_PA_MI_surrogates=PA_to_VA_MI_to_WI',
+            'read_PA_MI_TREE_DIA_STATUSCD_growth_death=forbidden',
+            'fit_PA_MI_specific_parameters=forbidden',
+            'same_surrogate_intercept_for_stationary_and_regional=true',
+            'no_independent_biological_claim=true',
+            'original_Product_A_M5_unchanged_Product_B_blocked=true'):
+              assert item in s,item
+          PY
+      - name: Scientific leakage and synthetic model freeze tests
+        run: |
+          python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_PA_MI_transfer_model_freeze_v1.py
+      - name: Read frozen old VA WI growth source/response only
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43886130089
+          name: fia-VA-WI-growth-first-open-v1
+          github-token: ${{ github.token }}
+          path: build/old_opened_dev_growth
+      - name: Read source-only v5, NO new FIA raw or PA MI biological records
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44296141877
+          name: fia-five-state-NOAA-v5-event-identical-source-only
+          github-token: ${{ github.token }}
+          path: build/verified_source_only_5states
+      - name: Fit full five species and freeze ALL three original model families
+        run: |
+          python experiments/fia_PA_MI_transfer_model_freeze_v1.py \
+            --old-growth-archive build/old_opened_dev_growth \
+            --same-edition-v5-source build/verified_source_only_5states \
+            --output artifacts/fia_PA_MI_external_transfer_dev_models_v1.json
+      - name: Retain all negative and eligible source statuses, refuse biological promotion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          x=json.loads(Path('artifacts/fia_PA_MI_external_transfer_dev_models_v1.json').read_text())
+          assert x['program']=='fia_PA_MI_external_transfer_training_parameters_frozen_v1'
+          assert x['old_growth_selected_survivor_rows_considered']==170994
+          assert x['original_training_source_rows_rebased']==89616
+          assert x['fixed_species_priority']==['129','316','802','833','837']
+          assert len(x['species'])==5
+          assert x['frozen_external_surrogate_branch_PA_to_VA_MI_to_WI']=={'PA':'VA','MI':'WI'}
+          assert x['new_external_growth_or_survival_outcome_opened'] is False
+          assert x['external_RMSE_or_ecological_effect_estimated'] is False
+          assert x['PA_MI_counties_and_responses_not_used_to_fit_any_coefficients']
+          assert x['no_biological_promotion_authorized']
+          print('OLD TRAINING models frozen',x['n_primary_models_frozen'],'/5; no holdout response')
+          PY
+      - name: Archive coefficients and rejection ledger before external growth first-open
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-VA-WI-model-parameters-before-PA-MI-response-v1
+          path: artifacts/fia_PA_MI_external_transfer_dev_models_v1.json
+          if-no-files-found: warn
+          retention-days: 90

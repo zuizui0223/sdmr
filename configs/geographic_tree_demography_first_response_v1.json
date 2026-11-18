@@ -1,0 +1,45 @@
+{
+  "FIA_data_release": "Live USDA FIA DataMart ZIPs matched exactly by archived SHA; source first retrieved 2026-10-19",
+  "current_status_codes": {
+    "0": "not_in_current_sample",
+    "1": "live",
+    "2": "dead",
+    "3": "human_removed"
+  },
+  "diameter_lower_inch": 1.0,
+  "diameter_upper_inch": 150.0,
+  "inference": "source-linked descriptive; no survey-weighted forest population estimates, no causal niche claims",
+  "max_interval_years": 20,
+  "min_interval_years": 1,
+  "nominated_species_codes": [
+    68,
+    129,
+    261,
+    316,
+    318,
+    371,
+    531,
+    541,
+    743,
+    762,
+    802,
+    833,
+    837
+  ],
+  "primary_growth_metric": "annualized change in natural log diameter for prior-live/current-live links",
+  "secondary_status_metric": "observed current dead / (current live + current dead) among prior-live linked trees (not true annual mortality)",
+  "selection": "All taxa meeting >=30 same-species forward-year links in EACH of all three frozen states; selected without DIA/status data",
+  "size_standardization": "Only bins 1-<5,5-<10,10-<20,20+ inches with >=30 live-live pairs per state, shared pooled observed weights",
+  "source_zip_sha256_by_state": {
+    "RI": "222098c72977840e512822734bef551a37c5021dde489157f9e408f482d1cc02",
+    "VA": "6c79b569ca6e2c99d51946a23236b305842a730bd491e75ba31e9ecc408df36b",
+    "WI": "18c55e9d0568879ce4a88b7763af9b86743a2d47945671d41d020bec4b4e3274"
+  },
+  "stage": "exploratory_measured_response_not_confirmatory",
+  "states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "study_id": "geographic-tree-demography-first-measured-response-v1"
+}

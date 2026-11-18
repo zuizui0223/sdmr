@@ -1,0 +1,38 @@
+{
+  "interpretation": "Retrospective source-coherent followup; no prospective efficacy claims",
+  "minimum_matched_pairs_per_common_stratum": 10,
+  "prior_stand_age_bands_years": [
+    "0-<40",
+    "40-<80",
+    "80+"
+  ],
+  "size_bands_inches": [
+    "1-<5",
+    "5-<10",
+    "10-<20",
+    "20+"
+  ],
+  "source_lineage": "independent_new_source_no_reuse_of_historical_tree",
+  "source_sha256": "1a71edbac8c4bb1383d69e378ef7b7b53bf25d0a5a346e598aaa474725698d94",
+  "species_codes": [
+    68,
+    129,
+    261,
+    316,
+    318,
+    371,
+    531,
+    541,
+    743,
+    762,
+    802,
+    833,
+    837
+  ],
+  "states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "study_id": "fia_measurement_date_stand_context_v1"
+}

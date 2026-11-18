@@ -1,0 +1,12 @@
+source_run=43711159676
+source_artifact=14160283759
+source_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7
+source_receipt_sha256=f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453
+training_regions=VA_WI
+external_test_region=RI
+source_only_not_demographic_validation=true
+no_FIA_download=true
+no_growth_or_status_read=true
+n_declared_taxa=13
+n_prior_origin_phases=8
+one_shot_source_transport_projection=2026-11-15

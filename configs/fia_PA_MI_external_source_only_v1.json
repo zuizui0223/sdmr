@@ -1,0 +1,69 @@
+{
+  "study": "fia_PA_MI_unopened_external_source_only_v1",
+  "holdout_states": [
+    "PA",
+    "MI"
+  ],
+  "fips": {
+    "PA": "42",
+    "MI": "26"
+  },
+  "ncei_ordinal_to_fips": {
+    "20": "26",
+    "36": "42"
+  },
+  "training_states": [
+    "VA",
+    "WI"
+  ],
+  "prior_species": [
+    "68",
+    "129",
+    "261",
+    "316",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762",
+    "802",
+    "833",
+    "837"
+  ],
+  "prior_primary_five": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "noaa_snapshot": "20261006",
+  "noaa_first_source_raw_sha256": {
+    "temperature": "edf9a954c7d7a5bed5ad32e448cfc78aacbf01261b94a4c5224094535108a489",
+    "precipitation": "739fc3e9b529e04d406e914be1add2736ca3129c1103246ccebc2e5c76fd9d3a"
+  },
+  "noaa_source_code": "NCEI ordinal county code 20 Michigan / 36 Pennsylvania, NOT FIA FIPS 26 / 42",
+  "noaa_years": "1991–2025",
+  "noaa_baseline_years": "1991–2020",
+  "source_training_run": 43711159676,
+  "source_training_artifact": 14160283759,
+  "source_training_csv_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "source_training_receipt_sha256": "f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453",
+  "min_holdout_counties": 5,
+  "min_holdout_plots": 25,
+  "minimum_holdout_coverage": 0.2,
+  "minimum_training_joint_time_cells": 2,
+  "train_bin_definition": "fixed 1°C temperature × 100 mm precipitation × five-year ending period, each of VA & WI >=2 counties and >=5 unique plot chains in a cell",
+  "source_only_no_tree_outcomes": true,
+  "no_new_RI_VA_WI_outcomes": true,
+  "historical_FIA_and_M5_untouched": true,
+  "product_B_blocked": true,
+  "no_automatic_retries": true,
+  "current_source_may_differ_from_prior_archived_FIA": true,
+  "disjoint_state_geography_not_automatically_independent_ecological_truth": true,
+  "holdout_source_country": "USA",
+  "dataset_selection_exploratory_after_FIA_growth_seen_before_PA_MI_growth": true,
+  "inference_ceiling": "source-only ability to measure external comparison, not transfer accuracy or niche process",
+  "retention_plan": "90-day GitHub derived source/noaa/receipt; original PLOT COND TREE ZIP separately 60-day sealed artifact; never commit raw TREE values"
+}

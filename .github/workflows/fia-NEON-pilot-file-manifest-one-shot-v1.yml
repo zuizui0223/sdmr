@@ -1,0 +1,90 @@
+name: NEON 2026 immutable-catalog four file-manifest pilot (no tree rows)
+
+# Only a SHA-locked original public catalog and four fixed API file-list
+# requests if NEON_API_TOKEN is configured as a GitHub Actions SECRET.
+# DOES NOT DOWNLOAD OR OPEN ANY raw vegetation individual CSV files.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_NEON_manifest_pilot_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  immutable-catalog-auth-optional-manifest-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify one-shot research contract before touching any API endpoint
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_NEON_manifest_pilot_once_v1.lock').read_text()
+          for item in (
+            'source_catalog_run=44034394812',
+            'source_catalog_artifact=14306711443',
+            'source_catalog_raw_sha256=0ba89ff5835ea54071e7a8f12f05b5ca928cec05a1dd424660727de4f94d9bcf',
+            'NEON_PRODUCT=DP1.10098.001',
+            'NEON_RELEASE=RELEASE-2026',
+            'fixed_sites_months=HARV_2014-08_HARV_2024-08_SCBI_2014-08_SCBI_2024-09',
+            'outcome_CSV_downloads=forbidden',
+            'api_token_logging=forbidden',
+            'source_only_identity_no_survival_claim=true',
+            'original_FIA_Product_A_M5_unchanged_Product_B_blocked=true',
+            'do_not_auto_retry=true',
+          ):
+              assert item in s,item
+          PY
+      - name: Source-only synthetic tests, no external GET
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_neon_manifest_probe_v1.py \
+            tests/test_fia_neon_identity_contract_v1.py
+      - name: Download exact prior public NEON catalog from first-open artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44034394812
+          name: fia-independent-NEON-public-catalog-v1
+          github-token: ${{ github.token }}
+          path: build/frozen_NEON_catalog
+      - name: Detect secret presence; request ONLY four metadata manifests if configured
+        env:
+          NEON_API_TOKEN: ${{ secrets.NEON_API_TOKEN }}
+        run: |
+          python experiments/fia_neon_manifest_probe_v1.py \
+            --public-catalog build/frozen_NEON_catalog/neon_release_2026_public_product_metadata.json \
+            --public-receipt build/frozen_NEON_catalog/neon_release_2026_source_gate.json \
+            --out-dir artifacts/fia_NEON_file_manifest_source_only_v1
+      - name: Verify evidence doesn't claim remeasured trees or fitted biology
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/fia_NEON_file_manifest_source_only_v1/neon_2026_file_manifest_source_gate.json')
+          x=json.loads(p.read_text())
+          assert x['product']=='DP1.10098.001' and x['release']=='RELEASE-2026'
+          assert x['n_planned_site_months']==4
+          assert x['raw_vegetation_tables_downloaded'] is False
+          assert x['per_tree_response_status_diameter_evaluated'] is False
+          assert x['individual_repeat_status_verified'] is None
+          assert x['biological_promotion_authorized'] is False
+          assert x['n_manifest_requests'] in (0,4)
+          print('SOURCE-ONLY STATUS:',x['status'],
+                '; four fixed manifests checked:',x['n_manifest_table_sets_confirmed'])
+          PY
+      - name: Archive stop or metadata-only status, never token/signed URLs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-NEON-2026-pilot-file-manifest-source-only-v1
+          path: artifacts/fia_NEON_file_manifest_source_only_v1/
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,0 +1,107 @@
+name: FIA PA MI historical NOAA 404 successor identity-only first source v2
+
+# Does not query NOAA or use DIA/STATUSCD. First PLOT/COND/TREE ZIP
+# source acquisition in geographically untouched PA/MI, separate from the
+# immutable original v1 NOAA-404 STOP. Exact raw ZIPs retained outside Git.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_identity_first_open_once_v2.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  noaa-independent-first-source-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify successor research scope and source boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_PA_MI_identity_first_open_once_v2.lock').read_text()
+          for k in (
+             'program=fia_PA_MI_unopened_holdout_identity_only_v2',
+             'fixed_external_states=PA_MI',
+             'training_states=VA_WI',
+             'previous_NOAA_404_stop_run=44236792668',
+             'previous_NOAA_404_stop_artifact=14397208729',
+             'noaa_data_retrieval=not_performed',
+             'training_source_run=43711159676',
+             'training_source_artifact=14160283759',
+             'fixed_13_species_priority_5=129_316_802_833_837',
+             'no_TREE_DIA_STATUSCD_access=true',
+             'all_full_source_ZIPs_archived_separately=true',
+             'no_ecological_outcomes_or_niche_claim=true',
+             'Product_A_M5_unchanged_Product_B_blocked=true',
+             'no_auto_retry=true'):
+               assert k in s,k
+          PY
+      - name: Offline source, plot revisit and fixed-gate tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_external_PA_MI_identity_source_v2.py \
+            tests/test_fia_external_PA_MI_first_source_v1.py
+      - name: Retrieve exact original training-source-only artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/original_training_source
+      - name: Retrieve PLOT COND TREE source bytes ONCE from PA MI
+        run: |
+          python experiments/fia_external_PA_MI_identity_source_v2.py \
+            --out build/fia_PA_MI_first_identity_only_v2 \
+            --training-source build/original_training_source \
+            --training-config configs/fia_joint_climate_support_gate_v1.json \
+            --source-config configs/fia_PA_MI_identity_only_v2.json
+      - name: Verify complete 13-taxon denominator and no model/data misuse
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('build/fia_PA_MI_first_identity_only_v2')
+          a=json.loads((p/'PA_MI_identity_only_cohort_preflight_v2.json').read_text())
+          b=json.loads((p/'PA_MI_identity_source_receipt_v2.json').read_text())
+          assert a['status']=='source_only_identity_calendar_readiness_no_climate'
+          assert a['source_species_denominator']==13
+          assert len(a['species'])==13
+          assert a['holdout_state_panels_present']==['MI','PA']
+          assert b['status']=='source_identity_only_ready_no_climate_join'
+          assert len(b['states'])==2
+          assert all(len(z['source_files'])==3 for z in b['states'])
+          assert a['NOAA_PA_MI_monthly_exposure_available'] is False
+          assert a['temperature_precipitation_joint_common_support_evaluated'] is False
+          assert a['n_PA_MI_tree_growth_mortality_outcomes_opened']==0
+          assert a['biological_promotion_authorized'] is False
+          print('SOURCE-ONLY PA/MI:',a['holdout_prior_species_plot_intervals'],
+                'prior-species plot intervals; calendar-ready primary',
+                a['n_primary_both_holdouts_identity_time_ready'],'of 5')
+          PY
+      - name: Archive complete derived source-only identity and STOP receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-PA-MI-first-identity-source-only-v2
+          path: |
+            build/fia_PA_MI_first_identity_only_v2/*.json
+            build/fia_PA_MI_first_identity_only_v2/*.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Preserve source-version-identical upstream PLOT COND TREE ZIPs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-PA-MI-original-first-source-ZIPs-v2
+          path: build/fia_PA_MI_first_identity_only_v2/*.zip
+          if-no-files-found: warn
+          retention-days: 45

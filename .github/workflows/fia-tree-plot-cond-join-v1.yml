@@ -1,0 +1,32 @@
+name: fia-tree-plot-cond-join-v1
+# Preserved source-opening workflow. External DataMart ZIPs can drift; run manually only.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exploratory-new-cohort:
+    name: source-coherent-fia-tree-measurement-age
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run independent no-leakage and join tests
+        run: python -m pip install pytest && python -m pytest -q tests/test_fia_tree_plot_condition_join_v1.py
+      - name: Verify original plot and stand-condition ZIPs and open new TREE version
+        run: |
+          python experiments/fia_tree_plot_condition_join_v1.py \
+            --config configs/fia_tree_plot_condition_join_v1.json \
+            --source evidence/fia_plot_condition_source_v1.json \
+            --names evidence/geographic_tree_demography_source_gate_v1/fia_official_species_crosswalk.json \
+            --output artifacts/fia_new_source_stand_age_growth_v1.json
+      - name: Preserve source identities and all observed summary/exclusion counts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-new-source-stem-growth-with-plot-context-v1
+          path: artifacts/fia_new_source_stand_age_growth_v1.json
+          if-no-files-found: warn

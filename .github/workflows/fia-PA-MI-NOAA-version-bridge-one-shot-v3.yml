@@ -1,0 +1,115 @@
+name: FIA PA MI NOAA 20261105 1-shot historical-edition source-only bridge v3
+
+# Reads old derived NOAA 20261006 and original FIA identity source (not tree
+# outcomes), then retrieves only two version-named NEW NOAA ASCII raw files.
+# Never lets mixed historical climate revisions pass unnoticed.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_NOAA_bridge_once_v3.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-version-first-open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Before network validate immutable previous panels and refusal contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/fia_PA_MI_NOAA_bridge_once_v3.lock').read_text()
+          for line in (
+            'program=fia_PA_MI_NOAA_20261105_version_bridge_source_only_v3',
+            'noaa_new_snapshot=20261105',
+            'noaa_original_csv_sha256=623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8',
+            'PA_MI_prior_source_v2_run=44238110335',
+            'PA_MI_prior_source_v2_artifact=14397884111',
+            'PA_MI_prior_source_v2_csv_sha256=70cf6e8db95c864d80e684ed7292606d6a8df64d71e8bd952ae1a1a2adc4d1c2',
+            'original_source_train_run=43711159676',
+            'original_source_train_artifact=14160283759',
+            'original_train_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7',
+            'no_TREE_outcome_open_or_FIA_refetch=true',
+            'no_NEON_data_required=true',
+            'old_historical_climate_months_must_match_or_block_mixed_source=true',
+            'full_original_13_taxa_and_five_primary_fixed=true',
+            'biological_promotion=forbidden',
+            'no_mutable_source_retry=true'
+          ):
+            assert line in lock,line
+          PY
+      - name: Run strict no-response synthetic source contracts
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_PA_MI_NOAA_version_bridge_v3.py
+      - name: Fetch exact original PA/MI first source-only dates
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44238110335
+          name: fia-PA-MI-first-identity-source-only-v2
+          github-token: ${{ github.token }}
+          path: build/PA_MI_fixed_identity_v2
+      - name: Fetch exact original RI/VA/WI training source-only cohort
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/frozen_training_source
+      - name: Open 20261105 NOAA once and measure any historic 1991-2025 revision
+        run: |
+          python experiments/fia_PA_MI_NOAA_version_bridge_v3.py \
+            --out artifacts/fia_PA_MI_NOAA_bridge_v3 \
+            --old-NOAA-csv results/fia_noaa_county_climate_v1/noaa_county_growing_months_1991_2025.csv \
+            --holdout-identity-v2 build/PA_MI_fixed_identity_v2 \
+            --training-source-v2 build/frozen_training_source \
+            --training-config configs/fia_joint_climate_support_gate_v1.json \
+            --bridge-config configs/fia_PA_MI_NOAA_version_bridge_v3.json
+      - name: Source-only refusal or comparable environmental support; never efficacy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("artifacts/fia_PA_MI_NOAA_bridge_v3")
+          r=json.loads((p/"PA_MI_NOAA_version_bridge_result_v3.json").read_text())
+          s=json.loads((p/"PA_MI_NOAA_version_bridge_receipt_v3.json").read_text())
+          assert s["n_original_training_source_only_records"]==89616
+          assert s["n_holdout_identity_time_records"]==83046
+          assert not s["raw_TREE_DIA_STATUSCD_growth_death_opened"]
+          assert not s["biological_promotion_authorized"]
+          assert s["raw_NOAA_source"]["n_derived_month_rows"] > 43890
+          if s["historical_original_monthly_comparison"]["historical_1991_2025_original_3state_monthly_values_exactly_unchanged"]:
+              assert r["status"]=="time_climate_common_support_external_source_ready_not_biological"
+              assert len(r["source_species"])==13
+              print("COMPATIBLE original NOAA historical months; PA/MI primary source-only:",r["n_primary_both_holdout_states_source_eligible"],"/5")
+          else:
+              assert r["status"]=="historical_NOAA_revision_blocks_mixed_version_common_support"
+              assert r["n_primary_both_holdout_states_source_eligible"] is None
+              print("REVISED old NOAA source: blocked mixed-version climate overlap and biological inference")
+          PY
+      - name: Archive derived source-only climate and versions or explicit STOP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-PA-MI-NOAA-20261105-version-bridge-v3
+          path: |
+            artifacts/fia_PA_MI_NOAA_bridge_v3/*.json
+            artifacts/fia_PA_MI_NOAA_bridge_v3/*.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Preserve original raw NOAA edition bytes separately (no FIA TREES)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-PA-MI-NOAA-20261105-raw-source-v3
+          path: artifacts/fia_PA_MI_NOAA_bridge_v3/climdiv-*-20261105
+          if-no-files-found: warn
+          retention-days: 45

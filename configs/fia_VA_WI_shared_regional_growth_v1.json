@@ -1,0 +1,59 @@
+{
+  "study": "fia_VA_WI_new_source_two_phase_conditional_growth_v1",
+  "states": [
+    "VA",
+    "WI"
+  ],
+  "taxa_denominator": [
+    "68",
+    "129",
+    "261",
+    "316",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762",
+    "802",
+    "833",
+    "837"
+  ],
+  "primary_five_species": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "geographic_folds": 5,
+  "county_split": "first4bytes_sha256_county_FIPS_mod5",
+  "models": [
+    "baseline",
+    "stationary_climate",
+    "state_varying_climate"
+  ],
+  "endpoint": "log_diameter_growth_per_year_conditional_linked_live_to_live",
+  "min_practical_shared_and_region_rmse_gain_percent": 1,
+  "n_bootstrap": 399,
+  "source_only_gate_requires_all_primary_25_folds": true,
+  "no_RI_tree_outcomes_opened": true,
+  "historical_v4_cannot_be_reinterpreted": true,
+  "new_source_version_not_independent_individual_sample": true,
+  "scientific_status": "postpriorFIAoutcome_exploratory_noncausal_development",
+  "no_automatic_rerun_after_failure": true,
+  "no_ongoing_tracking": true,
+  "NOAA_snapshot": "20261006",
+  "NOAA_csv_sha256": "623ae07eed2d9a33bf067bf00556338e6e34eb9cc15fc934e0ccf3dfbb6fd6c8",
+  "raw_FIA_source_acquisition": "VA_WI_only_same_run_two_phase",
+  "min_outcome_train_pairs_per_state": 500,
+  "min_outcome_test_pairs_per_state": 100,
+  "min_outcome_train_counties_per_state": 20,
+  "min_outcome_test_counties_per_state": 3,
+  "min_outcome_test_unique_plot_chains_per_state": 20,
+  "bootstrap_resamples_by_state_and_county_without_model_refits": true,
+  "failure_report_and_full_denominator_required": true,
+  "selection_caveat": "growth_given_prev_current_alive_and_eligible_natural_forest_not_population_growth",
+  "survival_endpoint": "not_evaluated_only_qc_transition_counts",
+  "response_truth_blind": false
+}

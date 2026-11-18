@@ -1,0 +1,70 @@
+{
+  "n_25km_climate_cells": 187,
+  "no_biological_niche_shift_inference": true,
+  "no_native_population_presence_or_effort_inference": true,
+  "not_species_accessible_areas_M": true,
+  "pairs": [
+    {
+      "areas": {
+        "quercus_DE_central": {
+          "bio12_mm_per_year_max": 1271.4,
+          "bio12_mm_per_year_median": 820.3000000000001,
+          "bio12_mm_per_year_min": 587.5,
+          "n_25km_cells": 30,
+          "temperature_c_max": 9.450000000000044,
+          "temperature_c_median": 8.450000000000045,
+          "temperature_c_min": 6.650000000000034
+        },
+        "quercus_SE_south": {
+          "bio12_mm_per_year_max": 1215.3,
+          "bio12_mm_per_year_median": 902.0,
+          "bio12_mm_per_year_min": 690.5,
+          "n_25km_cells": 24,
+          "temperature_c_max": 7.050000000000011,
+          "temperature_c_median": 6.550000000000011,
+          "temperature_c_min": 5.850000000000023
+        }
+      },
+      "bio12_raw_range_overlap_mm_year": 524.8,
+      "coarse_joint_climate_overlap_6x6": 0.1,
+      "source_windows": [
+        "quercus_DE_central",
+        "quercus_SE_south"
+      ],
+      "taxon": "Quercus robur",
+      "temperature_raw_range_overlap_c": 0.39999999999997726
+    },
+    {
+      "areas": {
+        "pinus_ES_central": {
+          "bio12_mm_per_year_max": 990.1,
+          "bio12_mm_per_year_median": 570.8000000000001,
+          "bio12_mm_per_year_min": 431.4,
+          "n_25km_cells": 56,
+          "temperature_c_max": 14.950000000000044,
+          "temperature_c_median": 11.750000000000057,
+          "temperature_c_min": 8.550000000000011
+        },
+        "pinus_FI_central": {
+          "bio12_mm_per_year_max": 807.5,
+          "bio12_mm_per_year_median": 707.1,
+          "bio12_mm_per_year_min": 604.1,
+          "n_25km_cells": 77,
+          "temperature_c_max": 4.550000000000011,
+          "temperature_c_median": 3.650000000000034,
+          "temperature_c_min": 2.750000000000057
+        }
+      },
+      "bio12_raw_range_overlap_mm_year": 203.39999999999998,
+      "coarse_joint_climate_overlap_6x6": 0.08441558441558442,
+      "source_windows": [
+        "pinus_ES_central",
+        "pinus_FI_central"
+      ],
+      "taxon": "Pinus sylvestris",
+      "temperature_raw_range_overlap_c": 0.0
+    }
+  ],
+  "source_climate_cells_sha256": "42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa",
+  "status": "source_environmental_opportunity_only"
+}

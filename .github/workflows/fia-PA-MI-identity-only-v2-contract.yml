@@ -1,0 +1,43 @@
+name: FIA PA MI unopened holdout identity and calendar source-only v2 tests
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_external_PA_MI_identity_source_v2.py'
+      - 'tests/test_fia_external_PA_MI_identity_source_v2.py'
+      - 'configs/fia_PA_MI_identity_only_v2.json'
+      - 'docs/FIA_EXTERNAL_PA_MI_IDENTITY_ONLY_V2.md'
+      - '.github/workflows/fia-PA-MI-identity-only-v2-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-identity-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: "No external data: source ID and calendar controls"
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_external_PA_MI_identity_source_v2.py \
+            tests/test_fia_external_PA_MI_first_source_v1.py
+      - name: No outcomes, fixed thirteen species and two distinct states
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'experiments')
+          import fia_external_PA_MI_identity_source_v2 as s
+          assert s.STATES==('PA','MI')
+          assert len(s.SPECIES)==13 and len(s.PRIORITY)==5
+          assert s.ORIGINAL_V1_SOURCE_ONLY_RUN==44236792668
+          assert 'growth' not in s.COLUMNS
+          assert 'temperature_anomaly_c' not in s.COLUMNS
+          assert 'STATUSCD' not in s.COLUMNS and 'DIA' not in s.COLUMNS
+          PY

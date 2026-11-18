@@ -1,0 +1,44 @@
+name: FIA PA MI NOAA 20261105 event-identity rebase source-only controls v5
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_PA_MI_NOAA_event_identity_v5.py'
+      - 'tests/test_fia_PA_MI_NOAA_event_identity_v5.py'
+      - 'configs/fia_PA_MI_NOAA_event_identity_v5.json'
+      - 'docs/FIA_PA_MI_NOAA_EVENT_IDENTITY_V5.md'
+      - '.github/workflows/fia-PA-MI-NOAA-event-identity-v5-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test runner only
+        run: python -m pip install 'pytest>=8,<10'
+      - name: Require all original identity, old NOAA and source-version STOP tests
+        run: |
+          python -m pytest -q \
+            tests/test_fia_PA_MI_NOAA_event_identity_v5.py \
+            tests/test_fia_PA_MI_NOAA_uniform_rebase_v4.py
+      - name: Original source and science refusal boundaries
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'experiments')
+          import fia_PA_MI_NOAA_event_identity_v5 as x
+          assert x.TRAIN_N==89616
+          assert x.HOLDOUT_N==83046
+          assert x.V4_PLOT_SOURCE_STOP_RUN==44294243344
+          assert x.TOL_TEMP_C==1e-5 and x.TOL_PRECIP_MM==1e-4
+          assert x.STATES==('RI','VA','WI')
+          assert x.MAX_ZIP==320_000_000
+          PY

@@ -1,0 +1,187 @@
+{
+  "analysis": "fia_first_source_only_canonical_joint_climate_support_checkpoint_v2",
+  "scope": "source_only_structural_support_not_demography_or_niche_evolution",
+  "first_source_run": 43696751589,
+  "first_source_run_conclusion": "failure_in_downstream_gate_after_3_state_source_acquisition",
+  "first_source_artifact": 14155086669,
+  "first_source_zip_sha256": "85d8cc0b6efb120736166a581f608ad10d7de70dd3732bd68a8c7b3fc44acff3",
+  "original_source_rows": 89630,
+  "original_source_rows_by_state": {
+    "RI": 1471,
+    "VA": 38142,
+    "WI": 50017
+  },
+  "frozen_postsource_reconciliation_run": 43711159676,
+  "reconciliation_conclusion": "success",
+  "reconciliation_artifact": 14160283759,
+  "reconciliation_zip_sha256": "947a9a3eedccaad33de356bf66a4c04c9ed4b35ce7cd2894b02a7bc7b8268d7c",
+  "derived_source_csv_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "quality_audit_sha256": "7286c8b21f7e0c72b0b79046e430ed013af1081937ee4aee80a6d2a8a75af93f",
+  "canonical_joint_time_support_sha256": "34c10c75c720853d108f88a021fb3d80eda37047ffd3fbf813fb7b16aaf912da",
+  "county_unstable_plot_chains": 1,
+  "excluded_complete_chain_source_rows": 14,
+  "clean_source_rows": 89616,
+  "n_species": 13,
+  "n_taxa_with_at_least_one_shared_joint_time_cell": 13,
+  "n_source_support_eligible_taxa": 6,
+  "species": [
+    {
+      "species_code": "68",
+      "name": "Juniperus virginiana",
+      "RI_counties": 4,
+      "RI_plot_chains": 13,
+      "common_joint_time_bins": 2,
+      "source_eligible": false
+    },
+    {
+      "species_code": "129",
+      "name": "Pinus strobus",
+      "RI_counties": 5,
+      "RI_plot_chains": 72,
+      "common_joint_time_bins": 9,
+      "source_eligible": true
+    },
+    {
+      "species_code": "261",
+      "name": "Tsuga canadensis",
+      "RI_counties": 4,
+      "RI_plot_chains": 9,
+      "common_joint_time_bins": 1,
+      "source_eligible": false
+    },
+    {
+      "species_code": "316",
+      "name": "Acer rubrum",
+      "RI_counties": 5,
+      "RI_plot_chains": 131,
+      "common_joint_time_bins": 10,
+      "source_eligible": true
+    },
+    {
+      "species_code": "318",
+      "name": "Acer saccharum",
+      "RI_counties": 3,
+      "RI_plot_chains": 12,
+      "common_joint_time_bins": 1,
+      "source_eligible": false
+    },
+    {
+      "species_code": "371",
+      "name": "Betula alleghaniensis",
+      "RI_counties": 5,
+      "RI_plot_chains": 28,
+      "common_joint_time_bins": 3,
+      "source_eligible": true
+    },
+    {
+      "species_code": "531",
+      "name": "Fagus grandifolia",
+      "RI_counties": 3,
+      "RI_plot_chains": 13,
+      "common_joint_time_bins": 2,
+      "source_eligible": false
+    },
+    {
+      "species_code": "541",
+      "name": "Fraxinus americana",
+      "RI_counties": 3,
+      "RI_plot_chains": 27,
+      "common_joint_time_bins": 6,
+      "source_eligible": false
+    },
+    {
+      "species_code": "743",
+      "name": "Populus grandidentata",
+      "RI_counties": 3,
+      "RI_plot_chains": 14,
+      "common_joint_time_bins": 3,
+      "source_eligible": false
+    },
+    {
+      "species_code": "762",
+      "name": "Prunus serotina",
+      "RI_counties": 4,
+      "RI_plot_chains": 26,
+      "common_joint_time_bins": 6,
+      "source_eligible": false
+    },
+    {
+      "species_code": "802",
+      "name": "Quercus alba",
+      "RI_counties": 5,
+      "RI_plot_chains": 95,
+      "common_joint_time_bins": 9,
+      "source_eligible": true
+    },
+    {
+      "species_code": "833",
+      "name": "Quercus rubra",
+      "RI_counties": 5,
+      "RI_plot_chains": 80,
+      "common_joint_time_bins": 9,
+      "source_eligible": true
+    },
+    {
+      "species_code": "837",
+      "name": "Quercus velutina",
+      "RI_counties": 5,
+      "RI_plot_chains": 72,
+      "common_joint_time_bins": 9,
+      "source_eligible": true
+    }
+  ],
+  "fixed_original_bin_grid": {
+    "temperature_c": 1,
+    "precipitation_mm": 100,
+    "period_years": 5,
+    "temperature_origin_c": 0,
+    "precipitation_origin_mm": 0,
+    "period_origin_year": 1990
+  },
+  "postsource_8_variant_origin_sensitivity": {
+    "temperature_origins_c": [
+      0,
+      0.5
+    ],
+    "precipitation_origins_mm": [
+      0,
+      50
+    ],
+    "period_origins_year": [
+      1990,
+      1992
+    ],
+    "n_variants": 8,
+    "passed_every_variant": [
+      "129",
+      "316",
+      "802",
+      "833",
+      "837"
+    ],
+    "passed_6_of_8": [
+      "371"
+    ],
+    "n_source_eligible_by_variant": [
+      6,
+      6,
+      6,
+      6,
+      5,
+      6,
+      5,
+      6
+    ],
+    "status": "exploratory_not_biological_confirmation",
+    "run_id": 43711684836,
+    "artifact_id": 14160179900,
+    "artifact_zip_sha256": "7c12159bb24790ebcd874dcc1eda637be34e68f39c26431b80e9041ff6be34af",
+    "internal_json_sha256": "8d9118a105c680d2679c28a78e97d4573f20dd716c12b31cc5a84f8105c81f2b",
+    "canonical_zero_zero_1990_match_verified": true,
+    "github_actions_conclusion": "success"
+  },
+  "original_stop_preserved": true,
+  "biological_outcomes_read_for_this_analysis": false,
+  "biological_promotion_authorized": false,
+  "interpretation": "Geographic source opportunities can be compared for six taxa under one fixed exploratory design; five are insensitive to eight postsource grid-origin shifts. No physiology, demographic fitness, adaptation or causal constraint switching identified."
+}

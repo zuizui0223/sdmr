@@ -1,0 +1,395 @@
+{
+  "all_effect_sizes_are_diagnostic": true,
+  "analysis": "quercus_postsource_effort_sensitivity_v1",
+  "effort_power_sensitivity": {
+    "0.0": {
+      "any_ecological_process_claim_allowed": false,
+      "apparent_rank_reversal_ignoring_adequacy": false,
+      "assumption": "diagnostic_target_group_record_intensity_power_not_validated_effort",
+      "by_region": {
+        "quercus_DE_central": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.675352382384259,
+          "full_mean_heldout_log_score": -4.567094085590513,
+          "full_minus_effort_only": -1.8917417032062542,
+          "moisture_gain_vs_knockout": -1.2119001553492232,
+          "process_inference_status": "blocked_full_or_knockout_adequacy",
+          "rank_only_ignoring_adequacy": "moisture",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": -2.463804199327362,
+              "moisture_gain": -2.0058576922075226,
+              "n_test_cells": 18,
+              "n_test_records": 124,
+              "temperature_gain": -2.087741409951919
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": -1.3850577780704172,
+              "moisture_gain": -0.5086806227033018,
+              "n_test_cells": 12,
+              "n_test_records": 140,
+              "temperature_gain": -1.3399901386894832
+            }
+          ],
+          "temperature_gain_vs_knockout": -1.6912066448885055,
+          "temperature_minus_moisture_gain": -0.47930648953928223
+        },
+        "quercus_SE_south": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.4849066497880004,
+          "full_mean_heldout_log_score": -2.36242880102337,
+          "full_minus_effort_only": 0.12247784876463053,
+          "moisture_gain_vs_knockout": 0.2655157510402337,
+          "process_inference_status": "blocked_effort_proxy_and_M",
+          "rank_only_ignoring_adequacy": "moisture",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": 0.17037818381090952,
+              "moisture_gain": 0.2390049960426417,
+              "n_test_cells": 12,
+              "n_test_records": 2243,
+              "temperature_gain": 0.11633874107001096
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": 0.021783892336511013,
+              "moisture_gain": 0.3212454824925297,
+              "n_test_cells": 12,
+              "n_test_records": 1067,
+              "temperature_gain": -0.11279698867350207
+            }
+          ],
+          "temperature_gain_vs_knockout": 0.042475350243325494,
+          "temperature_minus_moisture_gain": -0.22304040079690823
+        }
+      }
+    },
+    "0.5": {
+      "any_ecological_process_claim_allowed": false,
+      "apparent_rank_reversal_ignoring_adequacy": true,
+      "assumption": "diagnostic_target_group_record_intensity_power_not_validated_effort",
+      "by_region": {
+        "quercus_DE_central": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.393229232385291,
+          "full_mean_heldout_log_score": -3.5785383768425967,
+          "full_minus_effort_only": -1.1853091444573058,
+          "moisture_gain_vs_knockout": -0.8881288489925923,
+          "process_inference_status": "blocked_full_or_knockout_adequacy",
+          "rank_only_ignoring_adequacy": "moisture",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": -1.3734144960002226,
+              "moisture_gain": -1.1299297088639682,
+              "n_test_cells": 18,
+              "n_test_records": 124,
+              "temperature_gain": -1.072659475277982
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": -1.0187015473764367,
+              "moisture_gain": -0.6739623731065167,
+              "n_test_cells": 12,
+              "n_test_records": 140,
+              "temperature_gain": -0.7833133657639255
+            }
+          ],
+          "temperature_gain_vs_knockout": -0.9192183565962853,
+          "temperature_minus_moisture_gain": -0.031089507603693
+        },
+        "quercus_SE_south": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.3754509643822854,
+          "full_mean_heldout_log_score": -2.521895335820084,
+          "full_minus_effort_only": -0.14644437143779854,
+          "moisture_gain_vs_knockout": -0.09293666718140203,
+          "process_inference_status": "blocked_full_or_knockout_adequacy",
+          "rank_only_ignoring_adequacy": "temperature",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": -0.035913650407140896,
+              "moisture_gain": -0.010256501826252151,
+              "n_test_cells": 12,
+              "n_test_records": 2243,
+              "temperature_gain": 0.19806936138294295
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": -0.3787971430139603,
+              "moisture_gain": -0.2667432378389467,
+              "n_test_cells": 12,
+              "n_test_records": 1067,
+              "temperature_gain": -0.36760431169983443
+            }
+          ],
+          "temperature_gain_vs_knockout": 0.01572077854931031,
+          "temperature_minus_moisture_gain": 0.10865744573071234
+        }
+      }
+    },
+    "1.0": {
+      "any_ecological_process_claim_allowed": false,
+      "apparent_rank_reversal_ignoring_adequacy": false,
+      "assumption": "diagnostic_target_group_record_intensity_power_not_validated_effort",
+      "by_region": {
+        "quercus_DE_central": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.276332292238405,
+          "full_mean_heldout_log_score": -3.308071747513101,
+          "full_minus_effort_only": -1.0317394552746961,
+          "moisture_gain_vs_knockout": -0.9984917247668164,
+          "process_inference_status": "blocked_full_or_knockout_adequacy",
+          "rank_only_ignoring_adequacy": "temperature",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": -0.5469334570647049,
+              "moisture_gain": -0.5110015635120906,
+              "n_test_cells": 18,
+              "n_test_records": 124,
+              "temperature_gain": -0.3480497290027271
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": -1.4611390536892594,
+              "moisture_gain": -1.4302687247352872,
+              "n_test_cells": 12,
+              "n_test_records": 140,
+              "temperature_gain": -0.32520502031791043
+            }
+          ],
+          "temperature_gain_vs_knockout": -0.33593511076077887,
+          "temperature_minus_moisture_gain": 0.6625566140060375
+        },
+        "quercus_SE_south": {
+          "ecological_process_claim_allowed": false,
+          "effort_only_mean_heldout_log_score": -2.3901613062636753,
+          "full_mean_heldout_log_score": -2.8751544641308433,
+          "full_minus_effort_only": -0.484993157867168,
+          "moisture_gain_vs_knockout": -0.47916059613778783,
+          "process_inference_status": "blocked_full_or_knockout_adequacy",
+          "rank_only_ignoring_adequacy": "temperature",
+          "spatial_folds": [
+            {
+              "fold": 0,
+              "full_minus_effort_only": -0.2884547375663109,
+              "moisture_gain": -0.2848955907820243,
+              "n_test_cells": 12,
+              "n_test_records": 2243,
+              "temperature_gain": 0.4982871058008347
+            },
+            {
+              "fold": 1,
+              "full_minus_effort_only": -0.8981474940759995,
+              "moisture_gain": -0.8875358604423602,
+              "n_test_cells": 12,
+              "n_test_records": 1067,
+              "temperature_gain": -0.7935977217758188
+            }
+          ],
+          "temperature_gain_vs_knockout": 0.08183964023458445,
+          "temperature_minus_moisture_gain": 0.5610002363723723
+        }
+      }
+    }
+  },
+  "input_sha256": {
+    "config": "8231fe53e52bdf01f111949b36bb6486cade17c922943a00121797b26e9d2b1a",
+    "source_cells": "42747f07c030a09134a08703bf20e60a73fe661468c2047ccc1c1fd7628b85aa",
+    "source_receipt": "c0619957ff3e30d65810cec716067891973e6d991fb68ca6cf4b7b7bce82a8e5"
+  },
+  "model": "regionwise_heldout_conditional_multinomial_quadratic_temperature_precipitation",
+  "pairwise_environment_overlap_coarse": {
+    "quercus_DE_central :: quercus_SE_south": 0.1
+  },
+  "postsource_ridge_sensitivity_raw_sentinel": {
+    "0.002": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -1.6197316251789178,
+        "temperature_minus_moisture_gain": 0.6728122792383604
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.8122405646143793,
+        "temperature_minus_moisture_gain": 0.6609449795943765
+      }
+    },
+    "0.02": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -1.0317394552746961,
+        "temperature_minus_moisture_gain": 0.6625566140060375
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.484993157867168,
+        "temperature_minus_moisture_gain": 0.5610002363723723
+      }
+    },
+    "0.2": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.5299330282924206,
+        "temperature_minus_moisture_gain": 0.5124908910061206
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.15991066172058455,
+        "temperature_minus_moisture_gain": 0.17861012593593495
+      }
+    },
+    "2.0": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.12077040471827383,
+        "temperature_minus_moisture_gain": 0.1531010066162768
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.026728864224499826,
+        "temperature_minus_moisture_gain": 0.01805695705828736
+      }
+    },
+    "20.0": {
+      "quercus_DE_central": {
+        "full_minus_effort_only": -0.017890531903915985,
+        "temperature_minus_moisture_gain": 0.022524448549915643
+      },
+      "quercus_SE_south": {
+        "full_minus_effort_only": -0.0030718108307947745,
+        "temperature_minus_moisture_gain": 0.0019567790366985527
+      }
+    }
+  },
+  "postsource_spatial_orientation_sensitivity": {
+    "east_west": {
+      "0.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.10852311905530598,
+          "temperature_minus_moisture_gain": 0.0035293325463228165
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.07181724710674908,
+          "temperature_minus_moisture_gain": 0.14248702447050654
+        }
+      },
+      "0.5": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.11016187643963393,
+          "temperature_minus_moisture_gain": -0.07345005983849795
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.07197602991398888,
+          "temperature_minus_moisture_gain": 0.22395707994504566
+        }
+      },
+      "1.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -0.13718092207903032,
+          "temperature_minus_moisture_gain": 0.02367756956369016
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.021630868153889704,
+          "temperature_minus_moisture_gain": 0.2623611302374673
+        }
+      }
+    },
+    "north_south": {
+      "0.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.8917417032062542,
+          "temperature_minus_moisture_gain": -0.47930648953928223
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": 0.12247784876463053,
+          "temperature_minus_moisture_gain": -0.22304040079690823
+        }
+      },
+      "0.5": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.1853091444573058,
+          "temperature_minus_moisture_gain": -0.031089507603693
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": -0.14644437143779854,
+          "temperature_minus_moisture_gain": 0.10865744573071234
+        }
+      },
+      "1.0": {
+        "quercus_DE_central": {
+          "full_minus_effort_only": -1.0317394552746961,
+          "temperature_minus_moisture_gain": 0.6625566140060375
+        },
+        "quercus_SE_south": {
+          "full_minus_effort_only": -0.484993157867168,
+          "temperature_minus_moisture_gain": 0.5610002363723723
+        }
+      }
+    }
+  },
+  "process_turnover_test_authorized": false,
+  "publication_claim_allowed": false,
+  "reason": [
+    "full_environmental_model_inadequate_under_fixed_effort_proxy",
+    "records_do_not_estimate_true_population_abundance",
+    "very_high_cell_occupancy_and_low_common_environmental_support",
+    "unvalidated_target_group_detection_effort_and_species_accessible_M",
+    "small_spatial_holdout_sample_with_two_folds",
+    "different_geographic_fold_orientation_can_change_adequacy",
+    "retrospective_effort_and_ridge_sensitivity_not_independent_confirmation"
+  ],
+  "region_sources": {
+    "quercus_DE_central": {
+      "effective_focal_record_cells": 9.325127107305326,
+      "effective_target_group_record_cells": 16.622569866342648,
+      "fraction_cells_with_any_record": 0.9333333333333333,
+      "n_available_cells": 30,
+      "n_focal_records": 264,
+      "n_recorded_cells": 28,
+      "n_target_group_records": 1146,
+      "precipitation_max": 1271.4,
+      "precipitation_min": 587.5,
+      "temperature_max": 9.450000000000044,
+      "temperature_min": 6.650000000000034
+    },
+    "quercus_SE_south": {
+      "effective_focal_record_cells": 11.297557374074012,
+      "effective_target_group_record_cells": 12.954560348876013,
+      "fraction_cells_with_any_record": 1.0,
+      "n_available_cells": 24,
+      "n_focal_records": 3310,
+      "n_recorded_cells": 24,
+      "n_target_group_records": 2929,
+      "precipitation_max": 1215.3,
+      "precipitation_min": 690.5,
+      "temperature_max": 7.050000000000011,
+      "temperature_min": 5.850000000000023
+    }
+  },
+  "source_window_statuses": {
+    "pinus_ES_central": {
+      "effort_source_status": "candidate_proxy_only_not_calibrated",
+      "focal_source_status": "complete_diagnostic_search_archive",
+      "n_climate_cells": 56,
+      "taxon": "Pinus sylvestris"
+    },
+    "pinus_FI_central": {
+      "effort_source_status": "incomplete_source_or_climate",
+      "focal_source_status": "bulk_required_count_over_diagnostic_cap",
+      "n_climate_cells": 77,
+      "taxon": "Pinus sylvestris"
+    },
+    "quercus_DE_central": {
+      "effort_source_status": "candidate_proxy_only_not_calibrated",
+      "focal_source_status": "complete_diagnostic_search_archive",
+      "n_climate_cells": 30,
+      "taxon": "Quercus robur"
+    },
+    "quercus_SE_south": {
+      "effort_source_status": "candidate_proxy_only_not_calibrated",
+      "focal_source_status": "complete_diagnostic_search_archive",
+      "n_climate_cells": 24,
+      "taxon": "Quercus robur"
+    }
+  },
+  "status": "POST_SOURCE_EXPLORATORY_NOT_PROSPECTIVE",
+  "taxon": "Quercus robur"
+}

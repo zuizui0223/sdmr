@@ -1,0 +1,89 @@
+name: FIA temporal within-plot basal-area growth archive-only one shot v1
+
+# One-shot archive replay, NO new FIA data source or tree biological outcomes.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_temporal_within_plot_BA_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  archived-temporal-density-contrast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce source bytes, fixed pair/gate and scientific refusal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_temporal_within_plot_BA_once_v1.lock').read_text()
+          for s in (
+             'original_run=43886130089',
+             'original_artifact=14234926861',
+             'source_ZIP_SHA256=ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24',
+             'growth_csv_SHA256=ee98608ca4e7582144a886d96c9c908a5a5cd25533e1b74ad2e786b20710db4e',
+             'source_csv_SHA256=cd306e559a663c1ddf65259b2fc5298d426f931c272b4cd1ec15ec17da21e402',
+             'taxa_13_source_5_primary=129_316_802_833_837',
+             'paired_plot_candidates=4744',
+             'model_lagged_growth0_plus_initial_BA0=true',
+             'source_climate_both_events_train_counties_only=true',
+             'no_FIA_NOAA_network_or_new_tree_outcome=true',
+             'postoutcome_exploratory_only=true',
+             'causal_niche_promotion=forbidden'):
+              assert s in t,s
+          PY
+      - name: Install numeric controls and reject insufficient synthetic source
+        run: |
+          python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_temporal_within_plot_density_audit_v1.py
+      - name: Download first opened frozen derived growth and source-only bytes
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43886130089
+          name: fia-VA-WI-growth-first-open-v1
+          github-token: ${{ github.token }}
+          path: build/frozen_source_growth
+      - name: Validate 13-source/5-primary denominator and evaluate temporal folds
+        run: |
+          python experiments/fia_temporal_within_plot_density_audit_v1.py \
+            --source-dir build/frozen_source_growth \
+            --out-dir artifacts/fia_temporal_within_plot_BA_v1
+      - name: Verify five-taxon complete denominator without demanding positive results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/fia_temporal_within_plot_BA_v1')
+          a=json.loads((p/'temporal_within_plot_density_audit_v1.json').read_text())
+          assert a['original_growth_rows']==170994
+          assert a['original_source_rows']==88145
+          assert a['n_declared_prior_taxa']==13
+          assert a['n_primary_taxa']==5
+          assert len(a['secondary_taxa_not_modelled'])==8
+          assert a['n_candidate_temporal_pairs']==4744
+          assert a['n_primary_complete'] <= 5
+          assert a['source_selection_uses_training_counties_only']
+          assert a['no_new_RAW_FIA_or_NOAA_network_fetch']
+          assert a['no_new_response_outcome_opened']
+          assert a['biological_promotion_authorized'] is False
+          print('plot pairs',a['n_candidate_temporal_pairs'],
+                'source-heldout',a['n_source_supported_heldout_pairs'],
+                'complete',a['n_primary_complete'],
+                'predictive gain +',a['n_positive_density_change_gains'])
+          PY
+      - name: Archive both negative and positive taxon outcomes, counties and plot pairs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-archived-temporal-within-plot-BA-v1
+          path: artifacts/fia_temporal_within_plot_BA_v1/
+          if-no-files-found: warn
+          retention-days: 90

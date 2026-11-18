@@ -1,0 +1,38 @@
+name: FIA joint climate support source-only gate
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_joint_support_gate_v1.py'
+      - 'tests/test_fia_joint_support_gate_v1.py'
+      - 'experiments/fia_joint_source_only_v1.py'
+      - 'tests/test_fia_joint_source_only_v1.py'
+      - 'experiments/fia_joint_source_reconcile_v2.py'
+      - 'tests/test_fia_joint_source_reconcile_v2.py'
+      - 'experiments/fia_source_only_origin_sensitivity_v1.py'
+      - 'tests/test_fia_source_only_origin_sensitivity_v1.py'
+      - 'experiments/fia_external_region_support_v1.py'
+      - 'tests/test_fia_external_region_support_v1.py'
+      - 'experiments/fia_VA_WI_county_source_folds_v1.py'
+      - 'tests/test_fia_VA_WI_county_source_folds_v1.py'
+      - 'configs/fia_joint_climate_support_gate_v1.json'
+      - 'docs/FIA_JOINT_CLIMATE_SUPPORT_GATE_V1.md'
+      - '.github/workflows/fia-joint-climate-support-gate-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test runner only; no external source acquisition
+        run: python -m pip install 'pytest>=8,<10'
+      - name: Audit response-blind source-only interface against synthetic controls
+        run: python -m pytest -q tests/test_fia_joint_support_gate_v1.py tests/test_fia_joint_source_only_v1.py tests/test_fia_joint_source_reconcile_v2.py tests/test_fia_source_only_origin_sensitivity_v1.py tests/test_fia_external_region_support_v1.py tests/test_fia_VA_WI_county_source_folds_v1.py

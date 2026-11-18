@@ -1,0 +1,13 @@
+source_run=43711159676
+source_artifact=14160283759
+source_csv_sha256=44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7
+source_receipt_sha256=f167966bdd19529fe39955863effd666943e624cf939bd7c80ac8908b6a3f453
+source_rows=89616
+source_regions=VA_WI
+folds=5
+fixed_primary_species=129_316_802_833_837
+all_declared_species=13
+no_FIA_refetch=true
+no_growth_or_survival_read=true
+no_biological_promotion=true
+execution_scope=one_off_postsource_source_only_design

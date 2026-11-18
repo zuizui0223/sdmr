@@ -1,0 +1,44 @@
+name: FIA NOAA 20261105 same-edition five-state source-only rebase tests v4
+
+on:
+  pull_request:
+    paths:
+      - 'experiments/fia_PA_MI_NOAA_uniform_rebase_v4.py'
+      - 'tests/test_fia_PA_MI_NOAA_uniform_rebase_v4.py'
+      - 'configs/fia_PA_MI_NOAA_uniform_rebase_v4.json'
+      - 'docs/FIA_PA_MI_NOAA_UNIFORM_REBASE_V4.md'
+      - '.github/workflows/fia-PA-MI-NOAA-uniform-rebase-contract-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate original first PLOT ZIP source and reject changed plot visits
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_fia_PA_MI_NOAA_uniform_rebase_v4.py \
+            tests/test_fia_PA_MI_NOAA_version_bridge_v3.py
+      - name: Five-state NOAA source only; no physical TREE outcome access
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'experiments')
+          import fia_PA_MI_NOAA_uniform_rebase_v4 as mod
+          assert mod.PROGRAM=='fia_source_only_all_five_states_NOAA_20261105_rebased_v4'
+          assert mod.STATES==('RI','VA','WI')
+          assert mod.EXPECTED_TRAIN_ROWS==89616
+          assert mod.EXPECTED_HOLDOUT_ROWS==83046
+          assert mod.EXPECTED_NOAA_ROWS==75390
+          assert len(mod.PLOT_ORIGINAL)==3
+          assert all(x not in mod.OUTPUT_COLS for x in ('growth','DIA','STATUSCD','death'))
+          PY

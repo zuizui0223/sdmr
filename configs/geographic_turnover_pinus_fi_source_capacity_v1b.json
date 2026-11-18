@@ -1,0 +1,39 @@
+{
+  "schema_version": "1",
+  "study_status": "source_and_geometry_diagnostic_only",
+  "source_window_selection": "fixed geographical windows before GBIF record/environment values opened; rectangles are NOT taxon accessible areas M",
+  "source_checklist_key": "7ddf754f-d193-4cc9-b351-99906754a03b",
+  "gbif_years": "2010,2025",
+  "strict_reported_coordinate_uncertainty_m": 1000,
+  "allowed_basis_of_record": [
+    "HUMAN_OBSERVATION",
+    "PRESERVED_SPECIMEN"
+  ],
+  "cell_side_km": 25,
+  "max_api_total_per_taxon_window": 15000,
+  "minimum_clean_presence_cells_diagnostic": 8,
+  "minimum_effort_support_fraction_diagnostic": 0.5,
+  "raster_axes": {
+    "temperature": "bio1",
+    "moisture": "bio12"
+  },
+  "effort_proxy_status": "candidate only; target-group plant reports are biologically nonuniform and not calibrated effort",
+  "target_group_names": [
+    "Betula pendula",
+    "Salix caprea",
+    "Sorbus aucuparia"
+  ],
+  "windows": [
+    {
+      "region": "pinus_FI_central",
+      "focal_taxon": "Pinus sylvestris",
+      "country": "FI",
+      "west": 23.0,
+      "south": 61.0,
+      "east": 26.0,
+      "north": 64.0,
+      "native_range_reference": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:263353-1"
+    }
+  ],
+  "source_capacity_successor_reason": "v1 source-only preflight found 11,340 focal GBIF indexed records and 5,582 Sorbus records: increase retrieval limit for unchanged one fixed Finnish rectangle only; no ecological effect or model result was used to select source capacity."
+}

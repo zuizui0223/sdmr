@@ -1,0 +1,28 @@
+{
+  "study": "fia_five_state_NOAA_20261105_event_identity_verified_source_only_v5",
+  "states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "old_v4_full_sha_gate_failed_run": 44294243344,
+  "v4_RI_updated_PLOT_zip_sha256": "b409bb55766011401ee581ca7ad97f7c7d3e5a3876db630c6a7027e5ea7fcde0",
+  "first_RI_new_source_artifact": 14421539704,
+  "training_source_row_count": 89616,
+  "PA_MI_source_row_count": 83046,
+  "new_NOAA_release": "20261105",
+  "require_all_original_plot_interval_records_old_NOAA_reconstructed": true,
+  "require_exact_original_plot_chain_and_county_and_year": true,
+  "old_NOAA_temperature_tolerance_c": 0.00001,
+  "old_NOAA_precipitation_tolerance_mm": 0.0001,
+  "no_TREE_COND_or_biological_outcome_access": true,
+  "not_the_original_FIA_PLOT_source_version": true,
+  "no_automatic_repeat_or_replacement": true,
+  "Product_A_M5_unchanged_Product_B_blocked": true,
+  "source_revalidation_type": "full original sample n=89616; old NOAA exposures recomputed from updated PLOT survey dates to verify sampled event identity",
+  "no_favorable_subset_selection": true,
+  "status": "new distinct data-version study after immutable v4 STOP",
+  "n_source_five_taxa": 5,
+  "original_v4_no_source_rebase_success": false,
+  "scientific_claim_ceiling": "source-only same NOAA edition; no niche response or growth transfer"
+}

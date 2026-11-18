@@ -1,0 +1,403 @@
+{
+  "contrast_primary_min_n10": {
+    "min_n_per_species_stratum_each_state": 10,
+    "n_estimable_species": 13,
+    "n_matched_strata": 61,
+    "n_matched_strata_WI_higher": 53,
+    "n_species_WI_growth_higher": 12,
+    "n_species_all_matched_strata_WI_higher": 8,
+    "n_species_direction_switch_after_real_measyear": 0,
+    "n_species_with_RI_lt_VA_lt_WI": 9,
+    "species": [
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 1,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 2037,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 1,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.0034335063433847115,
+            "measyear": 0.003456013304014846
+          },
+          "VA": {
+            "invyr_same_pairs": 0.00975820374859151,
+            "measyear": 0.00952479328558957
+          },
+          "WI": {
+            "invyr_same_pairs": 0.009681345949936632,
+            "measyear": 0.009753823829311368
+          }
+        },
+        "species": "Juniperus virginiana",
+        "species_code": "68"
+      },
+      {
+        "all_strata_WI_above_RI": false,
+        "common_strata": 10,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 19358,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 8,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.017685283027434048,
+            "measyear": 0.01797099799591129
+          },
+          "VA": {
+            "invyr_same_pairs": 0.019301949266551748,
+            "measyear": 0.01870950561599859
+          },
+          "WI": {
+            "invyr_same_pairs": 0.02311676150512128,
+            "measyear": 0.02320651041870824
+          }
+        },
+        "species": "Pinus strobus",
+        "species_code": "129"
+      },
+      {
+        "all_strata_WI_above_RI": false,
+        "common_strata": 4,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 5294,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 3,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.009300549427304218,
+            "measyear": 0.009836696046534227
+          },
+          "VA": {
+            "invyr_same_pairs": 0.008771702973846296,
+            "measyear": 0.00863037453181779
+          },
+          "WI": {
+            "invyr_same_pairs": 0.010821767824821018,
+            "measyear": 0.010862891358901968
+          }
+        },
+        "species": "Tsuga canadensis",
+        "species_code": "261"
+      },
+      {
+        "all_strata_WI_above_RI": false,
+        "common_strata": 9,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 91587,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 8,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.009474694503922956,
+            "measyear": 0.009585808365356802
+          },
+          "VA": {
+            "invyr_same_pairs": 0.011941123539858127,
+            "measyear": 0.011631449539523416
+          },
+          "WI": {
+            "invyr_same_pairs": 0.0160416777557711,
+            "measyear": 0.016105877708755267
+          }
+        },
+        "species": "Acer rubrum",
+        "species_code": "316"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 2,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 12149,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 2,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.00900386332029042,
+            "measyear": 0.008960384618991549
+          },
+          "VA": {
+            "invyr_same_pairs": 0.014603625313638357,
+            "measyear": 0.014185295844867158
+          },
+          "WI": {
+            "invyr_same_pairs": 0.012705548609711967,
+            "measyear": 0.012797596784125365
+          }
+        },
+        "species": "Acer saccharum",
+        "species_code": "318"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 7,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 7744,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 7,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.009316601579219217,
+            "measyear": 0.009450491177005273
+          },
+          "VA": {
+            "invyr_same_pairs": 0.00988377493968291,
+            "measyear": 0.009718414759247639
+          },
+          "WI": {
+            "invyr_same_pairs": 0.012060851307774121,
+            "measyear": 0.012095668363324591
+          }
+        },
+        "species": "Betula alleghaniensis",
+        "species_code": "371"
+      },
+      {
+        "all_strata_WI_above_RI": false,
+        "common_strata": 3,
+        "inventory_year_rate_WI_above_RI": false,
+        "matched_pair_count_in_pool": 3652,
+        "measured_rate_WI_above_RI": false,
+        "n_strata_WI_above_RI": 0,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.028418943715989818,
+            "measyear": 0.02969549007020454
+          },
+          "VA": {
+            "invyr_same_pairs": 0.019093204030980162,
+            "measyear": 0.018562551420028855
+          },
+          "WI": {
+            "invyr_same_pairs": 0.018720818838094924,
+            "measyear": 0.01877078795268974
+          }
+        },
+        "species": "Fagus grandifolia",
+        "species_code": "531"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 3,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 5538,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 3,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.006510408336683533,
+            "measyear": 0.006623629985475828
+          },
+          "VA": {
+            "invyr_same_pairs": 0.01276207263362579,
+            "measyear": 0.012197074332978928
+          },
+          "WI": {
+            "invyr_same_pairs": 0.015470856604047642,
+            "measyear": 0.015503591992339664
+          }
+        },
+        "species": "Fraxinus americana",
+        "species_code": "541"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 1,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 1885,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 1,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.008698556270869745,
+            "measyear": 0.008979586105305169
+          },
+          "VA": {
+            "invyr_same_pairs": 0.010652895894338084,
+            "measyear": 0.010273631396273
+          },
+          "WI": {
+            "invyr_same_pairs": 0.01169438130386173,
+            "measyear": 0.011746549415387633
+          }
+        },
+        "species": "Populus grandidentata",
+        "species_code": "743"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 1,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 1336,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 1,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.007307233772888124,
+            "measyear": 0.006950911692845749
+          },
+          "VA": {
+            "invyr_same_pairs": 0.010803770093518633,
+            "measyear": 0.010523224693940103
+          },
+          "WI": {
+            "invyr_same_pairs": 0.01063026483628005,
+            "measyear": 0.010649757306508986
+          }
+        },
+        "species": "Prunus serotina",
+        "species_code": "762"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 7,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 23849,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 7,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.007308889889016669,
+            "measyear": 0.007395360009602683
+          },
+          "VA": {
+            "invyr_same_pairs": 0.01045075134334414,
+            "measyear": 0.010126499450482605
+          },
+          "WI": {
+            "invyr_same_pairs": 0.010014710861474176,
+            "measyear": 0.010015126785444771
+          }
+        },
+        "species": "Quercus alba",
+        "species_code": "802"
+      },
+      {
+        "all_strata_WI_above_RI": true,
+        "common_strata": 8,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 23270,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 8,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.012643877294615814,
+            "measyear": 0.012644661970633858
+          },
+          "VA": {
+            "invyr_same_pairs": 0.013780001426790625,
+            "measyear": 0.013392097218667642
+          },
+          "WI": {
+            "invyr_same_pairs": 0.015888455210712336,
+            "measyear": 0.01596265065561035
+          }
+        },
+        "species": "Quercus rubra",
+        "species_code": "833"
+      },
+      {
+        "all_strata_WI_above_RI": false,
+        "common_strata": 5,
+        "inventory_year_rate_WI_above_RI": true,
+        "matched_pair_count_in_pool": 8328,
+        "measured_rate_WI_above_RI": true,
+        "n_strata_WI_above_RI": 4,
+        "size_age_standardized_rates": {
+          "RI": {
+            "invyr_same_pairs": 0.009177147287985566,
+            "measyear": 0.00924026366863251
+          },
+          "VA": {
+            "invyr_same_pairs": 0.0108170201736781,
+            "measyear": 0.01048720678446167
+          },
+          "WI": {
+            "invyr_same_pairs": 0.013234138824172714,
+            "measyear": 0.013186604502434965
+          }
+        },
+        "species": "Quercus velutina",
+        "species_code": "837"
+      }
+    ]
+  },
+  "difference_gt_0p01_year_between_inventory_and_measurement_pair_intervals": {
+    "RI": 6597,
+    "VA": 120269,
+    "WI": 221645
+  },
+  "measurement_pairs_by_state": {
+    "RI": 5190,
+    "VA": 100105,
+    "WI": 202802
+  },
+  "n_natural_stand_age_pairs_by_state": {
+    "RI": 5187,
+    "VA": 93166,
+    "WI": 197038
+  },
+  "n_species": 13,
+  "n_total_measurement_pairs": 308097,
+  "n_total_natural_stand_age_pairs": 295391,
+  "no_plot_cluster_standard_errors": true,
+  "no_population_sampling_weights": true,
+  "no_species_physiological_climate_or_niche_evolution_inference": true,
+  "outcome_opened_exploratory": true,
+  "post_result_threshold_sensitivity": {
+    "100": {
+      "min_n_per_species_stratum_each_state": 100,
+      "n_estimable_species": 5,
+      "n_matched_strata": 15,
+      "n_matched_strata_WI_higher": 14,
+      "n_species_WI_growth_higher": 5,
+      "n_species_all_matched_strata_WI_higher": 4,
+      "n_species_direction_switch_after_real_measyear": 0,
+      "n_species_with_RI_lt_VA_lt_WI": 4
+    },
+    "20": {
+      "min_n_per_species_stratum_each_state": 20,
+      "n_estimable_species": 10,
+      "n_matched_strata": 42,
+      "n_matched_strata_WI_higher": 37,
+      "n_species_WI_growth_higher": 8,
+      "n_species_all_matched_strata_WI_higher": 6,
+      "n_species_direction_switch_after_real_measyear": 0,
+      "n_species_with_RI_lt_VA_lt_WI": 5
+    },
+    "30": {
+      "min_n_per_species_stratum_each_state": 30,
+      "n_estimable_species": 7,
+      "n_matched_strata": 27,
+      "n_matched_strata_WI_higher": 24,
+      "n_species_WI_growth_higher": 6,
+      "n_species_all_matched_strata_WI_higher": 4,
+      "n_species_direction_switch_after_real_measyear": 0,
+      "n_species_with_RI_lt_VA_lt_WI": 4
+    },
+    "50": {
+      "min_n_per_species_stratum_each_state": 50,
+      "n_estimable_species": 6,
+      "n_matched_strata": 21,
+      "n_matched_strata_WI_higher": 19,
+      "n_species_WI_growth_higher": 6,
+      "n_species_all_matched_strata_WI_higher": 4,
+      "n_species_direction_switch_after_real_measyear": 0,
+      "n_species_with_RI_lt_VA_lt_WI": 4
+    }
+  },
+  "scientific_interpretation": "A size-and-stand-age conditional regional increment pattern in repeat-observed surviving trees, not climatic niche adaptation",
+  "source_aggregate_sha256": "60de80f5b41a8eed94d13032a8176b857bc509017ace99ffa3ba4815cc2c8016",
+  "source_tree_sha_by_state": {
+    "RI": "cd451964b1a6f1a99b2add924056437972374b5ce8df00bf8c3837dafe7fe10d",
+    "VA": "50cdcdaf8f7e133980d86928474d6410c2e296b2b357b7e5ad4b3685eb807932",
+    "WI": "fc6fa68e51cab310458de3ad5ab168a8ee9c6fd3cd766df7e899c6a5c7ab9a8b"
+  },
+  "states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "study": "fia_stand_context_archived_recalculation_v1"
+}

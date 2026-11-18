@@ -1,0 +1,87 @@
+name: FIA archived within-vs-county BA predictive information v1
+
+# Postoutcome, source-byte-locked, archive-only; no FIA or NOAA acquisition.
+# A single unique lock triggers one run. No retry after outcome inspection.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_county_within_BA_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source_pinned_postoutcome_county_partition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact historical source and noncausal interpretation contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_county_within_BA_once_v1.lock').read_text()
+          for s in (
+              'first_run=43886130089',
+              'original_artifact=14234926861',
+              'original_ZIP_SHA256=ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24',
+              'growth_csv_SHA256=ee98608ca4e7582144a886d96c9c908a5a5cd25533e1b74ad2e786b20710db4e',
+              'source_csv_SHA256=cd306e559a663c1ddf65259b2fc5298d426f931c272b4cd1ec15ec17da21e402',
+              'five_fixed_taxa=129_316_802_833_837',
+              'no_FIA_no_NOAA_GET=true',
+              'no_new_tree_response_opening=true',
+              'postoutcome_exploratory_only=true',
+              'causal_and_niche_promotion=forbidden'):
+              assert s in t, s
+          PY
+      - name: Install offline numeric and test libraries
+        run: python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+      - name: Run original-source and model-identity synthetic tests
+        run: |
+          python -m pytest -q \
+            tests/test_fia_county_within_basal_area_audit_v1.py \
+            tests/test_fia_density_vs_county_climate_replay_v1.py
+      - name: Download original derived growth input, NOT new FIA ZIPs
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43886130089
+          name: fia-VA-WI-growth-first-open-v1
+          github-token: ${{ github.token }}
+          path: build/frozen_first_open_derived
+      - name: Match original baseline and evaluate five taxon county decomposition
+        run: |
+          python experiments/fia_county_within_basal_area_audit_v1.py \
+            --source-dir build/frozen_first_open_derived \
+            --out-dir artifacts/fia_within_county_BA_postoutcome_v1
+      - name: Check full fixed denominator and no causal promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/fia_within_county_BA_postoutcome_v1')
+          x=json.loads((root/'within_county_BA_predictor_audit_v1.json').read_text())
+          assert x['n_conditional_growth_rows']==170994
+          assert x['n_source_only_rows']==88145
+          assert x['n_primary_species']==5
+          assert len(x['species'])==5
+          assert x['n_scored_counties']==714
+          assert x['all_five_original_single_BA_scores_reproduced']
+          assert x['new_model_after_outcome_look']
+          assert x['posterior_selection_mean_from_conditional_survivor_cohort']
+          assert x['biological_promotion_authorized'] is False
+          print('Full postoutcome audit',x['n_scored_counties'],'counties,',
+                x['n_species_with_positive_within_county_increment'],'positive within-county gains')
+          PY
+      - name: Preserve complete favorable AND unfavorable county error evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-archived-within-county-basal-area-v1
+          path: artifacts/fia_within_county_BA_postoutcome_v1/
+          if-no-files-found: warn
+          retention-days: 90

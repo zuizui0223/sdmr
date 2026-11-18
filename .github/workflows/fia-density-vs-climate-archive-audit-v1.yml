@@ -1,0 +1,84 @@
+name: FIA frozen growth basal-area vs county climate predictive audit v1
+
+# Pure archive replay: no FIA/NOAA web calls, no new demographic response.
+# Dedicated lock avoids continuously reopening already consumed outcomes.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_density_vs_climate_archive_once_v1.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  frozen_postoutcome_predictor_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require exact fixed old result and strict claim ceiling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('configs/fia_density_vs_climate_archive_once_v1.lock').read_text()
+          for anchor in ('input_run=43886130089',
+                         'input_artifact=14234926861',
+                         'input_zip_sha256=ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24',
+                         'input_primary_growth_rows=170994',
+                         'input_source_only_rows=88145',
+                         'primary_taxa=129_316_802_833_837',
+                         'new_raw_FIA_download=forbidden',
+                         'new_response_opening=forbidden',
+                         'growth_truth_available_development_only=true',
+                         'causal_competition_or_niche_claim=forbidden'):
+              assert anchor in s,anchor
+          PY
+      - name: Run focused archived-info and synthetic signal tests
+        run: |
+          python -m pip install 'numpy>=1.26,<3' 'pandas>=2,<4' 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_density_vs_county_climate_replay_v1.py
+      - name: Download EXACT previously opened derived numerical response
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43886130089
+          name: fia-VA-WI-growth-first-open-v1
+          github-token: ${{ github.token }}
+          path: build/first_response_derived
+      - name: Confirm no raw source substitution and recompute county score
+        run: |
+          python experiments/fia_density_vs_county_climate_replay_v1.py \
+            --source-dir build/first_response_derived \
+            --out-dir artifacts/fia_density_vs_county_climate_v1
+      - name: Require full five-taxon denominator and historical RMSE integrity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/fia_density_vs_county_climate_v1/density_vs_climate_summary.json')
+          a=json.loads(p.read_text())
+          assert a['source_rows']==88145 and a['selected_live_live_growth_rows']==170994
+          assert a['primary_species_fixed_before_this_diagnostic']==['129','316','802','833','837']
+          assert len(a['results'])==5
+          assert a['five_species_original_climate_endpoints_reproduced_exactly']
+          assert a['new_basal_area_knockout_after_response_opening']
+          assert not a['biological_promotion_authorized']
+          assert a['no_FIA_or_NOAA_network_queries']
+          print('POSTOUTCOME audit; basal-area gain, climate gain:')
+          for x in a['results']:
+              print(x['species_code'],
+                    x['basal_area_incremental_rmse_gain_percent'],
+                    x['climate_incremental_rmse_gain_percent'])
+          PY
+      - name: Retain complete favorable and unfavorable score evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-archive-density-vs-climate-v1
+          path: artifacts/fia_density_vs_county_climate_v1/
+          if-no-files-found: warn
+          retention-days: 90

@@ -1,0 +1,66 @@
+{
+  "program": "fia_source_only_all_five_states_NOAA_20261105_rebased_v4",
+  "unopened_test_states": [
+    "PA",
+    "MI"
+  ],
+  "original_training_source_states": [
+    "RI",
+    "VA",
+    "WI"
+  ],
+  "original_3state_first_source_receipt_SHA256": "0adcdeac7b974e91b83d986fca32ad0851000658f79fbe099407ce2fb37fa408",
+  "original_3state_PLOT_ZIP_SHA256": {
+    "RI": "c19953851a4d804337959b772c1a9f4f1b7bb16d5686d49705b571a759684648",
+    "VA": "18e791098390ce3543d48ebc53073da6df5901589edd55c22fe33e1cd14fc6fd",
+    "WI": "0ec63fb21e03439a40771f28e5d535e0ae1d2a3ff2dc308b31ed2348936dac10"
+  },
+  "new_NOAA_20261105_raw_SHA256": {
+    "temperature": "ea6a159d3ad9a25b60cce6e3889d79898e17cf4e29b3d2c2282d19d7fb073a4d",
+    "precipitation": "1f21b2435a29cc40369a4666a69b4f6d851643bad2811f7b8f1bab6521217b27"
+  },
+  "source_noaa_v3_receipt_sha256": "5d44b9315cf8125bd3a3abe544422abeee506b2e1814e88dced134defb3c3e2c",
+  "source_noaa_v3_PA_MI_csv_sha256": "b83298bfd792b25e71d62ade38486979d37b7618b8dece5da5f071921949de85",
+  "old_training_source_reconciled_CSV_sha256": "44b3281324f978c11012a115781aef663fc9d205722111bd5b5cf790dae482a7",
+  "original_13_species_codes": [
+    "68",
+    "129",
+    "261",
+    "316",
+    "318",
+    "371",
+    "531",
+    "541",
+    "743",
+    "762",
+    "802",
+    "833",
+    "837"
+  ],
+  "frozen_primary_five_codes": [
+    "129",
+    "316",
+    "802",
+    "833",
+    "837"
+  ],
+  "no_FIA_TREES_COND_or_biological_outcomes_opened": true,
+  "no_refetch_new_NOAA_or_external_PA_MI_FIA": true,
+  "require_same_original_PLOT_zip_or_STOP": true,
+  "training_source_row_count_fixed": 89616,
+  "holdout_source_row_count_fixed": 83046,
+  "all_5_states_same_NOAA_20261105_historical_release": true,
+  "Product_A_M5_unchanged_and_Product_B_blocked": true,
+  "no_automatic_retry_if_source_changed": true,
+  "n_original_rivawi_PLOT_archives": 3,
+  "first_source_run": 43696751589,
+  "first_source_artifact": 14155086669,
+  "first_source_county_reconciliation_run": 43711159676,
+  "first_source_county_reconciliation_artifact": 14160283759,
+  "external_pa_mi_source_v2_run": 44238110335,
+  "new_noaa_v3_run": 44290985125,
+  "new_noaa_v3_raw_artifact": 14422420396,
+  "new_noaa_v3_source_climate_artifact": 14420899193,
+  "claim_ceiling": "same-version 5-state environment source support only, not biological niche evolution",
+  "no_old_20261006_source_replacement": true
+}

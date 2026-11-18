@@ -1,0 +1,75 @@
+name: Independent NEON RELEASE-2026 public source-only metadata one-shot
+
+# One-time PUBLIC PRODUCT CATALOG only. NO authenticated /data endpoint
+# and NO vegetation individual, diameter, survival or plot-growth downloads.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_independent_neon_catalog_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  fixed_public_product_catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce public catalog and no individual/tree outcomes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_independent_neon_catalog_once_v1.lock').read_text()
+          for line in (
+            'provider=NSF_NEON_not_USDA_FIA',
+            'product=DP1.10098.001',
+            'release=RELEASE-2026',
+            'product_DOI=10.48443/pypa-qf12',
+            'endpoint=public_product_catalog_only',
+            'raw_neon_data_endpoint=forbidden',
+            'api_token_access=forbidden',
+            'repeat_individuals_confirmed=false',
+            'tree_status_growth_diameter_access=forbidden',
+            'FIA_v4_and_Product_A_M5_unchanged=true',
+            'Product_B_unblocked=false'):
+              assert line in t,line
+          PY
+      - name: Offline synthetic/source integrity tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_independent_neon_catalog_v1.py
+      - name: Fetch only the publicly accessible NEON product release metadata
+        run: |
+          python experiments/fia_independent_neon_catalog_v1.py \
+            --out-dir artifacts/fia_independent_NEON_catalog_v1
+      - name: Verify source-only claims and no fabricated repeat individuals
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=Path("artifacts/fia_independent_NEON_catalog_v1")
+          q=json.loads((d/"neon_release_2026_source_gate.json").read_text())
+          assert q["status"]=="metadata_only_no_tree_response_observed"
+          assert q["product_code"]=="DP1.10098.001" and q["release"]=="RELEASE-2026"
+          assert q["n_sites_catalog_total"]==len(q["sites"])>0
+          assert q["n_sites_with_verified_repeated_individuals"] is None
+          assert not q["forest_plot_revisit_coverage_verified"]
+          assert not q["later_growth_and_survival_data_accessed"]
+          assert q["NEON_raw_file_endpoint_requires_account_token"]
+          assert q["no_biological_promotion_authorized"]
+          print("PUBLIC METADATA only: sites",q["n_sites_catalog_total"],
+                "released file-years span >=4:",q["n_sites_with_available_release_year_span_ge_four"])
+          PY
+      - name: Keep exact public catalog or unavailable STOP receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-independent-NEON-public-catalog-v1
+          path: artifacts/fia_independent_NEON_catalog_v1/
+          if-no-files-found: warn
+          retention-days: 90

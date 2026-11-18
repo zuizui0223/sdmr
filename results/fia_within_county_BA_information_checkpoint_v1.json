@@ -1,0 +1,115 @@
+{
+  "program": "fia_within_vs_between_county_BA_information_checkpoint_v1",
+  "date": "2026-11-17",
+  "status": "verified_archived_first_open_postoutcome_predictor_information_only",
+  "source_run": 43886130089,
+  "source_artifact_id": 14234926861,
+  "source_artifact_zip_sha256": "ec8f33c4e179250d6ce4e36d7e4933a48969e0c3e9be6d4b4ae090c0c9c64d24",
+  "source_growth_csv_sha256": "ee98608ca4e7582144a886d96c9c908a5a5cd25533e1b74ad2e786b20710db4e",
+  "source_taxon_plot_csv_sha256": "cd306e559a663c1ddf65259b2fc5298d426f931c272b4cd1ec15ec17da21e402",
+  "source_original_growth_response_sha256": "a768b17684ee712e00187fdfd24b3e929139bc1fe4b11e96aed475bb3c03d482",
+  "independent_GitHub_reproduction_run": 43902252927,
+  "independent_GitHub_reproduction_success": true,
+  "independent_GitHub_artifact": 14241722502,
+  "independent_GitHub_artifact_zip_sha256": "d847d81d5ad6f184be7782e888aa8d9ca6c9550afc8e2d9a41cd67ed968cb6a3",
+  "full_summary_json_sha256": "460dc2e86b3fdd4491b054d4cc0b9636a34b33dff29fbc748a69bd1e9c796d82",
+  "full_county_ledger_sha256": "80c6a1c10a9025e39e0f361387841202bb56d71f1e1a5289041b0e443c4f0f4c",
+  "n_source_rows": 88145,
+  "n_conditional_survivor_growth_rows": 170994,
+  "n_county_level_holdout_errors": 714,
+  "n_primary_species": 5,
+  "n_positive_within_county_predictive_increments": 5,
+  "n_postfit_county_resample_CI_lower_above_zero": 5,
+  "n_positive_within_county_predictive_increments_each_state": 5,
+  "bootstrap_state_stratified_counties_postfit_iterations": 999,
+  "methods": "county_equal_state_equal_heldout_RMSE_original_five_county_folds_train_source_bins_only",
+  "original_full_BA_RMSE_reproduced_for_five_species": true,
+  "species": [
+    {
+      "species_code": "129",
+      "species_name": "Pinus strobus",
+      "n_scored_counties": 106,
+      "plot_BA_between_county_variance_fraction": 0.1313675169684435,
+      "county_mean_gain_percent": 0.7829431808966577,
+      "within_BA_increment_percent": 3.097626069199714,
+      "within_BA_postfit_county_bootstrap_95pct": [
+        1.8901870569325174,
+        4.223054799631367
+      ],
+      "within_increment_by_state_percent": {
+        "VA": 2.9117272548977993,
+        "WI": 3.231592299598842
+      }
+    },
+    {
+      "species_code": "316",
+      "species_name": "Acer rubrum",
+      "n_scored_counties": 165,
+      "plot_BA_between_county_variance_fraction": 0.12150880347801106,
+      "county_mean_gain_percent": 0.4251845808036131,
+      "within_BA_increment_percent": 1.6444761630399545,
+      "within_BA_postfit_county_bootstrap_95pct": [
+        0.7809937975184776,
+        2.525291377207479
+      ],
+      "within_increment_by_state_percent": {
+        "VA": 0.873106221231211,
+        "WI": 2.4497689950659858
+      }
+    },
+    {
+      "species_code": "802",
+      "species_name": "Quercus alba",
+      "n_scored_counties": 152,
+      "plot_BA_between_county_variance_fraction": 0.13937749759357795,
+      "county_mean_gain_percent": -0.06301212495694425,
+      "within_BA_increment_percent": 0.7473609257806365,
+      "within_BA_postfit_county_bootstrap_95pct": [
+        0.3780046047794983,
+        1.0815927163613168
+      ],
+      "within_increment_by_state_percent": {
+        "VA": 0.5347546364921587,
+        "WI": 1.192521937065001
+      }
+    },
+    {
+      "species_code": "833",
+      "species_name": "Quercus rubra",
+      "n_scored_counties": 159,
+      "plot_BA_between_county_variance_fraction": 0.11652265887328812,
+      "county_mean_gain_percent": -0.012150994812515224,
+      "within_BA_increment_percent": 1.1764871311496,
+      "within_BA_postfit_county_bootstrap_95pct": [
+        0.5499877189687128,
+        1.7872180588702755
+      ],
+      "within_increment_by_state_percent": {
+        "VA": 0.3936067688339021,
+        "WI": 1.9621915253497841
+      }
+    },
+    {
+      "species_code": "837",
+      "species_name": "Quercus velutina",
+      "n_scored_counties": 132,
+      "plot_BA_between_county_variance_fraction": 0.2038434566785321,
+      "county_mean_gain_percent": 0.8503394013975578,
+      "within_BA_increment_percent": 0.7009824912451554,
+      "within_BA_postfit_county_bootstrap_95pct": [
+        0.11956297797769998,
+        1.2418509869430718
+      ],
+      "within_increment_by_state_percent": {
+        "VA": 0.7031282935591376,
+        "WI": 0.6992324515595201
+      }
+    }
+  ],
+  "postoutcome_pred_design": true,
+  "county_BA_mean_computed_from_selected_live_live_survivor_cohort": true,
+  "not_independent_growth_replicate": true,
+  "no_new_FIA_NOAA_or_growth_outcomes_retrieved": true,
+  "no_causal_competition_or_niche_adaptation_claim": true,
+  "product_A_M5_untouched_and_product_B_blocked": true
+}

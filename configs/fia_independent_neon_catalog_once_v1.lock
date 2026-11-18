@@ -1,0 +1,16 @@
+provider=NSF_NEON_not_USDA_FIA
+product=DP1.10098.001
+release=RELEASE-2026
+product_DOI=10.48443/pypa-qf12
+endpoint=public_product_catalog_only
+raw_neon_data_endpoint=forbidden
+api_token_access=forbidden
+repeat_individuals_confirmed=false
+tree_status_growth_diameter_access=forbidden
+FIA_v4_and_Product_A_M5_unchanged=true
+Product_B_unblocked=false
+n_candidate_tree_species_from_metadata=unknown
+site_screen_all_public_product_catalog_sites=true
+available_file_years_not_verified_tree_revisits=true
+no_auto_retry_source_failure=true
+one_shot_metadata=2026-11-17

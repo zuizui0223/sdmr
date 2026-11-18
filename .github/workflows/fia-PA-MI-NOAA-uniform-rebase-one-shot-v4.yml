@@ -1,0 +1,133 @@
+name: FIA 20261105 all-five-state source-only climate rebase first PLOT re-acquisition v4
+
+# One-shot RI/VA/WI original PLOT ZIP SHA check. Reads NO TREE or COND data.
+# Old FIA source rows MUST remain unchanged. All 5 regions use archived
+# NOAA 20261105 raw files; no refetch of NOAA or PA MI source.
+on:
+  push:
+    branches: [research/geographic-driver-turnover-macro-v0-20261019]
+    paths:
+      - 'configs/fia_PA_MI_NOAA_uniform_rebase_once_v4.lock'
+      - 'configs/fia_PA_MI_NOAA_uniform_rebase_contractfix_once_v4.lock'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-only-same-release-rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require exact original source/acquisition SHA and refuse all biology
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          t=Path('configs/fia_PA_MI_NOAA_uniform_rebase_once_v4.lock').read_text()
+          for s in (
+            'program=fia_source_only_all_five_states_NOAA_20261105_rebased_v4',
+            'original_first_source_run=43696751589',
+            'original_first_source_artifact=14155086669',
+            'original_first_source_receipt_SHA=0adcdeac7b974e91b83d986fca32ad0851000658f79fbe099407ce2fb37fa408',
+            'RI_PLOT_SHA=c19953851a4d804337959b772c1a9f4f1b7bb16d5686d49705b571a759684648',
+            'VA_PLOT_SHA=18e791098390ce3543d48ebc53073da6df5901589edd55c22fe33e1cd14fc6fd',
+            'WI_PLOT_SHA=0ec63fb21e03439a40771f28e5d535e0ae1d2a3ff2dc308b31ed2348936dac10',
+            'original_reconciled_source_run=43711159676',
+            'original_reconciled_source_artifact=14160283759',
+            'new_NOAA_raw_run=44290985125',
+            'new_NOAA_raw_artifact=14422420396',
+            'fixed_PA_MI_source_v3_artifact=14420899193',
+            'no_FIA_TREE_COND_download=true',
+            'no_new_NOAA_download=true',
+            'original_89616_training_source_rows_immutable=true',
+            'fixed_83046_PA_MI_source_only_rows_immutable=true',
+            'tree_status_DIA_growth_mortality_open=forbidden',
+            'not_a_biological_transferability_result=true',
+            'no_retry_mutable_source_if_original_PLOT_drift=true'
+          ):
+            assert s in t,s
+          PY
+      - name: No-response synthetic and historical NOAA revision control tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_fia_PA_MI_NOAA_uniform_rebase_v4.py
+      - name: Retrieve original first source-only RI VA WI PLOT hash receipt
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43696751589
+          name: fia-joint-source-only-new-cohort-v1
+          github-token: ${{ github.token }}
+          path: build/original_source_open
+      - name: Retrieve the original reconciled 89616 source-only rows
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43711159676
+          name: fia-first-source-only-reconciliation-v2
+          github-token: ${{ github.token }}
+          path: build/original_reconciled_source
+      - name: Retrieve the exact already acquired NOAA 20261105 ASCII raw edition
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44290985125
+          name: fia-PA-MI-NOAA-20261105-raw-source-v3
+          github-token: ${{ github.token }}
+          path: build/frozen_NOAA_20261105_raw
+      - name: Retrieve already climate-tagged PA MI prior-species source-only panel
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44290985125
+          name: fia-PA-MI-NOAA-20261105-version-bridge-v3
+          github-token: ${{ github.token }}
+          path: build/frozen_PA_MI_v3_source
+      - name: One-time original PLOT SHA reconfirmation and all-five-state climate source rebase
+        run: |
+          python experiments/fia_PA_MI_NOAA_uniform_rebase_v4.py \
+            --original-training build/original_reconciled_source \
+            --original-first-source-receipt build/original_source_open/source_receipt.json \
+            --new-NOAA-raw build/frozen_NOAA_20261105_raw \
+            --PA-MI-v3-source build/frozen_PA_MI_v3_source \
+            --config configs/fia_PA_MI_NOAA_uniform_rebase_v4.json \
+            --training-config configs/fia_joint_climate_support_gate_v1.json \
+            --out artifacts/fia_PA_MI_uniform_NOAA_source_v4
+      - name: Check all 13 taxa, 5 priority and zero outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/fia_PA_MI_uniform_NOAA_source_v4')
+          r=json.loads((p/'PA_MI_same_NOAA_source_support_v4.json').read_text())
+          s=json.loads((p/'PA_MI_same_NOAA_source_receipt_v4.json').read_text())
+          assert r['status']=='same_NOAA_20261105_release_source_only_external_climate_support'
+          assert r['source_species_denominator']==13 and len(r['source_species'])==13
+          assert r['n_rebased_13_taxon_source_rows']==89616
+          assert r['n_PA_MI_13_taxon_source_climate_rows']==83046
+          assert r['first_original_PLOT_ZIPs_SHA_verified']
+          assert r['no_TREE_DIA_STATUSCD_or_biological_outcome_evaluated']
+          assert not r['biological_promotion_authorized']
+          assert s['status']=='source_climate_rebuilt_without_any_demographic_outcomes'
+          assert len(s['first_original_PLOT_sources'])==3
+          print('ALL FIVE STATE NOAA SOURCE ONLY, primary both PA MI ready:',
+                r['n_primary_both_holdout_states_source_eligible'],'/5')
+          PY
+      - name: Preserve derived source-only comparison and failure receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-five-state-same-NOAA-20261105-source-only-v4
+          path: |
+            artifacts/fia_PA_MI_uniform_NOAA_source_v4/*.json
+            artifacts/fia_PA_MI_uniform_NOAA_source_v4/*.csv
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Retain original three PLOT source bytes off Git for source replay
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fia-RI-VA-WI-original-PLOT-immutable-source-v4
+          path: artifacts/fia_PA_MI_uniform_NOAA_source_v4/*_PLOT.zip
+          if-no-files-found: warn
+          retention-days: 45

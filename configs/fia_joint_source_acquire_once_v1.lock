@@ -1,0 +1,12 @@
+programme=fia_joint_source_only_v1
+cohort=new_not_original_v4
+declared_species=13
+states=RI_VA_WI
+NOAA_snapshot=20261006
+current_TREE_species_selection=forbidden
+DIA_STATUSCD_outcome_read=forbidden
+biological_promotion=forbidden
+source_table=source_only_pre_response
+fixed_source_strategy=single_new_FIA_DataMart_acquisition
+revision_anchor=89c6d8b1e16104495e5cc2a747afc7fdd6686c17
+one_shot_declared=2026-11-15
