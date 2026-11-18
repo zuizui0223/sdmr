@@ -5,6 +5,8 @@ on:
     paths:
       - 'src/sdmr/contextual_structure_evidence.py'
       - 'tests/test_contextual_structure_evidence.py'
+      - 'src/sdmr/structural_context_oracle.py'
+      - 'tests/test_structural_context_oracle.py'
       - 'docs/SDMR_STRUCTURAL_CONTEXT_BRIDGE_V1.md'
       - '.github/workflows/sdmr-structural-context-method-v1.yml'
   workflow_dispatch:
@@ -25,7 +27,7 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Verify new typed structure layer and existing many-to-many closure
         run: |
-          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_process_information_closure.py
+          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py
       - name: Ensure canonical frozen evidence not modified by this branch
         run: |
           python - <<'PY'
