@@ -55,6 +55,34 @@ The most interesting mechanistic fork is **stable site/stand differences versus 
 - Beetle host/resource identity is an *operator-specific* channel, not the same candidate as stand crowding. An observed beetle Hellinger² gain cannot validate a tree growth driver. A putative shared principle is conditional **residual information**, not shared coefficients.
 - Structural's connectivity and forest-resource operators must stay typed: geometry, measured vegetation/resource, detection/realized link and future demographic transition are different evidence levels.
 
+## Exact identifiability counterexample (synthetic mathematical result)
+
+A **single-time forest survey cannot in general determine the sign of the within-site structural relationship**, even if it measures a strong positive structure–growth covariance. Consider three independent zero-mean Gaussian latent terms: permanent site quality `U_i`, time-varying structural deviation `V_it` and residual `E_it`.
+
+```
+B_it = U_i + V_it                 # observed basal area / structure proxy
+Y_it = U_i + beta * V_it + E_it   # observed growth / endpoint
+```
+
+| Known-truth Gaussian world | Var(U) | Var(V) | beta (within-site slope) | Var(E) |
+| --- | ---: | ---: | ---: | ---: |
+| persistent-site proxy | 1 | 1 | **0** | 1 |
+| positive within-site | 1/2 | 3/2 | **+1/3** | 4/3 |
+| negative within-site | 4/3 | 2/3 | **−1/2** | 1/2 |
+
+All three worlds yield the **exact same** single-time bivariate Gaussian distribution:
+
+```
+Var(B) = 2
+Var(Y) = 2
+Cov(B,Y) = +1
+Corr(B,Y) = +0.5
+```
+
+Because Gaussian joint distributions are determined by their means and covariance matrix, **no statistical analysis of isolated single-time (B,Y) pairs alone can distinguish these three worlds**. Repeated within-site outcomes can distinguish their conditional beta under the stated independence/stability assumptions; observational temporal association alone still does not prove an intervention effect.
+
+The counterexample is executed with exact rational arithmetic in `src/sdmr/structural_context_oracle.py`, tested in `tests/test_structural_context_oracle.py`. It formalizes a familiar between-versus-within identifiability limitation; **it is not asserted to be a novel ecological law**, nor does it determine which world produced the historical FIA data.
+
 ## Executable v1 interface
 
 `StructuralContextContract` requires:
