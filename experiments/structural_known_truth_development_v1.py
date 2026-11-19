@@ -47,6 +47,19 @@ def main() -> None:
     args.output.write_bytes(encoded)
     print("DEVELOPMENT_ONLY", result["n_cases"], "SHA256", sha256(encoded).hexdigest())
     print("No real biology / prospective seeds / process promotion")
+    for world in WORLDS:
+        cases = [r for r in result["cases"] if r["world"] == world]
+        def mean(field):
+            return sum(float(row[field]) for row in cases) / len(cases)
+        print(
+            "WORLD", world,
+            "SPATIAL", round(mean("spatial_gain"), 6),
+            "TEMPORAL", round(mean("temporal_gain"), 6),
+            "CLOSURE", round(mean("closure_gain"), 6),
+            "BEETLE", round(mean("beetle_gain"), 6),
+            "FULL_NULL", round(mean("full_vs_null_gain"), 6),
+            "OBSERVED", [r["n_sites_observed"] for r in cases],
+        )
 
 
 if __name__ == "__main__":
