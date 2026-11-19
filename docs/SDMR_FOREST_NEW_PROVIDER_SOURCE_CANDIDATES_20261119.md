@@ -52,3 +52,27 @@ The strict sequence is:
 - Only after passing the sampling opportunity source gate and new design freeze may separately authorized biological outcome access be considered.
 
 **Access/availability boundary:** at this point no original Dryad BCI 2026 ZIP/file checksum or Harvard HF453 tree-file SHA has been obtained or saved. Their codebooks are genuine public source metadata; **physical/raw source admission remains pending**. The five previously archived forest study/source audit decisions remain separate and are not updated by these candidates.
+
+
+## 2026-11-19 provider-level byte identity check (metadata only, NOT a raw-file audit)
+
+The Harvard Forest public HF453 catalog links the **specific original filename**
+`hf453-01-tree-census-2021-2024.csv` at
+`https://harvardforest1.fas.harvard.edu/data/p45/hf453/hf453-01-tree-census-2021-2024.csv`.
+Its **publisher-generated preview** reports 123,232 rows × 14 columns and
+**MD5 `c6be7aa99e31ded2041a0aaea07c0205`**. These are *publisher
+metadata* only; this repository has **not** fetched the original CSV, hashed
+its bytes, parsed any biological outcome rows or accepted the preview as a
+new study outcome. The precise source URL redirected to a host not accessible
+through the available retrieval route.
+
+The independent `sdmr.forest_original_receipt_v1.audit_original_source_bytes`
+further enforces a prospective file SHA-256 match, optional publisher MD5
+match, immutable publisher-version string, and separation of original-source
+from analysis-artifact digests. It **never** authorizes biological result
+opening and cannot reconstruct publisher authenticity from a user-supplied
+path alone. A matching file hash must be followed by the separate
+original sampling/effort and process-carrier gate.
+
+Public source references: [HF453 dataset and use policy](https://harvardforest1.fas.harvard.edu/exist/apps/datasets/showData.html?id=HF453);
+[official HF453 file preview/checksum](https://harvardforest1.fas.harvard.edu/data/plots/hf453-01.pdf).
