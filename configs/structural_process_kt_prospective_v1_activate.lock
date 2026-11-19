@@ -1,0 +1,5 @@
+structural_kt_v1_activate=one_shot
+prospective_seeds=96001-96010
+worlds=8
+source_freeze_sha=9ccc3c4747b8dfd486623c756dbe5455f373a25b
+no_real_ecology=true
