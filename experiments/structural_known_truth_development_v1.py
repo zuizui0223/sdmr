@@ -1,0 +1,53 @@
+"""Run only burned development seeds for eight structural known-truth worlds.
+
+Never open prospective seeds here. No original forest, beetle or FIA records.
+"""
+from __future__ import annotations
+
+import argparse
+from dataclasses import asdict
+from hashlib import sha256
+import json
+from pathlib import Path
+
+from sdmr.structural_known_truth_v1 import (
+    WORLDS, generate_forest_world, score_forest_world
+)
+
+DEV_SEEDS = (1201, 1202, 1203)
+
+
+def run_development(seeds: tuple[int, ...]) -> dict:
+    if not seeds or len(set(seeds)) != len(seeds):
+        raise ValueError("unique nonempty seed list required")
+    if not set(seeds).issubset(DEV_SEEDS):
+        raise ValueError("only burned development seeds 1201–1203 are authorized")
+    cases = [asdict(score_forest_world(generate_forest_world(world, seed)))
+             for seed in seeds for world in WORLDS]
+    return {
+        "schema": "sdmr.structural_known_truth.development.v1",
+        "promotion": "not_authorized",
+        "empirical_data_opened": False,
+        "prospective_seeds_opened": False,
+        "seeds": list(seeds),
+        "worlds": list(WORLDS),
+        "cases": cases,
+        "n_cases": len(cases),
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seeds", type=int, nargs="+", default=list(DEV_SEEDS))
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    result = run_development(tuple(args.seeds))
+    encoded = (json.dumps(result, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_bytes(encoded)
+    print("DEVELOPMENT_ONLY", result["n_cases"], "SHA256", sha256(encoded).hexdigest())
+    print("No real biology / prospective seeds / process promotion")
+
+
+if __name__ == "__main__":
+    main()
