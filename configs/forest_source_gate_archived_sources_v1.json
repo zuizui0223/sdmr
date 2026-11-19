@@ -30,7 +30,7 @@
       "min_block_units": 1,
       "source_identity_verified": true,
       "temporal_alignment_verified": true,
-      "notes": "One original geographic holdout grid contained one sampled site; original 7/9 positive VD10 comparison is preserved as retrospective and does not establish causal process necessity or independent repeat sampling"
+      "notes": "142 original physical sites in nine spatial cells, at least one with only one original site; an already-consumed historical response cohort, with detection-conditional guild frame and incomplete process carriers"
     },
     {
       "source_id": "structural_carpathian_weiss170_116",
@@ -56,7 +56,7 @@
       "min_block_units": 4,
       "source_identity_verified": true,
       "temporal_alignment_verified": false,
-      "notes": "Carpathian 60 beech plus 56 spruce original plots in 18 stands nested in unverified nine mountain ranges; underscore taxon mapping is exploratory, 170/309 eligible headings; original deadwood prediction was not supported (not zero effect)"
+      "notes": "116 original physical plots in 18 stand groups nested within nine original mountain ranges of unverified membership; exact guild source match is unresolved and alternate post-header underscore formatting is exploratory; trap opportunity not fully audited"
     },
     {
       "source_id": "structural_england_nfi2026_canopy_malaise",
@@ -82,7 +82,7 @@
       "min_block_units": 1,
       "source_identity_verified": false,
       "temporal_alignment_verified": true,
-      "notes": "331 source metadata samples, 316/316 sequenced sample headers linked, 77 paired source plot-years, but region×year singleton defeats frozen permutation exchangeability; OTU rows unopened; physical site independence not proven"
+      "notes": "331 original source sample records and 316/316 sequenced sample headers linked to source columns; 77 paired plot-years but source region-by-year singleton strata; OTU rows not opened for this frozen comparison; physical site independence not proven"
     },
     {
       "source_id": "sdmr_fia_va_wi_selected_survivor_growth",
@@ -108,7 +108,7 @@
       "min_block_units": null,
       "source_identity_verified": true,
       "temporal_alignment_verified": true,
-      "notes": "Five fixed tree taxa and 170994 saved survivor growth rows, within-county BA +5/5 but temporal BA +2/5; anonymous species×county rows are NOT independent primary geographic blocks, unobserved harvest/survival selection remains unresolved"
+      "notes": "Five fixed taxa with 170994 previously opened survivor-conditioned growth rows, not a full cohort of all entry/exit statuses; species-by-county scored rows cannot establish original physical geographic-block independence; harvest and mortality selection remain unverified"
     },
     {
       "source_id": "structural_neon_2014_2018_vst_forest_link",
@@ -134,7 +134,7 @@
       "min_block_units": 0,
       "source_identity_verified": true,
       "temporal_alignment_verified": false,
-      "notes": "730 original beetle–plant same-plot-year source opportunities, 227 matched VST forest plot-years, but strict VST sampled_with_records plus positive tree area produced zero eligible plot-years; zero is availability, not a biological null"
+      "notes": "730 originally recorded beetle–plant co-surveyed plot-year source opportunities with 227 forest VST same-year metadata matches; strict surveyed-tree positive-area source requirement has zero eligible matched plot-years; not a biological zero"
     }
   ]
 }
