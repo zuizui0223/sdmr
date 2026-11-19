@@ -5,6 +5,9 @@ on:
     paths:
       - 'src/sdmr/contextual_structure_evidence.py'
       - 'src/sdmr/structural_selection_counterexample_v1.py'
+      - 'src/sdmr/observation_partial_identification_v1.py'
+      - 'tests/test_observation_partial_identification_v1.py'
+      - 'docs/SDMR_OBSERVATION_PARTIAL_IDENTIFICATION_V1.md'
       - 'tests/test_structural_selection_counterexample_v1.py'
       - 'tests/test_contextual_structure_evidence.py'
       - 'src/sdmr/structural_context_oracle.py'
@@ -42,7 +45,7 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Verify new typed structure layer and existing many-to-many closure
         run: |
-          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py tests/test_structural_known_truth_v1.py tests/test_structural_process_gate_v1.py tests/test_structural_process_benchmarks_v1.py tests/test_structural_process_kt_prospective_preflight_v1.py tests/test_structural_selection_counterexample_v1.py
+          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py tests/test_structural_known_truth_v1.py tests/test_structural_process_gate_v1.py tests/test_structural_process_benchmarks_v1.py tests/test_structural_process_kt_prospective_preflight_v1.py tests/test_structural_selection_counterexample_v1.py tests/test_observation_partial_identification_v1.py
       - name: Verify prospective contract schema without opening any unused seed
         run: |
           python experiments/structural_known_truth_prospective_v1.py --contract configs/structural_process_kt_prospective_v1.json --preflight-only
