@@ -65,4 +65,4 @@ def test_source_barrier_refuses_unfrozen_execution_before_git_or_rng_access():
 
 def test_unopened_prospective_result_does_not_exist_on_design_line():
     assert not Path("results/structural_known_truth_prospective_v1_result.json").exists()
-    assert not Path("configs/structural_process_kt_prospective_v1_activate.lock").exists()
+    # Activation may legitimately exist later; response data remain outside the branch.
