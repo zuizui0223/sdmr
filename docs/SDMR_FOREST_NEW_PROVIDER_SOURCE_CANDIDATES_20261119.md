@@ -1,6 +1,6 @@
 # New independent forest provider candidates: original status and sampling frame, no response opening
 
-**Source research status: 2026-11-19 metadata/codebook discovery ONLY.** This is not a downloaded/citable raw source archive, no original tree response rows/status observations are opened, and no forest survival/growth or ecological mechanism effect has been estimated. The prior five-source retrospective/source-only gate and all 80 synthetic KT cases remain unchanged.
+**Source research status (updated 2026-11-19): public codebook discovery plus a successful HF453 original-byte checksum audit.** The HF453 first provider stream was SHA-256/MD5 checked and discarded, without decoding any original tree response rows/status observations; no forest survival/growth or ecological mechanism effect has been estimated. The prior five-source retrospective/source-only gate and all 80 synthetic KT cases remain unchanged.
 
 ## A. BCI / Smithsonian, 2026 Dryad revised release
 
@@ -51,10 +51,10 @@ The strict sequence is:
 - Make an explicitly **within-study diagnostic** target if all independent geographic units lie within one forest/island; don't describe a 6-plot or 35-ha sample as a global forest test.
 - Only after passing the sampling opportunity source gate and new design freeze may separately authorized biological outcome access be considered.
 
-**Access/availability boundary:** at this point no original Dryad BCI 2026 ZIP/file checksum or Harvard HF453 tree-file SHA has been obtained or saved. Their codebooks are genuine public source metadata; **physical/raw source admission remains pending**. The five previously archived forest study/source audit decisions remain separate and are not updated by these candidates.
+**Access/availability boundary:** BCI Dryad 2026 original ZIP and file checksums remain unverified. HF453 original **byte identity** has now passed an independent source-only checksum step (see terminal appendix below), but tree-row identity, sampling opportunity and status/risk-set correctness have **not** been audited. Both studies remain unavailable for new biological process identification. The five previously archived forest study/source audit decisions remain separate and are not updated by these candidates.
 
 
-## 2026-11-19 provider-level byte identity check (metadata only, NOT a raw-file audit)
+## 2026-11-19 historical provider-check metadata (before first original-byte opening)
 
 The Harvard Forest public HF453 catalog links the **specific original filename**
 `hf453-01-tree-census-2021-2024.csv` at
@@ -76,3 +76,10 @@ original sampling/effort and process-carrier gate.
 
 Public source references: [HF453 dataset and use policy](https://harvardforest1.fas.harvard.edu/exist/apps/datasets/showData.html?id=HF453);
 [official HF453 file preview/checksum](https://harvardforest1.fas.harvard.edu/data/plots/hf453-01.pdf).
+
+
+## 2026-11-19 HF453 first original-byte terminal — source-only verified, no biological effect
+
+One and only lock-triggered [Actions run #44475206249](https://github.com/zuizui0223/sdmr/actions/runs/44475206249) at source commit `a14cc8362a971aff66e7d49c003eb37de108d190` **SUCCESS**. The official Harvard original CSV HTTPS stream resolved to the allowed publisher host; the complete **5,524,386 bytes** matched pre-recorded publisher MD5 `c6be7aa99e31ded2041a0aaea07c0205`, with new full-byte SHA-256 `0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74`. Original CSV bytes were **not archived or parsed**; job artifact #14506116223 stores only the preflight and match JSONs. ZIP SHA-256 `b7934bb8bbe351f90fb95de871b8c959061d4256f8bdfd7e4624206592755a96`; full [source checkpoint](../evidence/hf453_publisher_original_bytes_first_open_v1.json).
+
+The exact source-only methods are in [the original-byte preregistered contract](SDMR_HF453_ORIGINAL_BYTE_ONESHOT_V1.md); the *post-source, pre-response* [HF453 risk-set protocol](SDMR_HF453_RISKSET_PREFREEZE_V1.md) declares original tag, July occasion, living start states, visually dead `DC/DS`, unresolved `DN`, and missingness-robust canopy comparison. These are **not** field estimates. No actual tree status rows, sample-level response counts or mortality models have been inspected, and a single Harvard forest remains **one forest**, not independent ecosystem replication.
