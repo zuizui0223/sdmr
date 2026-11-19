@@ -220,7 +220,17 @@ def classify_interval(panel: dict, first: int, second: int) -> dict:
             complete_source_frame_verified=True,
             actual_recorded_negatives_verified=True,
         )
-        out["identified_CP_contrast"] = b.receipt()
+        out["identified_CP_contrast"] = {
+            "status": "within_single_forest_associational_partial_bounds",
+            "lower": str(b.lower),
+            "upper": str(b.upper),
+            "sign": b.sign,
+            "underlying_associational_estimand": b.target,
+            "field_biological_status_opened": True,
+            "causal_process_identified": False,
+            "not_a_confidence_interval": True,
+            "unrestricted_outcome_dependent_missingness": True,
+        }
     out["CP_contrast_population_scope"] = (
         "source_published_tagged_cohort_alive_at_start_and_CP_observed"
     )
