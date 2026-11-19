@@ -1,0 +1,119 @@
+name: SDMR HF453 first observed status transition — one forest one-shot
+
+# Only a new exact run-lock creation triggers opening of original biological
+# status/CP rows. The primary 2021→2022 endpoint was predeclared in a separate
+# config before this workflow; no push/PR running unrelated code may reopen Y.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf453_first_status_transition_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  single-forest-status-first-open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce exact preregistered config, code and synthetic tests before Y opening
+        run: |
+          test "$(git hash-object configs/hf453_demographic_transition_first_open_v1.json)" = "fc942041d1ddda8d3dfa3166a6026d0139f24a7f"
+          test "$(git hash-object scripts/hf453_first_status_transition_v1.py)" = "14e1293373d51b5491239d0ec9e51d9c4f44274c"
+          test "$(git hash-object tests/test_hf453_first_status_transition_v1.py)" = "ed0b397896a14d128827b6a5e6027d931694ee29"
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/hf453_first_status_transition_once_v1.lock').read_text()
+          x=[
+            'program=sdmr_hf453_2021_2024_transitions_first_open_v1',
+            'first_biological_response_opening=true',
+            'scope=within_one_HF453_published_tagged_cohort_only',
+            'source=harvard_forest_hf453_2026_v1',
+            'fixed_source_sha256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74',
+            'fixed_source_bytes=5524386',
+            'fixed_source_md5=c6be7aa99e31ded2041a0aaea07c0205',
+            'primary=2021_to_2022',
+            'secondary=2022_to_2023,2023_to_2024',
+            'endpoint=observed_DC_or_DS_after_start_A_or_AU',
+            'DN_missing_or_unfound=unknown_never_observed_death',
+            'canopy_context=start_year_CP_1_2_vs_3_4_5',
+            'strict_source_counts=30808_tags_x_4_years',
+            'no_row_or_individual_identifiers_archived=true',
+            'no_causal_or_multi_biome_promotion=true',
+            'M5_ProductA_unchanged_ProductB_blocked=true',
+          ]
+          assert lock.splitlines() == x, 'HF453 first response lock altered'
+          PY
+      - name: Source-free synthetic protocol and original SHA guards
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q tests/test_hf453_first_status_transition_v1.py tests/test_observation_partial_identification_v1.py tests/test_forest_longitudinal_status_v1.py
+      - name: Confirm preflight never accesses original biological Y
+        run: |
+          python scripts/hf453_first_status_transition_v1.py \
+            --config configs/hf453_demographic_transition_first_open_v1.json \
+            --preflight-only \
+            --out artifacts/hf453_first_status_preflight_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/hf453_first_status_preflight_v1.json'))
+          assert d['preflight'] and not d['response_original_HF453']
+          assert d['result']['status']=='preflight_only_no_response_opened'
+          assert d['M5_ProductA_unchanged'] and not d['Product_B_unblocked']
+          PY
+      - name: First source-pinned HF453 original status+prior-CP opening
+        run: |
+          python scripts/hf453_first_status_transition_v1.py \
+            --config configs/hf453_demographic_transition_first_open_v1.json \
+            --execute-lock configs/hf453_first_status_transition_once_v1.lock \
+            --out artifacts/hf453_first_status_transitions_v1.json
+      - name: Fail closed on source or denominator drift and block causal promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/hf453_first_status_transitions_v1.json')
+          assert p.is_file() and p.stat().st_size > 400, "complete original result JSON missing"
+          x=json.loads(p.read_text())
+          assert x['program']=='sdmr_hf453_2021_2024_transitions_first_open_v1'
+          assert x['response_original_HF453'] is True and not x['preflight']
+          assert x['causal_effect_estimated'] is False
+          assert x['multi_biome_generalization_tested'] is False
+          assert x['no_p_values_or_confidence_intervals'] is True
+          assert x['no_raw_source_rows_retained'] is True
+          assert x['M5_ProductA_unchanged'] and not x['Product_B_unblocked']
+          r=x['result']
+          assert r['status']=='within_single_forest_descriptive_status_opened'
+          assert r['original_source_hash_verified_before_response']
+          assert r['original_source_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert r['source_frame']['n_source_rows']==123232
+          assert r['source_frame']['n_distinct_tags']==30808
+          assert r['source_frame']['all_tag_year_records_present']
+          assert r['primary']['interval']=='2021_to_2022'
+          assert len(r['secondary_descriptive'])==2
+          for t in [r['primary'],*r['secondary_descriptive']]:
+            assert t['n_published_tags']==30808
+            assert t['n_start_observed_alive']+t['n_start_not_at_risk_dead']+t['n_start_not_at_risk_DN_or_missing']==30808
+            assert t['n_start_observed_alive']==t['n_end_observed_dead_DC_DS']+t['n_end_observed_alive_A_AU']+t['n_end_unknown_DN_or_missing']
+            assert not t['independent_forest_replication']
+            assert t['identified_CP_contrast']['status'] in (
+                'within_single_forest_associational_partial_bounds',
+                'unavailable_zero_measured_canopy_group'
+            )
+          print('HF453 original first-open source counts complete; associative bounds only')
+          PY
+      - name: Archive original single-forest aggregate plus preflight, no raw rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-single-forest-first-status-2021-2024-v1
+          path: |
+            artifacts/hf453_first_status_transitions_v1.json
+            artifacts/hf453_first_status_preflight_v1.json
+          if-no-files-found: error
+          retention-days: 90
