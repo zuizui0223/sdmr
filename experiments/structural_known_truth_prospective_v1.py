@@ -186,7 +186,9 @@ def evaluate_prospective(contract: dict) -> dict:
         "omitted_driver_unavailable": unavailable_missing,
         "shared_carrier_recovered": recovered_shared,
         "cases": [
-            {**asdict(s), "process_state": st.state, "process_reason": st.reason}
+            {**asdict(s), "process_state": st.state, "process_reason": st.reason,
+             "causal_process_identified": st.causal_process_identified,
+             "empirical_promotion_authorized": st.empirical_promotion_authorized}
             for s, st in zip(scores, states)
         ],
     }
