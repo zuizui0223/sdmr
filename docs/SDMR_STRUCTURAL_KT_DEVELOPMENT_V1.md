@@ -39,6 +39,18 @@ The selected `observation_selection` cohort is NOT an unbiased conditional sampl
 - Synthetic results are **always** tagged `development_known_truth_only` and `synthetic_diagnostic_only`. No promotion rule converts their p-values to field evidence.
 - All development data are generated from exactly the same code and source **never** open real FIA, Structural, GBIF, NEON or new species-response values.
 
+## Conservative process-information gate (burned-seed development)
+
+The optional `src/sdmr/structural_process_gate_v1.py` requires, in this order: at least eight independent regions, a **documented observation/attrition process**, positive full-system heldout information against a null reference (>0.05 squared-error units), positive **spatial all-carrier** process closure (>0.03), and positive **same-interval temporal all-carrier** closure (>0.03, conditional 8-region sign-flip p≤0.05). The result is only `contributory_information_candidate`; causal identification and empirical promotion remain hardcoded **false**. Failing the coverage or system-information gate yields `unavailable`; failing any carrier/temporal criterion yields `unresolved`. **The world generator itself provides the observation-quality flag as known-truth metadata. This is NOT a data-driven detector of unobserved selection**, and cannot justify marking a real cohort selection-safe.
+
+The diagnostic comparator panel deliberately holds common cutoffs fixed but changes which information is used:
+- `spatial_single_predictor`: only spatial addition of B to the declared reference;
+- `space_and_time_single_predictor`: spatial plus within-site addition of B individually;
+- `all_carriers_without_observation_audit`: spatial+temporal complete process-carrier exclusion, but ignore observation audit;
+- `all_carriers_with_observation_audit`: full conservative decision.
+
+Comparators share the *same* source units, blocks, learner and losses; only the declared inference rule changes. These are **synthetic policy ablations**, not validation against all published conditional-importance/model-class reliance methods. Thresholds were chosen with burned seeds accessible; development results cannot be used as independent promotion.
+
 ## Experiment and evidence partitions
 
 Code: `src/sdmr/structural_known_truth_v1.py`, tests `tests/test_structural_known_truth_v1.py`.
