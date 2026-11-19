@@ -1,0 +1,58 @@
+name: HF453 first biological opening archive-only reconciliation (no refits)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_hf453_first_status_saved_v1.py'
+      - 'tests/test_audit_hf453_first_status_saved_v1.py'
+      - 'evidence/hf453_first_observed_status_transition_v1.json'
+      - '.github/workflows/sdmr-hf453-first-status-archive-audit-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  saved-aggregate-arithmetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic and aggregate mutation guard, original response NOT downloaded
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_audit_hf453_first_status_saved_v1.py
+      - name: Independently reconstruct all saved source-status denominators and exact fractions
+        run: |
+          python scripts/audit_hf453_first_status_saved_v1.py \
+            --saved-checkpoint evidence/hf453_first_observed_status_transition_v1.json \
+            --out artifacts/hf453_first_status_saved_arithmetic_audit_v1.json
+      - name: Guard provenance and scientific inference ceilings
+        run: |
+          python - <<'PY'
+          import json
+          p='artifacts/hf453_first_status_saved_arithmetic_audit_v1.json'
+          r=json.load(open(p))
+          assert r['status']=='original_saved_aggregate_arithmetic_reconciled'
+          assert len(r['intervals'])==3
+          assert r['first_source_run']==44540469560
+          assert r['n_source_tags']==30808 and r['n_tag_year_records']==123232
+          assert not r['original_raw_HF453_source_accessed']
+          assert not r['new_field_response_opened']
+          assert r['models_refit']==0
+          assert not r['independent_forest_replication']
+          assert not r['causal_process_identified']
+          assert not r['Product_B_unblocked']
+          assert r['intervals'][0]['main_predeclared']
+          print('Three fixed status intervals reconciled, 0 source rows opened')
+          PY
+      - name: Archive independent arithmetic only (no original tree data)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-first-status-saved-arithmetic-audit-v1
+          path: artifacts/hf453_first_status_saved_arithmetic_audit_v1.json
+          if-no-files-found: error
+          retention-days: 90
