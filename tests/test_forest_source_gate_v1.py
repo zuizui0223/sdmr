@@ -164,6 +164,18 @@ def test_typed_profile_validation_refuses_contradictory_metadata():
         _source(response_state="unopened", design_state="historical_outcome_exposed")
 
 
+
+def test_metadata_catalog_rejects_top_level_outcomes_and_threshold_changes():
+    c = json.loads(CATALOG.read_text())
+    c["unopened_growth_responses"] = [100.0]
+    with pytest.raises(ValueError, match="top-level schema mismatch"):
+        source_catalog_receipt(c)
+    c = json.loads(CATALOG.read_text())
+    c["minimum_per_block"] = 1
+    with pytest.raises(ValueError, match="thresholds differ"):
+        source_catalog_receipt(c)
+
+
 def test_source_only_catalog_rejects_duplicate_groups_and_unknown_schemas():
     c = json.loads(CATALOG.read_text())
     c["sources"].append(c["sources"][0])
