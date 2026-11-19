@@ -69,7 +69,8 @@ def test_all_tags_and_statuses_and_censored_dn_remain_separate():
     assert q["upper"]=="0"
     assert q["sign"]=="unresolved_including_zero"
     assert q["causal_process_identified"] is False
-    assert q["biological_result_estimated"] is False  # generic method result flag
+    assert q["field_biological_status_opened"] is True
+    assert q["not_a_confidence_interval"] is True
 
 
 def test_secondary_events_not_independent_or_survivor_selected_at_end():
