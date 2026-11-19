@@ -1,12 +1,21 @@
 """Response-blind tests. NEVER generate/score prospective seeds here."""
 from pathlib import Path
+from importlib.util import module_from_spec, spec_from_file_location
 import json
 
 import pytest
 
-from experiments.structural_known_truth_prospective_v1 import (
-    SCHEMA, EXPECTED_SEEDS, verify_design, verify_one_shot_source,
-)
+# experiments/ is a deliberately non-package execution directory. Import the
+# single script by file identity so Python 3.10–3.13 test collection is stable.
+_SCRIPT = Path(__file__).resolve().parents[1] / "experiments" / "structural_known_truth_prospective_v1.py"
+_SPEC = spec_from_file_location("structural_kt_preflight_script", _SCRIPT)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+SCHEMA = _MODULE.SCHEMA
+EXPECTED_SEEDS = _MODULE.EXPECTED_SEEDS
+verify_design = _MODULE.verify_design
+verify_one_shot_source = _MODULE.verify_one_shot_source
 
 
 CONTRACT = Path("configs/structural_process_kt_prospective_v1.json")
