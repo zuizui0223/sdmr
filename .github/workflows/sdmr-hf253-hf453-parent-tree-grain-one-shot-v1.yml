@@ -1,0 +1,121 @@
+name: SDMR HF253 to HF453 parent tree identity grain v1 (one-shot source-only)
+
+# Entire original HF253/HF453 bytes must match frozen SHA before source-only
+# mechanical IDs are read. One-shot locked push, no PR-triggered source GET.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf253_hf453_parent_grain_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  original-parent-tree-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen source-only code/test and exact authorization lock
+        run: |
+          test "$(git hash-object scripts/hf253_hf453_parent_tree_grain_source_v1.py)" = "826391a61d908cfd8590f8757a0fee25e6f90093"
+          test "$(git hash-object tests/test_hf253_hf453_parent_tree_grain_source_v1.py)" = "520b17956ffd9d52072f879903c38e02cac59fb4"
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/hf253_hf453_parent_grain_once_v1.lock').read_text()
+          expected="\n".join([
+            'program=sdmr_hf253_hf453_source_only_parent_tree_grain_v1',
+            'source_stage=parent_tree_grain_only_no_biological_values',
+            'HF453_original_SHA256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74',
+            'HF253_original_SHA256=bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7',
+            'HF253_original_bytes=12687409',
+            'HF253_original_EML=knb-lter-hfr.253.6',
+            'HF253_original_URL=https://harvardforest.fas.harvard.edu/data/p25/hf253/hf253-06-stems-2019.csv',
+            'read_only_fields=HF453_StemTag_year_HF253_stem.tag_stem.id_tree.id',
+            'no_species_DBH_CP_status_growth_or_mortality_opening=true',
+            'no_model_refit_or_causal_claim=true',
+            'no_original_tree_or_stem_IDs_exported=true',
+            'no_original_CSV_retained=true',
+            'no_favorable_subset_or_key_normalization=true',
+            'HF453_first_biological_result_not_reclassified=true',
+            'ProductA_M5_unchanged_ProductB_blocked=true',
+          ])+"\n"
+          assert lock==expected, 'original source-only parent-tree contract changed'
+          PY
+      - name: Run no-original-source synthetic parent/grain refusal tests first
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q \
+            tests/test_hf253_hf453_parent_tree_grain_source_v1.py \
+            tests/test_hf253_hf453_original_tag_crosswalk_v2.py
+      - name: Verify response-free preflight
+        run: |
+          python scripts/hf253_hf453_parent_tree_grain_source_v1.py \
+            --preflight-only --out artifacts/hf253_hf453_parent_preflight_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/hf253_hf453_parent_preflight_v1.json'))
+          assert d['preflight']
+          assert d['result']['status']=='preflight_no_original_tree_or_stem_data_read'
+          assert not d['new_biological_status_size_or_species_values_opened']
+          PY
+      - name: Recheck the two exact original SHA and count parent tree IDs only
+        run: |
+          python scripts/hf253_hf453_parent_tree_grain_source_v1.py \
+            --execute-lock configs/hf253_hf453_parent_grain_once_v1.lock \
+            --out artifacts/hf253_hf453_parent_tree_grain_v1.json
+      - name: Verify complete original source and no biological promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/hf253_hf453_parent_tree_grain_v1.json')
+          assert p.is_file() and p.stat().st_size > 400
+          d=json.loads(p.read_text())
+          assert d['program']=='sdmr_hf253_hf453_source_only_parent_tree_grain_v1'
+          assert not d['preflight']
+          assert not d['new_biological_status_size_or_species_values_opened']
+          assert d['HF453_original_status_CP_effect_untouched']
+          assert d['one_forest_not_independent_replication']
+          assert not d['Product_B_unblocked']
+          r=d['result']
+          assert r['original_HF453_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert r['original_HF253_sha256']=='bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7'
+          assert r['original_HF253_bytes']==12687409
+          assert r['no_biological_source_columns_interpreted']
+          assert r['no_raw_source_rows_saved']
+          m=r['HF253_source_identity_metadata']
+          assert m['n_HF253_original_rows']==123218
+          assert m['only_mechanical_identity_columns_used']
+          assert m['species_diameter_status_and_canopy_values_not_read']
+          p=r['parent_tree_grain']
+          assert p['status'] in {
+            'parent_tree_identity_mapped_source_only',
+            'parent_tree_identity_incomplete_source_hold',
+          },p['status']
+          assert p['n_original_HF453_StemTag']==30808
+          assert p['n_stem_tag_matches_in_original_HF253']==30808
+          assert p['n_unmatched_HF453_StemTag']==0
+          assert p['n_source_resolved_stem_tags']+p['n_missing_original_stem_or_tree_parentID']+p['n_ambiguous_original_stem_to_parent_treeID']==30808
+          h=p['parent_stem_multiplicity_histogram']
+          assert sum(h.values())==p['n_distinct_original_tree_ID_candidates']
+          assert sum(h[k] for k in ('two','three','four','five_or_more'))==p['n_tree_IDs_with_at_least_two_matched_stems']
+          assert p['physical_tree_independence_not_inferred_from_stem_tags']
+          assert p['no_biological_response_or_process_causal_inference']
+          print('Source-only parent tree candidate status:',p['status'])
+          print('No demographic model, no species/DBH/CP/status row read')
+          PY
+      - name: Archive exact parent counts or a recorded hold, never raw IDs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf253-hf453-parent-tree-grain-source-only-v1
+          path: |
+            artifacts/hf253_hf453_parent_tree_grain_v1.json
+            artifacts/hf253_hf453_parent_preflight_v1.json
+          if-no-files-found: error
+          retention-days: 90
