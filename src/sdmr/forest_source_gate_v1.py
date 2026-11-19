@@ -240,6 +240,21 @@ def source_catalog_receipt(
     """Audit exact fields of a saved source-only catalog; reject hidden rows."""
     if catalog.get("schema") != "sdmr.forest_observation_source_only.v1":
         raise ValueError("unrecognized source-only catalog schema")
+    required_top = {
+        "schema", "metadata_only", "scope", "no_biological_data_access",
+        "minimum_independent_blocks", "minimum_per_block", "sources",
+    }
+    if set(catalog) != required_top:
+        raise ValueError(
+            "source-only top-level schema mismatch: no biological responses or scores"
+        )
+    if catalog["metadata_only"] is not True or catalog["no_biological_data_access"] is not True:
+        raise ValueError("must declare source metadata only")
+    if (not isinstance(catalog["scope"], str) or not catalog["scope"].strip()):
+        raise ValueError("scope must be a nonempty provenance statement")
+    if (catalog["minimum_independent_blocks"] != minimum_independent_blocks or
+            catalog["minimum_per_block"] != minimum_per_block):
+        raise ValueError("source gate thresholds differ from the supplied catalog")
     entries = catalog.get("sources")
     if not isinstance(entries, list) or not entries:
         raise ValueError("nonempty sources array required")
