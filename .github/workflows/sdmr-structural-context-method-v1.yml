@@ -7,6 +7,10 @@ on:
       - 'tests/test_contextual_structure_evidence.py'
       - 'src/sdmr/structural_context_oracle.py'
       - 'tests/test_structural_context_oracle.py'
+      - 'src/sdmr/structural_known_truth_v1.py'
+      - 'tests/test_structural_known_truth_v1.py'
+      - 'experiments/structural_known_truth_development_v1.py'
+      - 'docs/SDMR_STRUCTURAL_KT_DEVELOPMENT_V1.md'
       - 'docs/SDMR_STRUCTURAL_CONTEXT_BRIDGE_V1.md'
       - '.github/workflows/sdmr-structural-context-method-v1.yml'
   workflow_dispatch:
@@ -27,7 +31,26 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Verify new typed structure layer and existing many-to-many closure
         run: |
-          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py
+          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py tests/test_structural_known_truth_v1.py
+      - name: Burned-seed source-free structural development diagnostic
+        run: |
+          python experiments/structural_known_truth_development_v1.py --seeds 1201 1202 1203 --output artifacts/structural_kt_development_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/structural_kt_development_v1.json'))
+          assert d['n_cases']==24
+          assert d['promotion']=='not_authorized'
+          assert d['empirical_data_opened'] is False
+          assert d['prospective_seeds_opened'] is False
+          assert len(d['worlds'])==8 and len(d['seeds'])==3
+          print('Worlds: 8; development cases: 24; prospective: unopened')
+          PY
+      - name: Archive nonpromotable development metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-structural-kt-development-only-v1
+          path: artifacts/structural_kt_development_v1.json
+          if-no-files-found: error
       - name: Ensure canonical frozen evidence not modified by this branch
         run: |
           python - <<'PY'
