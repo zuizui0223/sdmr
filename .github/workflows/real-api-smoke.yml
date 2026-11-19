@@ -1,8 +1,8 @@
 name: real-api-smoke
 
 on:
-  pull_request:
-    branches: [main]
+  # Non-citable GBIF search-API diagnostic: manually invoked only.
+  # Do not burn external network calls on unrelated method PRs.
   workflow_dispatch:
 
 concurrency:
