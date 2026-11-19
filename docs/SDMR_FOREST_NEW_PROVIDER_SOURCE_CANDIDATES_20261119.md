@@ -1,0 +1,54 @@
+# New independent forest provider candidates: original status and sampling frame, no response opening
+
+**Source research status: 2026-11-19 metadata/codebook discovery ONLY.** This is not a downloaded/citable raw source archive, no original tree response rows/status observations are opened, and no forest survival/growth or ecological mechanism effect has been estimated. The prior five-source retrospective/source-only gate and all 80 synthetic KT cases remain unchanged.
+
+## A. BCI / Smithsonian, 2026 Dryad revised release
+
+Source: [Wright, Dryad DOI 10.5061/dryad.1g1jwsvc3](https://datadryad.org/dataset/doi:10.5061/dryad.1g1jwsvc3). Published **2026-03-17**, revised **2026-08-31** (two different versions, never silently mixed). The author-public codebook advertises exactly five current file names: `Key_sp6.txt`, `mainfile.txt`, `Plot_UTM_coordinates.txt`, `README.md`, `stemfile.txt`. Original file hashes and publisher version ID remain **unretrieved** and must be frozen from original provider before source opening. Direct original README download attempt by web tool returned HTTP403; do not treat that as evidence of biological absence or bypass provider access controls.
+
+**Design information only:** six BCI plots, three census labels **2004, 2014, 2025**, 58 hectares in total, 34,367 original recorded measurements, 15,562 tagged trees and 222 species per author metadata. This is **one tropical-island location**, NOT six independent biomes. The source `mainfile` is tree-level and records `plot, tag, census, unique.id, status`; a tag can repeat across plots so the individual key is `plot + tag`. In the multi-stem table each tree receives one tag; a stem should **not** be longitudinally identified across censuses. Original date fields, potentially differing measurement periods, must be audited before annualizing growth.
+
+Source-status semantics from the author-public README:
+- `future recruit`: did not yet meet entry threshold, **not an observed absence**.
+- `alive`: recorded alive.
+- `missing`: previously alive but not found, **death is not demonstrated** by that category alone.
+- `dead`: original author's mixed class, including found dead and certain inferred deaths after repeated missing census; **not uniformly an observed death**. Any strict observed-mortality denominator needs the original individual code/census provenance.
+- `dbh` absent when missing, dead or future-recruit and for some otherwise alive records; missing numeric diameter must not be imputed to zero.
+
+**Provisional scientific role:** stress-test long-term identity, entry/recruitment, presumed-dead versus observed-dead and completeness of source opportunities. It cannot alone demonstrate cross-biome portability or a causal forest structural coefficient.
+
+## B. Harvard Forest, HF453 2026 field-health series
+
+Source: [Harvard Forest HF453](https://harvardforest1.fas.harvard.edu/exist/apps/datasets/showData.html?id=HF453), DOI [10.6073/pasta/0bc6f43d7406c9c01e84a3dd4ed65193](https://doi.org/10.6073/pasta/0bc6f43d7406c9c01e84a3dd4ed65193), original `hf453-01`, published 2026 under CC0. The author reports an **annual July census 2021–2024 of all stems ≥10 cm DBH in one 35-ha Harvard Forest ForestGEO plot**, linked to CTFS/ForestGEO stem tags, canopy position, percentage intact/live crown and tree health/damage factors.
+
+Published codebook:
+- `A`: observed alive with no recorded visible health issue.
+- `AU`: alive with at least one health issue.
+- `DC`: dead/down; `DS`: dead/standing.
+- `DN`: coded dead/not found, not direct visual confirmation of a fallen or standing dead individual. Keep separate in a strict known-observed-death sensitivity.
+- `CP` canopy position and `PercCI/PercCL` original crown/foliage measures could be prior predictors in an appropriately frozen `t → t+1` mortality or health transition, but should NOT be read as independent causal causes of later death without adjustment for time, health/state, plot, treatment and detection.
+
+**Provisional scientific role:** independent *original measurement protocol* to test whether repeated survey status, prior health and visible/unfound mortality can be represented without collapsing absence/missingness. This is also **one forest**; its 35-ha survey is not 35 independent ecosystem replicates.
+
+## Reusable contract now implemented — codebook only
+
+`src/sdmr/forest_longitudinal_status_v1.py` and `tests/test_forest_longitudinal_status_v1.py` pin the two public codebooks as separate namespaces:
+
+1. Disallow invented cross-source aliases, `missing → death`, `future recruit → zero/absence` or `BCI stemID → stable across censuses`.
+2. Distinguish author-reported inferred deaths from visual dead statuses.
+3. Refuse reversed or undeclared census labels.
+4. Explicitly state that classification of synthetic status pairs is **not** a population mortality rate, actual time-at-risk or consent to open biological data.
+
+The tests use *synthetic labels only*. No Dryad or HF453 raw response values are fetched.
+
+## Next source admission, before any organism data are opened
+
+The strict sequence is:
+
+- Obtain original public file metadata/version, exact download archive SHA/checksums and original source license (without biological data inspection).
+- Freeze original sample-unit identity, site/plot/census calendar, status-code interpretation, source sampling/effort method and a source version.
+- Specify *separate* response-free burned pilot versus outcome heldout, exact original tree-level cohort/censoring/entry rules, at-risk denominator and spatial blocks without looking at outcome values.
+- Make an explicitly **within-study diagnostic** target if all independent geographic units lie within one forest/island; don't describe a 6-plot or 35-ha sample as a global forest test.
+- Only after passing the sampling opportunity source gate and new design freeze may separately authorized biological outcome access be considered.
+
+**Access/availability boundary:** at this point no original Dryad BCI 2026 ZIP/file checksum or Harvard HF453 tree-file SHA has been obtained or saved. Their codebooks are genuine public source metadata; **physical/raw source admission remains pending**. The five previously archived forest study/source audit decisions remain separate and are not updated by these candidates.
