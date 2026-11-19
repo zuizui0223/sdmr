@@ -9,7 +9,7 @@ For each **physical site** `i` in source-independent **region** `r`, generate tw
 Three distinct quantities are audited with the *same* physical sites and out-of-region folds:
 1. `spatial_gain`: mean squared error of climate/reference minus climate/reference+`B_0` in the unseen region.
 2. `temporal_gain`: heldout mean squared error of changes `Y_1−Y_0` predicted without versus with *same-interval* `B_1−B_0`. **This is within-site change association, not prospective future forecasting or causal intervention**.
-3. `closure_gain`: heldout change in spatial error after excluding all structural carriers. For `shared_carrier` the reference contains `Z=B`; its *individual* addition of `B` should be near zero even when the **full B+Z carrier set** is informative.
+3. `closure_gain` **and `temporal_closure_gain`**: spatial and same-interval heldout changes in error after excluding all structural carriers. For `shared_carrier` the reference contains `Z=B`; its *individual* addition of `B` is near zero in both axes even when the **full B+Z carrier set** is informative in both. The decision gate must use full-carrier closure for **both** axes; otherwise it falsely abstains on genuine redundant process information.
 4. Separate `beetle_gain` represents an **incompatible biological operator/endpoint**. It cannot be pooled or counted as tree-growth process confirmation.
 5. `full_vs_null_gain`: full declared representation versus a training-only intercept; an omitted-driver world should not pass a meaningful absolute information check.
 
