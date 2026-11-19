@@ -57,7 +57,8 @@ jobs:
           assert d['empirical_data_opened'] is False
           assert d['original_M5_and_Product_A_unchanged'] is True
           assert d['Product_B_unblocked'] is False
-          assert all(not c['causal_process_identified'] for c in [])  # decisions have explicit no-promotion guard
+          assert d['gates']['no_empirical_or_causal_promotions'] is True
+          assert all(not c['causal_process_identified'] and not c['empirical_promotion_authorized'] for c in d['cases'])
           assert len(d['comparators'])==4
           print('Truth denominator and scientific non-promotion checks complete:',d['status'])
           PY
