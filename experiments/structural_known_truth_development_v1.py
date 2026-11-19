@@ -14,6 +14,7 @@ from sdmr.structural_known_truth_v1 import (
     WORLDS, generate_forest_world, score_forest_world
 )
 from sdmr.structural_process_gate_v1 import assess_forest_development
+from sdmr.structural_process_benchmarks_v1 import aggregate_comparators
 
 DEV_SEEDS = (1201, 1202, 1203)
 
@@ -24,9 +25,11 @@ def run_development(seeds: tuple[int, ...]) -> dict:
     if not set(seeds).issubset(DEV_SEEDS):
         raise ValueError("only burned development seeds 1201–1203 are authorized")
     cases = []
+    scored = []
     for seed in seeds:
         for world in WORLDS:
             score = score_forest_world(generate_forest_world(world, seed))
+            scored.append(score)
             record = asdict(score)
             gate = assess_forest_development(score)
             record["process_state"] = gate.state
@@ -43,6 +46,7 @@ def run_development(seeds: tuple[int, ...]) -> dict:
         "worlds": list(WORLDS),
         "cases": cases,
         "n_cases": len(cases),
+        "comparators": [asdict(c) for c in aggregate_comparators(scored)],
     }
 
 
@@ -57,6 +61,10 @@ def main() -> None:
     args.output.write_bytes(encoded)
     print("DEVELOPMENT_ONLY", result["n_cases"], "SHA256", sha256(encoded).hexdigest())
     print("No real biology / prospective seeds / process promotion")
+    for row in result["comparators"]:
+        print("COMPARATOR", row["comparator"],
+              "TRUE", str(row["true_positive_calls"]) + "/" + str(row["true_positive_targets"]),
+              "FALSE", str(row["false_positive_calls"]) + "/" + str(row["null_targets"]))
     for world in WORLDS:
         cases = [r for r in result["cases"] if r["world"] == world]
         def mean(field):
