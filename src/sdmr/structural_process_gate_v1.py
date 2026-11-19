@@ -68,8 +68,8 @@ def assess_forest_development(
         return out("unavailable", "declared_full_system_not_demonstrably_informative")
     if score.closure_gain <= gate.carrier_closure_margin:
         return out("unresolved", "complete_carrier_knockout_not_informative")
-    if (score.temporal_gain <= gate.temporal_margin or
-            score.temporal_p > gate.alpha):
+    if (score.temporal_closure_gain <= gate.temporal_margin or
+            score.temporal_closure_p > gate.alpha):
         return out("unresolved", "within_site_change_information_not_supported")
     return out(
         "contributory_information_candidate",
