@@ -1,0 +1,156 @@
+{
+  "schema": "sdmr.hf453_single_forest_status_first_open_checkpoint.v1",
+  "date": "2026-11-19",
+  "scope": "ONE original 35-ha forest, conditional on published StemTag panel and CP-measured start-alive events",
+  "status": "within_single_forest_descriptive_status_opened",
+  "source": "Harvard Forest HF453 v1",
+  "doi": "10.6073/pasta/0bc6f43d7406c9c01e84a3dd4ed65193",
+  "original_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "original_md5": "c6be7aa99e31ded2041a0aaea07c0205",
+  "source_bytes": 5524386,
+  "source_tags": 30808,
+  "source_tag_year_rows": 123232,
+  "predeclared_contract": "configs/hf453_demographic_transition_first_open_v1.json",
+  "first_source_response_run": 44540469560,
+  "first_source_response_commit": "ffc4011c52272dab7166740666bc254a78283bdc",
+  "artifact_id": 14537667449,
+  "artifact_zip_sha256": "0cad2360db08d2549600af088a44e0b6d5bb7ac19aef241dc3b8c6316a9d4e73",
+  "result_inner_json_sha256": "6992650efb0f5b8b23106969aae8853ed6aaa339a3a4b9d8c77425ac0d298cab",
+  "preflight_inner_json_sha256": "e817f0817fba740f56ae69534420c9d21a4186f650af4245c9fe96855f374e5d",
+  "source_status_counts": {
+    "2021": {
+      "A": 12845,
+      "AU": 9001,
+      "DC": 3119,
+      "DS": 5569,
+      "DN": 273,
+      "BLANK": 1
+    },
+    "2022": {
+      "A": 10251,
+      "AU": 11135,
+      "DC": 3471,
+      "DS": 5737,
+      "DN": 214
+    },
+    "2023": {
+      "A": 9412,
+      "AU": 11433,
+      "DC": 3928,
+      "DS": 5825,
+      "DN": 210
+    },
+    "2024": {
+      "A": 8991,
+      "AU": 11335,
+      "DC": 4476,
+      "DS": 5800,
+      "DN": 206
+    }
+  },
+  "intervals": [
+    {
+      "interval": "2021_to_2022",
+      "primary": true,
+      "start_alive": 21846,
+      "start_dead_excluded": 8688,
+      "start_unknown_excluded": 274,
+      "end_known_dead": 461,
+      "end_known_alive": 21380,
+      "end_unknown": 5,
+      "cp_unknown_start": 4,
+      "cp_low": {
+        "p": 323,
+        "z": 10125,
+        "m": 4
+      },
+      "cp_high": {
+        "p": 138,
+        "z": 11251,
+        "m": 1
+      },
+      "cp_unknown": {
+        "p": 0,
+        "z": 4,
+        "m": 0
+      },
+      "sharp_delta_low": "-5677/296140",
+      "sharp_delta_high": "-16613/888420",
+      "sign": "negative_for_all_missing_outcomes"
+    },
+    {
+      "interval": "2022_to_2023",
+      "primary": false,
+      "start_alive": 21386,
+      "start_dead_excluded": 9208,
+      "start_unknown_excluded": 214,
+      "end_known_dead": 538,
+      "end_known_alive": 20845,
+      "end_unknown": 3,
+      "cp_unknown_start": 4,
+      "cp_low": {
+        "p": 366,
+        "z": 9016,
+        "m": 2
+      },
+      "cp_high": {
+        "p": 172,
+        "z": 11825,
+        "m": 1
+      },
+      "cp_unknown": {
+        "p": 0,
+        "z": 4,
+        "m": 0
+      },
+      "sharp_delta_low": "-7612/305949",
+      "sharp_delta_high": "-230653/9382436",
+      "sign": "negative_for_all_missing_outcomes"
+    },
+    {
+      "interval": "2023_to_2024",
+      "primary": false,
+      "start_alive": 20845,
+      "start_dead_excluded": 9753,
+      "start_unknown_excluded": 210,
+      "end_known_dead": 519,
+      "end_known_alive": 20326,
+      "end_unknown": 0,
+      "cp_unknown_start": 6,
+      "cp_low": {
+        "p": 377,
+        "z": 9380,
+        "m": 0
+      },
+      "cp_high": {
+        "p": 142,
+        "z": 10940,
+        "m": 0
+      },
+      "cp_unknown": {
+        "p": 0,
+        "z": 6,
+        "m": 0
+      },
+      "sharp_delta_low": "-1396210/54063537",
+      "sharp_delta_high": "-1396210/54063537",
+      "sign": "negative_for_all_missing_outcomes"
+    }
+  ],
+  "source_rows_used_only_fields": [
+    "StemTag",
+    "year",
+    "status",
+    "CP"
+  ],
+  "raw_tree_microdata_archived": false,
+  "observed_death_definition": "DC_or_DS_at_end_after_A_or_AU_at_start",
+  "missing_status_definition": "DN_or_NA_or_blank_never_assume_dead_or_alive",
+  "canopy_split": "CP_1_2_lower_light_vs_CP_3_4_5_greater_light_at_start",
+  "not_identified": "causal canopy effects, species/size/site confounding, forest or biome transfer, full unrecorded population, time-to-event hazard, statistical CI",
+  "statistical_CI_computed": false,
+  "association_bounds_not_CI": true,
+  "original_M5_ProductA_unchanged": true,
+  "Product_B_unblocked": false,
+  "independent_forest_replication": false
+}
