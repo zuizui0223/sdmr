@@ -72,6 +72,7 @@ def test_unsafe_audit_override_is_not_silent(pilot):
     score = replace(pilot["observation_selection"],
                     spatial_gain=0.12, closure_gain=0.12,
                     temporal_gain=0.12, temporal_p=0.01,
+                    temporal_closure_gain=0.12, temporal_closure_p=0.01,
                     full_vs_null_gain=0.13)
     guarded, unsafe = observation_audit_ablation(score)
     assert guarded.state == "unresolved"
