@@ -44,7 +44,9 @@ class SurveyOpportunity:
         if self.survey_status not in SURVEY_STATUS:
             raise ValueError("survey status not declared")
         if self.survey_status == "surveyed":
-            if self.effort is None or not isfinite(self.effort) or self.effort <= 0:
+            if (self.effort is None or isinstance(self.effort, bool) or
+                    not isinstance(self.effort, (int, float)) or
+                    not isfinite(self.effort) or self.effort <= 0):
                 raise ValueError("surveyed event requires independently recorded positive effort")
         elif self.survey_status == "not_surveyed":
             if self.effort not in (None, 0):
@@ -65,6 +67,7 @@ class SurveyFrameReceipt:
     n_not_surveyed: int
     n_unknown: int
     n_holdout_blocks: int
+    n_surveyed_blocks: int
     min_eligible_sites_per_block: int
     identity_sha256: str
     sampling_event_sha256: str
@@ -85,7 +88,7 @@ def evaluate_survey_frame(
         raise ValueError("invalid sampling opportunity schema")
     if source.get("metadata_only") is not True:
         raise ValueError("opportunity frame must be metadata-only")
-    if set(source) != {"schema", "metadata_only", "source_file_sha256", "unit_kind", "rows"}:
+    if set(source) != {"schema", "metadata_only", "source_file_sha256", "unit_kind", "expected_block_ids", "rows"}:
         raise ValueError("unexpected top-level source fields; response values forbidden")
     source_digest = source["source_file_sha256"]
     if not isinstance(source_digest, str) or len(source_digest) != 64 or any(
@@ -97,6 +100,11 @@ def evaluate_survey_frame(
         raise ValueError("unknown source unit kind")
     if minimum_blocks < 2 or minimum_sites_per_block < 2:
         raise ValueError("holdout minimum must be at least two")
+    expected_blocks = source["expected_block_ids"]
+    if (not isinstance(expected_blocks, list) or not expected_blocks or
+            len(expected_blocks) != len(set(expected_blocks)) or
+            any(not isinstance(z, str) or not z.strip() for z in expected_blocks)):
+        raise ValueError("expected block IDs must be nonempty and unique")
     raw = source["rows"]
     if not isinstance(raw, list) or not raw:
         raise ValueError("sampling rows must be a nonempty list")
@@ -116,17 +124,24 @@ def evaluate_survey_frame(
         if old != row.block_id:
             raise ValueError("same physical site assigned to multiple holdout blocks")
 
+    if set(site_blocks.values()) != set(expected_blocks):
+        raise ValueError("frozen source block frame must include every declared block")
     all_sites = set(site_blocks)
     eligible = [r for r in records if r.survey_status == "surveyed"]
     eligible_site_ids = {r.physical_site_id for r in eligible}
     by_block: dict[str, set[str]] = {}
     for row in eligible:
         by_block.setdefault(row.block_id, set()).add(row.physical_site_id)
-    block_counts = {block: len(sites) for block, sites in by_block.items()}
-    n_blocks = len(block_counts)
+    block_counts = {
+        block: len(by_block.get(block, set())) for block in expected_blocks
+    }
+    n_blocks = len(expected_blocks)
+    surveyed_blocks = sum(z > 0 for z in block_counts.values())
     smallest = min(block_counts.values()) if block_counts else 0
     if n_blocks < minimum_blocks:
-        status = "not_estimable_insufficient_surveyed_blocks"
+        status = "not_estimable_insufficient_source_blocks"
+    elif surveyed_blocks < n_blocks:
+        status = "not_estimable_wholly_unsurveyed_source_block"
     elif smallest < minimum_sites_per_block:
         status = "not_estimable_insufficient_independent_sites"
     else:
@@ -151,6 +166,7 @@ def evaluate_survey_frame(
         n_not_surveyed=sum(r.survey_status == "not_surveyed" for r in records),
         n_unknown=sum(r.survey_status == "unknown" for r in records),
         n_holdout_blocks=n_blocks,
+        n_surveyed_blocks=surveyed_blocks,
         min_eligible_sites_per_block=smallest,
         identity_sha256=sha256(encode(site_keys).encode()).hexdigest(),
         sampling_event_sha256=sha256(encode(obs_keys).encode()).hexdigest(),
