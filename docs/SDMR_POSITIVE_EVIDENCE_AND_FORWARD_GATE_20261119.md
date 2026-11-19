@@ -60,6 +60,35 @@ fixes the alive-start cohort, observed dead `DC/DS` versus unresolved `DN`,
 physical tag accounting and prior canopy contrast. **Single-forest** diagnostic
 potential only; original Product A/M5/Structural denominators unchanged.
 
+## Original field-source physical-unit evidence (post-outcome method qualification)
+
+Two strictly separated findings from **one Harvard forest** illustrate why
+process-information inference needs observation and unit-grain audits:
+
+- **Original field status, predeclared:** HF453 2021→2022 CP-associated
+  observed-dead stem-tag risk-events are 323/10,452 under lower light versus
+  138/11,390 under more exposed canopy. An exact missing-next-status
+  identification interval for *the recorded stem-tag association* excludes
+  zero, but it is **not a sampling CI, causal process estimate or forest
+  replication**. [First original result](SDMR_HF453_FIRST_STATUS_RESULT_20261119.md).
+- **Original physical unit metadata, after outcome:** the fixed 30,808
+  HF453 stem tags match 30,808 HF253 original 2019 `stem.tag` records but only
+  **27,688** distinct original parent `tree.id` candidates. **2,331** parents
+  have at least two matched stems (5,451 original stem tags in those clusters);
+  no ambiguous/missing parent ID among this source panel. The 2019 `tag`
+  *tree-label* column would have silently failed to match 3,135 stem tags.
+  This is source-lineage/pseudoreplication evidence, **not a newly measured
+  ecological effect**. [Parent-source first result](SDMR_HF253_HF453_PARENT_TREE_GRAIN_FIRST_RESULT_20261119.md).
+
+Consequently, the previously reported HF453 result must be interpreted as
+**per-stem original source-recorded status information**, not 30,808
+independent trees. Parent-tree grouping does not retroactively change its
+per-stem numerators or sharp identification interval, but it precludes a
+naive independent-stem confidence interval. Any parent-clustered check using
+already opened HF453 outcomes is explicitly **post-outcome exploratory** and
+cannot prove a universal canopy effect or rescue the original blocked
+Product B.
+
 ## One scientific theme, with two independent endpoints
 
 1. **Process-information methodology (SDMR main / M5 / Structural KT):** A predictor may be correlated with the observed response even when its information is fully carried by other variables, when sampling effort makes the signal unsafe, or when the response operator changes. Ask whether an *entire declared process carrier set* is removable while the response remains independently predictable and its observation process is sufficiently audited.
