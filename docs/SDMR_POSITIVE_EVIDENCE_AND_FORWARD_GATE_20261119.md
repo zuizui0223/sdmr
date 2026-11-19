@@ -14,6 +14,18 @@
 | FIA within-plot change (same archived response) | ΔBA positive point gain in only 2/5 species; one nominal postfit interval excludes 0, uncorrected for multiplicity | Historical cross-sectional BA information and temporal BA-change information differ | A replicated within-site dynamic causal density mechanism |
 | Archived multi-provider forest source audit | Five original study/source lineages re-audited, **0/5** ready for a new independent full process-identification protocol; Finnish original 142 physical sites, Carpathian 116 plots, England 77 paired plot-years, FIA survivor cohort, historical NEON 0 strict VST opportunities | Data-source availability, observed zeros, independent units, attrition, ontology and process carrier completeness are real method constraints | Counting five source lineages as five comparable biological effect replications |
 
+## New algebraic identification boundary (separate from all known-truth denominators)
+
+An exact two-world binary construction now proves that *the full observable
+distribution* can coincide even when one population has a genuine X–Y
+response contrast of **1/2** and the other has **0**: outcome-dependent
+recording creates the same observations. Even the marginal inclusion
+probability `P(S=1|X)=1/2` is identical in both worlds. This is an
+**analytic nonidentifiability result**, not a new forest species result or
+a second prospective KT experiment. It explains why source metadata
+adequacy or learner consensus must not be called proof of ignorability.
+See [the exact proof and no-data regression tests](SDMR_STRUCTURAL_SELECTION_NONIDENTIFIABILITY_V1.md).
+
 ## One scientific theme, with two independent endpoints
 
 1. **Process-information methodology (SDMR main / M5 / Structural KT):** A predictor may be correlated with the observed response even when its information is fully carried by other variables, when sampling effort makes the signal unsafe, or when the response operator changes. Ask whether an *entire declared process carrier set* is removable while the response remains independently predictable and its observation process is sufficiently audited.
