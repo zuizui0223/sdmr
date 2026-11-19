@@ -65,6 +65,7 @@ def main() -> None:
             "WORLD", world,
             "SPATIAL", round(mean("spatial_gain"), 6),
             "TEMPORAL", round(mean("temporal_gain"), 6),
+            "TEMP_CLOSURE", round(mean("temporal_closure_gain"), 6),
             "CLOSURE", round(mean("closure_gain"), 6),
             "BEETLE", round(mean("beetle_gain"), 6),
             "FULL_NULL", round(mean("full_vs_null_gain"), 6),
