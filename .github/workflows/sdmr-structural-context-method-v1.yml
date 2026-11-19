@@ -13,6 +13,11 @@ on:
       - 'tests/test_structural_process_gate_v1.py'
       - 'src/sdmr/structural_process_benchmarks_v1.py'
       - 'tests/test_structural_process_benchmarks_v1.py'
+      - 'experiments/structural_known_truth_prospective_v1.py'
+      - 'configs/structural_process_kt_prospective_v1.json'
+      - 'tests/test_structural_process_kt_prospective_preflight_v1.py'
+      - 'docs/SDMR_STRUCTURAL_KT_PROSPECTIVE_PREFREEZE_V1.md'
+      - '.github/workflows/sdmr-structural-kt-prospective-v1.yml'
       - 'experiments/structural_known_truth_development_v1.py'
       - 'docs/SDMR_STRUCTURAL_KT_DEVELOPMENT_V1.md'
       - 'docs/SDMR_STRUCTURAL_CONTEXT_BRIDGE_V1.md'
@@ -35,7 +40,10 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Verify new typed structure layer and existing many-to-many closure
         run: |
-          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py tests/test_structural_known_truth_v1.py tests/test_structural_process_gate_v1.py tests/test_structural_process_benchmarks_v1.py
+          python -m pytest -q tests/test_contextual_structure_evidence.py tests/test_structural_context_oracle.py tests/test_process_information_closure.py tests/test_structural_known_truth_v1.py tests/test_structural_process_gate_v1.py tests/test_structural_process_benchmarks_v1.py tests/test_structural_process_kt_prospective_preflight_v1.py
+      - name: Verify prospective contract schema without opening any unused seed
+        run: |
+          python experiments/structural_known_truth_prospective_v1.py --contract configs/structural_process_kt_prospective_v1.json --preflight-only
       - name: Burned-seed source-free structural development diagnostic
         run: |
           python experiments/structural_known_truth_development_v1.py --seeds 1201 1202 1203 --output artifacts/structural_kt_development_v1.json
