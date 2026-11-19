@@ -47,6 +47,8 @@ def test_shared_carrier_single_variable_drop_misses_process_information(results)
     r = results["shared_carrier"]
     assert abs(r.spatial_gain) < 0.02  # B was already available as Z
     assert r.closure_gain > 0.05     # remove BOTH B and Z
+    assert abs(r.temporal_gain) < 0.02  # individual B is redundant with temporal Z
+    assert r.temporal_closure_gain > 0.05  # whole temporal carrier set is not
     assert r.declared_carriers == ("b", "z")
     assert r.within_effect == 0.8
 
