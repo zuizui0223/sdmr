@@ -13,6 +13,7 @@ from pathlib import Path
 from sdmr.structural_known_truth_v1 import (
     WORLDS, generate_forest_world, score_forest_world
 )
+from sdmr.structural_process_gate_v1 import assess_forest_development
 
 DEV_SEEDS = (1201, 1202, 1203)
 
@@ -22,8 +23,17 @@ def run_development(seeds: tuple[int, ...]) -> dict:
         raise ValueError("unique nonempty seed list required")
     if not set(seeds).issubset(DEV_SEEDS):
         raise ValueError("only burned development seeds 1201–1203 are authorized")
-    cases = [asdict(score_forest_world(generate_forest_world(world, seed)))
-             for seed in seeds for world in WORLDS]
+    cases = []
+    for seed in seeds:
+        for world in WORLDS:
+            score = score_forest_world(generate_forest_world(world, seed))
+            record = asdict(score)
+            gate = assess_forest_development(score)
+            record["process_state"] = gate.state
+            record["process_reason"] = gate.reason
+            record["causal_process_identified"] = gate.causal_process_identified
+            record["empirical_promotion_authorized"] = gate.empirical_promotion_authorized
+            cases.append(record)
     return {
         "schema": "sdmr.structural_known_truth.development.v1",
         "promotion": "not_authorized",
@@ -59,6 +69,7 @@ def main() -> None:
             "BEETLE", round(mean("beetle_gain"), 6),
             "FULL_NULL", round(mean("full_vs_null_gain"), 6),
             "OBSERVED", [r["n_sites_observed"] for r in cases],
+            "GATES", [r["process_state"] for r in cases],
         )
 
 
