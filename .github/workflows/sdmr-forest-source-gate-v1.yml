@@ -6,7 +6,11 @@ on:
       - src/sdmr/forest_source_gate_v1.py
       - src/sdmr/forest_original_receipt_v1.py
       - scripts/hf453_first_status_transition_v1.py
-      - tests/test_hf453_first_status_transition_v1.py
+      - scripts/hf253_hf453_original_tag_crosswalk_v1.py
+      - tests/test_hf253_hf453_original_tag_crosswalk_v1.py
+      - configs/hf253_hf453_source_identity_prefreeze_v1.json
+      - docs/SDMR_HF253_HF453_SOURCE_LINKAGE_PREFREEZE_20261119.md
+      - tests/test_hf453_first_status_transition_v1.py tests/test_hf253_hf453_original_tag_crosswalk_v1.py
       - configs/hf453_demographic_transition_first_open_v1.json
       - docs/SDMR_HF453_FIRST_STATUS_TRANSITION_PREFREEZE_20261119.md
       - tests/test_forest_original_receipt_v1.py
