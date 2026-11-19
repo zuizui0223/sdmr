@@ -1,0 +1,20 @@
+{
+  "schema": "sdmr.hf253_hf453_first_source_only_preflight_stop.v1",
+  "date": "2026-11-19",
+  "run_id": 44542568429,
+  "run_conclusion": "failure",
+  "source_commit": "3dac2b17000314dadf5485ec58052fec34847b9e",
+  "scientific_stage": "preflight_before_new_HF253_source_GET",
+  "status": "contract_boolean_guard_bug_no_provider_data_opened",
+  "cause": "The preregistered config requires drop_ambiguous_matches=false but validation accidentally included that key among mandatory true flags, causing 3 synthetic checks to fail before network.",
+  "original_code_git_blob": "05ba4e6c3f202112adc45bb10d790111e24beb2b",
+  "original_config_git_blob": "4de72ba63f165fc75ab38c86eacd80a777dfd59e",
+  "original_test_git_blob": "1692a7fbfbd688d1410c8dc1203587d693469d5e",
+  "source_bytes_downloaded_from_HF253": false,
+  "HF253_original_SHA": null,
+  "HF453_Y_reopened": false,
+  "species_DBH_status_CP_accessed": false,
+  "biological_effect_estimated": false,
+  "scientific_rule_kept": "exact literal tag and stem.tag candidate counts; ambiguities retained and reported; no outcome-driven joining",
+  "next": "new technical v2 corrects boolean contract guard only and rechecks original code/schema without changing source, analysis or biological outcome"
+}
