@@ -26,6 +26,22 @@ a second prospective KT experiment. It explains why source metadata
 adequacy or learner consensus must not be called proof of ignorability.
 See [the exact proof and no-data regression tests](SDMR_STRUCTURAL_SELECTION_NONIDENTIFIABILITY_V1.md).
 
+## New sharp partial-identification result (no new biological response)
+
+The exact prior observation-selection counterexample **does not merely return**
+`nonidentifiable`: its full observed opportunity allows a *sharp*
+missingness-robust association interval **[-1/4, 3/4]**, verified in exact
+rational arithmetic. It contains both the ecological-world contrast 1/2 and
+the selection-only contrast 0. The new method
+[calculates sharp bounds and signs](SDMR_OBSERVATION_PARTIAL_IDENTIFICATION_V1.md)
+using recorded positives, **actually measured negatives**, missing outcomes,
+and the complete eligible source frame. Synthetic enumeration proves the
+bounds are attainable and exposes examples where a sign **is** defensible
+despite arbitrary missing outcomes. This algebra is not an ecological effect
+estimate, not a confidence interval, not a causal attribution and not directly
+applicable to presence-only GBIF. Source audit is required before a new field
+response is opened; no source was newly admitted here.
+
 ## One scientific theme, with two independent endpoints
 
 1. **Process-information methodology (SDMR main / M5 / Structural KT):** A predictor may be correlated with the observed response even when its information is fully carried by other variables, when sampling effort makes the signal unsafe, or when the response operator changes. Ask whether an *entire declared process carrier set* is removable while the response remains independently predictable and its observation process is sufficiently audited.
