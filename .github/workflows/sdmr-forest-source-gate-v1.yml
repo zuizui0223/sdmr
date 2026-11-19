@@ -5,11 +5,14 @@ on:
     paths:
       - src/sdmr/forest_source_gate_v1.py
       - src/sdmr/forest_sampling_opportunity_v1.py
+      - src/sdmr/forest_longitudinal_status_v1.py
       - tests/test_forest_source_gate_v1.py
       - tests/test_forest_sampling_opportunity_v1.py
+      - tests/test_forest_longitudinal_status_v1.py
       - configs/forest_source_gate_archived_sources_v1.json
       - experiments/forest_source_gate_audit_v1.py
       - docs/SDMR_STRUCTURAL_FOREST_SOURCE_GATE_V1.md
+      - docs/SDMR_FOREST_NEW_PROVIDER_SOURCE_CANDIDATES_20261119.md
       - .github/workflows/sdmr-forest-source-gate-v1.yml
   workflow_dispatch:
 
@@ -28,7 +31,7 @@ jobs:
       - name: Install only local package and pytest
         run: python -m pip install -e '.[test]'
       - name: Unit and known-public-metadata contracts
-        run: python -m pytest -q tests/test_forest_source_gate_v1.py tests/test_forest_sampling_opportunity_v1.py
+        run: python -m pytest -q tests/test_forest_source_gate_v1.py tests/test_forest_sampling_opportunity_v1.py tests/test_forest_longitudinal_status_v1.py
       - name: Five archived source metadata gates — no biological opening
         run: |
           python experiments/forest_source_gate_audit_v1.py \
