@@ -1,0 +1,101 @@
+name: SDMR HF453 v2 frozen-result receipt recovery (same source, no ecology)
+
+# New, explicitly versioned technical receipt recovery after v2 uploaded no JSON.
+# Re-executes identical v2 source-only parser; never changes status/CP Y or code.
+# One source request, no fallback, no favorable-result search, not replication.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf453_v2_receipt_recovery_once.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-source-only-receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require unchanged v2 code/lock and recover-only authorization
+        run: |
+          test "$(git hash-object scripts/hf453_tag_year_identity_source_only_v2.py)" = "8215828d0c3768560fcd8f6b09aebd192bca03c5"
+          test "$(git hash-object configs/hf453_tag_year_original_once_v2.lock)" = "d2c7dabdb3342f40710e85a4de07a82ac13167ba"
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path("configs/hf453_v2_receipt_recovery_once.lock").read_text().splitlines()
+          expected=[
+            "program=sdmr_hf453_v2_receipt_recovery_only_v1",
+            "v2_first_unarchived_run=44480089232",
+            "v2_first_source_commit=865d3621fcf7ad9b5811186fe00808c3d0f34814",
+            "original_source_sha256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+            "v2_source_blob_sha=8215828d0c3768560fcd8f6b09aebd192bca03c5",
+            "v2_original_lock_blob_sha=d2c7dabdb3342f40710e85a4de07a82ac13167ba",
+            "no_parser_or_scientific_rule_change=true",
+            "only_original_StemTag_and_year_indexed=true",
+            "no_biological_rows_or_outcomes_interpreted=true",
+            "no_original_CSV_retained=true",
+            "no_autoretry_or_favorable_result_hunting=true",
+            "no_biological_replication_claim=true",
+            "no_M5_ProductA_ProductB_promotion=true",
+          ]
+          assert lines==expected, "source-only recovery lock mutated"
+          PY
+      - name: Run v2 syntax and encoding-specific synthetic regression contracts
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_hf453_tag_year_identity_source_only_v2.py tests/test_hf453_original_byte_preflight_v1.py
+      - name: No-network v2 preflight first
+        run: |
+          python scripts/hf453_tag_year_identity_source_only_v2.py \
+            --preflight-only --out artifacts/hf453_identity_preflight_v2.json
+      - name: Exactly same v2 source-only parser, same original file SHA
+        run: |
+          python scripts/hf453_tag_year_identity_source_only_v2.py \
+            --execute-lock configs/hf453_tag_year_original_once_v2.lock \
+            --out artifacts/hf453_tag_year_identity_v2.json
+      - name: Fail closed if source refusal; forbid any empirical promotion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('artifacts/hf453_tag_year_identity_v2.json')
+          assert p.is_file() and p.stat().st_size > 100
+          d=json.loads(p.read_text())
+          assert d['program']=='sdmr_hf453_original_tag_year_identity_source_only_v2'
+          assert d['frozen_source_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert d['source']=='harvard_forest_hf453_2026_v1'
+          assert not d['preflight'] and d['network_get_attempted']
+          assert d['only_StemTag_year_indexed'] is True
+          assert d['status_CP_health_taxon_columns_not_used'] is True
+          assert d['original_source_file_archived'] is False
+          assert d['new_tree_response_opened'] is False
+          assert d['new_biological_models_fit'] == 0
+          assert d['new_biological_inference_authorized'] is False
+          assert d['Product_B_unblocked'] is False
+          result=d['result']
+          if result['status']=='tag_year_source_identity_indexed_only':
+            assert result['source_digests']['sha256']==d['frozen_source_sha256']
+            assert result['source_digests']['n_bytes']==5524386
+            assert result['identity_only']['n_duplicate_tag_year']==0
+            assert result['identity_only']['n_invalid_StemTag_year']==0
+            assert result['identity_only']['alive_at_risk_denominator_estimated'] is False
+            assert result['identity_only']['biological_outcome_rows_interpreted'] is False
+          else:
+            assert result['status'].endswith('_stop'), result['status']
+          print('RECOVERED SOURCE-ONLY RESULT (not biological replication):',result['status'])
+          PY
+      - name: Require archived full v2 JSON or fail the workflow
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-v2-identity-receipt-recovered-source-only
+          path: |
+            artifacts/hf453_tag_year_identity_v2.json
+            artifacts/hf453_identity_preflight_v2.json
+          if-no-files-found: error
+          retention-days: 90
