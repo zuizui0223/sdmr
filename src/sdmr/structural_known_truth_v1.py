@@ -183,6 +183,10 @@ def _score_comparison(
 ) -> tuple[float, float]:
     """Return (candidate increment, conditional block sign-flip p).
 
+    Temporal means same-interval within-site change, NOT prospective forecasting:
+    B at visit 1 is observed alongside the visit-1 response. No claim of
+    prior-to-future predictive validity is authorized by this axis.
+
     Carrier closure compares the full fitted representation against the
     process-free reference. It is not a proof of physiological necessity.
     """
@@ -244,8 +248,8 @@ def _score_comparison(
         expected_blocks=blocks,
         validation_axis=axis, evidence_class="synthetic",
         metric="squared_error", minimum_blocks=6,
-        target_time="future" if axis == "temporal" else "current",
-        feature_time="prior" if axis == "temporal" else "contemporaneous",
+        target_time="current",
+        feature_time="contemporaneous",
     )
     result = audit_contextual_structure(pairs, contract)
     assert result.status == "synthetic_diagnostic_only"
