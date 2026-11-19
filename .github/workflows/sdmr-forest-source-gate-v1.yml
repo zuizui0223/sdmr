@@ -5,9 +5,13 @@ on:
     paths:
       - src/sdmr/forest_source_gate_v1.py
       - src/sdmr/forest_original_receipt_v1.py
+      - scripts/hf453_first_status_transition_v1.py
+      - tests/test_hf453_first_status_transition_v1.py
+      - configs/hf453_demographic_transition_first_open_v1.json
+      - docs/SDMR_HF453_FIRST_STATUS_TRANSITION_PREFREEZE_20261119.md
       - tests/test_forest_original_receipt_v1.py
       - scripts/hf453_original_byte_preflight_v1.py
-      - tests/test_hf453_original_byte_preflight_v1.py
+      - tests/test_hf453_original_byte_preflight_v1.py tests/test_hf453_first_status_transition_v1.py
       - .github/workflows/sdmr-hf453-original-byte-one-shot-v1.yml
       - src/sdmr/forest_sampling_opportunity_v1.py
       - src/sdmr/forest_longitudinal_status_v1.py
