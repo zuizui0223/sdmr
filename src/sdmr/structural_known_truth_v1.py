@@ -71,6 +71,8 @@ class ForestScore:
     n_regions: int
     spatial_gain: float
     temporal_gain: float
+    temporal_closure_gain: float
+    temporal_closure_p: float
     closure_gain: float
     beetle_gain: float
     full_vs_null_gain: float
@@ -283,6 +285,9 @@ def score_forest_world(sample: ForestSample) -> ForestScore:
         raise ValueError("world has insufficient observed independent blocks")
     spatial, sp = _score_comparison(sample, axis="spatial", endpoint="tree")
     temporal, tp = _score_comparison(sample, axis="temporal", endpoint="tree")
+    temporal_closure, temporal_closure_p = _score_comparison(
+        sample, axis="temporal", endpoint="tree", carrier_drop=True
+    )
     closure, _ = _score_comparison(sample, axis="spatial", endpoint="tree", carrier_drop=True)
     beetle, _ = _score_comparison(sample, axis="spatial", endpoint="beetle")
     full = _full_vs_null(sample)
@@ -290,6 +295,8 @@ def score_forest_world(sample: ForestSample) -> ForestScore:
         world=sample.world, seed=sample.seed,
         n_sites_source=len(sample.site_id), n_sites_observed=int(sample.observed.sum()),
         n_regions=len(n_by_region), spatial_gain=spatial, temporal_gain=temporal,
+        temporal_closure_gain=temporal_closure,
+        temporal_closure_p=temporal_closure_p,
         closure_gain=closure, beetle_gain=beetle,
         full_vs_null_gain=full, spatial_p=sp, temporal_p=tp,
         within_effect=sample.within_effect,
