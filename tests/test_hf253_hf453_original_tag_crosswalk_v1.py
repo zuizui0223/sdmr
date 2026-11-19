@@ -1,4 +1,9 @@
-"""HF253×HF453 historical tag source-only protocol, synthetic fixtures ONLY."""
+"""HF253×HF453 source-only v1 original regression fixtures.
+
+The first-run pre-network boolean guard failure is historically fixed; three
+functional v1 tests are strict XFAIL and re-tested as PASS in v2. Never use
+v1 as a biological or source-identity success certificate.
+"""
 from io import StringIO
 import importlib.util
 import json
@@ -35,6 +40,7 @@ def _hf253():
     ])+"\n"
 
 
+@pytest.mark.xfail(strict=True, reason="v1 frozen pre-network source-only boolean guard STOP #44542568429; corrected only in new v2")
 def test_source_contract_pins_new_original_2019_without_outcome_columns():
     d=json.loads(Path("configs/hf253_hf453_source_identity_prefreeze_v1.json").read_text())
     mod.validate_source_contract(d)
@@ -101,6 +107,7 @@ def test_url_redirect_refuses_provider_or_version_substitution():
             mod.source_url_verified(url)
 
 
+@pytest.mark.xfail(strict=True, reason="v1 frozen pre-network source-only boolean guard STOP #44542568429; corrected only in new v2")
 def test_same_original_HF453_SHA_is_required_before_any_new_HF253_get(monkeypatch):
     config=json.loads(Path("configs/hf253_hf453_source_identity_prefreeze_v1.json").read_text())
     monkeypatch.setattr(mod,"get_frozen_hf453",lambda path:{
@@ -115,6 +122,7 @@ def test_same_original_HF453_SHA_is_required_before_any_new_HF253_get(monkeypatc
         mod.run(config)
 
 
+@pytest.mark.xfail(strict=True, reason="v1 frozen pre-network source-only boolean guard STOP #44542568429; corrected only in new v2")
 def test_preflight_never_uses_external_bytes_and_mutant_lock_refused(tmp_path,monkeypatch):
     monkeypatch.setattr(mod,"run",lambda config:
         (_ for _ in ()).throw(AssertionError("preflight cannot fetch any source"))
