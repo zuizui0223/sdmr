@@ -1,0 +1,72 @@
+name: SDMR Structural 80-case synthetic prospective one-shot v1
+
+# No schedule, pull_request or workflow_dispatch: this opens unused seeds
+# ONLY when the exact lock file is newly committed on the isolated branch.
+on:
+  push:
+    branches:
+      - method/structural-context-closure-v1-20261118
+    paths:
+      - configs/structural_process_kt_prospective_v1_activate.lock
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdmr-structural-kt-80case-one-shot-v1
+  cancel-in-progress: false
+
+jobs:
+  prospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      PYTHONHASHSEED: "0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only pinned scientific runtime
+        run: |
+          python -m pip install numpy==2.3.5 pandas==2.2.3 scikit-learn==1.8.0 pytest==8.4.2
+          python -m pip install -e . --no-deps
+      - name: Pre-outcome frozen schema and development-only safety tests
+        run: |
+          python experiments/structural_known_truth_prospective_v1.py --contract configs/structural_process_kt_prospective_v1.json --preflight-only
+          python -m pytest -q tests/test_structural_process_kt_prospective_preflight_v1.py tests/test_structural_known_truth_v1.py tests/test_structural_process_gate_v1.py tests/test_structural_process_benchmarks_v1.py
+      - name: Strict source-locked one-shot prospective opening and scoring
+        run: |
+          python experiments/structural_known_truth_prospective_v1.py \
+            --contract configs/structural_process_kt_prospective_v1.json \
+            --execution configs/structural_process_kt_prospective_v1_execution.json \
+            --activation configs/structural_process_kt_prospective_v1_activate.lock \
+            --output artifacts/structural_known_truth_prospective_v1_result.json
+      - name: Verify full denominator and no original biology promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('artifacts/structural_known_truth_prospective_v1_result.json').read_text())
+          assert d['n_cases']==80 and len(d['worlds'])==8 and len(d['seeds'])==10
+          assert d['empirical_data_opened'] is False
+          assert d['original_M5_and_Product_A_unchanged'] is True
+          assert d['Product_B_unblocked'] is False
+          assert d['gates']['no_empirical_or_causal_promotions'] is True
+          assert all(not c['causal_process_identified'] and not c['empirical_promotion_authorized'] for c in d['cases'])
+          assert len(d['comparators'])==4
+          print('Truth denominator and scientific non-promotion checks complete:',d['status'])
+          PY
+      - name: Immutable terminal evidence (PASS and FAIL retained)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-structural-kt-prospective-v1
+          path: artifacts/structural_known_truth_prospective_v1_result.json
+          if-no-files-found: warn
+          retention-days: 90

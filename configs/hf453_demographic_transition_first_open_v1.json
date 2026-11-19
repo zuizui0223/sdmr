@@ -1,0 +1,126 @@
+{
+  "schema": "sdmr.hf453.single_forest_demographic_transition_preregistered.v1",
+  "status": "pre_outcome_freeze",
+  "program": "hf453_2021_2024_tagged_cohort_health_transitions_v1",
+  "evidence_role": "prospective_within_single_forest_descriptive_endpoint_not_replication",
+  "source": {
+    "dataset": "Harvard Forest HF453 v1",
+    "doi": "10.6073/pasta/0bc6f43d7406c9c01e84a3dd4ed65193",
+    "eml": "knb-lter-hfr.453.1",
+    "url": "https://harvardforest.fas.harvard.edu/data/p45/hf453/hf453-01-tree-census-2021-2024.csv",
+    "source_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+    "publisher_md5": "c6be7aa99e31ded2041a0aaea07c0205",
+    "n_bytes": 5524386
+  },
+  "source_frame": {
+    "tag_count": 30808,
+    "n_tag_year": 123232,
+    "years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "expected_per_year": 30808,
+    "n_duplicate_tag_year": 0,
+    "source_receipt_artifact_id": 14507809147,
+    "source_receipt_json_sha256": "92c2ebe0a5742598cf5e8089ee0b415833d80d57e07693dd9c3e46957ef72158"
+  },
+  "parse_fields": [
+    "StemTag",
+    "year",
+    "status",
+    "CP"
+  ],
+  "allowed_status_codes": [
+    "A",
+    "AU",
+    "DC",
+    "DN",
+    "DS"
+  ],
+  "missing_status_codes": [
+    "",
+    "NA"
+  ],
+  "allowed_canopy_codes": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "missing_canopy_codes": [
+    "",
+    "NA"
+  ],
+  "primary_interval": [
+    2021,
+    2022
+  ],
+  "secondary_intervals": [
+    [
+      2022,
+      2023
+    ],
+    [
+      2023,
+      2024
+    ]
+  ],
+  "start_alive": [
+    "A",
+    "AU"
+  ],
+  "end_observed_alive": [
+    "A",
+    "AU"
+  ],
+  "end_visually_observed_dead": [
+    "DC",
+    "DS"
+  ],
+  "end_unknown_or_unfound": [
+    "DN",
+    "",
+    "NA"
+  ],
+  "canopy_context": {
+    "lower_light": [
+      "1",
+      "2"
+    ],
+    "greater_light": [
+      "3",
+      "4",
+      "5"
+    ],
+    "not_measured": "unknown_context",
+    "measured_at": "start_year_only"
+  },
+  "target": "Observed status transitions conditional on the 30,808 source-tag published panel, NOT true forest population mortality hazard or causal effect",
+  "estimand": "assoc_E[observed_end_dead|CP_group=greater_light,baseline_alive,in_published_panel]-E[observed_end_dead|CP_group=lower_light,baseline_alive,in_published_panel] with missing t+1 outcomes bounded arbitrarily",
+  "method": {
+    "partial_identification": "sharp_missingness_bounds_on_binary_transition",
+    "unknown_missingness_unrestricted": true,
+    "bounds_are_not_confidence_intervals": true,
+    "no_sign_claim_if_zero_in_bounds": true,
+    "primary_only_sign_interpretation": true,
+    "no_p_values_or_CI_for_biological_effect": true,
+    "secondary_descriptive_not_independent": true
+  },
+  "hard_stops": {
+    "original_sha_or_size_drift": "STOP",
+    "unknown_status_or_cp_code": "STOP",
+    "duplicate_or_missing_source_tag_year": "STOP",
+    "more_than_one_forest_claim": "STOP",
+    "any_posthoc_rethreshold": "STOP"
+  },
+  "unobserved_states_not_zeros": true,
+  "post_baseline_survivor_selection_forbidden": true,
+  "no_raw_tree_rows_saved": true,
+  "original_product_a_unchanged": true,
+  "original_m5_unchanged": true,
+  "original_structural_kt_unchanged": true,
+  "product_b_unblocked": false
+}

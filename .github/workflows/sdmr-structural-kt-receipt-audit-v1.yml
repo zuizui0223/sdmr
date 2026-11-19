@@ -1,0 +1,51 @@
+name: SDMR Structural prospective receipt no-refit audit v1
+
+on:
+  push:
+    branches:
+      - method/structural-context-closure-v1-20261118
+    paths:
+      - configs/structural_kt_receipt_audit_v1_execute.lock
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: sdmr-structural-kt-receipt-no-refit-v1
+  cancel-in-progress: false
+
+jobs:
+  audit-saved-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audit-only dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify read-only audit source integrity test
+        run: python -m pytest -q tests/test_structural_kt_prospective_receipt_audit_v1.py
+      - name: Read exact first opened 80-case artifact without rerunning the generator
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 44432358638
+          name: sdmr-structural-kt-prospective-v1
+          github-token: ${{ github.token }}
+          path: build/first_open_original
+      - name: Independently check saved finite scores, not refit models
+        run: |
+          python scripts/audit_structural_kt_prospective_receipt_v1.py \
+            --source build/first_open_original/structural_known_truth_prospective_v1_result.json \
+            --contract configs/structural_process_kt_prospective_v1.json \
+            --output artifacts/structural_kt_prospective_saved_score_audit_v1.json
+      - name: Archive independently recomputed saved-score audit only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-structural-kt-saved-score-audit-v1
+          path: artifacts/structural_kt_prospective_saved_score_audit_v1.json
+          if-no-files-found: warn
+          retention-days: 90

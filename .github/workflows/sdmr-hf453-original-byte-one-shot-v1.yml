@@ -1,0 +1,81 @@
+name: SDMR HF453 publisher raw-byte identity v1 one-shot (source-only)
+
+# One newly frozen v1 original source GET; never open/parse tree response rows.
+# No push/PR reruns except the initial exact execute.lock creation on this branch.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf453_original_source_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  original-byte-identity-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run synthetic never-network source adapter regression tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_hf453_original_byte_preflight_v1.py
+      - name: Verify source-only v1 lock and preflight without original GET
+        run: |
+          python scripts/hf453_original_byte_preflight_v1.py \
+            --preflight-only \
+            --out artifacts/hf453_source_bytes_preflight_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/hf453_source_bytes_preflight_v1.json'))
+          assert d['preflight_only']
+          assert d['result']['status']=='preflight_unopened'
+          assert d['biological_responses_inspected'] is False
+          assert d['n_new_biological_models']==0
+          PY
+      - name: One pinned original publisher GET (raw stream hash only)
+        run: |
+          python scripts/hf453_original_byte_preflight_v1.py \
+            --execute-lock configs/hf453_original_source_once_v1.lock \
+            --out artifacts/hf453_first_original_byte_receipt_v1.json
+      - name: Require explicit match or original-source STOP, forbid biological response opening
+        run: |
+          python - <<'PY'
+          import json
+          p='artifacts/hf453_first_original_byte_receipt_v1.json'
+          d=json.load(open(p))
+          assert d['program']=='sdmr_hf453_first_publisher_byte_identity_v1'
+          assert d['source_eml_version']=='knb-lter-hfr.453.1'
+          assert d['original_network_get_attempted'] is True
+          assert d['raw_bytes_retained'] is False
+          assert d['source_rows_decoded'] is False
+          assert d['biological_responses_inspected'] is False
+          assert d['n_new_biological_models']==0
+          assert d['new_biological_endpoint_test_authorized'] is False
+          assert d['Product_B_unblocked'] is False
+          s=d['result']['status']
+          assert s in {
+            'original_byte_md5_matched_source_only',
+            'publisher_md5_drift_stop',
+            'original_source_unavailable_stop',
+            'original_source_integrity_stop',
+          },s
+          if s == 'original_byte_md5_matched_source_only':
+              assert d['result']['bytes_complete'] is True
+              assert d['result']['publisher_md5_matched'] is True
+              assert len(d['result']['sha256'])==64
+          print('HF453 SOURCE-ONLY first-open disposition:',s)
+          print('No response opened; no empirical or causal promotion')
+          PY
+      - name: Retain immutable raw-byte/hash-or-STOP receipt only (never CSV)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-original-byte-hash-or-stop-v1
+          path: artifacts/hf453_*_v1.json
+          if-no-files-found: warn
+          retention-days: 90

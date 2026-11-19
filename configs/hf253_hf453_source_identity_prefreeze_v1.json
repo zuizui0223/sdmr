@@ -1,0 +1,64 @@
+{
+  "schema": "sdmr.hf253_hf453_original_tag_identity_crosswalk_prefreeze.v1",
+  "evidence_role": "post_HF453_response_opening_source_only_identity_exploration",
+  "HF453": {
+    "program": "hf453_2021_2024_tagged_cohort_health_transitions_v1",
+    "publisher_version": "knb-lter-hfr.453.1",
+    "raw_url": "https://harvardforest.fas.harvard.edu/data/p45/hf453/hf453-01-tree-census-2021-2024.csv",
+    "raw_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+    "raw_md5": "c6be7aa99e31ded2041a0aaea07c0205",
+    "raw_bytes": 5524386,
+    "extraction": [
+      "StemTag",
+      "year"
+    ],
+    "expected_year": "2021",
+    "expected_unique_tag_count": 30808
+  },
+  "HF253": {
+    "dataset": "Harvard Forest HF253 v6",
+    "publisher_version": "knb-lter-hfr.253.6",
+    "doi": "10.6073/pasta/818789a882a318c1d7f3fc43a2289e12",
+    "raw_url": "https://harvardforest.fas.harvard.edu/data/p25/hf253/hf253-06-stems-2019.csv",
+    "new_raw_sha256_first_open_required": true,
+    "original_publisher_file_checksum_not_yet_verified": true,
+    "original_data_fields_to_index": [
+      "tag",
+      "stem.tag",
+      "tree.id",
+      "stem.id"
+    ],
+    "original_data_fields_forbidden": [
+      "sp",
+      "dbh",
+      "df.status",
+      "status",
+      "gx",
+      "gy",
+      "quadrat",
+      "census.id"
+    ]
+  },
+  "admission": {
+    "exact_literal_tags_only": true,
+    "remove_leading_zeros": false,
+    "case_folding": false,
+    "drop_ambiguous_matches": false,
+    "acceptable_source_reference_only": "publisher_original_version",
+    "skip_outcome_fields": true,
+    "do_not_select_best_join_using_HF453_Y": true
+  },
+  "output": {
+    "count_original_HF253_rows": true,
+    "count_distinct_original_tag_columns": true,
+    "count_exact_intersection_each_candidate": true,
+    "count_tree_only_stem_only_both_neither": true,
+    "count_ambiguous_tree_and_stem_identity": true,
+    "output_identifier_rows": false,
+    "raw_files_persist": false
+  },
+  "source_limit_bytes": 268435456,
+  "published_panel_not_independent_forest": true,
+  "new_biological_effect_estimate": false,
+  "Product_B_unblocked": false
+}

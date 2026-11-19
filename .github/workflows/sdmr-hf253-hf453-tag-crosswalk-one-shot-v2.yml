@@ -1,0 +1,109 @@
+name: SDMR HF253 2019 original literal tag source-only v2 Boolean guard (one-shot)
+
+# After first HF253 source preflight failed with zero original GET. V2 changes only the inverted Boolean guard.
+# After HF453 Y was opened: identity-source diagnostic ONLY. No status, CP,
+# species, DBH, location or field biological outcome is opened in this run.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf253_hf453_first_identity_source_once_v2.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  old-provider-original-identity-first-open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin pre-outcome source-only identity parser, exact URL and no-ecology receipt
+        run: |
+          test "$(git hash-object configs/hf253_hf453_source_identity_prefreeze_v1.json)" = "4de72ba63f165fc75ab38c86eacd80a777dfd59e"
+          test "$(git hash-object scripts/hf253_hf453_original_tag_crosswalk_v2.py)" = "9cf0b8993652f14bf4bcc9b46ae06921c265c1fe"
+          test "$(git hash-object tests/test_hf253_hf453_original_tag_crosswalk_v2.py)" = "e4372cd4040cc830828c589eabc965165958192a"
+          python - <<'PY'
+          from pathlib import Path
+          x=Path('configs/hf253_hf453_first_identity_source_once_v2.lock').read_text().splitlines()
+          assert x==[
+            'program=sdmr_hf253_2019_to_hf453_2021_exact_tag_source_only_v2',
+            'endpoint=source_only_exact_tag_identity_not_outcome',
+            'post_HF453_first_outcome_opening=true',
+            'v1_preflight_source_GET=zero_run_44542568429',
+            'fixed_HF453_original_sha256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74',
+            'HF253_publisher_version=knb-lter-hfr.253.6',
+            'HF253_exact_original_url=https://harvardforest.fas.harvard.edu/data/p25/hf253/hf253-06-stems-2019.csv',
+            'HF253_prior_source_new_full_byte_sha_record_once=true',
+            'source_columns=HF453_StemTag_year_HF253_tag_stem.tag_tree.id_stem.id',
+            'all_species_dbh_status_CP_coordinates_not_interpreted=true',
+            'no_favorable_outcome_driven_key_selection=true',
+            'no_original_CSV_archived=true',
+            'no_automatic_provider_retry=true',
+            'single_forest_not_independent_replication=true',
+            'ProductA_M5_unchanged_ProductB_blocked=true',
+          ],'HF253 one-shot source protocol changed'
+          PY
+      - name: First-pass synthetic source-only tests with no original GET
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q \
+            tests/test_hf253_hf453_original_tag_crosswalk_v2.py \
+            tests/test_hf453_tag_year_identity_source_only_v2.py
+      - name: No-network contract preflight
+        run: |
+          python scripts/hf253_hf453_original_tag_crosswalk_v2.py \
+            --config configs/hf253_hf453_source_identity_prefreeze_v1.json \
+            --preflight-only \
+            --out artifacts/hf253_hf453_tag_source_preflight_v2.json
+      - name: Single exact publisher original 2019 tag-source request and aggregate crosswalk
+        run: |
+          python scripts/hf253_hf453_original_tag_crosswalk_v2.py \
+            --config configs/hf253_hf453_source_identity_prefreeze_v1.json \
+            --execute-lock configs/hf253_hf453_first_identity_source_once_v2.lock \
+            --out artifacts/hf253_hf453_tag_source_result_v2.json
+      - name: Reject source/identity confusion and any biological outcome access
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/hf253_hf453_tag_source_result_v2.json')
+          assert p.is_file() and p.stat().st_size>350
+          d=json.loads(p.read_text())
+          assert d['program']=='sdmr_hf253_2019_to_hf453_2021_exact_tag_source_only_v2'
+          assert not d['preflight']
+          assert d['post_HF453_outcome_exploration_not_new_independent_confirmation'] is True
+          assert d['species_or_size_values_opened'] is False
+          assert d['HF453_status_CP_or_mortality_reopened'] is False
+          assert d['biological_effect_estimated'] is False
+          assert not d['Product_B_unblocked']
+          o=d['result']
+          assert o['status']=='HF253_HF453_original_source_candidate_keys_screened_only'
+          assert o['HF453_original_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert len(o['HF253_new_source_first_byte_receipt']['sha256'])==64
+          assert o['HF253_original_identity_metadata']['only_four_identity_columns_indexed']
+          assert o['HF253_original_identity_metadata']['species_size_status_plot_columns_interpreted'] is False
+          k=o['exact_literal_crosswalk']
+          assert k['n_HF453_original_2021_tags']==30808
+          assert sum(k[z] for z in [
+            'n_exact_match_both_columns','n_exact_match_only_tag_column',
+            'n_exact_match_only_stem_tag_column','n_unmatched_in_both_2019_keys'
+          ])==30808
+          assert k['identity_match_not_physical_tree_validation']
+          assert k['unmatched_2019_tag_not_biological_absence']
+          assert not o['new_biological_response_values_opened']
+          print('HF253 first original 2019 tags: source-only identity, no species/DBH/Y')
+          PY
+      - name: Original-source identity receipt or STOP only, no raw tree rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf253-hf453-first-source-only-literal-tag-crosswalk-v2
+          path: |
+            artifacts/hf253_hf453_tag_source_result_v2.json
+            artifacts/hf253_hf453_tag_source_preflight_v2.json
+          if-no-files-found: error
+          retention-days: 90

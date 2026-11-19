@@ -1,0 +1,74 @@
+{
+  "schema": "sdmr.structural_process_known_truth_prospective.v1",
+  "status": "design_frozen_before_unused_seed_opening",
+  "evidence_class": "synthetic_prospective_only",
+  "worlds": [
+    "direct_structure",
+    "measured_site_proxy",
+    "shared_carrier",
+    "observation_selection",
+    "spatial_only",
+    "temporal_transfer",
+    "operator_mismatch",
+    "omitted_driver"
+  ],
+  "positive_worlds": [
+    "direct_structure",
+    "shared_carrier",
+    "temporal_transfer"
+  ],
+  "seeds": [
+    96001,
+    96002,
+    96003,
+    96004,
+    96005,
+    96006,
+    96007,
+    96008,
+    96009,
+    96010
+  ],
+  "n_regions": 8,
+  "sites_per_region": 64,
+  "n_cases": 80,
+  "per_world_cases": 10,
+  "positive_cases": 30,
+  "null_cases": 50,
+  "comparators": [
+    "spatial_single_predictor",
+    "space_and_time_single_predictor",
+    "all_carriers_without_observation_audit",
+    "all_carriers_with_observation_audit"
+  ],
+  "primary_comparator": "all_carriers_with_observation_audit",
+  "gate": {
+    "positive_recovery_min": 27,
+    "false_positive_max": 1,
+    "unresolved_observation_selection_min": 10,
+    "omitted_driver_unavailable_min": 10,
+    "shared_carrier_recovery_min": 9,
+    "no_causal_claims_required": true,
+    "no_empirical_promotion_required": true,
+    "complete_denominator_required": true
+  },
+  "methods": {
+    "reference": "climate and source-declared Z when available",
+    "candidate": "B single addition vs all declared process carriers",
+    "learner": "train-only centered/scaled ridge with intercept unpenalized and penalty 0.01",
+    "split": "8 completely heldout fixed regions; each physical site contributes one t0 and one same-interval change response",
+    "unit": "one physical site within predeclared region",
+    "loss": "region-equal mean squared error",
+    "conditional_test": "two-sided exact 8-block sign-flip",
+    "structure_target": "within-site coefficient, not observational causal mechanism",
+    "observation_flag": "oracle-provided source-audit eligibility; NOT learned from outcomes",
+    "time_axis": "same-interval change association; NOT future prediction"
+  },
+  "hard_boundaries": [
+    "never open original FIA/Structural/NEON/GBIF outcomes",
+    "never pool with original M5 known truth 71/80 or real-v5",
+    "never reopen Product-A or unblock Product-B",
+    "never relabel failed frozen synthetic benchmark after results",
+    "do not reuse 1201-1203 as prospective confirmation"
+  ]
+}

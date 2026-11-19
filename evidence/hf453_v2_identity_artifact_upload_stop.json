@@ -1,0 +1,23 @@
+{
+  "schema": "sdmr.hf453_v2_unarchived_source_identity_terminal.v1",
+  "timestamp_utc": "2026-11-19",
+  "stage": "source_only_tag_year_identity",
+  "v2_run_id": 44480089232,
+  "v2_source_commit": "865d3621fcf7ad9b5811186fe00808c3d0f34814",
+  "v2_technical_ci": "success",
+  "v2_printed_source_disposition": "tag_year_source_identity_indexed_only",
+  "v2_receipt_artifact_count": 0,
+  "expected_output_file": "artifacts/hf453_tag_year_identity_v2.json",
+  "actual_upload_glob": "artifacts/hf453_*_v1.json",
+  "root_cause": "v2 upload-artifact path was not updated to v2 output names; if-no-files-found=warn masked missing artifact",
+  "source_identity_counts": null,
+  "source_record_count": null,
+  "repeated_stem_counts": null,
+  "v2_code_git_blob_sha": "8215828d0c3768560fcd8f6b09aebd192bca03c5",
+  "v2_execute_lock_git_blob_sha": "d2c7dabdb3342f40710e85a4de07a82ac13167ba",
+  "same_original_source_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "recovery_role": "technical_receipt_reconstruction_only",
+  "separate_independent_biological_replication": false,
+  "biological_outcomes_opened": false,
+  "interpretation": "The printed status from v2 is a source-only identity gate success but no machine-readable count/receipt was archived. Treat all unpersisted source counts as unknown. The v2 run and its artifact absence must remain immutable."
+}

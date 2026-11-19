@@ -1,0 +1,12 @@
+program=sdmr_hf453_first_publisher_byte_identity_v1
+source=harvard_forest_hf453_2026_v1
+publisher_version=knb-lter-hfr.453.1
+doi=10.6073/pasta/0bc6f43d7406c9c01e84a3dd4ed65193
+filename=hf453-01-tree-census-2021-2024.csv
+published_md5=c6be7aa99e31ded2041a0aaea07c0205
+one_source_url_only=true
+parse_biological_rows=forbidden
+archive_raw_rows=forbidden
+no_automatic_network_retry=true
+model_fit=forbidden
+original_M5_ProductA_ProductB_unchanged=true

@@ -1,0 +1,71 @@
+name: SDMR forest source-only admission audit v1
+
+on:
+  pull_request:
+    paths:
+      - src/sdmr/forest_source_gate_v1.py
+      - src/sdmr/forest_original_receipt_v1.py
+      - scripts/hf453_first_status_transition_v1.py
+      - scripts/hf253_hf453_original_tag_crosswalk_v1.py
+      - tests/test_hf253_hf453_original_tag_crosswalk_v1.py
+      - configs/hf253_hf453_source_identity_prefreeze_v1.json
+      - docs/SDMR_HF253_HF453_SOURCE_LINKAGE_PREFREEZE_20261119.md
+      - tests/test_hf453_first_status_transition_v1.py tests/test_hf253_hf453_original_tag_crosswalk_v1.py
+      - configs/hf453_demographic_transition_first_open_v1.json
+      - docs/SDMR_HF453_FIRST_STATUS_TRANSITION_PREFREEZE_20261119.md
+      - tests/test_forest_original_receipt_v1.py
+      - scripts/hf453_original_byte_preflight_v1.py
+      - tests/test_hf453_original_byte_preflight_v1.py tests/test_hf453_first_status_transition_v1.py
+      - .github/workflows/sdmr-hf453-original-byte-one-shot-v1.yml
+      - src/sdmr/forest_sampling_opportunity_v1.py
+      - src/sdmr/forest_longitudinal_status_v1.py
+      - tests/test_forest_source_gate_v1.py
+      - tests/test_forest_sampling_opportunity_v1.py
+      - tests/test_forest_longitudinal_status_v1.py
+      - configs/forest_source_gate_archived_sources_v1.json
+      - experiments/forest_source_gate_audit_v1.py
+      - docs/SDMR_STRUCTURAL_FOREST_SOURCE_GATE_V1.md
+      - docs/SDMR_FOREST_NEW_PROVIDER_SOURCE_CANDIDATES_20261119.md
+      - .github/workflows/sdmr-forest-source-gate-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only local package and pytest
+        run: python -m pip install -e '.[test]'
+      - name: Unit and known-public-metadata contracts
+        run: python -m pytest -q tests/test_forest_source_gate_v1.py tests/test_forest_sampling_opportunity_v1.py tests/test_forest_longitudinal_status_v1.py tests/test_forest_original_receipt_v1.py tests/test_hf453_original_byte_preflight_v1.py
+      - name: Five archived source metadata gates — no biological opening
+        run: |
+          python experiments/forest_source_gate_audit_v1.py \
+            --catalog configs/forest_source_gate_archived_sources_v1.json \
+            --output artifacts/forest_source_gate_archived_v1.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path('artifacts/forest_source_gate_archived_v1.json').read_text())
+          assert q['n_source_profiles'] == 5
+          assert q['n_protocol_ready'] == 0
+          assert q['n_biological_outcomes_opened'] == 0
+          assert q['n_new_models_fit'] == 0
+          assert q['no_new_result_promotion']
+          assert all(not r['response_opening_authorized'] and not r['biological_effect_estimated'] for r in q['decisions'])
+          print('SOURCE_ONLY_PASS; no field response, no new ecology')
+          PY
+      - name: Archive independent metadata-only gate receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-structural-five-forest-source-admission-v1
+          path: artifacts/forest_source_gate_archived_v1.json
+          if-no-files-found: error
+          retention-days: 90

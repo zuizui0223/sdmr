@@ -1,0 +1,81 @@
+name: SDMR HF453 v1 frozen original StemTag year source identity (one-shot)
+
+# A separately frozen SECOND source-only stage, after original byte identity PASS.
+# Never analyze status, CP, tree health, taxon, death, growth or model outcomes.
+on:
+  push:
+    branches: [method/structural-context-closure-v1-20261118]
+    paths:
+      - 'configs/hf453_tag_year_original_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  original-tag-year-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic, strictly no-network identity contract tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_hf453_tag_year_identity_source_only_v1.py tests/test_hf453_original_byte_preflight_v1.py
+      - name: Preflight before source GET
+        run: |
+          python scripts/hf453_tag_year_identity_source_only_v1.py \
+            --preflight-only --out artifacts/hf453_identity_prefight_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/hf453_identity_prefight_v1.json'))
+          assert d['preflight'] and not d['network_get_attempted']
+          assert d['result']['status']=='preflight_unopened'
+          assert not d['new_tree_response_opened']
+          PY
+      - name: Exact frozen original bytes first, StemTag and year only after SHA barrier
+        run: |
+          python scripts/hf453_tag_year_identity_source_only_v1.py \
+            --execute-lock configs/hf453_tag_year_original_once_v1.lock \
+            --out artifacts/hf453_tag_year_first_identity_v1.json
+      - name: Refuse any field-response or process-inference promotion
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/hf453_tag_year_first_identity_v1.json'))
+          assert d['network_get_attempted'] is True
+          assert d['only_StemTag_year_indexed'] is True
+          assert d['status_CP_health_taxon_columns_not_used'] is True
+          assert d['original_source_file_archived'] is False
+          assert d['new_tree_response_opened'] is False
+          assert d['new_biological_models_fit'] == 0
+          assert d['new_biological_inference_authorized'] is False
+          assert d['Product_B_unblocked'] is False
+          x=d['result']
+          assert x['status'] in (
+            'tag_year_source_identity_indexed_only',
+            'original_frozen_source_byte_mismatch_stop',
+            'original_source_fetch_unavailable_stop',
+            'original_source_identity_read_stop',
+            'duplicate_original_tag_year_stop',
+            'identity_source_fields_invalid_stop',
+            'identity_year_frame_incomplete_stop',
+          )
+          if x['status']=='tag_year_source_identity_indexed_only':
+            assert x['source_identity_opened']
+            assert x['source_digests']['sha256']==d['frozen_source_sha256']
+            assert x['identity_only']['n_duplicate_tag_year']==0
+            assert x['identity_only']['status_or_CP_columns_indexed'] is False
+            assert x['identity_only']['alive_at_risk_denominator_estimated'] is False
+          print('HF453 original source-only tag/year status:',x['status'])
+          PY
+      - name: Archive JSON-only identity or STOP, never source CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-original-tag-year-only-v1
+          path: artifacts/hf453_*_v1.json
+          if-no-files-found: warn
+          retention-days: 90
