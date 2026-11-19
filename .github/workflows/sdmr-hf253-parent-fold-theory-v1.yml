@@ -1,0 +1,62 @@
+name: SDMR parent stem-fold hypothetical split geometry (theory only)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/hf253_parent_random_fold_split_theory_v1.py'
+      - 'tests/test_hf253_parent_random_fold_split_theory_v1.py'
+      - 'docs/SDMR_HF253_PARENT_FOLD_SPLIT_GEOMETRY_V1.md'
+      - '.github/workflows/sdmr-hf253-parent-fold-theory-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  no-field-source-or-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact synthetic fold combinatorics and source-count contract
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_hf253_parent_random_fold_split_theory_v1.py
+      - name: Calculate only hypothetical stem-fold split source geometry
+        run: |
+          python scripts/hf253_parent_random_fold_split_theory_v1.py \
+            --source evidence/hf253_hf453_parent_tree_grain_v1.json \
+            --folds 5 \
+            --out artifacts/hf253_parent_stem_cv5_theoretical_split_v1.json
+      - name: Enforce hypothetical-only non-biological scientific meaning
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf253_parent_stem_cv5_theoretical_split_v1.json'))
+          assert x['status']=='exact_theoretical_source_unit_split_range'
+          assert x['folds']==5
+          assert x['source_stem_tag_denominator']==30808
+          assert x['parent_ID_denominator']==27688
+          assert x['multi_stem_parent_ID_denominator']==2331
+          assert x['expected_parent_IDs_appearing_in_multiple_folds_lower_decimal']==1958.966272
+          assert x['expected_parent_IDs_appearing_in_multiple_folds_upper_decimal']==1958.9888
+          assert x['assumption']=='independent_uniform_per_STEM_fold_assignment'
+          assert x['not_actual_fold_assignments']
+          assert x['not_observed_information_leakage_or_model_bias']
+          assert x['not_effective_independent_sample_size']
+          assert x['no_original_biological_or_source_rows_read']
+          assert x['no_model_fits']
+          assert x['no_ecological_process_identification']
+          assert x['single_forest_nontransfer']
+          assert x['product_B_blocked']
+          PY
+      - name: Archive exact mathematical expectation only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf253-hypothetical-stem-cv5-parent-split-v1
+          path: artifacts/hf253_parent_stem_cv5_theoretical_split_v1.json
+          if-no-files-found: error
+          retention-days: 90
