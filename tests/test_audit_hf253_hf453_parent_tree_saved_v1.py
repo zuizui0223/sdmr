@@ -43,7 +43,7 @@ def test_first_original_parent_source_and_multiplicity_reconciles_without_data(s
         "full_original_stem_parent_denominator"),
     (lambda p,l:p.update(n_ambiguous_stem_parent_ID_mapping=1),
         "full_original_stem_parent_denominator"),
-    (lambda p,l:p.update(n_stem_tags_in_multistem_parent_ids=5000),
+    (lambda p,l:p.update(n_matched_stems_in_multi_stem_trees=5000),
         "stem_to_parent_excess_or_multi_membership"),
     (lambda p,l:p.update(n_parent_tree_IDs_with_two_matched_stems=1776),
         "original_parent_stem_histogram"),
