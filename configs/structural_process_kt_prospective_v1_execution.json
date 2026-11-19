@@ -1,0 +1,28 @@
+{
+  "status": "source_frozen_before_first_open",
+  "source_commit": "9ccc3c4747b8dfd486623c756dbe5455f373a25b",
+  "source_blobs": {
+    "configs/structural_process_kt_prospective_v1.json": "8370fab77ffe4918f23cd62ccd508ce5e9da6395",
+    "src/sdmr/contextual_structure_evidence.py": "ec17672b03120751eb3e54272e4b9501abb3edc4",
+    "src/sdmr/structural_known_truth_v1.py": "f6893d46a732ded908a669ee5d4398458fdf72a0",
+    "src/sdmr/structural_process_gate_v1.py": "9ba74aafb63a1a4c0cec595a6d9e791011112573",
+    "src/sdmr/structural_process_benchmarks_v1.py": "68f95f335924b9b7f9c19414dd1d0a5bbcb08995",
+    "experiments/structural_known_truth_prospective_v1.py": "42d8dd66a4c2c9092593dd87a4ef7f57501d10e4",
+    ".github/workflows/sdmr-structural-kt-prospective-v1.yml": "f6e0c7b8789ef58e57e6a7293d9ad5b2efe8fc6d"
+  },
+  "worlds": 8,
+  "unused_seeds_start": 96001,
+  "unused_seeds_end": 96010,
+  "n_cases": 80,
+  "burned_development_seeds": [
+    1201,
+    1202,
+    1203
+  ],
+  "synthetic_only": true,
+  "prospective_seed_opened": false,
+  "real_forest_outcomes_opened": false,
+  "frozen_gate": "positive>=27/30 false<=1/50 selection_unresolved=10/10 omitted_unavailable=10/10 shared>=9/10",
+  "activation": "exact source SHA lock file only; no manual workflow dispatch",
+  "authoritative_execution": "first valid one-shot opening; no favorable reruns"
+}
