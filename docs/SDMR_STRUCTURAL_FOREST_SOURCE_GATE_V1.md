@@ -48,6 +48,16 @@ The source catalog stores the existing original or analysis artifact SHA-256 and
 The gate output contains each missingness reason and explicitly asserts:
 `response_opening_authorized=false`, `biological_effect_estimated=false`, `source_only=true` for **every source**, including a fully qualified synthetic source fixture. The receipt refuses any extra biological outcome/loss fields.
 
+## Physical-site and original sampling-opportunity adapter (synthetic-tested)
+
+The companion `src/sdmr/forest_sampling_opportunity_v1.py` validates **original method metadata**, distinct from ecological responses. Each source `surveyed` event must have positive recorded effort and an ISO date. `not_surveyed` and `unknown` are separate statuses; no response row, count, detected species or sampled-zero label may enter the metadata schema.
+
+Each physical site has one fixed outer holdout block. Multiple trap/source rows do not create multiple independent sites. The adapter requires an explicit source-defined **expected block list**: a wholly unsurveyed block remains in the denominator and causes nonestimability rather than disappearing before heldout evaluation. Any duplicated source record ID, site reassignment across blocks, unexpected biological outcome column or fabricated zero triggers refusal.
+
+Its only possible successful status is `survey_opportunity_ready_for_separate_observation_audit`. Even this permits **no biological response opening**, proves no measured zeros, and says nothing about missing individuals, sampling-selection ignorability or process causality. Full observation-state verification occurs in a *different*, prospectively frozen stage after source methods and outcomes have been separated.
+
+Synthetic regression tests check 8 blocks×3 physical sites under 8 versus 1 trap replicates, missing blocks, zero effort, unknown status, unstable physical IDs and order-independent source SHA ledgers. **These are software contract tests, not additional field-research observations.**
+
 ## Scientific next stage
 
 An independently sourced biological programme must start with actual original physical site/stand/individual identities, dates and measurement-state logs, *including not-seen or not-alive observation opportunities*, then freeze a source-version-locked endpoint, process-carrier registry, reference, validation hierarchy and pre-outcome comparators. A new field dataset with only detected species or surviving trees must either target **explicitly conditional** composition/growth or remain unresolved for broader population-process claims.
