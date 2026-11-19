@@ -42,6 +42,24 @@ estimate, not a confidence interval, not a causal attribution and not directly
 applicable to presence-only GBIF. Source audit is required before a new field
 response is opened; no source was newly admitted here.
 
+## Newly verified provider original bytes, not biological effects
+
+A previously unavailable part of the **independent source provenance** is now
+confirmed: the Harvard Forest HF453 v1 original CSV was fetched as one
+stream-only, read-no-rows, checksum-pinned GitHub Action
+[#44475206249](https://github.com/zuizui0223/sdmr/actions/runs/44475206249).
+The whole 5,524,386-byte original matched publisher MD5
+`c6be7aa99e31ded2041a0aaea07c0205`; its SHA-256 is
+`0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74`.
+Exact first-open artifact and checksums are in
+[`evidence/hf453_publisher_original_bytes_first_open_v1.json`](../evidence/hf453_publisher_original_bytes_first_open_v1.json).
+This changes the HF453 **file provenance gate only**: raw tree rows were not
+parsed, the actual risk set has not been counted, no model was fit and no
+independent forest effect estimated. The new [pre-response protocol](SDMR_HF453_RISKSET_PREFREEZE_V1.md)
+fixes the alive-start cohort, observed dead `DC/DS` versus unresolved `DN`,
+physical tag accounting and prior canopy contrast. **Single-forest** diagnostic
+potential only; original Product A/M5/Structural denominators unchanged.
+
 ## One scientific theme, with two independent endpoints
 
 1. **Process-information methodology (SDMR main / M5 / Structural KT):** A predictor may be correlated with the observed response even when its information is fully carried by other variables, when sampling effort makes the signal unsafe, or when the response operator changes. Ask whether an *entire declared process carrier set* is removable while the response remains independently predictable and its observation process is sufficiently audited.
