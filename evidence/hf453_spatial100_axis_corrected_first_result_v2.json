@@ -1,0 +1,85 @@
+{
+  "schema": "sdmr.hf453_spatial100_source_corrected_original_result_v2",
+  "date": "2026-11-20",
+  "scientific_status": "POST_OUTCOME_EXPLORATORY_SINGLE_FOREST_NOT_INDEPENDENT_CONFIRMATION",
+  "original_execution": {
+    "run_id": 44752128595,
+    "source_commit_sha": "09a622c8cf470ccb8ef7fafcf66fc0244a9e8753",
+    "artifact_id": 14636880470,
+    "artifact_zip_sha256": "599e98a6fc590da964dddce6e95372d4b6921251614f1c392b52963c2c121213",
+    "result_json_sha256": "440f35179a90d50a8fc7a5b1014d6e349ed71a62029b9d518334fe39730de303",
+    "preflight_json_sha256": "ddbf3985b3a4b32774ca5d24bee9867b9caa5aa36d156771000371061352c2a9",
+    "technical_run_conclusion": "success"
+  },
+  "external_source": {
+    "study": "Harvard Forest, one 35 ha ForestGEO plot",
+    "HF253_original_SHA256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+    "HF453_original_SHA256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+    "source_only_axis_diagnostic_run": 44750670871,
+    "fixed_axis": "gx:[0,700], gy:[0,500] meters",
+    "previous_source_geometry_STOP_run": 44749714741,
+    "previous_source_geometry_coverage": 0.6669576,
+    "previous_source_geometry_model_fits": 0
+  },
+  "study_frame": {
+    "original_stem_tags": 30808,
+    "original_parent_tree_ids": 27688,
+    "geographically_eligible_original_stem_tags": 30808,
+    "geographically_eligible_original_parent_ids": 27688,
+    "source_100m_parent_centroid_cells": 35,
+    "prior_species_size_health_complete_known_end_outcome_stems": 21769,
+    "geographically_admitted_scored_stems": 21769,
+    "geography_excluded_scored_stems": 0,
+    "geography_coverage_fraction": 1,
+    "scored_parent_ids": 19872,
+    "known_next_dead_in_scored_stems": 454,
+    "outer_grouped_folds": 5,
+    "parent_tree_train_test_overlap": 0,
+    "original_HF453_status_first_result_untouched": true,
+    "original_HF453_priorcov_first_result_untouched": true
+  },
+  "parent_group_holdout": {
+    "baseline_logloss": 0.0892572113,
+    "plus_prior_CP_logloss": 0.0885619743,
+    "delta_logloss_baseline_minus_plus_CP": 0.000695237,
+    "baseline_brier": 0.0197102229,
+    "plus_prior_CP_brier": 0.0197032788,
+    "delta_brier_baseline_minus_plus_CP": 0.000006944,
+    "n_scored_stems": 21769,
+    "n_parent_ids": 19872
+  },
+  "spatial_100m_cell_holdout": {
+    "baseline_logloss": 0.090677981,
+    "plus_prior_CP_logloss": 0.0901307564,
+    "delta_logloss_baseline_minus_plus_CP": 0.0005472246,
+    "baseline_brier": 0.0200428677,
+    "plus_prior_CP_brier": 0.0200696558,
+    "delta_brier_baseline_minus_plus_CP": -0.0000267881,
+    "n_scored_stems": 21769,
+    "n_parent_ids": 19872,
+    "n_spatial_groups": 35,
+    "n_spatial_blocks_per_fold": [
+      7,
+      7,
+      7,
+      7,
+      7
+    ],
+    "n_train_test_shared_parent_ids": 0
+  },
+  "interpretation": {
+    "primary_metric_log_loss_positive_in_both_groupings": true,
+    "logloss_delta_reduction_under_spatial_grouping_pct": 21.29,
+    "brier_metric_disagrees_under_spatial_grouping": true,
+    "no_multimetric_dominance": true,
+    "no_sampling_CI_or_p_value": true,
+    "no_causal_light_or_competition_identification": true,
+    "no_cross_forest_transfer_estimated": true,
+    "no_independent_ecological_replication": true,
+    "not_independent_biomes": true,
+    "no_original_source_rows_or_coordinates_exported": true,
+    "M5_Product_A_unchanged": true,
+    "Product_B_unblocked": false,
+    "result": "small incremental predictive information for prior canopy under parent and 100m spatial heldout logloss, but spatial Brier worsens; no robust metric-wide superiority, no causal or general niche inference."
+  }
+}
