@@ -91,7 +91,7 @@ def validate_config(cfg: dict) -> None:
             or b["prior_fields"]!=["stem.tag","stem.id","tree.id","sp","dbh"]):
         raise ValueError("original_source_or_first_response_frozen_receipt_changed")
     assert cfg["primary_interval"]==[2021,2022]
-    status=cfg["status"]
+    status=cfg["endpoint_status_codes"]
     rules={
         "baseline_eligible":["A","AU"],
         "next_known_dead":["DC","DS"],
