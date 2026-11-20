@@ -1,0 +1,113 @@
+name: BCI v5 original five Dryad files SHA256-only first attempt (source-only)
+
+# No original source text is parsed; only byte SHA256 and length verified.
+# Dispatch exactly once via a newly created immutable file under this branch.
+on:
+  push:
+    branches: [method/bci2026-original-source-metadata-gate-20261120]
+    paths:
+      - 'configs/bci2026_v5_original_sha_only_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  exact_original_file_stream_sha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin previous provider metadata receipt and new byte-only code contract
+        run: |
+          test "$(git hash-object evidence/bci2026_first_dryad_published_metadata_v1.json)" = "440a97165d9ea5e019c7aa2f61e130f02fcb4e9c"
+          test "$(git hash-object scripts/bci2026_v5_original_bytes_sha_only_v1.py)" = "61d7a02d28ba2b9ac68df5dd571308edbc1e415a"
+          test "$(git hash-object tests/test_bci2026_v5_original_bytes_sha_only_v1.py)" = "5048392f893eb9a89e76ceb5f9491d91df7f5c5d"
+          python - <<'PY'
+          from pathlib import Path
+          x=Path('configs/bci2026_v5_original_sha_only_once_v1.lock').read_text().splitlines()
+          assert x==[
+            'program=sdmr_bci2026_v5_original_five_files_sha256_only_v1',
+            'source_DOI=10.5061/dryad.1g1jwsvc3',
+            'publisher_exact_version_id=460507',
+            'publisher_version_number=5',
+            'publisher_release_date=2026-08-31',
+            'original_manifest=https://datadryad.org/api/v2/versions/460507/files',
+            'five_file_full_byte_sha256_only_no_header_or_row_decoding=true',
+            'read_download_links_only_from_exact_version_provider_manifest=true',
+            'source_archive_files_and_biological_rows_not_saved=true',
+            'no_alternate_version_retries_or_fallback_mirrors=true',
+            'no_2025_exposure_predicts_2014_to_2025_survival=true',
+            'BCI_missing_and_inferred_death_not_directly_observed_Y=true',
+            'original_M5_ProductA_untouched_ProductB_blocked=true',
+          ],"BCI original five-file source-only lock drift"
+          PY
+      - name: No-network synthetic complete-byte digest and exact-file link tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q \
+            tests/test_bci2026_source_provider_metadata_v1.py \
+            tests/test_bci2026_v5_original_bytes_sha_only_v1.py
+      - name: No-source scientific preflight first
+        run: |
+          python scripts/bci2026_v5_original_bytes_sha_only_v1.py \
+            --preflight-only \
+            --out artifacts/bci2026_original_v5_sha_preflight_v1.json
+      - name: One hash-only GET for each exact versioned publisher file ID
+        run: |
+          python scripts/bci2026_v5_original_bytes_sha_only_v1.py \
+            --execute-lock configs/bci2026_v5_original_sha_only_once_v1.lock \
+            --out artifacts/bci2026_original_v5_sha_result_v1.json
+      - name: Strict full-original digest or archive a typed source STOP
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/bci2026_original_v5_sha_result_v1.json')
+          assert p.is_file() and p.stat().st_size>350
+          d=json.loads(p.read_text())
+          assert d['schema']=='sdmr.bci2026_original_five_file_sha256_source_only.v1'
+          assert d['original_version_id']==460507
+          assert d['provider_release_date']=='2026-08-31'
+          assert not d['preflight']
+          assert d['source_original_mainfile_stemfile_or_README_parsed'] is False
+          assert d['biological_outcome_or_2025_exposure_opened'] is False
+          assert d['original_CSV_or_text_bytes_archived'] is False
+          assert d['new_biological_models_fit']==0
+          assert d['independent_field_validation_not_yet_done'] is True
+          assert d['Product_B_unblocked'] is False
+          v=d['result']
+          assert v['status'] in {
+            'all_original_five_file_sha256_matched_no_biological_rows_opened',
+            'original_manifest_HTTP_STOP',
+            'original_manifest_network_STOP',
+            'original_manifest_metadata_integrity_STOP',
+            'original_file_http_access_unavailable_STOP',
+            'original_file_network_access_unavailable_STOP',
+            'original_provider_file_integrity_or_redirect_STOP',
+            'original_provider_file_sha256_or_size_drift_STOP',
+          }, v['status']
+          assert v['n_original_files_passed_SHA256']<=5
+          assert v['downloaded_original_files_archived']==0
+          assert v['decoded_biological_rows']==0
+          assert v['original_tree_status_or_2025_exposure_inspected'] is False
+          assert v['new_independent_field_process_validation'] is False
+          if v['status']=='all_original_five_file_sha256_matched_no_biological_rows_opened':
+            assert v['n_original_files_passed_SHA256']==5
+            assert len(v['file_receipts'])==5
+            assert all(x['status']=='original_full_byte_sha256_matched'
+                       for x in v['file_receipts'])
+          print('BCI original complete-byte source result:',v['status'])
+          PY
+      - name: Archive source-only SHA receipts or source STOP, never original organism rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-bci2026-v5-original-fivefile-sha-or-stop-v1
+          path: |
+            artifacts/bci2026_original_v5_sha_preflight_v1.json
+            artifacts/bci2026_original_v5_sha_result_v1.json
+          if-no-files-found: error
+          retention-days: 90
