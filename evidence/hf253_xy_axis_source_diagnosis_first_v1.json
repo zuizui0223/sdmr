@@ -1,0 +1,38 @@
+{
+  "schema": "sdmr.hf253_original_xy_axis_diagnostic_source_only_first_v1",
+  "date": "2026-11-20",
+  "source_run": 44750670871,
+  "first_source_sha": "09a38a217341b91ccca13dba478f4cf352310ceb",
+  "artifact_id": 14635990049,
+  "zip_sha256": "f285b492e30fa46ab2c6fb7814989d0dce9a13615d5d372b8d540afb8a1bb9f7",
+  "result_json_sha256": "8a065d3c7d3a44edd39ebaf0062ce9e3a5e8f9b2b2b86478175c8f1cdad1725c",
+  "original_HF253_sha256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+  "original_HF453_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "original_source_tag_count": 30808,
+  "original_source_parent_tree_ID_count": 27688,
+  "original_2019_rows": 123218,
+  "gx_min": 0.13165,
+  "gx_max": 699.94897,
+  "gy_min": 0.01786,
+  "gy_max": 499.978,
+  "missing_or_nonfinite_gx_gy": 0,
+  "source_only_diagnostic": true,
+  "frame_x500_y700": {
+    "valid_stems": 21412,
+    "invalid_stems": 9396,
+    "full_parent_IDs": 19388,
+    "source_parent_centroid_blocks": 25
+  },
+  "frame_x700_y500": {
+    "valid_stems": 30808,
+    "invalid_stems": 0,
+    "full_parent_IDs": 27688,
+    "source_parent_centroid_blocks": 35
+  },
+  "original_first_spatial_attempt": "original_source_geometry_coverage_unavailable_44749714741",
+  "scientific_correction": "source-only physical XY axis orientation fix, not source sample, model, 2022 outcome or effect threshold change",
+  "original_HF453_Y_not_opened_in_diagnostic": true,
+  "models_fit_in_diagnostic": 0,
+  "no_biological_effect_identified": true,
+  "product_B_blocked": true
+}
