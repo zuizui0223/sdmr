@@ -1,0 +1,93 @@
+{
+  "schema": "sdmr.scbi_independent_forest_governance_v1",
+  "frozen_on": "2026-11-21",
+  "source_site": "Smithsonian Conservation Biology Institute (SCBI), Virginia, USA",
+  "distinct_from_HF453_Harvard": true,
+  "plot_area_ha": 25.6,
+  "physical_ecosystem_replicates": 1,
+  "original_approved_ForestGEO_master_data_available": false,
+  "approval_or_scbi_version_from_PIs": null,
+  "analysis_using_original_SCBI_tree_data_authorized": false,
+  "research_approval_reference": null,
+  "provider_sources": {
+    "earlier_public_copies": {
+      "repository": "SCBI-ForestGEO/SCBI-ForestGEO-Data",
+      "exact_git_commit": "9c6437afed3da292741840ab5ce327a4b54eff98",
+      "dated_public_document": "June 28, 2019 per source README",
+      "census_labels": [
+        "2008-2010",
+        "2013",
+        "2018"
+      ],
+      "files": [
+        {
+          "period": "2008-2010",
+          "path": "tree_main_census/data/census-csv-files/scbi.stem1.csv",
+          "bytes": 5927551,
+          "git_blob_sha1": "75006d1cf423d6f0783c23bb73fd07adc999892f"
+        },
+        {
+          "period": "2013",
+          "path": "tree_main_census/data/census-csv-files/scbi.stem2.csv",
+          "bytes": 6219513,
+          "git_blob_sha1": "2f3f9408e912d1b35d7cfec73470116515f7ef99"
+        },
+        {
+          "period": "2018",
+          "path": "tree_main_census/data/census-csv-files/scbi.stem3.csv",
+          "bytes": 6598542,
+          "git_blob_sha1": "10982d2ffcca5b55535b19272ba611ce5f86cab6"
+        }
+      ]
+    },
+    "public_2023_release": {
+      "repository": "SCBI-ForestGEO/2023census",
+      "published_release_tag": "2024.05",
+      "published_release_tag_commit": "6ac8718dcab0c5c653c56d55a1e093a6c20150e2",
+      "published_release_date": "2024-05-14",
+      "zenodo_doi": "10.5281/zenodo.11192302",
+      "source_path": "processed_data/scbi.stem4.csv",
+      "bytes": 35463140,
+      "git_blob_sha1": "cbaa4d92fb4588788895cc95f3542c9de1f80f32",
+      "published_repository_license_name": "Creative Commons Attribution 4.0 International",
+      "original_source_approved_for_this_research": false
+    }
+  },
+  "sources_are_Git_snapshots_not_approved_ForestGEO_master": true,
+  "Git_blob_SHA1_is_NOT_raw_file_SHA256": true,
+  "original_public_CSV_bytes_not_opened": true,
+  "metadata_only_api_paths": [
+    "https://api.github.com/repos/SCBI-ForestGEO/SCBI-ForestGEO-Data/git/trees/9c6437afed3da292741840ab5ce327a4b54eff98?recursive=1",
+    "https://api.github.com/repos/SCBI-ForestGEO/2023census/git/trees/6ac8718dcab0c5c653c56d55a1e093a6c20150e2?recursive=1"
+  ],
+  "source_use_rules": {
+    "master_version_request_form": "https://ctfs.si.edu/datarequest/index.php/request/form/9",
+    "terms": "https://ctfs.si.edu/datarequest/index.php/request/terms/9",
+    "site_policy": "https://forestgeo.si.edu/explore-data/scbi-termsconditionsrequest-forms",
+    "require_data_request_and_approved_master_version_before_analysis": true,
+    "require_PI_collaborator_and_authorship_terms_per_official_site": true,
+    "require_nontransferability_and_no_redistribution": true,
+    "require_request_for_each_new_study_use": true,
+    "citation_requires_approved_dataset_version": true,
+    "separate_custom_mortality_use_agreement_for_years_2022_and_later": true,
+    "annual_mortality_2014_to_2019_and_2021_CC_BY_does_not_authorize_all_other_years": true
+  },
+  "scientific_admission": {
+    "desired_new_test": "Independent-source within-SCBI 2013-2018 or 2018-2023 tree-status and opportunity operator audit, with no original 2022+ annual mortality usage unless separately approved",
+    "2018_2023_census_status_opened": false,
+    "prior_2018_crown_position_usable_as_full_forest_exposure": false,
+    "2018_crown_sample_is_selected_dendroband_core_subset": true,
+    "plot_subunits_do_not_count_as_independent_forests": true,
+    "physical_tree_stem_key_and_original_status_ontology_unverified": true,
+    "future_biological_analyses_blocked": true,
+    "direct_HF453_CP_mortality_replication_not_permitted_with_current_crown_cohort": true
+  },
+  "frozen_methods_and_results": {
+    "original_M5_71of80_unchanged": true,
+    "original_Structural_30of30_unchanged": true,
+    "product_A_not_promoted": true,
+    "product_B_blocked": true,
+    "HF453_one_forest_association_unchanged": true,
+    "BCI_2026_original_401_stop_unchanged": true
+  }
+}
