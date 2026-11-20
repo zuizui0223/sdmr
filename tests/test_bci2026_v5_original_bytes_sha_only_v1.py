@@ -120,7 +120,7 @@ def test_raw_byte_stream_digest_matching_without_any_biological_decoding():
     assert not p["original_file_saved_to_artifact"]
     q=mod.stream_original_file_sha256(url,len(raw),sha,opener=Opener(b"x"*len(raw)))
     assert q["status"]=="original_provider_sha_or_size_drift_STOP"
-    with pytest.raises(ValueError,match="larger_than"):
+    with pytest.raises(ValueError,match="size_exceeds|larger_than"):
         mod.stream_original_file_sha256(url,len(raw)-1,sha,
                                          opener=Opener(raw))
 
