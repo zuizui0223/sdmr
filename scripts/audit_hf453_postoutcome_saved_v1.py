@@ -39,7 +39,7 @@ def audit_saved_results(z:dict)->dict:
         key=label+"_strata_"
         if z[key+"eligible_n"]+z[key+"excluded_n"]!=z["n_complete_sp_dbh_CP"]:
             raise ValueError("original_covariate_complete_CP_stratum_lost:"+label)
-        if z[key+"eligible"]>z[key+"total"] if label=="strict" else z[key+"eligible"]>z["strict_strata_total"]:
+        if z[key+"eligible"]>z["strict_strata_total"]:
             raise ValueError("original_CP_stratum_count_impossible")
         lo=z[label+"_standardized_lower_pp"]
         hi=z[label+"_standardized_upper_pp"]
