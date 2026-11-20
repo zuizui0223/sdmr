@@ -91,7 +91,7 @@ def test_spatial_and_parent_grouped_folds_never_split_one_parent():
     for parent in range(150):
         for stem in range(2):
             baseline_unhealthy=(parent%4)==0
-            outcome="p" if parent%5==0 else "z"
+            outcome="p" if parent%7==0 else "z"  # no event-class alias with the 20 synthetic blocks
             rows.append({
                 "tag":f"ST{parent:05d}:{stem}",
                 "parent":f"tree_{parent}",
