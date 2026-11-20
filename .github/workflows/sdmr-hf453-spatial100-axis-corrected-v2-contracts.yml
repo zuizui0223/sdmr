@@ -1,0 +1,52 @@
+name: HF453 corrected source-axis spatial100 v2 synthetic-only preflight
+
+on:
+  pull_request:
+    paths:
+      - 'configs/hf453_spatial_block_priorcov_axis_corrected_v2.json'
+      - 'scripts/hf453_priorcov_spatial100_axis_corrected_v2.py'
+      - 'tests/test_hf453_priorcov_spatial100_axis_corrected_v2.py'
+      - 'docs/SDMR_HF453_SPATIAL100_AXIS_CORRECTED_V2_PREFREEZE.md'
+      - '.github/workflows/sdmr-hf453-spatial100-axis-corrected-v2-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  no-original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install only local project and synthetic tests
+        run: python -m pip install -e '.[test]'
+      - name: Validate exact 700 x 500 source frame and no parent training leakage on synthetic data
+        run: |
+          python -m pytest -q \
+            tests/test_hf453_priorcov_spatial100_axis_corrected_v2.py \
+            tests/test_hf453_prior_species_size_confounding_postoutcome_v1.py
+      - name: No source read or biological outcome opening during preflight
+        run: |
+          python scripts/hf453_priorcov_spatial100_axis_corrected_v2.py \
+            --config configs/hf453_spatial_block_priorcov_axis_corrected_v2.json \
+            --preflight-only \
+            --out artifacts/hf453_spatial100_axis_corrected_v2_preflight.json
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf453_spatial100_axis_corrected_v2_preflight.json'))
+          assert x['preflight']
+          assert x['schema']=='sdmr.hf453_spatial100_axis_corrected_postoutcome_v2'
+          assert x['result']['status']=='source_unopened_spatial_contract_only'
+          assert x['post_original_HF453_Y_and_prior_CP_result_opening']
+          assert x['original_first_status_and_priorCV_receipts_unchanged']
+          assert x['not_confirmatory_transfer_test']
+          assert x['no_causal_process_identified']
+          assert not x['Product_B_unblocked']
+          PY
