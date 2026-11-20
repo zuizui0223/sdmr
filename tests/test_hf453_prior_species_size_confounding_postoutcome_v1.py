@@ -41,7 +41,7 @@ def test_frozen_design_disallows_y_driven_adjustment_changes(contract):
     with pytest.raises(ValueError,match="overlap_or_strata"):
         mod.validate_config(mutant)
     mutant=deepcopy(contract)
-    mutant["status"]["next_unresolved"]=[]
+    mutant["endpoint_status_codes"]["next_unresolved"]=[]
     with pytest.raises(ValueError,match="original_status_or_CP"):
         mod.validate_config(mutant)
 
