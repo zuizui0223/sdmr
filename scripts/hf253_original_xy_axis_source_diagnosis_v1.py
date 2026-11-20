@@ -175,3 +175,7 @@ def main():
     a.out.parent.mkdir(parents=True,exist_ok=True)
     a.out.write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
     print("HF253 original coordinate axis support:",result.get("source_coordinate_metadata",result).get("status"))
+
+
+if __name__=='__main__':
+    main()
