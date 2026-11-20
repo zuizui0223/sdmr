@@ -170,7 +170,33 @@ def stream_original_file_sha256(
 
 def execute_once(metadata_checkpoint:dict)->dict:
     expected=precommitted_metadata(metadata_checkpoint)
-    manifest=parse_exact_publisher_manifest(_api_get_json(MANIFEST_URL),expected)
+    try:
+        manifest=parse_exact_publisher_manifest(_api_get_json(MANIFEST_URL),expected)
+    except HTTPError as e:
+        return {
+            "status":"original_manifest_HTTP_STOP", "reason":f"http_{e.code}",
+            "n_original_files_checked":0, "n_original_files_passed_SHA256":0,
+            "downloaded_original_files_archived":0, "decoded_biological_rows":0,
+            "original_tree_status_or_2025_exposure_inspected":False,
+            "new_ecological_model_results":0, "new_independent_field_process_validation":False,
+        }
+    except (URLError,OSError,TimeoutError):
+        return {
+            "status":"original_manifest_network_STOP", "reason":"network_or_tls",
+            "n_original_files_checked":0, "n_original_files_passed_SHA256":0,
+            "downloaded_original_files_archived":0, "decoded_biological_rows":0,
+            "original_tree_status_or_2025_exposure_inspected":False,
+            "new_ecological_model_results":0, "new_independent_field_process_validation":False,
+        }
+    except (ValueError,KeyError,TypeError) as e:
+        return {
+            "status":"original_manifest_metadata_integrity_STOP",
+            "reason":type(e).__name__+":"+str(e)[:120],
+            "n_original_files_checked":0, "n_original_files_passed_SHA256":0,
+            "downloaded_original_files_archived":0, "decoded_biological_rows":0,
+            "original_tree_status_or_2025_exposure_inspected":False,
+            "new_ecological_model_results":0, "new_independent_field_process_validation":False,
+        }
     per_file=[]
     status="all_original_five_file_sha256_matched_no_biological_rows_opened"
     # All names are source-frozen, so the order cannot be selected by the outcome.
