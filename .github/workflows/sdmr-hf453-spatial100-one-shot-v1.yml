@@ -28,7 +28,7 @@ jobs:
         run: |
           test "$(git hash-object configs/hf453_spatial_block_priorcov_postoutcome_v1.json)" = "4ef789aabc9f5b66387f9edc75e172ff3fffbf79"
           test "$(git hash-object scripts/hf453_priorcov_spatial100_postoutcome_v1.py)" = "30ae7ed826c88fa3fe019326ea7dfb61da6e5fb5"
-          test "$(git hash-object tests/test_hf453_priorcov_spatial100_postoutcome_v1.py)" = "a3fc6316e0d8092840b473210eb735821b32a0a7"
+          test "$(git hash-object tests/test_hf453_priorcov_spatial100_postoutcome_v1.py)" = "2e5d3eb12de20eebe66819dc85d472c8ce0cdbf0"
           python - <<'PY'
           from pathlib import Path
           lines=Path('configs/hf453_spatial100_priorcov_postoutcome_v1_once.lock').read_text().splitlines()
