@@ -1,0 +1,47 @@
+name: HF453 source-corrected spatial x700-y500 v2 contracts (synthetic only)
+
+on:
+  pull_request:
+    paths:
+      - 'configs/hf453_spatial_block_priorcov_axis_corrected_v2.json'
+      - 'scripts/hf453_priorcov_spatial100_axis_corrected_v2.py'
+      - 'tests/test_hf453_priorcov_spatial100_axis_corrected_v2.py'
+      - '.github/workflows/sdmr-hf453-spatial100-axis-corrected-contracts-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install local tests without downloading any HF253 or HF453 source
+        run: python -m pip install -e '.[test]'
+      - name: Source-corrected xy geometry and synthetic parent/spatial holdout contracts
+        run: |
+          python -m pytest -q tests/test_hf453_priorcov_spatial100_axis_corrected_v2.py
+          python scripts/hf453_priorcov_spatial100_axis_corrected_v2.py \
+            --config configs/hf453_spatial_block_priorcov_axis_corrected_v2.json \
+            --preflight-only --out artifacts/hf453_spatial_v2_source_blind_preflight.json
+      - name: Require postoutcome noncausal and untouched earlier results
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf453_spatial_v2_source_blind_preflight.json'))
+          assert x['schema']=='sdmr.hf453_spatial100_axis_corrected_postoutcome_v2'
+          assert x['preflight'] and x['one_forest']
+          assert x['result']['status']=='source_unopened_spatial_contract_only'
+          assert x['original_first_status_and_priorCV_receipts_unchanged']
+          assert x['not_confirmatory_transfer_test']
+          assert x['no_causal_process_identified'] and not x['Product_B_unblocked']
+          PY
