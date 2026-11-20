@@ -1,0 +1,47 @@
+name: HF453 postoutcome prior-species-size contracts (synthetic only)
+
+on:
+  pull_request:
+    paths:
+      - 'configs/hf453_prior_species_size_postoutcome_v1.json'
+      - 'scripts/hf453_prior_species_size_confounding_postoutcome_v1.py'
+      - 'tests/test_hf453_prior_species_size_confounding_postoutcome_v1.py'
+      - '.github/workflows/sdmr-hf453-prior-species-size-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source_free:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen project and Python unit tests
+        run: python -m pip install -e '.[test]'
+      - name: Verify source-free heldout logistic, strata, no-postoutcome-promotion and fail-closed source contract
+        run: |
+          python -m pytest -q tests/test_hf453_prior_species_size_confounding_postoutcome_v1.py
+          python scripts/hf453_prior_species_size_confounding_postoutcome_v1.py \
+            --config configs/hf453_prior_species_size_postoutcome_v1.json \
+            --preflight-only \
+            --out artifacts/hf453_prior_covariate_scientific_preflight_v1.json
+      - name: Assert no original HF453 or HF253 response source opened
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('artifacts/hf453_prior_covariate_scientific_preflight_v1.json'))
+          assert r['preflight']
+          assert r['result']['status']=='source_free_scientific_preflight_only'
+          assert r['postoutcome_exploratory_analysis']
+          assert r['no_new_independent_ecological_replication']
+          assert r['no_causal_process_identified']
+          assert not r['Product_B_unblocked']
+          PY
