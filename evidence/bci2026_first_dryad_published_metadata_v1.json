@@ -1,0 +1,52 @@
+{
+  "schema": "sdmr.bci2026_first_published_source_metadata_receipt.v1",
+  "science_stage": "independent_tropical_source_provenance_metadata_only",
+  "doi": "10.5061/dryad.1g1jwsvc3",
+  "Dryad_version_id": 460507,
+  "Dryad_version_number": 5,
+  "Dryad_exact_publication_date": "2026-08-31",
+  "Dryad_manifest_url": "https://datadryad.org/api/v2/versions/460507/files",
+  "license": "https://spdx.org/licenses/CC0-1.0.html",
+  "first_metadata_one_shot_run_id": 44758571119,
+  "first_metadata_source_commit": "ed6b589d62c8b8a0bf81e844c549910ded760b48",
+  "first_metadata_artifact_id": 14640041728,
+  "first_metadata_artifact_sha256": "2a8826dd61418ff8f6e81d6ce51be70f204b08792fb5321d1f641521cea83e52",
+  "first_metadata_original_json_sha256": "d19ec833ea2e2c8194d22d37847e1c564b83a2cefc5c335bd922572f618be158",
+  "first_metadata_preflight_json_sha256": "2746386d9840a3ca0f6e42d57875f816954e34c7bbd4da95447ed07eef7874fe",
+  "first_metadata_original_status": "provider_original_file_manifest_missing_checksums_hold",
+  "explanation_of_status": "All five provider source SHA-256 digests and byte sizes ARE present, but the v1 adapter expected a top-level numeric id that Dryad does not expose. The actual file ID is linked under _links.self or _links.stash:download and was not archived. This is a metadata parser field limitation, not an absence of source SHA.",
+  "file_ids_from_v1": null,
+  "all_publisher_sha256_and_size_available": true,
+  "files": {
+    "Key_sp6.txt": {
+      "bytes": 15795,
+      "sha256": "4e7e3c1c5a93443b50d2d0f287e4887892f7b8f7d64faa7031aa105f1307b4e4"
+    },
+    "Plot_UTM_coordinates.txt": {
+      "bytes": 463,
+      "sha256": "fdb5617b3ca49a46cdd8be5ef7879d6ae332a36c377d5038f55cab5421cf6b7c"
+    },
+    "README.md": {
+      "bytes": 16958,
+      "sha256": "df27e18c1b23003c8b694cffde8b20303820cab583c03d46a0d9abaeb7b48b15"
+    },
+    "mainfile.txt": {
+      "bytes": 4444083,
+      "sha256": "e0e37862f6763316d7cbdab16ecc9cc60370955afd251211732c550e8778528c"
+    },
+    "stemfile.txt": {
+      "bytes": 537486,
+      "sha256": "e527f8bfab145bf1e343b522c45131ac250eaf5774126aa24c1dde52809ddf40"
+    }
+  },
+  "all_biological_rows_still_unopened": true,
+  "all_original_file_bytes_still_unopened": true,
+  "first_source_file_sha256_verified": false,
+  "stable_tree_ontology": "unique.id or plot + tag, not tag only",
+  "stem_ontology": "stemfile rows not stable cross-census",
+  "missing_and_dead_ontology": "missing not observed dead; dead includes some presumed",
+  "exposure_leakage_barrier": "2025 exposure not a pre-2014 covariate",
+  "publication_ceiling": "independent tropical source identified, not independent tested ecological effect or causal forest process",
+  "Product_A_not_promoted": true,
+  "Product_B_blocked": true
+}
