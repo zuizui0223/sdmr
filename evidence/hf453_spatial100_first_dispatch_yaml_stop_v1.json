@@ -1,0 +1,18 @@
+{
+  "schema": "sdmr.hf453_spatial100_first_dispatch_yaml_stop.v1",
+  "date": "2026-11-20",
+  "run_id": 44749425699,
+  "technical_result": "failure_before_any_job_created",
+  "jobs_started": 0,
+  "head_sha": "9003afbb11dda02b6a15b947ccdd99f944262ef8",
+  "source_HF453_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "source_HF253_sha256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+  "diagnosis": "GitHub Actions workflow YAML invalid at unquoted step name containing colon: Exactly once: ... . No workflow job was instantiated.",
+  "raw_source_GETs": 0,
+  "biological_responses_opened": 0,
+  "models_fit": 0,
+  "scientific_spatial_result": null,
+  "repair_scope": "YAML quotation and separately named v1b activation lock only; no scientific code, source, cohort, predictor, geometry or learner change",
+  "original_first_HF453_result_reopened": false,
+  "product_B_unblocked": false
+}
