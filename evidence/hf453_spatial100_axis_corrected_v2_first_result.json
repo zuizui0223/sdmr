@@ -1,0 +1,95 @@
+{
+  "schema": "sdmr.hf453_spatial100_axis_corrected_v2_first_result_checkpoint.v1",
+  "date": "2026-11-20",
+  "scientific_stage": "post_original_outcome_exploratory_within_one_forest",
+  "first_corrected_run": 44752128595,
+  "source_commit": "09a622c8cf470ccb8ef7fafcf66fc0244a9e8753",
+  "artifact_id": 14636880470,
+  "artifact_sha256": "599e98a6fc590da964dddce6e95372d4b6921251614f1c392b52963c2c121213",
+  "original_result_json_sha256": "440f35179a90d50a8fc7a5b1014d6e349ed71a62029b9d518334fe39730de303",
+  "preflight_json_sha256": "ddbf3985b3a4b32774ca5d24bee9867b9caa5aa36d156771000371061352c2a9",
+  "source_HF253_sha256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+  "source_HF453_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "first_incorrect_frame_source_hold_run": 44749714741,
+  "independent_source_only_correct_xy_run": 44750670871,
+  "original_source_2019_stem_tags": 30808,
+  "original_source_2019_parent_tree_ids": 27688,
+  "original_full_source_parent_centroid_blocks_100m": 35,
+  "source_missing_xy": 0,
+  "source_outside_correct_x700_y500": 0,
+  "prior_covariate_complete_known_next": 21769,
+  "n_geo_scored_stems": 21769,
+  "n_geo_excluded_stems": 0,
+  "coverage_of_old_parent_CV_sample": 1,
+  "n_parent_ids_scored": 19872,
+  "n_known_death_events": 454,
+  "n_group_folds": 5,
+  "parent_grouped": {
+    "logloss_baseline": 0.0892572113,
+    "logloss_plus_CP": 0.0885619743,
+    "delta_logloss_baseline_minus_CP": 0.000695237,
+    "brier_baseline": 0.0197102229,
+    "brier_plus_CP": 0.0197032788,
+    "delta_brier_baseline_minus_CP": 0.000006944,
+    "n_test_parent_overlap": 0,
+    "n_original_training_groups": 19872,
+    "n_scored_stem_events": 21769
+  },
+  "spatial100_grouped": {
+    "logloss_baseline": 0.090677981,
+    "logloss_plus_CP": 0.0901307564,
+    "delta_logloss_baseline_minus_CP": 0.0005472246,
+    "brier_baseline": 0.0200428677,
+    "brier_plus_CP": 0.0200696558,
+    "delta_brier_baseline_minus_CP": -0.0000267881,
+    "n_test_parent_overlap": 0,
+    "n_source_100m_groups": 35,
+    "n_scored_stem_events": 21769,
+    "folds": [
+      {
+        "index": 1,
+        "n_source_blocks": 7,
+        "n_parents": 3962,
+        "n_stems": 4347,
+        "n_known_death": 75
+      },
+      {
+        "index": 2,
+        "n_source_blocks": 7,
+        "n_parents": 3846,
+        "n_stems": 4273,
+        "n_known_death": 65
+      },
+      {
+        "index": 3,
+        "n_source_blocks": 7,
+        "n_parents": 3931,
+        "n_stems": 4250,
+        "n_known_death": 104
+      },
+      {
+        "index": 4,
+        "n_source_blocks": 7,
+        "n_parents": 4062,
+        "n_stems": 4453,
+        "n_known_death": 102
+      },
+      {
+        "index": 5,
+        "n_source_blocks": 7,
+        "n_parents": 4071,
+        "n_stems": 4446,
+        "n_known_death": 108
+      }
+    ]
+  },
+  "interpretation": "Tiny positive log-loss increment for CP in parent and 100m spatial GroupKFold with exactly the same 21,769 original known-response stems. Spatial Brier increment is negative, so different proper scoring rules do not agree on consistent improvement. All analyses occur within the same forest and after Y was previously opened.",
+  "not_independent_forest_replication": true,
+  "not_statistical_CI_or_p_value": true,
+  "not_causal_process_identification": true,
+  "no_original_status_or_parent_prior_result_changed": true,
+  "no_original_raw_rows_or_identifiers_exported": true,
+  "Product_A_reopened": false,
+  "M5_original_reopened": false,
+  "Product_B_unblocked": false
+}
