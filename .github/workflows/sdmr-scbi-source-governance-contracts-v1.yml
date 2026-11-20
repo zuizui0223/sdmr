@@ -1,0 +1,46 @@
+name: SDMR SCBI public source governance unit tests (no tree CSV)
+
+on:
+  pull_request:
+    paths:
+      - 'configs/scbi_independent_forest_governance_prefreeze_v1.json'
+      - 'scripts/scbi_independent_source_governance_metadata_v1.py'
+      - 'tests/test_scbi_independent_source_governance_metadata_v1.py'
+      - '.github/workflows/sdmr-scbi-source-governance-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source_free_governance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic source-version and SCBI official-master approval contract tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_scbi_independent_source_governance_metadata_v1.py
+      - name: Verify source-blind preflight, no original SCBI tree rows
+        run: |
+          python scripts/scbi_independent_source_governance_metadata_v1.py \
+            --config configs/scbi_independent_forest_governance_prefreeze_v1.json \
+            --preflight-only \
+            --out artifacts/scbi_source_governance_preflight_v1.json
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/scbi_source_governance_preflight_v1.json'))
+          assert x['result']['status']=='source_free_preflight_governance_contract_only'
+          assert x['metadata_only']
+          assert not x['raw_original_CSV_downloaded']
+          assert not x['original_tree_data_approved_for_scientific_use']
+          assert not x['original_authorized_master_version_verified']
+          assert not x['full_original_biological_response_opened']
+          assert x['new_ecological_models_fit']==0
+          assert not x['independent_field_process_test_performed']
+          assert not x['Product_B_unblocked']
+          PY
