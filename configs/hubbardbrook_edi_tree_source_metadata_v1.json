@@ -1,0 +1,59 @@
+{
+  "schema": "sdmr.hubbard_brook_edi_forest_tree_source_metadata_gate.v1",
+  "frozen_on": "2026-11-21",
+  "forest_name": "Hubbard Brook Experimental Forest, New Hampshire, USA",
+  "independent_of_HF453_Harvard": true,
+  "independent_of_SCBI_Virginia": true,
+  "physical_forest_replicates": 1,
+  "nested_source_units": 3,
+  "source_provider": "Environmental Data Initiative (EDI)",
+  "site_catalog": "https://hubbardbrook.org/data-catalog/",
+  "site_catalog_license_statement": "All catalog data public open access, CC BY; verify package-specific EML rights before manuscript use",
+  "source_data_files_opened": false,
+  "source_original_tree_responses_opened": false,
+  "source_original_full_bytes_SHA256_verified": false,
+  "packages": [
+    {
+      "watershed": "WS1",
+      "package_id": "knb-lter-hbr.446.1",
+      "temporal_range_from_catalog": "1996-2021",
+      "doi": "10.6073/pasta/3d0031ea82d308f81ab26000a106b264",
+      "metadata_url": "https://pasta.lternet.edu/package/metadata/eml/knb-lter-hbr/446/1"
+    },
+    {
+      "watershed": "WS5",
+      "package_id": "knb-lter-hbr.447.1",
+      "temporal_range_from_catalog": "1982-2019",
+      "doi": "10.6073/pasta/f50f9bab4936632b49cf93f56750394c",
+      "metadata_url": "https://pasta.lternet.edu/package/metadata/eml/knb-lter-hbr/447/1"
+    },
+    {
+      "watershed": "WS6",
+      "package_id": "knb-lter-hbr.448.1",
+      "temporal_range_from_catalog": "1965-2022",
+      "doi": "10.6073/pasta/1aa4c3ad4c98ed151decc9ea7fa76694",
+      "metadata_url": "https://pasta.lternet.edu/package/metadata/eml/knb-lter-hbr/448/1"
+    }
+  ],
+  "method_use": {
+    "no_original_data_Entity_download": true,
+    "no_metadata_header_as_verified_status_opportunity": true,
+    "source_individual_tree_ID_stability_unknown": true,
+    "source_visit_effort_and_zero_opportunity_unknown": true,
+    "status_direct_vs_inferred_death_unknown": true,
+    "baseline_variables_prior_to_future_response_unknown": true,
+    "watershed_is_not_independent_forest": true,
+    "watershed_treatment_and_harvest_histories_must_be_audited": true,
+    "potential_future_target": "tree-level remeasurement status if original unit/attrition frame verified; otherwise stand composition/basal area only as separate estimand",
+    "block_new_biological_model_until_original_source_and_response_free_study_gate": true
+  },
+  "prior_frozen_results": {
+    "M5_71of80_unchanged": true,
+    "Structural_synthetic_30of30_unchanged": true,
+    "Product_A_not_promoted": true,
+    "Product_B_blocked": true,
+    "HF453_one_forest_field_results_unchanged": true,
+    "BCI_Dryad_raw_source_HTTP401_unchanged": true,
+    "SCBI_official_master_approval_pending_unchanged": true
+  }
+}
