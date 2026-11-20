@@ -1,0 +1,129 @@
+{
+  "schema": "sdmr.hf453_cp_prior_covariates_postoutcome_exploration.v1",
+  "status": "post_first_HF453_outcome_analysis_pre_new_covariate_opening",
+  "parent_PR": "zuizui0223/sdmr#286",
+  "first_HF453_Y_run": 44540469560,
+  "first_HF253_parent_run": 44544941037,
+  "known_original_response_claim": "2021to2022_lowerCP_323of10452_vs_greaterCP_138of11390_with_5_DN_unknown",
+  "role": "POST_OUTCOME_EXPLORATORY_not_independent_confirmation",
+  "source_HF453": {
+    "source": "HF453 2026 v1",
+    "raw_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+    "md5": "c6be7aa99e31ded2041a0aaea07c0205",
+    "bytes": 5524386,
+    "expected_unique_stem_tags": 30808,
+    "expected_start_alive_2021": 21846,
+    "expected_known_dead_next": 461,
+    "expected_unknown_next": 5,
+    "expected_CP_low_N": 10452,
+    "expected_CP_high_N": 11390,
+    "source_url": "https://harvardforest.fas.harvard.edu/data/p45/hf453/hf453-01-tree-census-2021-2024.csv"
+  },
+  "source_HF253": {
+    "source": "HF253 2019 v6",
+    "raw_sha256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+    "bytes": 12687409,
+    "expected_exact_stem_matches": 30808,
+    "expected_parent_tree_ids": 27688,
+    "source_url": "https://harvardforest.fas.harvard.edu/data/p25/hf253/hf253-06-stems-2019.csv",
+    "prior_fields": [
+      "stem.tag",
+      "stem.id",
+      "tree.id",
+      "sp",
+      "dbh"
+    ]
+  },
+  "primary_interval": [
+    2021,
+    2022
+  ],
+  "prior_covariates": {
+    "original_species_code": "sp",
+    "prior_stem_diameter_cm": "dbh",
+    "valid_diameter_rule": "finite_gt_0_in_original_cm",
+    "size_bins_cm": {
+      "small": "(0,10)",
+      "medium": "[10,20)",
+      "large": "[20,40)",
+      "very_large": "[40,infinity)"
+    },
+    "baseline_health_2021": "A_versus_AU",
+    "malformed_species_or_diameter": "exclude_from_complete_covariate_analysis_and_count",
+    "no_species_substitution_or_name_guessing": true,
+    "do_not_use_any_2019_source_status_or_later_2022_predictor": true,
+    "no_new_raster_or_environmental_predictor": true
+  },
+  "primary_information_test": {
+    "estimand": "five_parent_GroupKFold_OOF_equal_parent_weighted_log_loss_delta_baseline_minus_baseline_plus_CP",
+    "baseline": "onehot_2019_species_code_plus_log1p_2019_dbh_cm_plus_2021_AU_indicator",
+    "candidate": "same_baseline_plus_binary_2021_CP_more_exposed",
+    "learner": "sklearn_LogisticRegression_L2_lbfgs_C1_max_iter1000",
+    "split": "GroupKFold_K5_by_original_2019_tree.id_never_by_stem",
+    "n_splits": 5,
+    "n_model_min_per_class": 10,
+    "sample_weight": "inverse_count_of_eligible_stems_per_original_parent_tree",
+    "scoring": "heldout_parent_equal_average_unclipped_log_loss_then_brier",
+    "convergence_warning": "record_and_STOP_if_not_converged",
+    "positive_delta_means": "within_one_forest_oof_predictive_information_only",
+    "negative_delta_means": "no_incremental_predictive_gain_at_fixed_protocol",
+    "unknown_2022_outcome": "excluded_only_from_predictive_test_retained_in_denominator_ledger",
+    "no_p_value": true,
+    "no_CI_claim": true
+  },
+  "secondary_stratification": {
+    "predeclared_groups": "exact_2019_sp_x_four_fixed_dbh_bins_x_2021_AU_health",
+    "primary_min_n_per_CP_in_each_stratum": 10,
+    "sensitivity_min_n_per_CP_in_each_stratum": 1,
+    "weight": "pooled_size_of_each_eligible_stratum",
+    "outcome_missingness": "sharp_all_unknown_outcome_completions",
+    "output": "standardized_associational_risk_difference_lower_and_upper",
+    "positivity_exclusions": "report_all_excluded_strata_and_stem_denominators",
+    "intervals": "identification_bounds_NOT_sampling_CI",
+    "not_causal": true
+  },
+  "claims": {
+    "single_35ha_forest": true,
+    "post_outcome_exploration": true,
+    "no_randomization": true,
+    "no_independent_new_forest_test": true,
+    "no_causal_canopy_or_competition_mechanism": true,
+    "no_population_mortality_rate": true,
+    "no_SDMR_product_B_unblock": true,
+    "no_reopening_original_M5_or_ProductA": true,
+    "no_old_first_status_result_overwrite": true,
+    "no_source_microdata_export": true
+  },
+  "endpoint_status_codes": {
+    "baseline_eligible": [
+      "A",
+      "AU"
+    ],
+    "next_known_dead": [
+      "DC",
+      "DS"
+    ],
+    "next_known_alive": [
+      "A",
+      "AU"
+    ],
+    "next_unresolved": [
+      "DN",
+      "NA",
+      ""
+    ],
+    "CP_lower": [
+      "1",
+      "2"
+    ],
+    "CP_greater": [
+      "3",
+      "4",
+      "5"
+    ],
+    "CP_unknown": [
+      "",
+      "NA"
+    ]
+  }
+}

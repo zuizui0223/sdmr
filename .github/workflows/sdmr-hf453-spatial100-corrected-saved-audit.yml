@@ -1,0 +1,57 @@
+name: HF453 corrected 100m spatial first result saved-score no-refit audit
+
+on:
+  pull_request:
+    paths:
+      - 'evidence/hf453_spatial100_axis_corrected_v2_first_result.json'
+      - 'scripts/audit_hf453_spatial100_corrected_saved_v2.py'
+      - 'tests/test_audit_hf453_spatial100_corrected_saved_v2.py'
+      - '.github/workflows/sdmr-hf453-spatial100-corrected-saved-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original_aggregates_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test saved-only source/score mutation and negative Brier guardrail
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_audit_hf453_spatial100_corrected_saved_v2.py
+      - name: Reconcile 35 original source blocks and same 21,769 prior-covariate stems
+        run: |
+          python scripts/audit_hf453_spatial100_corrected_saved_v2.py \
+            --checkpoint evidence/hf453_spatial100_axis_corrected_v2_first_result.json \
+            --out artifacts/hf453_spatial100_corrected_saved_arithmetic_v2.json
+      - name: No source, no refit, no biological cause/replication
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf453_spatial100_corrected_saved_arithmetic_v2.json'))
+          assert x['status']=='original_saved_source_spatial_metrics_reconciled'
+          assert x['original_first_run']==44752128595
+          assert x['n_original_scored_stem_events']==21769
+          assert x['n_original_scored_parent_tree_IDs']==19872
+          assert x['n_original_source_100m_cells']==35
+          assert x['logloss_CP_increment_parent']==0.000695237
+          assert x['logloss_CP_increment_spatial']==0.0005472246
+          assert x['brier_CP_increment_spatial']==-0.0000267881
+          assert x['new_field_source_gets']==0
+          assert x['new_model_fits']==0
+          assert x['independent_forest_replicates_added']==0
+          assert not x['Product_B_unblocked']
+          PY
+      - name: Archive exact no-refit audit JSON only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-spatial100-axis-v2-no-refit-audit
+          path: artifacts/hf453_spatial100_corrected_saved_arithmetic_v2.json
+          if-no-files-found: error
+          retention-days: 90

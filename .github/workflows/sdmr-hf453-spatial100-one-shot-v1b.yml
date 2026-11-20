@@ -1,0 +1,124 @@
+name: HF453 prior-CP spatial100 runtime-only v1b (after no-job YAML STOP)
+
+# Source versions, geometry and model pair were frozen after the earlier
+# HF453 CP result; no ordinary PR edit may re-open original biological Y.
+on:
+  push:
+    branches: [research/hf453-cp-confounding-postoutcome-20261120]
+    paths:
+      - 'configs/hf453_spatial100_priorcov_postoutcome_v1b_execute.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  paired_parent_spatial_source_locked:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin original spatial design, code, tests, and scientific source hashes
+        run: |
+          test "$(git hash-object configs/hf453_spatial_block_priorcov_postoutcome_v1.json)" = "4ef789aabc9f5b66387f9edc75e172ff3fffbf79"
+          test "$(git hash-object scripts/hf453_priorcov_spatial100_postoutcome_v1.py)" = "30ae7ed826c88fa3fe019326ea7dfb61da6e5fb5"
+          test "$(git hash-object tests/test_hf453_priorcov_spatial100_postoutcome_v1.py)" = "2e5d3eb12de20eebe66819dc85d472c8ce0cdbf0"
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path('configs/hf453_spatial100_priorcov_postoutcome_v1b_execute.lock').read_text().splitlines()
+          assert lines==[
+            'program=sdmr_hf453_spatial100_parent_holdout_postoutcome_v1',
+            'role=post_first_CP_parent_CV_spatial_sensitivity_NOT_confirmation',
+            'HF453_source_sha256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74',
+            'HF253_source_sha256=bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7',
+            'first_parent_CV_run=44747246917',
+            'block=100m_by_100m_source_2019_parent_centroid',
+            'origin=0_0_HF253_gx_gy',
+            'plot_dimensions_m=500_x_700',
+            'exclude_original_parent_if_any_tag_coordinate_unavailable=true',
+            'minimum_10_spatial_blocks_and_80pct_eligible_stems=true',
+            'compare_parent_v_spatial_folds_same_stems_same_logit_models=true',
+            'no_source_rows_coordinates_stem_or_tree_IDs_exported=true',
+            'no_biome_causal_or_ProductB_promotion=true',
+          ],"new source-only spatial geometry lock mutated"
+          PY
+      - name: Run source-free geographic and parent-grouped model tests
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q \
+            tests/test_hf453_priorcov_spatial100_postoutcome_v1.py \
+            tests/test_hf453_prior_species_size_confounding_postoutcome_v1.py
+      - name: Validate frozen preflight with zero original biological source requests
+        run: |
+          python scripts/hf453_priorcov_spatial100_postoutcome_v1.py \
+            --config configs/hf453_spatial_block_priorcov_postoutcome_v1.json \
+            --preflight-only \
+            --out artifacts/hf453_spatial100_preflight_v1.json
+      - name: "Exactly once: original source hashes then source-only blocks then paired heldout models"
+        run: |
+          python scripts/hf453_priorcov_spatial100_postoutcome_v1.py \
+            --config configs/hf453_spatial_block_priorcov_postoutcome_v1.json \
+            --execute-lock configs/hf453_spatial100_priorcov_postoutcome_v1b_execute.lock \
+            --out artifacts/hf453_spatial100_postoutcome_result_v1.json
+      - name: No causal inference, reproducible heldout geometry and full coverage receipts
+        run: |
+          python - <<'PY'
+          import json,math
+          from pathlib import Path
+          p=Path('artifacts/hf453_spatial100_postoutcome_result_v1.json')
+          assert p.is_file() and p.stat().st_size>600
+          q=json.loads(p.read_text())
+          assert q['schema']=='sdmr.hf453_spatial100_postoutcome_v1'
+          assert not q['preflight']
+          assert q['one_forest'] and q['post_original_HF453_Y_and_prior_CP_result_opening']
+          assert q['not_confirmatory_transfer_test']
+          assert q['original_first_status_and_priorCV_receipts_unchanged']
+          assert q['no_causal_process_identified'] and not q['Product_B_unblocked']
+          r=q['result']
+          assert r['status'] in (
+            'spatial_and_parent_sensitivity_completed',
+            'original_source_geometry_coverage_unavailable'
+          )
+          assert r['original_HF453_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert r['original_HF253_sha256']=='bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7'
+          assert r['old_prior_covariate_complete_known_next_stems']==21769
+          assert r['n_source_stems_geographically_admitted_after_prior_covariates']+r['n_excluded_from_100m_block_validation']==21769
+          assert r['original_2019_source_position']['n_original_target_stem_tags']==30808
+          assert r['original_preY_parent_centroid_block_frame']['n_original_parent_tree_ID_candidates']==27688
+          assert r['original_preY_parent_centroid_block_frame']['parent_centroids_from_original_stems_before_reading_new_2022_Y']
+          assert r['no_individual_source_coords_rows_or_parent_IDs_exported']
+          assert r['postoutcome_second_sensitivity_not_original_confirmation']
+          assert r['one_forest_not_biome_transfer']
+          assert r['no_causal_canopy_mechanism_or_process_identity_estimated']
+          if r['status']=='spatial_and_parent_sensitivity_completed':
+            assert r['coverage_of_original_parent_CV_sample']>=0.8
+            assert r['n_100m_spatial_blocks_in_admitted_sample']>=10
+            for k in ('on_exact_same_geographic_subset_parent_grouped_CV',
+                      'on_exact_same_geographic_subset_spatial_block_grouped_CV'):
+              z=r[k]
+              assert z['status']=='postoutcome_one_forest_groupfold_descriptive'
+              assert z['n_folds']==5
+              assert z['n_heldout_parent_overlap']==0
+              assert z['not_independent_forest_or_causal_confirmation']
+              assert math.isfinite(z['delta_logloss'])
+              assert sum(f['n_heldout_original_stems'] for f in z['folds'])==z['n_original_known_outcome_stems']
+            assert r['on_exact_same_geographic_subset_parent_grouped_CV']['n_original_known_outcome_stems']==r['on_exact_same_geographic_subset_spatial_block_grouped_CV']['n_original_known_outcome_stems']
+          assert not r['Product_B_unblocked']
+          print('Original HF453 spatial sensitivity first result:',r['status'])
+          PY
+      - name: Archive aggregate only; if absent, hard workflow failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-postoutcome-spatial100-vs-parent-v1
+          path: |
+            artifacts/hf453_spatial100_postoutcome_result_v1.json
+            artifacts/hf453_spatial100_preflight_v1.json
+          if-no-files-found: error
+          retention-days: 90

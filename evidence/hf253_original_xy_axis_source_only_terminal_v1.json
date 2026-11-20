@@ -1,0 +1,48 @@
+{
+  "schema": "sdmr.hf253_original_xy_axis_source_only_terminal.v1",
+  "recorded_on": "2026-11-20",
+  "role": "original_2019_source_coordinates_only_not_HF453_Y",
+  "source_only_run_id": 44750670871,
+  "source_only_commit": "09a38a217341b91ccca13dba478f4cf352310ceb",
+  "artifact_id": 14635990049,
+  "artifact_zip_sha256": "f285b492e30fa46ab2c6fb7814989d0dce9a13615d5d372b8d540afb8a1bb9f7",
+  "original_result_json_sha256": "8a065d3c7d3a44edd39ebaf0062ce9e3a5e8f9b2b2b86478175c8f1cdad1725c",
+  "original_preflight_json_sha256": "9ecf64b18dd5b68adfced5fdfe357246bf1c83adc5b204c69d2d46921c8d567b",
+  "original_HF253_SHA256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+  "original_HF453_SHA256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+  "n_original_stems": 30808,
+  "n_original_parents": 27688,
+  "n_original_2019_rows": 123218,
+  "original_gx_min": 0.13165,
+  "original_gx_max": 699.94897,
+  "original_gy_min": 0.01786,
+  "original_gy_max": 499.978,
+  "missing_gx_gy": 0,
+  "invalid_gx_gy": 0,
+  "assumed_x500_y700": {
+    "n_stems_valid": 21412,
+    "n_stems_outside": 9396,
+    "n_parents_complete": 19388,
+    "n_parent_incomplete": 8300,
+    "n_100m_parent_grid_cells": 25
+  },
+  "source_supported_x700_y500": {
+    "n_stems_valid": 30808,
+    "n_stems_outside": 0,
+    "n_parents_complete": 27688,
+    "n_parent_incomplete": 0,
+    "n_100m_parent_grid_cells": 35
+  },
+  "external_source_support": [
+    "https://harvardforest1.fas.harvard.edu/data/plots/hf253-05.pdf",
+    "https://harvardforest1.fas.harvard.edu/exist/apps/datasets/showData.html?id=HF253"
+  ],
+  "source_only_no_HF453_status_or_CP_reopening": true,
+  "new_model_fits": 0,
+  "previous_spatial100_coverage_stop_preserved": "evidence/hf453_spatial100_first_geometry_source_hold_v1.json",
+  "earlier_prior_CP_OOF_result_unchanged": true,
+  "no_cross_forest_replicate": true,
+  "no_causal_process_identified": true,
+  "Product_B_unblocked": false,
+  "note": "The first source-only frame STOP was due to x/y dimension orientation. These are source-only axis support metrics, not a predictor/outcome comparison. Independent HF253-05 published preview has gx 699.949m and gy 499.978m maxima; the 2019 HF253 source corroborates. A new explicitly postoutcome development version may follow, without changing the first frozen biological outcome."
+}

@@ -1,0 +1,48 @@
+name: HF453 postoutcome source-spatial 100m validation contracts (synthetic only)
+
+on:
+  pull_request:
+    paths:
+      - 'configs/hf453_spatial_block_priorcov_postoutcome_v1.json'
+      - 'scripts/hf453_priorcov_spatial100_postoutcome_v1.py'
+      - 'tests/test_hf453_priorcov_spatial100_postoutcome_v1.py'
+      - '.github/workflows/sdmr-hf453-spatial100-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  no_source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project and synthetic testing prerequisites
+        run: python -m pip install -e '.[test]'
+      - name: No-source geometry, original full-parent grouping and same-cohort CV tests
+        run: |
+          python -m pytest -q tests/test_hf453_priorcov_spatial100_postoutcome_v1.py
+          python scripts/hf453_priorcov_spatial100_postoutcome_v1.py \
+            --config configs/hf453_spatial_block_priorcov_postoutcome_v1.json \
+            --preflight-only \
+            --out artifacts/hf453_spatial100_scientific_preflight_v1.json
+      - name: Reject promotion of previously opened one-forest Y
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf453_spatial100_scientific_preflight_v1.json'))
+          assert x['preflight']
+          assert x['result']['status']=='source_unopened_spatial_contract_only'
+          assert x['post_original_HF453_Y_and_prior_CP_result_opening']
+          assert x['original_first_status_and_priorCV_receipts_unchanged']
+          assert x['not_confirmatory_transfer_test']
+          assert not x['no_causal_process_identified'] is False
+          assert not x['Product_B_unblocked']
+          PY

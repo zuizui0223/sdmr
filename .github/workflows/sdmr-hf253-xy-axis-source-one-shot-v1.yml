@@ -1,0 +1,94 @@
+name: HF253 coordinate-axis source-only first original data diagnostic v1
+
+on:
+  push:
+    branches: [research/hf453-cp-confounding-postoutcome-20261120]
+    paths:
+      - 'configs/hf253_original_xy_axis_source_v1_once.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  source_only_original_xy_axis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce source-only script, tests, and exact lock prior to source download
+        run: |
+          test "$(git hash-object scripts/hf253_original_xy_axis_source_diagnosis_v1.py)" = "c15c21ec1d4d721c8465afae5404fae59498d75b"
+          test "$(git hash-object tests/test_hf253_original_xy_axis_source_diagnosis_v1.py)" = "0cfe2fab2f2b028c8154b09a7c8e4cd4f7ba480a"
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/hf253_original_xy_axis_source_v1_once.lock').read_text().splitlines()
+          assert lock==[
+            'program=sdmr_hf253_xy_source_axis_orientation_only_v1',
+            'cause=HF453_100m_spatial_first_source_coverage_0.6669576_stop',
+            'HF253_source_sha256=bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7',
+            'HF453_source_sha256=0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74',
+            'zero_HF453_status_CP_or_biological_response_access=true',
+            'source_columns=HF453_StemTag_year_HF253_stem.tag_tree.id_gx_gy_only',
+            'compare_fixed_assumed_frames=x500_y700_and_x700_y500',
+            'no_model_CV_or_outcome_driven_geometry_selection=true',
+            'no_identifier_coordinate_microdata_archived=true',
+            'ProductA_M5_unchanged_ProductB_blocked=true',
+          ],'source-only original coordinate scope changed'
+          PY
+      - name: Run strictly synthetic coordinate orientation and source admission tests
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q tests/test_hf253_original_xy_axis_source_diagnosis_v1.py
+      - name: Source-blind scientific preflight before any original data request
+        run: |
+          python scripts/hf253_original_xy_axis_source_diagnosis_v1.py \
+            --preflight-only --out artifacts/hf253_axis_source_preflight_v1.json
+      - name: Once-only original 2019 source coordinates and original 2021 tags
+        run: |
+          python scripts/hf253_original_xy_axis_source_diagnosis_v1.py \
+            --execute-lock configs/hf253_original_xy_axis_source_v1_once.lock \
+            --out artifacts/hf253_axis_source_result_v1.json
+      - name: Retain source-only axis-frame quantities and non-promotion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/hf253_axis_source_result_v1.json')
+          assert p.is_file() and p.stat().st_size>400
+          x=json.load(open(p))
+          assert x['schema']=='sdmr.HF253_2019_xy_axis_source_only_v1'
+          assert not x['preflight']
+          assert x['previous_HF453_first_Y_untouched']
+          assert not x['new_HF453_biological_outcome_read']
+          assert x['new_model_fits']==0
+          assert not x['Product_B_unblocked']
+          r=x['result']
+          assert r['source_HF253_sha256']=='bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7'
+          assert r['source_HF453_sha256']=='0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74'
+          assert r['no_models_fit']
+          assert r['prior_first_spatial_CV_gate_not_reinterpreted']
+          q=r['source_coordinate_metadata']
+          assert q['status']=='original_source_xy_axis_support_diagnosed_only'
+          assert q['n_HF453_fixed_original_2021_stems']==30808
+          assert q['n_original_parent_tree_IDs']==27688
+          assert q['n_original_2019_rows']==123218
+          assert q['zero_original_HF453_outcomes_or_covariate_models_opened']
+          assert q['axis_orientation_not_demonstrated_by_coordinate_ranges_alone']
+          a=q['fixed_geometry_candidate_receipts']
+          assert set(a)=={'assumed_x500_y700','alternate_x700_y500'}
+          assert a['assumed_x500_y700']['n_source_invalid_stems']==9396
+          print('HF253 original XY-only candidate axis count audit completed')
+          PY
+      - name: Archive aggregate original source axis evidence or fail hard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf253-source-axis-geometry-only-v1
+          path: |
+            artifacts/hf253_axis_source_preflight_v1.json
+            artifacts/hf253_axis_source_result_v1.json
+          if-no-files-found: error
+          retention-days: 90
