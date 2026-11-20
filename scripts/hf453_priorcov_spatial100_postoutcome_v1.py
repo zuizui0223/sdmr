@@ -102,7 +102,7 @@ def validate_spatial_contract(d:dict)->None:
         raise ValueError("postoutcome_scientific_ceiling_removed")
 
 
-def parse_original_source_locations(stream,target:set[str])->tuple[dict,dict]:
+def parse_original_source_locations(stream,target:set[str],*,expected_rows:int=123218,expected_targets:int=30808)->tuple[dict,dict]:
     reader=csv.reader(stream)
     header=next(reader,None)
     if header and header[0].startswith("\xef\xbb\xbf"):header[0]=header[0][3:]
@@ -136,7 +136,7 @@ def parse_original_source_locations(stream,target:set[str])->tuple[dict,dict]:
         except ValueError:
             missing_position+=1
         mapped[tag]=(parent,coord)
-    if nrows!=123218 or set(mapped)!=target or len(target)!=30808:
+    if nrows!=expected_rows or set(mapped)!=target or len(target)!=expected_targets:
         raise ValueError("original_matching_source_position_denominator_invalid")
     return mapped,{
         "n_original_source_rows":nrows,
@@ -148,11 +148,11 @@ def parse_original_source_locations(stream,target:set[str])->tuple[dict,dict]:
     }
 
 
-def original_parent_centroid_blocks(mapped:dict)->tuple[dict,dict]:
+def original_parent_centroid_blocks(mapped:dict,*,expected_parents:int=27688)->tuple[dict,dict]:
     parents=defaultdict(list)
     for tag,(parent,coord) in mapped.items():
         parents[parent].append(coord)
-    if len(parents)!=27688:
+    if len(parents)!=expected_parents:
         raise ValueError("original_distinct_source_parent_grain_drift")
     result={}
     incomplete=0;across_raw_cells=0
@@ -281,6 +281,9 @@ def run_spatial_sensitivity(config:dict)->dict:
         with a.open("r",encoding="latin-1",newline="") as f:
             historical_y=read_HF453_first_interval(f)
         old_records,old_counts=build_risk_panel(historical_y,prior)
+        if (old_counts["n_complete_prior_covariates_in_both_CP"]!=21774
+            or old_counts["n_complete_known_next_status"]!=21769):
+            raise ValueError("first_frozen_prior_covariate_complete_cohort_changed")
         matched=[r for r in old_records if r["response"]!="m"]
         geographic=[
             {**r,"spatial_block":str(parent_blocks[r["parent"]])}
