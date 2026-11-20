@@ -24,7 +24,7 @@ jobs:
         run: |
           test "$(git hash-object evidence/bci2026_first_dryad_published_metadata_v1.json)" = "440a97165d9ea5e019c7aa2f61e130f02fcb4e9c"
           test "$(git hash-object scripts/bci2026_v5_original_bytes_sha_only_v1.py)" = "61d7a02d28ba2b9ac68df5dd571308edbc1e415a"
-          test "$(git hash-object tests/test_bci2026_v5_original_bytes_sha_only_v1.py)" = "5048392f893eb9a89e76ceb5f9491d91df7f5c5d"
+          test "$(git hash-object tests/test_bci2026_v5_original_bytes_sha_only_v1.py)" = "12b48f5225d28e7299c3c750fcbb76d26e103eae"
           python - <<'PY'
           from pathlib import Path
           x=Path('configs/bci2026_v5_original_sha_only_once_v1.lock').read_text().splitlines()
