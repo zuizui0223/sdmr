@@ -1,0 +1,41 @@
+name: HF253 original coordinate axes response-blind diagnostic (synthetic only)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/hf253_original_xy_axis_source_diagnosis_v1.py'
+      - 'tests/test_hf253_original_xy_axis_source_diagnosis_v1.py'
+      - 'docs/SDMR_HF253_ORIGINAL_XY_AXIS_SOURCE_DIAGNOSIS_V1.md'
+      - '.github/workflows/sdmr-hf253-xy-axis-source-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic_source_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Original axis hypotheses on synthetic data only
+        run: |
+          python -m pip install -e '.[test]'
+          python -m pytest -q tests/test_hf253_original_xy_axis_source_diagnosis_v1.py
+      - name: Confirm no original Y or models during axis preflight
+        run: |
+          python scripts/hf253_original_xy_axis_source_diagnosis_v1.py \
+            --preflight-only \
+            --out artifacts/hf253_axis_preflight_v1.json
+          python - <<'PY'
+          import json
+          r=json.load(open('artifacts/hf253_axis_preflight_v1.json'))
+          assert r['preflight']
+          assert r['result']['status']=='response_free_xy_source_preflight_only'
+          assert not r['new_HF453_biological_outcome_read']
+          assert r['new_model_fits']==0
+          assert not r['Product_B_unblocked']
+          PY
