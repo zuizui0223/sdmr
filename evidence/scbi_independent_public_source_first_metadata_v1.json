@@ -1,0 +1,77 @@
+{
+  "schema": "sdmr.scbi_independent_source_first_metadata_checkpoint.v1",
+  "evidence_timestamp": "2026-11-20",
+  "scientific_stage": "independent_forest_public_Git_snapshot_metadata_only",
+  "source_run_id": 44763942080,
+  "source_commit": "a380ad28d9e5aee51f5cfcc2a98d5ed60380e63a",
+  "source_artifact_id": 14642527840,
+  "source_artifact_zip_sha256": "815686393e5c49fc017c82ae3504d8a17bff277aacd510e4cb7e06b30d702e0b",
+  "result_inner_json_sha256": "40d443cedeb3d4d2dfed9cd248f886463799db08998bba6f6785362e408e4921",
+  "preflight_inner_json_sha256": "cde7646624a1670cf0048aba0ab6da14ad30dfc518f026c4397f919614ba15d9",
+  "source_plot": "Smithsonian Conservation Biology Institute (SCBI), Virginia USA",
+  "source_plot_area_ha": 25.6,
+  "independent_from_HF453_source_forest": true,
+  "independent_forest_biological_result_observed": false,
+  "source_first_status": "public_snapshots_Git_tree_metadata_verified_but_master_approval_pending",
+  "original_approved_master_version": null,
+  "publication_use_approved": false,
+  "original_CSV_full_byte_SHA256_verified": false,
+  "original_stem_or_tree_rows_opened": false,
+  "old_public_source_snapshot": {
+    "repository": "SCBI-ForestGEO/SCBI-ForestGEO-Data",
+    "commit": "9c6437afed3da292741840ab5ce327a4b54eff98",
+    "tree_entry_count": 2343,
+    "selected_files": [
+      {
+        "period": "2008-2010",
+        "path": "tree_main_census/data/census-csv-files/scbi.stem1.csv",
+        "bytes": 5927551,
+        "git_blob_sha1": "75006d1cf423d6f0783c23bb73fd07adc999892f"
+      },
+      {
+        "period": "2013",
+        "path": "tree_main_census/data/census-csv-files/scbi.stem2.csv",
+        "bytes": 6219513,
+        "git_blob_sha1": "2f3f9408e912d1b35d7cfec73470116515f7ef99"
+      },
+      {
+        "period": "2018",
+        "path": "tree_main_census/data/census-csv-files/scbi.stem3.csv",
+        "bytes": 6598542,
+        "git_blob_sha1": "10982d2ffcca5b55535b19272ba611ce5f86cab6"
+      }
+    ]
+  },
+  "public_census2023": {
+    "repository": "SCBI-ForestGEO/2023census",
+    "release_tag": "2024.05",
+    "release_date": "2024-05-14",
+    "release_zenodo_doi": "10.5281/zenodo.11192302",
+    "release_commit": "6ac8718dcab0c5c653c56d55a1e093a6c20150e2",
+    "tree_entry_count": 87,
+    "file": {
+      "path": "processed_data/scbi.stem4.csv",
+      "bytes": 35463140,
+      "git_blob_sha1": "cbaa4d92fb4588788895cc95f3542c9de1f80f32"
+    }
+  },
+  "Git_blob_SHA1_not_complete_raw_SHA256": true,
+  "official_rights_conditions": {
+    "official_data_request_required": true,
+    "approved_master_version_required": true,
+    "SCBI_PI_collaboration_or_waiver_required": true,
+    "nontransferability_restrictions": true,
+    "separate_2022plus_mortality_custom_terms": true,
+    "request_status": "not_submitted"
+  },
+  "scientific_nonpromotion": {
+    "number_of_new_forest_biological_tests": 0,
+    "n_new_ecological_models_fit": 0,
+    "independent_forest_generalization_confirmed": false,
+    "original_HF453_frozen": true,
+    "original_M5_and_Structural_frozen": true,
+    "Product_A_not_promoted": true,
+    "Product_B_blocked": true
+  },
+  "next_dependency": "Official PI data use request approval, version-numbered current master/source coding and collaboration terms; only then separate pre-response source/effort/ontology admission."
+}

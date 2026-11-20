@@ -1,0 +1,110 @@
+name: SDMR SCBI original public snapshots Git metadata and rights (one-shot)
+
+# Only pinned public Git *tree metadata*; never original CSV contents.
+# A verified Git blob and public release do not imply ForestGEO master
+# approval or scientific manuscript rights. No biological data are accessed.
+on:
+  push:
+    branches: [method/scbi-independent-source-rights-gate-20261121]
+    paths:
+      - 'configs/scbi_independent_source_metadata_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  source_lineage_and_governance_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require pinned public source metadata code, test and source rules
+        run: |
+          test "$(git hash-object configs/scbi_independent_forest_governance_prefreeze_v1.json)" = "c8c7749cdb4d8950ddae63bf4bc63c730d6ab7cb"
+          test "$(git hash-object scripts/scbi_independent_source_governance_metadata_v1.py)" = "0552b1e8187d3960cfcd6487c4c78d5b489eb95f"
+          test "$(git hash-object tests/test_scbi_independent_source_governance_metadata_v1.py)" = "98150fd6b1114d1b1d5b4f597f3ee38308a237a2"
+          python - <<'PY'
+          from pathlib import Path
+          a=Path('configs/scbi_independent_source_metadata_once_v1.lock').read_text().splitlines()
+          assert a==[
+            'program=sdmr_scbi_original_public_snapshot_governance_metadata_v1',
+            'public_2008_to_2018_git_commit=9c6437afed3da292741840ab5ce327a4b54eff98',
+            'public_2023_release_tag=2024.05',
+            'public_2023_release_git_commit=6ac8718dcab0c5c653c56d55a1e093a6c20150e2',
+            'independent_forest=SCBI_Virginia_25.6ha',
+            'only_exact_Git_tree_metadata_no_CSV_text_bytes=true',
+            'no_tree_stem_status_species_or_mortality_columns_opened=true',
+            'Git_blob_SHA1_not_raw_SHA256=true',
+            'official_ForestGEO_master_data_request_required=true',
+            'approved_master_version_not_available=true',
+            'publication_use_blocked_before_approval_and_collaboration=true',
+            'annual_mortality_2022plus_custom_terms_separate=true',
+            'original_M5_ProductA_unchanged_ProductB_blocked=true',
+          ],"source-only SCBI release, rights or endpoint lock changed"
+          PY
+      - name: Strictly no-provider source governance and immutable Git-tree fixture tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_scbi_independent_source_governance_metadata_v1.py
+      - name: Preflight cannot touch public source or original tree data
+        run: |
+          python scripts/scbi_independent_source_governance_metadata_v1.py \
+            --config configs/scbi_independent_forest_governance_prefreeze_v1.json \
+            --preflight-only \
+            --out artifacts/scbi_original_snapshot_metadata_preflight_v1.json
+      - name: One original public Git-tree metadata GET for each exact pinned source commit
+        run: |
+          python scripts/scbi_independent_source_governance_metadata_v1.py \
+            --config configs/scbi_independent_forest_governance_prefreeze_v1.json \
+            --execute-lock configs/scbi_independent_source_metadata_once_v1.lock \
+            --out artifacts/scbi_original_snapshot_metadata_first_v1.json
+      - name: Distinguish public-source provenance from approved SCIENTIFIC use
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/scbi_original_snapshot_metadata_first_v1.json')
+          assert p.is_file() and p.stat().st_size>350
+          a=json.loads(p.read_text())
+          assert a['schema']=='sdmr.scbi_independent_provider_metadata_only_first_v1'
+          assert not a['preflight']
+          assert a['metadata_only']
+          assert a['raw_original_CSV_downloaded'] is False
+          assert a['original_tree_data_approved_for_scientific_use'] is False
+          assert a['original_authorized_master_version_verified'] is False
+          assert a['full_original_biological_response_opened'] is False
+          assert a['new_ecological_models_fit']==0
+          assert a['independent_field_process_test_performed'] is False
+          assert a['original_M5_and_HF453_unchanged']
+          assert a['Product_B_unblocked'] is False
+          r=a['result']
+          assert r['status'] in (
+            'public_snapshots_Git_tree_metadata_verified_but_master_approval_pending',
+            'public_original_Git_metadata_HTTP_STOP',
+            'public_original_Git_metadata_access_STOP',
+            'public_original_Git_metadata_integrity_STOP',
+          ),r['status']
+          if r['status'].startswith('public_snapshots_'):
+            assert len(r['first_source_public_history']['selected_files'])==3
+            assert len(r['2023_published_Zenodo_tag_source']['selected_files'])==1
+            assert not r['manuscript_ready_original_SCBI_data']
+            assert r['official_master_version_currently_approved'] is None
+            assert r['separate_2022plus_mortality_agreement_needed']
+            assert not r['source_tree_stem_status_rows_opened']
+            assert not r['source_full_byte_sha256_verified']
+            assert not r['new_independent_forest_biological_validation']
+          print('SCBI first source governance disposition:',r['status'])
+          PY
+      - name: Archive only Git-tree snapshot metadata or explicit source STOP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-scbi-independent-source-Git-metadata-rights-or-stop-v1
+          path: |
+            artifacts/scbi_original_snapshot_metadata_preflight_v1.json
+            artifacts/scbi_original_snapshot_metadata_first_v1.json
+          if-no-files-found: error
+          retention-days: 90
