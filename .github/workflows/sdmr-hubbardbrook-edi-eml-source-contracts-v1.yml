@@ -1,0 +1,43 @@
+name: SDMR Hubbard Brook original EDI forest EML source-free contracts v1
+
+on:
+  pull_request:
+    paths:
+      - 'configs/hubbardbrook_edi_tree_source_metadata_v1.json'
+      - 'scripts/hubbardbrook_edi_eml_source_metadata_v1.py'
+      - 'tests/test_hubbardbrook_edi_eml_source_metadata_v1.py'
+      - '.github/workflows/sdmr-hubbardbrook-edi-eml-source-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure_metadata_contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: No-provider EML schema and source-grain unit tests
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_hubbardbrook_edi_eml_source_metadata_v1.py
+      - name: Source-only EML preflight with zero field data
+        run: |
+          python scripts/hubbardbrook_edi_eml_source_metadata_v1.py \
+            --config configs/hubbardbrook_edi_tree_source_metadata_v1.json \
+            --preflight-only \
+            --out artifacts/hubbard_EML_source_preflight_v1.json
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hubbard_EML_source_preflight_v1.json'))
+          assert x['result']['status']=='EML_source_free_preflight_only'
+          assert x['original_forest_replicates']==1
+          assert x['original_source_CSV_or_biological_rows_opened'] is False
+          assert x['new_ecological_models_fit']==0
+          assert not x['independent_empirical_process_test_performed']
+          assert not x['Product_B_unblocked']
+          PY
