@@ -1,0 +1,44 @@
+name: SDMR BCI observation-operator synthetic-only verification
+
+on:
+  pull_request:
+    paths:
+      - 'src/sdmr/bci2026_observation_operator_v1.py'
+      - 'tests/test_bci2026_observation_operator_v1.py'
+      - '.github/workflows/sdmr-bci2026-observation-operator-tests-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic_only_bci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install package and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify BCI plot-tag IDs, missing/recruit/death ontology and post-2025 exposure leakage
+        run: |
+          python -m pytest -q tests/test_bci2026_observation_operator_v1.py \
+            tests/test_bci2026_source_provider_metadata_v1.py \
+            tests/test_bci2026_v5_original_bytes_sha_only_v1.py
+      - name: Confirm no current BCI field-source or product promotion
+        run: |
+          python - <<'PY'
+          from sdmr.bci2026_observation_operator_v1 import (
+            classify_tree_transition,prior_exposure_admission)
+          x=classify_tree_transition(
+             first_year=2014,next_year=2025,
+             first_status='alive',next_status='dead')
+          assert x.strict_binary_Y is None
+          assert not x.strict_observed_dead
+          assert not x.sampling_effort_audited
+          assert not prior_exposure_admission(
+             baseline_year=2014)['admitted_as_baseline_mortality_predictor']
+          print('Synthetic observation-process contract only: 0 biological Y opened')
+          PY
