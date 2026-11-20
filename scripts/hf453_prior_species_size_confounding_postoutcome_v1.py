@@ -134,7 +134,7 @@ def size_bin(dbh: float) -> str:
     return "small" if dbh<10 else "medium" if dbh<20 else "large" if dbh<40 else "very_large"
 
 
-def read_HF253_prior(stream) -> tuple[dict, dict]:
+def read_HF253_prior(stream, *, expected_rows:int=123218) -> tuple[dict, dict]:
     reader=csv.reader(stream)
     head=next(reader,None)
     if head and head[0].startswith("\xef\xbb\xbf"):
@@ -176,7 +176,7 @@ def read_HF253_prior(stream) -> tuple[dict, dict]:
         data[tag]={"parent":parent,"stem_id":stemid,
                    "sp":sp if ok_sp else None,
                    "dbh":val if ok_dbh else None}
-    if n!=123218 or invalid_key!=0:
+    if n!=expected_rows or invalid_key!=0:
         raise ValueError("old_original_2019_source_identity_denominator_changed")
     return data,{"original_rows":n,"identity_rejected_rows":invalid_key,
                  "all_original_stem_tags":len(data),
@@ -186,7 +186,7 @@ def read_HF253_prior(stream) -> tuple[dict, dict]:
                  "original_2019_status_and_spatial_fields_never_used":True}
 
 
-def read_HF453_first_interval(stream)->dict:
+def read_HF453_first_interval(stream, *, expected_stems:int=30808)->dict:
     reader=csv.reader(stream)
     head=next(reader,None)
     if head and head[0].startswith("\xef\xbb\xbf"):head[0]=head[0][3:]
@@ -213,7 +213,7 @@ def read_HF453_first_interval(stream)->dict:
         if yr in event:
             raise ValueError("duplicate_HF453_tag_year")
         event[yr]=(stat,cp if yr=="2021" else "")
-    if n!=123232 or len(events)!=30808 or any(len(e)!=2 for e in events.values()):
+    if n!=expected_stems*4 or len(events)!=expected_stems or any(len(e)!=2 for e in events.values()):
         raise ValueError("HF453_source_2021_2022_tag_frame_mismatch")
     return events
 
@@ -482,7 +482,7 @@ def main()->None:
         "one_forest_only":True,
         "no_new_independent_ecological_replication":True,
         "no_causal_process_identified":True,
-        "not_SDмR_productA_M5_repromotion":True,
+        "not_SDMR_productA_M5_repromotion":True,
         "Product_B_unblocked":False,
         "result":r,
     }
