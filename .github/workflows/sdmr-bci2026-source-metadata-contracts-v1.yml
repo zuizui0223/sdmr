@@ -1,0 +1,42 @@
+name: BCI Dryad 2026 original source metadata contract tests (no provider)
+
+on:
+  pull_request:
+    paths:
+      - 'configs/bci2026_independent_source_metadata_prefreeze_v1.json'
+      - 'scripts/bci2026_source_provider_metadata_v1.py'
+      - 'tests/test_bci2026_source_provider_metadata_v1.py'
+      - '.github/workflows/sdmr-bci2026-source-metadata-contracts-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata_source_free:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original Dryad version metadata parser and no biological leakage
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_bci2026_source_provider_metadata_v1.py
+      - name: Verify preflight contacts no provider and opens no original tree file
+        run: |
+          python scripts/bci2026_source_provider_metadata_v1.py \
+            --preflight-only \
+            --out artifacts/bci2026_provider_metadata_preflight_v1.json
+          python - <<'PY'
+          import json
+          d=json.load(open('artifacts/bci2026_provider_metadata_preflight_v1.json'))
+          assert d['result']['status']=='preflight_source_unopened'
+          assert d['source_original_files_downloaded']==0
+          assert d['source_biological_rows_opened'] is False
+          assert d['independent_forest_biological_validation_performed'] is False
+          assert d['post2025_exposure_pre2025_survival_leakage_forbidden']
+          assert not d['Product_B_unblocked']
+          PY

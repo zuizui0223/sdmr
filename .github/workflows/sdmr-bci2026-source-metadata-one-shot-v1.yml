@@ -1,0 +1,104 @@
+name: BCI 2026 revised Dryad original source metadata first-open only (one-shot)
+
+# This workflow NEVER downloads mainfile/stemfile/README or opens biological Y.
+# Only the first new exact authorization lock on the dedicated method branch
+# makes one metadata API pass. Future PR updates do not trigger another pass.
+on:
+  push:
+    branches: [method/bci2026-original-source-metadata-gate-20261120]
+    paths:
+      - 'configs/bci2026_provider_metadata_once_v1.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  first_versioned_provider_metadata_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require exact frozen BCI source protocol and source-free code before provider API
+        run: |
+          test "$(git hash-object configs/bci2026_independent_source_metadata_prefreeze_v1.json)" = "512aadfd9b6e76d93786e5cb76dc1e8535863e43"
+          test "$(git hash-object scripts/bci2026_source_provider_metadata_v1.py)" = "f4c8dd9c41881be89a7667928f5f9502af5f2db9"
+          test "$(git hash-object tests/test_bci2026_source_provider_metadata_v1.py)" = "eda6865d6e25faefd72d8c756badac1d6f783029"
+          python - <<'PY'
+          from pathlib import Path
+          lock=Path('configs/bci2026_provider_metadata_once_v1.lock').read_text().splitlines()
+          assert lock==[
+            'program=sdmr_bci2026_dryad_original_metadata_first_version_v1',
+            'doi=10.5061/dryad.1g1jwsvc3',
+            'edition_date=2026-08-31',
+            'role=independent_BCI_original_provider_metadata_no_biological_data',
+            'files=Key_sp6.txt,mainfile.txt,Plot_UTM_coordinates.txt,README.md,stemfile.txt',
+            'version_selection=exact_publication_date_not_latest',
+            'no_download_of_original_main_stem_README_or_species_files=true',
+            'no_auto_retry_or_alternate_editions=true',
+            'no_2014_2025_exposure_as_baseline_survival_predictor=true',
+            'missing_not_observed_death_future_recruit_not_observed_zero=true',
+            'one_island_not_six_independent_ecosystems=true',
+            'M5_ProductA_unchanged_ProductB_blocked=true',
+          ],"metadata only source protocol lock mutated"
+          PY
+      - name: Test source-only Dryad metadata version parsing with synthetic fixtures
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_bci2026_source_provider_metadata_v1.py
+      - name: Source-blind fixed preflight with no metadata API or original tree file
+        run: |
+          python scripts/bci2026_source_provider_metadata_v1.py \
+            --config configs/bci2026_independent_source_metadata_prefreeze_v1.json \
+            --preflight-only \
+            --out artifacts/bci2026_provider_metadata_preflight_v1.json
+      - name: One exact official Dryad versioned dataset and file manifest API read
+        run: |
+          python scripts/bci2026_source_provider_metadata_v1.py \
+            --config configs/bci2026_independent_source_metadata_prefreeze_v1.json \
+            --execute-lock configs/bci2026_provider_metadata_once_v1.lock \
+            --out artifacts/bci2026_provider_metadata_first_v1.json
+      - name: Fail closed, but record provider API STOP as a real source outcome
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/bci2026_provider_metadata_first_v1.json')
+          assert p.is_file() and p.stat().st_size>250
+          d=json.loads(p.read_text())
+          assert d['schema']=='sdmr.bci2026_original_source_provider_metadata_first_receipt.v1'
+          assert not d['preflight']
+          assert d['fixed_doi']=='10.5061/dryad.1g1jwsvc3'
+          assert d['fixed_edition_date']=='2026-08-31'
+          assert not d['source_biological_rows_opened']
+          assert d['source_original_files_downloaded']==0
+          assert d['new_ecological_models_fit']==0
+          assert not d['independent_forest_biological_validation_performed']
+          assert d['post2025_exposure_pre2025_survival_leakage_forbidden']
+          assert not d['Product_B_unblocked']
+          r=d['result']
+          assert r['status'] in {
+            'provider_original_file_manifest_with_published_checksums',
+            'provider_original_file_manifest_missing_checksums_hold',
+            'provider_API_unavailable_STOP',
+            'provider_metadata_integrity_STOP',
+          },r['status']
+          if r['status'].startswith('provider_original_file_manifest_'):
+            assert r['selected_original_version']['publication_date']=='2026-08-31'
+            assert r['original_file_manifest']['n_original_source_files']==5
+            assert r['source_original_byte_SHA256_checked'] is False
+            assert r['biological_tree_response_or_2025_exposure_opened'] is False
+          print('BCI provider metadata-only first disposition:',r['status'])
+          PY
+      - name: Save exact original-version metadata or typed STOP, never field CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-bci2026-original-dryad-metadata-or-stop-v1
+          path: |
+            artifacts/bci2026_provider_metadata_preflight_v1.json
+            artifacts/bci2026_provider_metadata_first_v1.json
+          if-no-files-found: error
+          retention-days: 90

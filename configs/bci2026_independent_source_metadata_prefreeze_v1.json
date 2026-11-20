@@ -1,0 +1,46 @@
+{
+  "schema": "sdmr.bci2026_independent_provider_metadata_gate.v1",
+  "doi": "10.5061/dryad.1g1jwsvc3",
+  "provider": "Dryad / Smithsonian Tropical Research Institute",
+  "exact_api_base": "https://datadryad.org/api/v2",
+  "exact_edition_publication_date": "2026-08-31",
+  "edition_selected_by": "exact_publication_date_and_public_version_number_not_mutable_latest",
+  "expected_original_filenames": [
+    "Key_sp6.txt",
+    "mainfile.txt",
+    "Plot_UTM_coordinates.txt",
+    "README.md",
+    "stemfile.txt"
+  ],
+  "expected_original_file_count": 5,
+  "expected_island": "Barro Colorado Island, Panama",
+  "physical_sites_one_island": true,
+  "census_labels": [
+    2004,
+    2014,
+    2025
+  ],
+  "published_census_measurements_author_reported": 34367,
+  "published_unique_tree_author_reported": 15562,
+  "published_species_author_reported": 222,
+  "sampling_frame_source_only": false,
+  "original_file_sha256_verified": false,
+  "unobserved_forest_biological_data_opened": false,
+  "semantically_protected_fields": {
+    "tree_identity": "plot + tag or unique.id; tag alone is ambiguous across plots",
+    "multiple_stem": "stemfile row identifiers NOT stable across censuses",
+    "status_missing": "not found despite previous presence; NOT observed dead",
+    "status_future_recruit": "not in previous eligible diameter frame; NOT recorded zero",
+    "status_dead": "may include visually found death OR 2025 imputed death after repeated non-detection; not uniformly directly observed death",
+    "exposure": "measured in 2025 only, available among recorded alive; invalid as pre-2025 predictor for 2014→2025 survival",
+    "dbh": "millimeters, not centimeters; missing for not-live/future-recruit cases",
+    "plot_replicates": "6 plots belong to one island forest landscape; not 6 independent biomes",
+    "census_2004": "2004 label primarily measured during 2005; check original date for calendar risk"
+  },
+  "planned_independent_target": "Observation-process identifiable tree-level 2004-to-2014 and 2014-to-2025 status, not a replication of HF453 prior-canopy-CP outcome",
+  "outcome_preadmission": "BLOCKED until full original publisher-file digest and sampling opportunity/attrition is audited and response protocol frozen",
+  "no_original_m5_or_structural_benchmark_promotion": true,
+  "product_A_not_promoted_unchanged": true,
+  "product_B_blocked": true,
+  "evidence_family": "NEW original tropical forest lineage; not method prospective biological test yet"
+}
