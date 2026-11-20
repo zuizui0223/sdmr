@@ -1,0 +1,95 @@
+{
+  "schema": "sdmr.hf453_priorcp_spatial_block_postoutcome_v2",
+  "status": "after_source_only_axis_diagnosis_and_v1_geometry_STOP",
+  "role": "POSTOUTCOME_FIXED_AXIS_CORRECTION_NOT_REPLICATION",
+  "previous_first_Y_run": 44540469560,
+  "previous_priorcov_result_run": 44747246917,
+  "first_priorcov_fixed_logloss_gain": 0.000695237,
+  "sources": {
+    "HF453_sha256": "0b5fd6072fc5a5b5a315dca4609e3023a85430e5e24a96a2cfa3307a0d431e74",
+    "HF453_bytes": 5524386,
+    "HF253_sha256": "bb48448b8a2cd920fcac7df21a352a0c70174652f11d76423b03770a565ce2e7",
+    "HF253_bytes": 12687409
+  },
+  "source_coordinate": {
+    "native_units": "2019_HF253_gx_gy_meters_relative_to_plot_edge",
+    "source_fieldnames": [
+      "stem.tag",
+      "tree.id",
+      "gx",
+      "gy"
+    ],
+    "original_stem_tag_key": "stem.tag",
+    "parent_tree_key": "tree.id",
+    "original_all_matching_stems": 30808,
+    "original_parent_tree_ids": 27688,
+    "source_plot_width_m": 700,
+    "source_plot_height_m": 500,
+    "fixed_source_coordinate_validity": "finite_x_in_0_500_inclusive_and_y_in_0_700_inclusive",
+    "missing_coordinate_codes": [
+      "",
+      "NA"
+    ],
+    "reject_parent_if_any_matched_stem_has_missing_invalid_or_out_of_domain_position": true,
+    "parent_position": "arithmetic_centroid_of_all_matched_2019_stems_in_original_parent",
+    "no_use_of_2022_status_in_block_definition": true,
+    "no_output_original_source_stem_or_parent_position": true
+  },
+  "fold_geometry": {
+    "block_size_m": 100,
+    "block_origin_x_m": 0,
+    "block_origin_y_m": 0,
+    "rectangular_plot_bins_x": 7,
+    "rectangular_plot_bins_y": 5,
+    "max_edge_included_in_final_bin": true,
+    "outer_split": "GroupKFold_5_by_parent_centroid_100m_cells",
+    "comparator_split": "GroupKFold_5_by_parent_tree_id_on_exact_same_spatial_eligible_stems",
+    "never_split_parent_across_train_test": true,
+    "minimum_distinct_source_blocks": 10,
+    "min_fraction_geo_complete_of_original_CV_stems": 0.8
+  },
+  "frozen_model": {
+    "baseline": "species_sp_onehot_2019_plus_log1p_dbh_2019_plus_AU_health_2021",
+    "candidate": "same_baseline_plus_CP_more_exposed_2021",
+    "source_records": "2021_A_AU_and_2022_DC_DS_or_A_AU_only_2019_sp_dbh_complete",
+    "learner": "LogisticRegression_L2_C1_lbfgs_maxiter1000",
+    "parent_weight": "1/n_eligible_stems_in_same_parent",
+    "score_primary": "OOF_equal_parent_logloss_baseline_minus_plus_CP",
+    "score_secondary": "OOF_equal_parent_brier_baseline_minus_plus_CP",
+    "no_data_tuned_blockwidth_or_regularization": true,
+    "no_p_values_or_sampling_CI": true
+  },
+  "output": {
+    "original_stem_census_counts_unchanged": true,
+    "compare_exact_same_spatial_eligible_cohort": true,
+    "report_original_coordinate_missingness_before_outcome": true,
+    "report_excluded_eligible_stems_and_parents": true,
+    "output_only_aggregated_cv_metrics": true,
+    "postoutcome_exploratory": true,
+    "not_cross_forest_validation": true,
+    "not_causal_process_identification": true,
+    "no_original_HF453_primary_result_rewriting": true,
+    "Product_B_unblocked": false,
+    "no_v1_frozen_STOP_reinterpretation": true,
+    "scientific_evidence_status": "second postoutcome exploratory geometry correction after source-only axes"
+  },
+  "source_axis_evidence": {
+    "source_only_run": 44750670871,
+    "original_source_only_terminal": "evidence/hf253_original_xy_axis_source_only_terminal_v1.json",
+    "earlier_coverage_STOP_run": 44749714741,
+    "previous_expected_coverage": 0.8,
+    "previous_actual_coverage": 0.6669576,
+    "original_2019_gx_range": [
+      0.13165,
+      699.94897
+    ],
+    "original_2019_gy_range": [
+      0.01786,
+      499.978
+    ],
+    "original_2019_stems_valid_in_x700_y500": 30808,
+    "original_2019_parents_valid_in_x700_y500": 27688,
+    "external_metadata_check": "https://harvardforest1.fas.harvard.edu/data/plots/hf253-05.pdf",
+    "geometry_correction_is_prior_source_only_not_outcome_selected": true
+  }
+}
