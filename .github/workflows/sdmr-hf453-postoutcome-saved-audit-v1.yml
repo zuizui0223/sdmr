@@ -1,0 +1,56 @@
+name: HF453 postoutcome original aggregate no-refit audit v1
+
+on:
+  pull_request:
+    paths:
+      - 'evidence/hf453_postoutcome_prior_species_size_first_result_v1.json'
+      - 'scripts/audit_hf453_postoutcome_saved_v1.py'
+      - 'tests/test_audit_hf453_postoutcome_saved_v1.py'
+      - '.github/workflows/sdmr-hf453-postoutcome-saved-audit-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  saved_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run original saved-aggregate mutation tests without HF253/HF453 data
+        run: |
+          python -m pip install 'pytest>=8,<10'
+          python -m pytest -q tests/test_audit_hf453_postoutcome_saved_v1.py
+      - name: Reconcile original 30,808 stem source, 5 parent-fold OOF and strict overlap
+        run: |
+          python scripts/audit_hf453_postoutcome_saved_v1.py \
+            --checkpoint evidence/hf453_postoutcome_prior_species_size_first_result_v1.json \
+            --out artifacts/hf453_postoutcome_saved_arithmetic_v1.json
+      - name: Reaffirm original scientific ceiling and no new model
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('artifacts/hf453_postoutcome_saved_arithmetic_v1.json'))
+          assert x['status']=='first_original_aggregate_metric_denominators_reconciled'
+          assert x['n_prior_covariates_complete']==21774
+          assert x['n_parent_cv_scored_stems']==21769
+          assert x['n_parent_cv_test_parents']==19872
+          assert x['strict_strata_eligible_n']==19063
+          assert x['first_source_run']==44747246917
+          assert x['new_original_source_fetches']==0
+          assert x['new_model_fits']==0
+          assert x['new_independent_ecological_replications']==0
+          assert not x['causal_process_identified']
+          assert not x['Product_B_unblocked']
+          PY
+      - name: Archive arithmetic evidence consistency only
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmr-hf453-prior-covariate-aggregate-audit-v1
+          path: artifacts/hf453_postoutcome_saved_arithmetic_v1.json
+          if-no-files-found: error
+          retention-days: 90
